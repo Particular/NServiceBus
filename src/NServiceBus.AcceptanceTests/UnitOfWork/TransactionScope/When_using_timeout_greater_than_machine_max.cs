@@ -2,7 +2,7 @@
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_timeout_greater_than_machine_max : NServiceBusAcceptanceTest

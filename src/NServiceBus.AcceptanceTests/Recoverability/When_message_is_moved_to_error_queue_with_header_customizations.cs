@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_message_is_moved_to_error_queue_with_header_customizations : NServiceBusAcceptanceTest

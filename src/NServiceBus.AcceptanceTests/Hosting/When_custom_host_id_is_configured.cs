@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
     using System.Reflection;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Features;
     using NUnit.Framework;
 

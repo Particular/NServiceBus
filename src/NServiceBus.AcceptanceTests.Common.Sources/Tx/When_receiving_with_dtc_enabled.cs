@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_receiving_with_dtc_enabled : NServiceBusAcceptanceTest

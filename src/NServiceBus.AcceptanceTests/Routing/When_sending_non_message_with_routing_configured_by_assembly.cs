@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_non_message_with_routing_configured_by_assembly : NServiceBusAcceptanceTest

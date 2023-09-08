@@ -4,8 +4,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
     using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
     using Features;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;

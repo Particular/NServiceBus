@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using MessageInterfaces;
     using NServiceBus.Serialization;
     using NUnit.Framework;

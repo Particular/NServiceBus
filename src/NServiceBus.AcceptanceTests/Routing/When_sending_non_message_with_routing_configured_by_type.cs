@@ -2,7 +2,7 @@
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     //All other variants of configuration-time routing checks are covered by unit tests.

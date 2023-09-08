@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest

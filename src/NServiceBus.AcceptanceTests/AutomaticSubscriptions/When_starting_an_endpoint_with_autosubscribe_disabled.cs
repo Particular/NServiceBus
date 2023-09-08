@@ -4,7 +4,7 @@
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;

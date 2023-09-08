@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 

@@ -2,8 +2,8 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_routing_interface_message : NServiceBusAcceptanceTest

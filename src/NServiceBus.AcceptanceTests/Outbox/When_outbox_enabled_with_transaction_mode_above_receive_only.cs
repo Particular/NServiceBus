@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_outbox_enabled_with_transaction_mode_above_receive_only : NServiceBusAcceptanceTest

@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_outbox_enabled_for_send_only : NServiceBusAcceptanceTest

@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_registering_publishers_unobtrusive_messages_config : NServiceBusAcceptanceTest

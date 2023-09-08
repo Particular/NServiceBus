@@ -4,7 +4,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest

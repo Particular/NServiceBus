@@ -3,9 +3,9 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
     using NUnit.Framework;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
 
     public class When_endpoint_is_started : NServiceBusAcceptanceTest
     {

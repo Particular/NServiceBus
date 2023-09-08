@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 

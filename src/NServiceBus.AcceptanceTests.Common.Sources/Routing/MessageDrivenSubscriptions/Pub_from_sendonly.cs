@@ -5,7 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Extensibility;
     using Features;
     using Microsoft.Extensions.DependencyInjection;

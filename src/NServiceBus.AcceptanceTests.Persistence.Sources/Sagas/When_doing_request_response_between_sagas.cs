@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest

@@ -2,7 +2,7 @@
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
 

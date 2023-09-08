@@ -2,8 +2,8 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using AcceptanceTests;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_handling_concurrent_messages : NServiceBusAcceptanceTest

@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.Pipeline
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
     using Particular.Approvals;
 

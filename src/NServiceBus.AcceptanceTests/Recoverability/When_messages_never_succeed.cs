@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_messages_never_succeed : NServiceBusAcceptanceTest

@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
 

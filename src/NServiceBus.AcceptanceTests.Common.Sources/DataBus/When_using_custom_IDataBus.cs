@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.DataBus;
     using NUnit.Framework;

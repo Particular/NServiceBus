@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTesting.EndpointTemplates
 {
-    using Configuration.AdvancedExtensibility;
-    using Transport;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.Configuration.AdvancedExtensibility;
+    using NServiceBus.Transport;
 
     public static class ConfigureExtensions
     {

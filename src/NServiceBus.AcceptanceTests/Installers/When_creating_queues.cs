@@ -5,8 +5,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
     using FakeTransport;
     using Features;
     using NUnit.Framework;

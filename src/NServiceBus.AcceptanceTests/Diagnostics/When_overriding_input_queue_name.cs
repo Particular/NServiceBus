@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using Features;
     using NUnit.Framework;
 

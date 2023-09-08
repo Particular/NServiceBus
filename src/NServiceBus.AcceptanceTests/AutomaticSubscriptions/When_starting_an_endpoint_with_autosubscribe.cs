@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     [TestFixture]

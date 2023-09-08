@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.Persistence;
     using NUnit.Framework;
 

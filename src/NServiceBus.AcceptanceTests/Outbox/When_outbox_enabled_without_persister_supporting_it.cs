@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.Persistence;
     using NUnit.Framework;
 

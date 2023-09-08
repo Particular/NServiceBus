@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_starting_new_conversation_outside_message_handler : NServiceBusAcceptanceTest

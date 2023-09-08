@@ -2,9 +2,9 @@
 {
     using System.Collections.Immutable;
     using System.Threading.Tasks;
+    using AcceptanceTesting.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // assuming W3C trace!

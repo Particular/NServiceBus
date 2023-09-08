@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest

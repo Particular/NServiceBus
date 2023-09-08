@@ -3,8 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest

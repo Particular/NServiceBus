@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.BestPractices
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceTest

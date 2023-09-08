@@ -3,11 +3,11 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
     using Features;
     using MessageMutator;
     using NUnit.Framework;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
 
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {

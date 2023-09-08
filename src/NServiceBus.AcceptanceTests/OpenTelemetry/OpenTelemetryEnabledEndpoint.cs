@@ -2,8 +2,8 @@
 
 using System;
 using System.Threading.Tasks;
+using AcceptanceTesting.EndpointTemplates;
 using AcceptanceTesting.Support;
-using EndpointTemplates;
 
 public class OpenTelemetryEnabledEndpoint : DefaultServer
 {

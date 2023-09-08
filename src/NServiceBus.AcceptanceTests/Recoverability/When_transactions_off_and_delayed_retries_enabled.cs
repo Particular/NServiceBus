@@ -2,7 +2,7 @@
 {
     using System;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_transactions_off_and_delayed_retries_enabled : NServiceBusAcceptanceTest

@@ -3,10 +3,10 @@ namespace NServiceBus.AcceptanceTests.Core.Sagas
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
 
     public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcceptanceTest
     {

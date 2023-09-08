@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcceptanceTest

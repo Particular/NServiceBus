@@ -2,8 +2,8 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using AcceptanceTesting.Support;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     class When_correlation_property_is_null : NServiceBusAcceptanceTest

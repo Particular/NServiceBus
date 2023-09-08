@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_custom_policy_provided : NServiceBusAcceptanceTest

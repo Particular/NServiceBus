@@ -4,8 +4,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using AcceptanceTesting.Support;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTest

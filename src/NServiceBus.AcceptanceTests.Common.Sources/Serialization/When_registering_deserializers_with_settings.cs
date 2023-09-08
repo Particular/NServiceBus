@@ -6,8 +6,8 @@ namespace NServiceBus.AcceptanceTests.Serialization
     using System.Threading.Tasks;
     using System.Xml.Serialization;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
     using MessageInterfaces;
     using NServiceBus.Serialization;
     using NUnit.Framework;

@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest

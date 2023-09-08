@@ -4,8 +4,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.EndpointTemplates;
     using AcceptanceTesting.Support;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     [TestFixture]

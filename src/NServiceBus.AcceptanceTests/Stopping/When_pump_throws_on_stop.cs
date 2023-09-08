@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using FakeTransport;
     using Logging;
     using NUnit.Framework;

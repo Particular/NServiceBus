@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
+﻿namespace NServiceBus.AcceptanceTesting.ScenarioDescriptors
 {
     using System;
 

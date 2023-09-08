@@ -3,8 +3,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.EndpointTemplates;
     using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_configure_routes_for_unobtrusive_messages : NServiceBusAcceptanceTest

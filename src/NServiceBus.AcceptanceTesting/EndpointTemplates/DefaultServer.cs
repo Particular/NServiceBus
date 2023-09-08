@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTesting.EndpointTemplates
 {
     using System;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Support;
 
     public class DefaultServer : ServerWithNoDefaultPersistenceDefinitions
     {

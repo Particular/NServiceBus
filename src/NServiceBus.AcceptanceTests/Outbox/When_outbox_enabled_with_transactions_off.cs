@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Outbox
     using System.Text.Json.Nodes;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_outbox_enabled_with_transactions_off : NServiceBusAcceptanceTest

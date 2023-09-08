@@ -3,7 +3,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
 

@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTesting.EndpointTemplates
 {
     using System;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Customization;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Support;
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {

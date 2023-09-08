@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest

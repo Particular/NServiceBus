@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using EndpointTemplates;
+    using AcceptanceTesting.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_receiving_non_matching_message_with_handler : NServiceBusAcceptanceTest
