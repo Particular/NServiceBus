@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <Description>Acceptance tests for NServiceBus core functionality</Description>
+    <Description>Acceptance tests for NServiceBus persistence functionality</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>

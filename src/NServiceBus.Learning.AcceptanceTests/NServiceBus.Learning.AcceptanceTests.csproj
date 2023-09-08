@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../NServiceBus.AcceptanceTests.Sources/**/*.cs" Exclude="../NServiceBus.AcceptanceTests.Sources/obj/**/*.*" />
+    <Compile Include="../NServiceBus.AcceptanceTests.Common.Sources/**/*.cs" Exclude="../NServiceBus.AcceptanceTests.Common.Sources/obj/**/*.*" />
     <Compile Include="../NServiceBus.AcceptanceTests.Persistence.Sources/**/*.cs" Exclude="../NServiceBus.AcceptanceTests.Persistence.Sources/obj/**/*.*" />
   </ItemGroup>
 
