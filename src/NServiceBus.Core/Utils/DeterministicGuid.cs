@@ -1,6 +1,10 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
+    using System.Buffers;
+    using System.Runtime.CompilerServices;
     using System.Security.Cryptography;
     using System.Text;
 
@@ -8,17 +12,35 @@
     {
         public static Guid Create(string data1, string data2) => Create($"{data1}{data2}");
 
+        [SkipLocalsInit]
         public static Guid Create(string data)
         {
-            // use MD5 hash to get a 16-byte hash of the string
-            var inputBytes = Encoding.Default.GetBytes(data);
+            const int MaxStackLimit = 256;
+            var encoding = Encoding.UTF8;
+            var maxByteCount = encoding.GetMaxByteCount(data.Length);
 
-            Span<byte> hashBytes = stackalloc byte[16];
+            byte[]? sharedBuffer = null;
+            var stringBufferSpan = maxByteCount <= MaxStackLimit ?
+                stackalloc byte[MaxStackLimit] :
+                sharedBuffer = ArrayPool<byte>.Shared.Rent(maxByteCount);
 
-            _ = MD5.HashData(inputBytes, hashBytes);
+            try
+            {
+                var numberOfBytesWritten = encoding.GetBytes(data, stringBufferSpan);
+                Span<byte> hashBytes = stackalloc byte[16];
 
-            // generate a guid from the hash:
-            return new Guid(hashBytes);
+                _ = MD5.HashData(stringBufferSpan[..numberOfBytesWritten], hashBytes);
+
+                // generate a guid from the hash:
+                return new Guid(hashBytes);
+            }
+            finally
+            {
+                if (sharedBuffer != null)
+                {
+                    ArrayPool<byte>.Shared.Return(sharedBuffer, clearArray: true);
+                }
+            }
         }
     }
 }
