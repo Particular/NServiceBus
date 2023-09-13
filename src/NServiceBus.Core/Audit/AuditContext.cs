@@ -16,7 +16,6 @@ namespace NServiceBus
             Message = message;
             AuditAddress = auditAddress;
             TimeToBeReceived = timeToBeReceived;
-            AuditMetadata = new Dictionary<string, string>();
             AuditAction = RouteToAudit.Instance;
         }
 
@@ -26,7 +25,7 @@ namespace NServiceBus
 
         public TimeSpan? TimeToBeReceived { get; }
 
-        public Dictionary<string, string> AuditMetadata { get; }
+        public Dictionary<string, string> AuditMetadata { get; } = new();
 
         IReadOnlyDictionary<string, string> IAuditActionContext.AuditMetadata => AuditMetadata;
 

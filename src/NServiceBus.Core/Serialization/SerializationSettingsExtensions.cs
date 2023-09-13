@@ -16,7 +16,7 @@ namespace NServiceBus
         {
             if (!settings.TryGet(AdditionalSerializersSettingsKey, out List<Tuple<SerializationDefinition, SettingsHolder>> deserializers))
             {
-                deserializers = new List<Tuple<SerializationDefinition, SettingsHolder>>();
+                deserializers = new(2);
                 settings.Set(AdditionalSerializersSettingsKey, deserializers);
             }
             return deserializers;

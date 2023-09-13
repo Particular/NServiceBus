@@ -18,16 +18,14 @@ namespace NServiceBus.Extensibility
         /// </summary>
         protected ExtendableOptions()
         {
-            Context = new ContextBag();
-            OutgoingHeaders = new Dictionary<string, string>();
         }
 
-        internal DispatchProperties DispatchProperties { get; } = new DispatchProperties();
+        internal DispatchProperties DispatchProperties { get; } = new();
 
-        internal ContextBag Context { get; }
+        internal ContextBag Context { get; } = new();
 
         internal string UserDefinedMessageId { get; set; }
 
-        internal Dictionary<string, string> OutgoingHeaders { get; }
+        internal Dictionary<string, string> OutgoingHeaders { get; } = new();
     }
 }

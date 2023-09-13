@@ -2,7 +2,10 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
 
-    class CurrentStaticHeaders : Dictionary<string, string>
+    sealed class CurrentStaticHeaders : Dictionary<string, string>
     {
+        public CurrentStaticHeaders(int capacity) : base(capacity)
+        {
+        }
     }
 }

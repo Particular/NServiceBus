@@ -44,7 +44,7 @@ namespace NServiceBus.Routing
                 {
                     if (!newCache.TryGetValue(instance.Endpoint, out var instanceSet))
                     {
-                        instanceSet = new HashSet<EndpointInstance>();
+                        instanceSet = new(1);
                         newCache[instance.Endpoint] = instanceSet;
                     }
                     instanceSet.Add(instance);

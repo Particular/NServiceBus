@@ -6,13 +6,12 @@ namespace NServiceBus.Features
     {
         internal PrerequisiteStatus()
         {
-            Reasons = new List<string>();
             IsSatisfied = true;
         }
 
         public bool IsSatisfied { get; private set; }
 
-        public List<string> Reasons { get; }
+        public List<string> Reasons { get; } = new();
 
         internal void ReportFailure(string description)
         {

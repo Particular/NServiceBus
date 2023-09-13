@@ -15,7 +15,6 @@
         /// </summary>
         protected Feature()
         {
-            Dependencies = new List<List<string>>();
             Name = GetFeatureName(GetType());
         }
 
@@ -32,7 +31,7 @@
         /// <summary>
         /// The list of features that this feature is depending on.
         /// </summary>
-        internal List<List<string>> Dependencies { get; }
+        internal List<List<string>> Dependencies { get; } = new();
 
         /// <summary>
         /// Tells if this feature is enabled by default.

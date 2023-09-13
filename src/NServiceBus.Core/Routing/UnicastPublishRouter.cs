@@ -69,7 +69,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    groups[subscriber.Endpoint] = new List<string> { subscriber.TransportAddress };
+                    groups[subscriber.Endpoint] = new(10) { subscriber.TransportAddress };
                 }
             }
 

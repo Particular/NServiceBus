@@ -21,7 +21,7 @@
                 var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
                 assemblyScanner = new AssemblyScanner(directoryToScan);
-                availableTypes = new List<Type>();
+                availableTypes = new(1000);
             }
             else
             {

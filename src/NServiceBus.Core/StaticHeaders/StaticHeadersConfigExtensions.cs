@@ -20,7 +20,7 @@ namespace NServiceBus
 
             if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
             {
-                headers = new CurrentStaticHeaders();
+                headers = new(10);
 
                 config.Settings.Set(headers);
             }

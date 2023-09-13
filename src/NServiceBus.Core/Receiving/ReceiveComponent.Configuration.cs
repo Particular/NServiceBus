@@ -73,7 +73,6 @@ namespace NServiceBus
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
                 PipelineCompletedSubscribers = pipelineCompletedSubscribers;
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
-                satelliteDefinitions = new List<SatelliteDefinition>();
                 this.messageHandlerRegistry = messageHandlerRegistry;
                 CreateQueues = createQueues;
                 Conventions = conventions;
@@ -113,7 +112,7 @@ namespace NServiceBus
             internal readonly MessageHandlerRegistry messageHandlerRegistry;
             internal readonly TransportSeam transportSeam;
 
-            readonly List<SatelliteDefinition> satelliteDefinitions;
+            readonly List<SatelliteDefinition> satelliteDefinitions = new();
         }
     }
 }

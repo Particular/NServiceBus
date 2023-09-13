@@ -35,7 +35,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 {
                     if (!newRouteTable.TryGetValue(entry.EventType, out var publishersOfThisEvent))
                     {
-                        publishersOfThisEvent = new HashSet<PublisherAddress>();
+                        publishersOfThisEvent = new(1);
                         newRouteTable[entry.EventType] = publishersOfThisEvent;
                     }
                     publishersOfThisEvent.Add(entry.Address);
@@ -44,8 +44,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             }
         }
 
-        Dictionary<Type, HashSet<PublisherAddress>> publishers = new Dictionary<Type, HashSet<PublisherAddress>>();
-        readonly Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
+        Dictionary<Type, HashSet<PublisherAddress>> publishers = new();
+        readonly Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new();
         readonly object updateLock = new object();
     }
 }

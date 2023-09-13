@@ -16,22 +16,19 @@
         /// </summary>
         public AssemblyScannerResults()
         {
-            Assemblies = new List<Assembly>();
-            Types = new List<Type>();
-            SkippedFiles = new List<SkippedFile>();
         }
 
         /// <summary>
         /// List of successfully found and loaded assemblies.
         /// </summary>
-        public List<Assembly> Assemblies { get; private set; }
+        public List<Assembly> Assemblies { get; private set; } = new();
 
         /// <summary>
         /// List of files that were skipped while scanning because they were a) explicitly excluded
         /// by the user, b) not a .NET DLL, or c) not referencing NSB and thus not capable of implementing
         /// <see cref="IHandleMessages{T}" />.
         /// </summary>
-        public List<SkippedFile> SkippedFiles { get; }
+        public List<SkippedFile> SkippedFiles { get; } = new();
 
         /// <summary>
         /// True if errors where encountered during assembly scanning.
@@ -41,7 +38,7 @@
         /// <summary>
         /// List of types.
         /// </summary>
-        public List<Type> Types { get; private set; }
+        public List<Type> Types { get; private set; } = new();
 
         internal void RemoveDuplicates()
         {

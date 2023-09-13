@@ -24,8 +24,6 @@
             Pipeline = pipelineSettings;
             Routing = routing;
             this.receiveConfiguration = receiveConfiguration;
-
-            TaskControllers = new List<FeatureStartupTaskController>();
         }
 
         /// <summary>
@@ -47,7 +45,7 @@
 
         internal ReceiveComponent.Configuration Receiving => receiveConfiguration ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
-        internal List<FeatureStartupTaskController> TaskControllers { get; }
+        internal List<FeatureStartupTaskController> TaskControllers { get; } = new();
 
         /// <summary>
         /// Adds a new satellite receiver.
