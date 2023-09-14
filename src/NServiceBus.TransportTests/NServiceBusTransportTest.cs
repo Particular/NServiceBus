@@ -51,13 +51,8 @@
 
             var configurerType = Type.GetType(typeName, false) ?? throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable IDE0078 // Use pattern matching (may change code meaning)
-#pragma warning disable IDE0083 // Use pattern matching
-            if (!(Activator.CreateInstance(configurerType) is IConfigureTransportInfrastructure configurer))
-#pragma warning restore IDE0083 // Use pattern matching
-#pragma warning restore IDE0078 // Use pattern matching (may change code meaning)
-#pragma warning restore IDE0079 // Remove unnecessary suppression
+
+            if (Activator.CreateInstance(configurerType) is not IConfigureTransportInfrastructure configurer)
             {
                 throw new InvalidOperationException($"{typeName} does not implement {nameof(IConfigureTransportInfrastructure)}.");
             }
@@ -167,14 +162,7 @@
                 message.Headers.Add(TestIdHeaderName, testId);
             }
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable IDE0074 // Use compound assignment
-            if (transportTransaction == null)
-            {
-                transportTransaction = new TransportTransaction();
-            }
-#pragma warning restore IDE0074 // Use compound assignment
-#pragma warning restore IDE0079 // Remove unnecessary suppression
+            transportTransaction ??= new TransportTransaction();
 
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
 

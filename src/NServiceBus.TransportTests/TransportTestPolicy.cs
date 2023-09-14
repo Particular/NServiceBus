@@ -23,11 +23,6 @@
             Assert.IsEmpty(multiTestClasses, "Each transport test method should be in its own class. The class determines the queue name and can lead to subtle bugs between tests. Offenders:" + string.Join("", multiTestClasses));
         }
 
-        static bool IsTestMethod(MethodInfo method) =>
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable IDE0078 // Use pattern matching
-            method.GetCustomAttributes<NUnitAttribute>().Any(att => att is TestAttribute || att is TestCaseAttribute);
-#pragma warning restore IDE0078 // Use pattern matching
-#pragma warning restore IDE0079 // Remove unnecessary suppression
+        static bool IsTestMethod(MethodInfo method) => method.GetCustomAttributes<NUnitAttribute>().Any(att => att is TestAttribute or TestCaseAttribute);
     }
 }
