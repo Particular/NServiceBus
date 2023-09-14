@@ -32,7 +32,7 @@
         {
             public Context()
             {
-                EventsSubscribedTo = new List<Type>();
+                EventsSubscribedTo = [];
             }
 
             public List<Type> EventsSubscribedTo { get; }

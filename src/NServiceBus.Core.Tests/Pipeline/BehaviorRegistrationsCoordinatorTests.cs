@@ -17,8 +17,8 @@
         [SetUp]
         public void Setup()
         {
-            replacements = new List<ReplaceStep>();
-            addOrReplacements = new List<RegisterOrReplaceStep>();
+            replacements = [];
+            addOrReplacements = [];
 
             coordinator = new StepRegistrationsCoordinator(replacements, addOrReplacements);
         }

@@ -53,7 +53,7 @@
         {
             if (!endpointConfiguration.Settings.TryGet<List<Func<IServiceProvider, FeatureStartupTask>>>(FeatureStartupTaskRunner.ConfigKey, out var startupTasks))
             {
-                startupTasks = new List<Func<IServiceProvider, FeatureStartupTask>>();
+                startupTasks = [];
                 endpointConfiguration.Settings.Set(FeatureStartupTaskRunner.ConfigKey, startupTasks);
             }
 

@@ -16,7 +16,7 @@ namespace NServiceBus
             Message = message;
             AuditAddress = auditAddress;
             TimeToBeReceived = timeToBeReceived;
-            AuditMetadata = new Dictionary<string, string>();
+            AuditMetadata = [];
             AuditAction = RouteToAudit.Instance;
         }
 

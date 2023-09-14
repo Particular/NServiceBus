@@ -31,7 +31,7 @@
             configurer = null;
             testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
             receiver = null;
-            registrations = new List<CancellationTokenRegistration>();
+            registrations = [];
         }
         protected static IConfigureTransportInfrastructure CreateConfigurer()
         {

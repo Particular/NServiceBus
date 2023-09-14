@@ -16,9 +16,9 @@
         /// </summary>
         public AssemblyScannerResults()
         {
-            Assemblies = new List<Assembly>();
-            Types = new List<Type>();
-            SkippedFiles = new List<SkippedFile>();
+            Assemblies = [];
+            Types = [];
+            SkippedFiles = [];
         }
 
         /// <summary>

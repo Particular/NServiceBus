@@ -6,7 +6,7 @@ namespace NServiceBus.Features
     {
         internal PrerequisiteStatus()
         {
-            Reasons = new List<string>();
+            Reasons = [];
             IsSatisfied = true;
         }
 
