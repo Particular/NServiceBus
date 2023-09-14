@@ -1186,10 +1186,8 @@ public class SagaStep3 : SagaStartMessage
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 
-#if ROSLYN4
     public class SagaAnalyzerTestsCSharp10 : SagaAnalyzerTestsCSharp9
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
     }
-#endif
 }

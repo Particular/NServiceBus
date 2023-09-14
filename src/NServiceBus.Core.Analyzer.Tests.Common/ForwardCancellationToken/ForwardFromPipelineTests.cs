@@ -150,10 +150,8 @@ public class TestTimeout {}";
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 
-#if ROSLYN4
     public class ForwardFromPipelineTestsCSharp10 : ForwardFromPipelineTestsCSharp9
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
     }
-#endif
 }

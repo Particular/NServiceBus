@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <DefineConstants>$(DefineConstants);ROSLYN4</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
