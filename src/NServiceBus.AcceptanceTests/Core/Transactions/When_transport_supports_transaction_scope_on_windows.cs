@@ -10,7 +10,7 @@
     public class When_transport_supports_transaction_scope_on_windows : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_enable_dtc()
+        public async Task Should_support_dtc()
         {
             if (!OperatingSystem.IsWindows())
             {

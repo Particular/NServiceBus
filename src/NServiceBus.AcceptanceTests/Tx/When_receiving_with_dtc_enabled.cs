@@ -28,8 +28,8 @@
         {
             if (OperatingSystem.IsWindows())
             {
-                // This test only work on Windows
                 TransactionManager.ImplicitDistributedTransactions = true;
+
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);

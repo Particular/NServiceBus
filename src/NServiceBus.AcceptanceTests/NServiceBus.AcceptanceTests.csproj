@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
-    <RemoveSourceFileFromPackage Remove="Core\Transactions\When_transport_supports_transaction_scope_on_windows.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 

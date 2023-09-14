@@ -115,7 +115,6 @@
 
             transport.TransportTransactionMode = transactionMode;
 
-
             transportInfrastructure = await configurer.Configure(transport, hostSettings, new QueueAddress(InputQueueName), ErrorQueueName, cancellationToken);
 
             receiver = transportInfrastructure.Receivers.Single().Value;

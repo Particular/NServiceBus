@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.AcceptanceTests.Tx;
     using Transport;
 
     public class FakeTransport : TransportDefinition
@@ -23,12 +24,10 @@
 
             try
             {
-                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    FakePromotableResourceManager.ForceDtc();
+                using var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled);
 
-                    DtcIsAvailable = true;
-                }
+                FakePromotableResourceManager.ForceDtc();
+                DtcIsAvailable = true;
             }
             catch (Exception ex)
             {
@@ -80,17 +79,7 @@
         public Action<(QueueAddress[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
 
         public bool DtcIsAvailable { get; set; }
+
         public Exception DtcCheckException { get; private set; }
-
-        class FakePromotableResourceManager : IEnlistmentNotification
-        {
-            public static readonly Guid Id = Guid.NewGuid();
-            public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
-            public void Commit(Enlistment enlistment) => enlistment.Done();
-            public void Rollback(Enlistment enlistment) => enlistment.Done();
-            public void InDoubt(Enlistment enlistment) => enlistment.Done();
-
-            public static void ForceDtc() => Transaction.Current.EnlistDurable(Id, new FakePromotableResourceManager(), EnlistmentOptions.None);
-        }
     }
 }
