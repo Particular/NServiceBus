@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Microsoft.Extensions.DependencyInjection;
     using Settings;
     using Transport;
@@ -33,6 +34,11 @@
 
         public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
         {
+            if (OperatingSystem.IsWindows() && TransportDefinition.TransportTransactionMode == TransportTransactionMode.TransactionScope)
+            {
+                TransactionManager.ImplicitDistributedTransactions = true;
+            }
+
             TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), cancellationToken)
                 .ConfigureAwait(false);
 

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
-    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -27,7 +26,6 @@
         [Test]
         public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
         {
-
             if (OperatingSystem.IsWindows())
             {
                 // This test only work on Windows

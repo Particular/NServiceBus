@@ -30,7 +30,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(fakeTransport.DtcIsAvailable, fakeTransport.DtcCheckException.Message);
+            Assert.True(fakeTransport.DtcIsAvailable, fakeTransport.DtcCheckException?.Message);
         }
 
         public class TransactionScopeEndpoint : EndpointConfigurationBuilder
