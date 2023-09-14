@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Transport;
 
     public class FakeTransport : TransportDefinition
@@ -19,6 +20,21 @@
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
             StartupSequence.Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
+
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    FakePromotableResourceManager.ForceDtc();
+
+                    DtcIsAvailable = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                DtcIsAvailable = false;
+                DtcCheckException = ex;
+            }
 
             var infrastructure = new FakeTransportInfrastructure(StartupSequence, hostSettings, receivers, this);
 
@@ -62,5 +78,19 @@
         }
 
         public Action<(QueueAddress[] receivingAddresses, string[] sendingAddresses, bool setupInfrastructure)> OnTransportInitialize { get; set; } = _ => { };
+
+        public bool DtcIsAvailable { get; set; }
+        public Exception DtcCheckException { get; private set; }
+
+        class FakePromotableResourceManager : IEnlistmentNotification
+        {
+            public static readonly Guid Id = Guid.NewGuid();
+            public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
+            public void Commit(Enlistment enlistment) => enlistment.Done();
+            public void Rollback(Enlistment enlistment) => enlistment.Done();
+            public void InDoubt(Enlistment enlistment) => enlistment.Done();
+
+            public static void ForceDtc() => Transaction.Current.EnlistDurable(Id, new FakePromotableResourceManager(), EnlistmentOptions.None);
+        }
     }
 }
