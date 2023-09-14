@@ -73,7 +73,10 @@
             testCancellationTokenSource.Dispose();
         }
 
-        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode, Action<string, Exception, CancellationToken> onCriticalError = null, CancellationToken cancellationToken = default)
+        protected async Task StartPump(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode,
+            Action<string, Exception, CancellationToken> onCriticalError = null,
+            PushRuntimeSettings pushRuntimeSettings = null,
+            CancellationToken cancellationToken = default)
         {
             onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
             onError = onError ?? throw new ArgumentNullException(nameof(onError));
@@ -115,7 +118,7 @@
             receiver = transportInfrastructure.Receivers.Single().Value;
 
             await receiver.Initialize(
-                new PushRuntimeSettings(8),
+                pushRuntimeSettings ?? new PushRuntimeSettings(8),
                 (context, token) =>
                     context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, token) : Task.CompletedTask,
                 (context, token) =>
@@ -230,6 +233,8 @@
 
             return testName;
         }
+
+        public CancellationToken TestTimeoutCancellationToken => testCancellationTokenSource.Token;
 
         protected string InputQueueName;
         protected string ErrorQueueName;
