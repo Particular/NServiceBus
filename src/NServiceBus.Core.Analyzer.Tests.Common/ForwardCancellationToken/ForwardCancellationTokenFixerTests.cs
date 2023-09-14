@@ -55,7 +55,7 @@ public class Foo
     public Task Bar(IMessageHandlerContext context)
     {
         var someReturnValue = ""someValue"";
-        return 
+        return
              Include(() => someReturnValue)
             .Include(() => someReturnValue)
             .FindSingle();
@@ -76,7 +76,7 @@ public class Foo
     public Task Bar(IMessageHandlerContext context)
     {
         var someReturnValue = ""someValue"";
-        return 
+        return
              Include(() => someReturnValue)
             .Include(() => someReturnValue)
             .FindSingle(context.CancellationToken);
@@ -329,10 +329,8 @@ public class Foo
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 
-#if ROSLYN4
     public class ForwardCancellationTokenFixerTestsCSharp10 : ForwardCancellationTokenFixerTestsCSharp9
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
     }
-#endif
 }

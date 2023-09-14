@@ -253,10 +253,8 @@ class Foo
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 
-#if ROSLYN4
     public class AwaitOrCaptureTasksAnalyzerTestsCSharp10 : AwaitOrCaptureTasksAnalyzerTestsCSharp9
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
     }
-#endif
 }

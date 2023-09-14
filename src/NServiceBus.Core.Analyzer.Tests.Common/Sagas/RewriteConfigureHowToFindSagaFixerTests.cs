@@ -631,10 +631,8 @@ public class Notification
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
     }
 
-#if ROSLYN4
     public class RewriteConfigureHowToFindSagaFixerTestsCSharp10 : RewriteConfigureHowToFindSagaFixerTestsCSharp9
     {
         protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
     }
-#endif
 }

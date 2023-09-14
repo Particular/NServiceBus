@@ -8,17 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.7.23375.6" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0-preview.7.23375.6" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0-preview.7.23375.6" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.7.23375.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-rc.1.23419.4" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
     <PackageReference Include="Fody" Version="6.8.0" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="5.1.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="6.0.0-alpha.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
     <PackageReference Include="FastExpressionCompiler.Internal.src" Version="3.3.4" PrivateAssets="All" />

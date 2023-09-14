@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <DefineConstants>$(DefineConstants);ROSLYN4</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0-2.final" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0-1.final" />
   </ItemGroup>
 
   <ItemGroup>
