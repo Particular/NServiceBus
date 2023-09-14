@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Logging;
     using NUnit.Framework;
     using Routing;
@@ -106,6 +107,12 @@
             var transport = configurer.CreateTransportDefinition();
 
             IgnoreUnsupportedTransactionModes(transport, transactionMode);
+
+            if (OperatingSystem.IsWindows() && transactionMode == TransportTransactionMode.TransactionScope)
+            {
+                TransactionManager.ImplicitDistributedTransactions = true;
+            }
+
             transport.TransportTransactionMode = transactionMode;
 
             transportInfrastructure = await configurer.Configure(transport, hostSettings, new QueueAddress(InputQueueName), ErrorQueueName, cancellationToken);
