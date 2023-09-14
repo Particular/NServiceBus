@@ -15,7 +15,7 @@
         /// </summary>
         protected Feature()
         {
-            Dependencies = new List<List<string>>();
+            Dependencies = [];
             Name = GetFeatureName(GetType());
         }
 

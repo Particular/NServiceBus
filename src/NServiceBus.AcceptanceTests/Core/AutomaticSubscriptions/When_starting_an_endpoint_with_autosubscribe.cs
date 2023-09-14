@@ -32,7 +32,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
         {
             public Context()
             {
-                EventsSubscribedTo = new List<string>();
+                EventsSubscribedTo = [];
             }
 
             public List<string> EventsSubscribedTo { get; }

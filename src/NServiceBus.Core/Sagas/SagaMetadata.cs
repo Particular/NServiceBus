@@ -48,14 +48,14 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 }
             }
 
-            associatedMessages = new Dictionary<string, SagaMessage>();
+            associatedMessages = [];
 
             foreach (var sagaMessage in messages)
             {
                 associatedMessages[sagaMessage.MessageTypeName] = sagaMessage;
             }
 
-            sagaFinders = new Dictionary<string, SagaFinderDefinition>();
+            sagaFinders = [];
 
             foreach (var finder in finders)
             {

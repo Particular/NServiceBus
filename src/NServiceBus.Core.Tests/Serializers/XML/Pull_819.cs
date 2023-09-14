@@ -18,7 +18,7 @@
 #pragma warning disable DE0006
                 m3.List = new ArrayList();
 #pragma warning restore DE0006
-                m3.GenericList = new List<string>();
+                m3.GenericList = [];
             });
 
             Assert.AreEqual("John", result.FirstName);

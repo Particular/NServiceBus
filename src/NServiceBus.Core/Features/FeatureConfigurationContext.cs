@@ -25,7 +25,7 @@
             Routing = routing;
             this.receiveConfiguration = receiveConfiguration;
 
-            TaskControllers = new List<FeatureStartupTaskController>();
+            TaskControllers = [];
         }
 
         /// <summary>

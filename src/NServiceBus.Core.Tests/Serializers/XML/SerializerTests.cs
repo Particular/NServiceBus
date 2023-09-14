@@ -716,7 +716,7 @@ namespace NServiceBus.Serializers.XML.Test
                 Accuracy = 0.314M
             };
 
-            o.Names = new List<IFirstSerializableMessage>();
+            o.Names = [];
             for (var i = 0; i < number; i++)
             {
                 var firstMessage = mapper.CreateInstance<IFirstSerializableMessage>();
@@ -822,13 +822,13 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithList>();
             var msg = mapper.CreateInstance<MessageWithList>();
 
-            msg.Items = new List<MessageWithListItem>
-            {
+            msg.Items =
+            [
                 new MessageWithListItem
                 {
                     Data = "Hello"
                 }
-            };
+            ];
 
             using (var stream = new MemoryStream())
             {
@@ -848,13 +848,13 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
 
-            msg.Items = new AlternateItemList
-            {
+            msg.Items =
+            [
                 new MessageWithListItemAlternate
                 {
                     Data = "Hello"
                 }
-            };
+            ];
 
             using (var stream = new MemoryStream())
             {
@@ -874,13 +874,13 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
 
-            msg.Items = new AlternateItemListMultipleIEnumerableImplementations
-            {
+            msg.Items =
+            [
                 new MessageWithListItemAlternate
                 {
                     Data = "Hello"
                 }
-            };
+            ];
 
             using (var stream = new MemoryStream())
             {
@@ -900,13 +900,13 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
 
-            msg.Items = new AlternateItemListMultipleIListImplementations
-            {
+            msg.Items =
+            [
                 new MessageWithListItemAlternate
                 {
                     Data = "Hello"
                 }
-            };
+            ];
 
             using (var stream = new MemoryStream())
             {
@@ -926,13 +926,13 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithClosedList>();
             var msg = mapper.CreateInstance<MessageWithClosedList>();
 
-            msg.Items = new ItemList
-            {
+            msg.Items =
+            [
                 new MessageWithListItem
                 {
                     Data = "Hello"
                 }
-            };
+            ];
 
             using (var stream = new MemoryStream())
             {
@@ -952,7 +952,7 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithList>();
             var msg = mapper.CreateInstance<MessageWithList>();
 
-            msg.Items = new List<MessageWithListItem>();
+            msg.Items = [];
 
             using (var stream = new MemoryStream())
             {

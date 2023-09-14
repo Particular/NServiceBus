@@ -73,7 +73,7 @@ namespace NServiceBus
                 IsSendOnlyEndpoint = isSendOnlyEndpoint;
                 PipelineCompletedSubscribers = pipelineCompletedSubscribers;
                 ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
-                satelliteDefinitions = new List<SatelliteDefinition>();
+                satelliteDefinitions = [];
                 this.messageHandlerRegistry = messageHandlerRegistry;
                 CreateQueues = createQueues;
                 Conventions = conventions;

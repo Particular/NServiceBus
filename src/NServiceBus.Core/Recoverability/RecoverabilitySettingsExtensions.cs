@@ -26,7 +26,7 @@
 
             if (!settings.TryGet(RecoverabilityComponent.UnrecoverableExceptions, out HashSet<Type> unrecoverableExceptions))
             {
-                unrecoverableExceptions = new HashSet<Type>();
+                unrecoverableExceptions = [];
                 settings.Set(RecoverabilityComponent.UnrecoverableExceptions, unrecoverableExceptions);
             }
 

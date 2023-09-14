@@ -13,7 +13,7 @@
 
             if (!context.Extensions.TryGet(out DispatchProperties dispatchProperties))
             {
-                dispatchProperties = new DispatchProperties();
+                dispatchProperties = [];
             }
 
             var transportOperation = new TransportOperation(message, addressLabel, dispatchProperties, dispatchConsistency);

@@ -60,7 +60,7 @@
         {
             if (!Settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
             {
-                definitions = new List<EnabledPersistence>();
+                definitions = [];
                 Settings.Set("PersistenceDefinitions", definitions);
             }
 

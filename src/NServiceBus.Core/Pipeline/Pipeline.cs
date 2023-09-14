@@ -29,7 +29,7 @@
             List<Expression> expressions = null;
             if (Logger.IsDebugEnabled)
             {
-                expressions = new List<Expression>();
+                expressions = [];
             }
 
             pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>(expressions);

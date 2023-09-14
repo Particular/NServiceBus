@@ -11,7 +11,7 @@
         public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder)
         {
             EndpointBuilder = endpointBuilder;
-            CustomConfig = new List<Action<EndpointConfiguration, ScenarioContext>>();
+            CustomConfig = [];
             ConfigureHowToCreateInstance(config => Endpoint.Create(config), startable => startable.Start());
         }
 

@@ -35,7 +35,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 {
                     if (!newRouteTable.TryGetValue(entry.EventType, out var publishersOfThisEvent))
                     {
-                        publishersOfThisEvent = new HashSet<PublisherAddress>();
+                        publishersOfThisEvent = [];
                         newRouteTable[entry.EventType] = publishersOfThisEvent;
                     }
                     publishersOfThisEvent.Add(entry.Address);
