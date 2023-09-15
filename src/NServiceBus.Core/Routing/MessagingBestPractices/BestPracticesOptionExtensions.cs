@@ -18,9 +18,9 @@
         }
 
         /// <summary>
-        /// Returns whether <see cref="DoNotEnforceBestPractices(ExtendableOptions)" /> has ben called or not.
+        /// Returns whether <see cref="DoNotEnforceBestPractices(ExtendableOptions)" /> has been called or not.
         /// </summary>
-        /// <returns><c>true</c> if best practice enforcement has ben disabled, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if best practice enforcement has been disabled, <c>false</c> otherwise.</returns>
         public static bool IgnoredBestPractices(this ExtendableOptions options)
         {
             Guard.ThrowIfNull(options);
