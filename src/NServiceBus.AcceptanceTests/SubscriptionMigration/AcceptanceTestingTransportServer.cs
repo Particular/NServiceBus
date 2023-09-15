@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting;
     using NServiceBus.Hosting.Helpers;
 
     class AcceptanceTestingTransportServer : IEndpointSetupTemplate

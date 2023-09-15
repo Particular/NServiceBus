@@ -17,13 +17,4 @@
     <PackageReference Include="Particular.Approvals" Version="0.5.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\NServiceBus.AcceptanceTests.Common.Sources\ConfigureEndpointAcceptanceTestingPersistence.cs">
-      <Link>ConfigureEndpointAcceptanceTestingPersistence.cs</Link>
-    </Compile>
-    <Compile Include="..\NServiceBus.AcceptanceTests.Persistence.Sources\ConfigureEndpointAcceptanceTestingTransport.cs">
-      <Link>ConfigureEndpointAcceptanceTestingTransport.cs</Link>
-    </Compile>
-  </ItemGroup>
-
 </Project>
