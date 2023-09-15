@@ -5,6 +5,7 @@
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Extensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Sagas;
@@ -47,6 +48,11 @@
     {
         public PersistenceTestsConfiguration(TestVariant variant)
         {
+            if (OperatingSystem.IsWindows() && SupportsDtc)
+            {
+                TransactionManager.ImplicitDistributedTransactions = true;
+            }
+
             SessionTimeout = variant.SessionTimeout;
             Variant = variant;
         }
