@@ -34,9 +34,6 @@ public class When_multiple_messages_are_available : NServiceBusTransportTest
             await SendMessage(InputQueueName);
         }
 
-        TestContext.WriteLine("before assertion");
-
-        TestContext.WriteLine($"before await {DateTime.UtcNow:F}");
         // we need to wait because it might take a bit till the pump has invoked all pipelines?
         while (onMessageCalls.Count < concurrencyLevel)
         {
