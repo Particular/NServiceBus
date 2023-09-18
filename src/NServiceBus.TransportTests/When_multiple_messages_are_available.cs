@@ -13,7 +13,7 @@ public class When_multiple_messages_are_available : NServiceBusTransportTest
     [TestCase(TransportTransactionMode.ReceiveOnly)]
     [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
     [TestCase(TransportTransactionMode.TransactionScope)]
-    public async Task Should_invoke_on_message_in_parallel(TransportTransactionMode transactionMode)
+    public async Task Should_handle_messages_concurrently(TransportTransactionMode transactionMode)
     {
         const int concurrencyLevel = 10;
         var onMessageCalls = new ConcurrentQueue<TaskCompletionSource>();
