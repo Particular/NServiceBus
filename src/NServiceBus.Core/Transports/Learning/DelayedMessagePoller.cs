@@ -42,31 +42,35 @@
         {
             polling = new CancellationTokenSource();
 
-            _ = Task.Run(async () =>
-              {
-                  while (!polling.Token.IsCancellationRequested)
-                  {
-                      try
-                      {
-                          await Task.Delay(TimeSpan.FromSeconds(1), polling.Token).ConfigureAwait(false);
-                      }
-                      catch (Exception ex) when (ex.IsCausedBy(polling.Token))
-                      {
-                          // private token, poller is being stopped, log the exception in case the stack trace is ever needed for debugging
-                          Logger.Debug("Operation canceled while stopping delayed message polling.", ex);
-                          break;
-                      }
+            _ = PollForDelayedMessages(polling.Token);
+        }
 
-                      try
-                      {
-                          MoveDelayedMessagesToMainDirectory();
-                      }
-                      catch (Exception ex)
-                      {
-                          Logger.Error("Unable to move expired messages to main input queue.", ex);
-                      }
-                  }
-              });
+        async Task PollForDelayedMessages(CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+                {
+                    // private token, poller is being stopped, log the exception in case the stack trace is ever needed for debugging
+                    Logger.Debug("Operation canceled while stopping delayed message polling.", ex);
+                    break;
+                }
+
+                try
+                {
+                    MoveDelayedMessagesToMainDirectory();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Unable to move expired messages to main input queue.", ex);
+                }
+            }
         }
 
         public void Stop()
