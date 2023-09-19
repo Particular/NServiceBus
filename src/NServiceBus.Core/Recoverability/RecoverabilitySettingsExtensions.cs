@@ -16,8 +16,8 @@
         /// <param name="exceptionType">The exception type.</param>
         public static void AddUnrecoverableException(this SettingsHolder settings, Type exceptionType)
         {
-            Guard.ThrowIfNull(settings);
-            Guard.ThrowIfNull(exceptionType);
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(exceptionType);
 
             if (!typeof(Exception).IsAssignableFrom(exceptionType))
             {

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Configuration extensions for routing feature settings.
     /// </summary>
@@ -12,7 +14,7 @@
         /// <param name="address">The public return address for messages sent by this endpoint.</param>
         public static void OverridePublicReturnAddress(this EndpointConfiguration configuration, string address)
         {
-            Guard.ThrowIfNullOrEmpty(address);
+            ArgumentException.ThrowIfNullOrWhiteSpace(address);
             configuration.Settings.Get<RoutingComponent.Settings>().PublicReturnAddress = address;
         }
     }

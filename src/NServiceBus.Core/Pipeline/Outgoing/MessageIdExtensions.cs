@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Extensibility;
 
     /// <summary>
@@ -14,7 +15,7 @@
         /// <param name="messageId">The message id to use.</param>
         public static void SetMessageId(this ExtendableOptions options, string messageId)
         {
-            Guard.ThrowIfNullOrEmpty(messageId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
 
             options.UserDefinedMessageId = messageId;
         }
@@ -26,7 +27,7 @@
         /// <returns>The message id if configured or <c>null</c>.</returns>
         public static string GetMessageId(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
             return options.UserDefinedMessageId;
         }
     }

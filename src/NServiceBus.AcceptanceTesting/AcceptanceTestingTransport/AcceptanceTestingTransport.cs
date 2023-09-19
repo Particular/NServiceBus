@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -16,7 +17,7 @@
 
         public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(hostSettings);
+            ArgumentNullException.ThrowIfNull(hostSettings);
 
             var infrastructure = new AcceptanceTestingTransportInfrastructure(hostSettings, this, receivers);
             infrastructure.ConfigureDispatcher();
@@ -42,7 +43,7 @@
             get => storageLocation;
             set
             {
-                Guard.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
                 PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
                 storageLocation = value;
             }

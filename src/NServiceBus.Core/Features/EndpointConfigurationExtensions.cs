@@ -14,7 +14,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static void EnableFeature<T>(this EndpointConfiguration config) where T : Feature
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             config.EnableFeature(typeof(T));
         }
 
@@ -25,8 +25,8 @@
         /// <param name="featureType">The feature to enable.</param>
         public static void EnableFeature(this EndpointConfiguration config, Type featureType)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(featureType);
 
             config.Settings.EnableFeature(featureType);
         }
@@ -37,7 +37,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static void DisableFeature<T>(this EndpointConfiguration config) where T : Feature
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             config.DisableFeature(typeof(T));
         }
 
@@ -48,8 +48,8 @@
         /// <param name="featureType">The feature to disable.</param>
         public static void DisableFeature(this EndpointConfiguration config, Type featureType)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(featureType);
 
             config.Settings.DisableFeature(featureType);
         }

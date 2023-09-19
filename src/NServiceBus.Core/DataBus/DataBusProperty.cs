@@ -40,7 +40,7 @@
         /// <exception cref="SecurityException">The caller does not have the required permission. </exception>
         protected DataBusProperty(SerializationInfo info, StreamingContext context)
         {
-            Guard.ThrowIfNull(info);
+            ArgumentNullException.ThrowIfNull(info);
             Key = info.GetString("Key");
             HasValue = info.GetBoolean("HasValue");
         }
@@ -95,7 +95,7 @@
         /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.ThrowIfNull(info);
+            ArgumentNullException.ThrowIfNull(info);
             info.AddValue("Key", Key);
             info.AddValue("HasValue", HasValue);
         }

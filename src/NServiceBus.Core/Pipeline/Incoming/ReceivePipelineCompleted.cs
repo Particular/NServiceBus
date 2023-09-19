@@ -13,9 +13,9 @@ namespace NServiceBus
         /// </summary>
         public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTimeOffset startedAt, DateTimeOffset completedAt)
         {
-            Guard.ThrowIfNull(processedMessage);
-            Guard.ThrowIfNull(startedAt);
-            Guard.ThrowIfNull(completedAt);
+            ArgumentNullException.ThrowIfNull(processedMessage);
+            ArgumentNullException.ThrowIfNull(startedAt);
+            ArgumentNullException.ThrowIfNull(completedAt);
 
             ProcessedMessage = processedMessage;
             StartedAt = startedAt;

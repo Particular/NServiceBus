@@ -13,8 +13,8 @@
         /// </summary>
         public static void CustomConversationIdStrategy(this EndpointConfiguration endpointConfiguration, Func<ConversationIdStrategyContext, ConversationId> customStrategy)
         {
-            Guard.ThrowIfNull(endpointConfiguration);
-            Guard.ThrowIfNull(customStrategy);
+            ArgumentNullException.ThrowIfNull(endpointConfiguration);
+            ArgumentNullException.ThrowIfNull(customStrategy);
 
             endpointConfiguration.Settings.Set("CustomConversationIdStrategy", customStrategy);
         }

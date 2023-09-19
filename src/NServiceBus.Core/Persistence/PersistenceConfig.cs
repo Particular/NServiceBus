@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static PersistenceExtensions<T> UsePersistence<T>(this EndpointConfiguration config) where T : PersistenceDefinition
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
             var extensions = Activator.CreateInstance(type, config.Settings)!;
             return (PersistenceExtensions<T>)extensions;
@@ -32,7 +32,7 @@ namespace NServiceBus
         public static PersistenceExtensions<T, S> UsePersistence<T, S>(this EndpointConfiguration config) where T : PersistenceDefinition
             where S : StorageType
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
             var extensions = Activator.CreateInstance(type, config.Settings)!;
             return (PersistenceExtensions<T, S>)extensions;
@@ -45,8 +45,8 @@ namespace NServiceBus
         /// <param name="definitionType">The persistence definition eg <see cref="LearningPersistence" />, NHibernate etc.</param>
         public static PersistenceExtensions UsePersistence(this EndpointConfiguration config, Type definitionType)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(definitionType);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(definitionType);
             return new PersistenceExtensions(definitionType, config.Settings, null);
         }
     }

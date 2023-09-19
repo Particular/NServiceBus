@@ -27,8 +27,8 @@
         /// <param name="destination">The destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
-            Guard.ThrowIfNull(messageType);
-            Guard.ThrowIfNullOrEmpty(destination);
+            ArgumentNullException.ThrowIfNull(messageType);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
             ThrowOnAddress(destination);
 
             Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
@@ -41,8 +41,8 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
-            Guard.ThrowIfNull(assembly);
-            Guard.ThrowIfNullOrEmpty(destination);
+            ArgumentNullException.ThrowIfNull(assembly);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
 
             ThrowOnAddress(destination);
 
@@ -57,8 +57,8 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
         {
-            Guard.ThrowIfNull(assembly);
-            Guard.ThrowIfNullOrEmpty(destination);
+            ArgumentNullException.ThrowIfNull(assembly);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
 
             ThrowOnAddress(destination);
 

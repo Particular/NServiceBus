@@ -16,8 +16,8 @@ namespace NServiceBus
 
         internal CorrelatedSagaPropertyMapper(SagaPropertyMapper<TSagaData> sagaPropertyMapper, Expression<Func<TSagaData, object?>> sagaProperty)
         {
-            Guard.ThrowIfNull(sagaPropertyMapper);
-            Guard.ThrowIfNull(sagaProperty);
+            ArgumentNullException.ThrowIfNull(sagaPropertyMapper);
+            ArgumentNullException.ThrowIfNull(sagaProperty);
             this.sagaPropertyMapper = sagaPropertyMapper;
             this.sagaProperty = sagaProperty;
         }

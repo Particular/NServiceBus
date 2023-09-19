@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Installation;
 
     /// <summary>
@@ -14,7 +15,7 @@ namespace NServiceBus
         /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install" />.</param>
         public static void EnableInstallers(this EndpointConfiguration config, string username = null)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             if (username != null)
             {
                 config.Settings.Set("Installers.UserName", username);

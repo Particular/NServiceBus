@@ -17,7 +17,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             var definition = (T)Activator.CreateInstance(typeof(T));
 
             return UseSerialization(config, definition);
@@ -31,8 +31,8 @@
         /// <param name="serializationDefinition">An instance of serialization definition.</param>
         public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(serializationDefinition);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(serializationDefinition);
 
             var settings = new SettingsHolder();
             config.Settings.SetMainSerializer(serializationDefinition, settings);
@@ -46,7 +46,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             var definition = (T)Activator.CreateInstance(typeof(T));
 
             return AddDeserializer(config, definition);
@@ -60,8 +60,8 @@
         /// <param name="serializationDefinition">An instance of serialization definition.</param>
         public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(serializationDefinition);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(serializationDefinition);
 
             var additionalSerializers = config.GetSettings().GetAdditionalSerializers();
 

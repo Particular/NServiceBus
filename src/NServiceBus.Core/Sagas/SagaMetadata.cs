@@ -113,7 +113,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// </summary>
         public bool IsMessageAllowedToStartTheSaga(string messageType)
         {
-            Guard.ThrowIfNull(messageType);
+            ArgumentNullException.ThrowIfNull(messageType);
             if (!associatedMessages.TryGetValue(messageType, out var sagaMessage))
             {
                 return false;
@@ -129,7 +129,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// <returns>True if finder exists.</returns>
         public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
         {
-            Guard.ThrowIfNullOrEmpty(messageType);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageType);
             return sagaFinders.TryGetValue(messageType, out finderDefinition);
         }
 
@@ -140,7 +140,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
         public static SagaMetadata Create(Type sagaType)
         {
-            Guard.ThrowIfNull(sagaType);
+            ArgumentNullException.ThrowIfNull(sagaType);
             return Create(sagaType, new List<Type>(), new Conventions());
         }
 
@@ -153,9 +153,9 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
         public static SagaMetadata Create(Type sagaType, IEnumerable<Type> availableTypes, Conventions conventions)
         {
-            Guard.ThrowIfNull(sagaType);
-            Guard.ThrowIfNull(availableTypes);
-            Guard.ThrowIfNull(conventions);
+            ArgumentNullException.ThrowIfNull(sagaType);
+            ArgumentNullException.ThrowIfNull(availableTypes);
+            ArgumentNullException.ThrowIfNull(conventions);
             if (!IsSagaType(sagaType))
             {
                 throw new Exception(sagaType.FullName + " is not a saga");

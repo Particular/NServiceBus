@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Pipeline;
 
@@ -13,8 +14,8 @@
         /// </summary>
         public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string> headers)
         {
-            Guard.ThrowIfNull(message);
-            Guard.ThrowIfNull(headers);
+            ArgumentNullException.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(headers);
 
             Message = message;
             Headers = headers;

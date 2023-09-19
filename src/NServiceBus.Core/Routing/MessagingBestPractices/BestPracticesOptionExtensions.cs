@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Extensibility;
     using Pipeline;
 
@@ -13,7 +14,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
             options.Context.SetDoNotEnforceBestPractices();
         }
 
@@ -23,7 +24,7 @@
         /// <returns><c>true</c> if best practice enforcement has been disabled, <c>false</c> otherwise.</returns>
         public static bool IgnoredBestPractices(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
             options.Context.TryGet(out EnforceBestPracticesOptions bestPracticesOptions);
             return !(bestPracticesOptions?.Enabled ?? true);
         }
@@ -33,7 +34,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             context.Extensions.SetDoNotEnforceBestPractices();
         }
 
@@ -42,7 +43,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             context.Extensions.SetDoNotEnforceBestPractices();
         }
 
@@ -51,7 +52,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this ISubscribeContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             context.Extensions.SetDoNotEnforceBestPractices();
         }
 
@@ -60,7 +61,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             context.Extensions.SetDoNotEnforceBestPractices();
         }
 
@@ -69,7 +70,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             context.Extensions.SetDoNotEnforceBestPractices();
         }
 

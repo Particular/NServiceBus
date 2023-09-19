@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Configuration.AdvancedExtensibility;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace NServiceBus
         /// <param name="configuration">The endpoint configuration.</param>
         public static RecoverabilitySettings Recoverability(this EndpointConfiguration configuration)
         {
-            Guard.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(configuration);
             return new RecoverabilitySettings(configuration.GetSettings());
         }
     }

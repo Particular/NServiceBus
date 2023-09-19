@@ -14,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         public static QueueAddress LocalQueueAddress(this FeatureConfigurationContext config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             if (config.Receiving.IsSendOnlyEndpoint)
             {
@@ -29,7 +29,7 @@ namespace NServiceBus
         /// </summary>
         public static QueueAddress InstanceSpecificQueueAddress(this FeatureConfigurationContext config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             if (config.Receiving.IsSendOnlyEndpoint)
             {

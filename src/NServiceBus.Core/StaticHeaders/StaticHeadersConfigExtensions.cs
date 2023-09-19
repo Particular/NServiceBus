@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Extensions to the public configuration api.
     /// </summary>
@@ -16,7 +18,7 @@ namespace NServiceBus
         /// <param name="value">The static header value.</param>
         public static void AddHeaderToAllOutgoingMessages(this EndpointConfiguration config, string key, string value)
         {
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
             if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
             {

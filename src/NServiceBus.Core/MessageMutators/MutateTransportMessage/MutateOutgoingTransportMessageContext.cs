@@ -17,9 +17,9 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateOutgoingTransportMessageContext(ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object? incomingMessage, IReadOnlyDictionary<string, string>? incomingHeaders, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(outgoingHeaders);
-            Guard.ThrowIfNull(outgoingBody);
-            Guard.ThrowIfNull(outgoingMessage);
+            ArgumentNullException.ThrowIfNull(outgoingHeaders);
+            ArgumentNullException.ThrowIfNull(outgoingBody);
+            ArgumentNullException.ThrowIfNull(outgoingMessage);
 
             OutgoingHeaders = outgoingHeaders;
             // Intentionally assign to field to not set the MessageBodyChanged flag.
@@ -44,7 +44,7 @@ namespace NServiceBus.MessageMutator
             get => outgoingBody;
             set
             {
-                Guard.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
                 MessageBodyChanged = true;
                 outgoingBody = value;
             }

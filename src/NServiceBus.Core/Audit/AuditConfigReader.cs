@@ -20,7 +20,7 @@ namespace NServiceBus
         /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
         public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [NotNullWhen(true)] out string? address)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
 
             var result = GetConfiguredAuditQueue(settings);
 
@@ -43,7 +43,7 @@ namespace NServiceBus
         /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
         public static bool TryGetAuditMessageExpiration(this IReadOnlySettings settings, out TimeSpan auditMessageExpiration)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
 
             var result = GetConfiguredAuditQueue(settings);
 

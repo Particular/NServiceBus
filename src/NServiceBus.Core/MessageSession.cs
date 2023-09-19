@@ -18,40 +18,40 @@ namespace NServiceBus
 
         public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(message);
-            Guard.ThrowIfNull(sendOptions);
+            ArgumentNullException.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(sendOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
         }
 
         public async Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(messageConstructor);
-            Guard.ThrowIfNull(sendOptions);
+            ArgumentNullException.ThrowIfNull(messageConstructor);
+            ArgumentNullException.ThrowIfNull(sendOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
         }
 
         public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(message);
-            Guard.ThrowIfNull(publishOptions);
+            ArgumentNullException.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(publishOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
         }
 
         public async Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(messageConstructor);
-            Guard.ThrowIfNull(publishOptions);
+            ArgumentNullException.ThrowIfNull(messageConstructor);
+            ArgumentNullException.ThrowIfNull(publishOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Publish(CreateContext(linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
         }
 
         public async Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(eventType);
-            Guard.ThrowIfNull(subscribeOptions);
+            ArgumentNullException.ThrowIfNull(eventType);
+            ArgumentNullException.ThrowIfNull(subscribeOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
         }
@@ -66,8 +66,8 @@ namespace NServiceBus
 
         public async Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(eventType);
-            Guard.ThrowIfNull(unsubscribeOptions);
+            ArgumentNullException.ThrowIfNull(eventType);
+            ArgumentNullException.ThrowIfNull(unsubscribeOptions);
             using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
             await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
         }

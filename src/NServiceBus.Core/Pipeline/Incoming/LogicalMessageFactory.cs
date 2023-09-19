@@ -25,7 +25,7 @@ namespace NServiceBus.Pipeline
         /// <returns>A new <see cref="LogicalMessage" />.</returns>
         public LogicalMessage Create(object message)
         {
-            Guard.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(message);
 
             return Create(message.GetType(), message);
         }
@@ -38,8 +38,8 @@ namespace NServiceBus.Pipeline
         /// <returns>A new <see cref="LogicalMessage" />.</returns>
         public LogicalMessage Create(Type messageType, object message)
         {
-            Guard.ThrowIfNull(messageType);
-            Guard.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(messageType);
+            ArgumentNullException.ThrowIfNull(message);
 
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 

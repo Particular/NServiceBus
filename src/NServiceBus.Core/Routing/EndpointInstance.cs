@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -16,7 +17,7 @@
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
         public EndpointInstance(string endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
         {
-            Guard.ThrowIfNull(endpoint);
+            ArgumentNullException.ThrowIfNull(endpoint);
 
             Properties = properties ?? new Dictionary<string, string>();
             Endpoint = endpoint;
@@ -45,7 +46,7 @@
         /// <param name="value">Value.</param>
         public EndpointInstance SetProperty(string key, string value)
         {
-            Guard.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(key);
             var newProperties = new Dictionary<string, string>();
             foreach (var property in Properties)
             {

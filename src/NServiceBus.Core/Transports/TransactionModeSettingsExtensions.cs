@@ -1,5 +1,6 @@
 namespace NServiceBus.ConsistencyGuarantees
 {
+    using System;
     using Transport;
     using Settings;
 
@@ -13,7 +14,7 @@ namespace NServiceBus.ConsistencyGuarantees
         /// </summary>
         public static TransportTransactionMode GetRequiredTransactionModeForReceives(this IReadOnlySettings settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
 
             var transportDefinition = settings.Get<TransportDefinition>();
 

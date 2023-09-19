@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Features;
 
     /// <summary>
@@ -14,8 +15,8 @@
         /// <param name="path">The storage path.</param>
         public static void SagaStorageDirectory(this PersistenceExtensions<LearningPersistence> persistenceExtensions, string path)
         {
-            Guard.ThrowIfNull(persistenceExtensions);
-            Guard.ThrowIfNullOrEmpty(path);
+            ArgumentNullException.ThrowIfNull(persistenceExtensions);
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
             persistenceExtensions.Settings.Set(LearningSagaPersistence.StorageLocationKey, path);
         }

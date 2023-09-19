@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using Extensibility;
@@ -17,8 +18,8 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this ExtendableOptions options, string key, string value)
         {
-            Guard.ThrowIfNull(options);
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentNullException.ThrowIfNull(options);
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
             options.OutgoingHeaders[key] = value;
         }
@@ -28,7 +29,7 @@
         /// </summary>
         public static IReadOnlyDictionary<string, string> GetHeaders(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
 
             return new ReadOnlyDictionary<string, string>(options.OutgoingHeaders);
         }

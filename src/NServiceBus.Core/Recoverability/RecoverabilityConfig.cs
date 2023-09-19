@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Provides information about the recoverability configuration.
     /// </summary>
@@ -13,9 +15,9 @@ namespace NServiceBus
         /// <param name="failedConfig">The failed retries configuration.</param>
         public RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig, FailedConfig failedConfig)
         {
-            Guard.ThrowIfNull(immediateConfig);
-            Guard.ThrowIfNull(delayedConfig);
-            Guard.ThrowIfNull(failedConfig);
+            ArgumentNullException.ThrowIfNull(immediateConfig);
+            ArgumentNullException.ThrowIfNull(delayedConfig);
+            ArgumentNullException.ThrowIfNull(failedConfig);
 
             Immediate = immediateConfig;
             Delayed = delayedConfig;

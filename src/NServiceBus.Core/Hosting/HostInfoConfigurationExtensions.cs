@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Extension methods to configure hostid.
     /// </summary>
@@ -11,7 +13,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static HostInfoSettings UniquelyIdentifyRunningInstance(this EndpointConfiguration config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             return new HostInfoSettings(config);
         }
     }

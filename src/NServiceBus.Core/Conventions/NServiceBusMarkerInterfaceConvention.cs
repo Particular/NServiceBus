@@ -13,21 +13,21 @@
         /// <inheritdoc cref="IMessageConvention"/>
         public bool IsCommandType(Type type)
         {
-            Guard.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(type);
             return typeof(ICommand).IsAssignableFrom(type) && typeof(ICommand) != type;
         }
 
         /// <inheritdoc cref="IMessageConvention"/>
         public bool IsEventType(Type type)
         {
-            Guard.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(type);
             return typeof(IEvent).IsAssignableFrom(type) && typeof(IEvent) != type;
         }
 
         /// <inheritdoc cref="IMessageConvention"/>
         public bool IsMessageType(Type type)
         {
-            Guard.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(type);
             return typeof(IMessage).IsAssignableFrom(type) &&
                  typeof(IMessage) != type &&
                  typeof(IEvent) != type &&

@@ -1,5 +1,6 @@
 namespace NServiceBus.Sagas
 {
+    using System;
     using Extensibility;
 
     /// <summary>
@@ -15,8 +16,8 @@ namespace NServiceBus.Sagas
         /// <param name="extensions">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
         public SagaIdGeneratorContext(SagaCorrelationProperty correlationProperty, SagaMetadata sagaMetadata, ContextBag extensions)
         {
-            Guard.ThrowIfNull(sagaMetadata);
-            Guard.ThrowIfNull(extensions);
+            ArgumentNullException.ThrowIfNull(sagaMetadata);
+            ArgumentNullException.ThrowIfNull(extensions);
 
             CorrelationProperty = correlationProperty;
             SagaMetadata = sagaMetadata;

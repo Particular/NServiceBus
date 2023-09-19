@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Routing.MessageDrivenSubscriptions;
@@ -10,7 +11,7 @@ namespace NServiceBus
 
         public void Add(IPublisherSource publisherSource)
         {
-            Guard.ThrowIfNull(publisherSource);
+            ArgumentNullException.ThrowIfNull(publisherSource);
             publisherSources.Add(publisherSource);
         }
 

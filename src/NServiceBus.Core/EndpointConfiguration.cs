@@ -52,7 +52,7 @@ namespace NServiceBus
         /// </summary>
         public void RegisterComponents(Action<IServiceCollection> registration)
         {
-            Guard.ThrowIfNull(registration);
+            ArgumentNullException.ThrowIfNull(registration);
 
             Settings.Get<HostingComponent.Settings>().UserRegistrations.Add(registration);
         }

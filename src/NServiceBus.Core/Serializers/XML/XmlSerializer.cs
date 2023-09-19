@@ -17,7 +17,7 @@
         /// </summary>
         public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
             return mapper =>
             {
                 var conventions = settings.Get<Conventions>();

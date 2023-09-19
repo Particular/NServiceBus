@@ -2,6 +2,8 @@
 
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Contains extension methods to configure the <see cref="AssemblyScanner"/> behavior.
     /// </summary>
@@ -12,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         public static AssemblyScannerConfiguration AssemblyScanner(this EndpointConfiguration configuration)
         {
-            Guard.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(configuration);
             return configuration.Settings.GetOrCreate<AssemblyScannerConfiguration>();
         }
     }

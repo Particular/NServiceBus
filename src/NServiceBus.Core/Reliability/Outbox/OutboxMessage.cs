@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Outbox
 {
+    using System;
+
     /// <summary>
     /// The Outbox message type.
     /// </summary>
@@ -12,8 +14,8 @@
         /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
         public OutboxMessage(string messageId, TransportOperation[] operations)
         {
-            Guard.ThrowIfNullOrEmpty(messageId);
-            Guard.ThrowIfNull(operations);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
+            ArgumentNullException.ThrowIfNull(operations);
 
             MessageId = messageId;
             TransportOperations = operations;

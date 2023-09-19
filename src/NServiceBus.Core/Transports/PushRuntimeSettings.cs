@@ -21,7 +21,7 @@ namespace NServiceBus.Transport
         /// <param name="maxConcurrency">The maximum concurrency to allow.</param>
         public PushRuntimeSettings(int maxConcurrency)
         {
-            Guard.ThrowIfNegativeOrZero(maxConcurrency);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
 
             MaxConcurrency = maxConcurrency;
         }

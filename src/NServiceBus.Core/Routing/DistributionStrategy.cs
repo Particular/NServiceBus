@@ -1,5 +1,7 @@
 namespace NServiceBus.Routing
 {
+    using System;
+
     /// <summary>
     /// Determines which instance of a given endpoint a message is to be sent.
     /// </summary>
@@ -12,7 +14,7 @@ namespace NServiceBus.Routing
         /// <param name="scope">The scope for this strategy.</param>
         protected DistributionStrategy(string endpoint, DistributionStrategyScope scope)
         {
-            Guard.ThrowIfNullOrEmpty(endpoint);
+            ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
 
             Endpoint = endpoint;
             Scope = scope;

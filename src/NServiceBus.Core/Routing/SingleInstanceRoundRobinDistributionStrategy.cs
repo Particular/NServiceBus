@@ -1,5 +1,6 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Threading;
 
     /// <summary>
@@ -22,7 +23,7 @@ namespace NServiceBus.Routing
         /// </summary>
         public override string SelectDestination(DistributionContext context)
         {
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(context);
             if (context.ReceiverAddresses.Length == 0)
             {
                 return default;

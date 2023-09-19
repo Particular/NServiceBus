@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Pipeline;
     using Routing;
     using Transport;
@@ -14,9 +15,9 @@
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this IAuditActionContext context, OutgoingMessage auditMessage, RoutingStrategy routingStrategy)
         {
-            Guard.ThrowIfNull(auditMessage);
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(routingStrategy);
+            ArgumentNullException.ThrowIfNull(auditMessage);
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(routingStrategy);
 
             return new RoutingContext(auditMessage, routingStrategy, context);
         }

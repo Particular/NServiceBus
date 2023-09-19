@@ -14,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         public static IList<Type> GetAvailableTypes(this IReadOnlySettings settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
             return settings.Get<AssemblyScanningComponent.Configuration>().AvailableTypes;
         }
 
@@ -23,7 +23,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointName(this IReadOnlySettings settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
             return settings.Get<string>("NServiceBus.Routing.EndpointName");
         }
 
@@ -32,7 +32,7 @@ namespace NServiceBus
         /// </summary>
         public static string EndpointQueueName(this IReadOnlySettings settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
 
             if (!settings.TryGet<ReceiveComponent.Configuration>(out var receiveConfiguration))
             {
