@@ -15,7 +15,7 @@ namespace NServiceBus
         public static void SendFailedMessagesTo(this EndpointConfiguration config, string errorQueue)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentException.ThrowIfNullOrEmpty(errorQueue);
+            ArgumentException.ThrowIfNullOrWhiteSpace(errorQueue);
 
             config.Settings.Set(ErrorQueueSettings.SettingsKey, errorQueue);
         }

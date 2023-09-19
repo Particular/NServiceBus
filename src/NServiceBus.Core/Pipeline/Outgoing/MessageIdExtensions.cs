@@ -15,7 +15,7 @@
         /// <param name="messageId">The message id to use.</param>
         public static void SetMessageId(this ExtendableOptions options, string messageId)
         {
-            ArgumentException.ThrowIfNullOrEmpty(messageId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
 
             options.UserDefinedMessageId = messageId;
         }

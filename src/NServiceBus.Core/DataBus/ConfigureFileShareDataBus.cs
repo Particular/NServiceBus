@@ -17,7 +17,7 @@ namespace NServiceBus
         public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentException.ThrowIfNullOrEmpty(basePath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(basePath);
             config.Settings.Set("FileShareDataBusPath", basePath);
 
             return config;

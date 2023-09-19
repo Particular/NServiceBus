@@ -19,7 +19,7 @@
         public static void SetHeader(this ExtendableOptions options, string key, string value)
         {
             ArgumentNullException.ThrowIfNull(options);
-            ArgumentException.ThrowIfNullOrEmpty(key);
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
             options.OutgoingHeaders[key] = value;
         }

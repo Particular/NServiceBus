@@ -16,7 +16,7 @@ namespace NServiceBus
         public static void AuditProcessedMessagesTo(this EndpointConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentException.ThrowIfNullOrEmpty(auditQueue);
+            ArgumentException.ThrowIfNullOrWhiteSpace(auditQueue);
             if (timeToBeReceived != null)
             {
                 Guard.ThrowIfNegative(timeToBeReceived.Value);

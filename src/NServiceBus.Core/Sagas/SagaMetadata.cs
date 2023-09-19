@@ -129,7 +129,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// <returns>True if finder exists.</returns>
         public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
         {
-            ArgumentException.ThrowIfNullOrEmpty(messageType);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageType);
             return sagaFinders.TryGetValue(messageType, out finderDefinition);
         }
 

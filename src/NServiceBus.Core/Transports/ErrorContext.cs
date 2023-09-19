@@ -25,7 +25,7 @@
             ArgumentNullException.ThrowIfNull(exception);
             ArgumentNullException.ThrowIfNull(transportTransaction);
             ArgumentOutOfRangeException.ThrowIfNegative(immediateProcessingFailures);
-            ArgumentException.ThrowIfNullOrEmpty(receiveAddress);
+            ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);
             ArgumentNullException.ThrowIfNull(context);
 
             Exception = exception;

@@ -16,7 +16,7 @@ namespace NServiceBus.Transport
         /// <param name="body">The message body.</param>
         public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
         {
-            ArgumentException.ThrowIfNullOrEmpty(nativeMessageId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(nativeMessageId);
             ArgumentNullException.ThrowIfNull(body);
             ArgumentNullException.ThrowIfNull(headers);
 

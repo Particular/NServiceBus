@@ -38,7 +38,7 @@ namespace NServiceBus
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception, CancellationToken cancellationToken = default)
         {
-            ArgumentException.ThrowIfNullOrEmpty(errorMessage);
+            ArgumentException.ThrowIfNullOrWhiteSpace(errorMessage);
             ArgumentNullException.ThrowIfNull(exception);
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 

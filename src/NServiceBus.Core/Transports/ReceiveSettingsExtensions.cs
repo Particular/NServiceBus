@@ -15,7 +15,7 @@
         public static void MakeInstanceUniquelyAddressable(this EndpointConfiguration config, string discriminator)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentException.ThrowIfNullOrEmpty(discriminator);
+            ArgumentException.ThrowIfNullOrWhiteSpace(discriminator);
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
         }
@@ -27,7 +27,7 @@
         /// <param name="baseInputQueueName">The base name of the input queue.</param>
         public static void OverrideLocalAddress(this EndpointConfiguration config, string baseInputQueueName)
         {
-            ArgumentException.ThrowIfNullOrEmpty(baseInputQueueName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(baseInputQueueName);
             config.Settings.Set(CustomQueueNameBaseKey, baseInputQueueName);
         }
 

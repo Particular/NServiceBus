@@ -18,7 +18,7 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt.</param>
         public ImmediateRetryMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, Exception exception, int retryAttempt)
         {
-            ArgumentException.ThrowIfNullOrEmpty(messageId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
             ArgumentNullException.ThrowIfNull(headers);
             ArgumentNullException.ThrowIfNull(body);
             ArgumentNullException.ThrowIfNull(exception);

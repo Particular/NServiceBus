@@ -61,7 +61,7 @@ namespace NServiceBus.Routing
         /// <returns>The new destination route.</returns>
         public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
         {
-            ArgumentException.ThrowIfNullOrEmpty(physicalAddress);
+            ArgumentException.ThrowIfNullOrWhiteSpace(physicalAddress);
             return new UnicastRoute
             {
                 PhysicalAddress = physicalAddress

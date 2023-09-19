@@ -19,7 +19,7 @@
         /// <param name="transportAddress">The address of the queue.</param>
         public void BindSending(string transportAddress)
         {
-            ArgumentException.ThrowIfNullOrEmpty(transportAddress);
+            ArgumentException.ThrowIfNullOrWhiteSpace(transportAddress);
             sendingAddresses.Add(transportAddress);
         }
 

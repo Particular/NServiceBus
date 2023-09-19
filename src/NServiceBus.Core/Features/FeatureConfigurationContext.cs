@@ -59,7 +59,7 @@
         /// <param name="onMessage">The message func.</param>
         public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
-            ArgumentException.ThrowIfNullOrEmpty(name);
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(transportAddress);
             ArgumentNullException.ThrowIfNull(runtimeSettings);
             ArgumentNullException.ThrowIfNull(recoverabilityPolicy);

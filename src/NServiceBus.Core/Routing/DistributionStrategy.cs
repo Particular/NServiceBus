@@ -14,7 +14,7 @@ namespace NServiceBus.Routing
         /// <param name="scope">The scope for this strategy.</param>
         protected DistributionStrategy(string endpoint, DistributionStrategyScope scope)
         {
-            ArgumentException.ThrowIfNullOrEmpty(endpoint);
+            ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
 
             Endpoint = endpoint;
             Scope = scope;

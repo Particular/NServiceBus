@@ -26,7 +26,7 @@ namespace NServiceBus.Pipeline
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
@@ -43,7 +43,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
@@ -60,7 +60,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
 
             modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
@@ -75,7 +75,7 @@ namespace NServiceBus.Pipeline
         public void RegisterOrReplace(string stepId, Type behavior, string description = null)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
@@ -92,7 +92,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
@@ -109,7 +109,7 @@ namespace NServiceBus.Pipeline
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             EnsureWriteEnabled(stepId, nameof(Replace));
             EnsureWriteEnabled(stepId, nameof(Register));
 
@@ -141,8 +141,8 @@ namespace NServiceBus.Pipeline
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
             EnsureWriteEnabled(stepId, nameof(Register));
 
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
-            ArgumentException.ThrowIfNullOrEmpty(description);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
             modifications.Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
@@ -174,8 +174,8 @@ namespace NServiceBus.Pipeline
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
             EnsureWriteEnabled(stepId, "register");
 
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
-            ArgumentException.ThrowIfNullOrEmpty(description);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
             modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
         }
@@ -207,8 +207,8 @@ namespace NServiceBus.Pipeline
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
             EnsureWriteEnabled(nameof(stepId), "register");
 
-            ArgumentException.ThrowIfNullOrEmpty(stepId);
-            ArgumentException.ThrowIfNullOrEmpty(description);
+            ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
             modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
         }

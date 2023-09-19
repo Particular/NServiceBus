@@ -19,6 +19,4 @@
             Assert.Throws<ArgumentException>(() => defaultFactory.Directory(" "));
         }
     }
-
-
 }

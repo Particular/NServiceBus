@@ -13,7 +13,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">The destination.</param>
         public UnicastAddressTag(string destination)
         {
-            ArgumentException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
             Destination = destination;
         }
 

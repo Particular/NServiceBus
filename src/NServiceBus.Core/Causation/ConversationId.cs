@@ -19,7 +19,7 @@
         /// </summary>
         public static ConversationId Custom(string customValue)
         {
-            ArgumentException.ThrowIfNullOrEmpty(customValue);
+            ArgumentException.ThrowIfNullOrWhiteSpace(customValue);
 
             return new ConversationId(customValue);
         }

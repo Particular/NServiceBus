@@ -51,8 +51,8 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingNames(string instanceName, string hostName)
         {
-            ArgumentException.ThrowIfNullOrEmpty(instanceName);
-            ArgumentException.ThrowIfNullOrEmpty(hostName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(instanceName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
 
             config.Settings.Get<HostingComponent.Settings>().HostId = DeterministicGuid.Create(instanceName, hostName);
             return this;
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// </summary>
         public HostInfoSettings UsingCustomDisplayName(string displayName)
         {
-            ArgumentException.ThrowIfNullOrEmpty(displayName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
             config.Settings.Get<HostingComponent.Settings>().DisplayName = displayName;
             return this;
         }
@@ -73,7 +73,7 @@ namespace NServiceBus
         /// </summary>
         public HostInfoSettings UsingHostName(string hostName)
         {
-            ArgumentException.ThrowIfNullOrEmpty(hostName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
             RuntimeEnvironment.SetMachineName(hostName);
             return this;
         }

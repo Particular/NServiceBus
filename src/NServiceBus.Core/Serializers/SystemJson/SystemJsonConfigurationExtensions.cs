@@ -34,7 +34,7 @@ namespace NServiceBus
         /// <param name="contentType">The content type added to the message that identifies how the message is serialized.</param>
         public static void ContentType(this SerializationExtensions<SystemJsonSerializer> config, string contentType)
         {
-            ArgumentException.ThrowIfNullOrEmpty(contentType);
+            ArgumentException.ThrowIfNullOrWhiteSpace(contentType);
             var settings = config.GetSettings().GetOrCreate<SystemJsonSerializerSettings>();
             settings.ContentType = contentType;
         }

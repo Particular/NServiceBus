@@ -14,7 +14,7 @@
         /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
         public OutboxMessage(string messageId, TransportOperation[] operations)
         {
-            ArgumentException.ThrowIfNullOrEmpty(messageId);
+            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
             ArgumentNullException.ThrowIfNull(operations);
 
             MessageId = messageId;

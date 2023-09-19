@@ -66,7 +66,7 @@
         /// <param name="description">Explanation of what this prerequisite checks.</param>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition, string description)
         {
-            ArgumentException.ThrowIfNullOrEmpty(description);
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
             setupPrerequisites.Add(new SetupPrerequisite
             {
