@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Installation;
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System.Threading;
@@ -16,7 +17,7 @@ public static class Installer
     /// </summary>
     public static async Task Setup(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
-        Guard.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         // does not overwrite installer usernames configured by the user.
         configuration.EnableInstallers();
@@ -38,8 +39,8 @@ public static class Installer
     /// </summary>
     public static InstallerWithExternallyManagedContainer CreateInstallerWithExternallyManagedContainer(EndpointConfiguration configuration, IServiceCollection serviceCollection)
     {
-        Guard.ThrowIfNull(configuration);
-        Guard.ThrowIfNull(serviceCollection);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(serviceCollection);
 
         // does not overwrite installer usernames configured by the user.
         configuration.EnableInstallers();

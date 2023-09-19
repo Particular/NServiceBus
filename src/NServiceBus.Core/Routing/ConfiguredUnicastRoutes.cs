@@ -11,7 +11,7 @@ namespace NServiceBus.Features
 
         public void Add(IRouteSource routeSource)
         {
-            Guard.ThrowIfNull(routeSource);
+            ArgumentNullException.ThrowIfNull(routeSource);
             routeSources.Add(routeSource);
         }
 

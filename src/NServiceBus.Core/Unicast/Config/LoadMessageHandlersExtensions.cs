@@ -17,8 +17,8 @@ namespace NServiceBus
         /// <param name="handlerTypes">The handler types to execute first.</param>
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, IEnumerable<Type> handlerTypes)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(handlerTypes);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(handlerTypes);
 
             var list = config.Settings.Get<ReceiveComponent.Settings>().ExecuteTheseHandlersFirst;
 
@@ -47,8 +47,8 @@ namespace NServiceBus
         /// <param name="handlerTypes">The handler types to execute first.</param>
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, params Type[] handlerTypes)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNull(handlerTypes);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(handlerTypes);
 
             config.ExecuteTheseHandlersFirst((IEnumerable<Type>)handlerTypes);
         }

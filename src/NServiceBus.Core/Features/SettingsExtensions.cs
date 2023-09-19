@@ -13,7 +13,7 @@
         /// </summary>
         public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
             settings.EnableFeatureByDefault(typeof(T));
             return settings;
         }
@@ -23,8 +23,8 @@
         /// </summary>
         public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType)
         {
-            Guard.ThrowIfNull(settings);
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(featureType);
             settings.SetDefault(featureType.FullName, FeatureState.Enabled);
             return settings;
         }
@@ -34,8 +34,8 @@
         /// </summary>
         public static bool IsFeatureActive(this IReadOnlySettings settings, Type featureType)
         {
-            Guard.ThrowIfNull(settings);
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(featureType);
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
         }
 
@@ -44,8 +44,8 @@
         /// </summary>
         public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType)
         {
-            Guard.ThrowIfNull(settings);
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(featureType);
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;
         }
 

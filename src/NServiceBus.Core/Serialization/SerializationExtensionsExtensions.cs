@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Serialization;
     using Settings;
 
@@ -13,7 +14,7 @@
         /// </summary>
         public static void DisableMessageTypeInference<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             config.EndpointConfigurationSettings.Set(DisableMessageTypeInferenceKey, true);
         }
@@ -23,7 +24,7 @@
         /// </summary>
         public static void DisableDynamicTypeLoading<T>(this SerializationExtensions<T> config) where T : SerializationDefinition
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             config.EndpointConfigurationSettings.Set(DisableDynamicTypeLoadingKey, true);
         }
 

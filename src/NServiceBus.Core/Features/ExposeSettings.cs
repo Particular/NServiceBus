@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Configuration.AdvancedExtensibility
 {
+    using System;
     using Settings;
 
     /// <summary>
@@ -12,7 +13,7 @@
         /// </summary>
         protected ExposeSettings(SettingsHolder settings)
         {
-            Guard.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(settings);
             Settings = settings;
         }
 

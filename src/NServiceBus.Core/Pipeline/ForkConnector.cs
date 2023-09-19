@@ -25,8 +25,8 @@
         /// <inheritdoc />
         public sealed override Task Invoke(TFromContext context, Func<Task> next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(next);
 
             return Invoke(context, next, ctx => ctx.InvokePipeline());
         }

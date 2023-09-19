@@ -1,5 +1,6 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -15,7 +16,7 @@ namespace NServiceBus.Routing
         /// <returns>Returns at least one <see cref="EndpointInstance"/>.</returns>
         public IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
-            Guard.ThrowIfNull(endpoint);
+            ArgumentNullException.ThrowIfNull(endpoint);
             return allInstances.TryGetValue(endpoint, out var registeredInstances)
                 ? registeredInstances
                 : DefaultInstance(endpoint);
@@ -33,8 +34,8 @@ namespace NServiceBus.Routing
         /// <param name="endpointInstances">List of endpoint instances known by this source.</param>
         public void AddOrReplaceInstances(string sourceKey, IList<EndpointInstance> endpointInstances)
         {
-            Guard.ThrowIfNull(sourceKey);
-            Guard.ThrowIfNull(endpointInstances);
+            ArgumentNullException.ThrowIfNull(sourceKey);
+            ArgumentNullException.ThrowIfNull(endpointInstances);
             lock (updateLock)
             {
                 registrations[sourceKey] = endpointInstances;

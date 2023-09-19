@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -18,7 +19,7 @@
         /// <param name="transportAddress">The address of the queue.</param>
         public void BindSending(string transportAddress)
         {
-            Guard.ThrowIfNullOrEmpty(transportAddress);
+            ArgumentNullException.ThrowIfNullOrEmpty(transportAddress);
             sendingAddresses.Add(transportAddress);
         }
 

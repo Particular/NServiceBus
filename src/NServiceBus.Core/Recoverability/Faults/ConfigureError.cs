@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Contains extension methods to <see cref="EndpointConfiguration" />.
     /// </summary>
@@ -12,8 +14,8 @@ namespace NServiceBus
         /// <param name="errorQueue">The name of the error queue to use.</param>
         public static void SendFailedMessagesTo(this EndpointConfiguration config, string errorQueue)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNullOrEmpty(errorQueue);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentException.ThrowIfNullOrEmpty(errorQueue);
 
             config.Settings.Set(ErrorQueueSettings.SettingsKey, errorQueue);
         }

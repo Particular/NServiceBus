@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Configuration extensions for receive settings.
     /// </summary>
@@ -12,8 +14,8 @@
         /// <param name="discriminator">The value to append to the endpoint name to create an instance-specific queue.</param>
         public static void MakeInstanceUniquelyAddressable(this EndpointConfiguration config, string discriminator)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNullOrEmpty(discriminator);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNullOrEmpty(discriminator);
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
         }
@@ -25,7 +27,7 @@
         /// <param name="baseInputQueueName">The base name of the input queue.</param>
         public static void OverrideLocalAddress(this EndpointConfiguration config, string baseInputQueueName)
         {
-            Guard.ThrowIfNullOrEmpty(baseInputQueueName);
+            ArgumentException.ThrowIfNullOrEmpty(baseInputQueueName);
             config.Settings.Set(CustomQueueNameBaseKey, baseInputQueueName);
         }
 

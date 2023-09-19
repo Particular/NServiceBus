@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Provides information about the immediate retries configuration.
     /// </summary>
@@ -11,7 +13,7 @@ namespace NServiceBus
         /// <param name="maxNumberOfRetries">The maximum number of immediate retries.</param>
         public ImmediateConfig(int maxNumberOfRetries)
         {
-            Guard.ThrowIfNegative(maxNumberOfRetries);
+            ArgumentOutOfRangeException.ThrowIfNegative(maxNumberOfRetries);
 
             MaxNumberOfRetries = maxNumberOfRetries;
         }

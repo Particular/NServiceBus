@@ -11,8 +11,8 @@ namespace NServiceBus
         public AuditContext(OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IBehaviorContext parent)
             : base(parent)
         {
-            Guard.ThrowIfNull(message);
-            Guard.ThrowIfNullOrEmpty(auditAddress);
+            ArgumentNullException.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNullOrEmpty(auditAddress);
             Message = message;
             AuditAddress = auditAddress;
             TimeToBeReceived = timeToBeReceived;

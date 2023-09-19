@@ -25,8 +25,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="entries">Entries.</param>
         public void AddOrReplacePublishers(string sourceKey, IList<PublisherTableEntry> entries)
         {
-            Guard.ThrowIfNullOrEmpty(sourceKey);
-            Guard.ThrowIfNull(entries);
+            ArgumentNullException.ThrowIfNullOrEmpty(sourceKey);
+            ArgumentNullException.ThrowIfNull(entries);
             lock (updateLock)
             {
                 publisherRegistrations[sourceKey] = entries;

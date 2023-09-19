@@ -1,5 +1,6 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
     using Extensibility;
     using Pipeline;
@@ -55,7 +56,7 @@ namespace NServiceBus.Routing
         /// <returns>The transport address.</returns>
         public string ToTransportAddress(EndpointInstance endpointInstance)
         {
-            Guard.ThrowIfNull(endpointInstance);
+            ArgumentNullException.ThrowIfNull(endpointInstance);
             return addressResolver.ToTransportAddress(new QueueAddress(endpointInstance.Endpoint, endpointInstance.Discriminator, endpointInstance.Properties));
         }
 

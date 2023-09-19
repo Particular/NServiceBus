@@ -23,7 +23,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
         {
-            Guard.ThrowIfNull(definesMessageType);
+            ArgumentNullException.ThrowIfNull(definesMessageType);
             Conventions.DefineMessageTypeConvention(definesMessageType);
             return this;
         }
@@ -33,7 +33,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningCommandsAs(Func<Type, bool> definesCommandType)
         {
-            Guard.ThrowIfNull(definesCommandType);
+            ArgumentNullException.ThrowIfNull(definesCommandType);
             Conventions.DefineCommandTypeConventions(definesCommandType);
             return this;
         }
@@ -43,7 +43,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningEventsAs(Func<Type, bool> definesEventType)
         {
-            Guard.ThrowIfNull(definesEventType);
+            ArgumentNullException.ThrowIfNull(definesEventType);
             Conventions.DefineEventTypeConventions(definesEventType);
             return this;
         }
@@ -53,7 +53,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
         {
-            Guard.ThrowIfNull(definesDataBusProperty);
+            ArgumentNullException.ThrowIfNull(definesDataBusProperty);
             Conventions.IsDataBusPropertyAction = definesDataBusProperty;
             return this;
         }
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// </summary>
         public ConventionsBuilder Add(IMessageConvention messageConvention)
         {
-            Guard.ThrowIfNull(messageConvention);
+            ArgumentNullException.ThrowIfNull(messageConvention);
             Conventions.Add(messageConvention);
             return this;
         }

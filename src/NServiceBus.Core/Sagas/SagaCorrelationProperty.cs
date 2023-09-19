@@ -1,5 +1,7 @@
 namespace NServiceBus.Sagas
 {
+    using System;
+
     /// <summary>
     /// The property that this saga is correlated on.
     /// </summary>
@@ -10,8 +12,8 @@ namespace NServiceBus.Sagas
         /// </summary>
         public SagaCorrelationProperty(string name, object value)
         {
-            Guard.ThrowIfNullOrEmpty(name);
-            Guard.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNullOrEmpty(name);
+            ArgumentNullException.ThrowIfNull(value);
 
             Name = name;
             Value = value;

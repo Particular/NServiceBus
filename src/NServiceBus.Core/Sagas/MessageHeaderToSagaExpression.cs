@@ -12,15 +12,15 @@ namespace NServiceBus
 
         public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
         {
-            Guard.ThrowIfNull(sagaHeaderFindingConfiguration);
-            Guard.ThrowIfNullOrEmpty(headerName);
+            ArgumentNullException.ThrowIfNull(sagaHeaderFindingConfiguration);
+            ArgumentNullException.ThrowIfNullOrEmpty(headerName);
             this.sagaHeaderFindingConfiguration = sagaHeaderFindingConfiguration;
             this.headerName = headerName;
         }
 
         public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
         {
-            Guard.ThrowIfNull(sagaEntityProperty);
+            ArgumentNullException.ThrowIfNull(sagaEntityProperty);
             sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaEntityProperty, headerName);
         }
     }

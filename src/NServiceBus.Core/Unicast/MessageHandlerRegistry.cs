@@ -20,7 +20,7 @@
         /// </summary>
         public List<MessageHandler> GetHandlersFor(Type messageType)
         {
-            Guard.ThrowIfNull(messageType);
+            ArgumentNullException.ThrowIfNull(messageType);
 
             var messageHandlers = new List<MessageHandler>();
             foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
@@ -57,7 +57,7 @@
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
-            Guard.ThrowIfNull(handlerType);
+            ArgumentNullException.ThrowIfNull(handlerType);
 
             if (handlerType.IsAbstract)
             {

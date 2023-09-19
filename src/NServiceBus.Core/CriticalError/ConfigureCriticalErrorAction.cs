@@ -16,8 +16,8 @@ namespace NServiceBus
         /// <param name="onCriticalError">The action to perform.</param>
         public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, CancellationToken, Task> onCriticalError)
         {
-            Guard.ThrowIfNull(endpointConfiguration);
-            Guard.ThrowIfNull(onCriticalError);
+            ArgumentNullException.ThrowIfNull(endpointConfiguration);
+            ArgumentNullException.ThrowIfNull(onCriticalError);
             endpointConfiguration.Settings.Get<HostingComponent.Settings>().CustomCriticalErrorAction = onCriticalError;
         }
     }

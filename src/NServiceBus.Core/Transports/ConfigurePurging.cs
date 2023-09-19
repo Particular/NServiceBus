@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Configures purging.
     /// </summary>
@@ -15,7 +17,7 @@ namespace NServiceBus
         /// <param name="value">True to purge all message on startup; otherwise False.</param>
         public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             config.Settings.Get<ReceiveComponent.Settings>().PurgeOnStartup = value;
         }
     }

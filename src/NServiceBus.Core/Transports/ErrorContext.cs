@@ -22,11 +22,11 @@
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
         {
-            Guard.ThrowIfNull(exception);
-            Guard.ThrowIfNull(transportTransaction);
-            Guard.ThrowIfNegative(immediateProcessingFailures);
-            Guard.ThrowIfNullOrEmpty(receiveAddress);
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(exception);
+            ArgumentNullException.ThrowIfNull(transportTransaction);
+            ArgumentOutOfRangeException.ThrowIfNegative(immediateProcessingFailures);
+            ArgumentException.ThrowIfNullOrEmpty(receiveAddress);
+            ArgumentNullException.ThrowIfNull(context);
 
             Exception = exception;
             TransportTransaction = transportTransaction;

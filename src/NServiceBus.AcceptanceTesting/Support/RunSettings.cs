@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
             set
             {
-                Guard.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
                 Set("TestExecutionTimeout", value);
             }
         }
@@ -49,7 +49,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         /// <returns>The type instance.</returns>
         public T Get<T>(string key)
         {
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentNullException.ThrowIfNullOrEmpty(key);
 
             if (!TryGet(key, out T result))
             {
@@ -112,7 +112,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         /// <param name="key">The key of the value being removed.</param>
         public void Remove(string key)
         {
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentNullException.ThrowIfNullOrEmpty(key);
             stash.TryRemove(key, out _);
         }
 
@@ -121,7 +121,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         /// </summary>
         public void Set<T>(string key, T t)
         {
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentNullException.ThrowIfNullOrEmpty(key);
             stash[key] = t;
         }
 
@@ -134,7 +134,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
         public bool TryGet<T>(string key, out T result)
         {
-            Guard.ThrowIfNullOrEmpty(key);
+            ArgumentNullException.ThrowIfNullOrEmpty(key);
             if (stash.TryGetValue(key, out var value))
             {
                 result = (T)value;

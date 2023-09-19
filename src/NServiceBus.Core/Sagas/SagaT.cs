@@ -2,6 +2,8 @@
 
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
     /// To handle more message types, implement <see cref="IHandleMessages{T}" />
@@ -20,7 +22,7 @@ namespace NServiceBus
             get => (TSagaData)Entity;
             set
             {
-                Guard.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
                 Entity = value;
             }
         }

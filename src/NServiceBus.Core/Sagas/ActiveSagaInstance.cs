@@ -72,7 +72,7 @@ namespace NServiceBus.Sagas
         /// <param name="sagaEntity">The new entity.</param>
         public void AttachNewEntity(IContainSagaData sagaEntity)
         {
-            Guard.ThrowIfNull(sagaEntity);
+            ArgumentNullException.ThrowIfNull(sagaEntity);
             IsNew = true;
             AttachEntity(sagaEntity);
         }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Outbox;
 
     /// <summary>
@@ -13,7 +14,7 @@
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static OutboxSettings EnableOutbox(this EndpointConfiguration config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             var outboxSettings = new OutboxSettings(config.Settings);
 

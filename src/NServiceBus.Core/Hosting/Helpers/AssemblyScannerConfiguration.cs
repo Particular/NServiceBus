@@ -44,7 +44,7 @@ namespace NServiceBus
         /// <param name="assemblies">The file name of the assembly.</param>
         public void ExcludeAssemblies(params string[] assemblies)
         {
-            Guard.ThrowIfNull(assemblies);
+            ArgumentNullException.ThrowIfNull(assemblies);
 
             if (assemblies.Any(string.IsNullOrWhiteSpace))
             {
@@ -59,7 +59,7 @@ namespace NServiceBus
         /// </summary>
         public void ExcludeTypes(params Type[] types)
         {
-            Guard.ThrowIfNull(types);
+            ArgumentNullException.ThrowIfNull(types);
             if (types.Any(x => x == null))
             {
                 throw new ArgumentException("Passed in a null or empty type.", nameof(types));

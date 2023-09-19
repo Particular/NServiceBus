@@ -1,6 +1,7 @@
 ﻿#nullable enable
 namespace NServiceBus
 {
+    using System;
     using System.Text.Json;
     using NServiceBus.Configuration.AdvancedExtensibility;
     using NServiceBus.Serialization;
@@ -33,7 +34,7 @@ namespace NServiceBus
         /// <param name="contentType">The content type added to the message that identifies how the message is serialized.</param>
         public static void ContentType(this SerializationExtensions<SystemJsonSerializer> config, string contentType)
         {
-            Guard.ThrowIfNullOrEmpty(contentType, nameof(contentType));
+            ArgumentException.ThrowIfNullOrEmpty(contentType);
             var settings = config.GetSettings().GetOrCreate<SystemJsonSerializerSettings>();
             settings.ContentType = contentType;
         }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
@@ -27,7 +28,7 @@
 
         public void UpdateMessageInstance(object newInstance)
         {
-            Guard.ThrowIfNull(newInstance);
+            ArgumentNullException.ThrowIfNull(newInstance);
             var sameInstance = ReferenceEquals(Message.Instance, newInstance);
 
             Message.Instance = newInstance;

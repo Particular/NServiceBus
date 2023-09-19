@@ -16,8 +16,8 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateIncomingTransportMessageContext(ReadOnlyMemory<byte> body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(headers);
-            Guard.ThrowIfNull(body);
+            ArgumentNullException.ThrowIfNull(headers);
+            ArgumentNullException.ThrowIfNull(body);
             Headers = headers;
 
             // Intentionally assign to field to not set the MessageBodyChanged flag.
@@ -37,7 +37,7 @@ namespace NServiceBus.MessageMutator
             }
             set
             {
-                Guard.ThrowIfNull(value);
+                ArgumentNullException.ThrowIfNull(value);
                 MessageBodyChanged = true;
                 body = value;
             }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -26,7 +27,7 @@
         /// </summary>
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(hostSettings);
+            ArgumentNullException.ThrowIfNull(hostSettings);
             var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
             learningTransportInfrastructure.ConfigureSendInfrastructure();
 

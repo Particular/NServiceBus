@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Serialization;
 
     /// <summary>
@@ -38,7 +39,7 @@
         /// </summary>
         public static SerializationExtensions<XmlSerializer> DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             config.Settings.Set(XmlSerializer.SkipWrappingRawXml, true);
 
@@ -58,7 +59,7 @@
         /// </param>
         public static SerializationExtensions<XmlSerializer> Namespace(this SerializationExtensions<XmlSerializer> config, string namespaceToUse)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             config.Settings.Set(XmlSerializer.CustomNamespaceConfigurationKey, namespaceToUse);
 
@@ -70,7 +71,7 @@
         /// </summary>
         public static SerializationExtensions<XmlSerializer> SanitizeInput(this SerializationExtensions<XmlSerializer> config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
 
             config.Settings.Set(XmlSerializer.SanitizeInput, true);
 

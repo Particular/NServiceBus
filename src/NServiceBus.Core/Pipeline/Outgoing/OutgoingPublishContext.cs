@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Extensibility;
     using Pipeline;
@@ -9,9 +10,9 @@
         public OutgoingPublishContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
             : base(messageId, headers, parentContext)
         {
-            Guard.ThrowIfNull(parentContext);
-            Guard.ThrowIfNull(message);
-            Guard.ThrowIfNull(extensions);
+            ArgumentNullException.ThrowIfNull(parentContext);
+            ArgumentNullException.ThrowIfNull(message);
+            ArgumentNullException.ThrowIfNull(extensions);
 
             Message = message;
 

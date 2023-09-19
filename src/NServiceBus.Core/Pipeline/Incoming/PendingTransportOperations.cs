@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics.CodeAnalysis;
     using Transport;
 
     /// <summary>
@@ -26,7 +28,7 @@ namespace NServiceBus
         /// <param name="transportOperation">The transport operation to be added.</param>
         public void Add(TransportOperation transportOperation)
         {
-            Guard.ThrowIfNull(transportOperation);
+            ArgumentNullException.ThrowIfNull(transportOperation);
 
             operations.Push(transportOperation);
         }
@@ -37,9 +39,23 @@ namespace NServiceBus
         /// <param name="transportOperations">The transport operations to be added.</param>
         public void AddRange(TransportOperation[] transportOperations)
         {
-            Guard.ThrowIfNullOrEmpty(transportOperations);
+            if (transportOperations is null)
+            {
+                ThrowArgumentNullException(nameof(transportOperations));
+            }
+            if (transportOperations.Length == 0)
+            {
+                ThrowArgumentOutOfRangeException(nameof(transportOperations));
+            }
 
             operations.PushRange(transportOperations);
+            return;
+
+            [DoesNotReturn]
+            static void ThrowArgumentNullException(string paramName) => throw new ArgumentNullException(paramName);
+
+            [DoesNotReturn]
+            static void ThrowArgumentOutOfRangeException(string paramName) => throw new ArgumentOutOfRangeException(paramName);
         }
 
         readonly ConcurrentStack<TransportOperation> operations = new ConcurrentStack<TransportOperation>();

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -12,8 +13,8 @@
         /// </summary>
         public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IServiceCollection serviceCollection)
         {
-            Guard.ThrowIfNull(configuration);
-            Guard.ThrowIfNull(serviceCollection);
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(serviceCollection);
 
             var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
             return new ExternallyManagedContainerHost(endpointCreator);

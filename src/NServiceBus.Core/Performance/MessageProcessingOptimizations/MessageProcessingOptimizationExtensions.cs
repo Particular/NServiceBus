@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Transport;
 
     /// <summary>
@@ -14,8 +15,8 @@ namespace NServiceBus
         /// <param name="maxConcurrency">The max concurrency allowed.</param>
         public static void LimitMessageProcessingConcurrencyTo(this EndpointConfiguration config, int maxConcurrency)
         {
-            Guard.ThrowIfNull(config);
-            Guard.ThrowIfNegativeOrZero(maxConcurrency);
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
 
             config.Settings.Get<ReceiveComponent.Settings>().PushRuntimeSettings = new PushRuntimeSettings(maxConcurrency);
         }

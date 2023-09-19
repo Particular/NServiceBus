@@ -2,6 +2,7 @@
 
 namespace NServiceBus
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ namespace NServiceBus
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(configuration);
             var serviceCollection = new ServiceCollection();
             var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
@@ -37,7 +38,7 @@ namespace NServiceBus
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
         {
-            Guard.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             var startableEndpoint = await Create(configuration, cancellationToken).ConfigureAwait(false);
 

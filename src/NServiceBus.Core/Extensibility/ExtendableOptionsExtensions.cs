@@ -1,5 +1,6 @@
 namespace NServiceBus.Extensibility
 {
+    using System;
     using Transport;
     using Pipeline;
 
@@ -13,7 +14,7 @@ namespace NServiceBus.Extensibility
         /// </summary>        
         public static ContextBag GetExtensions(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
             return options.Context;
         }
 
@@ -22,7 +23,7 @@ namespace NServiceBus.Extensibility
         /// </summary>
         public static DispatchProperties GetDispatchProperties(this ExtendableOptions options)
         {
-            Guard.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(options);
             return options.DispatchProperties;
         }
 
@@ -48,7 +49,7 @@ namespace NServiceBus.Extensibility
 
         static IReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
         {
-            Guard.ThrowIfNull(behaviorContext);
+            ArgumentNullException.ThrowIfNull(behaviorContext);
             if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))
             {
                 return behaviorContext.Extensions; // fallback behavior, e.g. when invoking the outgoing pipeline without using MessageOperation API.

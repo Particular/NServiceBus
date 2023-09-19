@@ -20,12 +20,12 @@
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
         public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, string receiveAddress, ContextBag context)
         {
-            Guard.ThrowIfNullOrEmpty(nativeMessageId);
-            Guard.ThrowIfNull(body);
-            Guard.ThrowIfNull(headers);
-            Guard.ThrowIfNull(transportTransaction);
-            Guard.ThrowIfNullOrEmpty(receiveAddress);
-            Guard.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNullOrEmpty(nativeMessageId);
+            ArgumentNullException.ThrowIfNull(body);
+            ArgumentNullException.ThrowIfNull(headers);
+            ArgumentNullException.ThrowIfNull(transportTransaction);
+            ArgumentNullException.ThrowIfNullOrEmpty(receiveAddress);
+            ArgumentNullException.ThrowIfNull(context);
 
             Headers = headers;
             Body = body;

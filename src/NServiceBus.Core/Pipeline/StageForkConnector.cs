@@ -17,8 +17,8 @@ namespace NServiceBus.Pipeline
         /// <inheritdoc />
         public Task Invoke(TFromContext context, Func<TToContext, Task> next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(next);
 
             return Invoke(context, next, ctx => ctx.InvokePipeline());
         }

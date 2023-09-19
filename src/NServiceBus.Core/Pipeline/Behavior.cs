@@ -19,8 +19,8 @@ namespace NServiceBus.Pipeline
         /// <param name="next">The next <see cref="IBehavior{TContext, TContext}" /> in the chain to execute.</param>
         public Task Invoke(TContext context, Func<TContext, Task> next)
         {
-            Guard.ThrowIfNull(context);
-            Guard.ThrowIfNull(next);
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(next);
             return Invoke(context, () => next(context));
         }
 

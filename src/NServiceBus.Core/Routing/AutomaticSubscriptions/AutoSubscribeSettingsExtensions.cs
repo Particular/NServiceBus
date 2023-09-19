@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using AutomaticSubscriptions.Config;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static AutoSubscribeSettings AutoSubscribe(this EndpointConfiguration config)
         {
-            Guard.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(config);
             return new AutoSubscribeSettings(config);
         }
     }

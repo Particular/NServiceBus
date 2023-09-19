@@ -15,8 +15,8 @@
         /// </summary>
         public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, CancellationToken, Task> subscription)
         {
-            Guard.ThrowIfNull(pipelineSettings);
-            Guard.ThrowIfNull(subscription);
+            ArgumentNullException.ThrowIfNull(pipelineSettings);
+            ArgumentNullException.ThrowIfNull(subscription);
 
             pipelineSettings.Settings.Get<ReceiveComponent.Settings>().PipelineCompletedSubscribers.Subscribe(subscription);
         }

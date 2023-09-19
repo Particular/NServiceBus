@@ -32,7 +32,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(Type messageType)
         {
-            Guard.ThrowIfNull(messageType);
+            ArgumentNullException.ThrowIfNull(messageType);
 
             if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
             {
@@ -55,7 +55,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
-            Guard.ThrowIfNullOrEmpty(messageTypeIdentifier);
+            ArgumentNullException.ThrowIfNullOrEmpty(messageTypeIdentifier);
 
             var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
 

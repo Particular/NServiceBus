@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Pipeline;
     using Routing;
@@ -20,7 +21,7 @@
 
         public void UpdateMessage(object newInstance)
         {
-            Guard.ThrowIfNull(newInstance);
+            ArgumentNullException.ThrowIfNull(newInstance);
 
             if (Message.Instance != newInstance)
             {

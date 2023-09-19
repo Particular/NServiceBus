@@ -25,8 +25,8 @@ namespace NServiceBus.Routing
         /// <param name="entries">Group entries.</param>
         public void AddOrReplaceRoutes(string sourceKey, IList<RouteTableEntry> entries)
         {
-            Guard.ThrowIfNullOrEmpty(sourceKey);
-            Guard.ThrowIfNull(entries);
+            ArgumentNullException.ThrowIfNullOrEmpty(sourceKey);
+            ArgumentNullException.ThrowIfNull(entries);
             lock (updateLock)
             {
                 routeGroups[sourceKey] = entries;

@@ -66,7 +66,7 @@
         /// <param name="description">Explanation of what this prerequisite checks.</param>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition, string description)
         {
-            Guard.ThrowIfNullOrEmpty(description);
+            ArgumentNullException.ThrowIfNullOrEmpty(description);
 
             setupPrerequisites.Add(new SetupPrerequisite
             {
@@ -115,7 +115,7 @@
         /// <param name="features">Features list that this feature require at least one of to be activated.</param>
         protected void DependsOnAtLeastOne(params Type[] features)
         {
-            Guard.ThrowIfNull(features);
+            ArgumentNullException.ThrowIfNull(features);
 
             foreach (var feature in features)
             {
@@ -147,7 +147,7 @@
         /// <param name="featureType">The type of the feature that this feature depends on.</param>
         protected void DependsOnOptionally(Type featureType)
         {
-            Guard.ThrowIfNull(featureType);
+            ArgumentNullException.ThrowIfNull(featureType);
 
             DependsOnOptionally(GetFeatureName(featureType));
         }
@@ -171,7 +171,7 @@
         /// <param name="featureNames">The name of the features that this feature depends on.</param>
         protected void DependsOnAtLeastOne(params string[] featureNames)
         {
-            Guard.ThrowIfNull(featureNames);
+            ArgumentNullException.ThrowIfNull(featureNames);
 
             Dependencies.Add(new List<string>(featureNames));
         }

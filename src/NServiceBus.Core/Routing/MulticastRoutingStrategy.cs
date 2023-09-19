@@ -22,7 +22,7 @@
         /// <param name="headers">Message headers.</param>
         public override AddressTag Apply(Dictionary<string, string> headers)
         {
-            Guard.ThrowIfNull(headers);
+            ArgumentNullException.ThrowIfNull(headers);
             return new MulticastAddressTag(messageType);
         }
 
