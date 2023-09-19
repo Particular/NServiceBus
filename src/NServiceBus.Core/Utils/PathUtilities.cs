@@ -1,19 +1,29 @@
 ﻿namespace NServiceBus
 {
-    using System.Linq;
-    using System.Text.RegularExpressions;
+    using System;
 
     static class PathUtilities
     {
         public static string SanitizedPath(string commandLine)
         {
-            if (commandLine.StartsWith("\""))
+            if (commandLine.StartsWith('"'))
             {
-                return (from Match match in Regex.Matches(commandLine, "\"([^\"]*)\"")
-                        select match.ToString()).First().Trim('"');
+                var nextIndex = commandLine.IndexOf('"', 1);
+                if (nextIndex == -1)
+                {
+                    throw new FormatException("The provided path is in an invalid format");
+                }
+
+                return commandLine[1..nextIndex];
             }
 
-            return commandLine.Split(' ').First();
+            var firstSpace = commandLine.IndexOf(' ');
+            if (firstSpace == -1)
+            {
+                return commandLine;
+            }
+
+            return commandLine[..firstSpace];
         }
     }
 }

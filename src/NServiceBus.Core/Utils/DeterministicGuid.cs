@@ -1,20 +1,45 @@
-﻿namespace NServiceBus
+﻿#nullable enable
+
+namespace NServiceBus
 {
     using System;
+    using System.Buffers;
+    using System.Runtime.CompilerServices;
     using System.Security.Cryptography;
     using System.Text;
 
     static class DeterministicGuid
     {
-        public static Guid Create(params object[] data)
+        public static Guid Create(string data1, string data2) => Create($"{data1}{data2}");
+
+        [SkipLocalsInit]
+        public static Guid Create(string data)
         {
-            // use MD5 hash to get a 16-byte hash of the string
-            using (var provider = MD5.Create())
+            const int MaxStackLimit = 256;
+            var encoding = Encoding.UTF8;
+            var maxByteCount = encoding.GetMaxByteCount(data.Length);
+
+            byte[]? sharedBuffer = null;
+            var stringBufferSpan = maxByteCount <= MaxStackLimit ?
+                stackalloc byte[MaxStackLimit] :
+                sharedBuffer = ArrayPool<byte>.Shared.Rent(maxByteCount);
+
+            try
             {
-                var inputBytes = Encoding.Default.GetBytes(string.Concat(data));
-                var hashBytes = provider.ComputeHash(inputBytes);
+                var numberOfBytesWritten = encoding.GetBytes(data, stringBufferSpan);
+                Span<byte> hashBytes = stackalloc byte[16];
+
+                _ = MD5.HashData(stringBufferSpan[..numberOfBytesWritten], hashBytes);
+
                 // generate a guid from the hash:
                 return new Guid(hashBytes);
+            }
+            finally
+            {
+                if (sharedBuffer != null)
+                {
+                    ArrayPool<byte>.Shared.Return(sharedBuffer, clearArray: true);
+                }
             }
         }
     }
