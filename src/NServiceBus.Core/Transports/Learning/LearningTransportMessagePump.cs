@@ -74,8 +74,7 @@
             messagePumpCancellationTokenSource = new CancellationTokenSource();
             messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
-            // Task.Run() so the call returns immediately instead of waiting for the first await or return down the call stack
-            messagePumpTask = Task.Run(() => PumpMessagesAndSwallowExceptions(messagePumpCancellationTokenSource.Token), CancellationToken.None);
+            messagePumpTask = PumpMessagesAndSwallowExceptions(messagePumpCancellationTokenSource.Token);
 
             delayedMessagePoller.Start();
 
@@ -88,7 +87,7 @@
 
             delayedMessagePoller.Stop();
 
-            using (cancellationToken.Register(state => (state as CancellationTokenSource)?.Cancel(), messageProcessingCancellationTokenSource))
+            await using (cancellationToken.Register(state => (state as CancellationTokenSource)?.Cancel(), messageProcessingCancellationTokenSource))
             {
                 await messagePumpTask.ConfigureAwait(false);
 
@@ -169,6 +168,8 @@
         [DebuggerNonUserCode]
         async Task PumpMessagesAndSwallowExceptions(CancellationToken messagePumpCancellationToken)
         {
+            await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+
             log.Debug($"Started polling for new messages in {messagePumpBasePath}");
 
             while (!messagePumpCancellationToken.IsCancellationRequested)

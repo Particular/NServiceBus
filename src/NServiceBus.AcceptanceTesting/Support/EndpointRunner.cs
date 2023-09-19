@@ -110,35 +110,7 @@
             {
                 if (behavior.Whens.Count != 0)
                 {
-                    await Task.Run(async () =>
-                    {
-                        var executedWhens = new HashSet<Guid>();
-
-                        while (true)
-                        {
-                            if (executedWhens.Count == behavior.Whens.Count)
-                            {
-                                break;
-                            }
-
-                            foreach (var when in behavior.Whens)
-                            {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                if (executedWhens.Contains(when.Id))
-                                {
-                                    continue;
-                                }
-
-                                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
-                                {
-                                    executedWhens.Add(when.Id);
-                                }
-                            }
-
-                            await Task.Yield(); // enforce yield current context, tight loop could introduce starvation
-                        }
-                    }, CancellationToken.None).ConfigureAwait(false);
+                    await ExecuteWhens(cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
@@ -146,6 +118,38 @@
                 Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
 
                 throw;
+            }
+        }
+
+        async Task ExecuteWhens(CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+
+            var executedWhens = new HashSet<Guid>();
+
+            while (true)
+            {
+                if (executedWhens.Count == behavior.Whens.Count)
+                {
+                    break;
+                }
+
+                foreach (var when in behavior.Whens)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (executedWhens.Contains(when.Id))
+                    {
+                        continue;
+                    }
+
+                    if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
+                    {
+                        executedWhens.Add(when.Id);
+                    }
+                }
+
+                await Task.Yield(); // enforce yield current context, tight loop could introduce starvation
             }
         }
 
