@@ -51,7 +51,7 @@ namespace NServiceBus
         public static Task Send(this IMessageSession session, string destination, object message, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(session);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
             ArgumentNullException.ThrowIfNull(message);
 
             var options = new SendOptions();
@@ -72,7 +72,7 @@ namespace NServiceBus
         public static Task Send<T>(this IMessageSession session, string destination, Action<T> messageConstructor, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(session);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
             ArgumentNullException.ThrowIfNull(messageConstructor);
 
             var options = new SendOptions();

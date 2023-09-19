@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <remarks>The license provided via code-first API takes precedence over other license sources.</remarks>
         public static void License(this EndpointConfiguration config, string licenseText)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(licenseText);
+            ArgumentException.ThrowIfNullOrEmpty(licenseText);
             ArgumentNullException.ThrowIfNull(config);
 
             config.Settings.Set(LicenseReminder.LicenseTextSettingsKey, licenseText);
@@ -31,7 +31,7 @@ namespace NServiceBus
         public static void LicensePath(this EndpointConfiguration config, string licenseFile)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNullOrEmpty(licenseFile);
+            ArgumentException.ThrowIfNullOrEmpty(licenseFile);
 
             config.Settings.Set(LicenseReminder.LicenseFilePathSettingsKey, licenseFile);
         }

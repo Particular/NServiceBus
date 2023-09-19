@@ -38,7 +38,7 @@
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public void RegisterPublisher(Type eventType, string publisherEndpoint)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
             Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
@@ -52,7 +52,7 @@
         public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 
@@ -68,7 +68,7 @@
         public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 

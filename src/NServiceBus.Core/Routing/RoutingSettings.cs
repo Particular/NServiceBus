@@ -28,7 +28,7 @@
         public void RouteToEndpoint(Type messageType, string destination)
         {
             ArgumentNullException.ThrowIfNull(messageType);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
             ThrowOnAddress(destination);
 
             Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
@@ -42,7 +42,7 @@
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
 
             ThrowOnAddress(destination);
 
@@ -58,7 +58,7 @@
         public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
 
             ThrowOnAddress(destination);
 

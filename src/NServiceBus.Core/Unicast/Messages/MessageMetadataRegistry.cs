@@ -55,7 +55,7 @@
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(messageTypeIdentifier);
+            ArgumentException.ThrowIfNullOrEmpty(messageTypeIdentifier);
 
             var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
 

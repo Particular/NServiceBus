@@ -12,7 +12,7 @@ namespace NServiceBus.Sagas
         /// </summary>
         public SagaCorrelationProperty(string name, object value)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(name);
+            ArgumentException.ThrowIfNullOrEmpty(name);
             ArgumentNullException.ThrowIfNull(value);
 
             Name = name;

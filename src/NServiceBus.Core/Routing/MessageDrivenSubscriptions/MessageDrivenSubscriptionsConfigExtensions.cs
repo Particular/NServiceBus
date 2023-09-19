@@ -50,7 +50,7 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
             routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
@@ -65,7 +65,7 @@ namespace NServiceBus
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 
@@ -82,7 +82,7 @@ namespace NServiceBus
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string @namespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentNullException.ThrowIfNullOrEmpty(publisherEndpoint);
+            ArgumentException.ThrowIfNullOrEmpty(publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 

@@ -15,7 +15,7 @@
         public static void SetDestination(this SendOptions options, string destination)
         {
             ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
 
             var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
             state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
@@ -31,7 +31,7 @@
         public static void SetDestination(this ReplyOptions options, string destination)
         {
             ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
 
             options.Context.GetOrCreate<ReplyConnector.State>()
                 .ExplicitDestination = destination;

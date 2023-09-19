@@ -15,7 +15,7 @@
         public static void MakeInstanceUniquelyAddressable(this EndpointConfiguration config, string discriminator)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNullOrEmpty(discriminator);
+            ArgumentException.ThrowIfNullOrEmpty(discriminator);
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
         }

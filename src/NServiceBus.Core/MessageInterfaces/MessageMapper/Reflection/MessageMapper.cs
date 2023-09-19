@@ -75,7 +75,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public Type GetMappedTypeFor(string typeName)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(typeName);
+            ArgumentException.ThrowIfNullOrEmpty(typeName);
             var name = typeName;
             if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
             {

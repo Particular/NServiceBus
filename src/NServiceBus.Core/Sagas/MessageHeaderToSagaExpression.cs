@@ -13,7 +13,7 @@ namespace NServiceBus
         public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
         {
             ArgumentNullException.ThrowIfNull(sagaHeaderFindingConfiguration);
-            ArgumentNullException.ThrowIfNullOrEmpty(headerName);
+            ArgumentException.ThrowIfNullOrEmpty(headerName);
             this.sagaHeaderFindingConfiguration = sagaHeaderFindingConfiguration;
             this.headerName = headerName;
         }

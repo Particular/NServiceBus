@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <param name="unrecoverableExceptionTypes">Exception types that will be treated as unrecoverable.</param>
         public FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(errorQueue);
+            ArgumentException.ThrowIfNullOrEmpty(errorQueue);
             ArgumentNullException.ThrowIfNull(unrecoverableExceptionTypes);
 
             ErrorQueue = errorQueue;

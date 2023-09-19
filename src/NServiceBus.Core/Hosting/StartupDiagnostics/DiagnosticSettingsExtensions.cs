@@ -17,7 +17,7 @@
         public static void AddStartupDiagnosticsSection(this IReadOnlySettings settings, string sectionName, object section)
         {
             ArgumentNullException.ThrowIfNull(settings);
-            ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
+            ArgumentException.ThrowIfNullOrEmpty(sectionName);
             ArgumentNullException.ThrowIfNull(section);
 
             settings.Get<HostingComponent.Settings>().StartupDiagnostics.Add(sectionName, section);
@@ -31,7 +31,7 @@
         public static void SetDiagnosticsPath(this EndpointConfiguration config, string path)
         {
             ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNullOrEmpty(path);
+            ArgumentException.ThrowIfNullOrEmpty(path);
 
             PathChecker.ThrowForBadPath(path, "Diagnostics root path");
 

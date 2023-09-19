@@ -22,8 +22,8 @@ namespace NServiceBus.Pipeline
         {
             this.factoryMethod = factoryMethod;
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
-            ArgumentNullException.ThrowIfNullOrEmpty(stepId);
-            ArgumentNullException.ThrowIfNullOrEmpty(description);
+            ArgumentException.ThrowIfNullOrEmpty(stepId);
+            ArgumentException.ThrowIfNullOrEmpty(description);
 
             BehaviorType = behavior;
             StepId = stepId;
@@ -65,7 +65,7 @@ namespace NServiceBus.Pipeline
         /// <param name="id">The unique identifier of the step that we want to insert before.</param>
         public void InsertBeforeIfExists(string id)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(id);
+            ArgumentException.ThrowIfNullOrEmpty(id);
 
             Befores ??= new List<Dependency>();
 
@@ -77,7 +77,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertBefore(string id)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(id);
+            ArgumentException.ThrowIfNullOrEmpty(id);
 
             Befores ??= new List<Dependency>();
 
@@ -91,7 +91,7 @@ namespace NServiceBus.Pipeline
         /// <param name="id">The unique identifier of the step that we want to insert after.</param>
         public void InsertAfterIfExists(string id)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(id);
+            ArgumentException.ThrowIfNullOrEmpty(id);
 
             Afters ??= new List<Dependency>();
 
@@ -103,7 +103,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void InsertAfter(string id)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(id);
+            ArgumentException.ThrowIfNullOrEmpty(id);
 
             Afters ??= new List<Dependency>();
 

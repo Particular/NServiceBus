@@ -15,8 +15,8 @@
             var nonExistingDirectoryException = Assert.Throws<DirectoryNotFoundException>(() => defaultFactory.Directory("baddir"));
             Assert.AreEqual("Could not find logging directory: 'baddir'", nonExistingDirectoryException.Message);
             Assert.Throws<ArgumentNullException>(() => defaultFactory.Directory(null));
-            Assert.Throws<ArgumentNullException>(() => defaultFactory.Directory(""));
-            Assert.Throws<ArgumentNullException>(() => defaultFactory.Directory(" "));
+            Assert.Throws<ArgumentException>(() => defaultFactory.Directory(""));
+            Assert.Throws<ArgumentException>(() => defaultFactory.Directory(" "));
         }
     }
 

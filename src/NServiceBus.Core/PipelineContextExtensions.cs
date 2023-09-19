@@ -49,7 +49,7 @@ namespace NServiceBus
         public static Task Send(this IPipelineContext context, string destination, object message)
         {
             ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
             ArgumentNullException.ThrowIfNull(message);
 
             var options = new SendOptions();
@@ -69,7 +69,7 @@ namespace NServiceBus
         public static Task Send<T>(this IPipelineContext context, string destination, Action<T> messageConstructor)
         {
             ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNullOrEmpty(destination);
+            ArgumentException.ThrowIfNullOrEmpty(destination);
             ArgumentNullException.ThrowIfNull(messageConstructor);
 
             var options = new SendOptions();

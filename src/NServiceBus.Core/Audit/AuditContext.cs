@@ -12,7 +12,7 @@ namespace NServiceBus
             : base(parent)
         {
             ArgumentNullException.ThrowIfNull(message);
-            ArgumentNullException.ThrowIfNullOrEmpty(auditAddress);
+            ArgumentException.ThrowIfNullOrEmpty(auditAddress);
             Message = message;
             AuditAddress = auditAddress;
             TimeToBeReceived = timeToBeReceived;

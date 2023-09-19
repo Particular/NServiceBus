@@ -63,7 +63,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public static ILog GetLogger(string name)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(name);
+            ArgumentException.ThrowIfNullOrEmpty(name);
             return loggerFactory.Value.GetLogger(name);
         }
 

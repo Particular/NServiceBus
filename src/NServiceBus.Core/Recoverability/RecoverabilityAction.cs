@@ -47,7 +47,7 @@ namespace NServiceBus
         /// <returns>Move to error action.</returns>
         public static MoveToError MoveToError(string errorQueue)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(errorQueue);
+            ArgumentException.ThrowIfNullOrEmpty(errorQueue);
             return new MoveToError(errorQueue);
         }
 
@@ -63,7 +63,7 @@ namespace NServiceBus
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(reason);
+            ArgumentException.ThrowIfNullOrEmpty(reason);
             return new Discard(reason);
         }
 

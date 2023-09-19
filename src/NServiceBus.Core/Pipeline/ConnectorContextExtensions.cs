@@ -18,7 +18,7 @@ namespace NServiceBus
         public static IRoutingContext CreateRoutingContext(this ForkConnector<ITransportReceiveContext, IRoutingContext> forkConnector, OutgoingMessage outgoingMessage, string localAddress, ITransportReceiveContext sourceContext)
         {
             ArgumentNullException.ThrowIfNull(outgoingMessage);
-            ArgumentNullException.ThrowIfNullOrEmpty(localAddress);
+            ArgumentException.ThrowIfNullOrEmpty(localAddress);
             ArgumentNullException.ThrowIfNull(sourceContext);
 
             return new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(localAddress), sourceContext);
@@ -210,7 +210,7 @@ namespace NServiceBus
         {
             ArgumentNullException.ThrowIfNull(sourceContext);
             ArgumentNullException.ThrowIfNull(message);
-            ArgumentNullException.ThrowIfNullOrEmpty(auditAddress);
+            ArgumentException.ThrowIfNullOrEmpty(auditAddress);
             ArgumentNullException.ThrowIfNull(sourceContext);
 
             var connector = (IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>)forkConnector;

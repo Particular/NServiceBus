@@ -18,7 +18,7 @@
         public CriticalErrorContext(Func<CancellationToken, Task> stop, string error, Exception exception)
         {
             ArgumentNullException.ThrowIfNull(stop);
-            ArgumentNullException.ThrowIfNullOrEmpty(error);
+            ArgumentException.ThrowIfNullOrEmpty(error);
             ArgumentNullException.ThrowIfNull(exception);
             Stop = stop;
             Error = error;
