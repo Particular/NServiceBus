@@ -17,12 +17,13 @@
             var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
+            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
 
             Assert.That(async () =>
             {
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, new EnlistmentWhichEnforcesDtcEscalation(), EnlistmentOptions.None);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, enlistmentNotifier, EnlistmentOptions.None);
 
                     var transportTransaction = new TransportTransaction();
                     transportTransaction.Set(Transaction.Current);
@@ -34,14 +35,10 @@
                         using (var unenlistedSession = configuration.CreateStorageSession())
                         {
                             await unenlistedSession.Open(unenlistedContextBag);
-
                             await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
 
-                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession,
-                                unenlistedContextBag);
-
-                            var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession,
-                                enlistedContextBag);
+                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
+                            var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
 
                             await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
                             await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
@@ -52,7 +49,10 @@
                         tx.Complete();
                     }
                 }
-            }, Throws.Exception.TypeOf<TransactionAbortedException>());
+            }, Throws.Exception);
+
+            Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
+            Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
         }
 
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
@@ -80,6 +80,10 @@
 
         class EnlistmentWhichEnforcesDtcEscalation : IEnlistmentNotification
         {
+            public bool RollbackWasCalled { get; private set; }
+
+            public bool CommitWasCalled { get; private set; }
+
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
                 preparingEnlistment.Prepared();
@@ -87,11 +91,13 @@
 
             public void Commit(Enlistment enlistment)
             {
+                CommitWasCalled = true;
                 enlistment.Done();
             }
 
             public void Rollback(Enlistment enlistment)
             {
+                RollbackWasCalled = true;
                 enlistment.Done();
             }
 

@@ -48,13 +48,13 @@
     {
         public PersistenceTestsConfiguration(TestVariant variant)
         {
+            SessionTimeout = variant.SessionTimeout;
+            Variant = variant;
+
             if (OperatingSystem.IsWindows() && SupportsDtc)
             {
                 TransactionManager.ImplicitDistributedTransactions = true;
             }
-
-            SessionTimeout = variant.SessionTimeout;
-            Variant = variant;
         }
 
         public Func<ContextBag> GetContextBagForSagaStorage { get; private set; } = () => new ContextBag();
