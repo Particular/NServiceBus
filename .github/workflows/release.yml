@@ -4,6 +4,7 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
 jobs:
@@ -34,7 +35,13 @@ jobs:
           name: nugets
           path: nugets/*
           retention-days: 1
+      - name: Push packages to testing feed
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: dotnet nuget push nugets\*.nupkg --api-key ${{ secrets.FEEDZIO_PUBLISH_API_KEY }} --source "${{ vars.PARTICULAR_TESTING_FEED_URL }}"
+        shell: pwsh
       - name: Deploy
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         uses: Particular/push-octopus-package-action@v1.1.0
         with:
           octopus-deploy-api-key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
+
