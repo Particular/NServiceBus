@@ -18,7 +18,6 @@
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
             var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
-            var exceptionCaught = false;
 
             Assert.That(async () =>
             {
@@ -50,9 +49,8 @@
                         tx.Complete();
                     }
                 }
-            }, Throws.Exception.AssignableFrom<Exception>());
+            }, Throws.Exception);
 
-            Assert.IsTrue(exceptionCaught);
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
         }
