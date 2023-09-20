@@ -18,6 +18,7 @@
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
             var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
+            var exceptionCaught = false;
 
             try
             {
@@ -37,9 +38,7 @@
                             await unenlistedSession.Open(unenlistedContextBag);
                             await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
 
-                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession,
-                                unenlistedContextBag);
-
+                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
                             var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
 
                             await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
@@ -54,9 +53,10 @@
             }
             catch (Exception)
             {
-                // Ignore
+                exceptionCaught = true;
             }
 
+            Assert.IsTrue(exceptionCaught);
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
         }
