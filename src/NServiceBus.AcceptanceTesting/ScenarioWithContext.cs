@@ -9,13 +9,9 @@ namespace NServiceBus.AcceptanceTesting
     using NUnit.Framework.Internal;
     using Support;
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
+    public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
+        where TContext : ScenarioContext, new()
     {
-        public ScenarioWithContext(Action<TContext> initializer)
-        {
-            contextInitializer = initializer;
-        }
-
         public Task<TContext> Run(TimeSpan? testExecutionTimeout)
         {
             var settings = new RunSettings();
@@ -30,7 +26,7 @@ namespace NServiceBus.AcceptanceTesting
         public async Task<TContext> Run(RunSettings settings)
         {
             var scenarioContext = new TContext();
-            contextInitializer(scenarioContext);
+            initializer(scenarioContext);
 
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
@@ -59,15 +55,13 @@ namespace NServiceBus.AcceptanceTesting
             return (TContext)runDescriptor.ScenarioContext;
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
-        {
-            return WithEndpoint<T>(b => { });
-        }
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>()
+            where T : EndpointConfigurationBuilder, new()
+            => WithEndpoint<T>(b => { });
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior) where T : EndpointConfigurationBuilder
-        {
-            return WithEndpoint(Activator.CreateInstance<T>(), defineBehavior);
-        }
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
+            where T : EndpointConfigurationBuilder, new()
+            => WithEndpoint(new T(), defineBehavior);
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
         {
@@ -85,9 +79,7 @@ namespace NServiceBus.AcceptanceTesting
         }
 
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
-        {
-            return Done(ctx => Task.FromResult(func(ctx)));
-        }
+            => Done(ctx => Task.FromResult(func(ctx)));
 
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, Task<bool>> func)
         {
@@ -96,8 +88,7 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
-        Action<TContext> contextInitializer;
+        List<IComponentBehavior> behaviors = new();
         Func<ScenarioContext, Task<bool>> done = static context => Task.FromResult(true);
     }
 }
