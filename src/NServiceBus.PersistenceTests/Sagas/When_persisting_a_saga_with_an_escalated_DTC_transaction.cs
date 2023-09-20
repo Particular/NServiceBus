@@ -20,7 +20,7 @@
             var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
             var exceptionCaught = false;
 
-            try
+            Assert.That(async () =>
             {
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
@@ -50,11 +50,7 @@
                         tx.Complete();
                     }
                 }
-            }
-            catch (Exception)
-            {
-                exceptionCaught = true;
-            }
+            }, Throws.Exception.AssignableFrom<Exception>());
 
             Assert.IsTrue(exceptionCaught);
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
