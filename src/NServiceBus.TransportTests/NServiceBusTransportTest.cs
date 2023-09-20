@@ -174,7 +174,7 @@
 
         protected TaskCompletionSource<TResult> CreateTaskCompletionSource<TResult>()
         {
-            var source = new TaskCompletionSource<TResult>();
+            var source = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             if (!Debugger.IsAttached)
             {
@@ -188,7 +188,7 @@
 
         protected TaskCompletionSource CreateTaskCompletionSource()
         {
-            var source = new TaskCompletionSource();
+            var source = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
             if (!Debugger.IsAttached)
             {
