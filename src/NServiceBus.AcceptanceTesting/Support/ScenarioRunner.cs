@@ -75,45 +75,42 @@
 
         async Task PerformScenarios(ComponentRunner[] runners)
         {
-            using (var cts = new CancellationTokenSource())
+            try
             {
-                try
+                await StartEndpoints(runners).ConfigureAwait(false);
+                runDescriptor.ScenarioContext.EndpointsStarted = true;
+                await ExecuteWhens(runners).ConfigureAwait(false);
+
+                var startTime = DateTime.UtcNow;
+                var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
+                while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false))
                 {
-                    await StartEndpoints(runners, cts).ConfigureAwait(false);
-                    runDescriptor.ScenarioContext.EndpointsStarted = true;
-                    await ExecuteWhens(runners, cts).ConfigureAwait(false);
-
-                    var startTime = DateTime.UtcNow;
-                    var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-                    while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false) && !cts.Token.IsCancellationRequested)
+                    if (!Debugger.IsAttached)
                     {
-                        if (!Debugger.IsAttached)
+                        if (DateTime.UtcNow - startTime > maxTime)
                         {
-                            if (DateTime.UtcNow - startTime > maxTime)
-                            {
-                                throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
-                            }
+                            throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
                         }
-
-                        await Task.Delay(100, cts.Token).ConfigureAwait(false);
                     }
 
-                    startTime = DateTime.UtcNow;
-                    var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
-                    while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
-                    {
-                        if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime)
-                        {
-                            throw new Exception("Some failed messages were not handled by the recoverability feature.");
-                        }
+                    await Task.Delay(100).ConfigureAwait(false);
+                }
 
-                        await Task.Delay(100, cts.Token).ConfigureAwait(false);
-                    }
-                }
-                finally
+                startTime = DateTime.UtcNow;
+                var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
+                while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
                 {
-                    await StopEndpoints(runners).ConfigureAwait(false);
+                    if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime)
+                    {
+                        throw new Exception("Some failed messages were not handled by the recoverability feature.");
+                    }
+
+                    await Task.Delay(100).ConfigureAwait(false);
                 }
+            }
+            finally
+            {
+                await StopEndpoints(runners).ConfigureAwait(false);
             }
         }
 
@@ -127,11 +124,13 @@
             return sb.ToString();
         }
 
-        Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
+        async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
-            var startTimeout = TimeSpan.FromMinutes(2);
-            return endpoints.Select(endpoint => StartEndpoint(endpoint, cts))
-                .Timebox(startTimeout, $"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes.");
+            using var startTimeoutCts = CreateTimeoutCancellatioTaskCompletionSource(TimeSpan.FromMinutes(2));
+
+            await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, startTimeoutCts)))
+                .WaitAsync(startTimeoutCts.Token)
+                .ConfigureAwait(false);
         }
 
         async Task StartEndpoint(ComponentRunner component, CancellationTokenSource cts)
@@ -143,17 +142,19 @@
             }
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
+                // signal other endpoints to stop the startup process and immediately abort the outer Task.WhenAll
                 cts.Cancel();
-                runDescriptor.ScenarioContext.AddTrace($"Endpoint {component.Name} failed to start.");
+                runDescriptor.ScenarioContext.AddTrace($"Endpoint {component.Name} failed to start: " + ex);
                 throw;
             }
         }
 
-        Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
+        async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
         {
-            var whenTimeout = TimeSpan.FromSeconds(60);
-            return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
-                .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
+            var cts = CreateTimeoutCancellatioTaskCompletionSource(TimeSpan.FromSeconds(60));
+            await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, cts)))
+                .WaitAsync(cts.Token)
+                .ConfigureAwait(false);
         }
 
         async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
@@ -166,7 +167,7 @@
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
                 cts.Cancel();
-                runDescriptor.ScenarioContext.AddTrace($"Whens for endpoint {component.Name} failed to execute.");
+                runDescriptor.ScenarioContext.AddTrace($"Whens for endpoint {component.Name} failed to execute." + ex);
                 throw;
             }
         }
@@ -197,6 +198,16 @@
         {
             var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
             return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
+        }
+
+        static CancellationTokenSource CreateTimeoutCancellatioTaskCompletionSource(TimeSpan timeout)
+        {
+            if (Debugger.IsAttached)
+            {
+                timeout = default;
+            }
+
+            return new CancellationTokenSource(timeout);
         }
     }
 

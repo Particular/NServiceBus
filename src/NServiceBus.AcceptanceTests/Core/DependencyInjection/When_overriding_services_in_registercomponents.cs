@@ -24,10 +24,10 @@
                             var configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                             return Task.FromResult(configuredEndpoint);
                         },
-                        configured =>
+                        (configured, ct) =>
                         {
                             serviceCollection.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>();
-                            return configured.Start(serviceCollection.BuildServiceProvider());
+                            return configured.Start(serviceCollection.BuildServiceProvider(), ct);
                         }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

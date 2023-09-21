@@ -30,10 +30,10 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
                                 EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                             return Task.FromResult(configuredEndpoint);
                         },
-                        configured =>
+                        (configured, ct) =>
                         {
                             serviceProvider = serviceCollection.BuildServiceProvider();
-                            return configured.Start(serviceProvider);
+                            return configured.Start(serviceProvider, ct);
                         });
                     b.When(e => e.SendLocal(new SomeMessage()));
                 })

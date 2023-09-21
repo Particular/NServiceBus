@@ -23,10 +23,10 @@
                 {
                     b.ToCreateInstance(
                         endpointConfiguration => Task.FromResult(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection)),
-                        startableEndpoint =>
+                        (startableEndpoint, ct) =>
                         {
                             spyContainer = new SpyContainer(serviceCollection);
-                            return startableEndpoint.Start(spyContainer);
+                            return startableEndpoint.Start(spyContainer, ct);
                         });
                     b.When(e => e.SendLocal(new SomeMessage()));
                 })

@@ -28,7 +28,7 @@
                             configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                             return Task.FromResult(configuredEndpoint);
                         },
-                        configured => configured.Start(serviceCollection.BuildServiceProvider())
+                        (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
                     )
                     .When((e, c) =>
                     {
