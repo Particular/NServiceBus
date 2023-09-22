@@ -17,7 +17,8 @@
             var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
-            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
+            var source = new TaskCompletionSource();
+            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation(source);
 
             Assert.That(async () =>
             {
@@ -51,6 +52,8 @@
                 }
             }, Throws.Exception);
 
+            await source.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
         }
@@ -78,7 +81,7 @@
             public string SomeId { get; set; }
         }
 
-        class EnlistmentWhichEnforcesDtcEscalation : IEnlistmentNotification
+        class EnlistmentWhichEnforcesDtcEscalation(TaskCompletionSource source) : IEnlistmentNotification
         {
             public bool RollbackWasCalled { get; private set; }
 
@@ -92,17 +95,20 @@
             public void Commit(Enlistment enlistment)
             {
                 CommitWasCalled = true;
+                source.SetResult();
                 enlistment.Done();
             }
 
             public void Rollback(Enlistment enlistment)
             {
                 RollbackWasCalled = true;
+                source.SetResult();
                 enlistment.Done();
             }
 
             public void InDoubt(Enlistment enlistment)
             {
+                source.SetResult();
                 enlistment.Done();
             }
 
