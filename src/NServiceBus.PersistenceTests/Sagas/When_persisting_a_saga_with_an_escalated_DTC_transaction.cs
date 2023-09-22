@@ -17,7 +17,8 @@
             var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
-            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation();
+            var source = new TaskCompletionSource();
+            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation(source);
 
             Assert.That(async () =>
             {
@@ -50,6 +51,8 @@
                     }
                 }
             }, Throws.Exception);
+
+            await source.Task.ConfigureAwait(false);
 
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
@@ -92,21 +95,29 @@
             public void Commit(Enlistment enlistment)
             {
                 CommitWasCalled = true;
+                source.SetResult();
                 enlistment.Done();
             }
 
             public void Rollback(Enlistment enlistment)
             {
                 RollbackWasCalled = true;
+                source.SetResult();
                 enlistment.Done();
             }
 
             public void InDoubt(Enlistment enlistment)
             {
+                source.SetResult();
                 enlistment.Done();
             }
 
             public static readonly Guid Id = Guid.NewGuid();
+
+            readonly TaskCompletionSource source;
+
+            public EnlistmentWhichEnforcesDtcEscalation(TaskCompletionSource source) => this.source = source;
+
         }
 
         public When_persisting_a_saga_with_an_escalated_DTC_transaction(TestVariant param) : base(param)
