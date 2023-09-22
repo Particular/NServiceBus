@@ -23,7 +23,7 @@
                     var tcs = CreateTaskCompletionSource();
                     onMessageCalls.Enqueue(tcs);
                     // "block" current pipeline invocation
-                    await tcs.Task.WaitAsync(TestTimeoutCancellationToken);
+                    await tcs.Task;
                 },
                 (errorContext, __) => throw new Exception("unexpected error", errorContext.Exception),
                 transactionMode,
