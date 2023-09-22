@@ -23,7 +23,7 @@
                     var tcs = CreateTaskCompletionSource();
                     onMessageCalls.Enqueue(tcs);
                     // "block" current pipeline invocation
-                    await tcs.Task;
+                    await tcs.Task.WaitAsync(TestTimeoutCancellationToken);
                 },
                 (errorContext, __) => throw new Exception("unexpected error", errorContext.Exception),
                 transactionMode,
@@ -34,7 +34,7 @@
                 await SendMessage(InputQueueName);
             }
 
-            // we need to wait because it might take a bit till the pump has invoked all pipelines?
+            // we need to wait because it might take a bit till the pump has invoked all pipelines
             while (onMessageCalls.Count < concurrencyLevel)
             {
                 await Task.Delay(50, TestTimeoutCancellationToken);
