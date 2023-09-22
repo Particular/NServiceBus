@@ -52,7 +52,7 @@
                 }
             }, Throws.Exception);
 
-            await source.Task.ConfigureAwait(false);
+            await source.Task.WaitAsync(TimeSpan.FromSeconds(30));
 
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
@@ -81,7 +81,7 @@
             public string SomeId { get; set; }
         }
 
-        class EnlistmentWhichEnforcesDtcEscalation : IEnlistmentNotification
+        class EnlistmentWhichEnforcesDtcEscalation(TaskCompletionSource source) : IEnlistmentNotification
         {
             public bool RollbackWasCalled { get; private set; }
 
@@ -113,11 +113,6 @@
             }
 
             public static readonly Guid Id = Guid.NewGuid();
-
-            readonly TaskCompletionSource source;
-
-            public EnlistmentWhichEnforcesDtcEscalation(TaskCompletionSource source) => this.source = source;
-
         }
 
         public When_persisting_a_saga_with_an_escalated_DTC_transaction(TestVariant param) : base(param)
