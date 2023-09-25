@@ -153,17 +153,17 @@
             }
         }
 
-        public override async Task Stop()
+        public override async Task Stop(CancellationToken cancellationToken = default)
         {
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 if (endpointInstance != null)
                 {
-                    await endpointInstance.Stop().ConfigureAwait(false);
+                    await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
                 throw;

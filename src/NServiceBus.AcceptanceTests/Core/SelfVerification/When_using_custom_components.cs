@@ -59,10 +59,10 @@
                     return base.ComponentsStarted(cancellationToken);
                 }
 
-                public override Task Stop()
+                public override Task Stop(CancellationToken cancellationToken = default)
                 {
                     context.Stopped = true;
-                    return base.Stop();
+                    return base.Stop(cancellationToken);
                 }
             }
         }
