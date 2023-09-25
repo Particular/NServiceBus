@@ -13,7 +13,7 @@
         {
             EndpointBuilder = endpointBuilder;
             CustomConfig = [];
-            ConfigureHowToCreateInstance(config => Endpoint.Create(config), (startable, ct) => startable.Start(ct));
+            ConfigureHowToCreateInstance(config => Endpoint.Create(config), static (startableEndpoint, cancellationToken) => startableEndpoint.Start(cancellationToken));
         }
 
         public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
