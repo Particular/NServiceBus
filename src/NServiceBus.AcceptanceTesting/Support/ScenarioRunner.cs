@@ -126,7 +126,7 @@
 
         async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
-            using var startTimeoutCts = CreateTimeoutCancellatioTaskCompletionSource(TimeSpan.FromMinutes(2));
+            using var startTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
 
             await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, startTimeoutCts)))
                 .WaitAsync(startTimeoutCts.Token)
@@ -143,7 +143,7 @@
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
                 // signal other endpoints to stop the startup process and immediately abort the outer Task.WhenAll
-                cts.Cancel();
+                await cts.CancelAsync();
                 runDescriptor.ScenarioContext.AddTrace($"Endpoint {component.Name} failed to start: " + ex);
                 throw;
             }
@@ -151,9 +151,10 @@
 
         async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
         {
-            var cts = CreateTimeoutCancellatioTaskCompletionSource(TimeSpan.FromSeconds(60));
-            await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, cts)))
-                .WaitAsync(cts.Token)
+            using var whenTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromSeconds(60));
+
+            await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, whenTimeoutCts)))
+                .WaitAsync(whenTimeoutCts.Token)
                 .ConfigureAwait(false);
         }
 
@@ -166,7 +167,7 @@
             }
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
-                cts.Cancel();
+                await cts.CancelAsync();
                 runDescriptor.ScenarioContext.AddTrace($"Whens for endpoint {component.Name} failed to execute." + ex);
                 throw;
             }
@@ -200,7 +201,7 @@
             return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
         }
 
-        static CancellationTokenSource CreateTimeoutCancellatioTaskCompletionSource(TimeSpan timeout)
+        static CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeout)
         {
             if (Debugger.IsAttached)
             {
