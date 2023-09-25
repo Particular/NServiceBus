@@ -30,11 +30,7 @@
                         },
                         (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
                     )
-                    .When((e, c) =>
-                    {
-                        //use the session provided by configure to make sure its properly populated
-                        return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
-                    });
+                    .When((e, c) => configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage()));
             })
             .Done(c => c.MessageReceived)
             .Run();
@@ -52,10 +48,7 @@
 
         public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
         {
-            public ExternallyManagedContainerEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            public ExternallyManagedContainerEndpoint() => EndpointSetup<DefaultServer>();
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>
             {
@@ -74,7 +67,7 @@
                     return Task.CompletedTask;
                 }
 
-                Context testContext;
+                readonly Context testContext;
             }
         }
 

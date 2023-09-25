@@ -94,7 +94,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
                 return new ValueTask();
             }
 
-            Context context;
+            readonly Context context;
         }
 
         class ScopedAsyncDisposable : IAsyncDisposable
@@ -108,7 +108,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
                 return new ValueTask();
             }
 
-            Context context;
+            readonly Context context;
         }
     }
 }

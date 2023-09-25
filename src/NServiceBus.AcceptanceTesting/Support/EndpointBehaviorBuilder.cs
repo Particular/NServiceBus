@@ -81,10 +81,7 @@
             return this;
         }
 
-        public EndpointBehavior Build()
-        {
-            return behavior;
-        }
+        public EndpointBehavior Build() => behavior;
 
         EndpointBehavior behavior;
     }
