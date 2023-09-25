@@ -143,7 +143,7 @@
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
                 // signal other endpoints to stop the startup process and immediately abort the outer Task.WhenAll
-                await cts.CancelAsync();
+                await cts.CancelAsync().ConfigureAwait(false);
                 runDescriptor.ScenarioContext.AddTrace($"Endpoint {component.Name} failed to start: " + ex);
                 throw;
             }
@@ -167,7 +167,7 @@
             }
             catch (Exception ex) when (!ex.IsCausedBy(token))
             {
-                await cts.CancelAsync();
+                await cts.CancelAsync().ConfigureAwait(false);
                 runDescriptor.ScenarioContext.AddTrace($"Whens for endpoint {component.Name} failed to execute." + ex);
                 throw;
             }
