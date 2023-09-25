@@ -21,8 +21,7 @@
                         config =>
                         {
                             serviceCollection.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                            var configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
+                            return EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                         },
                         (configured, ct) =>
                         {

@@ -22,13 +22,13 @@
                 .WithEndpoint<StartedEndpoint>(b =>
                 {
                     b.ToCreateInstance(
-                        endpointConfiguration => Task.FromResult(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection)),
+                        endpointConfiguration => EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection),
                         (startableEndpoint, ct) =>
                         {
                             spyContainer = new SpyContainer(serviceCollection);
                             return startableEndpoint.Start(spyContainer, ct);
                         });
-                    b.When(e => e.SendLocal(new SomeMessage()));
+                    b.When(session => session.SendLocal(new SomeMessage()));
                 })
                 .Done(c => c.GotTheMessage)
                 .Run();

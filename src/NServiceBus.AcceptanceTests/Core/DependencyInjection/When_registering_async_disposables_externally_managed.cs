@@ -21,15 +21,8 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAsyncDisposable>(b =>
                 {
-                    IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
-
                     b.ToCreateInstance(
-                        config =>
-                        {
-                            configuredEndpoint =
-                                EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
-                        },
+                        config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
                         (configured, ct) =>
                         {
                             serviceProvider = serviceCollection.BuildServiceProvider();
@@ -94,7 +87,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
                 return new ValueTask();
             }
 
-            readonly Context context;
+            Context context;
         }
 
         class ScopedAsyncDisposable : IAsyncDisposable
@@ -108,7 +101,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
                 return new ValueTask();
             }
 
-            readonly Context context;
+            Context context;
         }
     }
 }

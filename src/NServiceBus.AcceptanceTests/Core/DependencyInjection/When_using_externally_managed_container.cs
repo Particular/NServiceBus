@@ -20,17 +20,11 @@
             var result = await Scenario.Define<Context>()
             .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             {
-                IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
-
                 b.ToCreateInstance(
-                        config =>
-                        {
-                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
-                        },
+                        config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
                         (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
                     )
-                    .When((e, c) => configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage()));
+                    .When((session, c) => session.SendLocal(new SomeMessage()));
             })
             .Done(c => c.MessageReceived)
             .Run();
