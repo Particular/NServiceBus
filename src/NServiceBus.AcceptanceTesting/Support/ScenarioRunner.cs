@@ -173,26 +173,42 @@
             }
         }
 
-        Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
+        async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
             var stopTimeout = TimeSpan.FromMinutes(2);
-            return endpoints.Select(async endpoint =>
+            using var stopTimeoutCts = CreateCancellationTokenSource(stopTimeout);
+            var cancellationToken = stopTimeoutCts.Token;
+
+            try
             {
-                await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
-                runDescriptor.ScenarioContext.AddTrace($"Stopping endpoint: {endpoint.Name}");
-                var stopwatch = Stopwatch.StartNew();
-                try
-                {
-                    await endpoint.Stop().ConfigureAwait(false);
-                    stopwatch.Stop();
-                    runDescriptor.ScenarioContext.AddTrace($"Endpoint: {endpoint.Name} stopped ({stopwatch.Elapsed}s)");
-                }
-                catch (Exception)
-                {
-                    runDescriptor.ScenarioContext.AddTrace($"Endpoint {endpoint.Name} failed to stop.");
-                    throw;
-                }
-            }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
+                await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, cancellationToken)))
+                    .WaitAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.", ex);
+            }
+        }
+
+        async Task StopEndpoint(ComponentRunner endpoint, CancellationToken cancellationToken)
+        {
+            // TODO: Why is this needed?
+            await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
+
+            runDescriptor.ScenarioContext.AddTrace($"Stopping endpoint: {endpoint.Name}");
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                await endpoint.Stop(cancellationToken).ConfigureAwait(false);
+                stopwatch.Stop();
+                runDescriptor.ScenarioContext.AddTrace($"Endpoint: {endpoint.Name} stopped ({stopwatch.Elapsed}s)");
+            }
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            {
+                runDescriptor.ScenarioContext.AddTrace($"Endpoint {endpoint.Name} failed to stop: " + ex);
+                throw;
+            }
         }
 
         async Task<ComponentRunner[]> InitializeRunners()
