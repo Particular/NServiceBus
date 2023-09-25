@@ -74,6 +74,13 @@
             return this;
         }
 
+        public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<EndpointConfiguration, T> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
+        {
+            behavior.ConfigureHowToCreateInstance(config => Task.FromResult(createCallback(config)), startCallback);
+
+            return this;
+        }
+
         public EndpointBehaviorBuilder<TContext> DoNotFailOnErrorMessages()
         {
             behavior.DoNotFailOnErrorMessages = true;
