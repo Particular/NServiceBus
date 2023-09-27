@@ -17,45 +17,77 @@
             var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
-            var source = new TaskCompletionSource();
-            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation(source);
 
-            Assert.That(async () =>
+            var dtcTransactionSource = new TaskCompletionSource();
+            var unenlistedUpdateSource = new TaskCompletionSource();
+            var enlistedUpdateSource = new TaskCompletionSource();
+            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation(dtcTransactionSource);
+
+            var unenlistedOperation = Task.Run(async () =>
             {
-                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, enlistmentNotifier, EnlistmentOptions.None);
+                using var unenlistedSession = configuration.CreateStorageSession();
 
+                var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
+                await unenlistedSession.Open(unenlistedContextBag);
+
+                var unenlistedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
+
+                await unenlistedSession.CompleteAsync();
+                await enlistedUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+                unenlistedSagaRecord.LastUpdatedBy = "Unenlisted";
+
+                await unenlistedSession.Open(unenlistedContextBag);
+                await persister.Update(unenlistedSagaRecord, unenlistedSession, unenlistedContextBag);
+                await unenlistedSession.CompleteAsync();
+
+                unenlistedUpdateSource.SetResult();
+            });
+
+            var enlistedOperation = Task.Run(() =>
+            {
+                Assert.That(async () =>
+                {
                     var transportTransaction = new TransportTransaction();
                     transportTransaction.Set(Transaction.Current);
 
+                    using var enlistedSession = configuration.CreateStorageSession();
                     var enlistedContextBag = configuration.GetContextBagForSagaStorage();
-                    using (var enlistedSession = configuration.CreateStorageSession())
-                    {
-                        var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
-                        using (var unenlistedSession = configuration.CreateStorageSession())
-                        {
-                            await unenlistedSession.Open(unenlistedContextBag);
-                            await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
+                    await enlistedSession.Open(enlistedContextBag);
 
-                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
-                            var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
+                    var enlistedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
 
-                            await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
-                            await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
+                    await enlistedSession.CompleteAsync();
 
-                            await unenlistedSession.CompleteAsync();
-                        }
+                    enlistedUpdateSource.SetResult();
 
-                        tx.Complete();
-                    }
-                }
-            }, Throws.Exception);
+                    await unenlistedUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
 
-            await source.Task.WaitAsync(TimeSpan.FromSeconds(30));
+                    using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, enlistmentNotifier, EnlistmentOptions.None);
+                    await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
+
+                    enlistedSagaRecord.LastUpdatedBy = "Enlisted";
+
+                    await persister.Update(enlistedSagaRecord, enlistedSession, enlistedContextBag);
+                    await enlistedSession.CompleteAsync();
+
+                    tx.Complete();
+                }, Throws.Exception);
+            });
+
+            await Task.WhenAll(dtcTransactionSource.Task.WaitAsync(TimeSpan.FromSeconds(30)), unenlistedOperation, enlistedOperation);
+
+            using var dataCheckSession = configuration.CreateStorageSession();
+            var dataCheckContextBag = configuration.GetContextBagForSagaStorage();
+
+            await dataCheckSession.Open(dataCheckContextBag);
+            var updatedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, dataCheckSession, dataCheckContextBag);
+            await dataCheckSession.CompleteAsync();
 
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
+            Assert.AreEqual("Unenlisted", updatedSagaRecord.LastUpdatedBy);
         }
 
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
@@ -74,6 +106,8 @@
         public class TestSagaData : ContainSagaData
         {
             public string SomeId { get; set; }
+
+            public string LastUpdatedBy { get; set; }
         }
 
         public class StartMessage
