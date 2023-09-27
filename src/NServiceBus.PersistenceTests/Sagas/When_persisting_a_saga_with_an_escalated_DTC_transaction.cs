@@ -26,13 +26,12 @@
             var unenlistedOperation = Task.Run(async () =>
             {
                 using var unenlistedSession = configuration.CreateStorageSession();
-
                 var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
+
                 await unenlistedSession.Open(unenlistedContextBag);
-
                 var unenlistedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
-
                 await unenlistedSession.CompleteAsync();
+
                 await enlistedUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
 
                 unenlistedSagaRecord.LastUpdatedBy = "Unenlisted";
@@ -48,15 +47,11 @@
             {
                 Assert.That(async () =>
                 {
-                    var transportTransaction = new TransportTransaction();
-                    transportTransaction.Set(Transaction.Current);
-
                     using var enlistedSession = configuration.CreateStorageSession();
                     var enlistedContextBag = configuration.GetContextBagForSagaStorage();
+
                     await enlistedSession.Open(enlistedContextBag);
-
                     var enlistedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
-
                     await enlistedSession.CompleteAsync();
 
                     enlistedUpdateSource.SetResult();
@@ -65,10 +60,13 @@
 
                     using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
                     Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, enlistmentNotifier, EnlistmentOptions.None);
-                    await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
+
+                    var transportTransaction = new TransportTransaction();
+                    transportTransaction.Set(Transaction.Current);
 
                     enlistedSagaRecord.LastUpdatedBy = "Enlisted";
 
+                    await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
                     await persister.Update(enlistedSagaRecord, enlistedSession, enlistedContextBag);
                     await enlistedSession.CompleteAsync();
 
