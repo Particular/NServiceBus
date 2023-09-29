@@ -1,9 +1,7 @@
 namespace NServiceBus.Persistence
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Transactions;
     using Extensibility;
     using Outbox;
     using Pipeline;
@@ -38,19 +36,6 @@ namespace NServiceBus.Persistence
             IOutboxTransaction outboxTransaction, TransportTransaction transportTransaction,
             ContextBag contextBag, CancellationToken cancellationToken = default)
         {
-            // Transport supports DTC and uses TxScope owned by the transport
-            var scopeTx = Transaction.Current;
-
-            if (transportTransaction.TryGet(out Transaction transportTx) &&
-                scopeTx != null &&
-                transportTx != scopeTx)
-            {
-                throw new InvalidOperationException("A TransactionScope has been opened in the current context overriding the one created by the transport. "
-                                    + "This setup can result in inconsistent data because operations done via resource managers enlisted in the context scope won't be committed "
-                                    + "atomically with the receive transaction. To manually control the TransactionScope in the pipeline switch the transport transaction mode "
-                                    + $"to values lower than '{nameof(TransportTransactionMode.TransactionScope)}'.");
-            }
-
             if (await session.TryOpen(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false))
             {
                 return;

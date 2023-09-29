@@ -27,21 +27,15 @@
         }
 
         [Test]
-        public void Should_throw_if_scope_in_transport_transaction_differs_from_the_ambient()
+        public void Should_throw_if_ambient_transaction_is_different_from_scope_used_by_transport()
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
 
             var context = new TestableIncomingLogicalMessageContext();
 
-            context.Extensions.Set<IOutboxTransaction>(new NoOpOutboxTransaction());
-
             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var transportTransaction = new TransportTransaction();
-
-                transportTransaction.Set(Transaction.Current);
-
-                context.Extensions.Set(transportTransaction);
+                context.Extensions.Set(CreateTransactionScopeModeTransportTransaction());
 
                 using (new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
                 {
@@ -53,7 +47,27 @@
         }
 
         [Test]
-        public void Should_not_throw_if_scope_in_transport_transaction_are_the_same_as_the_ambient()
+        public void Should_throw_if_ambient_transaction_suppressed_when_transport_uses_a_scope()
+        {
+            var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
+
+            var context = new TestableIncomingLogicalMessageContext();
+
+            using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                context.Extensions.Set(CreateTransactionScopeModeTransportTransaction());
+
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
+
+                    StringAssert.Contains("The TransactionScope created by the transport has been supressed", ex.Message);
+                }
+            }
+        }
+
+        [Test]
+        public void Should_not_throw_if_ambient_scope_is_same_as_transport_scope()
         {
             var messageHandlerRegistry = new MessageHandlerRegistry();
             messageHandlerRegistry.RegisterHandler(typeof(FakeHandler));
@@ -67,17 +81,22 @@
 
             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var transportTransaction = new TransportTransaction();
-
-                transportTransaction.Set(Transaction.Current);
-
-                context.Extensions.Set(transportTransaction);
+                context.Extensions.Set(CreateTransactionScopeModeTransportTransaction());
 
                 using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c => Task.CompletedTask));
                 }
             }
+        }
+
+        TransportTransaction CreateTransactionScopeModeTransportTransaction()
+        {
+            var transportTransaction = new TransportTransaction();
+
+            transportTransaction.Set(Transaction.Current);
+
+            return transportTransaction;
         }
 
         class FakeHandler : IHandleMessages<object>
