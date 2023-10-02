@@ -62,17 +62,11 @@
                 return;
             }
 
-            var currentScope = Transaction.Current;
+            var currentScope = Transaction.Current ?? throw new InvalidOperationException("The TransactionScope created by the transport has been suppressed. " + scopeInconsistencyMessage);
 
-            if (currentScope == null)
+            if (currentScope != scopeOpenedByTransport)
             {
-                throw new InvalidOperationException("The TransactionScope created by the transport has been suppressed. " + ScopeInconsistencyMessage);
-
-            }
-
-            if (scopeOpenedByTransport != currentScope)
-            {
-                throw new InvalidOperationException("A TransactionScope has been opened in the current context overriding the one created by the transport. " + ScopeInconsistencyMessage);
+                throw new InvalidOperationException("A TransactionScope has been created that is overriding the one created by the transport. " + scopeInconsistencyMessage);
             }
         }
 
@@ -100,9 +94,8 @@
 
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
         static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
-        static readonly string ScopeInconsistencyMessage = @$"
-This setup can result in inconsistent data because operations done via resource managers enlisted in the context scope won't be committed
-atomically with the receive transaction. To manually control the TransactionScope in the pipeline switch the transport transaction mode
-to values lower than '{nameof(TransportTransactionMode.TransactionScope)}'.";
+        static readonly string scopeInconsistencyMessage =
+            "This can result in inconsistent data because other enlisting operations won't be committed atomically with the receive transaction. " +
+            $"The transport transaction mode must be changed to something other than '{nameof(TransportTransactionMode.TransactionScope)}' before attempting to manually control the TransactionScope in the pipeline.";
     }
 }

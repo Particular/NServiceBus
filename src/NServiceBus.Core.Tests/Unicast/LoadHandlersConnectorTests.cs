@@ -1,14 +1,14 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using System.Threading.Tasks;
-    using Outbox;
+    using System.Transactions;
+    using Core.Tests.Fakes;
+    using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Transport;
     using NUnit.Framework;
+    using Outbox;
     using Testing;
-    using Core.Tests.Fakes;
-    using System.Transactions;
-    using System;
-    using Microsoft.Extensions.DependencyInjection;
 
     [TestFixture]
     public class LoadHandlersConnectorTests
@@ -41,7 +41,7 @@
                 {
                     var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
-                    StringAssert.Contains("A TransactionScope has been opened in the current context overriding the one created by the transport", ex.Message);
+                    StringAssert.Contains("A TransactionScope has been created that is overriding the one created by the transport", ex.Message);
                 }
             }
         }
