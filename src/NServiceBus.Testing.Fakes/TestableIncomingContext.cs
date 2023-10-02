@@ -2,7 +2,6 @@
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Pipeline;
 
     /// <summary>

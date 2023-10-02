@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Transactions;
     using Logging;
     using Microsoft.Extensions.DependencyInjection;
+    using NServiceBus.Transport;
     using Persistence;
     using Pipeline;
     using Unicast;
@@ -16,6 +18,8 @@
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
+            ValidateTransactionMode(context);
+
             using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
             await storageSession.Open(context).ConfigureAwait(false);
 
@@ -49,6 +53,23 @@
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
         }
 
+        void ValidateTransactionMode(IIncomingLogicalMessageContext context)
+        {
+            var transportTransaction = context.Extensions.Get<TransportTransaction>();
+
+            if (!transportTransaction.TryGet(out Transaction scopeOpenedByTransport))
+            {
+                return;
+            }
+
+            var currentScope = Transaction.Current ?? throw new InvalidOperationException("The TransactionScope created by the transport has been suppressed. " + scopeInconsistencyMessage);
+
+            if (currentScope != scopeOpenedByTransport)
+            {
+                throw new InvalidOperationException("A TransactionScope has been created that is overriding the one created by the transport. " + scopeInconsistencyMessage);
+            }
+        }
+
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
         {
             var builder = new StringBuilder($"Processing message type: {context.Message.MessageType}");
@@ -73,5 +94,8 @@
 
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
         static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
+        static readonly string scopeInconsistencyMessage =
+            "This can result in inconsistent data because other enlisting operations won't be committed atomically with the receive transaction. " +
+            $"The transport transaction mode must be changed to something other than '{nameof(TransportTransactionMode.TransactionScope)}' before attempting to manually control the TransactionScope in the pipeline.";
     }
 }
