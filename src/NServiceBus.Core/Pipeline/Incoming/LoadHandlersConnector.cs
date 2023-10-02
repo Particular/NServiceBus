@@ -66,7 +66,7 @@
 
             if (currentScope == null)
             {
-                throw new InvalidOperationException("The TransactionScope created by the transport has been supressed. " + ScopeInconsistencyMessage);
+                throw new InvalidOperationException("The TransactionScope created by the transport has been suppressed. " + ScopeInconsistencyMessage);
 
             }
 

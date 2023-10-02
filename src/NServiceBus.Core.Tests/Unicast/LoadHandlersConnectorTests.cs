@@ -61,7 +61,7 @@
                 {
                     var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
-                    StringAssert.Contains("The TransactionScope created by the transport has been supressed", ex.Message);
+                    StringAssert.Contains("The TransactionScope created by the transport has been suppressed", ex.Message);
                 }
             }
         }
