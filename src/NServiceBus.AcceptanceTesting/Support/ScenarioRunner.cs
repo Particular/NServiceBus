@@ -126,21 +126,15 @@
 
         async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
-            using var timeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
+            using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
             // separate CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException
-            using var endpointStartCts = new CancellationTokenSource();
+            using var endpointStartTimeout = new CancellationTokenSource();
+            using var _ = allEndpointsStartTimeout.Token
+                .Register(static state => ((CancellationTokenSource)state).Cancel(), endpointStartTimeout);
 
-            try
-            {
-                await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, endpointStartCts)))
-                    .WaitAsync(timeoutCts.Token)
-                    .ConfigureAwait(false);
-            }
-            finally
-            {
-                // already cancelled if an endpoint failed or all endpoints already started so cancel has no effect.
-                await endpointStartCts.CancelAsync().ConfigureAwait(false);
-            }
+            await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, endpointStartTimeout)))
+                .WaitAsync(allEndpointsStartTimeout.Token)
+                .ConfigureAwait(false);
         }
 
         async Task StartEndpoint(ComponentRunner component, CancellationTokenSource cts)
@@ -161,21 +155,15 @@
 
         async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
         {
-            using var timeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
+            using var allWhensTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
             // separate CTS as otherwise a failure during endpoint when blocks will cause WaitAsync to throw an OperationCanceledException
-            using var whenCts = CreateCancellationTokenSource(TimeSpan.FromSeconds(60));
+            using var whenTimeout = CreateCancellationTokenSource(TimeSpan.FromSeconds(60));
+            using var _ = allWhensTimeout.Token
+                .Register(static state => ((CancellationTokenSource)state).Cancel(), whenTimeout);
 
-            try
-            {
-                await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, whenCts)))
-                    .WaitAsync(timeoutCts.Token)
-                    .ConfigureAwait(false);
-            }
-            finally
-            {
-                // already cancelled if an endpoint failed or all endpoints already completed when blocks so cancel has no effect.
-                await whenCts.CancelAsync().ConfigureAwait(false);
-            }
+            await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, whenTimeout)))
+                .WaitAsync(allWhensTimeout.Token)
+                .ConfigureAwait(false);
         }
 
         async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
