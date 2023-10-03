@@ -9,53 +9,83 @@
     public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPersisterTests
     {
         [Test]
-        public async Task Save_should_fail_when_data_changes_between_concurrent_instances()
+        public async Task Should_rollback_when_the_dtc_transaction_is_aborted()
         {
             configuration.RequiresDtcSupport();
 
-            var persister = configuration.SagaStorage;
-            var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
-            await SaveSaga(sagaData);
-            var generatedSagaId = sagaData.Id;
-            var source = new TaskCompletionSource();
-            var enlistmentNotifier = new EnlistmentWhichEnforcesDtcEscalation(source);
+            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+            await SaveSaga(startingSagaData);
+
+            // This enlistment notifier emulates a participating DTC transaction that fails to commit.
+            var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: true);
 
             Assert.That(async () =>
             {
-                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, enlistmentNotifier, EnlistmentOptions.None);
+                using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-                    var transportTransaction = new TransportTransaction();
-                    transportTransaction.Set(Transaction.Current);
+                Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
 
-                    var enlistedContextBag = configuration.GetContextBagForSagaStorage();
-                    using (var enlistedSession = configuration.CreateStorageSession())
-                    {
-                        var unenlistedContextBag = configuration.GetContextBagForSagaStorage();
-                        using (var unenlistedSession = configuration.CreateStorageSession())
-                        {
-                            await unenlistedSession.Open(unenlistedContextBag);
-                            await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
+                var transportTransaction = new TransportTransaction();
+                transportTransaction.Set(Transaction.Current);
 
-                            var unenlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, unenlistedSession, unenlistedContextBag);
-                            var enlistedRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
+                using var session = configuration.CreateStorageSession();
+                var contextBag = configuration.GetContextBagForSagaStorage();
 
-                            await persister.Update(unenlistedRecord, unenlistedSession, unenlistedContextBag);
-                            await persister.Update(enlistedRecord, enlistedSession, enlistedContextBag);
+                await session.TryOpen(transportTransaction, contextBag);
 
-                            await unenlistedSession.CompleteAsync();
-                        }
+                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+                sagaData.LastUpdatedBy = "Changed";
+                await configuration.SagaStorage.Update(sagaData, session, contextBag);
 
-                        tx.Complete();
-                    }
-                }
-            }, Throws.Exception);
+                await session.CompleteAsync();
 
-            await source.Task.WaitAsync(TimeSpan.FromSeconds(30));
+                // When the enlistmentNotifier forces a rollback, the persister should also rollback with the rest of the DTC transaction.
+                tx.Complete();
+            }, Throws.Exception.TypeOf<TransactionAbortedException>());
 
-            Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
+            var updatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
+
+            Assert.NotNull(updatedSagaData);
+            Assert.AreEqual("Unchanged", updatedSagaData.LastUpdatedBy);
+        }
+
+        [Test]
+        public async Task Should_rollback_dtc_transaction_when_storage_session_rolls_back()
+        {
+            configuration.RequiresDtcSupport();
+
+            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+            await SaveSaga(startingSagaData);
+
+            var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: false);
+
+            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
+
+                var transportTransaction = new TransportTransaction();
+                transportTransaction.Set(Transaction.Current);
+
+                using var session = configuration.CreateStorageSession();
+                var contextBag = configuration.GetContextBagForSagaStorage();
+
+                await session.TryOpen(transportTransaction, contextBag);
+
+                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+                sagaData.LastUpdatedBy = "Changed";
+                await configuration.SagaStorage.Update(sagaData, session, contextBag);
+
+                // There is no call to CompleteAsync() here to emulate what would happen if Update() threw an exception: disposing the TransactionScope without completing the transaction
+            }
+
+            await enlistmentNotifier.CompletionSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+            var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
+
+            Assert.NotNull(notUpdatedSagaData);
+            Assert.AreEqual("Unchanged", notUpdatedSagaData.LastUpdatedBy);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
+            Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
         }
 
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
@@ -74,6 +104,8 @@
         public class TestSagaData : ContainSagaData
         {
             public string SomeId { get; set; }
+
+            public string LastUpdatedBy { get; set; }
         }
 
         public class StartMessage
@@ -81,34 +113,43 @@
             public string SomeId { get; set; }
         }
 
-        class EnlistmentWhichEnforcesDtcEscalation(TaskCompletionSource source) : IEnlistmentNotification
+        class EnlistmentNotifier(bool abortTransaction) : IEnlistmentNotification
         {
+            public TaskCompletionSource CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
             public bool RollbackWasCalled { get; private set; }
 
             public bool CommitWasCalled { get; private set; }
 
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
-                preparingEnlistment.Prepared();
+                if (!abortTransaction)
+                {
+                    preparingEnlistment.Prepared();
+                }
+                else
+                {
+                    preparingEnlistment.ForceRollback();
+                }
             }
 
             public void Commit(Enlistment enlistment)
             {
                 CommitWasCalled = true;
-                source.SetResult();
+                CompletionSource.SetResult();
                 enlistment.Done();
             }
 
             public void Rollback(Enlistment enlistment)
             {
                 RollbackWasCalled = true;
-                source.SetResult();
+                CompletionSource.SetResult();
                 enlistment.Done();
             }
 
             public void InDoubt(Enlistment enlistment)
             {
-                source.SetResult();
+                CompletionSource.SetResult();
                 enlistment.Done();
             }
 
