@@ -17,7 +17,7 @@ public class RedirectHelper
     {
         if (args.Name.StartsWith("NServiceBus.Core,"))
         {
-            return typeof(IMessage).Assembly;
+            return typeof(IEndpointInstance).Assembly;
         }
         return null;
     }

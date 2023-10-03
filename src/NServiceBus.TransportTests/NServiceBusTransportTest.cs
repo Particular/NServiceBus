@@ -40,7 +40,7 @@
 
             if (string.IsNullOrWhiteSpace(transportToUse))
             {
-                var coreAssembly = typeof(IMessage).Assembly;
+                var coreAssembly = typeof(IEndpointInstance).Assembly;
 
                 var nonCoreTransport = transportDefinitions.Value.FirstOrDefault(t => t.Assembly != coreAssembly);
 

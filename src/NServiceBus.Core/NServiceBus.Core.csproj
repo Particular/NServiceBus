@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,6 +10,7 @@
 
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0-alpha.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0-rc.1.23419.4" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0-rc.1.23419.4" />
     <PackageReference Include="System.Text.Json" Version="8.0.0-rc.1.23419.4" />
