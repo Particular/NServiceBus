@@ -48,7 +48,7 @@
         {
             foreach (var member in type.GetMembers())
             {
-                if (member.DeclaringType.Assembly != typeof(IMessage).Assembly)
+                if (member.DeclaringType.Assembly != typeof(IEndpointInstance).Assembly)
                 {
                     continue;
                 }

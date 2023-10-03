@@ -362,7 +362,6 @@ namespace NServiceBus
     {
         System.Threading.CancellationToken CancellationToken { get; }
     }
-    public interface ICommand : NServiceBus.IMessage { }
     public interface IConfigureHowToFindSagaWithMessage
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object?>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty)
@@ -403,7 +402,6 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface IEvent : NServiceBus.IMessage { }
     public interface IHandleMessages<T>
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
@@ -412,7 +410,6 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
-    public interface IMessage { }
     public interface IMessageConvention
     {
         string Name { get; }

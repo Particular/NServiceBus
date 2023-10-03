@@ -102,9 +102,8 @@
             return project;
         }
 
-        static AnalyzerTestFixture()
-        {
-            ProjectReferences = ImmutableList.Create(
+        static AnalyzerTestFixture() => ProjectReferences =
+            [
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
@@ -112,8 +111,9 @@
                 MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
                 MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
                 MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location));
-        }
+                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
+            ];
 
         static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
 
