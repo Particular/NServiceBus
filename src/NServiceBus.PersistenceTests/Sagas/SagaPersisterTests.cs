@@ -9,13 +9,8 @@
     using NUnit.Framework;
 
     [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.SagaVariants))]
-    public class SagaPersisterTests
+    public class SagaPersisterTests(TestVariant param)
     {
-        public SagaPersisterTests(TestVariant param)
-        {
-            this.param = param.DeepCopy();
-        }
-
         [OneTimeSetUp]
         public virtual async Task OneTimeSetUp()
         {
@@ -32,13 +27,11 @@
         protected async Task SaveSaga<TSagaData>(TSagaData saga, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var insertContextBag = configuration.GetContextBagForSagaStorage();
-            using (var insertSession = configuration.CreateStorageSession())
-            {
-                await insertSession.Open(insertContextBag, cancellationToken);
+            using var insertSession = configuration.CreateStorageSession();
+            await insertSession.Open(insertContextBag, cancellationToken);
 
-                await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
-                await insertSession.CompleteAsync(cancellationToken);
-            }
+            await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
+            await insertSession.CompleteAsync(cancellationToken);
         }
 
         protected async Task SaveSagaWithSession<TSagaData>(TSagaData saga, ICompletableSynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
@@ -52,17 +45,14 @@
         protected async Task<TSagaData> GetByCorrelationProperty<TSagaData>(string correlatedPropertyName, object correlationPropertyData, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var context = configuration.GetContextBagForSagaStorage();
-            TSagaData sagaData;
             var persister = configuration.SagaStorage;
 
-            using (var completeSession = configuration.CreateStorageSession())
-            {
-                await completeSession.Open(context, cancellationToken);
+            using var completeSession = configuration.CreateStorageSession();
+            await completeSession.Open(context, cancellationToken);
 
-                sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
+            var sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
 
-                await completeSession.CompleteAsync(cancellationToken);
-            }
+            await completeSession.CompleteAsync(cancellationToken);
 
             return sagaData;
         }
@@ -70,15 +60,12 @@
         protected async Task<TSagaData> GetById<TSagaData>(Guid sagaId, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
         {
             var readContextBag = configuration.GetContextBagForSagaStorage();
-            TSagaData sagaData;
-            using (var readSession = configuration.CreateStorageSession())
-            {
-                await readSession.Open(readContextBag, cancellationToken);
+            using var readSession = configuration.CreateStorageSession();
+            await readSession.Open(readContextBag, cancellationToken);
 
-                sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);
+            var sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);
 
-                await readSession.CompleteAsync(cancellationToken);
-            }
+            await readSession.CompleteAsync(cancellationToken);
 
             return sagaData;
         }
@@ -92,7 +79,7 @@
             {
                 var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
 
-                var value = prop.GetValue(sagaData);
+                var value = prop!.GetValue(sagaData);
 
                 correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
             }
@@ -109,7 +96,7 @@
                 if (sagaMetadata.TryGetCorrelationProperty(out var correlatedProp))
                 {
                     var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
-                    var value = prop.GetValue(sagaData);
+                    var value = prop!.GetValue(sagaData);
                     correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
                 }
 
@@ -120,6 +107,6 @@
         }
 
         protected IPersistenceTestsConfiguration configuration;
-        protected TestVariant param;
+        protected TestVariant param = param.DeepCopy();
     }
 }

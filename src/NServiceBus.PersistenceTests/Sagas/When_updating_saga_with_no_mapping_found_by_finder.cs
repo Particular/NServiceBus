@@ -55,15 +55,8 @@
             }
         }
 
-        public class CustomFinder : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
+        public class CustomFinder(SagaWithoutCorrelationPropertyData sagaToFind) : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
         {
-            readonly SagaWithoutCorrelationPropertyData sagaToFind;
-
-            public CustomFinder(SagaWithoutCorrelationPropertyData sagaToFind)
-            {
-                this.sagaToFind = sagaToFind;
-            }
-
             public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult(sagaToFind);
