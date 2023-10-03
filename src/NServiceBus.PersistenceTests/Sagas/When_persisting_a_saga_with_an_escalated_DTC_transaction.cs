@@ -13,10 +13,8 @@
         {
             configuration.RequiresDtcSupport();
 
-            var persister = configuration.SagaStorage;
-            var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
-            await SaveSaga(sagaData);
-            var generatedSagaId = sagaData.Id;
+            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+            await SaveSaga(startingSagaData);
 
             // This enlistment notifier emulates a participating DTC transaction that fails to commit.
             var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: true);
@@ -30,23 +28,24 @@
                 var transportTransaction = new TransportTransaction();
                 transportTransaction.Set(Transaction.Current);
 
-                using var enlistedSession = configuration.CreateStorageSession();
-                var enlistedContextBag = configuration.GetContextBagForSagaStorage();
+                using var session = configuration.CreateStorageSession();
+                var contextBag = configuration.GetContextBagForSagaStorage();
 
-                await enlistedSession.TryOpen(transportTransaction, enlistedContextBag);
-                var enlistedSagaRecord = await persister.Get<TestSagaData>(generatedSagaId, enlistedSession, enlistedContextBag);
+                await session.TryOpen(transportTransaction, contextBag);
 
-                enlistedSagaRecord.LastUpdatedBy = "Changed";
-                await persister.Update(enlistedSagaRecord, enlistedSession, enlistedContextBag);
+                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+                sagaData.LastUpdatedBy = "Changed";
+                await configuration.SagaStorage.Update(sagaData, session, contextBag);
 
-                await enlistedSession.CompleteAsync();
+                await session.CompleteAsync();
 
                 // When the enlistmentNotifier forces a rollback, the persister should also rollback with the rest of the DTC transaction.
                 tx.Complete();
             }, Throws.Exception.TypeOf<TransactionAbortedException>());
 
-            var updatedSagaData = await GetById<TestSagaData>(generatedSagaId);
+            var updatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
+            Assert.NotNull(updatedSagaData);
             Assert.AreEqual("Unchanged", updatedSagaData.LastUpdatedBy);
         }
 
@@ -55,12 +54,8 @@
         {
             configuration.RequiresDtcSupport();
 
-            var sagaData = new TestSagaData
-            {
-                SomeId = Guid.NewGuid().ToString(),
-                LastUpdatedBy = "Unchanged"
-            };
-            await SaveSaga(sagaData);
+            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+            await SaveSaga(startingSagaData);
 
             var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: false);
 
@@ -71,27 +66,24 @@
                 var transportTransaction = new TransportTransaction();
                 transportTransaction.Set(Transaction.Current);
 
+                using var session = configuration.CreateStorageSession();
                 var contextBag = configuration.GetContextBagForSagaStorage();
-                using (var session = configuration.CreateStorageSession())
-                {
-                    await session.TryOpen(transportTransaction, contextBag);
 
-                    var sagaFromStorage = await configuration.SagaStorage.Get<TestSagaData>(sagaData.Id, session, contextBag);
-                    sagaFromStorage.LastUpdatedBy = "Changed";
+                await session.TryOpen(transportTransaction, contextBag);
 
-                    await configuration.SagaStorage.Update(sagaFromStorage, session, contextBag);
+                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+                sagaData.LastUpdatedBy = "Changed";
+                await configuration.SagaStorage.Update(sagaData, session, contextBag);
 
-                    // Do not call CompleteAsync(). The call to CompleteAsync() is skipped in situations where an exception is thrown while processing storage operations. In these cases, the transaction is expected to rollback.
-                }
+                // There is no call to CompleteAsync() here to emulate what would happen if Update() threw an exception: disposing the TransactionScope without completing the transaction
             }
-            // The TransactionScope and the StorageSession have been disposed without being properly completed resulting (hopefully) in a rollback.
 
             await enlistmentNotifier.CompletionSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
 
-            var hopefullyNotUpdatedSaga = await GetById<TestSagaData>(sagaData.Id);
+            var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
-            Assert.NotNull(hopefullyNotUpdatedSaga);
-            Assert.AreEqual("Unchanged", hopefullyNotUpdatedSaga.LastUpdatedBy);
+            Assert.NotNull(notUpdatedSagaData);
+            Assert.AreEqual("Unchanged", notUpdatedSagaData.LastUpdatedBy);
             Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
             Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
         }
