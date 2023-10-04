@@ -52,6 +52,6 @@ namespace NServiceBus
                 ? value
                 : value.Length <= maxLength
                     ? value
-                    : value.Substring(0, maxLength);
+                    : value[..maxLength];
     }
 }
