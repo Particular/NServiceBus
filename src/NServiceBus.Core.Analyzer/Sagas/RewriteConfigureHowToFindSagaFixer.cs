@@ -26,8 +26,6 @@
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        static readonly string NewLine = "\r\n"; //System.Environment.NewLine;
-
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             // Since all the diagnostics have the same span
@@ -129,7 +127,7 @@
                 mapSagaInvocation = InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        mapSagaInvocation.WithTrailingTrivia(EndOfLine(NewLine)),
+                        mapSagaInvocation.WithTrailingTrivia(ElasticCarriageReturnLineFeed),
                         Token(SyntaxKind.DotToken).WithLeadingTrivia(Indent(2)),
                         CreateGenericMappingMethod(mapping.IsHeader ? "ToMessageHeader" : "ToMessage", mapping.MessageTypeSyntax.ToFullString())
                     )
@@ -142,9 +140,9 @@
             }
 
             var block = Block(
-                Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(Indent()).WithTrailingTrivia(EndOfLine(NewLine)),
+                Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(Indent()).WithTrailingTrivia(ElasticCarriageReturnLineFeed),
                 SingletonList<StatementSyntax>(
-                    ExpressionStatement(mapSagaInvocation, Token(SyntaxKind.SemicolonToken).WithTrailingTrivia(EndOfLine(NewLine)))
+                    ExpressionStatement(mapSagaInvocation, Token(SyntaxKind.SemicolonToken).WithTrailingTrivia(ElasticCarriageReturnLineFeed))
                 ),
                 Token(SyntaxKind.CloseBraceToken).WithLeadingTrivia(Indent())
             );
@@ -163,7 +161,7 @@
                             Token(SyntaxKind.ProtectedKeyword),
                             Token(SyntaxKind.OverrideKeyword)}))
                 .WithParameterList(method.ParameterList.NormalizeWhitespace())
-                .NormalizeWhitespace().WithLeadingTrivia(leadingTrivia).WithTrailingTrivia(EndOfLine(NewLine))
+                .NormalizeWhitespace().WithLeadingTrivia(leadingTrivia).WithTrailingTrivia(ElasticCarriageReturnLineFeed)
                 .WithBody(block)
                 .WithExpressionBody(null)
                 .WithTrailingTrivia(method.GetTrailingTrivia());
