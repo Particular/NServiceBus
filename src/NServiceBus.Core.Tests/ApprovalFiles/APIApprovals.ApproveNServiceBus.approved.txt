@@ -1155,7 +1155,14 @@ namespace NServiceBus.Faults
     }
     public static class FaultsHeaderKeys
     {
+        public const string ExceptionType = "NServiceBus.ExceptionInfo.ExceptionType";
         public const string FailedQ = "NServiceBus.FailedQ";
+        public const string HelpLink = "NServiceBus.ExceptionInfo.HelpLink";
+        public const string InnerExceptionType = "NServiceBus.ExceptionInfo.InnerExceptionType";
+        public const string Message = "NServiceBus.ExceptionInfo.Message";
+        public const string Source = "NServiceBus.ExceptionInfo.Source";
+        public const string StackTrace = "NServiceBus.ExceptionInfo.StackTrace";
+        public const string TimeOfFailure = "NServiceBus.TimeOfFailure";
     }
     public class ImmediateRetryMessage
     {
