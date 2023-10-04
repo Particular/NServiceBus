@@ -24,18 +24,18 @@ namespace NServiceBus
 
         static void SetExceptionMetadata(Dictionary<string, string> headers, Exception e)
         {
-            headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
+            headers[FaultsHeaderKeys.ExceptionType] = e.GetType().FullName;
 
             if (e.InnerException != null)
             {
-                headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+                headers[FaultsHeaderKeys.InnerExceptionType] = e.InnerException.GetType().FullName;
             }
 
-            headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            headers["NServiceBus.ExceptionInfo.Message"] = Truncate(e.GetMessage(), 16384);
-            headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-            headers["NServiceBus.TimeOfFailure"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
+            headers[FaultsHeaderKeys.HelpLink] = e.HelpLink;
+            headers[FaultsHeaderKeys.Message] = Truncate(e.GetMessage(), 16384);
+            headers[FaultsHeaderKeys.Source] = e.Source;
+            headers[FaultsHeaderKeys.StackTrace] = e.ToString();
+            headers[FaultsHeaderKeys.TimeOfFailure] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
 
             foreach (DictionaryEntry entry in e.Data)
             {
@@ -43,7 +43,7 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value.ToString();
+                headers[$"{FaultsHeaderKeys.ExceptionInfoDataPrefix}{entry.Key}"] = entry.Value.ToString();
             }
         }
 
