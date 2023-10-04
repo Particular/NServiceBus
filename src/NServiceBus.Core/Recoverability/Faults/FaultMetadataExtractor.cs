@@ -1,10 +1,10 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using NServiceBus.Faults;
-    using NServiceBus.Transport;
+    using Faults;
+    using Transport;
 
     class FaultMetadataExtractor(Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
     {
