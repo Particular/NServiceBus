@@ -43,7 +43,7 @@ namespace NServiceBus.Faults
         public const string StackTrace = $"{ExceptionInfoPrefix}StackTrace";
 
         /// <summary>
-        /// Header key for setting/getting the normalized time of the failure
+        /// Header key for setting/getting the normalized time of the failure.
         /// </summary>
         public const string TimeOfFailure = "NServiceBus.TimeOfFailure";
 
