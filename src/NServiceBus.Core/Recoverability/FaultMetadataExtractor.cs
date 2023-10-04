@@ -6,14 +6,8 @@
     using NServiceBus.Faults;
     using NServiceBus.Transport;
 
-    class FaultMetadataExtractor
+    class FaultMetadataExtractor(Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
     {
-        public FaultMetadataExtractor(Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
-        {
-            this.staticFaultMetadata = staticFaultMetadata;
-            this.headerCustomizations = headerCustomizations;
-        }
-
         public Dictionary<string, string> Extract(ErrorContext errorContext)
         {
             var metadata = new Dictionary<string, string>(staticFaultMetadata)
@@ -43,10 +37,6 @@
             headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
 
-            if (e.Data == null)
-            {
-                return;
-            }
             foreach (DictionaryEntry entry in e.Data)
             {
                 if (entry.Value == null)
@@ -60,12 +50,8 @@
         static string Truncate(string value, int maxLength) =>
             string.IsNullOrEmpty(value)
                 ? value
-                : (value.Length <= maxLength
+                : value.Length <= maxLength
                     ? value
-                    : value.Substring(0, maxLength));
-
-
-        readonly Dictionary<string, string> staticFaultMetadata;
-        readonly Action<Dictionary<string, string>> headerCustomizations;
+                    : value.Substring(0, maxLength);
     }
 }
