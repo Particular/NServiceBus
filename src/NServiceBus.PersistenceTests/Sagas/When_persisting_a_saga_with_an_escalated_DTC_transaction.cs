@@ -23,7 +23,7 @@
             {
                 using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-                Transaction.Current!.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
+                Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
 
                 var transportTransaction = new TransportTransaction();
                 transportTransaction.Set(Transaction.Current);

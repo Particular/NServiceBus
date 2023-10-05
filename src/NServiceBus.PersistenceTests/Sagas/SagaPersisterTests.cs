@@ -79,7 +79,7 @@
             {
                 var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
 
-                var value = prop!.GetValue(sagaData);
+                var value = prop.GetValue(sagaData);
 
                 correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
             }
@@ -96,7 +96,7 @@
                 if (sagaMetadata.TryGetCorrelationProperty(out var correlatedProp))
                 {
                     var prop = sagaData.GetType().GetProperty(correlatedProp.Name);
-                    var value = prop!.GetValue(sagaData);
+                    var value = prop.GetValue(sagaData);
                     correlationProperty = new SagaCorrelationProperty(correlatedProp.Name, value);
                 }
 
