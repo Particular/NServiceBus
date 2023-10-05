@@ -91,14 +91,10 @@
         public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
+                => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
         }
 
         public class TestSagaData : ContainSagaData
