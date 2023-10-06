@@ -180,20 +180,11 @@
 
         async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
-            var stopTimeout = TimeSpan.FromMinutes(2);
-            using var stopTimeoutCts = CreateCancellationTokenSource(stopTimeout);
-            var cancellationToken = stopTimeoutCts.Token;
+            using var stopTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
 
-            try
-            {
-                await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, cancellationToken)))
-                    .WaitAsync(cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
-            {
-                throw new TimeoutException($"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.", ex);
-            }
+            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
+                .WaitAsync(stopTimeoutCts.Token)
+                .ConfigureAwait(false);
         }
 
         async Task StopEndpoint(ComponentRunner endpoint, CancellationToken cancellationToken)
