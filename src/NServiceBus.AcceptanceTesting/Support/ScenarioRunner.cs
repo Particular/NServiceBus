@@ -153,7 +153,7 @@
 
         async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
         {
-            using var allWhensTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
+            using var allWhensTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(1));
             // separate (linked) CTS as otherwise a failure during 'When' blocks will cause WaitAsync to throw an OperationCanceledException and hide the original error
             using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token);
 
