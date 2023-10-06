@@ -127,9 +127,8 @@
         async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
             using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
-            // separate CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException
-            using var endpointStartTimeout = new CancellationTokenSource();
-            using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token, endpointStartTimeout.Token);
+            // separate (linked) CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException and hide the original error
+            using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token);
 
             await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, combinedSource)))
                 .WaitAsync(allEndpointsStartTimeout.Token)
@@ -155,9 +154,8 @@
         async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
         {
             using var allWhensTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
-            // separate CTS as otherwise a failure during endpoint when blocks will cause WaitAsync to throw an OperationCanceledException
-            using var whenTimeout = CreateCancellationTokenSource(TimeSpan.FromSeconds(60));
-            using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token, whenTimeout.Token);
+            // separate (linked) CTS as otherwise a failure during 'When' blocks will cause WaitAsync to throw an OperationCanceledException and hide the original error
+            using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token);
 
             await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource)))
                 .WaitAsync(allWhensTimeout.Token)
