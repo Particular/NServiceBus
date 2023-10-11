@@ -23,6 +23,6 @@
             sendingAddresses.Add(transportAddress);
         }
 
-        readonly List<string> sendingAddresses = new List<string>();
+        readonly List<string> sendingAddresses = [];
     }
 }

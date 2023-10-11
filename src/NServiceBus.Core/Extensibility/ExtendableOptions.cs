@@ -22,7 +22,7 @@ namespace NServiceBus.Extensibility
             OutgoingHeaders = [];
         }
 
-        internal DispatchProperties DispatchProperties { get; } = new DispatchProperties();
+        internal DispatchProperties DispatchProperties { get; } = [];
 
         internal ContextBag Context { get; }
 

@@ -36,7 +36,7 @@
 
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("ID", [], new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), c =>
@@ -53,7 +53,7 @@
         {
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("ID", [], new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), false)), c =>
@@ -70,7 +70,7 @@
         {
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("ID", [], new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), true)), c =>

@@ -34,7 +34,7 @@
         {
             public Guid Id { get; set; }
             public bool MessageMovedToErrorQueue { get; set; }
-            public List<TransactionStatus> TransactionStatuses { get; } = new List<TransactionStatus>();
+            public List<TransactionStatus> TransactionStatuses { get; } = [];
         }
 
         class Endpoint : EndpointConfigurationBuilder

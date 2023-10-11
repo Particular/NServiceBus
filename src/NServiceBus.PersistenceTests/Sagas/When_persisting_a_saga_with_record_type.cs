@@ -13,7 +13,7 @@
             var correlationPropertyData = Guid.NewGuid().ToString();
             var sagaData = new SagaWithRecordTypeEntity
             {
-                Ints = new List<int> { 1, 2 },
+                Ints = [1, 2],
                 CorrelationProperty = correlationPropertyData
             };
 

@@ -61,7 +61,7 @@ namespace NServiceBus
                     continue;
                 }
 
-                groups ??= new Dictionary<string, List<string>>();
+                groups ??= [];
 
                 if (groups.TryGetValue(subscriber.Endpoint, out var transportAddresses))
                 {

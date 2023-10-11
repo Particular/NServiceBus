@@ -34,6 +34,6 @@
         }
 
         readonly IMessageSerializer defaultSerializer;
-        readonly Dictionary<string, IMessageSerializer> serializersMap = new Dictionary<string, IMessageSerializer>();
+        readonly Dictionary<string, IMessageSerializer> serializersMap = [];
     }
 }

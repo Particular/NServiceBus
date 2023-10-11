@@ -83,7 +83,7 @@
 
             public int FailedNumberOfTimes { get; private set; } = 0;
 
-            public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
+            public List<TransportOperations> DispatchedTransportOperations { get; } = [];
 
             public void FailDispatch(int times)
             {

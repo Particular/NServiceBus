@@ -434,7 +434,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 });
             }
 
-            public readonly List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
+            public readonly List<SagaToMessageMap> Mappings = [];
         }
 
         /// <summary>

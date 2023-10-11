@@ -24,6 +24,6 @@ namespace NServiceBus.AcceptanceTesting
             actions.Clear();
         }
 
-        List<Action> actions = new List<Action>();
+        List<Action> actions = [];
     }
 }

@@ -209,7 +209,7 @@ namespace NServiceBus
 
         readonly object lockObject = new object();
 
-        readonly ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
+        readonly ConcurrentBag<Type> typesBeingInitialized = [];
 
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();

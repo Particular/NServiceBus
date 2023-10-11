@@ -43,8 +43,8 @@ namespace NServiceBus.Routing
             }
         }
 
-        Dictionary<Type, UnicastRoute> routeTable = new Dictionary<Type, UnicastRoute>();
-        readonly Dictionary<object, IList<RouteTableEntry>> routeGroups = new Dictionary<object, IList<RouteTableEntry>>();
+        Dictionary<Type, UnicastRoute> routeTable = [];
+        readonly Dictionary<object, IList<RouteTableEntry>> routeGroups = [];
         readonly object updateLock = new object();
     }
 }

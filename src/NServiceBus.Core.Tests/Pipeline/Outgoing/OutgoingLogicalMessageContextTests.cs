@@ -16,7 +16,7 @@
             var mapper = new MessageMapper();
             var message = mapper.CreateInstance<IMyMessage>(m => m.Id = Guid.NewGuid());
 
-            var context = new OutgoingLogicalMessageContext("message1234", new Dictionary<string, string>(), new OutgoingLogicalMessage(typeof(IMyMessage), message), null, new FakeRootContext());
+            var context = new OutgoingLogicalMessageContext("message1234", [], new OutgoingLogicalMessage(typeof(IMyMessage), message), null, new FakeRootContext());
 
             var newMessageId = Guid.NewGuid();
             var newMessage = context.Message.Instance;
@@ -39,7 +39,7 @@
             var mapper = new MessageMapper();
             var message = mapper.CreateInstance<IMyMessage>(m => m.Id = Guid.NewGuid());
 
-            var context = new OutgoingLogicalMessageContext("message1234", new Dictionary<string, string>(), new OutgoingLogicalMessage(typeof(IMyMessage), message), null, new FakeRootContext());
+            var context = new OutgoingLogicalMessageContext("message1234", [], new OutgoingLogicalMessage(typeof(IMyMessage), message), null, new FakeRootContext());
 
             var differentMessage = new MyDifferentMessage
             {

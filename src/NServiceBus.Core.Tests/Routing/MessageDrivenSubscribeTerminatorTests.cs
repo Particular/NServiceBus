@@ -156,7 +156,7 @@
         {
             public int FailedNumberOfTimes { get; private set; }
 
-            public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
+            public List<TransportOperations> DispatchedTransportOperations { get; } = [];
 
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
             {

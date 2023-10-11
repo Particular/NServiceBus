@@ -74,6 +74,6 @@
             return executor;
         }
 
-        static ErrorContext CreateErrorContext() => new(new Exception("test"), new Dictionary<string, string>(), Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
+        static ErrorContext CreateErrorContext() => new(new Exception("test"), [], Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
     }
 }

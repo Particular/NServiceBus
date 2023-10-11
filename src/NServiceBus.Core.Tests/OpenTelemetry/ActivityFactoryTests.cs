@@ -175,7 +175,7 @@ public class ActivityFactoryTests
         {
             return new MessageContext(
                 Guid.NewGuid().ToString(),
-                messageHeaders ?? new Dictionary<string, string>(),
+                messageHeaders ?? [],
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",

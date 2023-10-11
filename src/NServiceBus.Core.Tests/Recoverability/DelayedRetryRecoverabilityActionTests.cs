@@ -23,7 +23,7 @@
 
             var routingStrategy = routingContext.RoutingStrategies.Single() as UnicastRoutingStrategy;
 
-            Assert.AreEqual(recoverabilityContext.ReceiveAddress, (routingStrategy.Apply(new Dictionary<string, string>()) as UnicastAddressTag).Destination);
+            Assert.AreEqual(recoverabilityContext.ReceiveAddress, (routingStrategy.Apply([]) as UnicastAddressTag).Destination);
             Assert.AreEqual(delay, routingContext.Extensions.Get<DispatchProperties>().DelayDeliveryWith.Delay);
             Assert.AreEqual(ErrorHandleResult.Handled, delayedRetryAction.ErrorHandleResult);
         }
@@ -77,7 +77,7 @@
         {
             return new TestableRecoverabilityContext
             {
-                FailedMessage = new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
+                FailedMessage = new IncomingMessage("messageId", headers ?? [], ReadOnlyMemory<byte>.Empty),
                 DelayedDeliveriesPerformed = delayedDeliveriesPerformed
             };
         }

@@ -33,6 +33,6 @@
             return sagaManifests[type];
         }
 
-        readonly Dictionary<Type, SagaManifest> sagaManifests = new Dictionary<Type, SagaManifest>();
+        readonly Dictionary<Type, SagaManifest> sagaManifests = [];
     }
 }

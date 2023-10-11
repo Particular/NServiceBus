@@ -276,7 +276,7 @@ namespace NServiceBus
             public readonly List<Dependency> Befores;
 
             public readonly string StepId;
-            internal readonly List<Node> previous = new List<Node>();
+            internal readonly List<Node> previous = [];
             readonly RegisterStep rego;
             bool visited;
         }

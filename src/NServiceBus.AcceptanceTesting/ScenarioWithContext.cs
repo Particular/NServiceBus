@@ -88,7 +88,7 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        List<IComponentBehavior> behaviors = new();
+        List<IComponentBehavior> behaviors = [];
         Func<ScenarioContext, Task<bool>> done = static context => Task.FromResult(true);
     }
 }

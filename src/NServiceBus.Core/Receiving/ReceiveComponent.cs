@@ -290,7 +290,7 @@ namespace NServiceBus
 
         readonly Configuration configuration;
         readonly IActivityFactory activityFactory;
-        readonly List<IMessageReceiver> receivers = new List<IMessageReceiver>();
+        readonly List<IMessageReceiver> receivers = [];
 
         public const string MainReceiverId = "Main";
         public const string InstanceSpecificReceiverId = "InstanceSpecific";

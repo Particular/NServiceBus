@@ -22,10 +22,10 @@
 
         public class RegisteredMutators
         {
-            public readonly HashSet<IMutateIncomingMessages> IncomingMessage = new HashSet<IMutateIncomingMessages>();
-            public readonly HashSet<IMutateOutgoingMessages> OutgoingMessage = new HashSet<IMutateOutgoingMessages>();
-            public readonly HashSet<IMutateIncomingTransportMessages> IncomingTransportMessage = new HashSet<IMutateIncomingTransportMessages>();
-            public readonly HashSet<IMutateOutgoingTransportMessages> OutgoingTransportMessage = new HashSet<IMutateOutgoingTransportMessages>();
+            public readonly HashSet<IMutateIncomingMessages> IncomingMessage = [];
+            public readonly HashSet<IMutateOutgoingMessages> OutgoingMessage = [];
+            public readonly HashSet<IMutateIncomingTransportMessages> IncomingTransportMessage = [];
+            public readonly HashSet<IMutateOutgoingTransportMessages> OutgoingTransportMessage = [];
         }
     }
 }

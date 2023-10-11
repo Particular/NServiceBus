@@ -71,7 +71,7 @@
 
         public void Add(object notification)
         {
-            notifications ??= new List<object>();
+            notifications ??= [];
             notifications.Add(notification);
         }
 

@@ -52,7 +52,7 @@
             var options = new ContextBag();
             options.Set("some key", "some value");
 
-            var context = new OutgoingReplyContext(message, "message-id", new Dictionary<string, string>(), options, parentContext);
+            var context = new OutgoingReplyContext(message, "message-id", [], options, parentContext);
 
             var operationProperties = context.GetOperationProperties();
             Assert.AreEqual("some value", operationProperties.Get<string>("some key"));
@@ -64,12 +64,12 @@
             var outerOptions = new ContextBag();
             outerOptions.Set("outer key", "outer value");
             outerOptions.Set("shared key", "outer shared value");
-            var parentContext = new OutgoingReplyContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-id", new Dictionary<string, string>(), outerOptions, new FakeRootContext());
+            var parentContext = new OutgoingReplyContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-id", [], outerOptions, new FakeRootContext());
 
             var innerOptions = new ContextBag();
             innerOptions.Set("inner key", "inner value");
             innerOptions.Set("shared key", "inner shared value");
-            var innerContext = new OutgoingReplyContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-id", new Dictionary<string, string>(), innerOptions, parentContext);
+            var innerContext = new OutgoingReplyContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-id", [], innerOptions, parentContext);
 
             var innerOperationProperties = innerContext.GetOperationProperties();
             Assert.AreEqual("inner value", innerOperationProperties.Get<string>("inner key"));

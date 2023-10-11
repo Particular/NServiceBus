@@ -101,10 +101,10 @@
         /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
         protected void DependsOn(string featureTypeName)
         {
-            Dependencies.Add(new List<string>
-            {
+            Dependencies.Add(
+            [
                 featureTypeName
-            });
+            ]);
         }
 
         /// <summary>
@@ -219,8 +219,8 @@
             return featureType.FullName;
         }
 
-        readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
-        readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
+        readonly List<Action<SettingsHolder>> registeredDefaults = [];
+        readonly List<SetupPrerequisite> setupPrerequisites = [];
 
         static readonly Type baseFeatureType = typeof(Feature);
 

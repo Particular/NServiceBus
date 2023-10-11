@@ -136,7 +136,7 @@
 
             public class FakeSubscriptionStorage : ISubscriptionStorage
             {
-                public ConcurrentBag<string> SubscribedEvents { get; } = new ConcurrentBag<string>();
+                public ConcurrentBag<string> SubscribedEvents { get; } = [];
 
                 public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
                 {

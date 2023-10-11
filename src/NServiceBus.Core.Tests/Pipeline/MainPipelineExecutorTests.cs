@@ -103,7 +103,7 @@
         static MessageContext CreateMessageContext() =>
             new(
                 Guid.NewGuid().ToString(),
-                new Dictionary<string, string>(),
+                [],
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",

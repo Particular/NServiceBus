@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Persistence;
@@ -23,7 +22,7 @@
                 var currentDefinition = new EnabledPersistence
                 {
                     DefinitionType = definition.DefinitionType,
-                    SelectedStorages = new List<Type>()
+                    SelectedStorages = []
                 };
 
                 foreach (var storageType in supportedStorages)

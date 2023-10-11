@@ -13,7 +13,7 @@
         /// <summary>
         /// The message that failed processing.
         /// </summary>
-        public IncomingMessage FailedMessage { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty);
+        public IncomingMessage FailedMessage { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), [], ReadOnlyMemory<byte>.Empty);
 
         /// <summary>
         /// The exception that caused processing to fail.
@@ -46,7 +46,7 @@
         public RecoverabilityConfig RecoverabilityConfiguration { get; set; } = new RecoverabilityConfig(
             new ImmediateConfig(0),
             new DelayedConfig(0, TimeSpan.Zero),
-            new FailedConfig("error", new HashSet<Type>()));
+            new FailedConfig("error", []));
 
         /// <summary>
         /// The recoverability action to take for this message.
@@ -56,7 +56,7 @@
         /// <summary>
         /// Metadata for this message.
         /// </summary>
-        public Dictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Metadata { get; set; } = [];
 
         /// <summary>
         /// Locks the recoverability action for further changes.

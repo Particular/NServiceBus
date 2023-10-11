@@ -134,7 +134,7 @@
 
             public bool AutoSubscribeSagas { get; set; }
 
-            public HashSet<Type> ExcludedTypes { get; set; } = new HashSet<Type>();
+            public HashSet<Type> ExcludedTypes { get; set; } = [];
         }
     }
 }

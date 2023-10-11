@@ -67,7 +67,7 @@
             var enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
-                SelectedStorages = new List<Type>()
+                SelectedStorages = []
             };
 
             if (storageType != null)

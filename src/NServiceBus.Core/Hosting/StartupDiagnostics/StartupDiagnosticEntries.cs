@@ -19,7 +19,7 @@
             });
         }
 
-        internal List<StartupDiagnosticEntry> entries = new List<StartupDiagnosticEntry>();
+        internal List<StartupDiagnosticEntry> entries = [];
 
         /// <summary>
         /// A diagnostics section.
