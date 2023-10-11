@@ -12,7 +12,6 @@
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.3.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0-release-23468-02" PrivateAssets="All" />
-    <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="0.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
