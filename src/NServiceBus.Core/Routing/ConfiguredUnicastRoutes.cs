@@ -7,7 +7,7 @@ namespace NServiceBus.Features
 
     class ConfiguredUnicastRoutes
     {
-        readonly List<IRouteSource> routeSources = new List<IRouteSource>();
+        readonly List<IRouteSource> routeSources = [];
 
         public void Add(IRouteSource routeSource)
         {

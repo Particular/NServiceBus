@@ -40,6 +40,6 @@ namespace NServiceBus
         }
 
         readonly PipelineModifications pipelineModifications;
-        readonly Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
+        readonly Dictionary<Type, Lazy<IPipeline>> pipelines = [];
     }
 }

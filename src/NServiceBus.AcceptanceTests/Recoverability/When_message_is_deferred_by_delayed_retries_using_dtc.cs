@@ -34,7 +34,7 @@
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public List<TransactionStatus> TransactionStatuses { get; } = new List<TransactionStatus>();
+            public List<TransactionStatus> TransactionStatuses { get; } = [];
             public int NumberOfProcessingAttempts { get; set; }
             public int NumberOfRetriesAttempted => NumberOfProcessingAttempts - 1 < 0 ? 0 : NumberOfProcessingAttempts - 1;
         }

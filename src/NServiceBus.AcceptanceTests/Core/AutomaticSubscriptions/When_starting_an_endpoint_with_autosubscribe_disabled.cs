@@ -25,7 +25,7 @@
 
         class Context : ScenarioContext
         {
-            public ConcurrentBag<Type> SubscribedEvents { get; set; } = new ConcurrentBag<Type>();
+            public ConcurrentBag<Type> SubscribedEvents { get; set; } = [];
         }
 
         class Subscriber : EndpointConfigurationBuilder

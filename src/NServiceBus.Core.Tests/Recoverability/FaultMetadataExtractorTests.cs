@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         {
             var exception = GetAnException();
 
-            var extractor = new FaultMetadataExtractor(new Dictionary<string, string>(), _ => { });
+            var extractor = new FaultMetadataExtractor([], _ => { });
 
             var metadata = extractor.Extract(CreateErrorContext(exception));
 
@@ -34,7 +34,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         public void ExceptionMessageIsTruncated()
         {
             var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
-            var extractor = new FaultMetadataExtractor(new Dictionary<string, string>(), _ => { });
+            var extractor = new FaultMetadataExtractor([], _ => { });
 
             var metadata = extractor.Extract(CreateErrorContext(exception));
 
@@ -66,7 +66,7 @@ namespace NServiceBus.Core.Tests.Recoverability
 
         ErrorContext CreateErrorContext(Exception exception = null)
         {
-            return new ErrorContext(exception ?? GetAnException(), new Dictionary<string, string>(), "some-id", new byte[0], new TransportTransaction(), 0, "my-address", new ContextBag());
+            return new ErrorContext(exception ?? GetAnException(), [], "some-id", new byte[0], new TransportTransaction(), 0, "my-address", new ContextBag());
         }
 
         Exception GetAnException()

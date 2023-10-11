@@ -10,7 +10,7 @@
         {
             behavior = new EndpointBehavior(endpointConfigurationFactory)
             {
-                Whens = new List<IWhenDefinition>()
+                Whens = []
             };
         }
 

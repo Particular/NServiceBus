@@ -24,7 +24,7 @@
         /// <summary>
         /// Headers for the incoming message.
         /// </summary>
-        public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Headers { get; set; } = [];
 
         /// <summary>
         /// Tells if the message has been handled.

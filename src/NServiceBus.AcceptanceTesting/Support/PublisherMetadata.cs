@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
         }
 
-        Dictionary<string, PublisherDetails> publisherDetails = new Dictionary<string, PublisherDetails>();
+        Dictionary<string, PublisherDetails> publisherDetails = [];
 
         public class PublisherDetails
         {
@@ -37,7 +37,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 PublisherName = publisherName;
             }
 
-            public List<Type> Events { get; } = new List<Type>();
+            public List<Type> Events { get; } = [];
 
             public string PublisherName { get; }
 

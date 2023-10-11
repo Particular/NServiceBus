@@ -75,7 +75,7 @@
                 set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
             }
 
-            public List<Action<IServiceCollection>> UserRegistrations { get; } = new List<Action<IServiceCollection>>();
+            public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
 
             public string InstallationUserName
             {

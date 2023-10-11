@@ -99,7 +99,7 @@
 
         static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)
         {
-            var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
+            var message = new OutgoingMessage("id", headers ?? [], null);
             var stash = new ContextBag();
 
             if (dispatchProperties != null)

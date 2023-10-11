@@ -111,7 +111,7 @@ namespace NServiceBus.Sagas
             }
         }
 
-        readonly Dictionary<Type, SagaMetadata> byEntity = new Dictionary<Type, SagaMetadata>();
-        readonly Dictionary<Type, SagaMetadata> byType = new Dictionary<Type, SagaMetadata>();
+        readonly Dictionary<Type, SagaMetadata> byEntity = [];
+        readonly Dictionary<Type, SagaMetadata> byType = [];
     }
 }

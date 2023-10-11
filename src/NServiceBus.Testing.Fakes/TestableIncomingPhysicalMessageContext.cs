@@ -15,7 +15,7 @@
         /// </summary>
         public TestableIncomingPhysicalMessageContext()
         {
-            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[] { });
+            Message = new IncomingMessage(Guid.NewGuid().ToString(), [], new byte[] { });
         }
 
         /// <summary>

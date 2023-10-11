@@ -139,7 +139,7 @@
 
         class FakeSubscriptionStorage : ISubscriptionStorage
         {
-            public List<Subscriber> Subscribers { get; } = new List<Subscriber>();
+            public List<Subscriber> Subscribers { get; } = [];
             public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();

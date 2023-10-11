@@ -72,7 +72,7 @@
             {
                 if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out var typeList))
                 {
-                    handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = new List<DelegateHolder>();
+                    handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = [];
                 }
 
                 CacheHandlerMethods(handlerType, messageType, typeList);
@@ -165,7 +165,7 @@
             }
         }
 
-        readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
+        readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
         static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder

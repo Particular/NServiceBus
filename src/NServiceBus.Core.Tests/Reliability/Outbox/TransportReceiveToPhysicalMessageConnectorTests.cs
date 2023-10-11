@@ -33,7 +33,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -65,7 +65,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -91,7 +91,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -134,9 +134,9 @@
                 var batchedSends = c.Extensions.Get<PendingTransportOperations>();
                 batchedSends.AddRange(new TransportOperation[]
                 {
-                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Array.Empty<byte>()), new UnicastAddressTag("destination"))
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
+                    new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"))
                 });
                 return Task.CompletedTask;
             });
@@ -166,7 +166,7 @@
         {
             var context = new TestableTransportReceiveContext
             {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new byte[0])
+                Message = new IncomingMessage(messageId, [], new byte[0])
             };
 
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));

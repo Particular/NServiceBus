@@ -35,7 +35,7 @@
 
         class Context : ScenarioContext
         {
-            public List<ErrorContext> ErrorContexts { get; } = new List<ErrorContext>();
+            public List<ErrorContext> ErrorContexts { get; } = [];
         }
 
         class Endpoint : EndpointConfigurationBuilder

@@ -60,7 +60,7 @@
         {
             Stack<MemberInfo> memberInfos = new Stack<MemberInfo>();
 
-            public List<MemberInfo> BadMembers = new List<MemberInfo>();
+            public List<MemberInfo> BadMembers = [];
 
             protected override void VisitElement(Element element)
             {
@@ -193,7 +193,7 @@
                 memberInfos.Push(memberInfo);
             }
 
-            Dictionary<RuntimeTypeHandle, FieldInfo> fieldCache = new Dictionary<RuntimeTypeHandle, FieldInfo>();
+            Dictionary<RuntimeTypeHandle, FieldInfo> fieldCache = [];
 
             FieldInfo GetLineInfoField(Type type)
             {

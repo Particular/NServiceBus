@@ -108,7 +108,7 @@
 
         class SpyContainer : IServiceProvider, IServiceScopeFactory
         {
-            public Dictionary<Type, RegisteredService> RegisteredServices { get; } = new Dictionary<Type, RegisteredService>();
+            public Dictionary<Type, RegisteredService> RegisteredServices { get; } = [];
 
             IServiceProvider ServiceProvider { get; }
 

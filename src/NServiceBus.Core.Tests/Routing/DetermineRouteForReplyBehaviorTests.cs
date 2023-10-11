@@ -31,7 +31,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply([]);
                 return Task.CompletedTask;
             });
 
@@ -47,7 +47,7 @@
 
             context.Extensions.Set(new IncomingMessage(
                 "id",
-                new Dictionary<string, string>(),
+                [],
                 new byte[0]));
 
             Assert.That(async () => await behavior.Invoke(context, _ => Task.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
@@ -67,7 +67,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply([]);
                 return Task.CompletedTask;
             });
 

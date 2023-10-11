@@ -39,6 +39,6 @@
         /// <summary>
         /// The headers of the outgoing message.
         /// </summary>
-        public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Headers { get; set; } = [];
     }
 }

@@ -12,7 +12,7 @@
         [Test]
         public void When_failure_is_assignable_to_custom_exception_should_move_to_error()
         {
-            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: new HashSet<Type> { typeof(MyBaseCustomException) });
+            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: [typeof(MyBaseCustomException)]);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MyCustomException());
 
             var recoverabilityAction = policy(errorContext);
@@ -165,7 +165,7 @@
                 exception ?? new Exception(),
                 retryNumber.HasValue
                     ? new Dictionary<string, string> { { Headers.DelayedRetries, retryNumber.ToString() } }
-                    : headers ?? new Dictionary<string, string>(),
+                    : headers ?? [],
                 "message-id",
                 new byte[0],
                 new TransportTransaction(),
@@ -175,7 +175,7 @@
 
         static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, HashSet<Type> unrecoverableExceptions = null)
         {
-            var failedConfig = new FailedConfig("errorQueue", unrecoverableExceptions ?? new HashSet<Type>());
+            var failedConfig = new FailedConfig("errorQueue", unrecoverableExceptions ?? []);
             var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))), failedConfig);
             return context => DefaultRecoverabilityPolicy.Invoke(config, context);
         }

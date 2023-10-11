@@ -22,7 +22,7 @@
                 .Single();
 
             var addressTag = (UnicastAddressTag)((UnicastRoutingStrategy)routingContext.RoutingStrategies.Single())
-                .Apply(new Dictionary<string, string>());
+                .Apply([]);
 
             Assert.AreEqual(customErrorQueue, addressTag.Destination);
             Assert.AreEqual(ErrorHandleResult.Handled, moveToErrorAction.ErrorHandleResult);
@@ -87,7 +87,7 @@
         {
             var recoverabilityContext = new TestableRecoverabilityContext
             {
-                FailedMessage = new IncomingMessage(messageId, messageHeaders ?? new Dictionary<string, string>(), ReadOnlyMemory<byte>.Empty),
+                FailedMessage = new IncomingMessage(messageId, messageHeaders ?? [], ReadOnlyMemory<byte>.Empty),
                 Exception = raisedException ?? new Exception(exceptionMessage)
             };
 

@@ -28,7 +28,7 @@ namespace NServiceBus
             return pipelineModelBuilder.Build();
         }
 
-        readonly List<RegisterStep> additions = new List<RegisterStep>();
+        readonly List<RegisterStep> additions = [];
         readonly List<ReplaceStep> replacements;
         readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
     }

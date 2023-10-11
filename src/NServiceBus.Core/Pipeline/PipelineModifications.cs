@@ -5,8 +5,8 @@
 
     class PipelineModifications
     {
-        public List<RegisterStep> Additions = new List<RegisterStep>();
-        public List<ReplaceStep> Replacements = new List<ReplaceStep>();
-        public List<RegisterOrReplaceStep> AdditionsOrReplacements = new List<RegisterOrReplaceStep>();
+        public List<RegisterStep> Additions = [];
+        public List<ReplaceStep> Replacements = [];
+        public List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
     }
 }

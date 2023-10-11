@@ -40,7 +40,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply([]);
                 return Task.CompletedTask;
             });
 

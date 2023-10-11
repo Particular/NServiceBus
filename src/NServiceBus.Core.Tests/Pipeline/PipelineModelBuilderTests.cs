@@ -175,9 +175,9 @@
 
         class ConfigurePipelineModelBuilder
         {
-            List<RegisterStep> registrations = new List<RegisterStep>();
-            List<RegisterOrReplaceStep> registerOrReplacements = new List<RegisterOrReplaceStep>();
-            List<ReplaceStep> replacements = new List<ReplaceStep>();
+            List<RegisterStep> registrations = [];
+            List<RegisterOrReplaceStep> registerOrReplacements = [];
+            List<ReplaceStep> replacements = [];
 
             public static ConfigurePipelineModelBuilder Setup()
             {

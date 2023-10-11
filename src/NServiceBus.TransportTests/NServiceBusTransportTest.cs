@@ -158,7 +158,7 @@
             CancellationToken cancellationToken = default)
         {
             var messageId = Guid.NewGuid().ToString();
-            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), body ?? Array.Empty<byte>());
+            var message = new OutgoingMessage(messageId, headers ?? [], body ?? Array.Empty<byte>());
 
             if (message.Headers.ContainsKey(TestIdHeaderName) == false)
             {

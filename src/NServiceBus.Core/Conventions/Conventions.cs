@@ -247,7 +247,7 @@
         readonly ConventionCache CommandsConventionCache = new ConventionCache();
         readonly ConventionCache EventsConventionCache = new ConventionCache();
 
-        readonly List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        readonly List<Func<Type, bool>> IsSystemMessageActions = [];
         readonly ConventionCache MessagesConventionCache = new ConventionCache();
 
         readonly IList<IMessageConvention> conventions = new List<IMessageConvention>();

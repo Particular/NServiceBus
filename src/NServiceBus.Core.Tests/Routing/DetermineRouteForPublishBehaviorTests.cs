@@ -23,7 +23,7 @@
             MulticastAddressTag addressTag = null;
             await behavior.Invoke(context, _ =>
             {
-                addressTag = (MulticastAddressTag)_.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (MulticastAddressTag)_.RoutingStrategies.Single().Apply([]);
                 return Task.CompletedTask;
             });
 

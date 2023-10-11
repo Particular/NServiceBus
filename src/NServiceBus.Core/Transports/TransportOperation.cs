@@ -18,7 +18,7 @@ namespace NServiceBus.Transport
         {
             Message = message;
             AddressTag = addressTag;
-            Properties = properties ?? new DispatchProperties();
+            Properties = properties ?? [];
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 

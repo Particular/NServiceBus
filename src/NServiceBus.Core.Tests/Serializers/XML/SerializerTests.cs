@@ -1009,7 +1009,7 @@ namespace NServiceBus.Serializers.XML.Test
                         Accuracy = 0.314M
                     }
                 },
-                Names = new List<FirstSerializableMessage>()
+                Names = []
             };
 
             for (var i = 0; i < number; i++)

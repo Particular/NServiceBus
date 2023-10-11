@@ -67,7 +67,7 @@ namespace NServiceBus.Pipeline
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-            Befores ??= new List<Dependency>();
+            Befores ??= [];
 
             Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, false));
         }
@@ -79,7 +79,7 @@ namespace NServiceBus.Pipeline
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-            Befores ??= new List<Dependency>();
+            Befores ??= [];
 
             Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, true));
         }
@@ -93,7 +93,7 @@ namespace NServiceBus.Pipeline
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-            Afters ??= new List<Dependency>();
+            Afters ??= [];
 
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, false));
         }
@@ -105,7 +105,7 @@ namespace NServiceBus.Pipeline
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-            Afters ??= new List<Dependency>();
+            Afters ??= [];
 
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, true));
         }

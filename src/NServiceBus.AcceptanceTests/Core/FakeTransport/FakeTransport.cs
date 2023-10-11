@@ -56,7 +56,7 @@
             };
         }
 
-        public StartUpSequence StartupSequence { get; set; } = new StartUpSequence();
+        public StartUpSequence StartupSequence { get; set; } = [];
 
         internal Exception ErrorOnReceiverStart { get; set; }
         public void RaiseCriticalErrorOnReceiverStart(Exception exception)

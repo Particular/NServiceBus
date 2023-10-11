@@ -13,8 +13,8 @@
         [Test]
         public void Should_split_multicast_and_unicast_messages()
         {
-            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), new DispatchProperties(), DispatchConsistency.Isolated);
-            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), new DispatchProperties(), DispatchConsistency.Default);
+            var unicastOperation = new TransportOperation(CreateUniqueMessage(), new UnicastAddressTag("destination"), [], DispatchConsistency.Isolated);
+            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), [], DispatchConsistency.Default);
             var operations = new[]
             {
                 unicastOperation,
@@ -61,7 +61,7 @@
 
         static OutgoingMessage CreateUniqueMessage()
         {
-            return new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
+            return new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]);
         }
 
         class CustomAddressTag : AddressTag

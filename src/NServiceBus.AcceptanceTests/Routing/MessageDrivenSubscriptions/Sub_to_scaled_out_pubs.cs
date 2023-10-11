@@ -32,7 +32,7 @@
 
         class Context : ScenarioContext
         {
-            public ConcurrentBag<string> PublisherReceivedSubscription { get; } = new ConcurrentBag<string>();
+            public ConcurrentBag<string> PublisherReceivedSubscription { get; } = [];
         }
 
         class ScaledOutPublisher : EndpointConfigurationBuilder

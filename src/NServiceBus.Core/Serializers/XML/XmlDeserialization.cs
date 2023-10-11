@@ -652,7 +652,7 @@
         readonly XmlSerializerCache cache;
         string defaultNamespace;
         readonly IMessageMapper mapper;
-        readonly List<Type> messageBaseTypes = new List<Type>();
+        readonly List<Type> messageBaseTypes = [];
         readonly IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
         readonly bool sanitizeInput;
         readonly bool skipWrappingRawXml;

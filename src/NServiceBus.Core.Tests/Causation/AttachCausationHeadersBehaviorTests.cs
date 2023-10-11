@@ -92,7 +92,7 @@
             var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
+            context.Extensions.Set(new IncomingMessage("the message id", [], new byte[0]));
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 

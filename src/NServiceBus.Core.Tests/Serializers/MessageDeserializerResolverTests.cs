@@ -56,7 +56,7 @@
                 new FakeSerializer(ContentTypes.Json)
             });
 
-            var serializer = resolver.Resolve(new Dictionary<string, string>());
+            var serializer = resolver.Resolve([]);
 
             Assert.AreEqual(defaultSerializer, serializer);
         }

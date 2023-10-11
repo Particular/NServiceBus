@@ -27,7 +27,7 @@
             return Task.CompletedTask;
         }
 
-        readonly List<INotifier> notifications = new List<INotifier>();
+        readonly List<INotifier> notifications = [];
 
         interface INotifier
         {

@@ -38,7 +38,7 @@
 
             Assert.AreEqual(bool.TrueString, outgoingMessage.Message.Headers[Headers.ControlMessageHeader]);
 
-            var addressTag = outgoingMessage.RoutingStrategies.Single().Apply(new Dictionary<string, string>()) as UnicastAddressTag;
+            var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
             Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
 
             Assert.IsTrue(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
@@ -110,7 +110,7 @@
 
         class RoutingPipeline : Behavior<IRoutingContext>
         {
-            public List<IRoutingContext> ForkInvocations { get; } = new List<IRoutingContext>();
+            public List<IRoutingContext> ForkInvocations { get; } = [];
 
             public override Task Invoke(IRoutingContext context, Func<Task> next)
             {

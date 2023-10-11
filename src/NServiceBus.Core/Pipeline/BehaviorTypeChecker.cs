@@ -35,11 +35,11 @@ namespace NServiceBus
             }
         }
 
-        static readonly HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
-        {
+        static readonly HashSet<Type> NotAllowedInterfaces =
+        [
             typeof(IBehaviorContext),
             typeof(IIncomingContext),
             typeof(IOutgoingContext)
-        };
+        ];
     }
 }

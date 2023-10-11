@@ -19,7 +19,7 @@
             return entries.TryGetValue(sagaType, out value);
         }
 
-        readonly Dictionary<Type, LookupValue> entries = new Dictionary<Type, LookupValue>();
+        readonly Dictionary<Type, LookupValue> entries = [];
 
         public class LookupValue
         {

@@ -90,7 +90,7 @@ namespace NServiceBus
 
         readonly Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
 
-        readonly List<LatentCritical> criticalErrors = new List<LatentCritical>();
+        readonly List<LatentCritical> criticalErrors = [];
         IEndpointInstance endpoint;
         readonly object endpointCriticalLock = new object();
 
