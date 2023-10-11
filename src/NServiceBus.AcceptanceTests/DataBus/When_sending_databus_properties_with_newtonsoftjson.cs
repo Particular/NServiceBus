@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
-    using System;
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_databus_properties_with_newtonsoftjson : NServiceBusAcceptanceTest
@@ -15,7 +13,6 @@
         public async Task Should_receive_messages_with_largepayload_correctly()
         {
             var payloadToSend = new byte[PayloadSize];
-            //var payloadToSend = "DatabusMessage";
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
@@ -59,7 +56,6 @@
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
                     builder.UseSerialization<NewtonsoftJsonSerializer>();
-                    builder.RegisterMessageMutator(new Mutator());
                 });
             }
 
@@ -78,18 +74,6 @@
                 }
 
                 Context testContext;
-            }
-
-            public class Mutator : IMutateIncomingTransportMessages
-            {
-                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
-                {
-                    if (context.Body.Length > PayloadSize)
-                    {
-                        throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
-                    }
-                    return Task.CompletedTask;
-                }
             }
         }
 
