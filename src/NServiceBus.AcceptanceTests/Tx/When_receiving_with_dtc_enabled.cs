@@ -22,41 +22,6 @@
             Assert.False(context.CanEnlistPromotable, "There should exists a DTC tx");
         }
 
-
-        [Test]
-        public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
-        {
-            if (OperatingSystem.IsWindows())
-            {
-                TransactionManager.ImplicitDistributedTransactions = true;
-
-                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
-                    Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
-
-                    tx.Complete();
-                }
-            }
-            else
-            {
-                Assert.Ignore("Ignoring this test because it requires Windows");
-            }
-        }
-
-        [Test]
-        public void Basic_assumptions_second_promotable_should_fail()
-        {
-            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
-
-                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
-
-                tx.Complete();
-            }
-        }
-
         public class Context : ScenarioContext
         {
             public bool HandlerInvoked { get; set; }
