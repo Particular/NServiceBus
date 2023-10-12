@@ -3,6 +3,7 @@
     using System;
     using System.Runtime.Serialization;
     using System.Security;
+    using System.Text.Json.Serialization;
 
     /// <summary>
     /// Default implementation for <see cref="IDataBusProperty" />.
@@ -55,6 +56,7 @@
         /// <summary>
         /// The property <see cref="Type" />.
         /// </summary>
+        [JsonIgnore]
         public Type Type { get; }
 
         /// <summary>
