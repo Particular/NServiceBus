@@ -50,6 +50,7 @@
         /// The value.
         /// </summary>
 #pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property        
+        [JsonIgnore]
         public T Value => value;
 #pragma warning restore IDE0032 // Use auto property
 
