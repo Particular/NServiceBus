@@ -17,7 +17,6 @@
         /// </summary>
         public DataBusProperty() : this(null)
         {
-            Type = typeof(T);
         }
 
         /// <summary>
@@ -26,11 +25,6 @@
         /// <param name="value">The value to initialize with.</param>
         public DataBusProperty(T value)
         {
-            if (value != null)
-            {
-                Type = typeof(T);
-            }
-
             SetValue(value);
         }
 
@@ -57,7 +51,7 @@
         /// The property <see cref="Type" />.
         /// </summary>
         [JsonIgnore]
-        public Type Type { get; }
+        public Type Type { get; } = typeof(T);
 
         /// <summary>
         /// The <see cref="IDataBusProperty" /> key.
