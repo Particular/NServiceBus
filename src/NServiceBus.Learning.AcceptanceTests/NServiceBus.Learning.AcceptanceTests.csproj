@@ -19,6 +19,7 @@
   <ItemGroup>
     <Compile Include="../NServiceBus.AcceptanceTests/**/*.cs" Exclude="../NServiceBus.AcceptanceTests/obj/**/*.*;../NServiceBus.AcceptanceTests/Core/**/*.cs" />
     <Compile Remove="../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs" />
+    <Compile Remove="..\NServiceBus.AcceptanceTests\Tx\Issue_2481.cs" />
   </ItemGroup>
 
 </Project>

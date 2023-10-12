@@ -7,10 +7,10 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_receiving_with_dtc_enabled : NServiceBusAcceptanceTest
+    public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_enlist_the_receive_in_the_dtc_tx()
+        public async Task Should_enlist_in_dtc_transaction()
         {
             Requires.DtcSupport();
 
@@ -19,14 +19,15 @@
                 .Done(c => c.HandlerInvoked)
                 .Run();
 
-            Assert.False(context.CanEnlistPromotable, "There should exists a DTC tx");
+            Assert.True(context.DtcTransactionPresent, "There should exists a DTC tx");
         }
+
 
         public class Context : ScenarioContext
         {
             public bool HandlerInvoked { get; set; }
 
-            public bool CanEnlistPromotable { get; set; }
+            public bool DtcTransactionPresent { get; set; }
         }
 
         public class DTCEndpoint : EndpointConfigurationBuilder
@@ -45,7 +46,8 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    testContext.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
+                    Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
+                    testContext.DtcTransactionPresent = Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty;
                     testContext.HandlerInvoked = true;
                     return Task.CompletedTask;
                 }
@@ -53,7 +55,6 @@
                 Context testContext;
             }
         }
-
 
         public class MyMessage : ICommand
         {
