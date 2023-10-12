@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_databus_properties_with_systemjsonserializer : NServiceBusAcceptanceTest
@@ -56,6 +58,7 @@
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
                     builder.UseSerialization<SystemJsonSerializer>();
+                    builder.RegisterMessageMutator(new Mutator());
                 });
             }
 
@@ -74,6 +77,18 @@
                 }
 
                 Context testContext;
+            }
+        }
+
+        public class Mutator : IMutateIncomingTransportMessages
+        {
+            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+            {
+                if (context.Body.Length > PayloadSize)
+                {
+                    throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
+                }
+                return Task.CompletedTask;
             }
         }
 
