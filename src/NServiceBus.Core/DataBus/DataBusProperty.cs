@@ -50,6 +50,7 @@
         /// <summary>
         /// The value.
         /// </summary>
+        [JsonIgnore]
         public T Value => value;
 
         /// <summary>
