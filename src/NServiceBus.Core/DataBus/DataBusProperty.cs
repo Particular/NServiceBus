@@ -12,24 +12,13 @@
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
         /// </summary>
-        public DataBusProperty()
-        {
-            Type = typeof(T);
-        }
+        public DataBusProperty() { }
 
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with the <paramref name="value" />.
         /// </summary>
         /// <param name="value">The value to initialize with.</param>
-        public DataBusProperty(T value)
-        {
-            if (value != null)
-            {
-                Type = typeof(T);
-            }
-
-            SetValue(value);
-        }
+        public DataBusProperty(T value) => SetValue(value);
 
         /// <summary>
         /// The value.
@@ -43,7 +32,7 @@
         /// The property <see cref="Type" />.
         /// </summary>
         [JsonIgnore]
-        public Type Type { get; }
+        public Type Type { get; } = typeof(T);
 
         /// <summary>
         /// The <see cref="IDataBusProperty" /> key.
