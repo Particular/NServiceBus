@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text.Json.Serialization;
+    using System.Xml.Serialization;
 
     /// <summary>
     /// Default implementation for <see cref="IDataBusProperty" />.
@@ -23,10 +24,9 @@
         /// <summary>
         /// The value.
         /// </summary>
-#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property
         [JsonIgnore]
-        public T Value => value;
-#pragma warning restore IDE0032 // Use auto property
+        [XmlIgnore]
+        public T Value { get; private set; }
 
         /// <summary>
         /// The property <see cref="Type" />.
@@ -50,21 +50,14 @@
         /// <param name="valueToSet">The value to set.</param>
         public void SetValue(object valueToSet)
         {
-            value = valueToSet as T;
-            HasValue = value != null;
+            Value = valueToSet as T;
+            HasValue = Value != null;
         }
 
         /// <summary>
         /// Gets the value of the <see cref="IDataBusProperty" />.
         /// </summary>
         /// <returns>The value.</returns>
-        public object GetValue()
-        {
-            return Value;
-        }
-
-#pragma warning disable IDE0032 // Use auto property - value will be serialized into the message body if it is an auto property
-        T value;
-#pragma warning restore IDE0032 // Use auto property
+        public object GetValue() => Value;
     }
 }
