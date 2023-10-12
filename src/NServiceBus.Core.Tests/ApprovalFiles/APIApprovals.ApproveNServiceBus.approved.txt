@@ -164,14 +164,13 @@ namespace NServiceBus
     {
         public DataBusProperty() { }
         public DataBusProperty(T value) { }
-        protected DataBusProperty(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public bool HasValue { get; set; }
         public string Key { get; set; }
         [System.Text.Json.Serialization.JsonIgnore]
         public System.Type Type { get; }
         [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public T Value { get; }
-        public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public object GetValue() { }
         public void SetValue(object valueToSet) { }
     }
