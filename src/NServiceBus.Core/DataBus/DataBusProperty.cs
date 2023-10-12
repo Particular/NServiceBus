@@ -15,7 +15,7 @@
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
         /// </summary>
-        public DataBusProperty() : this(null)
+        public DataBusProperty()
         {
         }
 
