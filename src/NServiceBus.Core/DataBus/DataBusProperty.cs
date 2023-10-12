@@ -43,7 +43,7 @@
         /// <summary>
         /// The value.
         /// </summary>
-#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property        
+#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property                
         [JsonIgnore]
         public T Value => value;
 #pragma warning restore IDE0032 // Use auto property
@@ -52,7 +52,7 @@
         /// The property <see cref="Type" />.
         /// </summary>
         [JsonIgnore]
-        public Type Type { get; }
+        public Type Type { get; } = typeof(T);
 
         /// <summary>
         /// The <see cref="IDataBusProperty" /> key.
