@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Runtime.Serialization;
-    using System.Security;
     using System.Text.Json.Serialization;
 
     /// <summary>
@@ -34,22 +32,9 @@
         }
 
         /// <summary>
-        /// For serialization purposes.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo" /> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="StreamingContext" />) for this serialization. </param>
-        /// <exception cref="SecurityException">The caller does not have the required permission. </exception>
-        protected DataBusProperty(SerializationInfo info, StreamingContext context)
-        {
-            ArgumentNullException.ThrowIfNull(info);
-            Key = info.GetString("Key");
-            HasValue = info.GetBoolean("HasValue");
-        }
-
-        /// <summary>
         /// The value.
         /// </summary>
-#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property        
+#pragma warning disable IDE0032 // Use auto property - Value will be serialized into the message body if it is an auto property
         [JsonIgnore]
         public T Value => value;
 #pragma warning restore IDE0032 // Use auto property
@@ -89,23 +74,8 @@
             return Value;
         }
 
-
-        /// <summary>
-        /// Populates a <see cref="SerializationInfo" /> with the data needed to serialize the target object.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo" /> to populate with data. </param>
-        /// <param name="context">The destination (see <see cref="StreamingContext" />) for this serialization. </param>
-        /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            ArgumentNullException.ThrowIfNull(info);
-            info.AddValue("Key", Key);
-            info.AddValue("HasValue", HasValue);
-        }
-
 #pragma warning disable IDE0032 // Use auto property - value will be serialized into the message body if it is an auto property
         T value;
 #pragma warning restore IDE0032 // Use auto property
     }
-
 }
