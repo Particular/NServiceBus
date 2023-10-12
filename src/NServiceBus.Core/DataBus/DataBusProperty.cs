@@ -11,12 +11,12 @@
     public class DataBusProperty<T> : IDataBusProperty where T : class
     {
         /// <summary>
-        /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
+        /// Initializes a <see cref="DataBusProperty{T}" /> with no value set.
         /// </summary>
         public DataBusProperty() { }
 
         /// <summary>
-        /// initializes a <see cref="DataBusProperty{T}" /> with the <paramref name="value" />.
+        /// Initializes a <see cref="DataBusProperty{T}" /> with the <paramref name="value" />.
         /// </summary>
         /// <param name="value">The value to initialize with.</param>
         public DataBusProperty(T value) => SetValue(value);
