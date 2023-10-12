@@ -16,7 +16,6 @@
         /// </summary>
         public DataBusProperty()
         {
-            Type = typeof(T);
         }
 
         /// <summary>
@@ -25,11 +24,6 @@
         /// <param name="value">The value to initialize with.</param>
         public DataBusProperty(T value)
         {
-            if (value != null)
-            {
-                Type = typeof(T);
-            }
-
             SetValue(value);
         }
 
@@ -44,7 +38,6 @@
             ArgumentNullException.ThrowIfNull(info);
             Key = info.GetString("Key");
             HasValue = info.GetBoolean("HasValue");
-            Type = typeof(T);
         }
 
         /// <summary>
