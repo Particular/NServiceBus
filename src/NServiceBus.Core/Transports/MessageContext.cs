@@ -56,7 +56,7 @@
         public TransportTransaction TransportTransaction { get; }
 
         /// <summary>
-        /// Transport address that received the failed message.
+        /// Transport address that received the message.
         /// </summary>
         public string ReceiveAddress { get; }
 
