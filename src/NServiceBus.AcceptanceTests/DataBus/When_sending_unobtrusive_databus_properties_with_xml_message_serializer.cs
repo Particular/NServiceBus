@@ -9,7 +9,7 @@
     using MessageMutator;
     using NUnit.Framework;
 
-    public class When_sending_databus_properties : NServiceBusAcceptanceTest
+    public class When_sending_unobtrusive_databus_properties_with_xml_message_serializer : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_messages_with_largepayload_correctly()
@@ -19,7 +19,7 @@
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
                 {
-                    Payload = new DataBusProperty<byte[]>(payloadToSend)
+                    Payload = payloadToSend
                 })))
                 .WithEndpoint<Receiver>()
                 .Done(c => c.ReceivedPayload != null)
@@ -41,11 +41,15 @@
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
+                    builder.Conventions()
+                        .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
+                        .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
+
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
-
+                    builder.UseSerialization<XmlSerializer>();
                     builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
-                });
+                }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 
@@ -55,8 +59,13 @@
             {
                 EndpointSetup<DefaultServer>(builder =>
                 {
+                    builder.Conventions()
+                        .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
+                        .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
+
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
+                    builder.UseSerialization<XmlSerializer>();
                     builder.RegisterMessageMutator(new Mutator());
                 });
             }
@@ -70,7 +79,7 @@
 
                 public Task Handle(MyMessageWithLargePayload messageWithLargePayload, IMessageHandlerContext context)
                 {
-                    testContext.ReceivedPayload = messageWithLargePayload.Payload.Value;
+                    testContext.ReceivedPayload = messageWithLargePayload.Payload;
 
                     return Task.CompletedTask;
                 }
@@ -91,9 +100,9 @@
             }
         }
 
-        public class MyMessageWithLargePayload : ICommand
+        public class MyMessageWithLargePayload
         {
-            public DataBusProperty<byte[]> Payload { get; set; }
+            public byte[] Payload { get; set; }
         }
     }
 }
