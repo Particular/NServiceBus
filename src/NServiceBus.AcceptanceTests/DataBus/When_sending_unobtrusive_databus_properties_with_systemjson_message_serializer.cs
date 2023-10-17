@@ -9,7 +9,7 @@
     using MessageMutator;
     using NUnit.Framework;
 
-    public class When_sending_databus_properties_with_unobtrusive : NServiceBusAcceptanceTest
+    public class When_sending_unobtrusive_databus_properties_with_systemjson_message_serializer : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_messages_with_largepayload_correctly()
@@ -47,7 +47,7 @@
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
-
+                    builder.UseSerialization<SystemJsonSerializer>();
                     builder.ConfigureRouting().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
@@ -65,6 +65,7 @@
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus, SystemJsonDataBusSerializer>().BasePath(basePath);
+                    builder.UseSerialization<SystemJsonSerializer>();
                     builder.RegisterMessageMutator(new Mutator());
                 });
             }
@@ -85,17 +86,17 @@
 
                 Context testContext;
             }
-        }
 
-        public class Mutator : IMutateIncomingTransportMessages
-        {
-            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+            public class Mutator : IMutateIncomingTransportMessages
             {
-                if (context.Body.Length > PayloadSize)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
+                    if (context.Body.Length > PayloadSize)
+                    {
+                        throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
+                    }
+                    return Task.CompletedTask;
                 }
-                return Task.CompletedTask;
             }
         }
 
