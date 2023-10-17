@@ -1,35 +1,38 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
+    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_receiving_with_the_default_settings : NServiceBusAcceptanceTest
+    public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_wrap_the_handler_pipeline_with_a_transactionscope()
+        public async Task Should_enlist_in_dtc_transaction()
         {
             Requires.DtcSupport();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<TransactionalEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
+                .WithEndpoint<DTCEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
                 .Done(c => c.HandlerInvoked)
                 .Run();
 
-            Assert.True(context.AmbientTransactionExists, "There should exist an ambient transaction");
+            Assert.True(context.DtcTransactionPresent, "There should exists a DTC tx");
         }
+
 
         public class Context : ScenarioContext
         {
-            public bool AmbientTransactionExists { get; set; }
             public bool HandlerInvoked { get; set; }
+
+            public bool DtcTransactionPresent { get; set; }
         }
 
-        public class TransactionalEndpoint : EndpointConfigurationBuilder
+        public class DTCEndpoint : EndpointConfigurationBuilder
         {
-            public TransactionalEndpoint()
+            public DTCEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
@@ -43,7 +46,8 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    testContext.AmbientTransactionExists = Transaction.Current != null;
+                    Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
+                    testContext.DtcTransactionPresent = Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty;
                     testContext.HandlerInvoked = true;
                     return Task.CompletedTask;
                 }
@@ -51,7 +55,6 @@
                 Context testContext;
             }
         }
-
 
         public class MyMessage : ICommand
         {

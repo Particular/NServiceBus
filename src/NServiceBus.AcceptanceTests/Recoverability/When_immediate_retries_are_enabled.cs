@@ -7,10 +7,10 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_immediate_retries_with_native_transactions : NServiceBusAcceptanceTest
+    public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_do_the_configured_number_of_retries_with_native_transactions()
+        public async Task Should_do_the_configured_number_of_retries()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
