@@ -21,13 +21,12 @@
                         config =>
                         {
                             serviceCollection.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                            var configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
+                            return EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
                         },
-                        configured =>
+                        (configured, ct) =>
                         {
                             serviceCollection.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>();
-                            return configured.Start(serviceCollection.BuildServiceProvider());
+                            return configured.Start(serviceCollection.BuildServiceProvider(), ct);
                         }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
@@ -48,22 +47,17 @@
 
         public class EndpointWithOverrides : EndpointConfigurationBuilder
         {
-            public EndpointWithOverrides()
-            {
+            public EndpointWithOverrides() =>
                 EndpointSetup<DefaultServer>(c => c.RegisterComponents(s =>
                 {
                     s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
                     s.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
                     s.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
                 }));
-            }
 
             public class StartupFeature : Feature
             {
-                public StartupFeature()
-                {
-                    EnableByDefault();
-                }
+                public StartupFeature() => EnableByDefault();
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
@@ -87,14 +81,10 @@
                     }
 
                     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        return Task.CompletedTask;
-                    }
+                        => Task.CompletedTask;
 
                     protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        return Task.CompletedTask;
-                    }
+                        => Task.CompletedTask;
                 }
             }
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Customization;
     using NUnit.Framework;
@@ -12,17 +13,17 @@
         {
             EndpointBuilder = endpointBuilder;
             CustomConfig = [];
-            ConfigureHowToCreateInstance(config => Endpoint.Create(config), startable => startable.Start());
+            ConfigureHowToCreateInstance(config => Endpoint.Create(config), static (startableEndpoint, cancellationToken) => startableEndpoint.Start(cancellationToken));
         }
 
-        public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, Task<IEndpointInstance>> startCallback)
+        public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
         {
             createInstanceCallback = async config =>
             {
                 var result = await createCallback(config).ConfigureAwait(false);
                 return result;
             };
-            startInstanceCallback = state => startCallback((T)state);
+            startInstanceCallback = (state, ct) => startCallback((T)state, ct);
         }
 
         public IEndpointConfigurationFactory EndpointBuilder { get; }
@@ -52,6 +53,6 @@
         }
 
         Func<EndpointConfiguration, Task<object>> createInstanceCallback;
-        Func<object, Task<IEndpointInstance>> startInstanceCallback;
+        Func<object, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
     }
 }

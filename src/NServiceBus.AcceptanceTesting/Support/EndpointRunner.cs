@@ -14,7 +14,7 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         Func<EndpointConfiguration, Task<object>> createCallback;
-        Func<object, Task<IEndpointInstance>> startCallback;
+        Func<object, CancellationToken, Task<IEndpointInstance>> startCallback;
         bool doNotFailOnErrorMessages;
         EndpointBehavior behavior;
         object startable;
@@ -22,7 +22,7 @@
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
 
-        public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
+        public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, CancellationToken, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
         {
             this.createCallback = createCallback;
             this.startCallback = startCallback;
@@ -93,9 +93,9 @@
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
-                endpointInstance = await startCallback(startable).ConfigureAwait(false);
+                endpointInstance = await startCallback(startable, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
 
@@ -153,17 +153,17 @@
             }
         }
 
-        public override async Task Stop()
+        public override async Task Stop(CancellationToken cancellationToken = default)
         {
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 if (endpointInstance != null)
                 {
-                    await endpointInstance.Stop().ConfigureAwait(false);
+                    await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
                 throw;

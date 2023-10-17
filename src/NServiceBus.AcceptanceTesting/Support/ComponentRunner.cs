@@ -11,6 +11,6 @@
 
         public virtual Task ComponentsStarted(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public virtual Task Stop() => Task.CompletedTask;
+        public virtual Task Stop(CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

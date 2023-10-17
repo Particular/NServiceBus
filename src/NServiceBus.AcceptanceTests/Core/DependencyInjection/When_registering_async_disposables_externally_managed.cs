@@ -21,19 +21,12 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAsyncDisposable>(b =>
                 {
-                    IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
-
                     b.ToCreateInstance(
-                        config =>
-                        {
-                            configuredEndpoint =
-                                EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                            return Task.FromResult(configuredEndpoint);
-                        },
-                        configured =>
+                        config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
+                        (configured, ct) =>
                         {
                             serviceProvider = serviceCollection.BuildServiceProvider();
-                            return configured.Start(serviceProvider);
+                            return configured.Start(serviceProvider, ct);
                         });
                     b.When(e => e.SendLocal(new SomeMessage()));
                 })
