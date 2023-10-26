@@ -34,6 +34,10 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
   </ItemGroup>
 
+  <ItemGroup Label="System.Security.Cryptography.Xml 7.0.1 references Pkcs 7.0.0, which has a vulnerability. This should be removed when Xml updates to reference a non-vulernable version" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>The most popular open-source service bus for .NET</Description>
