@@ -109,7 +109,7 @@
         /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
         public MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
 
-        string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
+        static string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
         {
             var typeParts = messageTypeIdentifier.Split(',');
             if (typeParts.Length > 1)
@@ -158,7 +158,7 @@
             }
         }
 
-        IEnumerable<Type> GetHandledMessageTypes(Type messageHandlerType)
+        static IEnumerable<Type> GetHandledMessageTypes(Type messageHandlerType)
         {
             if (messageHandlerType.IsAbstract || messageHandlerType.IsGenericTypeDefinition)
             {

@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     [TestFixture]
     public class SagaModelTests
     {
-        SagaMetadataCollection GetModel(params Type[] types)
+        static SagaMetadataCollection GetModel(params Type[] types)
         {
             var sagaMetaModel = new SagaMetadataCollection();
             sagaMetaModel.Initialize(types.ToList(), new Conventions());

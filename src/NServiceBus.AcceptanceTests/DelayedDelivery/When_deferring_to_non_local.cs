@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_deferring_to_non_local : NServiceBusAcceptanceTest

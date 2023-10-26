@@ -1,8 +1,8 @@
 namespace NServiceBus.Extensibility
 {
     using System;
-    using Transport;
     using Pipeline;
+    using Transport;
 
     /// <summary>
     /// Provides hidden access to the extension context.
@@ -11,7 +11,7 @@ namespace NServiceBus.Extensibility
     {
         /// <summary>
         /// Gets access to a "bucket" that allows the developer to pass information from extension methods down to behaviors.
-        /// </summary>        
+        /// </summary>
         public static ContextBag GetExtensions(this ExtendableOptions options)
         {
             ArgumentNullException.ThrowIfNull(options);
@@ -47,7 +47,7 @@ namespace NServiceBus.Extensibility
         /// </summary>
         public static IReadOnlyContextBag GetOperationProperties(this IRoutingContext behaviorContext) => GetOperationPropertiesInternal(behaviorContext);
 
-        static IReadOnlyContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
+        static ContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
         {
             ArgumentNullException.ThrowIfNull(behaviorContext);
             if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))

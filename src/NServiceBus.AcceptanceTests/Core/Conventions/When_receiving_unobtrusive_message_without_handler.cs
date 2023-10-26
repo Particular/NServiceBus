@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(c => c.When(s => s.Send(new MyCommand())))
                 .WithEndpoint<Receiver>(c => c.DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains($"No handlers could be found for message type: {typeof(MyCommand).FullName}")), "No handlers could be found was not logged.");

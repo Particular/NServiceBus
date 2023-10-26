@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
-    using System.Collections.Generic;
     using Pipeline;
     using Transport;
 
@@ -13,6 +12,6 @@
         /// <summary>
         /// The physical message being processed.
         /// </summary>
-        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), [], new byte[0]);
+        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>());
     }
 }

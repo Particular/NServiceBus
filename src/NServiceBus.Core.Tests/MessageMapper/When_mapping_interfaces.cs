@@ -72,6 +72,7 @@ namespace MessageMapperTests
             string SomeOtherProperty { get; set; }
         }
 
+        [AttributeUsage(AttributeTargets.All)]
         public class SomeAttribute : Attribute
         {
         }
@@ -94,6 +95,7 @@ namespace MessageMapperTests
             string SomeProperty { get; set; }
         }
 
+        [AttributeUsage(AttributeTargets.All)]
         public class NoDefaultConstructorAttribute : Attribute
         {
             public string Name { get; set; }
@@ -123,6 +125,7 @@ namespace MessageMapperTests
         /// <summary>
         /// Break the heuristics of finding the properties from constructor parameter names
         /// </summary>
+        [AttributeUsage(AttributeTargets.All)]
         public class NoDefaultConstructorAndNoMatchingParametersAttribute : Attribute
         {
             public string Name { get; set; }
@@ -168,6 +171,7 @@ namespace MessageMapperTests
             Guid EventId { get; set; }
         }
 
+        [AttributeUsage(AttributeTargets.All)]
         public class ValuePropertiesAttribute : Attribute
         {
             public ValuePropertiesAttribute() { }
@@ -186,7 +190,7 @@ namespace MessageMapperTests
             public int MyAge { get; set; }
         }
 
-        bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
+        static bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType, true).Length > 0;
         }

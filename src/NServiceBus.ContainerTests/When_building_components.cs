@@ -98,7 +98,7 @@ namespace NServiceBus.ContainerTests
             }
         }
 
-        void InitializeServices(IServiceCollection serviceCollection)
+        static void InitializeServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(typeof(SingletonComponent));
             serviceCollection.AddTransient(typeof(TransientComponent));
@@ -151,7 +151,9 @@ namespace NServiceBus.ContainerTests
 
     public class StaticFactory
     {
+#pragma warning disable CA1822 // Mark members as static
         public ComponentCreatedByFactory Create()
+#pragma warning restore CA1822 // Mark members as static
         {
             return new ComponentCreatedByFactory();
         }

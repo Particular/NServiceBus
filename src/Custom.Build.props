@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <AnalyzerTargetFramework>netstandard2.0</AnalyzerTargetFramework>
+    <AnalysisLevel>8.0-minimum</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup>

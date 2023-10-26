@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.Transports
 {
     using System;
-    using System.Collections.Generic;
     using NServiceBus.Performance.TimeToBeReceived;
     using NUnit.Framework;
     using Transport;
@@ -12,8 +11,8 @@ namespace NServiceBus.Core.Tests.Transports
         [Test]
         public void Should_not_share_constraints_when_not_provided()
         {
-            var transportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]), typeof(Guid), []);
-            var secondTransportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]), typeof(Guid), []);
+            var transportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), typeof(Guid), []);
+            var secondTransportOperation = new MulticastTransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), typeof(Guid), []);
 
             transportOperation.Properties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 

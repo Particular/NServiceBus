@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateInstanceMessage
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Microsoft.Extensions.DependencyInjection;
@@ -100,7 +99,7 @@
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
-            context.Services.AddTransient(sp => new IMutateIncomingMessages[] { });
+            context.Services.AddTransient(sp => System.Array.Empty<IMutateIncomingMessages>());
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 

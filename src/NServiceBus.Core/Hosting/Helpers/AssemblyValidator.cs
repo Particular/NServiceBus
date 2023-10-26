@@ -56,11 +56,9 @@
 
         static string GetPublicKeyToken(byte[] publicKey)
         {
-            using var sha1 = SHA1.Create();
             Span<byte> publicKeyToken = stackalloc byte[20];
-            // returns false when the destination doesn't have enough space
-            _ = sha1.TryComputeHash(publicKey, publicKeyToken, out _);
-            Span<byte> lastEightBytes = publicKeyToken.Slice(publicKeyToken.Length - 8, 8);
+            _ = SHA1.HashData(publicKey, publicKeyToken);
+            var lastEightBytes = publicKeyToken.Slice(publicKeyToken.Length - 8, 8);
             lastEightBytes.Reverse();
             return Convert.ToHexString(lastEightBytes);
         }

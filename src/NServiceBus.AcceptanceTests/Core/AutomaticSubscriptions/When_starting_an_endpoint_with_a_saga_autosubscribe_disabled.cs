@@ -2,7 +2,6 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -20,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.False(context.EventsSubscribedTo.Any(), "Events only handled by sagas should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Count != 0, "Events only handled by sagas should not be auto subscribed");
         }
 
         class Context : ScenarioContext

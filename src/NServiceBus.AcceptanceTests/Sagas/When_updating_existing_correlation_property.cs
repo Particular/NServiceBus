@@ -19,7 +19,7 @@
                     {
                         SomeId = Guid.NewGuid()
                     })))
-                    .Done(c => c.FailedMessages.Any())
+                    .Done(c => !c.FailedMessages.IsEmpty)
                     .Run());
 
             Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);

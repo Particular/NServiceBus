@@ -18,7 +18,7 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried { Id = ctx.Id }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.AreEqual(ConfiguredNumberOfDelayedRetries + 1, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");

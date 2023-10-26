@@ -283,6 +283,7 @@
                 public void Dispose()
                 {
                     parentFeature.TaskDisposed = true;
+                    GC.SuppressFinalize(this);
                 }
 
                 protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
@@ -341,6 +342,7 @@
                 public void Dispose()
                 {
                     parentFeature.TaskDisposed = true;
+                    GC.SuppressFinalize(this);
                 }
 
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)

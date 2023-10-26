@@ -142,7 +142,7 @@
             return messageHandler;
         }
 
-        static IInvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
+        static TestableInvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
         {
             var behaviorContext = new TestableInvokeHandlerContext
             {

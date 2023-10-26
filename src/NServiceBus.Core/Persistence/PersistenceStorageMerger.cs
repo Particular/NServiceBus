@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Persistence;
     using Settings;
 
@@ -35,7 +34,7 @@
                     }
                 }
 
-                if (currentDefinition.SelectedStorages.Any())
+                if (currentDefinition.SelectedStorages.Count != 0)
                 {
                     mergedEnabledPersistences.Add(currentDefinition);
                 }

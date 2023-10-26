@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run(TimeSpan.FromSeconds(120));
 
             var delayedRetryBody = context.FailedMessages.Single().Value.Single().Body;

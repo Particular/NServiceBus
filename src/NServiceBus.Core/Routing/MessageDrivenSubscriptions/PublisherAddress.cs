@@ -84,7 +84,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 && CollectionEquals(instances, other.instances);
         }
 
-        bool CollectionEquals<T>(IEnumerable<T> left, IEnumerable<T> right)
+        static bool CollectionEquals<T>(IEnumerable<T> left, IEnumerable<T> right)
         {
             if (left is null && right is null)
             {

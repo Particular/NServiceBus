@@ -28,21 +28,23 @@ namespace NServiceBus.ContainerTests
 
         public class DisposableComponent : IDisposable
         {
-            public static bool DisposeCalled;
+            public static bool DisposeCalled { get; set; }
 
             public void Dispose()
             {
                 DisposeCalled = true;
+                GC.SuppressFinalize(this);
             }
         }
 
         public class AnotherSingletonComponent : IDisposable
         {
-            public static bool DisposeCalled;
+            public static bool DisposeCalled { get; set; }
 
             public void Dispose()
             {
                 DisposeCalled = true;
+                GC.SuppressFinalize(this);
             }
         }
     }

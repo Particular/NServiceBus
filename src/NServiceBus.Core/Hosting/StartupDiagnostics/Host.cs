@@ -43,13 +43,15 @@
             throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
         }
 
+        internal static readonly string[] parameters = ["~/App_Data/"];
+
         static string TryMapPath(Assembly systemWebAssembly)
         {
             try
             {
                 var hostingEnvironment = systemWebAssembly?.GetType("System.Web.Hosting.HostingEnvironment");
                 var mapPath = hostingEnvironment?.GetMethod("MapPath", BindingFlags.Static | BindingFlags.Public);
-                var result = mapPath?.Invoke(null, new[] { "~/App_Data/" }) as string;
+                var result = mapPath?.Invoke(null, parameters) as string;
 
                 return result;
             }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +22,7 @@
                 settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
                 {
                     {"Machine", RuntimeEnvironment.MachineName},
-                    {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+                    {"ProcessID", Environment.ProcessId.ToString()},
                     {"UserName", Environment.UserName},
                     {"PathToExecutable", fullPathToStartingExe}
                 });

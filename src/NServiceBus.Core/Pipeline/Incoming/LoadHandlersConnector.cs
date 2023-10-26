@@ -53,7 +53,7 @@
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
         }
 
-        void ValidateTransactionMode(IIncomingLogicalMessageContext context)
+        static void ValidateTransactionMode(IIncomingLogicalMessageContext context)
         {
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
 

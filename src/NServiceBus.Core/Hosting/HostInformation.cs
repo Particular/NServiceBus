@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using Support;
 
     /// <summary>
@@ -19,7 +18,7 @@ namespace NServiceBus.Hosting
             : this(hostId, displayName, new Dictionary<string, string>
             {
                 {"Machine", RuntimeEnvironment.MachineName},
-                {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+                {"ProcessID", Environment.ProcessId.ToString()},
                 {"UserName", Environment.UserName}
             })
         {

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability
 {
     using System;
-    using System.Collections.Generic;
     using Extensibility;
     using NUnit.Framework;
     using Transport;
@@ -14,7 +13,7 @@
         {
             var contextBag = new ContextBag();
             contextBag.Set("MyKey", "MyValue");
-            var context = new ErrorContext(new Exception(), [], "ID", new byte[0], new TransportTransaction(), 0, "my-queue", contextBag);
+            var context = new ErrorContext(new Exception(), [], "ID", Array.Empty<byte>(), new TransportTransaction(), 0, "my-queue", contextBag);
 
             Assert.AreEqual("MyValue", context.Extensions.Get<string>("MyKey"));
         }

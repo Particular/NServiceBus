@@ -75,7 +75,7 @@
                 strategy.SelectDestination(distributionContext),
                 strategy.SelectDestination(distributionContext)
             };
-            instances = instances.Concat(new[] { "3" }).ToArray(); // add new instance
+            instances = [.. instances, "3"]; // add new instance
             distributionContext = new DistributionContext(instances, null, null, null, null, null);
             result.Add(strategy.SelectDestination(distributionContext));
 

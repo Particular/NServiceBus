@@ -37,7 +37,11 @@
             };
         }
 
-        public void Dispose() => activityListener?.Dispose();
+        public void Dispose()
+        {
+            activityListener?.Dispose();
+            GC.SuppressFinalize(this);
+        }
 
         public ConcurrentQueue<Activity> StartedActivities { get; } = new ConcurrentQueue<Activity>();
         public ConcurrentQueue<Activity> CompletedActivities { get; } = new ConcurrentQueue<Activity>();

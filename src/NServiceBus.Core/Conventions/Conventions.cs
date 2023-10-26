@@ -1,11 +1,11 @@
 ﻿namespace NServiceBus
 {
-    using Logging;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Logging;
 
     /// <summary>
     /// Message convention definitions.
@@ -250,7 +250,7 @@
         readonly List<Func<Type, bool>> IsSystemMessageActions = [];
         readonly ConventionCache MessagesConventionCache = new ConventionCache();
 
-        readonly IList<IMessageConvention> conventions = new List<IMessageConvention>();
+        readonly List<IMessageConvention> conventions = [];
         readonly OverridableMessageConvention defaultMessageConvention;
 
         static readonly ILog logger = LogManager.GetLogger<Conventions>();

@@ -32,7 +32,7 @@ namespace NServiceBus
             }
         }
 
-        public void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
+        public static void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
         {
             var whenLicenseExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilLicenseExpires());
             var whenUpgradeProtectedExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires());
@@ -106,7 +106,7 @@ namespace NServiceBus
             Logger.Info(string.Join(Environment.NewLine, result.SelectedLicenseReport));
         }
 
-        void OpenDeveloperLicensePage(string developerLicenseUrl)
+        static void OpenDeveloperLicensePage(string developerLicenseUrl)
         {
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
@@ -153,7 +153,7 @@ namespace NServiceBus
             return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}&f={frameworkVersion}";
         }
 
-        string GetPlatformCode()
+        static string GetPlatformCode()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -173,7 +173,7 @@ namespace NServiceBus
             return "unknown";
         }
 
-        string GetFrameworkVersion()
+        static string GetFrameworkVersion()
         {
             var match = Regex.Match(RuntimeInformation.FrameworkDescription, @"\d+");
             return match.Success ? match.Value : "0";

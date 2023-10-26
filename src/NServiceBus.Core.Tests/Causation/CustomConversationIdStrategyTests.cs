@@ -35,7 +35,7 @@
             Assert.True(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _));
         }
 
-        string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)
+        static string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)
         {
             return MessageCausation.WrapUserDefinedInvocation(strategy)(new TestableOutgoingLogicalMessageContext());
         }

@@ -167,7 +167,7 @@
                     ? new Dictionary<string, string> { { Headers.DelayedRetries, retryNumber.ToString() } }
                     : headers ?? [],
                 "message-id",
-                new byte[0],
+                Array.Empty<byte>(),
                 new TransportTransaction(),
                 numberOfDeliveryAttempts,
                 "my-queue",

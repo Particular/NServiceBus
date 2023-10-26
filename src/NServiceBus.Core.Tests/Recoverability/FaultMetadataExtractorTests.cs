@@ -66,10 +66,10 @@ namespace NServiceBus.Core.Tests.Recoverability
 
         ErrorContext CreateErrorContext(Exception exception = null)
         {
-            return new ErrorContext(exception ?? GetAnException(), [], "some-id", new byte[0], new TransportTransaction(), 0, "my-address", new ContextBag());
+            return new ErrorContext(exception ?? GetAnException(), [], "some-id", Array.Empty<byte>(), new TransportTransaction(), 0, "my-address", new ContextBag());
         }
 
-        Exception GetAnException()
+        static Exception GetAnException()
         {
             try
             {
@@ -83,7 +83,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public void MethodThatThrows1()
+        public static void MethodThatThrows1()
         {
             try
             {
@@ -96,7 +96,7 @@ namespace NServiceBus.Core.Tests.Recoverability
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        void MethodThatThrows2()
+        static void MethodThatThrows2()
         {
             throw new Exception("My Inner Exception");
         }

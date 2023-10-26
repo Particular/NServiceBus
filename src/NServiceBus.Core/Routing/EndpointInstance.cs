@@ -116,7 +116,7 @@
             {
                 return true;
             }
-            return obj is EndpointInstance && Equals((EndpointInstance)obj);
+            return obj is EndpointInstance instance && Equals(instance);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@
             return !Equals(left, right);
         }
 
-        static readonly IEqualityComparer<KeyValuePair<string, string>> propertyComparer = new PropertyComparer();
+        static readonly PropertyComparer propertyComparer = new();
 
         class PropertyComparer : IEqualityComparer<KeyValuePair<string, string>>
         {

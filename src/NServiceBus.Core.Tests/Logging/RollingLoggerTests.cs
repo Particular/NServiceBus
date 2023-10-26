@@ -71,7 +71,7 @@
             }
         }
 
-        static IDisposable LockFile(string single)
+        static FileStream LockFile(string single)
         {
             return new FileStream(single, FileMode.Open, FileAccess.Read, FileShare.None);
         }

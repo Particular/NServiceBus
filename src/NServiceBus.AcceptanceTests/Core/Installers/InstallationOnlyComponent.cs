@@ -25,7 +25,7 @@ public class InstallationOnlyComponent<TConfigurationFactory> : IComponentBehavi
         return new InstallationRunner(endpointConfiguration);
     }
 
-    void RegisterScenarioContext(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
+    static void RegisterScenarioContext(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
     {
         var type = scenarioContext.GetType();
         while (type != typeof(object))

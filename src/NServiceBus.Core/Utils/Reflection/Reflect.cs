@@ -23,10 +23,7 @@ namespace NServiceBus
 
         public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
-            if (member == null)
-            {
-                throw new ArgumentNullException(nameof(member));
-            }
+            ArgumentNullException.ThrowIfNull(member);
 
             if (member is not LambdaExpression lambda)
             {
@@ -35,11 +32,11 @@ namespace NServiceBus
 
             MemberExpression memberExpr = null;
 
-            // The Func<TTarget, object> we use returns an object, so first statement can be either 
+            // The Func<TTarget, object> we use returns an object, so first statement can be either
             // a cast (if the field/property does not return an object) or the direct member access.
             if (lambda.Body.NodeType == ExpressionType.Convert)
             {
-                // The cast is an unary expression, where the operand is the 
+                // The cast is an unary expression, where the operand is the
                 // actual member access expression.
                 memberExpr = ((UnaryExpression)lambda.Body).Operand as MemberExpression;
             }

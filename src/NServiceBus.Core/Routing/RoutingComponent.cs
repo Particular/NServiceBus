@@ -13,8 +13,10 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; }
 
+#pragma warning disable CA1822 // Mark members as static
         public UnicastSendRouter UnicastSendRouterBuilder(IServiceProvider serviceProvider) =>
             serviceProvider.GetRequiredService<UnicastSendRouter>();
+#pragma warning restore CA1822 // Mark members as static
 
         public static RoutingComponent Initialize(Configuration configuration,
             ReceiveComponent.Configuration receiveConfiguration,

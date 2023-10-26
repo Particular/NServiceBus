@@ -24,7 +24,7 @@
                         SomeId = id
                     }));
                 })
-                .Done(c => c.MappedEchoReceived && (c.EchoReceived || c.FailedMessages.Any()))
+                .Done(c => c.MappedEchoReceived && (c.EchoReceived || !c.FailedMessages.IsEmpty))
                 .Run();
 
             Assert.AreEqual(true, context.StartReceived);

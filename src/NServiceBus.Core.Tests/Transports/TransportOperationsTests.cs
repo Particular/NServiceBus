@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Transports
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Routing;
     using Transport;
@@ -23,14 +22,14 @@
 
             var result = new TransportOperations(operations);
 
-            Assert.AreEqual(1, result.MulticastTransportOperations.Count());
+            Assert.AreEqual(1, result.MulticastTransportOperations.Count);
             var multicastOp = result.MulticastTransportOperations.Single();
             Assert.AreEqual(multicastOperation.Message, multicastOp.Message);
             Assert.AreEqual((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType, multicastOp.MessageType);
             Assert.AreEqual(multicastOperation.Properties, multicastOp.Properties);
             Assert.AreEqual(multicastOperation.RequiredDispatchConsistency, multicastOp.RequiredDispatchConsistency);
 
-            Assert.AreEqual(1, result.UnicastTransportOperations.Count());
+            Assert.AreEqual(1, result.UnicastTransportOperations.Count);
             var unicastOp = result.UnicastTransportOperations.Single();
             Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
             Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
@@ -43,8 +42,8 @@
         {
             var result = new TransportOperations();
 
-            Assert.AreEqual(0, result.MulticastTransportOperations.Count());
-            Assert.AreEqual(0, result.UnicastTransportOperations.Count());
+            Assert.AreEqual(0, result.MulticastTransportOperations.Count);
+            Assert.AreEqual(0, result.UnicastTransportOperations.Count);
         }
 
         [Test]
@@ -61,7 +60,7 @@
 
         static OutgoingMessage CreateUniqueMessage()
         {
-            return new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]);
+            return new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>());
         }
 
         class CustomAddressTag : AddressTag

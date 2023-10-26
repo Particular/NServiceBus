@@ -2,7 +2,6 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry
 {
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_replies : OpenTelemetryAcceptanceTest

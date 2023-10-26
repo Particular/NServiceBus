@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.Outgoing
 {
-    using System.Collections.Generic;
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -37,7 +36,7 @@
 
             var parentContext = new FakeRootContext();
 
-            new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
+            _ = new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
 
             var valueFound = parentContext.TryGet("someKey", out string _);
 

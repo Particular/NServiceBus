@@ -107,7 +107,7 @@ namespace NServiceBus
 
             if (buffer.Length - index < count)
             {
-                throw new ArgumentException();
+                throw new ArgumentException("Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
             }
             var number = 0;
             do

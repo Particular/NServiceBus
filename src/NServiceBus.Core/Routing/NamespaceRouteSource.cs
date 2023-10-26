@@ -25,7 +25,7 @@ namespace NServiceBus
                 .Where(t => conventions.IsMessageType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
                 .Select(t => new RouteTableEntry(t, route))
                 .ToArray();
-            if (!routes.Any())
+            if (routes.Length == 0)
             {
                 throw new Exception($"Cannot configure routing for namespace {messageNamespace} because it contains no types considered as messages. Message types have to either implement NServiceBus.IMessage interface or match a defined message convention.");
             }

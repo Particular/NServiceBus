@@ -41,9 +41,7 @@
         [Test]
         public void Should_use_TimeToBeReceived_from_bottom_of_tree_when_tryget()
         {
-            var mappings = new TimeToBeReceivedMappings(new Type[]
-            {
-            }, TimeToBeReceivedMappings.DefaultConvention, true);
+            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
 
             Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
@@ -52,9 +50,7 @@
         [Test]
         public void Should_use_inherited_TimeToBeReceived_when_tryget()
         {
-            var mappings = new TimeToBeReceivedMappings(new Type[]
-            {
-            }, TimeToBeReceivedMappings.DefaultConvention, true);
+            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
 
             Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
@@ -63,9 +59,7 @@
         [Test]
         public void Should_throw_when_discard_before_received_not_supported_when_tryget()
         {
-            var mappings = new TimeToBeReceivedMappings(new Type[]
-            {
-            }, TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false);
+            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false);
 
             Assert.That(() =>
             {

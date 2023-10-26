@@ -416,7 +416,7 @@ namespace NServiceBus.Core.Tests.Routing
         {
         }
 
-        static IOutgoingSendContext CreateContext(SendOptions options, object message = null)
+        static TestableOutgoingSendContext CreateContext(SendOptions options, object message = null)
         {
             message ??= new MyMessage();
 

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateInstanceMessage
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +67,7 @@
             var behavior = new MutateOutgoingMessageBehavior([]);
 
             var context = new TestableOutgoingLogicalMessageContext();
-            context.Extensions.Set(new IncomingMessage("messageId", [], new byte[0]));
+            context.Extensions.Set(new IncomingMessage("messageId", [], System.Array.Empty<byte>()));
             context.Extensions.Set(new LogicalMessage(null, null));
             context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutateOutgoingMessagesReturnsNull());
 
@@ -96,7 +95,7 @@
 
             var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
 
-            context.Services.AddTransient(sp => new IMutateOutgoingMessages[] { });
+            context.Services.AddTransient(sp => System.Array.Empty<IMutateOutgoingMessages>());
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 

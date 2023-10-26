@@ -1,3 +1,5 @@
+namespace NServiceBus.AcceptanceTests;
+
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;

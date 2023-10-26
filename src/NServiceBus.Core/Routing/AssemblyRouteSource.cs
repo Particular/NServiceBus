@@ -24,7 +24,7 @@ namespace NServiceBus
                 .Select(t => new RouteTableEntry(t, route))
                 .ToArray();
 
-            if (!routes.Any())
+            if (routes.Length == 0)
             {
                 throw new Exception($"Cannot configure routing for assembly {messageAssembly.GetName().Name} because it contains no types considered as messages. Message types have to either implement NServiceBus.IMessage interface or match a defined message convention.");
             }

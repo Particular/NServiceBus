@@ -256,7 +256,7 @@
             return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders, context.CancellationToken);
         }
 
-        SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)
+        static SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)
         {
             foreach (var messageType in context.MessageMetadata.MessageHierarchy)
             {

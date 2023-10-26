@@ -29,7 +29,7 @@ namespace NServiceBus
             {
                 using (var stream = CreateWriteStream(tempFile, FileMode.Open))
                 {
-                    await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                    await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
@@ -91,7 +91,7 @@ namespace NServiceBus
             {
                 var length = (int)stream.Length;
                 var body = new byte[length];
-                await stream.ReadAsync(body, 0, length, cancellationToken).ConfigureAwait(false);
+                await stream.ReadAsync(body.AsMemory(0, length), cancellationToken).ConfigureAwait(false);
 
                 return body;
             }

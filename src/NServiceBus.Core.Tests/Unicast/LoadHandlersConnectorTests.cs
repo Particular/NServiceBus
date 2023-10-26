@@ -90,7 +90,7 @@
             }
         }
 
-        TransportTransaction CreateTransactionScopeModeTransportTransaction()
+        static TransportTransaction CreateTransactionScopeModeTransportTransaction()
         {
             var transportTransaction = new TransportTransaction();
 

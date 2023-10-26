@@ -155,7 +155,7 @@
             Assert.NotNull(message);
         }
 
-        IPersistenceTestsConfiguration configuration;
+        PersistenceTestsConfiguration configuration;
         TestVariant param;
     }
 }

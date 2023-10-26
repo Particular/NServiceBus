@@ -36,7 +36,7 @@ namespace NServiceBus
             return destinations;
         }
 
-        void WarnIfNoSubscribersFound(Type messageType, int subscribersFound)
+        static void WarnIfNoSubscribersFound(Type messageType, int subscribersFound)
         {
             if (subscribersFound == 0)
             {

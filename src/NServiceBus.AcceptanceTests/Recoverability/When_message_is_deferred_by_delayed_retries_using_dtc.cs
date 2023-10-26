@@ -24,7 +24,7 @@
                         Id = c.Id
                     }))
                  )
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three times");

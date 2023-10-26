@@ -105,7 +105,7 @@ namespace NServiceBus.Sagas
                 }
             }
 
-            if (violations.Any())
+            if (violations.Count != 0)
             {
                 throw new Exception("Best practice violation: Multiple saga types are sharing the same saga state which can result in persisters to physically share the same storage structure.\n\n- " + string.Join("\n- ", violations));
             }

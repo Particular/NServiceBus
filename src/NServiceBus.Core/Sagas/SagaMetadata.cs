@@ -189,7 +189,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             CorrelationPropertyMetadata correlationProperty = null;
 
-            if (propertyMappings.Any())
+            if (propertyMappings.Count != 0)
             {
                 var mapping = propertyMappings.Single().First();
                 correlationProperty = new CorrelationPropertyMetadata(mapping.SagaPropName, mapping.SagaPropType);
@@ -261,7 +261,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             }
         }
 
-        static IEnumerable<SagaMessage> GetAssociatedMessages(Type sagaType)
+        static List<SagaMessage> GetAssociatedMessages(Type sagaType)
         {
             var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
                 .Select(t => new SagaMessage(t, true)).ToList();
@@ -409,7 +409,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 });
             }
 
-            void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
+            static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
             {
                 if (propertyInfo == null)
                 {

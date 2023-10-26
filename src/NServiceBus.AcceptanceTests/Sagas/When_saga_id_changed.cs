@@ -21,7 +21,7 @@
                         {
                             DataId = Guid.NewGuid()
                         })))
-                    .Done(c => c.FailedMessages.Any())
+                    .Done(c => !c.FailedMessages.IsEmpty)
                     .Run());
 
             Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));

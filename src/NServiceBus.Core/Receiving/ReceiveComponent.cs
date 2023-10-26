@@ -28,7 +28,7 @@ namespace NServiceBus
         {
             if (configuration.IsSendOnlyEndpoint)
             {
-                configuration.transportSeam.Configure(new ReceiveSettings[0]);
+                configuration.transportSeam.Configure([]);
                 return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
             }
 
@@ -278,7 +278,7 @@ namespace NServiceBus
                 .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
-        IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
+        static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
         {
             if (consecutiveFailuresConfiguration.RateLimitSettings != null)
             {

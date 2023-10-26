@@ -36,7 +36,7 @@
 
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", [], new byte[0]);
+            var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(options, true)), c =>
@@ -53,7 +53,7 @@
         {
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", [], new byte[0]);
+            var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), false)), c =>
@@ -70,7 +70,7 @@
         {
             var dispatched = false;
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", [], new byte[0]);
+            var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
             await behavior.Invoke(new RoutingContext(message,
                 new UnicastRoutingStrategy("Destination"), CreateContext(new SendOptions(), true)), c =>
@@ -102,7 +102,7 @@
             Assert.IsNull(ambientActivity.GetTagItem(ActivityTags.ContentType), "should not set tags on Activity.Current");
         }
 
-        static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
+        static OutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
         {
             var message = new MyMessage();
             var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new FakeRootContext());

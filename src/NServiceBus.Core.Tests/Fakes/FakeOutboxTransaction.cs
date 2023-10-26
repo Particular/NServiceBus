@@ -17,6 +17,7 @@
         public void Dispose()
         {
             Transaction = null;
+            GC.SuppressFinalize(this);
         }
 
         public Task Commit(CancellationToken cancellationToken = default)

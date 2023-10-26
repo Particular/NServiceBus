@@ -21,7 +21,7 @@
                         Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 1, "Should retry one or more times");

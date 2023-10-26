@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.Outgoing
 {
     using System;
-    using System.Collections.Generic;
     using System.Reflection;
     using MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Pipeline;

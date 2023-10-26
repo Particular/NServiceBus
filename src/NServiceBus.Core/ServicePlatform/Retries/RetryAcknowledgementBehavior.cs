@@ -39,7 +39,7 @@
                         { RetryUniqueMessageIdHeaderKey, id },
                         { Headers.ControlMessageHeader, bool.TrueString }
                     },
-                    new byte[0]);
+                    Array.Empty<byte>());
                 var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(acknowledgementQueue), context);
                 await this.Fork(routingContext).ConfigureAwait(false);
             }

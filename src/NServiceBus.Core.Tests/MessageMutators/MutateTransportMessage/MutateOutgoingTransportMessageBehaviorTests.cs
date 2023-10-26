@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateTransportMessage
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Microsoft.Extensions.DependencyInjection;
@@ -100,7 +99,7 @@
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
 
-            context.Services.AddTransient(sp => new IMutateOutgoingTransportMessages[] { });
+            context.Services.AddTransient(sp => Array.Empty<IMutateOutgoingTransportMessages>());
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 
@@ -166,7 +165,7 @@
         {
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
-                context.OutgoingBody = new byte[0];
+                context.OutgoingBody = Array.Empty<byte>();
 
                 return Task.CompletedTask;
             }
