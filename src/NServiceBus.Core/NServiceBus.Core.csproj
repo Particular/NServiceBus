@@ -20,7 +20,11 @@
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Label="System.Security.Cryptography.Xml 7.0.1 references Pkcs 7.0.0, which has a vulnerability. This should be removed when Xml updates to reference a non-vulernable version">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
