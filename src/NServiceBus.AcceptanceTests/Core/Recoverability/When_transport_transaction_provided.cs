@@ -23,7 +23,7 @@
                         config.Recoverability().AddUnrecoverableException<SimulatedException>();
                     })
                     .When((session, _) => session.SendLocal(new SomeMessage())))
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.AreSame(context.IncomingPipelineTransportTransaction, context.DispatchPipelineTransportTransaction, "Transport Transaction was not the same");

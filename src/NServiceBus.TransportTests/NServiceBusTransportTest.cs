@@ -140,7 +140,7 @@
             receiver = null;
         }
 
-        void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
+        static void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
         {
             if (!transportDefinition.GetSupportedTransactionModes().Contains(requestedTransactionMode))
             {
@@ -238,8 +238,8 @@
 
         protected string InputQueueName;
         protected string ErrorQueueName;
-        protected static TransportTestLoggerFactory LogFactory;
-        protected static TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
+        protected static readonly TransportTestLoggerFactory LogFactory;
+        protected static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
 
         string testId;
 

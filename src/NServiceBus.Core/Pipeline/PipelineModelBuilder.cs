@@ -34,13 +34,15 @@ namespace NServiceBus
             //Step 1: validate that additions are unique
             foreach (var metadata in totalAdditions)
             {
-                if (!registrations.ContainsKey(metadata.StepId))
+                if (!registrations.TryGetValue(metadata.StepId, out RegisterStep existingValue))
                 {
                     registrations.Add(metadata.StepId, metadata);
+
                     if (metadata.Afters != null)
                     {
                         listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a => a.DependsOnId));
                     }
+
                     if (metadata.Befores != null)
                     {
                         listOfBeforeAndAfterIds.AddRange(metadata.Befores.Select(b => b.DependsOnId));
@@ -49,7 +51,7 @@ namespace NServiceBus
                     continue;
                 }
 
-                var message = $"Step registration with id '{metadata.StepId}' is already registered for '{registrations[metadata.StepId].BehaviorType}'.";
+                var message = $"Step registration with id '{metadata.StepId}' is already registered for '{existingValue.BehaviorType}'.";
                 throw new Exception(message);
             }
 
@@ -65,13 +67,13 @@ namespace NServiceBus
 
             foreach (var metadata in totalReplacements)
             {
-                if (!registrations.ContainsKey(metadata.ReplaceId))
+                if (!registrations.TryGetValue(metadata.ReplaceId, out RegisterStep value))
                 {
                     var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}'.";
                     throw new Exception(message);
                 }
 
-                var registerStep = registrations[metadata.ReplaceId];
+                var registerStep = value;
                 registerStep.Replace(metadata);
             }
 
@@ -140,7 +142,7 @@ namespace NServiceBus
             return typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
         }
 
-        static IEnumerable<RegisterStep> Sort(List<RegisterStep> registrations)
+        static List<RegisterStep> Sort(List<RegisterStep> registrations)
         {
             if (registrations.Count == 0)
             {

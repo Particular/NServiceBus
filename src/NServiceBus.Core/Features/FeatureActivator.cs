@@ -132,9 +132,7 @@ namespace NServiceBus.Features
             // Step 4: DFS to check if we have an directed acyclic graph
             foreach (var node in allNodes)
             {
-                if (DirectedCycleExistsFrom(node, new Node[]
-                {
-                }))
+                if (DirectedCycleExistsFrom(node, []))
                 {
                     throw new ArgumentException("Cycle in dependency graph detected");
                 }
@@ -145,7 +143,7 @@ namespace NServiceBus.Features
 
         static bool DirectedCycleExistsFrom(Node node, Node[] visitedNodes)
         {
-            if (node.previous.Any())
+            if (node.previous.Count != 0)
             {
                 if (visitedNodes.Any(n => n == node))
                 {

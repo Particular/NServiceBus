@@ -33,7 +33,7 @@
 
             var parentContext = new FakeRootContext();
 
-            new SubscribeContext(parentContext, Type.EmptyTypes, context);
+            _ = new SubscribeContext(parentContext, Type.EmptyTypes, context);
 
             var valueFound = parentContext.TryGet("someKey", out string _);
 

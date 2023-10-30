@@ -62,7 +62,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public Version Version { get; }
 
-        Version ParseVersion(string versionString)
+        static Version ParseVersion(string versionString)
         {
             const string version = "Version=";
             var index = versionString.IndexOf(version);

@@ -110,7 +110,7 @@
         {
             public Dictionary<Type, RegisteredService> RegisteredServices { get; } = [];
 
-            IServiceProvider ServiceProvider { get; }
+            ServiceProvider ServiceProvider { get; }
 
             public SpyContainer(IServiceCollection serviceCollection)
             {

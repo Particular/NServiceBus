@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using Transport;
 
@@ -21,7 +20,7 @@
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
                      .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.That(context.ErrorContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");

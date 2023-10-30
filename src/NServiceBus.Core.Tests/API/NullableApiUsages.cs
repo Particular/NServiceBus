@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages
 
     public class TopLevelApis
     {
-        public async Task SetupEndpoint(CancellationToken cancellationToken = default)
+        public static async Task SetupEndpoint(CancellationToken cancellationToken = default)
         {
             var cfg = new EndpointConfiguration("EndpointName");
 

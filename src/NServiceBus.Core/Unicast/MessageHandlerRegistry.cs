@@ -5,9 +5,9 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
+    using FastExpressionCompiler;
     using Logging;
     using Pipeline;
-    using FastExpressionCompiler;
 
     /// <summary>
     /// Maintains the message handlers for this endpoint.
@@ -150,7 +150,7 @@
                 .ToArray();
         }
 
-        void ValidateHandlerType(Type handlerType)
+        static void ValidateHandlerType(Type handlerType)
         {
             var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
             var ctorArguments = handlerType.GetConstructors()

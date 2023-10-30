@@ -13,9 +13,8 @@
         public void ShouldLogNoStatusMessageWhenLicenseIsValid()
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager();
 
-            licenseManager.LogLicenseStatus(LicenseStatus.Valid, logger, new License(), "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.Valid, logger, new License(), "fake-url");
 
             Assert.AreEqual(0, logger.Logs.Count);
         }
@@ -24,9 +23,8 @@
         public void WhenSubscriptionLicenseExpired()
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager();
 
-            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredSubscription, logger, new License(), "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredSubscription, logger, new License(), "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
@@ -37,9 +35,8 @@
         public void WhenUpgradeProtectionExpiredForThisRelease()
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager();
 
-            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License(), "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License(), "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
@@ -51,10 +48,9 @@
         public void WhenTrialLicenseExpired(bool isDevLicenseRenewal, string expectedMessage)
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager();
             var license = new License { IsExtendedTrial = isDevLicenseRenewal };
 
-            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredTrial, logger, license, "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredTrial, logger, license, "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
@@ -79,7 +75,7 @@
                 IsExtendedTrial = isDevLicenseRenewal
             };
 
-            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringTrial, logger, license, "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringTrial, logger, license, "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
@@ -100,7 +96,7 @@
                 ExpirationDate = today.AddDays(daysRemaining)
             };
 
-            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringSubscription, logger, license, "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringSubscription, logger, license, "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
@@ -121,7 +117,7 @@
                 UpgradeProtectionExpiration = today.AddDays(daysRemaining)
             };
 
-            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license, "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license, "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
@@ -141,7 +137,7 @@
                 UpgradeProtectionExpiration = today.AddDays(-10)
             };
 
-            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license, "fake-url");
+            LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license, "fake-url");
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);

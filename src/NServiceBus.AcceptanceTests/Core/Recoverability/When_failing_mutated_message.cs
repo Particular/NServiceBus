@@ -19,7 +19,7 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             var errorBody = context.FailedMessages.Single().Value.Single().Body;

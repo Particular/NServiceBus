@@ -169,7 +169,7 @@
         public class ContextPropagationTestCase
         {
             string caseName;
-            IDictionary<string, string> baggageItems = new Dictionary<string, string>();
+            Dictionary<string, string> baggageItems = [];
 
             public ContextPropagationTestCase(string caseName)
             {
@@ -193,7 +193,7 @@
 
             public override string ToString() => caseName;
 
-            public bool HasBaggage => baggageItems.Any();
+            public bool HasBaggage => baggageItems.Count != 0;
         }
     }
 }

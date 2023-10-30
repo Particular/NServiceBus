@@ -177,7 +177,7 @@
 
                 while (remainingCode.Length > 0)
                 {
-                    var beforeAndAfterOpening = remainingCode.Split(new[] { "[|" }, 2, StringSplitOptions.None);
+                    var beforeAndAfterOpening = remainingCode.Split(openingSeparator, 2, StringSplitOptions.None);
 
                     if (beforeAndAfterOpening.Length == 1)
                     {
@@ -185,7 +185,7 @@
                         break;
                     }
 
-                    var midAndAfterClosing = beforeAndAfterOpening[1].Split(new[] { "|]" }, 2, StringSplitOptions.None);
+                    var midAndAfterClosing = beforeAndAfterOpening[1].Split(closingSeparator, 2, StringSplitOptions.None);
 
                     if (midAndAfterClosing.Length == 1)
                     {
@@ -209,5 +209,8 @@
 
         protected static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
             || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
+
+        static readonly string[] openingSeparator = ["[|"];
+        static readonly string[] closingSeparator = ["|]"];
     }
 }

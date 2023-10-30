@@ -100,7 +100,7 @@ namespace NServiceBus
             }
         }
 
-        string TrimPotentialTrailingForwardSlashes(string value)
+        static string TrimPotentialTrailingForwardSlashes(string value)
         {
             return value?.TrimEnd('/');
         }

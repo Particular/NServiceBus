@@ -28,7 +28,7 @@
 
             foreach (var behaviorContextInterface in behaviorContextInterfaces)
             {
-                var testableImplementationName = "Testable" + behaviorContextInterface.Name.Substring(1);
+                var testableImplementationName = string.Concat("Testable", behaviorContextInterface.Name.AsSpan(1));
 
                 if (!testingAssembly.DefinedTypes.Any(t => t.Name == testableImplementationName && behaviorContextInterface.IsAssignableFrom(t)))
                 {

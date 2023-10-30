@@ -27,7 +27,7 @@
                 .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
                 .Run();
 
-            Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
+            Assert.IsTrue(!context.FailedMessages.IsEmpty, "Messages should have failed");
         }
 
         class Context : ScenarioContext

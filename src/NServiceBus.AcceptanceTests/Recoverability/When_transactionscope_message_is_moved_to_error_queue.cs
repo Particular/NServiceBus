@@ -28,7 +28,7 @@
                 .Run();
 
             Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
-            Assert.IsTrue(context.FailedMessages.Any(), "There should be failed messages registered in this scenario");
+            Assert.IsTrue(!context.FailedMessages.IsEmpty, "There should be failed messages registered in this scenario");
         }
 
         class Context : ScenarioContext

@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
 
@@ -22,7 +21,7 @@
             Assert.AreEqual("PublicAddress", context.Headers[Headers.ReplyToAddress]);
         }
 
-        static IOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
+        static TestableOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
         {
             var context = new TestableOutgoingLogicalMessageContext
             {

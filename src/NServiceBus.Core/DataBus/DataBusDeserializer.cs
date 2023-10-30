@@ -53,7 +53,7 @@
             return deserializer.Deserialize(propertyType, stream);
         }
 
-        readonly IDictionary<string, IDataBusSerializer> deserializers;
+        readonly Dictionary<string, IDataBusSerializer> deserializers;
 
         static readonly ILog logger = LogManager.GetLogger<DataBusDeserializer>();
     }

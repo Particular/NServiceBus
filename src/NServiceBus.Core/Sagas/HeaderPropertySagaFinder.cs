@@ -61,7 +61,7 @@
                 throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {correlationPropertyName}. Correlation properties cannot be assigned null.");
             }
 
-            if (correlationPropertyName.ToLower() == "id")
+            if (correlationPropertyName.Equals("id", StringComparison.OrdinalIgnoreCase))
             {
                 return await persister.Get<TSagaData>((Guid)convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
             }

@@ -18,7 +18,7 @@
                         {
                             CorrelationProperty = null
                         })))
-                .Done(c => c.FailedMessages.Count > 0)
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
             var errorMessage = $"Message {typeof(MessageWithNullCorrelationProperty).FullName} mapped to saga {typeof(SagaWithCorrelationPropertyEndpoint.SagaWithCorrelatedProperty).FullName} has attempted to assign null to the correlation property {nameof(SagaWithCorrelationPropertyEndpoint.SagaDataWithCorrelatedProperty.CorrelatedProperty)}. Correlation properties cannot be assigned null.";

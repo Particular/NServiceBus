@@ -241,7 +241,7 @@ namespace NServiceBus.Hosting.Helpers
             return processed[assembly.FullName];
         }
 
-        Assembly GetReferencedAssembly(AssemblyName assemblyName)
+        static Assembly GetReferencedAssembly(AssemblyName assemblyName)
         {
             Assembly referencedAssembly = null;
 

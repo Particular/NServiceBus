@@ -78,7 +78,7 @@
 
         static void ThrowOnAddress(string destination)
         {
-            if (destination.Contains("@"))
+            if (destination.Contains('@'))
             {
                 throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{destination}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
             }

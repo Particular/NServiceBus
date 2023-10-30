@@ -58,7 +58,11 @@
             return Task.CompletedTask;
         }
 
-        public void Dispose() => Transaction = null;
+        public void Dispose()
+        {
+            Transaction = null;
+            GC.SuppressFinalize(this);
+        }
 
         public Task CompleteAsync(CancellationToken cancellationToken = default)
         {

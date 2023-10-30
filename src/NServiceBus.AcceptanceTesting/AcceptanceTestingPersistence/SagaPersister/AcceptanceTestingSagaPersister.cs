@@ -120,7 +120,7 @@ namespace NServiceBus.AcceptanceTesting
             entries[sagaId] = value;
         }
 
-        static Entry GetEntry(IReadOnlyContextBag context, Guid sagaDataId)
+        static Entry GetEntry(ContextBag context, Guid sagaDataId)
         {
             if (context.TryGet(ContextKey, out Dictionary<Guid, Entry> entries))
             {

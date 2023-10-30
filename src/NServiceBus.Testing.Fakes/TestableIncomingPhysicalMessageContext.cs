@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
-    using System.Collections.Generic;
     using Pipeline;
     using Transport;
 
@@ -15,7 +14,7 @@
         /// </summary>
         public TestableIncomingPhysicalMessageContext()
         {
-            Message = new IncomingMessage(Guid.NewGuid().ToString(), [], new byte[] { });
+            Message = new IncomingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>());
         }
 
         /// <summary>

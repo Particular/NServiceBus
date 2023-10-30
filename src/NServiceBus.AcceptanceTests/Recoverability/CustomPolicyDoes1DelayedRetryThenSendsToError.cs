@@ -26,7 +26,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                         return bus.Send(new MessageToBeRetried(), sendOptions);
                     })
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.FailedMessages.Any())
+                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
 
             Assert.AreEqual(2, context.Count);

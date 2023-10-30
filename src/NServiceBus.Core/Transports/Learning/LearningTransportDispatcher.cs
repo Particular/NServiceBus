@@ -160,7 +160,7 @@ namespace NServiceBus
             return subscribers;
         }
 
-        static IEnumerable<Type> GetPotentialEventTypes(Type messageType)
+        static HashSet<Type> GetPotentialEventTypes(Type messageType)
         {
             var allEventTypes = new HashSet<Type>();
 

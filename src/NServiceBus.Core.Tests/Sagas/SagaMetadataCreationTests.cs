@@ -231,7 +231,7 @@
             Assert.AreEqual(typeof(SagaWithInheritanceChain.SagaData), metadata.SagaEntityType);
         }
 
-        SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
+        static SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
         {
             if (!metadata.TryGetFinder(messageType, out var finder))
             {

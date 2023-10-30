@@ -21,7 +21,7 @@ namespace NServiceBus.Pipeline
         protected RegisterStep(string stepId, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
         {
             this.factoryMethod = factoryMethod;
-            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
             ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
             ArgumentException.ThrowIfNullOrWhiteSpace(description);
 

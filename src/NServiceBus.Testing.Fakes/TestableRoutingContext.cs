@@ -14,11 +14,11 @@
         /// <summary>
         /// The message to dispatch the the transport.
         /// </summary>
-        public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]);
+        public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>());
 
         /// <summary>
         /// The routing strategies for the operation to be dispatched.
         /// </summary>
-        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; set; } = new RoutingStrategy[0];
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; set; } = Array.Empty<RoutingStrategy>();
     }
 }

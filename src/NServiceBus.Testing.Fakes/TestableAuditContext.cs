@@ -24,7 +24,7 @@
         /// <summary>
         /// The message to be audited.
         /// </summary>
-        public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), [], new byte[0]);
+        public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>());
 
         /// <summary>
         /// Metadata of the audited message.

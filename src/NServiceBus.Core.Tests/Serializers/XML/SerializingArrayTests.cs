@@ -2,7 +2,6 @@ namespace NServiceBus.Serializers.XML.Test
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Text;
     using System.Xml.Linq;
     using NUnit.Framework;
@@ -70,7 +69,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeAndBack()
         {
-            var message = new MessageWithArray(Guid.NewGuid(), new[] { 1234, 5323 });
+            var message = new MessageWithArray(Guid.NewGuid(), [1234, 5323]);
 
             var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 
@@ -98,12 +97,12 @@ namespace NServiceBus.Serializers.XML.Test
         {
             var message = new MessageWithArrayAndNoDefaultCtor
             {
-                SomeWords = new string[0]
+                SomeWords = Array.Empty<string>()
             };
 
             var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 
-            Assert.AreEqual(result.SomeWords, new string[0]);
+            Assert.AreEqual(result.SomeWords, Array.Empty<string>());
         }
 
         [Test]
@@ -189,7 +188,7 @@ namespace NServiceBus.Serializers.XML.Test
             var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
             var result = (MessageWithNullableArray)msgArray[0];
 
-            Assert.IsFalse(result.SomeInts.Any());
+            Assert.IsFalse(result.SomeInts.Length != 0);
         }
 
         [Test]

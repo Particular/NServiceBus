@@ -34,7 +34,7 @@ namespace NServiceBus.ContainerTests
             Assert.True(serviceCollection.Any(sd => sd.ServiceType == typeof(ExistingComponentWithUnsatisfiedDependency)));
         }
 
-        void InitializeBuilder(IServiceCollection c)
+        static void InitializeBuilder(IServiceCollection c)
         {
             c.AddTransient(typeof(ExistingComponent));
             c.AddTransient(typeof(ExistingComponentWithUnsatisfiedDependency));

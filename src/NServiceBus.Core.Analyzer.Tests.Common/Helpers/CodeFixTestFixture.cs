@@ -56,14 +56,14 @@
             var analyzerDiagnostics = (await compilation.GetAnalyzerDiagnostics(new TAnalyzer(), cancellationToken)).ToList();
             WriteAnalyzerDiagnostics(analyzerDiagnostics);
 
-            if (!analyzerDiagnostics.Any())
+            if (analyzerDiagnostics.Count == 0)
             {
                 return codeFiles;
             }
 
             var actions = await project.GetCodeActions(new TCodeFix(), analyzerDiagnostics.First(), cancellationToken);
 
-            if (!actions.Any())
+            if (actions.Length == 0)
             {
                 return codeFiles;
             }

@@ -191,7 +191,7 @@
         RecoverabilityConfig recoverabilityConfig;
         FaultMetadataExtractor faultMetadataExtractor;
         HostInformation hostInformation;
-        readonly IReadOnlySettings settings;
+        readonly SettingsHolder settings;
         bool transactionsOn;
         bool delayedRetriesAvailable;
         bool immediateRetriesAvailable;

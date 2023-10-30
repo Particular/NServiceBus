@@ -80,7 +80,7 @@
 
         static void ThrowOnAddress(string publisherEndpoint)
         {
-            if (publisherEndpoint.Contains("@"))
+            if (publisherEndpoint.Contains('@'))
             {
                 throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{publisherEndpoint}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
             }

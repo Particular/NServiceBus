@@ -136,7 +136,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns all properties on the given type, going up the inheritance hierarchy.
         /// </summary>
-        static IEnumerable<PropertyInfo> GetAllProperties(Type type)
+        static List<PropertyInfo> GetAllProperties(Type type)
         {
             var props = new List<PropertyInfo>(type.GetProperties());
             foreach (var interfaceType in type.GetInterfaces())

@@ -15,7 +15,7 @@
             var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b => b
                         .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
-                    .Done(c => c.FailedMessages.Any())
+                    .Done(c => !c.FailedMessages.IsEmpty)
                     .Run());
 
             Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);

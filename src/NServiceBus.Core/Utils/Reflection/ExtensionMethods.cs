@@ -11,9 +11,7 @@ namespace NServiceBus
     {
         public static T Construct<T>(this Type type)
         {
-            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[]
-            {
-            }, null);
+            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Array.Empty<Type>(), null);
             if (defaultConstructor != null)
             {
                 return (T)defaultConstructor.Invoke(null);
@@ -58,7 +56,7 @@ namespace NServiceBus
                 var index = t.Name.IndexOf('`');
                 if (index >= 0)
                 {
-                    var result = t.Name.Substring(0, index) + "Of";
+                    var result = string.Concat(t.Name.AsSpan(0, index), "Of");
                     var args = t.GetGenericArguments();
                     for (var i = 0; i < args.Length; i++)
                     {

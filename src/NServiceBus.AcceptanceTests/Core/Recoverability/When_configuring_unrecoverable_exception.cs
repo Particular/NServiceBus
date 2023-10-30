@@ -26,7 +26,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                             Id = ctx.TestRunId
                         }))
                     )
-                    .Done(c => c.FailedMessages.Any())
+                    .Done(c => !c.FailedMessages.IsEmpty)
                     .Run();
             });
 

@@ -47,7 +47,7 @@
             Assert.AreEqual("LogicalAddress", addressTag.Destination);
         }
 
-        static IOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
+        static TestableOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
         {
             message ??= new MyMessage();
 

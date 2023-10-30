@@ -41,7 +41,7 @@
         {
             var allInfo = AllMemberNullabilityInfoFor(type).ToArray();
             var noNullInfoFor = allInfo.Where(info => info.Info.WriteState is NullabilityState.Unknown || info.Info.ReadState == NullabilityState.Unknown).ToArray();
-            return noNullInfoFor.Any();
+            return noNullInfoFor.Length != 0;
         }
 
         IEnumerable<(object Item, NullabilityInfo Info)> AllMemberNullabilityInfoFor(Type type)

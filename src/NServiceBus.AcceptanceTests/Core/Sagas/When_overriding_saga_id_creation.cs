@@ -7,7 +7,6 @@
     using AcceptanceTesting;
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -54,12 +53,10 @@
                 static Guid ToGuid(string src)
                 {
                     var stringbytes = Encoding.UTF8.GetBytes(src);
-                    using (var provider = SHA1.Create())
-                    {
-                        var hashedBytes = provider.ComputeHash(stringbytes);
-                        Array.Resize(ref hashedBytes, 16);
-                        return new Guid(hashedBytes);
-                    }
+
+                    var hashedBytes = SHA1.HashData(stringbytes);
+                    Array.Resize(ref hashedBytes, 16);
+                    return new Guid(hashedBytes);
                 }
             }
 

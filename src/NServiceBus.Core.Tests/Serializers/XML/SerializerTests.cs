@@ -16,10 +16,8 @@ namespace NServiceBus.Serializers.XML.Test
     using A;
     using AlternateNamespace;
     using B;
-    using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
-    using Serialization;
 
     [TestFixture]
     public class SerializerTests
@@ -27,7 +25,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeInvalidCharacters()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithInvalidCharacter>();
             var msg = mapper.CreateInstance<MessageWithInvalidCharacter>();
 
@@ -416,7 +414,7 @@ namespace NServiceBus.Serializers.XML.Test
             AssertSerializedEquals(serializer, msg, expected);
         }
 
-        static void AssertSerializedEquals(IMessageSerializer serializer, IMessage msg, string expected)
+        static void AssertSerializedEquals(XmlMessageSerializer serializer, IMessage msg, string expected)
         {
             using (var stream = new MemoryStream())
             {
@@ -637,8 +635,8 @@ namespace NServiceBus.Serializers.XML.Test
                 }
             })
             };
-            o.Data = new byte[]
-            {
+            o.Data =
+            [
                 1,
                 2,
                 3,
@@ -648,7 +646,7 @@ namespace NServiceBus.Serializers.XML.Test
                 3,
                 2,
                 1
-            };
+            ];
             o.SomeStrings = new List<string>
             {
                 "a",
@@ -656,8 +654,8 @@ namespace NServiceBus.Serializers.XML.Test
                 "c"
             };
 
-            o.ArrayFoos = new[]
-            {
+            o.ArrayFoos =
+            [
                 new Foo
                 {
                     Name = "FooArray1",
@@ -668,9 +666,9 @@ namespace NServiceBus.Serializers.XML.Test
                     Name = "FooAray2",
                     Title = "Mrs"
                 }
-            };
-            o.Bars = new[]
-            {
+            ];
+            o.Bars =
+            [
                 new Bar
                 {
                     Name = "Bar1",
@@ -681,27 +679,16 @@ namespace NServiceBus.Serializers.XML.Test
                     Name = "BAr2",
                     Length = 5
                 }
-            };
-            o.NaturalNumbers = new HashSet<int>(new[]
-            {
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9
-            });
-            o.Developers = new HashSet<string>(new[]
-            {
+            ];
+            o.NaturalNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+            o.Developers =
+            [
                 "Udi Dahan",
                 "Andreas Ohlund",
                 "Matt Burton",
                 "Jonathan Oliver et al"
-            });
+            ];
 
             o.Parent = mapper.CreateInstance<IFirstSerializableMessage>();
             o.Parent.Name = "udi";
@@ -818,7 +805,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeLists()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
             var msg = mapper.CreateInstance<MessageWithList>();
 
@@ -844,7 +831,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespace()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
 
@@ -870,7 +857,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespaceMultipleIEnumerableImplementations()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
 
@@ -896,7 +883,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespaceMultipleIListImplementations()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
 
@@ -922,7 +909,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInSameNamespace()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedList>();
             var msg = mapper.CreateInstance<MessageWithClosedList>();
 
@@ -948,7 +935,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeEmptyLists()
         {
-            IMessageMapper mapper = new MessageMapper();
+            var mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
             var msg = mapper.CreateInstance<MessageWithList>();
 
@@ -965,8 +952,7 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-
-        void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
+        static void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
         {
             var o = new ArrayList(messages);
             using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
@@ -1033,7 +1019,7 @@ namespace NServiceBus.Serializers.XML.Test
             return secondMessage;
         }
 
-        void Time(object message, IMessageSerializer serializer)
+        void Time(object message, XmlMessageSerializer serializer)
         {
             var watch = new Stopwatch();
             watch.Start();
@@ -1234,7 +1220,7 @@ namespace NServiceBus.Serializers.XML.Test
             var nServiceBusPublicTypeName = nameof(ReplyOptions);
 
             var xml = $@"<?xml version=""1.0""?>
-                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
                                 xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus"">
                         </{nServiceBusPublicTypeName}>";
 
@@ -1246,8 +1232,8 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_throw_exception_when_deserializing_payloads_with_system_types()
         {
             var xml = @"<?xml version=""1.0""?>
-                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                         xmlns=""http://tempuri.net/System.Collections"">
                     </ArrayList>";
 

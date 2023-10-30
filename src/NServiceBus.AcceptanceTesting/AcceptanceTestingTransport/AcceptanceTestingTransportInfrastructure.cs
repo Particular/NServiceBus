@@ -19,7 +19,7 @@
             storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
         }
 
-        string FindSolutionRoot()
+        static string FindSolutionRoot()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;
 

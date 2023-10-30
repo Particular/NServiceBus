@@ -21,7 +21,7 @@
 
         public byte[] Promote() => TransactionInterop.GetTransmitterPropagationToken(new CommittableTransaction());
 
-        public static Guid ResourceManagerId = Guid.Parse("6f057e24-a0d8-4c95-b091-b8dc9a916fa4");
+        public static Guid ResourceManagerId { get; } = Guid.Parse("6f057e24-a0d8-4c95-b091-b8dc9a916fa4");
 
         public static void ForceDtc() => Transaction.Current.EnlistDurable(ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
     }

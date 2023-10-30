@@ -56,7 +56,7 @@ namespace NServiceBus
                         builder.Append(ch);
                         if (!quoted)
                         {
-                            builder.Append(" ");
+                            builder.Append(' ');
                         }
 
                         break;

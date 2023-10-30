@@ -26,7 +26,7 @@
                 {
                     {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
                 },
-                new byte[0]));
+                Array.Empty<byte>()));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
@@ -48,7 +48,7 @@
             context.Extensions.Set(new IncomingMessage(
                 "id",
                 [],
-                new byte[0]));
+                Array.Empty<byte>()));
 
             Assert.That(async () => await behavior.Invoke(context, _ => Task.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
         }
@@ -74,7 +74,7 @@
             Assert.AreEqual("CustomReplyToAddress", addressTag.Destination);
         }
 
-        TestableOutgoingReplyContext CreateContext(OutgoingLogicalMessage message)
+        static TestableOutgoingReplyContext CreateContext(OutgoingLogicalMessage message)
         {
             return new TestableOutgoingReplyContext
             {

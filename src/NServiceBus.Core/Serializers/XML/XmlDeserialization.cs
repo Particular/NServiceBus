@@ -87,7 +87,7 @@
             return doc;
         }
 
-        void ProcessRootTypes(IEnumerable<Type> rootTypes, XmlDocument doc, ICollection<object> result)
+        void ProcessRootTypes(IEnumerable<Type> rootTypes, XmlDocument doc, List<object> result)
         {
             foreach (var rootType in rootTypes)
             {
@@ -99,7 +99,7 @@
         static bool ContainsAnyMessageTypesToDeserialize(IList<Type> messageTypesToDeserialize)
             => messageTypesToDeserialize != null && messageTypesToDeserialize.Any();
 
-        void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, ICollection<object> result)
+        void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, List<object> result)
         {
             var position = 0;
             foreach (XmlNode node in doc.DocumentElement.ChildNodes)
@@ -135,13 +135,13 @@
             {
                 if (attr.Name == "xmlns")
                 {
-                    defaultNamespace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
+                    defaultNamespace = attr.Value.Substring(attr.Value.LastIndexOf('/') + 1);
                 }
                 else
                 {
                     if (attr.Name.Contains("xmlns:"))
                     {
-                        var colonIndex = attr.Name.LastIndexOf(":");
+                        var colonIndex = attr.Name.LastIndexOf(':');
                         var prefix = attr.Name.Substring(colonIndex + 1);
 
                         if (prefix.Contains(BASETYPE))
@@ -163,7 +163,7 @@
 
         static bool ContainsMultipleMessages(XmlDocument doc)
         {
-            return doc.DocumentElement.Name.ToLower() == "messages";
+            return doc.DocumentElement.Name.Equals("messages", StringComparison.OrdinalIgnoreCase);
         }
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
@@ -205,14 +205,14 @@
                 typeName = $"{defaultNamespace}.{typeName}";
             }
 
-            if (name.Contains(":"))
+            if (name.Contains(':'))
             {
-                var colonIndex = node.Name.IndexOf(":");
+                var colonIndex = node.Name.IndexOf(':');
                 name = name.Substring(colonIndex + 1);
                 var prefix = node.Name.Substring(0, colonIndex);
                 var ns = prefixesToNamespaces[prefix];
 
-                typeName = $"{ns.Substring(ns.LastIndexOf("/") + 1)}.{name}";
+                typeName = $"{ns.Substring(ns.LastIndexOf('/') + 1)}.{name}";
             }
 
             if (name.Contains("NServiceBus."))
@@ -230,7 +230,7 @@
                     }
 
                     var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
-                    if (listImplementations.Any())
+                    if (listImplementations.Count != 0)
                     {
                         var listImplementation = listImplementations.First();
                         return listImplementation.GetGenericArguments().Single();
@@ -293,9 +293,9 @@
             foreach (XmlNode n in node.ChildNodes)
             {
                 Type type = null;
-                if (n.Name.Contains(":"))
+                if (n.Name.Contains(':'))
                 {
-                    type = Type.GetType($"System.{n.Name.Substring(0, n.Name.IndexOf(":"))}", false, true);
+                    type = Type.GetType($"System.{n.Name.Substring(0, n.Name.IndexOf(':'))}", false, true);
                 }
 
                 if (!cache.typeMembers.TryGetValue(t, out var typeMembers))
@@ -331,7 +331,7 @@
             return result;
         }
 
-        FieldInfo GetField(FieldInfo[] fields, string name)
+        static FieldInfo GetField(FieldInfo[] fields, string name)
         {
             if (fields == null)
             {
@@ -358,7 +358,7 @@
                 var args = type.GetGenericArguments();
                 if (args.Length == 1 && args[0].IsValueType)
                 {
-                    if (args[0].GetGenericArguments().Any())
+                    if (args[0].GetGenericArguments().Length != 0)
                     {
                         return GetPropertyValue(args[0], n);
                     }
@@ -366,7 +366,7 @@
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        if (string.IsNullOrWhiteSpace(text) || text.Trim().ToLower() == "null")
+                        if (string.IsNullOrWhiteSpace(text) || text.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
                         {
                             return null;
                         }
@@ -618,7 +618,7 @@
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        PropertyInfo GetProperty(PropertyInfo[] properties, string name)
+        static PropertyInfo GetProperty(PropertyInfo[] properties, string name)
         {
             if (properties == null)
             {
@@ -641,9 +641,9 @@
         static string GetNameAfterColon(string name)
         {
             var n = name;
-            if (name.Contains(":"))
+            if (name.Contains(':'))
             {
-                n = name.Substring(name.IndexOf(":") + 1, name.Length - name.IndexOf(":") - 1);
+                n = name.Substring(name.IndexOf(':') + 1, name.Length - name.IndexOf(':') - 1);
             }
 
             return n;

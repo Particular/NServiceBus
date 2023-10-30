@@ -51,15 +51,14 @@
             }
         }
 
-        IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
+        static IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
         {
             var countMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var entry in entries)
             {
-                if (!countMap.ContainsKey(entry.Name))
+                if (countMap.TryAdd(entry.Name, 1))
                 {
-                    countMap.Add(entry.Name, 1);
                     yield return entry;
                 }
                 else
@@ -90,7 +89,7 @@
         /// By default System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
         /// would make sense because it can be considered unsafe to serialize and deserialize types. We add a custom converter here to make
         /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intent to read these things
-        /// back so this is a safe approach. 
+        /// back so this is a safe approach.
         /// </summary>
         sealed class TypeConverter : JsonConverter<Type>
         {

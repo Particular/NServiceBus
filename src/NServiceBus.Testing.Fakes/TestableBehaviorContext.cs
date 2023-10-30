@@ -5,7 +5,6 @@
     using System.Threading;
     using Extensibility;
     using Microsoft.Extensions.DependencyInjection;
-    using ObjectBuilder;
     using Pipeline;
 
     /// <summary>

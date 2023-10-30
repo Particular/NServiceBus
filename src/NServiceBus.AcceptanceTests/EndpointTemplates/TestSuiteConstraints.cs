@@ -23,6 +23,6 @@
 
     public partial class TestSuiteConstraints : ITestSuiteConstraints
     {
-        public static TestSuiteConstraints Current = new TestSuiteConstraints();
+        public static TestSuiteConstraints Current { get; } = new TestSuiteConstraints();
     }
 }

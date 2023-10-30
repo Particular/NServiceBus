@@ -34,7 +34,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
-            public IReadOnlyDictionary<string, string> Headers { get; set; }
+            public Dictionary<string, string> Headers { get; set; }
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder

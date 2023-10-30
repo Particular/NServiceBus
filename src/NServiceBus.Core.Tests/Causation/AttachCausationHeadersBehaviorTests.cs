@@ -34,7 +34,7 @@
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
             {
                 {Headers.ConversationId, incomingConversationId}
-            }, new byte[0]);
+            }, Array.Empty<byte>());
             context.Extensions.Set(transportMessage);
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
@@ -78,7 +78,7 @@
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
             {
                 {Headers.ConversationId, incomingConversationId}
-            }, new byte[0]);
+            }, Array.Empty<byte>());
             context.Extensions.Set(transportMessage);
 
             var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
@@ -92,7 +92,7 @@
             var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
             var context = new TestableOutgoingLogicalMessageContext();
 
-            context.Extensions.Set(new IncomingMessage("the message id", [], new byte[0]));
+            context.Extensions.Set(new IncomingMessage("the message id", [], Array.Empty<byte>()));
 
             await behavior.Invoke(context, ctx => Task.CompletedTask);
 

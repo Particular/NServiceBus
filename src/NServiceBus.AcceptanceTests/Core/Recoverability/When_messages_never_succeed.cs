@@ -9,8 +9,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
     public class When_messages_never_succeed : NServiceBusAcceptanceTest
     {
-        public static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
-        public static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
+        static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
+        static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
 
         [Test]
         public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => c.ThrottleModeEntered && c.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
+                .Done(c => c.ThrottleModeEntered && Context.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
                 .Run();
         }
 
@@ -54,7 +54,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                         }
                     })
                 )
-                .Done(c => c.FailuresBeforeThrottling == 10 && !c.ThrottleModeEntered)
+                .Done(c => Context.FailuresBeforeThrottling == 10 && !c.ThrottleModeEntered)
                 .Run();
         }
 
@@ -65,7 +65,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             public DateTime LastProcessedTimeStamp { get; set; }
             public TimeSpan TimeBetweenProcessingAttempts { get; set; }
 
-            public int FailuresBeforeThrottling => failuresBeforeThrottling;
+            public static int FailuresBeforeThrottling => failuresBeforeThrottling;
         }
 
         class EndpointWithFailingHandler : EndpointConfigurationBuilder
@@ -95,9 +95,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 
             class InitiatingHandler : IHandleMessages<InitiatingMessage>
             {
-                public InitiatingHandler(Context contect)
+                public InitiatingHandler(Context context)
                 {
-                    testContext = contect;
+                    testContext = context;
                 }
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {

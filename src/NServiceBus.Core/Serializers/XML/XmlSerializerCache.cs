@@ -108,11 +108,11 @@ namespace NServiceBus
 
             if (args.Length == 1 && args[0].IsValueType)
             {
-                if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args[0]) == t)
+                if (args[0].GetGenericArguments().Length != 0 || typeof(Nullable<>).MakeGenericType(args[0]) == t)
                 {
                     InitTypeInternal(args[0]);
 
-                    if (!args[0].GetGenericArguments().Any())
+                    if (args[0].GetGenericArguments().Length == 0)
                     {
                         return;
                     }
@@ -140,7 +140,7 @@ namespace NServiceBus
             typeMembers[t] = new Tuple<FieldInfo[], PropertyInfo[]>(fields, props);
         }
 
-        PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
+        static PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();
 
@@ -202,7 +202,7 @@ namespace NServiceBus
             return result.Distinct().ToArray();
         }
 
-        FieldInfo[] GetAllFieldsForType(Type t)
+        static FieldInfo[] GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }

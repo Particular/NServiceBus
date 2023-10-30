@@ -178,6 +178,7 @@ namespace NServiceBus.ContainerTests
     {
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
     }
 
@@ -186,9 +187,10 @@ namespace NServiceBus.ContainerTests
         public void Dispose()
         {
             DisposeCalled = true;
+            GC.SuppressFinalize(this);
         }
 
-        public static bool DisposeCalled;
+        public static bool DisposeCalled { get; private set; }
     }
 
     public class SingletonComponent : ISingletonComponent
@@ -205,21 +207,23 @@ namespace NServiceBus.ContainerTests
 
     public class DisposableComponent : IDisposable
     {
-        public static bool DisposeCalled;
+        public static bool DisposeCalled { get; set; }
 
         public void Dispose()
         {
             DisposeCalled = true;
+            GC.SuppressFinalize(this);
         }
     }
 
     public class AnotherDisposableComponent : IDisposable
     {
-        public static bool DisposeCalled;
+        public static bool DisposeCalled { get; set; }
 
         public void Dispose()
         {
             DisposeCalled = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

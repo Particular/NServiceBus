@@ -279,7 +279,7 @@
             return propertyInfo?.GetIndexParameters().Length > 0;
         }
 
-        void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
+        static void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
         {
             elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", xsiNamespace),
                 new XAttribute(XNamespace.Xmlns + "xsd", xsdNamespace));
@@ -303,7 +303,7 @@
         readonly Type messageType;
         readonly string @namespace;
         readonly bool skipWrappingRawXml;
-        readonly XmlWriter writer;
+        readonly RawXmlTextWriter writer;
         const string BaseType = "baseType";
 
         const string DefaultNamespace = "http://tempuri.net";

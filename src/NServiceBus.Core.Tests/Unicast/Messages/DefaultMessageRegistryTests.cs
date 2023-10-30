@@ -35,7 +35,7 @@
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
 
             Assert.AreEqual(typeof(int), messageMetadata.MessageType);
-            Assert.AreEqual(1, messageMetadata.MessageHierarchy.Count());
+            Assert.AreEqual(1, messageMetadata.MessageHierarchy.Length);
         }
 
 
@@ -47,7 +47,7 @@
             defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
             var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
 
-            Assert.AreEqual(5, messageMetadata.MessageHierarchy.Count());
+            Assert.AreEqual(5, messageMetadata.MessageHierarchy.Length);
 
             Assert.AreEqual(typeof(MyEvent), messageMetadata.MessageHierarchy.ToList()[0]);
             Assert.AreEqual(typeof(IInterfaceParent1), messageMetadata.MessageHierarchy.ToList()[1]);

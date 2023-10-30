@@ -33,7 +33,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], [])
+                new NServiceBus.Outbox.TransportOperation("x", options, Array.Empty<byte>(), [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -65,7 +65,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], [])
+                new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -91,7 +91,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
-                new NServiceBus.Outbox.TransportOperation("x", properties, new byte[0], [])
+                new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
             });
 
             var context = CreateContext(fakeBatchPipeline, messageId);
@@ -142,7 +142,7 @@
             });
 
             var startDispatchErActivityEventsvent = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
-            Assert.AreEqual(1, startDispatchErActivityEventsvent.Count());
+            Assert.AreEqual(1, startDispatchErActivityEventsvent.Length);
             Assert.AreEqual(3, startDispatchErActivityEventsvent.Single().Tags.ToImmutableDictionary()["message-count"]);
             Assert.AreEqual(1, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
         }
@@ -162,11 +162,11 @@
             Assert.AreEqual(0, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
         }
 
-        static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
+        static TestableTransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
         {
             var context = new TestableTransportReceiveContext
             {
-                Message = new IncomingMessage(messageId, [], new byte[0])
+                Message = new IncomingMessage(messageId, [], Array.Empty<byte>())
             };
 
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));

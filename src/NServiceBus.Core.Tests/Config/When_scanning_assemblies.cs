@@ -22,25 +22,25 @@ namespace NServiceBus.Core.Tests.Config
         [Ignore("Does not work")]
         public void Should_for_our_code_exclude_everything_but_NServiceBus_by_default()
         {
-            CollectionAssert.AreEquivalent(new string[0],
+            CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
                 foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") && !a.FullName.StartsWith("Obsolete")));
         }
 
         [Test]
         public void Should_exclude_system_assemblies()
         {
-            CollectionAssert.AreEquivalent(new string[0],
+            CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
                 foundAssemblies.Where(a => a.FullName.StartsWith("System")).ToArray());
         }
 
         [Test]
         public void Should_exclude_nhibernate_assemblies()
         {
-            CollectionAssert.AreEquivalent(new string[0],
-                foundAssemblies.Where(a => a.FullName.ToLower().StartsWith("nhibernate")).ToArray());
+            CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
+                foundAssemblies.Where(a => a.FullName.StartsWith("nhibernate", System.StringComparison.OrdinalIgnoreCase)).ToArray());
         }
 
-        IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
+        static List<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             var assemblyScanner = new AssemblyScanner(path)
             {

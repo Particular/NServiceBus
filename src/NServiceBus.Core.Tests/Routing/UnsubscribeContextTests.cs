@@ -32,7 +32,7 @@
 
             var parentContext = new FakeRootContext();
 
-            new UnsubscribeContext(parentContext, typeof(object), context);
+            _ = new UnsubscribeContext(parentContext, typeof(object), context);
 
             var valueFound = parentContext.TryGet("someKey", out string _);
 

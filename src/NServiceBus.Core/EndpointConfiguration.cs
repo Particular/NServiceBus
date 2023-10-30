@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using Transport;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -9,6 +8,7 @@ namespace NServiceBus
     using Microsoft.Extensions.DependencyInjection;
     using Pipeline;
     using Settings;
+    using Transport;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.
@@ -105,7 +105,7 @@ namespace NServiceBus
                 throw new ArgumentException("Endpoint name must not be empty", nameof(endpointName));
             }
 
-            if (endpointName.Contains("@"))
+            if (endpointName.Contains('@'))
             {
                 throw new ArgumentException("Endpoint name must not contain an '@' character.", nameof(endpointName));
             }
