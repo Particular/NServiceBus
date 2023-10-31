@@ -86,6 +86,9 @@
             DispatchProperties destination2DispatchProperties = destination2Operation.Properties;
             Assert.That(destination2DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
             Assert.That(destination2DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
+
+            Assert.That(destination1Headers, Is.Not.SameAs(destination2Headers));
+            Assert.That(destination1DispatchProperties, Is.Not.SameAs(destination2DispatchProperties));
         }
 
         [Test]
