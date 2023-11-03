@@ -103,7 +103,6 @@ namespace NServiceBus.AcceptanceTests.Outbox
 
             class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                int invocationCounter = 0;
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (Interlocked.Increment(ref invocationCounter) == 1)
@@ -113,6 +112,8 @@ namespace NServiceBus.AcceptanceTests.Outbox
 
                     await next(context).ConfigureAwait(false);
                 }
+
+                int invocationCounter;
             }
         }
 
