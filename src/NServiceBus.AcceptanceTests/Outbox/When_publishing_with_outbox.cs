@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.Learning.AcceptanceTests
+namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
     using Features;
-    using NServiceBus.AcceptanceTests;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing_with_outbox : NServiceBusAcceptanceTest
     {
