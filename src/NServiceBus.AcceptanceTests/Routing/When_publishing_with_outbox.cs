@@ -11,7 +11,7 @@ using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class When_publishing_from_handler : NServiceBusAcceptanceTest
+public class When_publishing_with_outbox : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_be_delivered_to_all_subscribers()
@@ -22,7 +22,8 @@ public class When_publishing_from_handler : NServiceBusAcceptanceTest
             .WithEndpoint<Publisher>(b =>
                 b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) =>
                 {
-                    c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
+                    // Send a trigger message that will invoke the handler method that publishes the event
+                    c.AddTrace("Both subscribers are subscribed, going to send TriggerMessage");
                     return session.SendLocal(new TriggerMessage());
                 })
             )
@@ -32,8 +33,7 @@ public class When_publishing_from_handler : NServiceBusAcceptanceTest
                 if (ctx.HasNativePubSubSupport)
                 {
                     ctx.Subscriber1Subscribed = true;
-                    ctx.AddTrace(
-                        "Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                    ctx.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
                 }
                 else
                 {
@@ -46,8 +46,7 @@ public class When_publishing_from_handler : NServiceBusAcceptanceTest
                 if (ctx.HasNativePubSubSupport)
                 {
                     ctx.Subscriber2Subscribed = true;
-                    ctx.AddTrace(
-                        "Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                    ctx.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
                 }
                 else
                 {
@@ -80,6 +79,7 @@ public class When_publishing_from_handler : NServiceBusAcceptanceTest
             {
                 b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 b.EnableOutbox();
+                // Test the outbox behavior in situations where messages are deserialized and dispatched from the outbox storage by injecting an exception into the dispatch pipeline
                 b.Pipeline.Register(new BlowUpAfterDispatchBehavior(), "ensure outbox dispatch fails");
                 b.Recoverability().Immediate(i => i.NumberOfRetries(1));
                 b.OnEndpointSubscribed<Context>((s, context) =>
