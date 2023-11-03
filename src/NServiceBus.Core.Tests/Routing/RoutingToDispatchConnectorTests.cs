@@ -19,7 +19,13 @@
         {
             var behavior = new RoutingToDispatchConnector();
             IEnumerable<TransportOperation> operations = null;
-            var testableRoutingContext = new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new DestinationRoutingStrategy("destination1") } };
+            var testableRoutingContext = new TestableRoutingContext
+            {
+                RoutingStrategies = new List<RoutingStrategy>
+                {
+                    new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")
+                }
+            };
             var originalDispatchProperties = new DispatchProperties
             {
                 { "SomeKey", "SomeValue" }
@@ -40,6 +46,7 @@
             Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
             Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
             Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
             Assert.That(destination1Headers, Is.SameAs(originalHeaders));
             DispatchProperties destination1DispatchProperties = destination1Operation.Properties;
             Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
@@ -51,7 +58,14 @@
         {
             var behavior = new RoutingToDispatchConnector();
             IEnumerable<TransportOperation> operations = null;
-            var testableRoutingContext = new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new DestinationRoutingStrategy("destination1"), new DestinationRoutingStrategy("destination2") } };
+            var testableRoutingContext = new TestableRoutingContext
+            {
+                RoutingStrategies = new List<RoutingStrategy>
+                {
+                    new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1"),
+                    new DestinationRoutingStrategy("destination2", "HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")
+                }
+            };
             var originalDispatchProperties = new DispatchProperties
             {
                 { "SomeKey", "SomeValue" }
@@ -72,6 +86,8 @@
             Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
             Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
             Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination1Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
             Assert.That(destination1Headers, Is.Not.SameAs(originalHeaders));
             DispatchProperties destination1DispatchProperties = destination1Operation.Properties;
             Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
@@ -82,6 +98,8 @@
             Assert.That((destination2Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination2"));
             Dictionary<string, string> destination2Headers = destination2Operation.Message.Headers;
             Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
+            Assert.That(destination2Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
             Assert.That(destination2Headers, Is.Not.SameAs(originalHeaders));
             DispatchProperties destination2DispatchProperties = destination2Operation.Properties;
             Assert.That(destination2DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
@@ -199,9 +217,13 @@
             }
         }
 
-        class DestinationRoutingStrategy(string destination) : RoutingStrategy
+        class DestinationRoutingStrategy(string destination, string headerKey, string headerValue) : RoutingStrategy
         {
-            public override AddressTag Apply(Dictionary<string, string> headers) => new UnicastAddressTag(destination);
+            public override AddressTag Apply(Dictionary<string, string> headers)
+            {
+                headers[headerKey] = headerValue;
+                return new UnicastAddressTag(destination);
+            }
         }
 
         class MyMessage : IMessage
