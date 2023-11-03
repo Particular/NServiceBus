@@ -44,9 +44,11 @@
                 // using the count here is not entirely accurate because of the way we duplicate based on the strategies
                 // but in many cases it is a good approximation.
                 transportOperations ??= new List<TransportOperation>(routingContexts.Count);
+                // when there are more than one routing strategy we want to make sure each transport operation is independent
+                var copySharedMutableMessageState = routingContext.RoutingStrategies.Count > 1;
                 foreach (var strategy in routingContext.RoutingStrategies)
                 {
-                    var transportOperation = routingContext.ToTransportOperation(strategy, DispatchConsistency.Default);
+                    var transportOperation = routingContext.ToTransportOperation(strategy, DispatchConsistency.Default, copySharedMutableMessageState);
                     transportOperations.Add(transportOperation);
                 }
             }
