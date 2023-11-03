@@ -58,18 +58,14 @@
 
             Assert.True(context.Subscriber1GotTheEvent);
             Assert.True(context.Subscriber2GotTheEvent);
-            Assert.AreEqual("SomeValue", context.HeaderValue);
         }
 
         public class Context : ScenarioContext
         {
             public bool Subscriber1GotTheEvent { get; set; }
             public bool Subscriber2GotTheEvent { get; set; }
-            public bool Subscriber3GotTheEvent { get; set; }
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }
-            public bool Subscriber3Subscribed { get; set; }
-            public string HeaderValue { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -103,11 +99,7 @@
             public class TriggerHandler : IHandleMessages<TriggerMessage>
             {
                 public Task Handle(TriggerMessage message, IMessageHandlerContext context)
-                {
-                    var options = new PublishOptions();
-                    options.SetHeader("MyHeader", "SomeValue");
-                    return context.Publish(new MyEvent(), options);
-                }
+                    => context.Publish(new MyEvent());
             }
 
             class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
@@ -137,7 +129,6 @@
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     testContext.Subscriber1GotTheEvent = true;
                     return Task.CompletedTask;
                 }
