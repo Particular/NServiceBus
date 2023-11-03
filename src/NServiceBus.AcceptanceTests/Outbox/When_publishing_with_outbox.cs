@@ -122,17 +122,13 @@ namespace NServiceBus.AcceptanceTests.Outbox
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
-            public class MyHandler : IHandleMessages<MyEvent>
+            public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
             {
-                public MyHandler(Context context) => testContext = context;
-
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     testContext.Subscriber1GotTheEvent = true;
                     return Task.CompletedTask;
                 }
-
-                readonly Context testContext;
             }
         }
 
@@ -142,17 +138,13 @@ namespace NServiceBus.AcceptanceTests.Outbox
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
-            public class MyHandler : IHandleMessages<MyEvent>
+            public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
             {
-                public MyHandler(Context context) => testContext = context;
-
                 public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     testContext.Subscriber2GotTheEvent = true;
                     return Task.CompletedTask;
                 }
-
-                readonly Context testContext;
             }
         }
 
