@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
@@ -29,7 +30,7 @@
             var tx = (AcceptanceTestingOutboxTransaction)transaction;
             tx.Enlist(() =>
             {
-                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
+                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.Select(o => o.DeepCopy()).ToArray())))
                 {
                     throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
                 }
