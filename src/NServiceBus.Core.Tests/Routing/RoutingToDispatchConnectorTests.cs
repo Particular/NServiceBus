@@ -15,11 +15,106 @@
     public class RoutingToDispatchConnectorTests
     {
         [Test]
+        public async Task Should_preserve_message_state_for_one_routing_strategy_for_allocation_reasons()
+        {
+            var behavior = new RoutingToDispatchConnector();
+            IEnumerable<TransportOperation> operations = null;
+            var testableRoutingContext = new TestableRoutingContext
+            {
+                RoutingStrategies = new List<RoutingStrategy>
+                {
+                    new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")
+                }
+            };
+            var originalDispatchProperties = new DispatchProperties
+            {
+                { "SomeKey", "SomeValue" }
+            };
+            testableRoutingContext.Extensions.Set(originalDispatchProperties);
+            var originalHeaders = new Dictionary<string, string> { { "SomeHeaderKey", "SomeHeaderValue" } };
+            testableRoutingContext.Message = new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>());
+            await behavior.Invoke(testableRoutingContext, context =>
+            {
+                operations = context.Operations;
+                return Task.CompletedTask;
+            });
+
+            Assert.That(operations, Has.Length.EqualTo(1));
+
+            TransportOperation destination1Operation = operations.ElementAt(0);
+            Assert.That(destination1Operation.Message.MessageId, Is.EqualTo("ID"));
+            Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
+            Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination1Headers, Is.SameAs(originalHeaders));
+            DispatchProperties destination1DispatchProperties = destination1Operation.Properties;
+            Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
+            Assert.That(destination1DispatchProperties, Is.SameAs(originalDispatchProperties));
+        }
+
+        [Test]
+        public async Task Should_copy_message_state_for_multiple_routing_strategies()
+        {
+            var behavior = new RoutingToDispatchConnector();
+            IEnumerable<TransportOperation> operations = null;
+            var testableRoutingContext = new TestableRoutingContext
+            {
+                RoutingStrategies = new List<RoutingStrategy>
+                {
+                    new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1"),
+                    new DestinationRoutingStrategy("destination2", "HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")
+                }
+            };
+            var originalDispatchProperties = new DispatchProperties
+            {
+                { "SomeKey", "SomeValue" }
+            };
+            testableRoutingContext.Extensions.Set(originalDispatchProperties);
+            var originalHeaders = new Dictionary<string, string> { { "SomeHeaderKey", "SomeHeaderValue" } };
+            testableRoutingContext.Message = new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>());
+            await behavior.Invoke(testableRoutingContext, context =>
+            {
+                operations = context.Operations;
+                return Task.CompletedTask;
+            });
+
+            Assert.That(operations, Has.Length.EqualTo(2));
+
+            TransportOperation destination1Operation = operations.ElementAt(0);
+            Assert.That(destination1Operation.Message.MessageId, Is.EqualTo("ID"));
+            Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
+            Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination1Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
+            Assert.That(destination1Headers, Is.Not.SameAs(originalHeaders));
+            DispatchProperties destination1DispatchProperties = destination1Operation.Properties;
+            Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
+            Assert.That(destination1DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
+
+            TransportOperation destination2Operation = operations.ElementAt(1);
+            Assert.That(destination2Operation.Message.MessageId, Is.EqualTo("ID"));
+            Assert.That((destination2Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination2"));
+            Dictionary<string, string> destination2Headers = destination2Operation.Message.Headers;
+            Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
+            Assert.That(destination2Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination2Headers, Is.Not.SameAs(originalHeaders));
+            DispatchProperties destination2DispatchProperties = destination2Operation.Properties;
+            Assert.That(destination2DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
+            Assert.That(destination2DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
+
+            Assert.That(destination1Headers, Is.Not.SameAs(destination2Headers));
+            Assert.That(destination1DispatchProperties, Is.Not.SameAs(destination2DispatchProperties));
+        }
+
+        [Test]
         public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
         {
             var behavior = new RoutingToDispatchConnector();
             Dictionary<string, string> headers = null;
-            await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new CustomRoutingStrategy() } }, context =>
+            await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new HeaderModifyingRoutingStrategy() } }, context =>
                 {
                     headers = context.Operations.First().Message.Headers;
                     return Task.CompletedTask;
@@ -113,13 +208,33 @@
             return context;
         }
 
-        class CustomRoutingStrategy : RoutingStrategy
+        class HeaderModifyingRoutingStrategy : RoutingStrategy
         {
             public override AddressTag Apply(Dictionary<string, string> headers)
             {
                 headers["CustomHeader"] = "CustomValue";
                 return new UnicastAddressTag("destination");
             }
+        }
+
+        class DestinationRoutingStrategy : RoutingStrategy
+        {
+            public DestinationRoutingStrategy(string destination, string headerKey, string headerValue)
+            {
+                this.destination = destination;
+                this.headerKey = headerKey;
+                this.headerValue = headerValue;
+            }
+
+            public override AddressTag Apply(Dictionary<string, string> headers)
+            {
+                headers[headerKey] = headerValue;
+                return new UnicastAddressTag(destination);
+            }
+
+            readonly string destination;
+            readonly string headerKey;
+            readonly string headerValue;
         }
 
         class MyMessage : IMessage

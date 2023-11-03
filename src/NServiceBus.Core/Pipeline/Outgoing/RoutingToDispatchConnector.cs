@@ -26,9 +26,11 @@
 
             var operations = new TransportOperation[context.RoutingStrategies.Count];
             var index = 0;
+            // when there are more than one routing strategy we want to make sure each transport operation is independent
+            var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
             foreach (var strategy in context.RoutingStrategies)
             {
-                operations[index] = context.ToTransportOperation(strategy, dispatchConsistency);
+                operations[index] = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
                 index++;
             }
 
