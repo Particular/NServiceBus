@@ -12,12 +12,12 @@
 
         public bool SupportsDelayedDelivery => true;
 
-        public bool SupportsOutbox => false;
+        public bool SupportsOutbox => true;
 
         public bool SupportsPurgeOnStartup => true;
 
         public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointLearningTransport();
 
-        public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointLearningPersistence();
+        public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointAcceptanceTestingPersistence();
     }
 }
