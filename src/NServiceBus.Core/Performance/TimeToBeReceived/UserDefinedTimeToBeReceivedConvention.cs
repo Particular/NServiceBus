@@ -1,14 +1,13 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+
+class UserDefinedTimeToBeReceivedConvention
 {
-    using System;
-
-    class UserDefinedTimeToBeReceivedConvention
+    public UserDefinedTimeToBeReceivedConvention(Func<Type, TimeSpan> retrieveTimeToBeReceived)
     {
-        public UserDefinedTimeToBeReceivedConvention(Func<Type, TimeSpan> retrieveTimeToBeReceived)
-        {
-            GetTimeToBeReceivedForMessage = retrieveTimeToBeReceived;
-        }
-
-        public Func<Type, TimeSpan> GetTimeToBeReceivedForMessage { get; }
+        GetTimeToBeReceivedForMessage = retrieveTimeToBeReceived;
     }
+
+    public Func<Type, TimeSpan> GetTimeToBeReceivedForMessage { get; }
 }

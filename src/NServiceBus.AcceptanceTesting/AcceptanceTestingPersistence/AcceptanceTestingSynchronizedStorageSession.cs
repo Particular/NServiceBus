@@ -1,95 +1,94 @@
-namespace NServiceBus.AcceptanceTesting
+namespace NServiceBus.AcceptanceTesting;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Transactions;
+using Extensibility;
+using Outbox;
+using Persistence;
+using Transport;
+
+class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using Extensibility;
-    using Outbox;
-    using Persistence;
-    using Transport;
+    public AcceptanceTestingTransaction Transaction { get; private set; }
 
-    class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStorageSession
+    public void Dispose() => Transaction = null;
+
+    public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
+        CancellationToken cancellationToken = default)
     {
-        public AcceptanceTestingTransaction Transaction { get; private set; }
-
-        public void Dispose() => Transaction = null;
-
-        public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
-            CancellationToken cancellationToken = default)
+        if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
         {
-            if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
-            {
-                Transaction = inMemOutboxTransaction.Transaction;
-                ownsTransaction = false;
-                return new ValueTask<bool>(true);
-            }
-
-            return new ValueTask<bool>(false);
-        }
-
-        public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
-            CancellationToken cancellationToken = default)
-        {
-            if (!transportTransaction.TryGet(out Transaction ambientTransaction))
-            {
-                return new ValueTask<bool>(false);
-            }
-
-            Transaction = new AcceptanceTestingTransaction();
-            ambientTransaction.EnlistVolatile(new EnlistmentNotification(Transaction), EnlistmentOptions.None);
-            ownsTransaction = true;
+            Transaction = inMemOutboxTransaction.Transaction;
+            ownsTransaction = false;
             return new ValueTask<bool>(true);
         }
 
-        public Task Open(ContextBag context, CancellationToken cancellationToken = default)
+        return new ValueTask<bool>(false);
+    }
+
+    public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
+        CancellationToken cancellationToken = default)
+    {
+        if (!transportTransaction.TryGet(out Transaction ambientTransaction))
         {
-            ownsTransaction = true;
-            Transaction = new AcceptanceTestingTransaction();
-            return Task.CompletedTask;
+            return new ValueTask<bool>(false);
         }
 
-        public Task CompleteAsync(CancellationToken cancellationToken = default)
+        Transaction = new AcceptanceTestingTransaction();
+        ambientTransaction.EnlistVolatile(new EnlistmentNotification(Transaction), EnlistmentOptions.None);
+        ownsTransaction = true;
+        return new ValueTask<bool>(true);
+    }
+
+    public Task Open(ContextBag context, CancellationToken cancellationToken = default)
+    {
+        ownsTransaction = true;
+        Transaction = new AcceptanceTestingTransaction();
+        return Task.CompletedTask;
+    }
+
+    public Task CompleteAsync(CancellationToken cancellationToken = default)
+    {
+        if (ownsTransaction)
         {
-            if (ownsTransaction)
+            Transaction.Commit();
+        }
+        return Task.CompletedTask;
+    }
+
+    public void Enlist(Action action) => Transaction.Enlist(action);
+
+    bool ownsTransaction;
+
+    sealed class EnlistmentNotification : IEnlistmentNotification
+    {
+        public EnlistmentNotification(AcceptanceTestingTransaction transaction) => this.transaction = transaction;
+
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            try
             {
-                Transaction.Commit();
+                transaction.Commit();
+                preparingEnlistment.Prepared();
             }
-            return Task.CompletedTask;
+            catch (Exception ex)
+            {
+                preparingEnlistment.ForceRollback(ex);
+            }
         }
 
-        public void Enlist(Action action) => Transaction.Enlist(action);
+        public void Commit(Enlistment enlistment) => enlistment.Done();
 
-        bool ownsTransaction;
-
-        sealed class EnlistmentNotification : IEnlistmentNotification
+        public void Rollback(Enlistment enlistment)
         {
-            public EnlistmentNotification(AcceptanceTestingTransaction transaction) => this.transaction = transaction;
-
-            public void Prepare(PreparingEnlistment preparingEnlistment)
-            {
-                try
-                {
-                    transaction.Commit();
-                    preparingEnlistment.Prepared();
-                }
-                catch (Exception ex)
-                {
-                    preparingEnlistment.ForceRollback(ex);
-                }
-            }
-
-            public void Commit(Enlistment enlistment) => enlistment.Done();
-
-            public void Rollback(Enlistment enlistment)
-            {
-                transaction.Rollback();
-                enlistment.Done();
-            }
-
-            public void InDoubt(Enlistment enlistment) => enlistment.Done();
-
-            readonly AcceptanceTestingTransaction transaction;
+            transaction.Rollback();
+            enlistment.Done();
         }
+
+        public void InDoubt(Enlistment enlistment) => enlistment.Done();
+
+        readonly AcceptanceTestingTransaction transaction;
     }
 }

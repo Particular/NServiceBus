@@ -1,38 +1,37 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Syntactic sugar for <see cref="IMessageProcessingContext" />.
+/// </summary>
+public static class MessageProcessingContextExtensions
 {
-    using System;
-    using System.Threading.Tasks;
+    /// <summary>
+    /// Sends the message to the endpoint which sent the message currently being handled on this thread.
+    /// </summary>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    public static Task Reply(this IMessageProcessingContext context, object message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return context.Reply(message, new ReplyOptions());
+    }
 
     /// <summary>
-    /// Syntactic sugar for <see cref="IMessageProcessingContext" />.
+    /// Instantiates a message of type T and performs a regular Reply.
     /// </summary>
-    public static class MessageProcessingContextExtensions
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+    public static Task Reply<T>(this IMessageProcessingContext context, Action<T> messageConstructor)
     {
-        /// <summary>
-        /// Sends the message to the endpoint which sent the message currently being handled on this thread.
-        /// </summary>
-        /// <param name="context">Object being extended.</param>
-        /// <param name="message">The message to send.</param>
-        public static Task Reply(this IMessageProcessingContext context, object message)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(messageConstructor);
 
-            return context.Reply(message, new ReplyOptions());
-        }
-
-        /// <summary>
-        /// Instantiates a message of type T and performs a regular Reply.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="context">Object being extended.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task Reply<T>(this IMessageProcessingContext context, Action<T> messageConstructor)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNull(messageConstructor);
-
-            return context.Reply(messageConstructor, new ReplyOptions());
-        }
+        return context.Reply(messageConstructor, new ReplyOptions());
     }
 }

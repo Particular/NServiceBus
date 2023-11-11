@@ -1,16 +1,15 @@
-﻿namespace NServiceBus.Core.Tests
-{
-    using System.Globalization;
-    using System.Threading;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Tests;
 
-    [SetUpFixture]
-    public class GlobalTestSetup
+using System.Globalization;
+using System.Threading;
+using NUnit.Framework;
+
+[SetUpFixture]
+public class GlobalTestSetup
+{
+    [OneTimeSetUp]
+    public void Initialize()
     {
-        [OneTimeSetUp]
-        public void Initialize()
-        {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-        }
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
     }
 }

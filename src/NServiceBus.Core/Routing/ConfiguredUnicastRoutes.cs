@@ -1,31 +1,30 @@
-namespace NServiceBus.Features
+namespace NServiceBus.Features;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Routing;
+
+class ConfiguredUnicastRoutes
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Routing;
+    readonly List<IRouteSource> routeSources = [];
 
-    class ConfiguredUnicastRoutes
+    public void Add(IRouteSource routeSource)
     {
-        readonly List<IRouteSource> routeSources = [];
+        ArgumentNullException.ThrowIfNull(routeSource);
+        routeSources.Add(routeSource);
+    }
 
-        public void Add(IRouteSource routeSource)
+    public void Apply(UnicastRoutingTable unicastRoutingTable, Conventions conventions)
+    {
+        var entries = new Dictionary<Type, RouteTableEntry>();
+        foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lower priority.
         {
-            ArgumentNullException.ThrowIfNull(routeSource);
-            routeSources.Add(routeSource);
-        }
-
-        public void Apply(UnicastRoutingTable unicastRoutingTable, Conventions conventions)
-        {
-            var entries = new Dictionary<Type, RouteTableEntry>();
-            foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lower priority.
+            foreach (var route in source.GenerateRoutes(conventions))
             {
-                foreach (var route in source.GenerateRoutes(conventions))
-                {
-                    entries[route.MessageType] = route;
-                }
+                entries[route.MessageType] = route;
             }
-            unicastRoutingTable.AddOrReplaceRoutes("EndpointConfiguration", entries.Values.ToList());
         }
+        unicastRoutingTable.AddOrReplaceRoutes("EndpointConfiguration", entries.Values.ToList());
     }
 }

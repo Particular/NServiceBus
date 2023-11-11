@@ -1,75 +1,74 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using Configuration.AdvancedExtensibility;
+using Serialization;
+using Settings;
+
+/// <summary>
+/// Provides configuration options for serialization.
+/// </summary>
+public static class SerializationConfigExtensions
 {
-    using System;
-    using Configuration.AdvancedExtensibility;
-    using Serialization;
-    using Settings;
+    /// <summary>
+    /// Configures the given serializer to be used.
+    /// </summary>
+    /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var definition = (T)Activator.CreateInstance(typeof(T));
+
+        return UseSerialization(config, definition);
+    }
 
     /// <summary>
-    /// Provides configuration options for serialization.
+    /// Configures the given serializer to be used.
     /// </summary>
-    public static class SerializationConfigExtensions
+    /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="serializationDefinition">An instance of serialization definition.</param>
+    public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
     {
-        /// <summary>
-        /// Configures the given serializer to be used.
-        /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            var definition = (T)Activator.CreateInstance(typeof(T));
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(serializationDefinition);
 
-            return UseSerialization(config, definition);
-        }
-
-        /// <summary>
-        /// Configures the given serializer to be used.
-        /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="serializationDefinition">An instance of serialization definition.</param>
-        public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNull(serializationDefinition);
-
-            var settings = new SettingsHolder();
-            config.Settings.SetMainSerializer(serializationDefinition, settings);
-            return CreateSerializationExtension<T>(settings, config.Settings);
-        }
-
-        /// <summary>
-        /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
-        /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            var definition = (T)Activator.CreateInstance(typeof(T));
-
-            return AddDeserializer(config, definition);
-        }
-
-        /// <summary>
-        /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
-        /// </summary>
-        /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="serializationDefinition">An instance of serialization definition.</param>
-        public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNull(serializationDefinition);
-
-            var additionalSerializers = config.GetSettings().GetAdditionalSerializers();
-
-            var settings = new SettingsHolder();
-            additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
-            return CreateSerializationExtension<T>(settings, config.Settings);
-        }
-
-        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition => new SerializationExtensions<T>(serializerSettings, endpointConfigurationSettings);
+        var settings = new SettingsHolder();
+        config.Settings.SetMainSerializer(serializationDefinition, settings);
+        return CreateSerializationExtension<T>(settings, config.Settings);
     }
+
+    /// <summary>
+    /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
+    /// </summary>
+    /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var definition = (T)Activator.CreateInstance(typeof(T));
+
+        return AddDeserializer(config, definition);
+    }
+
+    /// <summary>
+    /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
+    /// </summary>
+    /// <typeparam name="T">The serializer definition eg <see cref="XmlSerializer" />.</typeparam>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="serializationDefinition">An instance of serialization definition.</param>
+    public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(serializationDefinition);
+
+        var additionalSerializers = config.GetSettings().GetAdditionalSerializers();
+
+        var settings = new SettingsHolder();
+        additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
+        return CreateSerializationExtension<T>(settings, config.Settings);
+    }
+
+    static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) where T : SerializationDefinition => new SerializationExtensions<T>(serializerSettings, endpointConfigurationSettings);
 }

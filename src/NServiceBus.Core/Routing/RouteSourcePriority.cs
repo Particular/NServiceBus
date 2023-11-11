@@ -1,9 +1,8 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+enum RouteSourcePriority
 {
-    enum RouteSourcePriority
-    {
-        Assembly = 0,
-        Namespace = 1,
-        Type = 2
-    }
+    Assembly = 0,
+    Namespace = 1,
+    Type = 2
 }

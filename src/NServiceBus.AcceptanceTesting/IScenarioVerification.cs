@@ -1,10 +1,9 @@
-namespace NServiceBus.AcceptanceTesting
-{
-    using System;
+namespace NServiceBus.AcceptanceTesting;
 
-    public interface IScenarioVerification
-    {
-        Type ContextType { get; set; }
-        void Verify(ScenarioContext context);
-    }
+using System;
+
+public interface IScenarioVerification
+{
+    Type ContextType { get; set; }
+    void Verify(ScenarioContext context);
 }

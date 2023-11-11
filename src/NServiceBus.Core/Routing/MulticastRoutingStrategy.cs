@@ -1,31 +1,30 @@
-﻿namespace NServiceBus.Routing
+﻿namespace NServiceBus.Routing;
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// A routing strategy for multicast routing.
+/// </summary>
+public class MulticastRoutingStrategy : RoutingStrategy
 {
-    using System;
-    using System.Collections.Generic;
+    /// <summary>
+    /// Creates new routing strategy.
+    /// </summary>
+    public MulticastRoutingStrategy(Type messageType)
+    {
+        this.messageType = messageType;
+    }
 
     /// <summary>
-    /// A routing strategy for multicast routing.
+    /// Applies the routing strategy to the message.
     /// </summary>
-    public class MulticastRoutingStrategy : RoutingStrategy
+    /// <param name="headers">Message headers.</param>
+    public override AddressTag Apply(Dictionary<string, string> headers)
     {
-        /// <summary>
-        /// Creates new routing strategy.
-        /// </summary>
-        public MulticastRoutingStrategy(Type messageType)
-        {
-            this.messageType = messageType;
-        }
-
-        /// <summary>
-        /// Applies the routing strategy to the message.
-        /// </summary>
-        /// <param name="headers">Message headers.</param>
-        public override AddressTag Apply(Dictionary<string, string> headers)
-        {
-            ArgumentNullException.ThrowIfNull(headers);
-            return new MulticastAddressTag(messageType);
-        }
-
-        readonly Type messageType;
+        ArgumentNullException.ThrowIfNull(headers);
+        return new MulticastAddressTag(messageType);
     }
+
+    readonly Type messageType;
 }

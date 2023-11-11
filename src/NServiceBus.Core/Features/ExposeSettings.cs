@@ -1,25 +1,24 @@
-﻿namespace NServiceBus.Configuration.AdvancedExtensibility
+﻿namespace NServiceBus.Configuration.AdvancedExtensibility;
+
+using System;
+using Settings;
+
+/// <summary>
+/// Base class that exposes <see cref="SettingsHolder" /> for extensibility.
+/// </summary>
+public abstract class ExposeSettings
 {
-    using System;
-    using Settings;
+    /// <summary>
+    /// Initializes a new instance of <see cref="ExposeSettings" />.
+    /// </summary>
+    protected ExposeSettings(SettingsHolder settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        Settings = settings;
+    }
 
     /// <summary>
-    /// Base class that exposes <see cref="SettingsHolder" /> for extensibility.
+    /// Get the current <see cref="SettingsHolder" /> this <see cref="ExposeSettings" /> wraps.
     /// </summary>
-    public abstract class ExposeSettings
-    {
-        /// <summary>
-        /// Initializes a new instance of <see cref="ExposeSettings" />.
-        /// </summary>
-        protected ExposeSettings(SettingsHolder settings)
-        {
-            ArgumentNullException.ThrowIfNull(settings);
-            Settings = settings;
-        }
-
-        /// <summary>
-        /// Get the current <see cref="SettingsHolder" /> this <see cref="ExposeSettings" /> wraps.
-        /// </summary>
-        internal SettingsHolder Settings { get; }
-    }
+    internal SettingsHolder Settings { get; }
 }

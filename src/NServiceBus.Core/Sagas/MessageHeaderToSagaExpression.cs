@@ -1,27 +1,26 @@
 ﻿#nullable enable
 
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Linq.Expressions;
+
+class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
 {
-    using System;
-    using System.Linq.Expressions;
+    readonly IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
+    readonly string headerName;
 
-    class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
+    public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
     {
-        readonly IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
-        readonly string headerName;
+        ArgumentNullException.ThrowIfNull(sagaHeaderFindingConfiguration);
+        ArgumentException.ThrowIfNullOrWhiteSpace(headerName);
+        this.sagaHeaderFindingConfiguration = sagaHeaderFindingConfiguration;
+        this.headerName = headerName;
+    }
 
-        public MessageHeaderToSagaExpression(IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration, string headerName)
-        {
-            ArgumentNullException.ThrowIfNull(sagaHeaderFindingConfiguration);
-            ArgumentException.ThrowIfNullOrWhiteSpace(headerName);
-            this.sagaHeaderFindingConfiguration = sagaHeaderFindingConfiguration;
-            this.headerName = headerName;
-        }
-
-        public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
-        {
-            ArgumentNullException.ThrowIfNull(sagaEntityProperty);
-            sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaEntityProperty, headerName);
-        }
+    public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
+    {
+        ArgumentNullException.ThrowIfNull(sagaEntityProperty);
+        sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaEntityProperty, headerName);
     }
 }

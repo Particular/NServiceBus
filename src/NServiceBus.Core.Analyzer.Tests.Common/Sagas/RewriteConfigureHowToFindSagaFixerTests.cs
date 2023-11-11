@@ -1,18 +1,18 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas
-{
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using Helpers;
-    using Microsoft.CodeAnalysis.CSharp;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
-    [TestFixture]
-    public class RewriteConfigureHowToFindSagaFixerTests : CodeFixTestFixture<SagaAnalyzer, RewriteConfigureHowToFindSagaFixer>
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Helpers;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+
+[TestFixture]
+public class RewriteConfigureHowToFindSagaFixerTests : CodeFixTestFixture<SagaAnalyzer, RewriteConfigureHowToFindSagaFixer>
+{
+    [Test]
+    public Task Simple()
     {
-        [Test]
-        public Task Simple()
-        {
-            var original =
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -39,7 +39,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -67,15 +67,15 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [TestCase(null)]
-        [TestCase("\r\n")]
-        [TestCase("\n")]
-        public Task SimpleLineEndingTestWithExtraNewLines(string lineEnding)
-        {
-            var original =
+    [TestCase(null)]
+    [TestCase("\r\n")]
+    [TestCase("\n")]
+    public Task SimpleLineEndingTestWithExtraNewLines(string lineEnding)
+    {
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -110,7 +110,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -146,22 +146,22 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            original = original.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
-            expected = expected.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
+        original = original.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
+        expected = expected.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
 
-            if (lineEnding != null)
-            {
-                original = Regex.Replace(original, "\r?\n", lineEnding);
-                expected = Regex.Replace(expected, "\r?\n", lineEnding);
-            }
-
-            return Assert(original, expected);
+        if (lineEnding != null)
+        {
+            original = Regex.Replace(original, "\r?\n", lineEnding);
+            expected = Regex.Replace(expected, "\r?\n", lineEnding);
         }
 
-        [Test]
-        public Task IndentedInNamespace()
-        {
-            var original =
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task IndentedInNamespace()
+    {
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -191,7 +191,7 @@ namespace SomeNamespace
     }
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -222,13 +222,13 @@ namespace SomeNamespace
     }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task KitchenSinkMappings()
-        {
-            var original =
+    [Test]
+    public Task KitchenSinkMappings()
+    {
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -273,7 +273,7 @@ namespace SomeNamespace
     public class Msg5 : ICommand {}
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -319,13 +319,13 @@ namespace SomeNamespace
     public class Msg5 : ICommand {}
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task AddMissingMessageMappingFallbackValue()
-        {
-            var original =
+    [Test]
+    public Task AddMissingMessageMappingFallbackValue()
+    {
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -351,7 +351,7 @@ public class Msg2 : ICommand
 {
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -378,14 +378,14 @@ public class Msg2 : ICommand
 {
 }";
 
-            return Assert(original, expected, fixMustCompile: false);
-        }
+        return Assert(original, expected, fixMustCompile: false);
+    }
 
-        [Test]
-        public Task AddMissingMessageMappingWhenPropertyMatchesCorrelation()
-        {
-            var original =
-    @"using System;
+    [Test]
+    public Task AddMissingMessageMappingWhenPropertyMatchesCorrelation()
+    {
+        var original =
+@"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
@@ -411,8 +411,8 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var expected =
-    @"using System;
+        var expected =
+@"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
@@ -439,18 +439,18 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        /// <summary>
-        /// NOTE: Don't need to test when ConfigureHowToFindSaga method is missing completely, because
-        /// that's a compile error: the abstract base class method is not implemented
-        /// </summary>
-        [Test]
-        public Task AddMissingMessageMappingWhenMappingMethodIsEmpty()
-        {
-            var original =
-    @"using System;
+    /// <summary>
+    /// NOTE: Don't need to test when ConfigureHowToFindSaga method is missing completely, because
+    /// that's a compile error: the abstract base class method is not implemented
+    /// </summary>
+    [Test]
+    public Task AddMissingMessageMappingWhenMappingMethodIsEmpty()
+    {
+        var original =
+@"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -469,8 +469,8 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var expected =
-    @"using System;
+        var expected =
+@"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -491,13 +491,13 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(original, expected, fixMustCompile: false);
-        }
+        return Assert(original, expected, fixMustCompile: false);
+    }
 
-        [Test]
-        public Task RewriteSingleOldMappingWithInfoDiagnostic()
-        {
-            var original =
+    [Test]
+    public Task RewriteSingleOldMappingWithInfoDiagnostic()
+    {
+        var original =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -519,7 +519,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var expected =
+        var expected =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -542,14 +542,14 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        // https://github.com/Particular/NServiceBus/issues/6399
-        [Test]
-        public Task GenericSagaTest()
-        {
-            var original = @"using System;
+    // https://github.com/Particular/NServiceBus/issues/6399
+    [Test]
+    public Task GenericSagaTest()
+    {
+        var original = @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class ScheduledNotificationData : ContainSagaData
@@ -583,7 +583,7 @@ public class Notification
 }
 ";
 
-            var expected = @"using System;
+        var expected = @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class ScheduledNotificationData : ContainSagaData
@@ -617,22 +617,21 @@ public class Notification
 }
 ";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
     }
+}
 
-    public class RewriteConfigureHowToFindSagaFixerTestsCSharp8 : RewriteConfigureHowToFindSagaFixerTests
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-    }
+public class RewriteConfigureHowToFindSagaFixerTestsCSharp8 : RewriteConfigureHowToFindSagaFixerTests
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+}
 
-    public class RewriteConfigureHowToFindSagaFixerTestsCSharp9 : RewriteConfigureHowToFindSagaFixerTestsCSharp8
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-    }
+public class RewriteConfigureHowToFindSagaFixerTestsCSharp9 : RewriteConfigureHowToFindSagaFixerTestsCSharp8
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+}
 
-    public class RewriteConfigureHowToFindSagaFixerTestsCSharp10 : RewriteConfigureHowToFindSagaFixerTestsCSharp9
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-    }
+public class RewriteConfigureHowToFindSagaFixerTestsCSharp10 : RewriteConfigureHowToFindSagaFixerTestsCSharp9
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

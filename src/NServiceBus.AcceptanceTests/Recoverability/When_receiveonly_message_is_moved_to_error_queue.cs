@@ -1,160 +1,159 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability
+﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+public class When_receiveonly_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
+    static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
-    public class When_receiveonly_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_dispatch_outgoing_messages()
     {
-        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
+                .When((session, c) => session.SendLocal(new InitiatingMessage
+                {
+                    Id = c.TestRunId
+                }))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
+            .Run();
 
-        [Test]
-        public async Task Should_dispatch_outgoing_messages()
+        Assert.IsTrue(!context.FailedMessages.IsEmpty, "Messages should have failed");
+    }
+
+    class Context : ScenarioContext
+    {
+        public bool MessageMovedToErrorQueue { get; set; }
+        public bool OutgoingMessageSent { get; set; }
+    }
+
+    class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
+    {
+        public EndpointWithOutgoingMessages()
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, c) => session.SendLocal(new InitiatingMessage
+            EndpointSetup<DefaultServer>((config, context) =>
+            {
+                config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
+                config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
+                config.SendFailedMessagesTo(ErrorSpyAddress);
+            });
+        }
+
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        {
+            public InitiatingHandler(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+            {
+                if (initiatingMessage.Id == testContext.TestRunId)
+                {
+                    var message = new SubsequentMessage
                     {
-                        Id = c.TestRunId
-                    }))
-                )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
-                .Run();
-
-            Assert.IsTrue(!context.FailedMessages.IsEmpty, "Messages should have failed");
-        }
-
-        class Context : ScenarioContext
-        {
-            public bool MessageMovedToErrorQueue { get; set; }
-            public bool OutgoingMessageSent { get; set; }
-        }
-
-        class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
-        {
-            public EndpointWithOutgoingMessages()
-            {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
-                    config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
-                    config.SendFailedMessagesTo(ErrorSpyAddress);
-                });
-            }
-
-            class InitiatingHandler : IHandleMessages<InitiatingMessage>
-            {
-                public InitiatingHandler(Context context)
-                {
-                    testContext = context;
+                        Id = initiatingMessage.Id
+                    };
+                    return context.Send(ErrorSpyAddress, message);
                 }
 
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    if (initiatingMessage.Id == testContext.TestRunId)
-                    {
-                        var message = new SubsequentMessage
-                        {
-                            Id = initiatingMessage.Id
-                        };
-                        return context.Send(ErrorSpyAddress, message);
-                    }
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                return Task.CompletedTask;
             }
-        }
 
-        class EndpointWithFailingHandler : EndpointConfigurationBuilder
+            Context testContext;
+        }
+    }
+
+    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    {
+        public EndpointWithFailingHandler()
         {
-            public EndpointWithFailingHandler()
-            {
-                EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
-            }
-
-            class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
-            {
-                public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
-                {
-                    throw new SimulatedException("message should be moved to the error queue");
-                }
-            }
+            EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
         }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
-            public ErrorSpy()
+            public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
-            }
-
-            class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
-            {
-                public InitiatingMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    if (initiatingMessage.Id == testContext.TestRunId)
-                    {
-                        testContext.MessageMovedToErrorQueue = true;
-                    }
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
-
-            class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
-            {
-                public SubsequentMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
-                {
-                    if (message.Id == testContext.TestRunId)
-                    {
-                        testContext.OutgoingMessageSent = true;
-                    }
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                throw new SimulatedException("message should be moved to the error queue");
             }
         }
+    }
 
-        class ThrowingBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+    class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy()
         {
-            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
+        }
+
+        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        {
+            public InitiatingMessageHandler(Context context)
             {
-                await next(context).ConfigureAwait(false);
-
-                throw new SimulatedException();
+                testContext = context;
             }
+
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+            {
+                if (initiatingMessage.Id == testContext.TestRunId)
+                {
+                    testContext.MessageMovedToErrorQueue = true;
+                }
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
 
-        public class InitiatingMessage : IMessage
+        class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
         {
-            public Guid Id { get; set; }
-        }
+            public SubsequentMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
-        public class SubsequentMessage : IMessage
-        {
-            public Guid Id { get; set; }
+            public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
+            {
+                if (message.Id == testContext.TestRunId)
+                {
+                    testContext.OutgoingMessageSent = true;
+                }
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    class ThrowingBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+    {
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+        {
+            await next(context).ConfigureAwait(false);
+
+            throw new SimulatedException();
+        }
+    }
+
+    public class InitiatingMessage : IMessage
+    {
+        public Guid Id { get; set; }
+    }
+
+    public class SubsequentMessage : IMessage
+    {
+        public Guid Id { get; set; }
     }
 }

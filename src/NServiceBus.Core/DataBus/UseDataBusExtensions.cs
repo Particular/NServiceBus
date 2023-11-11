@@ -1,71 +1,70 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using DataBus;
+
+/// <summary>
+/// Extension methods to configure data bus.
+/// </summary>
+public static partial class UseDataBusExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using DataBus;
+    /// <summary>
+    /// Configures NServiceBus to use the given data bus definition.
+    /// </summary>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this EndpointConfiguration config)
+        where TDataBusDefinition : DataBusDefinition, new()
+        where TDataBusSerializer : IDataBusSerializer, new()
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        return config.UseDataBus<TDataBusDefinition>(new TDataBusSerializer());
+    }
 
     /// <summary>
-    /// Extension methods to configure data bus.
+    /// Configures NServiceBus to use the given data bus definition.
     /// </summary>
-    public static partial class UseDataBusExtensions
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
+    public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
+        where TDataBusDefinition : DataBusDefinition, new()
     {
-        /// <summary>
-        /// Configures NServiceBus to use the given data bus definition.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this EndpointConfiguration config)
-            where TDataBusDefinition : DataBusDefinition, new()
-            where TDataBusSerializer : IDataBusSerializer, new()
-        {
-            ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(dataBusSerializer);
 
-            return config.UseDataBus<TDataBusDefinition>(new TDataBusSerializer());
-        }
+        var dataBusExtensionType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBusDefinition));
+        var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.Settings);
+        var dataBusDefinition = new TDataBusDefinition();
 
-        /// <summary>
-        /// Configures NServiceBus to use the given data bus definition.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
-        public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
-            where TDataBusDefinition : DataBusDefinition, new()
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNull(dataBusSerializer);
+        EnableDataBus(config, dataBusDefinition, dataBusSerializer);
 
-            var dataBusExtensionType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBusDefinition));
-            var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.Settings);
-            var dataBusDefinition = new TDataBusDefinition();
+        return dataBusExtension;
+    }
 
-            EnableDataBus(config, dataBusDefinition, dataBusSerializer);
+    /// <summary>
+    /// Configures NServiceBus to use a custom <see cref="IDataBus" /> implementation.
+    /// </summary>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="dataBusFactory">The factory to create the custom <see cref="IDataBus" /> to use.</param>
+    /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
+    public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(dataBusFactory);
+        ArgumentNullException.ThrowIfNull(dataBusSerializer);
 
-            return dataBusExtension;
-        }
+        EnableDataBus(config, new CustomDataBus(dataBusFactory), dataBusSerializer);
 
-        /// <summary>
-        /// Configures NServiceBus to use a custom <see cref="IDataBus" /> implementation.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="dataBusFactory">The factory to create the custom <see cref="IDataBus" /> to use.</param>
-        /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
-        public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentNullException.ThrowIfNull(dataBusFactory);
-            ArgumentNullException.ThrowIfNull(dataBusSerializer);
+        return new DataBusExtensions(config.Settings);
+    }
 
-            EnableDataBus(config, new CustomDataBus(dataBusFactory), dataBusSerializer);
+    static void EnableDataBus(EndpointConfiguration config, DataBusDefinition selectedDataBus, IDataBusSerializer dataBusSerializer)
+    {
+        config.Settings.Set(Features.DataBus.SelectedDataBusKey, selectedDataBus);
+        config.Settings.Set(Features.DataBus.DataBusSerializerKey, dataBusSerializer);
+        config.Settings.Set(Features.DataBus.AdditionalDataBusDeserializersKey, new List<IDataBusSerializer>());
 
-            return new DataBusExtensions(config.Settings);
-        }
-
-        static void EnableDataBus(EndpointConfiguration config, DataBusDefinition selectedDataBus, IDataBusSerializer dataBusSerializer)
-        {
-            config.Settings.Set(Features.DataBus.SelectedDataBusKey, selectedDataBus);
-            config.Settings.Set(Features.DataBus.DataBusSerializerKey, dataBusSerializer);
-            config.Settings.Set(Features.DataBus.AdditionalDataBusDeserializersKey, new List<IDataBusSerializer>());
-
-            config.EnableFeature<Features.DataBus>();
-        }
+        config.EnableFeature<Features.DataBus>();
     }
 }

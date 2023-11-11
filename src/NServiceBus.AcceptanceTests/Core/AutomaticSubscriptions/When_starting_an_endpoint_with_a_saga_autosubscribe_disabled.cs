@@ -1,124 +1,123 @@
-namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
+namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
     {
-        [Test]
-        public async Task Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>()
-                .Done(c => c.EndpointsStarted)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Subscriber>()
+            .Done(c => c.EndpointsStarted)
+            .Run();
 
-            Assert.False(context.EventsSubscribedTo.Count != 0, "Events only handled by sagas should not be auto subscribed");
+        Assert.False(context.EventsSubscribedTo.Count != 0, "Events only handled by sagas should not be auto subscribed");
+    }
+
+    class Context : ScenarioContext
+    {
+        public Context()
+        {
+            EventsSubscribedTo = [];
         }
 
-        class Context : ScenarioContext
-        {
-            public Context()
-            {
-                EventsSubscribedTo = [];
-            }
+        public List<Type> EventsSubscribedTo { get; }
+    }
 
-            public List<Type> EventsSubscribedTo { get; }
+    class Subscriber : EndpointConfigurationBuilder
+    {
+        public Subscriber()
+        {
+            EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
+                    c.AutoSubscribe().DoNotAutoSubscribeSagas();
+                },
+                metadata =>
+                {
+                    metadata.RegisterPublisherFor<MyEventWithParent>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
+                });
         }
 
-        class Subscriber : EndpointConfigurationBuilder
+        class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public Subscriber()
+            public SubscriptionSpy(Context testContext)
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                    {
-                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
-                        c.AutoSubscribe().DoNotAutoSubscribeSagas();
-                    },
-                    metadata =>
-                    {
-                        metadata.RegisterPublisherFor<MyEventWithParent>(typeof(Subscriber));
-                        metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
-                    });
+                this.testContext = testContext;
             }
 
-            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
+            public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
-                public SubscriptionSpy(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                await next(context).ConfigureAwait(false);
 
-                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
-                {
-                    await next(context).ConfigureAwait(false);
-
-                    testContext.EventsSubscribedTo.AddRange(context.EventTypes);
-                }
-
-                Context testContext;
+                testContext.EventsSubscribedTo.AddRange(context.EventTypes);
             }
 
-            public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
+            Context testContext;
+        }
+
+        public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
+        {
+            public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                }
-
-                public class NotAutoSubscribedSagaSagaData : ContainSagaData
-                {
-                    public virtual string SomeId { get; set; }
-                }
+                return Task.CompletedTask;
             }
 
-            public class NotAutoSubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
-                IAmStartedByMessages<MyEventBase>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
             {
-                public Task Handle(MyEventBase message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+            }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<MyEventBase>(saga => saga.SomeId).ToSaga(saga => saga.SomeId);
-                }
-
-                public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
-                {
-                    public virtual string SomeId { get; set; }
-                }
+            public class NotAutoSubscribedSagaSagaData : ContainSagaData
+            {
+                public virtual string SomeId { get; set; }
             }
         }
 
-        public class MyEventBase : IEvent
+        public class NotAutoSubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
+            IAmStartedByMessages<MyEventBase>
         {
-            public string SomeId { get; set; }
-        }
+            public Task Handle(MyEventBase message, IMessageHandlerContext context)
+            {
+                return Task.CompletedTask;
+            }
 
-        public class MyEventWithParent : MyEventBase
-        {
-        }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
+            {
+                mapper.ConfigureMapping<MyEventBase>(saga => saga.SomeId).ToSaga(saga => saga.SomeId);
+            }
 
-        public class MyMessage : IMessage
-        {
+            public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
+            {
+                public virtual string SomeId { get; set; }
+            }
         }
+    }
 
-        public class MyEvent : IEvent
-        {
-            public string SomeId { get; set; }
-        }
+    public class MyEventBase : IEvent
+    {
+        public string SomeId { get; set; }
+    }
+
+    public class MyEventWithParent : MyEventBase
+    {
+    }
+
+    public class MyMessage : IMessage
+    {
+    }
+
+    public class MyEvent : IEvent
+    {
+        public string SomeId { get; set; }
     }
 }

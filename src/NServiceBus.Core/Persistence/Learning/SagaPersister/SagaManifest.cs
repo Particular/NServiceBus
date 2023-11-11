@@ -1,16 +1,15 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.IO;
+
+class SagaManifest
 {
-    using System;
-    using System.IO;
+    public string StorageDirectory { get; set; }
+    public Type SagaEntityType { get; set; }
 
-    class SagaManifest
+    public string GetFilePath(Guid sagaId)
     {
-        public string StorageDirectory { get; set; }
-        public Type SagaEntityType { get; set; }
-
-        public string GetFilePath(Guid sagaId)
-        {
-            return Path.Combine(StorageDirectory, sagaId + ".json");
-        }
+        return Path.Combine(StorageDirectory, sagaId + ".json");
     }
 }

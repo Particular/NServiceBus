@@ -1,7 +1,6 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+static class LearningTransportHeaders
 {
-    static class LearningTransportHeaders
-    {
-        public const string TimeToBeReceived = "NServiceBus.Transport.Learning.TimeToBeReceived";
-    }
+    public const string TimeToBeReceived = "NServiceBus.Transport.Learning.TimeToBeReceived";
 }

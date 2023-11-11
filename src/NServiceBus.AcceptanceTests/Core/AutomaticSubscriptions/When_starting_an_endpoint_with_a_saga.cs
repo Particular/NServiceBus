@@ -1,117 +1,116 @@
-namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
+namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_autoSubscribe_the_saga_messageHandler_by_default()
     {
-        [Test]
-        public async Task Should_autoSubscribe_the_saga_messageHandler_by_default()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>()
-                .Done(c => c.EventsSubscribedTo.Count >= 2)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Subscriber>()
+            .Done(c => c.EventsSubscribedTo.Count >= 2)
+            .Run();
 
-            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
-            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
+        Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
+        Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
+    }
+
+    class Context : ScenarioContext
+    {
+        public Context()
+        {
+            EventsSubscribedTo = [];
         }
 
-        class Context : ScenarioContext
-        {
-            public Context()
-            {
-                EventsSubscribedTo = [];
-            }
+        public List<Type> EventsSubscribedTo { get; }
+    }
 
-            public List<Type> EventsSubscribedTo { get; }
+    class Subscriber : EndpointConfigurationBuilder
+    {
+        public Subscriber()
+        {
+            EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made"),
+                metadata =>
+                {
+                    metadata.RegisterPublisherFor<MyEventBase>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
+                });
         }
 
-        class Subscriber : EndpointConfigurationBuilder
+        class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public Subscriber()
+            public SubscriptionSpy(Context testContext)
             {
-                EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made"),
-                    metadata =>
-                    {
-                        metadata.RegisterPublisherFor<MyEventBase>(typeof(Subscriber));
-                        metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
-                    });
+                this.testContext = testContext;
             }
 
-            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
+            public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
-                public SubscriptionSpy(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                await next(context).ConfigureAwait(false);
 
-                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
-                {
-                    await next(context).ConfigureAwait(false);
-
-                    testContext.EventsSubscribedTo.AddRange(context.EventTypes);
-                }
-
-                Context testContext;
+                testContext.EventsSubscribedTo.AddRange(context.EventTypes);
             }
 
-            public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
+            Context testContext;
+        }
+
+        public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
+        {
+            public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                }
-
-                public class AutoSubscriptionSagaData : ContainSagaData
-                {
-                    public virtual string SomeId { get; set; }
-                }
+                return Task.CompletedTask;
             }
 
-            public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
-                IAmStartedByMessages<MyEventBase>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
             {
-                public Task Handle(MyEventBase message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+            }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<MyEventBase>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                }
-
-                public class SuperClassEventSagaData : ContainSagaData
-                {
-                    public virtual string SomeId { get; set; }
-                }
+            public class AutoSubscriptionSagaData : ContainSagaData
+            {
+                public virtual string SomeId { get; set; }
             }
         }
 
-        public class MyEventBase : IEvent
+        public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
+            IAmStartedByMessages<MyEventBase>
         {
-            public string SomeId { get; set; }
-        }
+            public Task Handle(MyEventBase message, IMessageHandlerContext context)
+            {
+                return Task.CompletedTask;
+            }
 
-        public class MyEventWithParent : MyEventBase
-        {
-        }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
+            {
+                mapper.ConfigureMapping<MyEventBase>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+            }
 
-        public class MyEvent : IEvent
-        {
-            public string SomeId { get; set; }
+            public class SuperClassEventSagaData : ContainSagaData
+            {
+                public virtual string SomeId { get; set; }
+            }
         }
+    }
+
+    public class MyEventBase : IEvent
+    {
+        public string SomeId { get; set; }
+    }
+
+    public class MyEventWithParent : MyEventBase
+    {
+    }
+
+    public class MyEvent : IEvent
+    {
+        public string SomeId { get; set; }
     }
 }

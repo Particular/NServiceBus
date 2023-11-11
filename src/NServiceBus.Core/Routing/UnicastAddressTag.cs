@@ -1,25 +1,24 @@
-namespace NServiceBus.Routing
+namespace NServiceBus.Routing;
+
+using System;
+
+/// <summary>
+/// Represents a route directly to the specified destination.
+/// </summary>
+public class UnicastAddressTag : AddressTag
 {
-    using System;
+    /// <summary>
+    /// Initializes the strategy.
+    /// </summary>
+    /// <param name="destination">The destination.</param>
+    public UnicastAddressTag(string destination)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        Destination = destination;
+    }
 
     /// <summary>
-    /// Represents a route directly to the specified destination.
+    /// The destination.
     /// </summary>
-    public class UnicastAddressTag : AddressTag
-    {
-        /// <summary>
-        /// Initializes the strategy.
-        /// </summary>
-        /// <param name="destination">The destination.</param>
-        public UnicastAddressTag(string destination)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
-            Destination = destination;
-        }
-
-        /// <summary>
-        /// The destination.
-        /// </summary>
-        public string Destination { get; }
-    }
+    public string Destination { get; }
 }

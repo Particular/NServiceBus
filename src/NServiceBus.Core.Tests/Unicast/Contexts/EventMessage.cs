@@ -1,6 +1,5 @@
-namespace NServiceBus.Unicast.Tests.Contexts
+namespace NServiceBus.Unicast.Tests.Contexts;
+
+public class EventMessage : IEvent
 {
-    public class EventMessage : IEvent
-    {
-    }
 }

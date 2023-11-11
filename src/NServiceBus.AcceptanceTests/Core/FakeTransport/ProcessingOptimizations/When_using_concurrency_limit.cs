@@ -1,128 +1,127 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+using Transport;
+
+public class When_using_concurrency_limit : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-    using Transport;
-
-    public class When_using_concurrency_limit : NServiceBusAcceptanceTest
+    [Test]
+    public Task Should_pass_it_to_the_transport()
     {
-        [Test]
-        public Task Should_pass_it_to_the_transport()
-        {
-            return Scenario.Define<ScenarioContext>()
-                .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
-                .Done(c => c.EndpointsStarted)
-                .Run();
+        return Scenario.Define<ScenarioContext>()
+            .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
+            .Done(c => c.EndpointsStarted)
+            .Run();
 
-            //Assert in FakeReceiver.StartReceive
+        //Assert in FakeReceiver.StartReceive
+    }
+
+    class ThrottledEndpoint : EndpointConfigurationBuilder
+    {
+        public ThrottledEndpoint()
+        {
+            var template = new DefaultServer
+            {
+                PersistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence()
+            };
+
+            EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new FakeTransport()));
+        }
+    }
+
+    class FakeReceiver : IMessageReceiver
+    {
+        PushRuntimeSettings pushSettings;
+
+        public FakeReceiver(ReceiveSettings settings)
+        {
+            Id = settings.Id;
+            ReceiveAddress = settings.ReceiveAddress.ToString();
         }
 
-        class ThrottledEndpoint : EndpointConfigurationBuilder
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
         {
-            public ThrottledEndpoint()
-            {
-                var template = new DefaultServer
-                {
-                    PersistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence()
-                };
-
-                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport(new FakeTransport()));
-            }
+            pushSettings = limitations;
+            return Task.CompletedTask;
         }
 
-        class FakeReceiver : IMessageReceiver
+        public Task StartReceive(CancellationToken cancellationToken = default)
         {
-            PushRuntimeSettings pushSettings;
+            Assert.AreEqual(10, pushSettings.MaxConcurrency);
 
-            public FakeReceiver(ReceiveSettings settings)
-            {
-                Id = settings.Id;
-                ReceiveAddress = settings.ReceiveAddress.ToString();
-            }
-
-            public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
-            {
-                pushSettings = limitations;
-                return Task.CompletedTask;
-            }
-
-            public Task StartReceive(CancellationToken cancellationToken = default)
-            {
-                Assert.AreEqual(10, pushSettings.MaxConcurrency);
-
-                return Task.CompletedTask;
-            }
-
-            public Task StopReceive(CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
-
-            public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-
-            public ISubscriptionManager Subscriptions { get; }
-
-            public string Id { get; }
-
-            public string ReceiveAddress { get; }
+            return Task.CompletedTask;
         }
 
-        class FakeDispatcher : IMessageDispatcher
+        public Task StopReceive(CancellationToken cancellationToken = default)
         {
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
+            return Task.CompletedTask;
         }
 
-        class FakeTransport : TransportDefinition
+        public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+        public ISubscriptionManager Subscriptions { get; }
+
+        public string Id { get; }
+
+        public string ReceiveAddress { get; }
+    }
+
+    class FakeDispatcher : IMessageDispatcher
+    {
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
         {
-            public FakeTransport() : base(TransportTransactionMode.None, false, false, false)
-            {
-            }
+            return Task.CompletedTask;
+        }
+    }
 
-            public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
-            }
-
-            public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
-            {
-                return new[]
-                {
-                    TransportTransactionMode.None,
-                    TransportTransactionMode.ReceiveOnly,
-                    TransportTransactionMode.TransactionScope,
-                    TransportTransactionMode.SendsAtomicWithReceive
-                };
-            }
+    class FakeTransport : TransportDefinition
+    {
+        public FakeTransport() : base(TransportTransactionMode.None, false, false, false)
+        {
         }
 
-        sealed class FakeTransportInfrastructure : TransportInfrastructure
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
         {
-            public FakeTransportInfrastructure(ReceiveSettings[] receiveSettings)
-            {
-                Dispatcher = new FakeDispatcher();
-                Receivers = receiveSettings
-                    .Select(settings => new FakeReceiver(settings))
-                    .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
-            }
+            return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
+        }
 
-            public override Task Shutdown(CancellationToken cancellationToken = default)
+        public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
+        {
+            return new[]
             {
-                return Task.CompletedTask;
-            }
+                TransportTransactionMode.None,
+                TransportTransactionMode.ReceiveOnly,
+                TransportTransactionMode.TransactionScope,
+                TransportTransactionMode.SendsAtomicWithReceive
+            };
+        }
+    }
 
-            public override string ToTransportAddress(QueueAddress address)
-            {
-                return address.ToString();
-            }
+    sealed class FakeTransportInfrastructure : TransportInfrastructure
+    {
+        public FakeTransportInfrastructure(ReceiveSettings[] receiveSettings)
+        {
+            Dispatcher = new FakeDispatcher();
+            Receivers = receiveSettings
+                .Select(settings => new FakeReceiver(settings))
+                .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
+        }
+
+        public override Task Shutdown(CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public override string ToTransportAddress(QueueAddress address)
+        {
+            return address.ToString();
         }
     }
 }

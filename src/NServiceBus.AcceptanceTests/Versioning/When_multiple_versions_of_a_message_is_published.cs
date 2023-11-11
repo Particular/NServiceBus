@@ -1,139 +1,138 @@
-﻿namespace NServiceBus.AcceptanceTests.Versioning
+﻿namespace NServiceBus.AcceptanceTests.Versioning;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Features;
+using NUnit.Framework;
+using Conventions = AcceptanceTesting.Customization.Conventions;
+
+public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
-    using NUnit.Framework;
-    using Conventions = AcceptanceTesting.Customization.Conventions;
-
-    public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
     {
-        [Test]
-        public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<V2Publisher>(b =>
-                    b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
-                    {
-                        return session.Publish<V2Event>(e =>
-                        {
-                            e.SomeData = 1;
-                            e.MoreInfo = "dasd";
-                        });
-                    }))
-                .WithEndpoint<V1Subscriber>(b => b.When(async (session, c) =>
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<V2Publisher>(b =>
+                b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
                 {
-                    await session.Subscribe<V1Event>();
-                    if (c.HasNativePubSubSupport)
+                    return session.Publish<V2Event>(e =>
                     {
-                        c.V1Subscribed = true;
-                    }
+                        e.SomeData = 1;
+                        e.MoreInfo = "dasd";
+                    });
                 }))
-                .WithEndpoint<V2Subscriber>(b => b.When(async (session, c) =>
-                {
-                    await session.Subscribe<V2Event>();
-                    if (c.HasNativePubSubSupport)
-                    {
-                        c.V2Subscribed = true;
-                    }
-                }))
-                .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
-                .Run();
-
-            Assert.True(context.V1SubscriberGotTheMessage);
-            Assert.True(context.V2SubscriberGotTheMessage);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public bool V1SubscriberGotTheMessage { get; set; }
-
-            public bool V2SubscriberGotTheMessage { get; set; }
-
-            public bool V1Subscribed { get; set; }
-
-            public bool V2Subscribed { get; set; }
-        }
-
-        public class V2Publisher : EndpointConfigurationBuilder
-        {
-            public V2Publisher()
+            .WithEndpoint<V1Subscriber>(b => b.When(async (session, c) =>
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                await session.Subscribe<V1Event>();
+                if (c.HasNativePubSubSupport)
                 {
-                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(V1Subscriber))))
-                    {
-                        context.V1Subscribed = true;
-                    }
+                    c.V1Subscribed = true;
+                }
+            }))
+            .WithEndpoint<V2Subscriber>(b => b.When(async (session, c) =>
+            {
+                await session.Subscribe<V2Event>();
+                if (c.HasNativePubSubSupport)
+                {
+                    c.V2Subscribed = true;
+                }
+            }))
+            .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
+            .Run();
 
-                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(V2Subscriber))))
-                    {
-                        context.V2Subscribed = true;
-                    }
-                }));
-            }
-        }
+        Assert.True(context.V1SubscriberGotTheMessage);
+        Assert.True(context.V2SubscriberGotTheMessage);
+    }
 
-        public class V1Subscriber : EndpointConfigurationBuilder
+    public class Context : ScenarioContext
+    {
+        public bool V1SubscriberGotTheMessage { get; set; }
+
+        public bool V2SubscriberGotTheMessage { get; set; }
+
+        public bool V1Subscribed { get; set; }
+
+        public bool V2Subscribed { get; set; }
+    }
+
+    public class V2Publisher : EndpointConfigurationBuilder
+    {
+        public V2Publisher()
         {
-            public V1Subscriber()
+            EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
-                    metadata => metadata.RegisterPublisherFor<V1Event>(typeof(V2Publisher)))
-                    .ExcludeType<V2Event>();
-            }
-
-            class V1Handler : IHandleMessages<V1Event>
-            {
-                public V1Handler(Context context)
+                if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(V1Subscriber))))
                 {
-                    testContext = context;
+                    context.V1Subscribed = true;
                 }
 
-                public Task Handle(V1Event message, IMessageHandlerContext context)
+                if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(V2Subscriber))))
                 {
-                    testContext.V1SubscriberGotTheMessage = true;
-                    return Task.CompletedTask;
+                    context.V2Subscribed = true;
                 }
+            }));
+        }
+    }
 
-                Context testContext;
-            }
+    public class V1Subscriber : EndpointConfigurationBuilder
+    {
+        public V1Subscriber()
+        {
+            EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
+                metadata => metadata.RegisterPublisherFor<V1Event>(typeof(V2Publisher)))
+                .ExcludeType<V2Event>();
         }
 
-        public class V2Subscriber : EndpointConfigurationBuilder
+        class V1Handler : IHandleMessages<V1Event>
         {
-            public V2Subscriber()
+            public V1Handler(Context context)
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
-                     metadata => metadata.RegisterPublisherFor<V2Event>(typeof(V2Publisher)));
+                testContext = context;
             }
 
-            class V2Handler : IHandleMessages<V2Event>
+            public Task Handle(V1Event message, IMessageHandlerContext context)
             {
-                public V2Handler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(V2Event message, IMessageHandlerContext context)
-                {
-                    testContext.V2SubscriberGotTheMessage = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext.V1SubscriberGotTheMessage = true;
+                return Task.CompletedTask;
             }
+
+            Context testContext;
+        }
+    }
+
+    public class V2Subscriber : EndpointConfigurationBuilder
+    {
+        public V2Subscriber()
+        {
+            EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
+                 metadata => metadata.RegisterPublisherFor<V2Event>(typeof(V2Publisher)));
         }
 
-        public class V1Event : IEvent
+        class V2Handler : IHandleMessages<V2Event>
         {
-            public int SomeData { get; set; }
-        }
+            public V2Handler(Context context)
+            {
+                testContext = context;
+            }
 
-        public class V2Event : V1Event
-        {
-            public string MoreInfo { get; set; }
+            public Task Handle(V2Event message, IMessageHandlerContext context)
+            {
+                testContext.V2SubscriberGotTheMessage = true;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class V1Event : IEvent
+    {
+        public int SomeData { get; set; }
+    }
+
+    public class V2Event : V1Event
+    {
+        public string MoreInfo { get; set; }
     }
 }

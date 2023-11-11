@@ -1,21 +1,20 @@
-namespace NServiceBus
-{
-    using System;
-    using Configuration.AdvancedExtensibility;
+namespace NServiceBus;
 
+using System;
+using Configuration.AdvancedExtensibility;
+
+/// <summary>
+/// Extension methods for recoverability which extend <see cref="EndpointConfiguration" />.
+/// </summary>
+public static class RecoverabilityEndpointConfigurationExtensions
+{
     /// <summary>
-    /// Extension methods for recoverability which extend <see cref="EndpointConfiguration" />.
+    /// Configuration settings for recoverability.
     /// </summary>
-    public static class RecoverabilityEndpointConfigurationExtensions
+    /// <param name="configuration">The endpoint configuration.</param>
+    public static RecoverabilitySettings Recoverability(this EndpointConfiguration configuration)
     {
-        /// <summary>
-        /// Configuration settings for recoverability.
-        /// </summary>
-        /// <param name="configuration">The endpoint configuration.</param>
-        public static RecoverabilitySettings Recoverability(this EndpointConfiguration configuration)
-        {
-            ArgumentNullException.ThrowIfNull(configuration);
-            return new RecoverabilitySettings(configuration.GetSettings());
-        }
+        ArgumentNullException.ThrowIfNull(configuration);
+        return new RecoverabilitySettings(configuration.GetSettings());
     }
 }

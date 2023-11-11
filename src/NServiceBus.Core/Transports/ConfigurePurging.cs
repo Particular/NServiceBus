@@ -1,24 +1,23 @@
-namespace NServiceBus
-{
-    using System;
+namespace NServiceBus;
 
+using System;
+
+/// <summary>
+/// Configures purging.
+/// </summary>
+public static class ConfigurePurging
+{
     /// <summary>
-    /// Configures purging.
+    /// Requests that the incoming queue be purged of all messages when the bus is started.
+    /// All messages in this queue will be deleted if this is true.
+    /// Setting this to true may make sense for certain smart-client applications,
+    /// but rarely for server applications.
     /// </summary>
-    public static class ConfigurePurging
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="value">True to purge all message on startup; otherwise False.</param>
+    public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
     {
-        /// <summary>
-        /// Requests that the incoming queue be purged of all messages when the bus is started.
-        /// All messages in this queue will be deleted if this is true.
-        /// Setting this to true may make sense for certain smart-client applications,
-        /// but rarely for server applications.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="value">True to purge all message on startup; otherwise False.</param>
-        public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            config.Settings.Get<ReceiveComponent.Settings>().PurgeOnStartup = value;
-        }
+        ArgumentNullException.ThrowIfNull(config);
+        config.Settings.Get<ReceiveComponent.Settings>().PurgeOnStartup = value;
     }
 }

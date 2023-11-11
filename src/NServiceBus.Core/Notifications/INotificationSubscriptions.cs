@@ -1,10 +1,9 @@
-﻿namespace NServiceBus
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+﻿namespace NServiceBus;
 
-    interface INotificationSubscriptions<TEvent>
-    {
-        Task Raise(TEvent @event, CancellationToken cancellationToken = default);
-    }
+using System.Threading;
+using System.Threading.Tasks;
+
+interface INotificationSubscriptions<TEvent>
+{
+    Task Raise(TEvent @event, CancellationToken cancellationToken = default);
 }

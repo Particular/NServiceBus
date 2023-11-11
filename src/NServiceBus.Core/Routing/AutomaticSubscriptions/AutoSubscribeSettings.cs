@@ -1,55 +1,54 @@
-namespace NServiceBus.AutomaticSubscriptions.Config
+namespace NServiceBus.AutomaticSubscriptions.Config;
+
+using System;
+using Features;
+
+/// <summary>
+/// Provides fine grained control over auto subscribe.
+/// </summary>
+public class AutoSubscribeSettings
 {
-    using System;
-    using Features;
+    internal AutoSubscribeSettings(EndpointConfiguration config)
+    {
+        this.config = config;
+    }
 
     /// <summary>
-    /// Provides fine grained control over auto subscribe.
+    /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4.
     /// </summary>
-    public class AutoSubscribeSettings
+    public void DoNotAutoSubscribeSagas()
     {
-        internal AutoSubscribeSettings(EndpointConfiguration config)
-        {
-            this.config = config;
-        }
-
-        /// <summary>
-        /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4.
-        /// </summary>
-        public void DoNotAutoSubscribeSagas()
-        {
-            GetSettings().AutoSubscribeSagas = false;
-        }
-
-        /// <summary>
-        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
-        /// </summary>
-        public AutoSubscribeSettings DisableFor<T>()
-        {
-            return DisableFor(typeof(T));
-        }
-
-        /// <summary>
-        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
-        /// </summary>
-        public AutoSubscribeSettings DisableFor(Type eventType)
-        {
-            ArgumentNullException.ThrowIfNull(eventType);
-
-            GetSettings().ExcludedTypes.Add(eventType);
-            return this;
-        }
-
-        AutoSubscribe.SubscribeSettings GetSettings()
-        {
-            if (!config.Settings.TryGet(out AutoSubscribe.SubscribeSettings settings))
-            {
-                settings = new AutoSubscribe.SubscribeSettings();
-                config.Settings.Set(settings);
-            }
-            return settings;
-        }
-
-        readonly EndpointConfiguration config;
+        GetSettings().AutoSubscribeSagas = false;
     }
+
+    /// <summary>
+    /// Configure AutoSubscribe to not subscribe automatically to the given event type.
+    /// </summary>
+    public AutoSubscribeSettings DisableFor<T>()
+    {
+        return DisableFor(typeof(T));
+    }
+
+    /// <summary>
+    /// Configure AutoSubscribe to not subscribe automatically to the given event type.
+    /// </summary>
+    public AutoSubscribeSettings DisableFor(Type eventType)
+    {
+        ArgumentNullException.ThrowIfNull(eventType);
+
+        GetSettings().ExcludedTypes.Add(eventType);
+        return this;
+    }
+
+    AutoSubscribe.SubscribeSettings GetSettings()
+    {
+        if (!config.Settings.TryGet(out AutoSubscribe.SubscribeSettings settings))
+        {
+            settings = new AutoSubscribe.SubscribeSettings();
+            config.Settings.Set(settings);
+        }
+        return settings;
+    }
+
+    readonly EndpointConfiguration config;
 }

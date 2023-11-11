@@ -1,83 +1,82 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Threading.Tasks;
+using System.Transactions;
+using DataBus;
+using Pipeline;
+
+class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
 {
-    using System;
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using DataBus;
-    using Pipeline;
-
-    class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
+    public DataBusReceiveBehavior(
+        IDataBus dataBus,
+        DataBusDeserializer deserializer,
+        Conventions conventions)
     {
-        public DataBusReceiveBehavior(
-            IDataBus dataBus,
-            DataBusDeserializer deserializer,
-            Conventions conventions)
-        {
-            this.conventions = conventions;
-            this.deserializer = deserializer;
-            this.dataBus = dataBus;
-        }
+        this.conventions = conventions;
+        this.deserializer = deserializer;
+        this.dataBus = dataBus;
+    }
 
-        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
-        {
-            var message = context.Message.Instance;
+    public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+    {
+        var message = context.Message.Instance;
 
-            foreach (var property in conventions.GetDataBusProperties(message))
+        foreach (var property in conventions.GetDataBusProperties(message))
+        {
+            var propertyValue = property.Getter(message);
+
+            var dataBusProperty = propertyValue as IDataBusProperty;
+            string headerKey;
+
+            if (dataBusProperty != null)
             {
-                var propertyValue = property.Getter(message);
+                headerKey = dataBusProperty.Key;
+            }
+            else
+            {
+                headerKey = $"{message.GetType().FullName}.{property.Name}";
+            }
 
-                var dataBusProperty = propertyValue as IDataBusProperty;
-                string headerKey;
+            if (!context.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out var dataBusKey))
+            {
+                continue;
+            }
 
-                if (dataBusProperty != null)
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
                 {
-                    headerKey = dataBusProperty.Key;
-                }
-                else
-                {
-                    headerKey = $"{message.GetType().FullName}.{property.Name}";
-                }
+                    context.Headers.TryGetValue(Headers.DataBusConfigContentType, out var serializerUsed);
 
-                if (!context.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out var dataBusKey))
-                {
-                    continue;
-                }
-
-                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    using (var stream = await dataBus.Get(dataBusKey, context.CancellationToken).ConfigureAwait(false))
+                    if (dataBusProperty != null)
                     {
-                        context.Headers.TryGetValue(Headers.DataBusConfigContentType, out var serializerUsed);
+                        var value = deserializer.Deserialize(serializerUsed, dataBusProperty.Type, stream);
 
-                        if (dataBusProperty != null)
-                        {
-                            var value = deserializer.Deserialize(serializerUsed, dataBusProperty.Type, stream);
+                        dataBusProperty.SetValue(value);
+                    }
+                    else
+                    {
+                        var value = deserializer.Deserialize(serializerUsed, property.Type, stream);
 
-                            dataBusProperty.SetValue(value);
-                        }
-                        else
-                        {
-                            var value = deserializer.Deserialize(serializerUsed, property.Type, stream);
-
-                            property.Setter(message, value);
-                        }
+                        property.Setter(message, value);
                     }
                 }
             }
-
-            await next(context).ConfigureAwait(false);
         }
 
-        readonly Conventions conventions;
-        readonly IDataBus dataBus;
-        readonly DataBusDeserializer deserializer;
+        await next(context).ConfigureAwait(false);
+    }
 
-        public class Registration : RegisterStep
+    readonly Conventions conventions;
+    readonly IDataBus dataBus;
+    readonly DataBusDeserializer deserializer;
+
+    public class Registration : RegisterStep
+    {
+        public Registration(Func<IServiceProvider, DataBusReceiveBehavior> factory) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => factory(b))
         {
-            public Registration(Func<IServiceProvider, DataBusReceiveBehavior> factory) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => factory(b))
-            {
-                InsertAfter("MutateIncomingMessages");
-            }
+            InsertAfter("MutateIncomingMessages");
         }
     }
 }

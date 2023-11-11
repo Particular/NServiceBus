@@ -1,17 +1,17 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests
-{
-    using System.Threading.Tasks;
-    using Helpers;
-    using Microsoft.CodeAnalysis.CSharp;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Analyzer.Tests;
 
-    [TestFixture]
-    public class ForwardCancellationTokenFixerTests : CodeFixTestFixture<ForwardCancellationTokenAnalyzer, ForwardCancellationTokenFixer>
+using System.Threading.Tasks;
+using Helpers;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+
+[TestFixture]
+public class ForwardCancellationTokenFixerTests : CodeFixTestFixture<ForwardCancellationTokenAnalyzer, ForwardCancellationTokenFixer>
+{
+    [Test]
+    public Task Simple()
     {
-        [Test]
-        public Task Simple()
-        {
-            var original =
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ public class Foo
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,14 +39,14 @@ public class Foo
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task Fluent()
-        {
-            var original =
-                @"using NServiceBus;
+    [Test]
+    public Task Fluent()
+    {
+        var original =
+            @"using NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,8 +66,8 @@ public class Foo
     Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            var expected =
-                @"using NServiceBus;
+        var expected =
+            @"using NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,14 +87,14 @@ public class Foo
     Task FindSingle(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task FluentAsync()
-        {
-            var original =
-                @"using NServiceBus;
+    [Test]
+    public Task FluentAsync()
+    {
+        var original =
+            @"using NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -111,8 +111,8 @@ public class Foo
     Task<Foo> FindSingle(CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
 }";
 
-            var expected =
-                @"using NServiceBus;
+        var expected =
+            @"using NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -129,13 +129,13 @@ public class Foo
     Task<Foo> FindSingle(CancellationToken token = default(CancellationToken)) => Task.FromResult(this);
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task NonStandardContextVariableName()
-        {
-            var original =
+    [Test]
+    public Task NonStandardContextVariableName()
+    {
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -149,7 +149,7 @@ public class Foo
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,13 +163,13 @@ public class Foo
     static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task OverloadsAndThis()
-        {
-            var original =
+    [Test]
+    public Task OverloadsAndThis()
+    {
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -185,7 +185,7 @@ public class Foo
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -201,13 +201,13 @@ public class Foo
     Task TestMethod(CancellationToken token) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task DontMessUpGenericTypeParams()
-        {
-            var original =
+    [Test]
+    public Task DontMessUpGenericTypeParams()
+    {
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -224,7 +224,7 @@ public class Foo
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -241,13 +241,13 @@ public class Foo
     Task<T> TestMethod<T>(T value, CancellationToken token = default(CancellationToken)) { return Task.FromResult(value); }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task DontMessUpTrivia()
-        {
-            var original =
+    [Test]
+    public Task DontMessUpTrivia()
+    {
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -264,7 +264,7 @@ public class Foo
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -281,13 +281,13 @@ public class Foo
     Task TestMethod(int a, int b, int c, int d, int e, CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
+    }
 
-        [Test]
-        public Task MultipleOptionalParameters()
-        {
-            var original =
+    [Test]
+    public Task MultipleOptionalParameters()
+    {
+        var original =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -301,7 +301,7 @@ public class Foo
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken), int e = 5) { return Task.CompletedTask; }
 }";
 
-            var expected =
+        var expected =
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -315,22 +315,21 @@ public class Foo
     Task TestMethod(int a, int b = 0, int c = 1, int d = 2, CancellationToken token = default(CancellationToken), int e = 5) { return Task.CompletedTask; }
 }";
 
-            return Assert(original, expected);
-        }
+        return Assert(original, expected);
     }
+}
 
-    public class ForwardCancellationTokenFixerTestsCSharp8 : ForwardCancellationTokenFixerTests
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-    }
+public class ForwardCancellationTokenFixerTestsCSharp8 : ForwardCancellationTokenFixerTests
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+}
 
-    public class ForwardCancellationTokenFixerTestsCSharp9 : ForwardCancellationTokenFixerTestsCSharp8
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-    }
+public class ForwardCancellationTokenFixerTestsCSharp9 : ForwardCancellationTokenFixerTestsCSharp8
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+}
 
-    public class ForwardCancellationTokenFixerTestsCSharp10 : ForwardCancellationTokenFixerTestsCSharp9
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-    }
+public class ForwardCancellationTokenFixerTestsCSharp10 : ForwardCancellationTokenFixerTestsCSharp9
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

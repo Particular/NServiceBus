@@ -1,77 +1,76 @@
-﻿namespace NServiceBus.Core.Tests.DataBus.FileShare
+﻿namespace NServiceBus.Core.Tests.DataBus.FileShare;
+
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
+
+[TestFixture]
+public class AcceptanceTests
 {
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class AcceptanceTests
+    [SetUp]
+    public void SetUp()
     {
-        [SetUp]
-        public void SetUp()
+        dataBus = new FileShareDataBusImplementation(basePath) { MaxMessageTimeToLive = TimeSpan.MaxValue };
+    }
+
+    FileShareDataBusImplementation dataBus;
+    string basePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+    async Task<string> Put(string content, TimeSpan timeToLive, CancellationToken cancellationToken = default)
+    {
+        var byteArray = Encoding.ASCII.GetBytes(content);
+        using (var stream = new MemoryStream(byteArray))
         {
-            dataBus = new FileShareDataBusImplementation(basePath) { MaxMessageTimeToLive = TimeSpan.MaxValue };
+            return await dataBus.Put(stream, timeToLive, cancellationToken);
         }
+    }
 
-        FileShareDataBusImplementation dataBus;
-        string basePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+    [Test]
+    public async Task Should_handle_be_able_to_read_stored_values()
+    {
+        const string content = "Test";
 
-        async Task<string> Put(string content, TimeSpan timeToLive, CancellationToken cancellationToken = default)
+        var key = await Put(content, TimeSpan.MaxValue);
+        using (var stream = await dataBus.Get(key))
+        using (var streamReader = new StreamReader(stream))
         {
-            var byteArray = Encoding.ASCII.GetBytes(content);
-            using (var stream = new MemoryStream(byteArray))
-            {
-                return await dataBus.Put(stream, timeToLive, cancellationToken);
-            }
+            Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
         }
+    }
 
-        [Test]
-        public async Task Should_handle_be_able_to_read_stored_values()
+    [Test]
+    public async Task Should_handle_be_able_to_read_stored_values_concurrently()
+    {
+        const string content = "Test";
+
+        var key = await Put(content, TimeSpan.MaxValue);
+
+        Parallel.For(0, 10, async i =>
         {
-            const string content = "Test";
-
-            var key = await Put(content, TimeSpan.MaxValue);
             using (var stream = await dataBus.Get(key))
             using (var streamReader = new StreamReader(stream))
             {
                 Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
             }
-        }
+        });
+    }
 
-        [Test]
-        public async Task Should_handle_be_able_to_read_stored_values_concurrently()
-        {
-            const string content = "Test";
+    [Test]
+    public async Task Should_handle_max_ttl()
+    {
+        await Put("Test", TimeSpan.MaxValue);
+        Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_HH"))));
+    }
 
-            var key = await Put(content, TimeSpan.MaxValue);
+    [Test]
+    public async Task Should_honor_the_ttl_limit()
+    {
+        dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
 
-            Parallel.For(0, 10, async i =>
-            {
-                using (var stream = await dataBus.Get(key))
-                using (var streamReader = new StreamReader(stream))
-                {
-                    Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
-                }
-            });
-        }
-
-        [Test]
-        public async Task Should_handle_max_ttl()
-        {
-            await Put("Test", TimeSpan.MaxValue);
-            Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_HH"))));
-        }
-
-        [Test]
-        public async Task Should_honor_the_ttl_limit()
-        {
-            dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
-
-            await Put("Test", TimeSpan.MaxValue);
-            Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd_HH"))));
-        }
+        await Put("Test", TimeSpan.MaxValue);
+        Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd_HH"))));
     }
 }

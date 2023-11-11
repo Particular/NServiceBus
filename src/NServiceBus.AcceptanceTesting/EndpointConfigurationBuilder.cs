@@ -1,130 +1,129 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting;
+
+using System;
+using System.Threading.Tasks;
+using Configuration.AdvancedExtensibility;
+using Features;
+using Support;
+
+public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 {
-    using System;
-    using System.Threading.Tasks;
-    using Configuration.AdvancedExtensibility;
-    using Features;
-    using Support;
-
-    public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
+    public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
     {
-        public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
+        configuration.CustomMachineName = customMachineName;
+
+        return this;
+    }
+
+    public EndpointConfigurationBuilder EnableStartupDiagnostics()
+    {
+        configuration.DisableStartupDiagnostics = false;
+
+        return this;
+    }
+
+    public EndpointConfigurationBuilder CustomEndpointName(string customEndpointName)
+    {
+        configuration.CustomEndpointName = customEndpointName;
+
+        return this;
+    }
+
+    EndpointCustomizationConfiguration CreateScenario()
+    {
+        configuration.BuilderType = GetType();
+
+        return configuration;
+    }
+
+    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
+        Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
+    {
+        configurationBuilderCustomization ??= b => { };
+
+        return EndpointSetup<T>((bc, _) => configurationBuilderCustomization(bc), publisherMetadata);
+    }
+
+    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
+    {
+        configurationBuilderCustomization ??= (rd, b) => { };
+
+        var template = new T();
+        return EndpointSetup(template, configurationBuilderCustomization, publisherMetadata);
+    }
+
+    public EndpointConfigurationBuilder EndpointSetup(IEndpointSetupTemplate endpointTemplate, Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+    {
+        publisherMetadata?.Invoke(configuration.PublisherMetadata);
+
+        configuration.GetConfiguration = async runDescriptor =>
         {
-            configuration.CustomMachineName = customMachineName;
-
-            return this;
-        }
-
-        public EndpointConfigurationBuilder EnableStartupDiagnostics()
-        {
-            configuration.DisableStartupDiagnostics = false;
-
-            return this;
-        }
-
-        public EndpointConfigurationBuilder CustomEndpointName(string customEndpointName)
-        {
-            configuration.CustomEndpointName = customEndpointName;
-
-            return this;
-        }
-
-        EndpointCustomizationConfiguration CreateScenario()
-        {
-            configuration.BuilderType = GetType();
-
-            return configuration;
-        }
-
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
-            Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
-        {
-            configurationBuilderCustomization ??= b => { };
-
-            return EndpointSetup<T>((bc, _) => configurationBuilderCustomization(bc), publisherMetadata);
-        }
-
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
-        {
-            configurationBuilderCustomization ??= (rd, b) => { };
-
-            var template = new T();
-            return EndpointSetup(template, configurationBuilderCustomization, publisherMetadata);
-        }
-
-        public EndpointConfigurationBuilder EndpointSetup(IEndpointSetupTemplate endpointTemplate, Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
-        {
-            publisherMetadata?.Invoke(configuration.PublisherMetadata);
-
-            configuration.GetConfiguration = async runDescriptor =>
+            var endpointConfiguration = await endpointTemplate.GetConfiguration(runDescriptor, configuration, bc =>
             {
-                var endpointConfiguration = await endpointTemplate.GetConfiguration(runDescriptor, configuration, bc =>
-                {
-                    configurationBuilderCustomization(bc, runDescriptor);
-                    return Task.CompletedTask;
-                }).ConfigureAwait(false);
+                configurationBuilderCustomization(bc, runDescriptor);
+                return Task.CompletedTask;
+            }).ConfigureAwait(false);
 
-                if (configuration.DisableStartupDiagnostics)
-                {
-                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
-                }
-
-                return endpointConfiguration;
-            };
-
-            return this;
-        }
-
-        public EndpointConfigurationBuilder EndpointSetup<T, TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
-            where T : IEndpointSetupTemplate, new()
-            where TContext : ScenarioContext
-        {
-            configurationBuilderCustomization ??= (rd, b) => { };
-
-            publisherMetadata?.Invoke(configuration.PublisherMetadata);
-
-            configuration.GetConfiguration = async runDescriptor =>
+            if (configuration.DisableStartupDiagnostics)
             {
-                var endpointSetupTemplate = new T();
-                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
-                {
-                    configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
-                    return Task.CompletedTask;
-                }).ConfigureAwait(false);
+                endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+            }
 
-                if (configuration.DisableStartupDiagnostics)
-                {
-                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
-                }
+            return endpointConfiguration;
+        };
 
-                return endpointConfiguration;
-            };
+        return this;
+    }
 
-            return this;
-        }
+    public EndpointConfigurationBuilder EndpointSetup<T, TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+        where T : IEndpointSetupTemplate, new()
+        where TContext : ScenarioContext
+    {
+        configurationBuilderCustomization ??= (rd, b) => { };
 
+        publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
-        EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
+        configuration.GetConfiguration = async runDescriptor =>
         {
-            return CreateScenario();
-        }
-        public ScenarioContext ScenarioContext { get; set; }
+            var endpointSetupTemplate = new T();
+            var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
+            {
+                configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
+                return Task.CompletedTask;
+            }).ConfigureAwait(false);
+
+            if (configuration.DisableStartupDiagnostics)
+            {
+                endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+            }
+
+            return endpointConfiguration;
+        };
+
+        return this;
+    }
 
 
-        EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
+    EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
+    {
+        return CreateScenario();
+    }
+    public ScenarioContext ScenarioContext { get; set; }
 
-        public EndpointConfigurationBuilder ExcludeType<T>()
-        {
-            configuration.TypesToExclude.Add(typeof(T));
 
-            return this;
-        }
+    EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
 
-        public EndpointConfigurationBuilder IncludeType<T>()
-        {
-            configuration.TypesToInclude.Add(typeof(T));
+    public EndpointConfigurationBuilder ExcludeType<T>()
+    {
+        configuration.TypesToExclude.Add(typeof(T));
 
-            return this;
-        }
+        return this;
+    }
+
+    public EndpointConfigurationBuilder IncludeType<T>()
+    {
+        configuration.TypesToInclude.Add(typeof(T));
+
+        return this;
     }
 }

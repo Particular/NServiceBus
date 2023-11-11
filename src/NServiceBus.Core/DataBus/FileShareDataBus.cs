@@ -1,20 +1,19 @@
-namespace NServiceBus
-{
-    using System;
-    using DataBus;
-    using Features;
+namespace NServiceBus;
 
+using System;
+using DataBus;
+using Features;
+
+/// <summary>
+/// Base class for data bus definitions.
+/// </summary>
+public class FileShareDataBus : DataBusDefinition
+{
     /// <summary>
-    /// Base class for data bus definitions.
+    /// The feature to enable when this databus is selected.
     /// </summary>
-    public class FileShareDataBus : DataBusDefinition
+    protected internal override Type ProvidedByFeature()
     {
-        /// <summary>
-        /// The feature to enable when this databus is selected.
-        /// </summary>
-        protected internal override Type ProvidedByFeature()
-        {
-            return typeof(DataBusFileBased);
-        }
+        return typeof(DataBusFileBased);
     }
 }

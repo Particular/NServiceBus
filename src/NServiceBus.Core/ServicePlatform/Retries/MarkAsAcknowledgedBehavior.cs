@@ -1,29 +1,28 @@
 ﻿
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Threading.Tasks;
+using Pipeline;
+
+class MarkAsAcknowledgedBehavior : IBehavior<IAuditContext, IAuditContext>
 {
-    using System;
-    using System.Threading.Tasks;
-    using Pipeline;
-
-    class MarkAsAcknowledgedBehavior : IBehavior<IAuditContext, IAuditContext>
+    public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
     {
-        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
+        if (context.Extensions.TryGet<State>(out _))
         {
-            if (context.Extensions.TryGet<State>(out _))
-            {
-                context.AuditMetadata["ServiceControl.Retry.AcknowledgementSent"] = "true";
-            }
-
-            return next(context);
+            context.AuditMetadata["ServiceControl.Retry.AcknowledgementSent"] = "true";
         }
 
-        public class State
-        {
-            public static readonly State Instance = new State();
+        return next(context);
+    }
 
-            State()
-            {
-            }
+    public class State
+    {
+        public static readonly State Instance = new State();
+
+        State()
+        {
         }
     }
 }

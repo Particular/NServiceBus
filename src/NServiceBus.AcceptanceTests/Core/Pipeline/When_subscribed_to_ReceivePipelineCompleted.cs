@@ -1,70 +1,69 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using Configuration.AdvancedExtensibility;
+using EndpointTemplates;
+using NUnit.Framework;
+
+class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using Configuration.AdvancedExtensibility;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_receive_notifications()
     {
-        [Test]
-        public async Task Should_receive_notifications()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<SubscribingEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
-                .Done(c => c.NotificationEventFired)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<SubscribingEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
+            .Done(c => c.NotificationEventFired)
+            .Run();
 
-            Assert.True(context.NotificationEventFired, "ReceivePipelineCompleted was not raised");
-            Assert.AreEqual(context.MessageId, context.ReceivePipelineCompletedMessage.ProcessedMessage.MessageId, "MessageId mismatch");
-            Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.StartedAt, "StartedAt was not set");
-            Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.CompletedAt, "CompletedAt was not set");
-        }
+        Assert.True(context.NotificationEventFired, "ReceivePipelineCompleted was not raised");
+        Assert.AreEqual(context.MessageId, context.ReceivePipelineCompletedMessage.ProcessedMessage.MessageId, "MessageId mismatch");
+        Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.StartedAt, "StartedAt was not set");
+        Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.CompletedAt, "CompletedAt was not set");
+    }
 
-        class Context : ScenarioContext
-        {
-            public bool NotificationEventFired { get; set; }
-            public ReceivePipelineCompleted ReceivePipelineCompletedMessage { get; set; }
-            public string MessageId { get; set; }
-        }
+    class Context : ScenarioContext
+    {
+        public bool NotificationEventFired { get; set; }
+        public ReceivePipelineCompleted ReceivePipelineCompletedMessage { get; set; }
+        public string MessageId { get; set; }
+    }
 
-        class SubscribingEndpoint : EndpointConfigurationBuilder
+    class SubscribingEndpoint : EndpointConfigurationBuilder
+    {
+        public SubscribingEndpoint()
         {
-            public SubscribingEndpoint()
+            EndpointSetup<DefaultServer>(c =>
             {
-                EndpointSetup<DefaultServer>(c =>
+                c.Pipeline.OnReceivePipelineCompleted((e, _) =>
                 {
-                    c.Pipeline.OnReceivePipelineCompleted((e, _) =>
-                    {
-                        var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
-                        testContext.ReceivePipelineCompletedMessage = e;
-                        testContext.NotificationEventFired = true;
-                        return Task.CompletedTask;
-                    });
-                });
-            }
-
-            class SomeMessageHandler : IHandleMessages<SomeMessage>
-            {
-                public SomeMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
-                {
-                    testContext.MessageId = context.MessageId;
+                    var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
+                    testContext.ReceivePipelineCompletedMessage = e;
+                    testContext.NotificationEventFired = true;
                     return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
+                });
+            });
         }
 
-        public class SomeMessage : IMessage
+        class SomeMessageHandler : IHandleMessages<SomeMessage>
         {
+            public SomeMessageHandler(Context testContext)
+            {
+                this.testContext = testContext;
+            }
+
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageId = context.MessageId;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class SomeMessage : IMessage
+    {
     }
 }

@@ -1,19 +1,18 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using Features;
+using Microsoft.Extensions.DependencyInjection;
+using Persistence;
+
+sealed class LearningSynchronizedStorage : Feature
 {
-    using Features;
-    using Microsoft.Extensions.DependencyInjection;
-    using Persistence;
-
-    sealed class LearningSynchronizedStorage : Feature
+    public LearningSynchronizedStorage()
     {
-        public LearningSynchronizedStorage()
-        {
-            DependsOn<SynchronizedStorage>();
-        }
+        DependsOn<SynchronizedStorage>();
+    }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
-        }
+    protected internal override void Setup(FeatureConfigurationContext context)
+    {
+        context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
     }
 }

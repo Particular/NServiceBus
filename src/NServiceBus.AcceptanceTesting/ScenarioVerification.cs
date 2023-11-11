@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting;
+
+using System;
+
+public class ScenarioVerification<T> : IScenarioVerification where T : ScenarioContext
 {
-    using System;
+    public Action<T> Should { get; set; }
+    public Type ContextType { get; set; }
 
-    public class ScenarioVerification<T> : IScenarioVerification where T : ScenarioContext
+    public void Verify(ScenarioContext context)
     {
-        public Action<T> Should { get; set; }
-        public Type ContextType { get; set; }
-
-        public void Verify(ScenarioContext context)
-        {
-            Should((T)context);
-        }
+        Should((T)context);
     }
 }

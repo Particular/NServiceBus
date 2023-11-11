@@ -1,19 +1,18 @@
-﻿namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing;
+
+using System.Collections.Generic;
+using Pipeline;
+using Transport;
+
+/// <summary>
+/// A testable implementation of <see cref="IDispatchContext" />.
+/// </summary>
+public partial class TestableDispatchContext : TestableBehaviorContext, IDispatchContext
 {
-    using System.Collections.Generic;
-    using Pipeline;
-    using Transport;
-
     /// <summary>
-    /// A testable implementation of <see cref="IDispatchContext" />.
+    /// The operations to be dispatched to the transport.
     /// </summary>
-    public partial class TestableDispatchContext : TestableBehaviorContext, IDispatchContext
-    {
-        /// <summary>
-        /// The operations to be dispatched to the transport.
-        /// </summary>
-        public IList<TransportOperation> Operations { get; set; } = new List<TransportOperation>();
+    public IList<TransportOperation> Operations { get; set; } = new List<TransportOperation>();
 
-        IEnumerable<TransportOperation> IDispatchContext.Operations => Operations;
-    }
+    IEnumerable<TransportOperation> IDispatchContext.Operations => Operations;
 }

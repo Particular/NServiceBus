@@ -1,28 +1,27 @@
-namespace NServiceBus.Features
+namespace NServiceBus.Features;
+
+/// <summary>
+/// Defines state of a feature.
+/// </summary>
+public enum FeatureState
 {
     /// <summary>
-    /// Defines state of a feature.
+    /// Not selected for activation.
     /// </summary>
-    public enum FeatureState
-    {
-        /// <summary>
-        /// Not selected for activation.
-        /// </summary>
-        Disabled,
+    Disabled,
 
-        /// <summary>
-        /// Selected for activation.
-        /// </summary>
-        Enabled,
+    /// <summary>
+    /// Selected for activation.
+    /// </summary>
+    Enabled,
 
-        /// <summary>
-        /// Activated.
-        /// </summary>
-        Active,
+    /// <summary>
+    /// Activated.
+    /// </summary>
+    Active,
 
-        /// <summary>
-        /// Activation not possible.
-        /// </summary>
-        Deactivated
-    }
+    /// <summary>
+    /// Activation not possible.
+    /// </summary>
+    Deactivated
 }

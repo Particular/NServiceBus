@@ -1,19 +1,18 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting;
+
+using Features;
+using Microsoft.Extensions.DependencyInjection;
+using Unicast.Subscriptions.MessageDrivenSubscriptions;
+
+class AcceptanceTestingSubscriptionPersistence : Feature
 {
-    using Features;
-    using Microsoft.Extensions.DependencyInjection;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
-
-    class AcceptanceTestingSubscriptionPersistence : Feature
+    public AcceptanceTestingSubscriptionPersistence()
     {
-        public AcceptanceTestingSubscriptionPersistence()
-        {
-            DependsOn("NServiceBus.Features.MessageDrivenSubscriptions");
-        }
+        DependsOn("NServiceBus.Features.MessageDrivenSubscriptions");
+    }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Services.AddSingleton<ISubscriptionStorage, AcceptanceTestingSubscriptionStorage>();
-        }
+    protected internal override void Setup(FeatureConfigurationContext context)
+    {
+        context.Services.AddSingleton<ISubscriptionStorage, AcceptanceTestingSubscriptionStorage>();
     }
 }

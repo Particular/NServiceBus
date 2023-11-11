@@ -1,147 +1,146 @@
-namespace NServiceBus.Unicast.Subscriptions
+namespace NServiceBus.Unicast.Subscriptions;
+
+using System;
+using System.Linq;
+
+/// <summary>
+/// Representation of a message type that clients can be subscribed to.
+/// </summary>
+public class MessageType
 {
-    using System;
-    using System.Linq;
+    /// <summary>
+    /// Initializes the message type from the given type.
+    /// </summary>
+    public MessageType(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        Version = type.Assembly.GetName().Version;
+        TypeName = type.FullName;
+    }
 
     /// <summary>
-    /// Representation of a message type that clients can be subscribed to.
+    /// Initializes the message type from the given string.
     /// </summary>
-    public class MessageType
+    public MessageType(string messageTypeString)
     {
-        /// <summary>
-        /// Initializes the message type from the given type.
-        /// </summary>
-        public MessageType(Type type)
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeString);
+        var parts = messageTypeString.Split(',');
+        Version = ParseVersion(messageTypeString);
+        TypeName = parts.First();
+    }
+
+    /// <summary>
+    /// Initializes the message type from the given string.
+    /// </summary>
+    public MessageType(string typeName, string versionString)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionString);
+        Version = ParseVersion(versionString);
+        TypeName = typeName;
+    }
+
+    /// <summary>
+    /// Initializes the message type from the given string.
+    /// </summary>
+    public MessageType(string typeName, Version version)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
+        ArgumentNullException.ThrowIfNull(version);
+        Version = version;
+        TypeName = typeName;
+    }
+
+
+    /// <summary>
+    /// TypeName of the message.
+    /// </summary>
+    public string TypeName { get; }
+
+    /// <summary>
+    /// Version of the message.
+    /// </summary>
+    public Version Version { get; }
+
+    static Version ParseVersion(string versionString)
+    {
+        const string version = "Version=";
+        var index = versionString.IndexOf(version);
+
+        if (index >= 0)
         {
-            ArgumentNullException.ThrowIfNull(type);
-            Version = type.Assembly.GetName().Version;
-            TypeName = type.FullName;
+            versionString = versionString.Substring(index + version.Length)
+                .Split(',').First();
         }
+        return Version.Parse(versionString);
+    }
 
-        /// <summary>
-        /// Initializes the message type from the given string.
-        /// </summary>
-        public MessageType(string messageTypeString)
+    /// <summary>
+    /// Overridden to append Version along with Type Name.
+    /// </summary>
+    public override string ToString()
+    {
+        return TypeName + ", Version=" + Version;
+    }
+
+
+    /// <summary>
+    /// Equality only compares the <see cref="TypeName"/> and ignores versions.
+    /// </summary>
+    public bool Equals(MessageType other)
+    {
+        if (other is null)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeString);
-            var parts = messageTypeString.Split(',');
-            Version = ParseVersion(messageTypeString);
-            TypeName = parts.First();
+            return false;
         }
-
-        /// <summary>
-        /// Initializes the message type from the given string.
-        /// </summary>
-        public MessageType(string typeName, string versionString)
+        if (ReferenceEquals(this, other))
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
-            ArgumentException.ThrowIfNullOrWhiteSpace(versionString);
-            Version = ParseVersion(versionString);
-            TypeName = typeName;
+            return true;
         }
+        return Equals(other.TypeName, TypeName);
+    }
 
-        /// <summary>
-        /// Initializes the message type from the given string.
-        /// </summary>
-        public MessageType(string typeName, Version version)
+    /// <summary>
+    /// Equality only compares the <see cref="TypeName"/> and ignores versions.
+    /// </summary>
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
-            ArgumentNullException.ThrowIfNull(version);
-            Version = version;
-            TypeName = typeName;
+            return false;
         }
-
-
-        /// <summary>
-        /// TypeName of the message.
-        /// </summary>
-        public string TypeName { get; }
-
-        /// <summary>
-        /// Version of the message.
-        /// </summary>
-        public Version Version { get; }
-
-        static Version ParseVersion(string versionString)
+        if (ReferenceEquals(this, obj))
         {
-            const string version = "Version=";
-            var index = versionString.IndexOf(version);
-
-            if (index >= 0)
-            {
-                versionString = versionString.Substring(index + version.Length)
-                    .Split(',').First();
-            }
-            return Version.Parse(versionString);
+            return true;
         }
-
-        /// <summary>
-        /// Overridden to append Version along with Type Name.
-        /// </summary>
-        public override string ToString()
+        if (obj.GetType() != typeof(MessageType))
         {
-            return TypeName + ", Version=" + Version;
+            return false;
         }
+        return Equals((MessageType)obj);
+    }
 
+    /// <summary>
+    /// Gets Hash Code.
+    /// </summary>
+    public override int GetHashCode()
+    {
+        return TypeName.GetHashCode();
+    }
 
-        /// <summary>
-        /// Equality only compares the <see cref="TypeName"/> and ignores versions.
-        /// </summary>
-        public bool Equals(MessageType other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Equals(other.TypeName, TypeName);
-        }
+    /// <summary>
+    /// Equality.
+    /// </summary>
+    public static bool operator ==(MessageType left, MessageType right)
+    {
+        return Equals(left, right);
+    }
 
-        /// <summary>
-        /// Equality only compares the <see cref="TypeName"/> and ignores versions.
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != typeof(MessageType))
-            {
-                return false;
-            }
-            return Equals((MessageType)obj);
-        }
-
-        /// <summary>
-        /// Gets Hash Code.
-        /// </summary>
-        public override int GetHashCode()
-        {
-            return TypeName.GetHashCode();
-        }
-
-        /// <summary>
-        /// Equality.
-        /// </summary>
-        public static bool operator ==(MessageType left, MessageType right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Equality.
-        /// </summary>
-        public static bool operator !=(MessageType left, MessageType right)
-        {
-            return !Equals(left, right);
-        }
+    /// <summary>
+    /// Equality.
+    /// </summary>
+    public static bool operator !=(MessageType left, MessageType right)
+    {
+        return !Equals(left, right);
     }
 }

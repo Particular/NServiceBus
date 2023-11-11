@@ -1,13 +1,12 @@
-﻿namespace NServiceBus.Core.Tests.API.Infra
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿namespace NServiceBus.Core.Tests.API.Infra;
 
-    static class NServiceBusAssembly
-    {
-        public static readonly List<Type> Types = typeof(IEndpointInstance).Assembly.GetTypes()
-            .Where(type => !type.IsObsolete())
-            .ToList();
-    }
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+static class NServiceBusAssembly
+{
+    public static readonly List<Type> Types = typeof(IEndpointInstance).Assembly.GetTypes()
+        .Where(type => !type.IsObsolete())
+        .ToList();
 }

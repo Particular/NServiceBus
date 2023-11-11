@@ -1,25 +1,24 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using Outbox;
+
+/// <summary>
+/// Config methods for the outbox.
+/// </summary>
+public static class OutboxConfigExtensions
 {
-    using System;
-    using Outbox;
-
     /// <summary>
-    /// Config methods for the outbox.
+    /// Enables the outbox feature.
     /// </summary>
-    public static class OutboxConfigExtensions
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static OutboxSettings EnableOutbox(this EndpointConfiguration config)
     {
-        /// <summary>
-        /// Enables the outbox feature.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static OutboxSettings EnableOutbox(this EndpointConfiguration config)
-        {
-            ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(config);
 
-            var outboxSettings = new OutboxSettings(config.Settings);
+        var outboxSettings = new OutboxSettings(config.Settings);
 
-            config.EnableFeature<Features.Outbox>();
-            return outboxSettings;
-        }
+        config.EnableFeature<Features.Outbox>();
+        return outboxSettings;
     }
 }

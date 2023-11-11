@@ -1,52 +1,51 @@
-namespace NServiceBus.Core.Tests.OpenTelemetry
+namespace NServiceBus.Core.Tests.OpenTelemetry;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Particular.Approvals;
+
+[TestFixture]
+public class DiagnosticsWriterTests
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Particular.Approvals;
-
-    [TestFixture]
-    public class DiagnosticsWriterTests
+    [Test]
+    public async Task ShouldWriteWhenDuplicateEntriesPresent()
     {
-        [Test]
-        public async Task ShouldWriteWhenDuplicateEntriesPresent()
+        var output = string.Empty;
+        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
         {
-            var output = string.Empty;
-            var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-            {
-                output = diagnosticOutput;
-                return Task.CompletedTask;
-            });
-            var diagnostics = new StartupDiagnosticEntries();
-            diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
-            diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointTwo" });
-            diagnostics.Add("Version", new { Version = "1.0.0.0" });
+            output = diagnosticOutput;
+            return Task.CompletedTask;
+        });
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
+        diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointTwo" });
+        diagnostics.Add("Version", new { Version = "1.0.0.0" });
 
-            var writer = new HostStartupDiagnosticsWriter(testWriter, true);
+        var writer = new HostStartupDiagnosticsWriter(testWriter, true);
 
-            await writer.Write(diagnostics.entries);
+        await writer.Write(diagnostics.entries);
 
-            Approver.Verify(output);
-        }
+        Approver.Verify(output);
+    }
 
-        [Test]
-        public async Task ShouldWriteEntriesWithTypesUsingTheFullName()
+    [Test]
+    public async Task ShouldWriteEntriesWithTypesUsingTheFullName()
+    {
+        var output = string.Empty;
+        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
         {
-            var output = string.Empty;
-            var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-            {
-                output = diagnosticOutput;
-                return Task.CompletedTask;
-            });
-            var diagnostics = new StartupDiagnosticEntries();
-            diagnostics.Add("TypeIndicator", new { SomeType = typeof(DiagnosticsWriterTests) });
+            output = diagnosticOutput;
+            return Task.CompletedTask;
+        });
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("TypeIndicator", new { SomeType = typeof(DiagnosticsWriterTests) });
 
-            var writer = new HostStartupDiagnosticsWriter(testWriter, true);
+        var writer = new HostStartupDiagnosticsWriter(testWriter, true);
 
-            await writer.Write(diagnostics.entries);
+        await writer.Write(diagnostics.entries);
 
-            Approver.Verify(output);
-        }
+        Approver.Verify(output);
     }
 }

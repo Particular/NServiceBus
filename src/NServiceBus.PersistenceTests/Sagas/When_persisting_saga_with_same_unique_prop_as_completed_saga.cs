@@ -1,78 +1,77 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using NUnit.Framework;
+
+public class When_persisting_saga_with_same_unique_prop_as_completed_saga : SagaPersisterTests
 {
-    using System;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-
-    public class When_persisting_saga_with_same_unique_prop_as_completed_saga : SagaPersisterTests
+    [Test]
+    public async Task It_should_persist_successfully()
     {
-        [Test]
-        public async Task It_should_persist_successfully()
+        var correlationPropertyData = Guid.NewGuid().ToString();
+        var saga1 = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DataProperty = "saga1" };
+        var saga2 = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DataProperty = "saga2" };
+
+        var persister = configuration.SagaStorage;
+
+        await SaveSaga(saga1);
+        var context1 = configuration.GetContextBagForSagaStorage();
+        using (var completeSession = configuration.CreateStorageSession())
         {
-            var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga1 = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DataProperty = "saga1" };
-            var saga2 = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DataProperty = "saga2" };
+            await completeSession.Open(context1);
 
-            var persister = configuration.SagaStorage;
+            var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
+            Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
 
-            await SaveSaga(saga1);
-            var context1 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = configuration.CreateStorageSession())
-            {
-                await completeSession.Open(context1);
-
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
-                Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
-
-                await persister.Complete(sagaData, completeSession, context1);
-                await completeSession.CompleteAsync();
-            }
-
-            Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga1.Id));
-
-            await SaveSaga(saga2);
-            var context2 = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = configuration.CreateStorageSession())
-            {
-                await completeSession.Open(context2);
-
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
-                Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
-
-                await persister.Complete(sagaData, completeSession, context2);
-                await completeSession.CompleteAsync();
-            }
-
-            Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
+            await persister.Complete(sagaData, completeSession, context1);
+            await completeSession.CompleteAsync();
         }
 
-        public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
-        {
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
-            {
-                mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
-            }
+        Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga1.Id));
 
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
+        await SaveSaga(saga2);
+        var context2 = configuration.GetContextBagForSagaStorage();
+        using (var completeSession = configuration.CreateStorageSession())
+        {
+            await completeSession.Open(context2);
+
+            var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
+            Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
+
+            await persister.Complete(sagaData, completeSession, context2);
+            await completeSession.CompleteAsync();
         }
 
-        public class SagaWithCorrelationPropertyData : ContainSagaData
-        {
-            public string CorrelatedProperty { get; set; }
+        Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
+    }
 
-            public string DataProperty { get; set; }
+    public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
+        {
+            mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
         }
 
-        public class SagaCorrelationPropertyStartingMessage
+        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
         {
-            public string CorrelatedProperty { get; set; }
+            throw new NotImplementedException();
         }
+    }
 
-        public When_persisting_saga_with_same_unique_prop_as_completed_saga(TestVariant param) : base(param)
-        {
-        }
+    public class SagaWithCorrelationPropertyData : ContainSagaData
+    {
+        public string CorrelatedProperty { get; set; }
+
+        public string DataProperty { get; set; }
+    }
+
+    public class SagaCorrelationPropertyStartingMessage
+    {
+        public string CorrelatedProperty { get; set; }
+    }
+
+    public When_persisting_saga_with_same_unique_prop_as_completed_saga(TestVariant param) : base(param)
+    {
     }
 }

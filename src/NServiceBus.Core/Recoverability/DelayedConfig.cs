@@ -1,35 +1,34 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+
+/// <summary>
+/// Provides information about the delayed retries configuration.
+/// </summary>
+public class DelayedConfig
 {
-    using System;
+    /// <summary>
+    /// Creates a new delayed retries configuration.
+    /// </summary>
+    /// <param name="maxNumberOfRetries">The maximum number of delayed retries.</param>
+    /// <param name="timeIncrease">The time of increase for individual delayed retries.</param>
+    public DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(maxNumberOfRetries);
+        Guard.ThrowIfNegative(timeIncrease);
+
+        MaxNumberOfRetries = maxNumberOfRetries;
+        TimeIncrease = timeIncrease;
+    }
 
     /// <summary>
-    /// Provides information about the delayed retries configuration.
+    /// Gets the configured maximum number of immediate retries.
     /// </summary>
-    public class DelayedConfig
-    {
-        /// <summary>
-        /// Creates a new delayed retries configuration.
-        /// </summary>
-        /// <param name="maxNumberOfRetries">The maximum number of delayed retries.</param>
-        /// <param name="timeIncrease">The time of increase for individual delayed retries.</param>
-        public DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegative(maxNumberOfRetries);
-            Guard.ThrowIfNegative(timeIncrease);
+    /// <remarks>Zero means no retries possible.</remarks>
+    public int MaxNumberOfRetries { get; }
 
-            MaxNumberOfRetries = maxNumberOfRetries;
-            TimeIncrease = timeIncrease;
-        }
-
-        /// <summary>
-        /// Gets the configured maximum number of immediate retries.
-        /// </summary>
-        /// <remarks>Zero means no retries possible.</remarks>
-        public int MaxNumberOfRetries { get; }
-
-        /// <summary>
-        /// Gets the configured time of increase for individual delayed retries.
-        /// </summary>
-        public TimeSpan TimeIncrease { get; }
-    }
+    /// <summary>
+    /// Gets the configured time of increase for individual delayed retries.
+    /// </summary>
+    public TimeSpan TimeIncrease { get; }
 }

@@ -1,34 +1,34 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics;
+
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using Logging;
+using NUnit.Framework;
+
+public class When_license_expired : NServiceBusAcceptanceTest
 {
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using Logging;
-    using NUnit.Framework;
-
-    public class When_license_expired : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_add_the_license_diagnostic_headers_to_audited_messages()
     {
-        [Test]
-        public async Task Should_add_the_license_diagnostic_headers_to_audited_messages()
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<AuditSpyEndpoint>()
+            .Done(c => c.Done)
+            .Run();
+
+        Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+
+        if (Debugger.IsAttached)
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-                .WithEndpoint<AuditSpyEndpoint>()
-                .Done(c => c.Done)
-                .Run();
-
-            Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
-
-            if (Debugger.IsAttached)
-            {
-                Assert.True(context.Logs.Any(m => m.Level == LogLevel.Error && m.Message.StartsWith("Your license has expired")), "Error should be logged");
-            }
+            Assert.True(context.Logs.Any(m => m.Level == LogLevel.Error && m.Message.StartsWith("Your license has expired")), "Error should be logged");
         }
+    }
 
-        static string ExpiredLicense = @"<?xml version=""1.0"" encoding=""utf-8""?>
+    static string ExpiredLicense = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <license id = ""b13ba7a3-5fe8-4745-a041-2d6a9f7462cf"" expiration=""2015-03-18T00:00:00.0000000"" type=""Subscription"" Applications=""All"" NumberOfNodes=""4"" UpgradeProtectionExpiration=""2015-03-18"">
   <name>Ultimate Test</name>
   <Signature xmlns = ""http://www.w3.org/2000/09/xmldsig#"">
@@ -48,61 +48,60 @@
 </license>
 ";
 
-        public class Context : ScenarioContext
+    public class Context : ScenarioContext
+    {
+        public bool Done { get; set; }
+        public bool HasDiagnosticLicensingHeaders { get; set; }
+    }
+
+    public class EndpointWithAuditOn : EndpointConfigurationBuilder
+    {
+        public EndpointWithAuditOn()
         {
-            public bool Done { get; set; }
-            public bool HasDiagnosticLicensingHeaders { get; set; }
+            EndpointSetup<DefaultServer>(c =>
+            {
+                c.License(ExpiredLicense);
+                c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+            });
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public EndpointWithAuditOn()
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.License(ExpiredLicense);
-                    c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                });
-            }
-
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
-            {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                return Task.CompletedTask;
             }
         }
+    }
 
-        class AuditSpyEndpoint : EndpointConfigurationBuilder
+    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    {
+        public AuditSpyEndpoint()
         {
-            public AuditSpyEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
-            {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    testContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
-
-                    testContext.Done = true;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
+            EndpointSetup<DefaultServer>();
         }
 
-        public class MessageToBeAudited : IMessage
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
+            public MessageToBeAuditedHandler(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+            {
+                testContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
+
+                testContext.Done = true;
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class MessageToBeAudited : IMessage
+    {
     }
 }

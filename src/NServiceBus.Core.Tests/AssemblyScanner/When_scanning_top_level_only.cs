@@ -1,54 +1,53 @@
-namespace NServiceBus.Core.Tests.AssemblyScanner
+namespace NServiceBus.Core.Tests.AssemblyScanner;
+
+using System.IO;
+using System.Linq;
+using Hosting.Helpers;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_scanning_top_level_only
 {
-    using System.IO;
-    using System.Linq;
-    using Hosting.Helpers;
-    using NUnit.Framework;
+    static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), "empty");
+    static string someSubDirectory = Path.Combine(baseDirectoryToScan, "subDir");
 
-    [TestFixture]
-    public class When_scanning_top_level_only
+    [SetUp]
+    public void Context()
     {
-        static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), "empty");
-        static string someSubDirectory = Path.Combine(baseDirectoryToScan, "subDir");
+        Directory.CreateDirectory(baseDirectoryToScan);
+        Directory.CreateDirectory(someSubDirectory);
 
-        [SetUp]
-        public void Context()
+        var dllFilePath = Path.Combine(someSubDirectory, "NotAProper.dll");
+        File.WriteAllText(dllFilePath, "This is not a proper DLL");
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        if (Directory.Exists(baseDirectoryToScan))
         {
-            Directory.CreateDirectory(baseDirectoryToScan);
-            Directory.CreateDirectory(someSubDirectory);
-
-            var dllFilePath = Path.Combine(someSubDirectory, "NotAProper.dll");
-            File.WriteAllText(dllFilePath, "This is not a proper DLL");
+            Directory.Delete(baseDirectoryToScan, true);
         }
+    }
 
-        [TearDown]
-        public void TearDown()
+    [Test]
+    public void Should_not_find_assembly_in_sub_directory()
+    {
+        var results = new AssemblyScanner(baseDirectoryToScan)
         {
-            if (Directory.Exists(baseDirectoryToScan))
-            {
-                Directory.Delete(baseDirectoryToScan, true);
-            }
+            ScanAppDomainAssemblies = false,
+            ScanNestedDirectories = false
         }
+        .GetScannableAssemblies();
 
-        [Test]
-        public void Should_not_find_assembly_in_sub_directory()
-        {
-            var results = new AssemblyScanner(baseDirectoryToScan)
-            {
-                ScanAppDomainAssemblies = false,
-                ScanNestedDirectories = false
-            }
-            .GetScannableAssemblies();
+        var allEncounteredFileNames =
+            results.Assemblies
+                .Where(x => !x.IsDynamic)
+                .Select(a => a.Location)
+                .Concat(results.SkippedFiles.Select(s => s.FilePath))
+                .ToList();
 
-            var allEncounteredFileNames =
-                results.Assemblies
-                    .Where(x => !x.IsDynamic)
-                    .Select(a => a.Location)
-                    .Concat(results.SkippedFiles.Select(s => s.FilePath))
-                    .ToList();
-
-            Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.dll")),
-                Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a sub directory");
-        }
+        Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.dll")),
+            Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a sub directory");
     }
 }

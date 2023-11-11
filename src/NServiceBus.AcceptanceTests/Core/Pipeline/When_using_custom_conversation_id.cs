@@ -1,64 +1,63 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_apply_custom_conversation_id_when_no_incoming_message()
     {
-        [Test]
-        public async Task Should_apply_custom_conversation_id_when_no_incoming_message()
+        var customConversationId = Guid.NewGuid().ToString();
+
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<ReceivingEndpoint>(e => e
+                .When(s =>
+                {
+                    var options = new SendOptions();
+                    options.RouteToThisEndpoint();
+                    options.SetHeader(Headers.ConversationId, customConversationId);
+                    return s.Send(new MessageWithConversationId(), options);
+                }))
+            .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
+            .Run();
+
+        Assert.AreEqual(customConversationId, context.ReceivedConversationId);
+    }
+
+    class Context : ScenarioContext
+    {
+        public string ReceivedConversationId { get; set; }
+    }
+
+    class ReceivingEndpoint : EndpointConfigurationBuilder
+    {
+        public ReceivingEndpoint()
         {
-            var customConversationId = Guid.NewGuid().ToString();
-
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<ReceivingEndpoint>(e => e
-                    .When(s =>
-                    {
-                        var options = new SendOptions();
-                        options.RouteToThisEndpoint();
-                        options.SetHeader(Headers.ConversationId, customConversationId);
-                        return s.Send(new MessageWithConversationId(), options);
-                    }))
-                .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
-                .Run();
-
-            Assert.AreEqual(customConversationId, context.ReceivedConversationId);
+            EndpointSetup<DefaultServer>();
         }
 
-        class Context : ScenarioContext
+        public class ConversationIdMessageHandler : IHandleMessages<MessageWithConversationId>
         {
-            public string ReceivedConversationId { get; set; }
-        }
+            Context testContext;
 
-        class ReceivingEndpoint : EndpointConfigurationBuilder
-        {
-            public ReceivingEndpoint()
+            public ConversationIdMessageHandler(Context testContext)
             {
-                EndpointSetup<DefaultServer>();
+                this.testContext = testContext;
             }
 
-            public class ConversationIdMessageHandler : IHandleMessages<MessageWithConversationId>
+            public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
             {
-                Context testContext;
-
-                public ConversationIdMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
-                {
-                    testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
-                    return Task.CompletedTask;
-                }
+                testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
+                return Task.CompletedTask;
             }
         }
+    }
 
-        public class MessageWithConversationId : ICommand
-        {
-        }
+    public class MessageWithConversationId : ICommand
+    {
     }
 }

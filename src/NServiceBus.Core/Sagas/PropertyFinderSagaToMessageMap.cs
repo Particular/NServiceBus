@@ -1,23 +1,22 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using Sagas;
+using System;
+using System.Collections.Generic;
+
+class PropertyFinderSagaToMessageMap : CorrelationSagaToMessageMap
 {
-    using Sagas;
-    using System;
-    using System.Collections.Generic;
+    public Func<object, object> MessageProp;
 
-    class PropertyFinderSagaToMessageMap : CorrelationSagaToMessageMap
+    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
     {
-        public Func<object, object> MessageProp;
-
-        public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
-        {
-            return new SagaFinderDefinition(
-                typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType),
-                MessageType,
-                new Dictionary<string, object>
-                {
-                    {"property-accessor", MessageProp},
-                    {"saga-property-name", SagaPropName}
-                });
-        }
+        return new SagaFinderDefinition(
+            typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            MessageType,
+            new Dictionary<string, object>
+            {
+                {"property-accessor", MessageProp},
+                {"saga-property-name", SagaPropName}
+            });
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Serializers.XML
+﻿namespace NServiceBus.Serializers.XML;
+
+public class Risk
 {
-    public class Risk
-    {
-        public bool Annum { get; set; }
-        public double Percent { get; set; }
-        public decimal Accuracy { get; set; }
-    }
+    public bool Annum { get; set; }
+    public double Percent { get; set; }
+    public decimal Accuracy { get; set; }
 }

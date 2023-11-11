@@ -1,22 +1,21 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using Pipeline;
+using Transport;
+
+class IncomingPhysicalMessageContext : IncomingContext, IIncomingPhysicalMessageContext
 {
-    using System;
-    using Pipeline;
-    using Transport;
-
-    class IncomingPhysicalMessageContext : IncomingContext, IIncomingPhysicalMessageContext
+    public IncomingPhysicalMessageContext(IncomingMessage message, IBehaviorContext parentContext)
+        : base(message.MessageId, message.GetReplyToAddress(), message.Headers, parentContext)
     {
-        public IncomingPhysicalMessageContext(IncomingMessage message, IBehaviorContext parentContext)
-            : base(message.MessageId, message.GetReplyToAddress(), message.Headers, parentContext)
-        {
-            Message = message;
-        }
+        Message = message;
+    }
 
-        public IncomingMessage Message { get; }
+    public IncomingMessage Message { get; }
 
-        public void UpdateMessage(ReadOnlyMemory<byte> body)
-        {
-            Message.UpdateBody(body);
-        }
+    public void UpdateMessage(ReadOnlyMemory<byte> body)
+    {
+        Message.UpdateBody(body);
     }
 }

@@ -1,31 +1,30 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.SelfVerification
+﻿namespace NServiceBus.AcceptanceTests.Core.SelfVerification;
+
+using System;
+using System.Linq;
+using System.Reflection;
+using AcceptanceTesting;
+using NUnit.Framework;
+
+[TestFixture]
+public class EndpointNameEnforcementTests : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Reflection;
-    using AcceptanceTesting;
-    using NUnit.Framework;
+    const int endpointNameMaxLength = 77;
 
-    [TestFixture]
-    public class EndpointNameEnforcementTests : NServiceBusAcceptanceTest
+    [Test]
+    public void EndpointName_should_not_exceed_maximum_length()
     {
-        const int endpointNameMaxLength = 77;
+        var testTypes = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(IsEndpointClass);
 
-        [Test]
-        public void EndpointName_should_not_exceed_maximum_length()
-        {
-            var testTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(IsEndpointClass);
+        var violators = testTypes
+            .Where(t => AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(t).Length > endpointNameMaxLength)
+            .ToList();
 
-            var violators = testTypes
-                .Where(t => AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(t).Length > endpointNameMaxLength)
-                .ToList();
-
-            CollectionAssert.IsEmpty(violators, string.Join(",", violators));
-        }
-
-        static bool IsEndpointClass(Type t) => endpointConfigurationBuilderType.IsAssignableFrom(t);
-
-        static Type endpointConfigurationBuilderType = typeof(EndpointConfigurationBuilder);
+        CollectionAssert.IsEmpty(violators, string.Join(",", violators));
     }
+
+    static bool IsEndpointClass(Type t) => endpointConfigurationBuilderType.IsAssignableFrom(t);
+
+    static Type endpointConfigurationBuilderType = typeof(EndpointConfigurationBuilder);
 }

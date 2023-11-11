@@ -1,18 +1,18 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas
-{
-    using System;
-    using System.Threading.Tasks;
-    using Helpers;
-    using Microsoft.CodeAnalysis.CSharp;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
-    [TestFixture]
-    public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
+using System;
+using System.Threading.Tasks;
+using Helpers;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+
+[TestFixture]
+public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
+{
+    [Test]
+    public Task InfoDiagnosticForSingleOldMapping()
     {
-        [Test]
-        public Task InfoDiagnosticForSingleOldMapping()
-        {
-            var source =
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -34,13 +34,13 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.SagaMappingExpressionCanBeRewrittenId, source);
-        }
+        return Assert(SagaDiagnostics.SagaMappingExpressionCanBeRewrittenId, source);
+    }
 
-        [Test]
-        public Task IAmStartedBySagaNotMappedMsg1()
-        {
-            var source =
+    [Test]
+    public Task IAmStartedBySagaNotMappedMsg1()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -68,13 +68,13 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
-        }
+        return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
+    }
 
-        [Test]
-        public Task IAmStartedBySagaNotMappedMsg2()
-        {
-            var source =
+    [Test]
+    public Task IAmStartedBySagaNotMappedMsg2()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -102,13 +102,13 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
-        }
+        return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
+    }
 
-        [Test]
-        public Task SagaDataPropertyHasNonPublicSetter()
-        {
-            var source =
+    [Test]
+    public Task SagaDataPropertyHasNonPublicSetter()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -133,13 +133,13 @@ partial class MyData
 }
 ";
 
-            return Assert(SagaDiagnostics.SagaDataPropertyNotWriteableId, source);
-        }
+        return Assert(SagaDiagnostics.SagaDataPropertyNotWriteableId, source);
+    }
 
-        [Test]
-        public Task MessageMappingNotNeededForTimeouts()
-        {
-            var source =
+    [Test]
+    public Task MessageMappingNotNeededForTimeouts()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -177,17 +177,17 @@ public class Timeout3
 }
 }";
 
-            return Assert(SagaDiagnostics.MessageMappingNotNeededForTimeoutId, source);
-        }
+        return Assert(SagaDiagnostics.MessageMappingNotNeededForTimeoutId, source);
+    }
 
-        [Test]
-        [TestCase("id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("ID", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("Id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("iD", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        public Task CannotMapToSagasIdPropertyNewSyntax(string propertyName, string diagnosticId)
-        {
-            var source =
+    [Test]
+    [TestCase("id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("ID", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("Id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("iD", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    public Task CannotMapToSagasIdPropertyNewSyntax(string propertyName, string diagnosticId)
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -215,17 +215,17 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(diagnosticId, source);
-        }
+        return Assert(diagnosticId, source);
+    }
 
-        [Test]
-        [TestCase("id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("ID", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("Id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        [TestCase("iD", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
-        public Task CannotMapToSagasIdPropertyOldSyntax(string propertyName, string diagnosticId)
-        {
-            var source =
+    [Test]
+    [TestCase("id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("ID", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("Id", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    [TestCase("iD", SagaDiagnostics.CannotMapToSagasIdPropertyId)]
+    public Task CannotMapToSagasIdPropertyOldSyntax(string propertyName, string diagnosticId)
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -252,21 +252,21 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            var diagnostics = new[] { diagnosticId };
-            var ignoreDiagnostics = new[] { SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId };
-            return Assert(diagnostics, source, ignoreDiagnostics);
-        }
+        var diagnostics = new[] { diagnosticId };
+        var ignoreDiagnostics = new[] { SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId };
+        return Assert(diagnostics, source, ignoreDiagnostics);
+    }
 
-        [Test]
-        [TestCase("Msg1")]
-        [TestCase("Msg1[]")]
-        [TestCase("List<Msg1>")]
-        [TestCase("IEnumerable<Msg1>")]
-        [TestCase("ICollection<Msg1>")]
-        [TestCase("IDictionary<string, Msg1>")]
-        public Task DoNotUseMessageTypeAsSagaDataProperty(string propertyType)
-        {
-            var source =
+    [Test]
+    [TestCase("Msg1")]
+    [TestCase("Msg1[]")]
+    [TestCase("List<Msg1>")]
+    [TestCase("IEnumerable<Msg1>")]
+    [TestCase("ICollection<Msg1>")]
+    [TestCase("IDictionary<string, Msg1>")]
+    public Task DoNotUseMessageTypeAsSagaDataProperty(string propertyType)
+    {
+        var source =
 @"using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -290,28 +290,28 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.DoNotUseMessageTypeAsSagaDataPropertyId, source);
-        }
+        return Assert(SagaDiagnostics.DoNotUseMessageTypeAsSagaDataPropertyId, source);
+    }
 
-        // Valid cases
-        [TestCase("string")]
-        [TestCase("Guid")]
-        [TestCase("long")]
-        [TestCase("ulong")]
-        [TestCase("int")]
-        [TestCase("uint")]
-        [TestCase("short")]
-        [TestCase("ushort")]
-        // Invalid cases
-        [TestCase("[|DateTime|]")]
-        [TestCase("[|DateTimeOffset|]")]
-        [TestCase("[|byte|]")]
-        [TestCase("[|IntPtr|]")]
-        public Task CorrelationIdShouldBeSupportedType(string correlationPropertyType)
-        {
-            var typeNoBrackets = correlationPropertyType.Replace("[|", "").Replace("|]", "");
+    // Valid cases
+    [TestCase("string")]
+    [TestCase("Guid")]
+    [TestCase("long")]
+    [TestCase("ulong")]
+    [TestCase("int")]
+    [TestCase("uint")]
+    [TestCase("short")]
+    [TestCase("ushort")]
+    // Invalid cases
+    [TestCase("[|DateTime|]")]
+    [TestCase("[|DateTimeOffset|]")]
+    [TestCase("[|byte|]")]
+    [TestCase("[|IntPtr|]")]
+    public Task CorrelationIdShouldBeSupportedType(string correlationPropertyType)
+    {
+        var typeNoBrackets = correlationPropertyType.Replace("[|", "").Replace("|]", "");
 
-            var source =
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -333,13 +333,13 @@ public class Msg1 : ICommand
     public " + typeNoBrackets + @" CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.CorrelationIdMustBeSupportedTypeId, source);
-        }
+        return Assert(SagaDiagnostics.CorrelationIdMustBeSupportedTypeId, source);
+    }
 
-        [Test]
-        public Task EasierToInheritContainSagaData()
-        {
-            var source =
+    [Test]
+    public Task EasierToInheritContainSagaData()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -367,15 +367,15 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.EasierToInheritContainSagaDataId, source);
-        }
+        return Assert(SagaDiagnostics.EasierToInheritContainSagaDataId, source);
+    }
 
 
 
-        [Test]
-        public Task RidiculousPartialClassExample()
-        {
-            var source =
+    [Test]
+    public Task RidiculousPartialClassExample()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -415,13 +415,13 @@ public class Msg2
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
-        }
+        return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
+    }
 
-        [Test]
-        public Task ShouldUseReplyToOriginator()
-        {
-            var source =
+    [Test]
+    public Task ShouldUseReplyToOriginator()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -457,13 +457,13 @@ public class Msg1 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-            return Assert(SagaDiagnostics.SagaReplyShouldBeToOriginatorId, source);
-        }
+        return Assert(SagaDiagnostics.SagaReplyShouldBeToOriginatorId, source);
+    }
 
-        [Test]
-        public Task IntermediateBaseClass1()
-        {
-            var source =
+    [Test]
+    public Task IntermediateBaseClass1()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -495,13 +495,13 @@ public class Msg2 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-            return Assert(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClassId, source);
-        }
+        return Assert(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClassId, source);
+    }
 
-        [Test]
-        public Task IntermediateBaseClass2()
-        {
-            var source =
+    [Test]
+    public Task IntermediateBaseClass2()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -532,13 +532,13 @@ public class Msg2 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-            return Assert(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClassId, source);
-        }
+        return Assert(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClassId, source);
+    }
 
-        [Test]
-        public Task SagaShouldNotImplementNotFoundHandler()
-        {
-            var source =
+    [Test]
+    public Task SagaShouldNotImplementNotFoundHandler()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -554,13 +554,13 @@ public class MyData : ContainSagaData
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.SagaShouldNotImplementNotFoundHandlerId, source);
-        }
+        return Assert(SagaDiagnostics.SagaShouldNotImplementNotFoundHandlerId, source);
+    }
 
-        [Test]
-        public Task ToSagaMappingsMustPointToProperties()
-        {
-            var source =
+    [Test]
+    public Task ToSagaMappingsMustPointToProperties()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -588,13 +588,13 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.ToSagaMappingMustBeToAPropertyId, source);
-        }
+        return Assert(SagaDiagnostics.ToSagaMappingMustBeToAPropertyId, source);
+    }
 
-        [Test]
-        public Task CorrelationExpressionsMustMatchTypeOldSyntax()
-        {
-            var source =
+    [Test]
+    public Task CorrelationExpressionsMustMatchTypeOldSyntax()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -623,16 +623,16 @@ public class Msg2 : ICommand
     public Guid CorrId { get; set; }
 }
 public class Msg3 : ICommand {}";
-            var expected = new[] { SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId };
-            var ignore = new[] { SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId };
+        var expected = new[] { SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId };
+        var ignore = new[] { SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId };
 
-            return Assert(expected, source, ignore);
-        }
+        return Assert(expected, source, ignore);
+    }
 
-        [Test]
-        public Task CorrelationExpressionsMustMatchTypeNewSyntax()
-        {
-            var source =
+    [Test]
+    public Task CorrelationExpressionsMustMatchTypeNewSyntax()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -663,13 +663,13 @@ public class Msg2 : ICommand
 }
 public class Msg3 : ICommand {}";
 
-            return Assert(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId, source);
-        }
+        return Assert(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId, source);
+    }
 
-        [Test]
-        public Task MessageTypeMappedToHandlerAndTimeout()
-        {
-            var source =
+    [Test]
+    public Task MessageTypeMappedToHandlerAndTimeout()
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -694,14 +694,14 @@ public class MessageWithSagaId : IMessage
     public Guid DataId { get; set; }
 }";
 
-            // Should not light up mapping for timeout because it's needed for handler
-            return Assert(source);
-        }
+        // Should not light up mapping for timeout because it's needed for handler
+        return Assert(source);
+    }
 
-        [Test]
-        public Task StayAwayFromAbstractSagaConstructions()
-        {
-            var source =
+    [Test]
+    public Task StayAwayFromAbstractSagaConstructions()
+    {
+        var source =
 @"
 using System;
 using NServiceBus;
@@ -710,14 +710,14 @@ public abstract class AbstractSaga<TSagaData> : Saga
 {
     protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage mapper) => throw new NotImplementedException();
 }";
-            // Similar to SQL Persistence SqlSaga<T>
-            return Assert(source);
-        }
+        // Similar to SQL Persistence SqlSaga<T>
+        return Assert(source);
+    }
 
-        [Test]
-        public Task IgnoreSqlPersistenceSqlSaga()
-        {
-            var source =
+    [Test]
+    public Task IgnoreSqlPersistenceSqlSaga()
+    {
+        var source =
 @"
 using System;
 using NServiceBus;
@@ -742,13 +742,13 @@ namespace NServiceBus.Persistence.Sql
     }
 }";
 
-            return Assert(source);
-        }
+        return Assert(source);
+    }
 
-        [Test]
-        public Task ClassesInSeparateFilesAnalyzeSaga()
-        {
-            var source =
+    [Test]
+    public Task ClassesInSeparateFilesAnalyzeSaga()
+    {
+        var source =
 @"----- Saga code to validate
 using System;
 using System.Threading.Tasks;
@@ -775,13 +775,13 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(source);
-        }
+        return Assert(source);
+    }
 
-        [Test]
-        public Task ClassesInSeparateFilesAnalyzeSagaWithDiagnostic()
-        {
-            var source =
+    [Test]
+    public Task ClassesInSeparateFilesAnalyzeSagaWithDiagnostic()
+    {
+        var source =
 @"----- Saga code to validate
 using System;
 using System.Threading.Tasks;
@@ -815,13 +815,13 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
-        }
+        return Assert(SagaDiagnostics.MessageStartsSagaButNoMappingId, source);
+    }
 
-        [Test]
-        public Task ClassesInSeparateFilesAnalyzeData()
-        {
-            var source =
+    [Test]
+    public Task ClassesInSeparateFilesAnalyzeData()
+    {
+        var source =
 @"using NServiceBus;
 public class MyData : ContainSagaData
 {
@@ -847,13 +847,13 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(source);
-        }
+        return Assert(source);
+    }
 
-        [Test]
-        public Task ClassesInSeparateFilesAnalyzeMessage()
-        {
-            var source =
+    [Test]
+    public Task ClassesInSeparateFilesAnalyzeMessage()
+    {
+        var source =
 @"using NServiceBus;
 public class Msg1 : ICommand
 {
@@ -880,14 +880,14 @@ public class MyData : ContainSagaData
 }
 ";
 
-            return Assert(source);
-        }
+        return Assert(source);
+    }
 
-        // https://github.com/Particular/NServiceBus/issues/6714
-        [Test]
-        public Task WhenUsingBaseMessageInterface()
-        {
-            var source =
+    // https://github.com/Particular/NServiceBus/issues/6714
+    [Test]
+    public Task WhenUsingBaseMessageInterface()
+    {
+        var source =
 @"
 using System.Threading.Tasks;
 using NServiceBus;
@@ -922,18 +922,18 @@ public interface IFirstMessage : IMessageBase { }
 public interface ISecondMessage : IMessageBase { }
 ";
 
-            return Assert(source);
-        }
+        return Assert(source);
     }
+}
 
-    public class SagaAnalyzerTestsCSharp8 : SagaAnalyzerTests
+public class SagaAnalyzerTestsCSharp8 : SagaAnalyzerTests
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+
+    [Test]
+    public Task NullableReferenceTypes()
     {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-
-        [Test]
-        public Task NullableReferenceTypes()
-        {
-            var source =
+        var source =
 @"#nullable enable
 using System;
 using System.Threading.Tasks;
@@ -977,72 +977,72 @@ public class Continue : ICommand
 public class Timeout { }
 #nullable restore";
 
-            return Assert(source);
+        return Assert(source);
+    }
+
+    // 3 bits = 8 cases with expected result but some are invalid
+
+    // With saga data prop not null, these are the interesting cases
+    [TestCase(false, false, false, true)] // Even though both props are `string`, message's `string` is outside #nullability and so is understood as `string?`
+    [TestCase(false, false, true, false)] // Both props are `string` within #nullability - OK
+    //[TestCase(false, true, false, X)] // Invalid to have a nullable string? not under a #nullable region.
+    [TestCase(false, true, true, true)] // Saga prop is `string` and message is `string?` which won't work
+
+    // When saga property is nullable, anything goes, all cases from here down do not raise diagnostic
+    [TestCase(true, false, false, false)]
+    [TestCase(true, false, true, false)]
+    //[TestCase(true, true, false, X)] -- Invalid to have a nullable string? not under a #nullable region.
+    [TestCase(true, true, true, false)]
+    public Task NullablePropertyCombinations(bool sagaPropNullable, bool messagePropNullable, bool messagesUnderNullability, bool raiseDiagnostic)
+    {
+        if (messagePropNullable && !messagesUnderNullability)
+        {
+            NUnit.Framework.Assert.Ignore("Invalid to have a nullable string? not under a #nullable region.");
         }
 
-        // 3 bits = 8 cases with expected result but some are invalid
+        var toMessageExpression = raiseDiagnostic ? "[|msg => msg.Corr|]" : "msg => msg.Corr";
+        var middleNullableRestore = messagesUnderNullability ? "" : "#nullable restore";
 
-        // With saga data prop not null, these are the interesting cases
-        [TestCase(false, false, false, true)] // Even though both props are `string`, message's `string` is outside #nullability and so is understood as `string?`
-        [TestCase(false, false, true, false)] // Both props are `string` within #nullability - OK
-        //[TestCase(false, true, false, X)] // Invalid to have a nullable string? not under a #nullable region.
-        [TestCase(false, true, true, true)] // Saga prop is `string` and message is `string?` which won't work
+        string dataClass;
+        string messageClass;
 
-        // When saga property is nullable, anything goes, all cases from here down do not raise diagnostic
-        [TestCase(true, false, false, false)]
-        [TestCase(true, false, true, false)]
-        //[TestCase(true, true, false, X)] -- Invalid to have a nullable string? not under a #nullable region.
-        [TestCase(true, true, true, false)]
-        public Task NullablePropertyCombinations(bool sagaPropNullable, bool messagePropNullable, bool messagesUnderNullability, bool raiseDiagnostic)
+        if (sagaPropNullable)
         {
-            if (messagePropNullable && !messagesUnderNullability)
-            {
-                NUnit.Framework.Assert.Ignore("Invalid to have a nullable string? not under a #nullable region.");
-            }
-
-            var toMessageExpression = raiseDiagnostic ? "[|msg => msg.Corr|]" : "msg => msg.Corr";
-            var middleNullableRestore = messagesUnderNullability ? "" : "#nullable restore";
-
-            string dataClass;
-            string messageClass;
-
-            if (sagaPropNullable)
-            {
-                dataClass = @"
+            dataClass = @"
 public class Data : ContainSagaData
 {
     public string? Corr { get; set; }
 }";
-            }
-            else
-            {
-                dataClass = @"
+        }
+        else
+        {
+            dataClass = @"
 public class Data : ContainSagaData
 {
     public Data() { Corr = string.Empty; }
     public string Corr { get; set; }
 }";
-            }
+        }
 
-            if (messagePropNullable)
-            {
-                messageClass = @"
+        if (messagePropNullable)
+        {
+            messageClass = @"
 public class StartSaga : ICommand
 {
     public string? Corr { get; set; }
 }";
-            }
-            else
-            {
-                messageClass = @"
+        }
+        else
+        {
+            messageClass = @"
 public class StartSaga : ICommand
 {
     public StartSaga() { Corr = string.Empty; }
     public string Corr { get; set; }
 }";
-            }
+        }
 
-            var source =
+        var source =
 @"#nullable enable
 using System;
 using System.Threading.Tasks;
@@ -1061,21 +1061,21 @@ public class MySaga : Saga<Data>,
     }
 }" + dataClass + Environment.NewLine + middleNullableRestore + messageClass;
 
-            if (raiseDiagnostic)
-            {
-                return Assert(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId, source);
-            }
-            else
-            {
-                return Assert(source);
-            }
-        }
-
-        // https://github.com/Particular/NServiceBus/issues/6370
-        [Test]
-        public Task SagaHandlersInPartialClasses()
+        if (raiseDiagnostic)
         {
-            var source =
+            return Assert(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressionsId, source);
+        }
+        else
+        {
+            return Assert(source);
+        }
+    }
+
+    // https://github.com/Particular/NServiceBus/issues/6370
+    [Test]
+    public Task SagaHandlersInPartialClasses()
+    {
+        var source =
 @"
 using System.Threading.Tasks;
 using NServiceBus;
@@ -1177,17 +1177,16 @@ public class SagaStep3 : SagaStartMessage
 }
 ";
 
-            return Assert(source);
-        }
+        return Assert(source);
     }
+}
 
-    public class SagaAnalyzerTestsCSharp9 : SagaAnalyzerTestsCSharp8
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-    }
+public class SagaAnalyzerTestsCSharp9 : SagaAnalyzerTestsCSharp8
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+}
 
-    public class SagaAnalyzerTestsCSharp10 : SagaAnalyzerTestsCSharp9
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-    }
+public class SagaAnalyzerTestsCSharp10 : SagaAnalyzerTestsCSharp9
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

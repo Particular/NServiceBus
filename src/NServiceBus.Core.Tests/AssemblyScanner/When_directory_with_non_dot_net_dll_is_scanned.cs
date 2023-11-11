@@ -1,40 +1,39 @@
-﻿namespace NServiceBus.Core.Tests.AssemblyScanner
-{
-    using System.IO;
-    using System.Linq;
-    using Hosting.Helpers;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Tests.AssemblyScanner;
 
-    [TestFixture]
-    public class When_directory_with_non_dot_net_dll_is_scanned
+using System.IO;
+using System.Linq;
+using Hosting.Helpers;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_directory_with_non_dot_net_dll_is_scanned
+{
+    [Test]
+    public void Non_dotnet_files_are_skipped()
     {
-        [Test]
-        public void Non_dotnet_files_are_skipped()
+        var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
         {
-            var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
+            ScanAppDomainAssemblies = false
+        };
+
+        var results = assemblyScanner
+            .GetScannableAssemblies();
+
+        var skippedFiles = results.SkippedFiles;
+
+        var notProperDotNetDlls = new[]
             {
-                ScanAppDomainAssemblies = false
+                "libzmq-v120-mt-3_2_3.dll",
+                "some_random.dll",
+                "some_random.exe"
             };
 
-            var results = assemblyScanner
-                .GetScannableAssemblies();
+        foreach (var notProperDll in notProperDotNetDlls)
+        {
+            var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(notProperDll)) ?? throw new AssertionException($"Could not find skipped file matching {notProperDll}");
 
-            var skippedFiles = results.SkippedFiles;
-
-            var notProperDotNetDlls = new[]
-                {
-                    "libzmq-v120-mt-3_2_3.dll",
-                    "some_random.dll",
-                    "some_random.exe"
-                };
-
-            foreach (var notProperDll in notProperDotNetDlls)
-            {
-                var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(notProperDll)) ?? throw new AssertionException($"Could not find skipped file matching {notProperDll}");
-
-                Assert.That(skippedFile.SkipReason, Contains.Substring("not a .NET assembly"));
-            }
+            Assert.That(skippedFile.SkipReason, Contains.Substring("not a .NET assembly"));
         }
-
     }
+
 }

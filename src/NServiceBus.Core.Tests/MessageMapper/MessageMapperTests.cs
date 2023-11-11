@@ -1,268 +1,267 @@
-﻿namespace MessageMapperTests
+﻿namespace MessageMapperTests;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NServiceBus;
+using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+using NUnit.Framework;
+
+[TestFixture]
+public class MessageMapperTests
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NServiceBus;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class MessageMapperTests
+    [Test]
+    public void Initialize_ShouldBeThreadsafe()
     {
-        [Test]
-        public void Initialize_ShouldBeThreadsafe()
+        var mapper = new MessageMapper();
+
+        Parallel.For(0, 10, i =>
         {
-            var mapper = new MessageMapper();
-
-            Parallel.For(0, 10, i =>
-            {
-                mapper.Initialize(new[]
-                {
-                    typeof(SampleMessageClass),
-                    typeof(ISampleMessageInterface),
-                    typeof(ClassImplementingIEnumerable<>)
-                });
-            });
-        }
-
-        [Test]
-        public void CreateInstance_WhenMessageInitialized_ShouldBeThreadsafe()
-        {
-            var mapper = new MessageMapper();
-
             mapper.Initialize(new[]
-                {
-                    typeof(SampleMessageClass),
-                    typeof(ISampleMessageInterface),
-                    typeof(ClassImplementingIEnumerable<>)
-                });
-
-            Parallel.For(0, 10, i =>
             {
-                mapper.CreateInstance<SampleMessageClass>();
-                mapper.CreateInstance<ISampleMessageInterface>();
-                mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+                typeof(SampleMessageClass),
+                typeof(ISampleMessageInterface),
+                typeof(ClassImplementingIEnumerable<>)
             });
-        }
+        });
+    }
+
+    [Test]
+    public void CreateInstance_WhenMessageInitialized_ShouldBeThreadsafe()
+    {
+        var mapper = new MessageMapper();
+
+        mapper.Initialize(new[]
+            {
+                typeof(SampleMessageClass),
+                typeof(ISampleMessageInterface),
+                typeof(ClassImplementingIEnumerable<>)
+            });
+
+        Parallel.For(0, 10, i =>
+        {
+            mapper.CreateInstance<SampleMessageClass>();
+            mapper.CreateInstance<ISampleMessageInterface>();
+            mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+        });
+    }
 
 #nullable enable
-        [Test]
-        public void Should_handle_messages_with_nullable_reference_types()
-        {
-            var mapper = new MessageMapper();
+    [Test]
+    public void Should_handle_messages_with_nullable_reference_types()
+    {
+        var mapper = new MessageMapper();
 
-            mapper.CreateInstance<IMessageWithNullableProperties>();
-        }
+        mapper.CreateInstance<IMessageWithNullableProperties>();
+    }
 
-        public interface IMessageWithNullableProperties : ICommand, IMessage
-        {
-            string? NullableString { get; set; }
-            object[]? NullableArray { get; set; }
-            List<NullableComplexTypeItem>? NullableList { get; set; }
-        }
+    public interface IMessageWithNullableProperties : ICommand, IMessage
+    {
+        string? NullableString { get; set; }
+        object[]? NullableArray { get; set; }
+        List<NullableComplexTypeItem>? NullableList { get; set; }
+    }
 
-        public class NullableComplexTypeItem
-        {
-        }
+    public class NullableComplexTypeItem
+    {
+    }
 #nullable disable
 
-        [Test]
-        public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
+    [Test]
+    public void CreateInstance_WhenMessageNotInitialized_ShouldBeThreadsafe()
+    {
+        var mapper = new MessageMapper();
+
+        Parallel.For(0, 10, i =>
+        {
+            mapper.CreateInstance<SampleMessageClass>();
+            mapper.CreateInstance<ISampleMessageInterface>();
+            mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+        });
+    }
+
+    [Test]
+    public void ShouldAllowMultipleMapperInstancesPerAppDomain()
+    {
+        Parallel.For(0, 10, i =>
         {
             var mapper = new MessageMapper();
+            mapper.CreateInstance<SampleMessageClass>();
+            mapper.CreateInstance<ISampleMessageInterface>();
+            mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+        });
+    }
 
-            Parallel.For(0, 10, i =>
-            {
-                mapper.CreateInstance<SampleMessageClass>();
-                mapper.CreateInstance<ISampleMessageInterface>();
-                mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
-            });
-        }
+    [Test]
+    public void Should_create_instance_of_concrete_type_with_illegal_interface_property()
+    {
+        var mapper = new MessageMapper();
 
-        [Test]
-        public void ShouldAllowMultipleMapperInstancesPerAppDomain()
+        mapper.Initialize(new[] { typeof(ConcreteMessageWithIllegalInterfaceProperty) });
+
+        mapper.CreateInstance<ConcreteMessageWithIllegalInterfaceProperty>();
+    }
+
+    [Test]
+    public void Should_fail_for_interface_message_with_illegal_interface_property()
+    {
+        var mapper = new MessageMapper();
+
+        var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IInterfaceMessageWithIllegalInterfaceProperty) }));
+        StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+    }
+
+    [Test]
+    public void Should_fail_for_non_public_interface_message()
+    {
+        var mapper = new MessageMapper();
+
+        var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IPrivateInterfaceMessage) }));
+        StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public.", ex.Message);
+    }
+
+    [Test]
+    public void CreateInstance_should_initialize_interface_message_type_on_demand()
+    {
+        var mapper = new MessageMapper();
+
+        var messageInstance = mapper.CreateInstance<ISampleMessageInterface>();
+
+        Assert.IsNotNull(messageInstance);
+        Assert.IsInstanceOf<ISampleMessageInterface>(messageInstance);
+    }
+
+    [Test]
+    public void CreateInstance_should_initialize_message_type_on_demand()
+    {
+        var mapper = new MessageMapper();
+
+        var messageInstance = mapper.CreateInstance<SampleMessageClass>();
+
+        Assert.IsNotNull(messageInstance);
+        Assert.AreEqual(typeof(SampleMessageClass), messageInstance.GetType());
+        Assert.IsTrue(messageInstance.CtorInvoked);
+    }
+
+    [Test]
+    // this is not desired behavior and just documents current behavior
+    public void CreateInstance_should_not_initialize_message_type_implementing_IEnumerable()
+    {
+        var mapper = new MessageMapper();
+
+        var messageInstance = mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+
+        Assert.IsNotNull(messageInstance);
+        Assert.IsFalse(messageInstance.CtorInvoked);
+    }
+
+    [Test]
+    public void Should_create_structs()
+    {
+        var mapper = new MessageMapper();
+
+        var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
+
+        Assert.IsNotNull(messageInstance);
+        Assert.AreEqual(typeof(SampleMessageStruct), messageInstance.GetType());
+    }
+
+    [Test]
+    public void Should_map_structs()
+    {
+        var mapper = new MessageMapper();
+
+        var mappedType = mapper.GetMappedTypeFor(typeof(SampleMessageStruct));
+
+        Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
+    }
+
+    [Test]
+    public void Should_handle_interfaces_that_have_attributes_with_nullable_properties()
+    {
+        var mapper = new MessageMapper();
+
+        var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullableProperty>();
+
+        Assert.IsNotNull(messageInstance);
+    }
+
+    public class SampleMessageClass
+    {
+        public SampleMessageClass()
         {
-            Parallel.For(0, 10, i =>
-            {
-                var mapper = new MessageMapper();
-                mapper.CreateInstance<SampleMessageClass>();
-                mapper.CreateInstance<ISampleMessageInterface>();
-                mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
-            });
+            CtorInvoked = true;
         }
 
-        [Test]
-        public void Should_create_instance_of_concrete_type_with_illegal_interface_property()
+        public bool CtorInvoked { get; }
+    }
+
+    public struct SampleMessageStruct
+    {
+    }
+
+    public interface ISampleMessageInterface
+    {
+    }
+
+    public class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>
+    {
+        public ClassImplementingIEnumerable()
         {
-            var mapper = new MessageMapper();
-
-            mapper.Initialize(new[] { typeof(ConcreteMessageWithIllegalInterfaceProperty) });
-
-            mapper.CreateInstance<ConcreteMessageWithIllegalInterfaceProperty>();
+            CtorInvoked = true;
         }
 
-        [Test]
-        public void Should_fail_for_interface_message_with_illegal_interface_property()
+        public bool CtorInvoked { get; }
+
+        public IEnumerator<TItem> GetEnumerator()
         {
-            var mapper = new MessageMapper();
-
-            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IInterfaceMessageWithIllegalInterfaceProperty) }));
-            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+            return new List<TItem>.Enumerator();
         }
 
-        [Test]
-        public void Should_fail_for_non_public_interface_message()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            var mapper = new MessageMapper();
-
-            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IPrivateInterfaceMessage) }));
-            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public.", ex.Message);
+            return GetEnumerator();
         }
+    }
 
-        [Test]
-        public void CreateInstance_should_initialize_interface_message_type_on_demand()
+    public class ConcreteMessageWithIllegalInterfaceProperty
+    {
+        public IIllegalProperty MyProperty { get; set; }
+    }
+
+    public interface IInterfaceMessageWithIllegalInterfaceProperty
+    {
+        IIllegalProperty MyProperty { get; set; }
+    }
+
+    public interface IIllegalProperty
+    {
+        string SomeProperty { get; set; }
+
+        //this is not supported by our mapper
+        void SomeMethod();
+    }
+
+    interface IPrivateInterfaceMessage
+    {
+        string SomeValue { get; set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class NullablePropertyAttribute : Attribute
+    {
+        public int? IntKey { get; set; }
+
+        public NullablePropertyAttribute(int x)
         {
-            var mapper = new MessageMapper();
-
-            var messageInstance = mapper.CreateInstance<ISampleMessageInterface>();
-
-            Assert.IsNotNull(messageInstance);
-            Assert.IsInstanceOf<ISampleMessageInterface>(messageInstance);
+            IntKey = x;
         }
+    }
 
-        [Test]
-        public void CreateInstance_should_initialize_message_type_on_demand()
-        {
-            var mapper = new MessageMapper();
-
-            var messageInstance = mapper.CreateInstance<SampleMessageClass>();
-
-            Assert.IsNotNull(messageInstance);
-            Assert.AreEqual(typeof(SampleMessageClass), messageInstance.GetType());
-            Assert.IsTrue(messageInstance.CtorInvoked);
-        }
-
-        [Test]
-        // this is not desired behavior and just documents current behavior
-        public void CreateInstance_should_not_initialize_message_type_implementing_IEnumerable()
-        {
-            var mapper = new MessageMapper();
-
-            var messageInstance = mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
-
-            Assert.IsNotNull(messageInstance);
-            Assert.IsFalse(messageInstance.CtorInvoked);
-        }
-
-        [Test]
-        public void Should_create_structs()
-        {
-            var mapper = new MessageMapper();
-
-            var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
-
-            Assert.IsNotNull(messageInstance);
-            Assert.AreEqual(typeof(SampleMessageStruct), messageInstance.GetType());
-        }
-
-        [Test]
-        public void Should_map_structs()
-        {
-            var mapper = new MessageMapper();
-
-            var mappedType = mapper.GetMappedTypeFor(typeof(SampleMessageStruct));
-
-            Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
-        }
-
-        [Test]
-        public void Should_handle_interfaces_that_have_attributes_with_nullable_properties()
-        {
-            var mapper = new MessageMapper();
-
-            var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullableProperty>();
-
-            Assert.IsNotNull(messageInstance);
-        }
-
-        public class SampleMessageClass
-        {
-            public SampleMessageClass()
-            {
-                CtorInvoked = true;
-            }
-
-            public bool CtorInvoked { get; }
-        }
-
-        public struct SampleMessageStruct
-        {
-        }
-
-        public interface ISampleMessageInterface
-        {
-        }
-
-        public class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>
-        {
-            public ClassImplementingIEnumerable()
-            {
-                CtorInvoked = true;
-            }
-
-            public bool CtorInvoked { get; }
-
-            public IEnumerator<TItem> GetEnumerator()
-            {
-                return new List<TItem>.Enumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
-
-        public class ConcreteMessageWithIllegalInterfaceProperty
-        {
-            public IIllegalProperty MyProperty { get; set; }
-        }
-
-        public interface IInterfaceMessageWithIllegalInterfaceProperty
-        {
-            IIllegalProperty MyProperty { get; set; }
-        }
-
-        public interface IIllegalProperty
-        {
-            string SomeProperty { get; set; }
-
-            //this is not supported by our mapper
-            void SomeMethod();
-        }
-
-        interface IPrivateInterfaceMessage
-        {
-            string SomeValue { get; set; }
-        }
-
-        [AttributeUsage(AttributeTargets.Property)]
-        public class NullablePropertyAttribute : Attribute
-        {
-            public int? IntKey { get; set; }
-
-            public NullablePropertyAttribute(int x)
-            {
-                IntKey = x;
-            }
-        }
-
-        public interface IMessageInterfaceWithNullableProperty
-        {
-            [NullableProperty(0)]
-            object Value { get; set; }
-        }
+    public interface IMessageInterfaceWithNullableProperty
+    {
+        [NullableProperty(0)]
+        object Value { get; set; }
     }
 }

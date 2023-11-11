@@ -1,16 +1,15 @@
-namespace NServiceBus.Pipeline
-{
-    using System.Collections.Generic;
-    using Transport;
+namespace NServiceBus.Pipeline;
 
+using System.Collections.Generic;
+using Transport;
+
+/// <summary>
+/// Pipeline context for dispatching pending transport operations captured during message processing.
+/// </summary>
+public interface IBatchDispatchContext : IBehaviorContext
+{
     /// <summary>
-    /// Pipeline context for dispatching pending transport operations captured during message processing.
+    /// The captured transport operations to dispatch.
     /// </summary>
-    public interface IBatchDispatchContext : IBehaviorContext
-    {
-        /// <summary>
-        /// The captured transport operations to dispatch.
-        /// </summary>
-        IReadOnlyCollection<TransportOperation> Operations { get; }
-    }
+    IReadOnlyCollection<TransportOperation> Operations { get; }
 }

@@ -1,26 +1,25 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Pipeline;
+
+using System.Collections.Generic;
+using Routing;
+
+/// <summary>
+/// Outgoing pipeline context.
+/// </summary>
+public interface IOutgoingLogicalMessageContext : IOutgoingContext
 {
-    using System.Collections.Generic;
-    using Routing;
+    /// <summary>
+    /// The outgoing message.
+    /// </summary>
+    OutgoingLogicalMessage Message { get; }
 
     /// <summary>
-    /// Outgoing pipeline context.
+    /// The routing strategies for this message.
     /// </summary>
-    public interface IOutgoingLogicalMessageContext : IOutgoingContext
-    {
-        /// <summary>
-        /// The outgoing message.
-        /// </summary>
-        OutgoingLogicalMessage Message { get; }
+    IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
 
-        /// <summary>
-        /// The routing strategies for this message.
-        /// </summary>
-        IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
-
-        /// <summary>
-        /// Updates the message instance.
-        /// </summary>
-        void UpdateMessage(object newInstance);
-    }
+    /// <summary>
+    /// Updates the message instance.
+    /// </summary>
+    void UpdateMessage(object newInstance);
 }

@@ -1,27 +1,26 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting;
+
+using NUnit.Framework.Internal;
+using Support;
+
+public static class TestContextExtensions
 {
-    using NUnit.Framework.Internal;
-    using Support;
+    static readonly string SettingsKey = typeof(RunDescriptor).FullName;
 
-    public static class TestContextExtensions
+    public static void AddRunDescriptor(this TestExecutionContext testContext, RunDescriptor runDescriptor)
     {
-        static readonly string SettingsKey = typeof(RunDescriptor).FullName;
+        testContext.CurrentTest.Properties.Add(SettingsKey, runDescriptor);
+    }
 
-        public static void AddRunDescriptor(this TestExecutionContext testContext, RunDescriptor runDescriptor)
+    public static bool TryGetRunDescriptor(this TestExecutionContext testContext, out RunDescriptor runDescriptor)
+    {
+        if (testContext.CurrentTest.Properties.ContainsKey(SettingsKey))
         {
-            testContext.CurrentTest.Properties.Add(SettingsKey, runDescriptor);
+            runDescriptor = testContext.CurrentTest.Properties.Get(SettingsKey) as RunDescriptor;
+            return true;
         }
 
-        public static bool TryGetRunDescriptor(this TestExecutionContext testContext, out RunDescriptor runDescriptor)
-        {
-            if (testContext.CurrentTest.Properties.ContainsKey(SettingsKey))
-            {
-                runDescriptor = testContext.CurrentTest.Properties.Get(SettingsKey) as RunDescriptor;
-                return true;
-            }
-
-            runDescriptor = null;
-            return false;
-        }
+        runDescriptor = null;
+        return false;
     }
 }

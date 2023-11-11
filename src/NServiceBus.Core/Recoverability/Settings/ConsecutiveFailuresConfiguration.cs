@@ -1,26 +1,25 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+class ConsecutiveFailuresConfiguration
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
+    public int NumberOfConsecutiveFailuresBeforeArming { get; set; } = int.MaxValue;
 
-    class ConsecutiveFailuresConfiguration
+    public RateLimitSettings RateLimitSettings { get; set; }
+
+    public ConsecutiveFailuresCircuitBreaker CreateCircuitBreaker(Func<long, CancellationToken, Task> onConsecutiveArmed, Func<long, CancellationToken, Task> onConsecutiveDisarmed)
     {
-        public int NumberOfConsecutiveFailuresBeforeArming { get; set; } = int.MaxValue;
+        var timeToWait = TimeSpan.Zero;
 
-        public RateLimitSettings RateLimitSettings { get; set; }
-
-        public ConsecutiveFailuresCircuitBreaker CreateCircuitBreaker(Func<long, CancellationToken, Task> onConsecutiveArmed, Func<long, CancellationToken, Task> onConsecutiveDisarmed)
+        if (RateLimitSettings != null)
         {
-            var timeToWait = TimeSpan.Zero;
-
-            if (RateLimitSettings != null)
-            {
-                timeToWait = RateLimitSettings.TimeToWaitBetweenThrottledAttempts;
-            }
-
-            var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", NumberOfConsecutiveFailuresBeforeArming, onConsecutiveArmed, onConsecutiveDisarmed, timeToWait);
-            return consecutiveFailuresCircuitBreaker;
+            timeToWait = RateLimitSettings.TimeToWaitBetweenThrottledAttempts;
         }
+
+        var consecutiveFailuresCircuitBreaker = new ConsecutiveFailuresCircuitBreaker("System outage circuit breaker", NumberOfConsecutiveFailuresBeforeArming, onConsecutiveArmed, onConsecutiveDisarmed, timeToWait);
+        return consecutiveFailuresCircuitBreaker;
     }
 }

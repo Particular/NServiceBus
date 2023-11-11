@@ -1,62 +1,61 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System.Collections.Generic;
+using Logging;
+using Pipeline;
+using Recoverability;
+using Routing;
+using Transport;
+
+/// <summary>
+/// Indicates that recoverability is required to move the current message to the error queue.
+/// </summary>
+public class MoveToError : RecoverabilityAction
 {
-    using System.Collections.Generic;
-    using Logging;
-    using Pipeline;
-    using Recoverability;
-    using Routing;
-    using Transport;
+    /// <summary>
+    /// Creates the action with the target error queue.
+    /// </summary>
+    protected internal MoveToError(string errorQueue) => ErrorQueue = errorQueue;
 
     /// <summary>
-    /// Indicates that recoverability is required to move the current message to the error queue.
+    /// Defines the error queue where the message should be move to.
     /// </summary>
-    public class MoveToError : RecoverabilityAction
+    public string ErrorQueue { get; }
+
+    /// <summary>
+    /// The ErrorHandleResult that should be passed to the transport.
+    /// </summary>
+    public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
+
+    /// <inheritdoc />
+    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
-        /// <summary>
-        /// Creates the action with the target error queue.
-        /// </summary>
-        protected internal MoveToError(string errorQueue) => ErrorQueue = errorQueue;
+        var metadata = context.Metadata;
+        var message = context.FailedMessage;
+        var exception = context.Exception;
 
-        /// <summary>
-        /// Defines the error queue where the message should be move to.
-        /// </summary>
-        public string ErrorQueue { get; }
+        Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
 
-        /// <summary>
-        /// The ErrorHandleResult that should be passed to the transport.
-        /// </summary>
-        public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
-
-        /// <inheritdoc />
-        public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
+        if (context is IRecoverabilityActionContextNotifications notifications)
         {
-            var metadata = context.Metadata;
-            var message = context.FailedMessage;
-            var exception = context.Exception;
-
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
-
-            if (context is IRecoverabilityActionContextNotifications notifications)
-            {
-                notifications.Add(new MessageFaulted(ErrorQueue, message, exception));
-            }
-
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
-
-            var headers = outgoingMessage.Headers;
-            headers.Remove(Headers.DelayedRetries);
-            headers.Remove(Headers.ImmediateRetries);
-
-            foreach (var faultMetadata in metadata)
-            {
-                headers[faultMetadata.Key] = faultMetadata.Value;
-            }
-            return new[]
-            {
-                context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
-            };
+            notifications.Add(new MessageFaulted(ErrorQueue, message, exception));
         }
 
-        static readonly ILog Logger = LogManager.GetLogger<MoveToError>();
+        var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+
+        var headers = outgoingMessage.Headers;
+        headers.Remove(Headers.DelayedRetries);
+        headers.Remove(Headers.ImmediateRetries);
+
+        foreach (var faultMetadata in metadata)
+        {
+            headers[faultMetadata.Key] = faultMetadata.Value;
+        }
+        return new[]
+        {
+            context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
+        };
     }
+
+    static readonly ILog Logger = LogManager.GetLogger<MoveToError>();
 }

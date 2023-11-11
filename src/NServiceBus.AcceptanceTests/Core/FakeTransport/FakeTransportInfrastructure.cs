@@ -1,73 +1,72 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport;
+
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Transport;
+
+public class FakeTransportInfrastructure : TransportInfrastructure
 {
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Transport;
+    readonly FakeTransport.StartUpSequence startUpSequence;
+    readonly HostSettings hostSettings;
+    readonly ReceiveSettings[] receivers;
+    readonly FakeTransport transportSettings;
 
-    public class FakeTransportInfrastructure : TransportInfrastructure
+    public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
+        ReceiveSettings[] receivers, FakeTransport transportSettings)
     {
-        readonly FakeTransport.StartUpSequence startUpSequence;
-        readonly HostSettings hostSettings;
-        readonly ReceiveSettings[] receivers;
-        readonly FakeTransport transportSettings;
+        this.startUpSequence = startUpSequence;
+        this.hostSettings = hostSettings;
+        this.receivers = receivers;
+        this.transportSettings = transportSettings;
+    }
 
-        public FakeTransportInfrastructure(FakeTransport.StartUpSequence startUpSequence, HostSettings hostSettings,
-            ReceiveSettings[] receivers, FakeTransport transportSettings)
+    public void ConfigureReceiveInfrastructure() =>
+        Receivers = receivers
+            .Select(r =>
+                new FakeReceiver(
+                    r.Id,
+                    r.ReceiveAddress.ToString(),
+                    transportSettings,
+                    startUpSequence,
+                    hostSettings.CriticalErrorAction))
+            .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
+
+    public void ConfigureSendInfrastructure()
+    {
+        Dispatcher = new FakeDispatcher();
+    }
+
+    public override Task Shutdown(CancellationToken cancellationToken = default)
+    {
+        startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
+
+        if (transportSettings.ErrorOnTransportDispose != null)
         {
-            this.startUpSequence = startUpSequence;
-            this.hostSettings = hostSettings;
-            this.receivers = receivers;
-            this.transportSettings = transportSettings;
+            throw transportSettings.ErrorOnTransportDispose;
         }
 
-        public void ConfigureReceiveInfrastructure() =>
-            Receivers = receivers
-                .Select(r =>
-                    new FakeReceiver(
-                        r.Id,
-                        r.ReceiveAddress.ToString(),
-                        transportSettings,
-                        startUpSequence,
-                        hostSettings.CriticalErrorAction))
-                .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
+        return Task.CompletedTask;
+    }
 
-        public void ConfigureSendInfrastructure()
+    public override string ToTransportAddress(QueueAddress queueAddress)
+    {
+        var address = queueAddress.BaseAddress;
+
+        var discriminator = queueAddress.Discriminator;
+
+        if (!string.IsNullOrEmpty(discriminator))
         {
-            Dispatcher = new FakeDispatcher();
+            address += "-" + discriminator;
         }
 
-        public override Task Shutdown(CancellationToken cancellationToken = default)
+        var qualifier = queueAddress.Qualifier;
+
+        if (!string.IsNullOrEmpty(qualifier))
         {
-            startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
-
-            if (transportSettings.ErrorOnTransportDispose != null)
-            {
-                throw transportSettings.ErrorOnTransportDispose;
-            }
-
-            return Task.CompletedTask;
+            address += "-" + qualifier;
         }
 
-        public override string ToTransportAddress(QueueAddress queueAddress)
-        {
-            var address = queueAddress.BaseAddress;
-
-            var discriminator = queueAddress.Discriminator;
-
-            if (!string.IsNullOrEmpty(discriminator))
-            {
-                address += "-" + discriminator;
-            }
-
-            var qualifier = queueAddress.Qualifier;
-
-            if (!string.IsNullOrEmpty(qualifier))
-            {
-                address += "-" + qualifier;
-            }
-
-            return address;
-        }
+        return address;
     }
 }

@@ -1,111 +1,110 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Faults;
+using NUnit.Framework;
+
+public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Faults;
-    using NUnit.Framework;
-
-    public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_trigger_notification_on_delayed_retry()
     {
-        [Test]
-        public async Task Should_trigger_notification_on_delayed_retry()
-        {
-            Requires.DelayedDelivery();
+        Requires.DelayedDelivery();
 
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<DelayedRetriesEndpoint>(b =>
-                {
-                    b.DoNotFailOnErrorMessages();
-                    b.When((session, c) => session.SendLocal(new MessageToBeRetried
-                    {
-                        Id = c.Id
-                    }));
-                })
-                .Done(c => c.MessageSentToError)
-                .Run();
-
-            Assert.IsInstanceOf<SimulatedException>(context.LastDelayedRetryInfo?.Exception);
-            // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
-            Assert.AreEqual(4 * 3, context.TotalNumberOfHandlerInvocations);
-            Assert.AreEqual(2, context.NumberOfDelayedRetriesPerformed);
-            Assert.AreEqual(2, context.LastDelayedRetryInfo.RetryAttempt);
-        }
-
-        class Context : ScenarioContext
-        {
-            public Guid Id { get; set; }
-            public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
-            public int TotalNumberOfHandlerInvocations { get; set; }
-            public int NumberOfDelayedRetriesPerformed { get; set; }
-            public bool MessageSentToError { get; set; }
-            public DelayedRetryMessage LastDelayedRetryInfo { get; set; }
-        }
-
-        public class DelayedRetriesEndpoint : EndpointConfigurationBuilder
-        {
-            public DelayedRetriesEndpoint()
+        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            .WithEndpoint<DelayedRetriesEndpoint>(b =>
             {
-                EndpointSetup<DefaultServer>((config, context) =>
+                b.DoNotFailOnErrorMessages();
+                b.When((session, c) => session.SendLocal(new MessageToBeRetried
                 {
-                    var testContext = (Context)context.ScenarioContext;
+                    Id = c.Id
+                }));
+            })
+            .Done(c => c.MessageSentToError)
+            .Run();
 
-                    var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
+        Assert.IsInstanceOf<SimulatedException>(context.LastDelayedRetryInfo?.Exception);
+        // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
+        Assert.AreEqual(4 * 3, context.TotalNumberOfHandlerInvocations);
+        Assert.AreEqual(2, context.NumberOfDelayedRetriesPerformed);
+        Assert.AreEqual(2, context.LastDelayedRetryInfo.RetryAttempt);
+    }
+
+    class Context : ScenarioContext
+    {
+        public Guid Id { get; set; }
+        public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
+        public int TotalNumberOfHandlerInvocations { get; set; }
+        public int NumberOfDelayedRetriesPerformed { get; set; }
+        public bool MessageSentToError { get; set; }
+        public DelayedRetryMessage LastDelayedRetryInfo { get; set; }
+    }
+
+    public class DelayedRetriesEndpoint : EndpointConfigurationBuilder
+    {
+        public DelayedRetriesEndpoint()
+        {
+            EndpointSetup<DefaultServer>((config, context) =>
+            {
+                var testContext = (Context)context.ScenarioContext;
+
+                var recoverability = config.Recoverability();
+                recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
+                {
+                    testContext.MessageSentToError = true;
+                    return Task.CompletedTask;
+                }));
+                recoverability.Immediate(settings =>
+                {
+                    settings.NumberOfRetries(3);
+                    settings.OnMessageBeingRetried((retry, _) =>
                     {
-                        testContext.MessageSentToError = true;
+                        testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                         return Task.CompletedTask;
-                    }));
-                    recoverability.Immediate(settings =>
-                    {
-                        settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried((retry, _) =>
-                        {
-                            testContext.TotalNumberOfImmediateRetriesEventInvocations++;
-                            return Task.CompletedTask;
-                        });
-                    });
-                    recoverability.Delayed(settings =>
-                    {
-                        settings.NumberOfRetries(2);
-                        settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried((retry, _) =>
-                        {
-                            testContext.NumberOfDelayedRetriesPerformed++;
-                            testContext.LastDelayedRetryInfo = retry;
-                            return Task.CompletedTask;
-                        });
                     });
                 });
-            }
-
-            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
-            {
-                public MessageToBeRetriedHandler(Context testContext)
+                recoverability.Delayed(settings =>
                 {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-                {
-                    if (message.Id != testContext.Id)
+                    settings.NumberOfRetries(2);
+                    settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
+                    settings.OnMessageBeingRetried((retry, _) =>
                     {
-                        return Task.CompletedTask; // messages from previous test runs must be ignored
-                    }
+                        testContext.NumberOfDelayedRetriesPerformed++;
+                        testContext.LastDelayedRetryInfo = retry;
+                        return Task.CompletedTask;
+                    });
+                });
+            });
+        }
 
-                    testContext.TotalNumberOfHandlerInvocations++;
+        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        {
+            public MessageToBeRetriedHandler(Context testContext)
+            {
+                this.testContext = testContext;
+            }
 
-                    throw new SimulatedException("Simulated exception message");
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
+            {
+                if (message.Id != testContext.Id)
+                {
+                    return Task.CompletedTask; // messages from previous test runs must be ignored
                 }
 
-                Context testContext;
-            }
-        }
+                testContext.TotalNumberOfHandlerInvocations++;
 
-        public class MessageToBeRetried : IMessage
-        {
-            public Guid Id { get; set; }
+                throw new SimulatedException("Simulated exception message");
+            }
+
+            Context testContext;
         }
+    }
+
+    public class MessageToBeRetried : IMessage
+    {
+        public Guid Id { get; set; }
     }
 }

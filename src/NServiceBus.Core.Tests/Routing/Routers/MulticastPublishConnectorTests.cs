@@ -1,22 +1,21 @@
-﻿namespace NServiceBus.Core.Tests.Routing.Routers
+﻿namespace NServiceBus.Core.Tests.Routing.Routers;
+
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Testing;
+
+[TestFixture]
+public class MulticastPublishConnectorTests
 {
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Testing;
-
-    [TestFixture]
-    public class MulticastPublishConnectorTests
+    [Test]
+    public async Task Should_set_messageintent_to_publish()
     {
-        [Test]
-        public async Task Should_set_messageintent_to_publish()
-        {
-            var router = new MulticastPublishConnector();
-            var context = new TestableOutgoingPublishContext();
+        var router = new MulticastPublishConnector();
+        var context = new TestableOutgoingPublishContext();
 
-            await router.Invoke(context, ctx => Task.CompletedTask);
+        await router.Invoke(context, ctx => Task.CompletedTask);
 
-            Assert.AreEqual(1, context.Headers.Count);
-            Assert.AreEqual(MessageIntent.Publish.ToString(), context.Headers[Headers.MessageIntent]);
-        }
+        Assert.AreEqual(1, context.Headers.Count);
+        Assert.AreEqual(MessageIntent.Publish.ToString(), context.Headers[Headers.MessageIntent]);
     }
 }

@@ -1,44 +1,43 @@
-namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
+namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NServiceBus.Sagas;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_saga_is_correlated_on_a_unsupported_datetime_property_type
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NServiceBus.Sagas;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_saga_is_correlated_on_a_unsupported_datetime_property_type
+    [Test]
+    public void Should_throw()
     {
-        [Test]
-        public void Should_throw()
-        {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), new List<Type>(), new Conventions()));
+        var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), new List<Type>(), new Conventions()));
 
-            StringAssert.Contains("DateTime is not supported for correlated properties", ex.Message);
+        StringAssert.Contains("DateTime is not supported for correlated properties", ex.Message);
+    }
+
+    class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IAmStartedByMessages<Message1>
+    {
+        public Task Handle(Message1 message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
         }
 
-        class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IAmStartedByMessages<Message1>
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
         {
-            public Task Handle(Message1 message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
-            {
-                mapper.ConfigureMapping<Message1>(m => m.InvalidProp)
-                    .ToSaga(s => s.InvalidProp);
-            }
-
-            public class MyEntity : ContainSagaData
-            {
-                public DateTime InvalidProp { get; set; }
-            }
+            mapper.ConfigureMapping<Message1>(m => m.InvalidProp)
+                .ToSaga(s => s.InvalidProp);
         }
 
-        class Message1 : IMessage
+        public class MyEntity : ContainSagaData
         {
             public DateTime InvalidProp { get; set; }
         }
+    }
+
+    class Message1 : IMessage
+    {
+        public DateTime InvalidProp { get; set; }
     }
 }

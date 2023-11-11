@@ -1,14 +1,13 @@
-﻿namespace NServiceBus
-{
-    using System;
-    using System.Threading.Tasks;
-    using Pipeline;
+﻿namespace NServiceBus;
 
-    class BatchToDispatchConnector : StageConnector<IBatchDispatchContext, IDispatchContext>
+using System;
+using System.Threading.Tasks;
+using Pipeline;
+
+class BatchToDispatchConnector : StageConnector<IBatchDispatchContext, IDispatchContext>
+{
+    public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
     {
-        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
-        {
-            return stage(this.CreateDispatchContext(context.Operations, context));
-        }
+        return stage(this.CreateDispatchContext(context.Operations, context));
     }
 }

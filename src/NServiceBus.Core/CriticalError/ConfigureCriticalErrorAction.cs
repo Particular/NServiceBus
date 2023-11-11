@@ -1,24 +1,23 @@
-namespace NServiceBus
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace NServiceBus;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Allow override critical error action.
+/// </summary>
+public static partial class ConfigureCriticalErrorAction
+{
     /// <summary>
-    /// Allow override critical error action.
+    /// Defines the action that the endpoint performs if a critical error occurs.
     /// </summary>
-    public static partial class ConfigureCriticalErrorAction
+    /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
+    /// <param name="onCriticalError">The action to perform.</param>
+    public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, CancellationToken, Task> onCriticalError)
     {
-        /// <summary>
-        /// Defines the action that the endpoint performs if a critical error occurs.
-        /// </summary>
-        /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
-        /// <param name="onCriticalError">The action to perform.</param>
-        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, CancellationToken, Task> onCriticalError)
-        {
-            ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            ArgumentNullException.ThrowIfNull(onCriticalError);
-            endpointConfiguration.Settings.Get<HostingComponent.Settings>().CustomCriticalErrorAction = onCriticalError;
-        }
+        ArgumentNullException.ThrowIfNull(endpointConfiguration);
+        ArgumentNullException.ThrowIfNull(onCriticalError);
+        endpointConfiguration.Settings.Get<HostingComponent.Settings>().CustomCriticalErrorAction = onCriticalError;
     }
 }

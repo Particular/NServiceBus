@@ -1,17 +1,16 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using Transport;
+
+abstract class MessageProcessingFailed
 {
-    using System;
-    using Transport;
+    public IncomingMessage Message { get; }
+    public Exception Exception { get; }
 
-    abstract class MessageProcessingFailed
+    protected MessageProcessingFailed(IncomingMessage failedMessage, Exception exception)
     {
-        public IncomingMessage Message { get; }
-        public Exception Exception { get; }
-
-        protected MessageProcessingFailed(IncomingMessage failedMessage, Exception exception)
-        {
-            Message = failedMessage;
-            Exception = exception;
-        }
+        Message = failedMessage;
+        Exception = exception;
     }
 }

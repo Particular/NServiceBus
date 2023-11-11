@@ -1,12 +1,11 @@
-namespace NServiceBus
-{
-    using System;
+namespace NServiceBus;
 
-    class DataBusPropertyInfo
-    {
-        public Func<object, object> Getter;
-        public string Name;
-        public Type Type;
-        public Action<object, object> Setter;
-    }
+using System;
+
+class DataBusPropertyInfo
+{
+    public Func<object, object> Getter;
+    public string Name;
+    public Type Type;
+    public Action<object, object> Setter;
 }

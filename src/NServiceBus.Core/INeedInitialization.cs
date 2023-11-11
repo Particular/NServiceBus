@@ -1,16 +1,15 @@
 ﻿#nullable enable
 
-namespace NServiceBus
+namespace NServiceBus;
+
+/// <summary>
+/// Indicate that the implementing class will specify configuration.
+/// </summary>
+public interface INeedInitialization
 {
     /// <summary>
-    /// Indicate that the implementing class will specify configuration.
+    /// Allows to override default settings.
     /// </summary>
-    public interface INeedInitialization
-    {
-        /// <summary>
-        /// Allows to override default settings.
-        /// </summary>
-        /// <param name="configuration">Endpoint configuration builder.</param>
-        void Customize(EndpointConfiguration configuration);
-    }
+    /// <param name="configuration">Endpoint configuration builder.</param>
+    void Customize(EndpointConfiguration configuration);
 }

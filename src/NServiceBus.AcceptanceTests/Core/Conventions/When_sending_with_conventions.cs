@@ -1,96 +1,95 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Conventions
+﻿namespace NServiceBus.AcceptanceTests.Core.Conventions;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_sending_with_conventions : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_sending_with_conventions : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_receive_the_message()
     {
-        [Test]
-        public async Task Should_receive_the_message()
-        {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
-                {
-                    await session.SendLocal<MyMessage>(m => m.Id = c.Id);
-                    await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);
-                }))
-                .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
-                .Run();
-
-            Assert.True(context.MessageClassReceived);
-            Assert.True(context.MessageInterfaceReceived);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public bool MessageClassReceived { get; set; }
-            public bool MessageInterfaceReceived { get; set; }
-            public Guid Id { get; set; }
-        }
-
-        public class Endpoint : EndpointConfigurationBuilder
-        {
-            public Endpoint()
+        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
             {
-                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")));
-            }
+                await session.SendLocal<MyMessage>(m => m.Id = c.Id);
+                await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);
+            }))
+            .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
+            .Run();
+
+        Assert.True(context.MessageClassReceived);
+        Assert.True(context.MessageInterfaceReceived);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool MessageClassReceived { get; set; }
+        public bool MessageInterfaceReceived { get; set; }
+        public Guid Id { get; set; }
+    }
+
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
+        {
+            EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")));
+        }
+    }
+
+    public class MyMessage
+    {
+        public Guid Id { get; set; }
+    }
+
+    public interface IMyInterfaceMessage
+    {
+        Guid Id { get; set; }
+    }
+
+    public class MyMessageHandler : IHandleMessages<MyMessage>
+    {
+        public MyMessageHandler(Context context)
+        {
+            testContext = context;
         }
 
-        public class MyMessage
+        public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            public Guid Id { get; set; }
-        }
-
-        public interface IMyInterfaceMessage
-        {
-            Guid Id { get; set; }
-        }
-
-        public class MyMessageHandler : IHandleMessages<MyMessage>
-        {
-            public MyMessageHandler(Context context)
+            if (testContext.Id != message.Id)
             {
-                testContext = context;
-            }
-
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
-            {
-                if (testContext.Id != message.Id)
-                {
-                    return Task.CompletedTask;
-                }
-
-                testContext.MessageClassReceived = true;
-
                 return Task.CompletedTask;
             }
 
-            Context testContext;
+            testContext.MessageClassReceived = true;
+
+            return Task.CompletedTask;
         }
 
-        public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+        Context testContext;
+    }
+
+    public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+    {
+        public MyMessageInterfaceHandler(Context context)
         {
-            public MyMessageInterfaceHandler(Context context)
+            testContext = context;
+        }
+
+        public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
+        {
+            if (testContext.Id != interfaceMessage.Id)
             {
-                testContext = context;
-            }
-
-            public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
-            {
-                if (testContext.Id != interfaceMessage.Id)
-                {
-                    return Task.CompletedTask;
-                }
-
-                testContext.MessageInterfaceReceived = true;
-
                 return Task.CompletedTask;
             }
 
-            Context testContext;
+            testContext.MessageInterfaceReceived = true;
+
+            return Task.CompletedTask;
         }
+
+        Context testContext;
     }
 }

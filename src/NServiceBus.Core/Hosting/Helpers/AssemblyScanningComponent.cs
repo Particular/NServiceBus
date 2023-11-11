@@ -1,91 +1,90 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Hosting.Helpers;
+using Settings;
+
+class AssemblyScanningComponent
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Hosting.Helpers;
-    using Settings;
-
-    class AssemblyScanningComponent
+    public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
     {
-        public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
+        var shouldScanAssemblies = configuration.UserProvidedTypes == null;
+
+        List<Type> availableTypes;
+        AssemblyScanner assemblyScanner;
+
+        if (shouldScanAssemblies)
         {
-            var shouldScanAssemblies = configuration.UserProvidedTypes == null;
+            var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
-            List<Type> availableTypes;
-            AssemblyScanner assemblyScanner;
+            assemblyScanner = new AssemblyScanner(directoryToScan);
+            availableTypes = [];
+        }
+        else
+        {
+            assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly());
+            availableTypes = configuration.UserProvidedTypes;
+        }
 
-            if (shouldScanAssemblies)
+        var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
+
+        assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
+        assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
+        assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
+        assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
+        assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
+        assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
+        assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
+
+        if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
+        {
+            throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality to not load correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to resolve this error.");
+        }
+
+        var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
+        availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
+
+        configuration.SetDefaultAvailableTypes(availableTypes);
+
+        if (shouldScanAssemblies)
+        {
+            settings.AddStartupDiagnosticsSection("AssemblyScanning", new
             {
-                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-
-                assemblyScanner = new AssemblyScanner(directoryToScan);
-                availableTypes = [];
-            }
-            else
-            {
-                assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly());
-                availableTypes = configuration.UserProvidedTypes;
-            }
-
-            var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
-
-            assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
-            assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
-            assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
-            assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
-            assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
-            assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
-            assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
-
-            if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
-            {
-                throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality to not load correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to resolve this error.");
-            }
-
-            var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
-            availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
-
-            configuration.SetDefaultAvailableTypes(availableTypes);
-
-            if (shouldScanAssemblies)
-            {
-                settings.AddStartupDiagnosticsSection("AssemblyScanning", new
+                Assemblies = scannableAssemblies.Assemblies.Select(a => new
                 {
-                    Assemblies = scannableAssemblies.Assemblies.Select(a => new
-                    {
-                        a.FullName,
-                        FileVersion = FileVersionRetriever.GetFileVersion(a)
-                    }),
-                    scannableAssemblies.ErrorsThrownDuringScanning,
-                    scannableAssemblies.SkippedFiles,
-                    Settings = assemblyScannerSettings
-                });
-            }
-
-            return new AssemblyScanningComponent(availableTypes);
+                    a.FullName,
+                    FileVersion = FileVersionRetriever.GetFileVersion(a)
+                }),
+                scannableAssemblies.ErrorsThrownDuringScanning,
+                scannableAssemblies.SkippedFiles,
+                Settings = assemblyScannerSettings
+            });
         }
 
-        AssemblyScanningComponent(List<Type> availableTypes) => AvailableTypes = availableTypes;
+        return new AssemblyScanningComponent(availableTypes);
+    }
 
-        public List<Type> AvailableTypes { get; }
+    AssemblyScanningComponent(List<Type> availableTypes) => AvailableTypes = availableTypes;
 
-        public class Configuration
-        {
-            public Configuration(SettingsHolder settings) => this.settings = settings;
+    public List<Type> AvailableTypes { get; }
 
-            public List<Type> UserProvidedTypes { get; set; }
+    public class Configuration
+    {
+        public Configuration(SettingsHolder settings) => this.settings = settings;
 
-            public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
+        public List<Type> UserProvidedTypes { get; set; }
 
-            public IList<Type> AvailableTypes => settings.Get<IList<Type>>(TypesToScanSettingsKey);
+        public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
 
-            public void SetDefaultAvailableTypes(IList<Type> scannedTypes) => settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
+        public IList<Type> AvailableTypes => settings.Get<IList<Type>>(TypesToScanSettingsKey);
 
-            readonly SettingsHolder settings;
+        public void SetDefaultAvailableTypes(IList<Type> scannedTypes) => settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
 
-            static readonly string TypesToScanSettingsKey = "TypesToScan";
-        }
+        readonly SettingsHolder settings;
+
+        static readonly string TypesToScanSettingsKey = "TypesToScan";
     }
 }

@@ -1,138 +1,137 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline
+﻿namespace NServiceBus.Core.Tests.Pipeline;
+
+using System;
+using System.Threading.Tasks;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+[TestFixture]
+public class BehaviorTypeCheckerTests
 {
-    using System;
-    using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
+    const string Description = "foo";
 
-    [TestFixture]
-    public class BehaviorTypeCheckerTests
+    [Test]
+    public void Should_not_throw_for_simple_behavior()
     {
-        const string Description = "foo";
+        BehaviorTypeChecker.ThrowIfInvalid(typeof(ValidBehavior), Description);
+    }
 
-        [Test]
-        public void Should_not_throw_for_simple_behavior()
+    [Test]
+    public void Should_not_throw_for_behavior_using_context_interfaces()
+    {
+        BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingContextInterface), Description);
+    }
+
+    [Test]
+    public void Should_not_throw_for_closed_generic_behavior()
+    {
+        BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<object>), Description);
+    }
+
+    [Test]
+    public void Should_throw_for_non_behavior()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(string), Description));
+    }
+
+    [Test]
+    public void Should_throw_for_open_generic_behavior()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<>), Description));
+    }
+
+    [Test]
+    public void Should_throw_for_abstract_behavior()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(AbstractBehavior), Description));
+    }
+
+    [Test]
+    public void Should_throw_for_behavior_using_IIncomingContext()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingIncomingContext), Description));
+    }
+
+    [Test]
+    public void Should_throw_for_behavior_using_IOutgoingContext()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingOutgoingContext), Description));
+    }
+
+    [Test]
+    public void Should_throw_for_behavior_using_IBehaviorContext()
+    {
+        Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingBehaviorContext), Description));
+    }
+
+    interface IRootContext : IBehaviorContext { }
+
+    class ValidBehavior : IBehavior<IRootContext, IRootContext>
+    {
+        public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(ValidBehavior), Description);
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_not_throw_for_behavior_using_context_interfaces()
+    class BehaviorUsingBehaviorContext : IBehavior<IBehaviorContext, IBehaviorContext>
+    {
+        public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingContextInterface), Description);
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_not_throw_for_closed_generic_behavior()
+    class BehaviorUsingIncomingContext : IBehavior<IIncomingContext, IIncomingContext>
+    {
+        public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<object>), Description);
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_non_behavior()
+    class BehaviorUsingOutgoingContext : IBehavior<IOutgoingContext, IOutgoingContext>
+    {
+        public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next)
         {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(string), Description));
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_open_generic_behavior()
+    class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, PipelineRootContext>
+    {
+        public Task Invoke(IAuditContext context, Func<PipelineRootContext, Task> stage)
         {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<>), Description));
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_abstract_behavior()
+    class BehaviorUsingContextInterface : IBehavior<IAuditContext, IAuditContext>
+    {
+        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(AbstractBehavior), Description));
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_behavior_using_IIncomingContext()
+    class BehaviorUsingContextImplementationOnTFrom : IBehavior<PipelineRootContext, PipelineRootContext>
+    {
+        public Task Invoke(PipelineRootContext context, Func<PipelineRootContext, Task> next)
         {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingIncomingContext), Description));
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_behavior_using_IOutgoingContext()
+    class GenericBehavior<T> : IBehavior<IRootContext, IRootContext>
+    {
+        public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
         {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingOutgoingContext), Description));
+            return Task.CompletedTask;
         }
+    }
 
-        [Test]
-        public void Should_throw_for_behavior_using_IBehaviorContext()
-        {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingBehaviorContext), Description));
-        }
-
-        interface IRootContext : IBehaviorContext { }
-
-        class ValidBehavior : IBehavior<IRootContext, IRootContext>
-        {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingBehaviorContext : IBehavior<IBehaviorContext, IBehaviorContext>
-        {
-            public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingIncomingContext : IBehavior<IIncomingContext, IIncomingContext>
-        {
-            public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingOutgoingContext : IBehavior<IOutgoingContext, IOutgoingContext>
-        {
-            public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, PipelineRootContext>
-        {
-            public Task Invoke(IAuditContext context, Func<PipelineRootContext, Task> stage)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingContextInterface : IBehavior<IAuditContext, IAuditContext>
-        {
-            public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class BehaviorUsingContextImplementationOnTFrom : IBehavior<PipelineRootContext, PipelineRootContext>
-        {
-            public Task Invoke(PipelineRootContext context, Func<PipelineRootContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        class GenericBehavior<T> : IBehavior<IRootContext, IRootContext>
-        {
-            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        abstract class AbstractBehavior : IBehavior<IRootContext, IRootContext>
-        {
-            public abstract Task Invoke(IRootContext context, Func<IRootContext, Task> next);
-        }
+    abstract class AbstractBehavior : IBehavior<IRootContext, IRootContext>
+    {
+        public abstract Task Invoke(IRootContext context, Func<IRootContext, Task> next);
     }
 }

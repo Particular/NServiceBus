@@ -1,332 +1,331 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+
+/// <summary>
+/// Gives users fine grained control over routing via extension methods.
+/// </summary>
+public static class RoutingOptionExtensions
 {
-    using System;
+    /// <summary>
+    /// Allows a specific physical address to be used to route this message.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <param name="destination">The destination address.</param>
+    public static void SetDestination(this SendOptions options, string destination)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+
+        var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
+        state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
+        state.ExplicitDestination = destination;
+    }
 
     /// <summary>
-    /// Gives users fine grained control over routing via extension methods.
+    /// Allows the target endpoint instance for this reply to set. If not used the reply will be sent to the `ReplyToAddress`
+    /// of the incoming message.
     /// </summary>
-    public static class RoutingOptionExtensions
+    /// <param name="options">Option being extended.</param>
+    /// <param name="destination">The new target address.</param>
+    public static void SetDestination(this ReplyOptions options, string destination)
     {
-        /// <summary>
-        /// Allows a specific physical address to be used to route this message.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="destination">The destination address.</param>
-        public static void SetDestination(this SendOptions options, string destination)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
 
-            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
-            state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
-            state.ExplicitDestination = destination;
+        options.Context.GetOrCreate<ReplyConnector.State>()
+            .ExplicitDestination = destination;
+    }
+
+    /// <summary>
+    /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)" />.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
+    public static string GetDestination(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.TryGet(out ReplyConnector.State state);
+        return state?.ExplicitDestination;
+    }
+
+    /// <summary>
+    /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)" />.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
+    public static string GetDestination(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.TryGet(out UnicastSendRouter.State state);
+        return state?.ExplicitDestination;
+    }
+
+    /// <summary>
+    /// Routes this message to any instance of this endpoint.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteToThisEndpoint(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<UnicastSendRouter.State>()
+            .Option = UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
+    }
+
+    /// <summary>
+    /// Returns whether the message should be routed to this endpoint.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwise.</returns>
+    public static bool IsRoutingToThisEndpoint(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out UnicastSendRouter.State state))
+        {
+            return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
         }
 
-        /// <summary>
-        /// Allows the target endpoint instance for this reply to set. If not used the reply will be sent to the `ReplyToAddress`
-        /// of the incoming message.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="destination">The new target address.</param>
-        public static void SetDestination(this ReplyOptions options, string destination)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        return false;
+    }
 
-            options.Context.GetOrCreate<ReplyConnector.State>()
-                .ExplicitDestination = destination;
+    /// <summary>
+    /// Routes this message to this endpoint instance.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteToThisInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<UnicastSendRouter.State>()
+            .Option = UnicastSendRouter.RouteOption.RouteToThisInstance;
+    }
+
+    /// <summary>
+    /// Returns whether the message should be routed to this endpoint instance.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwise.</returns>
+    public static bool IsRoutingToThisInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out UnicastSendRouter.State state))
+        {
+            return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
         }
 
-        /// <summary>
-        /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)" />.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
-        public static string GetDestination(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
+        return false;
+    }
 
-            options.Context.TryGet(out ReplyConnector.State state);
-            return state?.ExplicitDestination;
+    /// <summary>
+    /// Routes this message to a specific instance of a destination endpoint.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <param name="instanceId">ID of destination instance.</param>
+    public static void RouteToSpecificInstance(this SendOptions options, string instanceId)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(instanceId);
+
+        var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
+        state.Option = UnicastSendRouter.RouteOption.RouteToSpecificInstance;
+        state.SpecificInstance = instanceId;
+    }
+
+    /// <summary>
+    /// Returns the instance configured by <see cref="RouteToSpecificInstance" /> where the message should be routed to.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
+    public static string GetRouteToSpecificInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
+        {
+            return state.SpecificInstance;
         }
 
-        /// <summary>
-        /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)" />.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
-        public static string GetDestination(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
+        return null;
+    }
 
-            options.Context.TryGet(out UnicastSendRouter.State state);
-            return state?.ExplicitDestination;
+    /// <summary>
+    /// Instructs the receiver to route the reply for this message to this instance.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteReplyToThisInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
+    }
+
+    /// <summary>
+    /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.SendOptions)" /> has been called on this options.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static bool IsRoutingReplyToThisInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        {
+            return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
 
-        /// <summary>
-        /// Routes this message to any instance of this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteToThisEndpoint(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
+        return false;
+    }
 
-            options.Context.GetOrCreate<UnicastSendRouter.State>()
-                .Option = UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
+    /// <summary>
+    /// Instructs the receiver to route the reply for this message to any instance of this endpoint.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteReplyToAnyInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
+    }
+
+    /// <summary>
+    /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.SendOptions)" /> has been called on this options.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static bool IsRoutingReplyToAnyInstance(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        {
+            return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
 
-        /// <summary>
-        /// Returns whether the message should be routed to this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwise.</returns>
-        public static bool IsRoutingToThisEndpoint(this SendOptions options)
+        return false;
+    }
+
+    /// <summary>
+    /// Instructs the receiver to route the reply for this message to this instance.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteReplyToThisInstance(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
+    }
+
+    /// <summary>
+    /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static bool IsRoutingReplyToThisInstance(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
         {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out UnicastSendRouter.State state))
-            {
-                return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
-            }
-
-            return false;
+            return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
 
-        /// <summary>
-        /// Routes this message to this endpoint instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteToThisInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
+        return false;
+    }
 
-            options.Context.GetOrCreate<UnicastSendRouter.State>()
-                .Option = UnicastSendRouter.RouteOption.RouteToThisInstance;
+    /// <summary>
+    /// Instructs the receiver to route the reply for this message to any instance of this endpoint.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static void RouteReplyToAnyInstance(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
+            .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
+    }
+
+    /// <summary>
+    /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    public static bool IsRoutingReplyToAnyInstance(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        {
+            return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
 
-        /// <summary>
-        /// Returns whether the message should be routed to this endpoint instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwise.</returns>
-        public static bool IsRoutingToThisInstance(this SendOptions options)
+        return false;
+    }
+
+    /// <summary>
+    /// Instructs the receiver to route the reply to specified address.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <param name="address">Reply destination.</param>
+    public static void RouteReplyTo(this ReplyOptions options, string address)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(address);
+
+        var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+        state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
+        state.ExplicitDestination = address;
+    }
+
+    /// <summary>
+    /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.ReplyOptions,string)" />.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
+    public static string GetReplyToRoute(this ReplyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
         {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out UnicastSendRouter.State state))
-            {
-                return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
-            }
-
-            return false;
+            return state.ExplicitDestination;
         }
 
-        /// <summary>
-        /// Routes this message to a specific instance of a destination endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="instanceId">ID of destination instance.</param>
-        public static void RouteToSpecificInstance(this SendOptions options, string instanceId)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(instanceId);
+        return null;
+    }
 
-            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
-            state.Option = UnicastSendRouter.RouteOption.RouteToSpecificInstance;
-            state.SpecificInstance = instanceId;
+    /// <summary>
+    /// Instructs the receiver to route the reply to specified address.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <param name="address">Reply destination.</param>
+    public static void RouteReplyTo(this SendOptions options, string address)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(address);
+
+        var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+        state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
+        state.ExplicitDestination = address;
+    }
+
+    /// <summary>
+    /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.SendOptions,string)" />.
+    /// </summary>
+    /// <param name="options">Option being extended.</param>
+    /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
+    public static string GetReplyToRoute(this SendOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+        {
+            return state.ExplicitDestination;
         }
 
-        /// <summary>
-        /// Returns the instance configured by <see cref="RouteToSpecificInstance" /> where the message should be routed to.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
-        public static string GetRouteToSpecificInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
-            {
-                return state.SpecificInstance;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply for this message to this instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteReplyToThisInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
-                .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
-        }
-
-        /// <summary>
-        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.SendOptions)" /> has been called on this options.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static bool IsRoutingReplyToThisInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
-            {
-                return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply for this message to any instance of this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteReplyToAnyInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
-                .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
-        }
-
-        /// <summary>
-        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.SendOptions)" /> has been called on this options.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static bool IsRoutingReplyToAnyInstance(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
-            {
-                return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply for this message to this instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteReplyToThisInstance(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
-                .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
-        }
-
-        /// <summary>
-        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static bool IsRoutingReplyToThisInstance(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
-            {
-                return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply for this message to any instance of this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteReplyToAnyInstance(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>()
-                .Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
-        }
-
-        /// <summary>
-        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static bool IsRoutingReplyToAnyInstance(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
-            {
-                return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply to specified address.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="address">Reply destination.</param>
-        public static void RouteReplyTo(this ReplyOptions options, string address)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(address);
-
-            var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
-            state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
-            state.ExplicitDestination = address;
-        }
-
-        /// <summary>
-        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.ReplyOptions,string)" />.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
-        public static string GetReplyToRoute(this ReplyOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
-            {
-                return state.ExplicitDestination;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Instructs the receiver to route the reply to specified address.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="address">Reply destination.</param>
-        public static void RouteReplyTo(this SendOptions options, string address)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(address);
-
-            var state = options.Context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
-            state.Option = ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination;
-            state.ExplicitDestination = address;
-        }
-
-        /// <summary>
-        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.SendOptions,string)" />.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
-        public static string GetReplyToRoute(this SendOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
-            {
-                return state.ExplicitDestination;
-            }
-
-            return null;
-        }
+        return null;
     }
 }

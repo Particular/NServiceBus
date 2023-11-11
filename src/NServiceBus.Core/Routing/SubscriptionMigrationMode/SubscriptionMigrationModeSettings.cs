@@ -1,89 +1,88 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Reflection;
+using Configuration.AdvancedExtensibility;
+using Pipeline;
+using Routing.MessageDrivenSubscriptions;
+using Settings;
+
+/// <summary>
+/// Provides configuration for subscription migration mode.
+/// </summary>
+public class SubscriptionMigrationModeSettings : ExposeSettings
 {
-    using System;
-    using System.Reflection;
-    using Configuration.AdvancedExtensibility;
-    using Pipeline;
-    using Routing.MessageDrivenSubscriptions;
-    using Settings;
+    /// <summary>
+    /// Initializes a new instance of <see cref="SubscriptionMigrationModeSettings" />.
+    /// </summary>
+    public SubscriptionMigrationModeSettings(SettingsHolder settings) : base(settings)
+    {
+    }
 
     /// <summary>
-    /// Provides configuration for subscription migration mode.
+    /// Sets an authorizer to be used when processing a <see cref="MessageIntent.Subscribe" /> or
+    /// <see cref="MessageIntent.Unsubscribe" /> message.
     /// </summary>
-    public class SubscriptionMigrationModeSettings : ExposeSettings
+    /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
+    public void SubscriptionAuthorizer(Func<IIncomingPhysicalMessageContext, bool> authorizer)
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="SubscriptionMigrationModeSettings" />.
-        /// </summary>
-        public SubscriptionMigrationModeSettings(SettingsHolder settings) : base(settings)
+        ArgumentNullException.ThrowIfNull(authorizer);
+
+        Settings.Set("SubscriptionAuthorizer", authorizer);
+    }
+
+    /// <summary>
+    /// Registers a publisher endpoint for a given event type.
+    /// </summary>
+    /// <param name="eventType">The event type.</param>
+    /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    public void RegisterPublisher(Type eventType, string publisherEndpoint)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
+
+        ThrowOnAddress(publisherEndpoint);
+        Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
+    }
+
+    /// <summary>
+    /// Registers a publisher endpoint for all event types in a given assembly.
+    /// </summary>
+    /// <param name="assembly">The assembly containing the event types.</param>
+    /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+        ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
+
+        ThrowOnAddress(publisherEndpoint);
+
+        Settings.GetOrCreate<ConfiguredPublishers>().Add(new AssemblyPublisherSource(assembly, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
+    }
+
+    /// <summary>
+    /// Registers a publisher endpoint for all event types in a given assembly and namespace.
+    /// </summary>
+    /// <param name="assembly">The assembly containing the event types.</param>
+    /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
+    /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+        ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
+
+        ThrowOnAddress(publisherEndpoint);
+
+        // empty namespace is null, not string.empty
+        @namespace = @namespace == string.Empty ? null : @namespace;
+
+        Settings.GetOrCreate<ConfiguredPublishers>().Add(new NamespacePublisherSource(assembly, @namespace, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
+    }
+
+    static void ThrowOnAddress(string publisherEndpoint)
+    {
+        if (publisherEndpoint.Contains('@'))
         {
-        }
-
-        /// <summary>
-        /// Sets an authorizer to be used when processing a <see cref="MessageIntent.Subscribe" /> or
-        /// <see cref="MessageIntent.Unsubscribe" /> message.
-        /// </summary>
-        /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
-        public void SubscriptionAuthorizer(Func<IIncomingPhysicalMessageContext, bool> authorizer)
-        {
-            ArgumentNullException.ThrowIfNull(authorizer);
-
-            Settings.Set("SubscriptionAuthorizer", authorizer);
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint for a given event type.
-        /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public void RegisterPublisher(Type eventType, string publisherEndpoint)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
-
-            ThrowOnAddress(publisherEndpoint);
-            Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly.
-        /// </summary>
-        /// <param name="assembly">The assembly containing the event types.</param>
-        /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
-        {
-            ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
-
-            ThrowOnAddress(publisherEndpoint);
-
-            Settings.GetOrCreate<ConfiguredPublishers>().Add(new AssemblyPublisherSource(assembly, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly and namespace.
-        /// </summary>
-        /// <param name="assembly">The assembly containing the event types.</param>
-        /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
-        /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
-        {
-            ArgumentNullException.ThrowIfNull(assembly);
-            ArgumentException.ThrowIfNullOrWhiteSpace(publisherEndpoint);
-
-            ThrowOnAddress(publisherEndpoint);
-
-            // empty namespace is null, not string.empty
-            @namespace = @namespace == string.Empty ? null : @namespace;
-
-            Settings.GetOrCreate<ConfiguredPublishers>().Add(new NamespacePublisherSource(assembly, @namespace, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
-        }
-
-        static void ThrowOnAddress(string publisherEndpoint)
-        {
-            if (publisherEndpoint.Contains('@'))
-            {
-                throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{publisherEndpoint}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
-            }
+            throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{publisherEndpoint}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus.Persistence;
+
+/// <summary>
+/// Represents a storage session.
+/// </summary>
+public interface ISynchronizedStorageSession
 {
-    /// <summary>
-    /// Represents a storage session.
-    /// </summary>
-    public interface ISynchronizedStorageSession
-    {
-    }
 }

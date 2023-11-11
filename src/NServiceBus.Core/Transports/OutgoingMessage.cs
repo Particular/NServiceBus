@@ -1,47 +1,46 @@
-namespace NServiceBus.Transport
+namespace NServiceBus.Transport;
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// The message going out to the transport.
+/// </summary>
+public class OutgoingMessage
 {
-    using System;
-    using System.Collections.Generic;
+    /// <summary>
+    /// Initializes a new instance of <see cref="OutgoingMessage" />.
+    /// </summary>
+    /// <param name="messageId">The message id to use.</param>
+    /// <param name="headers">The headers associated with this message.</param>
+    /// <param name="body">The body of the message.</param>
+    public OutgoingMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
+    {
+        MessageId = messageId;
+        Headers = headers;
+        Body = body;
+    }
 
     /// <summary>
-    /// The message going out to the transport.
+    /// The body to be sent.
     /// </summary>
-    public class OutgoingMessage
+    public ReadOnlyMemory<byte> Body { get; private set; }
+
+    /// <summary>
+    /// The id of the message.
+    /// </summary>
+    public string MessageId { get; }
+
+    /// <summary>
+    /// The headers for the message.
+    /// </summary>
+    public Dictionary<string, string> Headers { get; }
+
+    /// <summary>
+    /// Use this method to update the body of this message.
+    /// </summary>
+    public void UpdateBody(ReadOnlyMemory<byte> updatedBody)
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="OutgoingMessage" />.
-        /// </summary>
-        /// <param name="messageId">The message id to use.</param>
-        /// <param name="headers">The headers associated with this message.</param>
-        /// <param name="body">The body of the message.</param>
-        public OutgoingMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
-        {
-            MessageId = messageId;
-            Headers = headers;
-            Body = body;
-        }
-
-        /// <summary>
-        /// The body to be sent.
-        /// </summary>
-        public ReadOnlyMemory<byte> Body { get; private set; }
-
-        /// <summary>
-        /// The id of the message.
-        /// </summary>
-        public string MessageId { get; }
-
-        /// <summary>
-        /// The headers for the message.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; }
-
-        /// <summary>
-        /// Use this method to update the body of this message.
-        /// </summary>
-        public void UpdateBody(ReadOnlyMemory<byte> updatedBody)
-        {
-            Body = updatedBody;
-        }
+        Body = updatedBody;
     }
 }

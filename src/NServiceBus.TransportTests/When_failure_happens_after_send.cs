@@ -1,55 +1,54 @@
-namespace NServiceBus.TransportTests
+namespace NServiceBus.TransportTests;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Transport;
+
+public class When_failure_happens_after_send : NServiceBusTransportTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Transport;
-
-    public class When_failure_happens_after_send : NServiceBusTransportTest
+    [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+    [TestCase(TransportTransactionMode.TransactionScope)]
+    public async Task Should_not_emit_messages(TransportTransactionMode transactionMode)
     {
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_emit_messages(TransportTransactionMode transactionMode)
-        {
-            var messageEmitted = false;
+        var messageEmitted = false;
 
-            var sentFromErrorReceived = CreateTaskCompletionSource();
+        var sentFromErrorReceived = CreateTaskCompletionSource();
 
-            await StartPump(
-                async (context, cancellationToken) =>
+        await StartPump(
+            async (context, cancellationToken) =>
+            {
+                if (context.Headers.ContainsKey("SentFromOnError"))
                 {
-                    if (context.Headers.ContainsKey("SentFromOnError"))
-                    {
-                        sentFromErrorReceived.SetResult();
-                        return;
-                    }
+                    sentFromErrorReceived.SetResult();
+                    return;
+                }
 
-                    if (context.Headers.ContainsKey("SentBeforeFailure"))
-                    {
-                        messageEmitted = true;
-                        return;
-                    }
-
-                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
-
-                    throw new Exception("Simulated exception");
-
-                },
-                async (context, cancellationToken) =>
+                if (context.Headers.ContainsKey("SentBeforeFailure"))
                 {
-                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
-                    return ErrorHandleResult.Handled;
-                },
-                transactionMode);
+                    messageEmitted = true;
+                    return;
+                }
 
-            await SendMessage(InputQueueName);
+                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
 
-            await sentFromErrorReceived.Task;
+                throw new Exception("Simulated exception");
 
-            await StopPump();
+            },
+            async (context, cancellationToken) =>
+            {
+                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
+                return ErrorHandleResult.Handled;
+            },
+            transactionMode);
 
-            Assert.False(messageEmitted);
-        }
+        await SendMessage(InputQueueName);
+
+        await sentFromErrorReceived.Task;
+
+        await StopPump();
+
+        Assert.False(messageEmitted);
     }
 }

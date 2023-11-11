@@ -1,31 +1,30 @@
 ﻿#nullable enable
 
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+static class Guard
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Runtime.CompilerServices;
-
-    static class Guard
+    public static void ThrowIfNegativeOrZero(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
     {
-        public static void ThrowIfNegativeOrZero(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
+        if (argument <= TimeSpan.Zero)
         {
-            if (argument <= TimeSpan.Zero)
-            {
-                ThrowArgumentOutOfRangeException(paramName);
-            }
+            ThrowArgumentOutOfRangeException(paramName);
         }
-
-        public static void ThrowIfNegative(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
-        {
-            if (argument < TimeSpan.Zero)
-            {
-                ThrowArgumentOutOfRangeException(paramName);
-            }
-        }
-
-        [DoesNotReturn]
-        static void ThrowArgumentOutOfRangeException(string? paramName)
-            => throw new ArgumentOutOfRangeException(paramName);
     }
+
+    public static void ThrowIfNegative(TimeSpan argument, [CallerArgumentExpression("argument")] string? paramName = null)
+    {
+        if (argument < TimeSpan.Zero)
+        {
+            ThrowArgumentOutOfRangeException(paramName);
+        }
+    }
+
+    [DoesNotReturn]
+    static void ThrowArgumentOutOfRangeException(string? paramName)
+        => throw new ArgumentOutOfRangeException(paramName);
 }

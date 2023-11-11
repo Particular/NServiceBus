@@ -1,107 +1,106 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_route_reply_to_instance_specific_queue()
     {
-        [Test]
-        public async Task Should_route_reply_to_instance_specific_queue()
-        {
-            var replyHandlerAddress = Conventions.EndpointNamingConvention(typeof(ReplyHandler));
+        var replyHandlerAddress = Conventions.EndpointNamingConvention(typeof(ReplyHandler));
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(e => e
-                    .When(s =>
-                    {
-                        var options = new SendOptions();
-                        options.RouteReplyTo(replyHandlerAddress);
-                        return s.Send(new RequestReplyMessage(), options);
-                    }))
-                .WithEndpoint<Replier>()
-                .WithEndpoint<ReplyHandler>()
-                .Done(c => c.ReplyReceived)
-                .Run();
-
-            Assert.IsTrue(context.ReplyReceived);
-            StringAssert.Contains(replyHandlerAddress, context.ReplyToAddress);
-        }
-
-        class Context : ScenarioContext
-        {
-            public string ReplyToAddress { get; set; }
-            public bool ReplyReceived { get; set; }
-        }
-
-        class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
-            {
-                EndpointSetup<DefaultServer>(c =>
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Sender>(e => e
+                .When(s =>
                 {
-                    c.ConfigureRouting().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
-                });
-            }
+                    var options = new SendOptions();
+                    options.RouteReplyTo(replyHandlerAddress);
+                    return s.Send(new RequestReplyMessage(), options);
+                }))
+            .WithEndpoint<Replier>()
+            .WithEndpoint<ReplyHandler>()
+            .Done(c => c.ReplyReceived)
+            .Run();
+
+        Assert.IsTrue(context.ReplyReceived);
+        StringAssert.Contains(replyHandlerAddress, context.ReplyToAddress);
+    }
+
+    class Context : ScenarioContext
+    {
+        public string ReplyToAddress { get; set; }
+        public bool ReplyReceived { get; set; }
+    }
+
+    class Sender : EndpointConfigurationBuilder
+    {
+        public Sender()
+        {
+            EndpointSetup<DefaultServer>(c =>
+            {
+                c.ConfigureRouting().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
+            });
+        }
+    }
+
+    class Replier : EndpointConfigurationBuilder
+    {
+        public Replier()
+        {
+            EndpointSetup<DefaultServer>();
         }
 
-        class Replier : EndpointConfigurationBuilder
+        class RequestReplyMessageHandler : IHandleMessages<RequestReplyMessage>
         {
-            public Replier()
+            public RequestReplyMessageHandler(Context testContext)
             {
-                EndpointSetup<DefaultServer>();
-            }
-
-            class RequestReplyMessageHandler : IHandleMessages<RequestReplyMessage>
-            {
-                public RequestReplyMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
-                {
-                    testContext.ReplyToAddress = context.ReplyToAddress;
-                    return context.Reply(new ReplyMessage());
-                }
-
-                Context testContext;
-            }
-        }
-
-        class ReplyHandler : EndpointConfigurationBuilder
-        {
-            public ReplyHandler()
-            {
-                EndpointSetup<DefaultServer>();
+                this.testContext = testContext;
             }
 
-            class ReplyMessageHandler : IHandleMessages<ReplyMessage>
+            public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
             {
-                public ReplyMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(ReplyMessage message, IMessageHandlerContext context)
-                {
-                    testContext.ReplyReceived = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext.ReplyToAddress = context.ReplyToAddress;
+                return context.Reply(new ReplyMessage());
             }
+
+            Context testContext;
+        }
+    }
+
+    class ReplyHandler : EndpointConfigurationBuilder
+    {
+        public ReplyHandler()
+        {
+            EndpointSetup<DefaultServer>();
         }
 
-        public class RequestReplyMessage : ICommand
+        class ReplyMessageHandler : IHandleMessages<ReplyMessage>
         {
-        }
+            public ReplyMessageHandler(Context testContext)
+            {
+                this.testContext = testContext;
+            }
 
-        public class ReplyMessage : IMessage
-        {
+            public Task Handle(ReplyMessage message, IMessageHandlerContext context)
+            {
+                testContext.ReplyReceived = true;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class RequestReplyMessage : ICommand
+    {
+    }
+
+    public class ReplyMessage : IMessage
+    {
     }
 }

@@ -1,29 +1,28 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+class SagaInvocationResult
 {
-    class SagaInvocationResult
+    public bool WasFound => state != State.SagaNotFound;
+
+    public void SagaFound()
     {
-        public bool WasFound => state != State.SagaNotFound;
+        state = State.SagaFound;
+    }
 
-        public void SagaFound()
+    public void SagaNotFound()
+    {
+        if (state == State.Unknown)
         {
-            state = State.SagaFound;
+            state = State.SagaNotFound;
         }
+    }
 
-        public void SagaNotFound()
-        {
-            if (state == State.Unknown)
-            {
-                state = State.SagaNotFound;
-            }
-        }
+    State state;
 
-        State state;
-
-        enum State
-        {
-            Unknown,
-            SagaFound,
-            SagaNotFound
-        }
+    enum State
+    {
+        Unknown,
+        SagaFound,
+        SagaNotFound
     }
 }

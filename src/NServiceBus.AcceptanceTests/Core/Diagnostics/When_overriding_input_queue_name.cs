@@ -1,60 +1,59 @@
-namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+namespace NServiceBus.AcceptanceTests.Core.Diagnostics;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_use_custom_queue_names()
     {
-        [Test]
-        public async Task Should_use_custom_queue_names()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-                .Done(c => c.Done)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
+            .Done(c => c.Done)
+            .Run();
 
-            Assert.IsTrue(context.Done);
-            Assert.IsTrue(context.InputQueue.StartsWith("OverriddenInputQueue"));
-        }
+        Assert.IsTrue(context.Done);
+        Assert.IsTrue(context.InputQueue.StartsWith("OverriddenInputQueue"));
+    }
 
-        public class MyEndpoint : EndpointConfigurationBuilder
+    public class MyEndpoint : EndpointConfigurationBuilder
+    {
+        public MyEndpoint()
         {
-            public MyEndpoint()
+            EndpointSetup<DefaultServer>((c, d) =>
             {
-                EndpointSetup<DefaultServer>((c, d) =>
-                {
-                    c.OverrideLocalAddress("OverriddenInputQueue");
-                });
-            }
+                c.OverrideLocalAddress("OverriddenInputQueue");
+            });
         }
+    }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+    public class MyMessageHandler : IHandleMessages<MyMessage>
+    {
+        public MyMessageHandler(Context context)
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
-            {
-                testContext.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];
-                testContext.Done = true;
-                return Task.CompletedTask;
-            }
-
-            Context testContext;
+            testContext = context;
         }
 
-        public class Context : ScenarioContext
+        public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            public bool Done { get; set; }
-            public string InputQueue { get; set; }
+            testContext.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];
+            testContext.Done = true;
+            return Task.CompletedTask;
         }
 
-        public class MyMessage : ICommand
-        {
-        }
+        Context testContext;
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool Done { get; set; }
+        public string InputQueue { get; set; }
+    }
+
+    public class MyMessage : ICommand
+    {
     }
 }

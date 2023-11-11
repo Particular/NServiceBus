@@ -1,37 +1,36 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Pipeline;
+
+using System;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Marks the inner most behavior of the pipeline.
+/// </summary>
+/// <typeparam name="T">The pipeline context type to terminate.</typeparam>
+public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminator<T>.ITerminatingContext>, IPipelineTerminator where T : IBehaviorContext
 {
-    using System;
-    using System.Threading.Tasks;
+    /// <summary>
+    /// This method will be the final one to be called before the pipeline starts to traverse back up the "stack".
+    /// </summary>
+    /// <param name="context">The current context.</param>
+    protected abstract Task Terminate(T context);
 
     /// <summary>
-    /// Marks the inner most behavior of the pipeline.
+    /// Invokes the terminate method.
     /// </summary>
-    /// <typeparam name="T">The pipeline context type to terminate.</typeparam>
-    public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminator<T>.ITerminatingContext>, IPipelineTerminator where T : IBehaviorContext
+    /// <param name="context">Context object.</param>
+    /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
+    public sealed override Task Invoke(T context, Func<ITerminatingContext, Task> next)
     {
-        /// <summary>
-        /// This method will be the final one to be called before the pipeline starts to traverse back up the "stack".
-        /// </summary>
-        /// <param name="context">The current context.</param>
-        protected abstract Task Terminate(T context);
+        ArgumentNullException.ThrowIfNull(next);
 
-        /// <summary>
-        /// Invokes the terminate method.
-        /// </summary>
-        /// <param name="context">Context object.</param>
-        /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
-        public sealed override Task Invoke(T context, Func<ITerminatingContext, Task> next)
-        {
-            ArgumentNullException.ThrowIfNull(next);
+        return Terminate(context);
+    }
 
-            return Terminate(context);
-        }
-
-        /// <summary>
-        /// A well-known context that terminates the pipeline.
-        /// </summary>
-        public interface ITerminatingContext : IBehaviorContext
-        {
-        }
+    /// <summary>
+    /// A well-known context that terminates the pipeline.
+    /// </summary>
+    public interface ITerminatingContext : IBehaviorContext
+    {
     }
 }

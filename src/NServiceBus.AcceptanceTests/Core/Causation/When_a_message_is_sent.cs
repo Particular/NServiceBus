@@ -1,88 +1,87 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Causation
+﻿namespace NServiceBus.AcceptanceTests.Core.Causation;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_a_message_is_sent : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_a_message_is_sent : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_flow_causation_headers()
     {
-        [Test]
-        public async Task Should_flow_causation_headers()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
-                .Done(c => c.Done)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
+            .Done(c => c.Done)
+            .Run();
 
-            Assert.AreEqual(context.FirstConversationId, context.ConversationIdReceived, "Conversation id should flow to outgoing messages");
-            Assert.AreEqual(context.MessageIdOfFirstMessage, context.RelatedToReceived, "RelatedToId on outgoing messages should be set to the message id of the message causing it to be sent");
+        Assert.AreEqual(context.FirstConversationId, context.ConversationIdReceived, "Conversation id should flow to outgoing messages");
+        Assert.AreEqual(context.MessageIdOfFirstMessage, context.RelatedToReceived, "RelatedToId on outgoing messages should be set to the message id of the message causing it to be sent");
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool Done { get; set; }
+        public string FirstConversationId { get; set; }
+        public string ConversationIdReceived { get; set; }
+        public string MessageIdOfFirstMessage { get; set; }
+        public string RelatedToReceived { get; set; }
+    }
+
+    public class CausationEndpoint : EndpointConfigurationBuilder
+    {
+        public CausationEndpoint()
+        {
+            EndpointSetup<DefaultServer>();
         }
 
-        public class Context : ScenarioContext
-        {
-            public bool Done { get; set; }
-            public string FirstConversationId { get; set; }
-            public string ConversationIdReceived { get; set; }
-            public string MessageIdOfFirstMessage { get; set; }
-            public string RelatedToReceived { get; set; }
-        }
+        public Context Context { get; set; }
 
-        public class CausationEndpoint : EndpointConfigurationBuilder
+        public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
         {
-            public CausationEndpoint()
+            public MessageSentOutsideHandlersHandler(Context context)
             {
-                EndpointSetup<DefaultServer>();
+                testContext = context;
             }
 
-            public Context Context { get; set; }
-
-            public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
+            public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
             {
-                public MessageSentOutsideHandlersHandler(Context context)
-                {
-                    testContext = context;
-                }
+                testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
+                testContext.MessageIdOfFirstMessage = context.MessageId;
 
-                public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
-                {
-                    testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
-                    testContext.MessageIdOfFirstMessage = context.MessageId;
-
-                    return context.SendLocal(new MessageSentInsideHandler());
-                }
-
-                Context testContext;
+                return context.SendLocal(new MessageSentInsideHandler());
             }
 
-            public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
+            Context testContext;
+        }
+
+        public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
+        {
+            public MessageSentInsideHandlersHandler(Context context)
             {
-                public MessageSentInsideHandlersHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
-                {
-                    testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
-
-                    testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
-
-                    testContext.Done = true;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext = context;
             }
-        }
 
-        public class MessageSentOutsideOfHandler : IMessage
-        {
-        }
+            public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
+            {
+                testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 
-        public class MessageSentInsideHandler : IMessage
-        {
+                testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
+
+                testContext.Done = true;
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class MessageSentOutsideOfHandler : IMessage
+    {
+    }
+
+    public class MessageSentInsideHandler : IMessage
+    {
     }
 }

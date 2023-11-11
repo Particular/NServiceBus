@@ -1,31 +1,30 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using Transport;
+
+static class DelayedRetriesHeaderExtensions
 {
-    using System;
-    using Transport;
-
-    static class DelayedRetriesHeaderExtensions
+    public static int GetDelayedDeliveriesPerformed(this IncomingMessage message)
     {
-        public static int GetDelayedDeliveriesPerformed(this IncomingMessage message)
+        if (message.Headers.TryGetValue(Headers.DelayedRetries, out var value))
         {
-            if (message.Headers.TryGetValue(Headers.DelayedRetries, out var value))
+            if (int.TryParse(value, out var i))
             {
-                if (int.TryParse(value, out var i))
-                {
-                    return i;
-                }
+                return i;
             }
-
-            return 0;
         }
 
-        public static void SetCurrentDelayedDeliveries(this OutgoingMessage message, int currentDelayedRetry)
-        {
-            message.Headers[Headers.DelayedRetries] = currentDelayedRetry.ToString();
-        }
+        return 0;
+    }
 
-        public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTimeOffset timestamp)
-        {
-            message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeOffsetHelper.ToWireFormattedString(timestamp);
-        }
+    public static void SetCurrentDelayedDeliveries(this OutgoingMessage message, int currentDelayedRetry)
+    {
+        message.Headers[Headers.DelayedRetries] = currentDelayedRetry.ToString();
+    }
+
+    public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTimeOffset timestamp)
+    {
+        message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeOffsetHelper.ToWireFormattedString(timestamp);
     }
 }

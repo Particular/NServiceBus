@@ -1,23 +1,22 @@
-namespace NServiceBus.Features
+namespace NServiceBus.Features;
+
+using System.Collections.Generic;
+
+class PrerequisiteStatus
 {
-    using System.Collections.Generic;
-
-    class PrerequisiteStatus
+    internal PrerequisiteStatus()
     {
-        internal PrerequisiteStatus()
-        {
-            Reasons = [];
-            IsSatisfied = true;
-        }
+        Reasons = [];
+        IsSatisfied = true;
+    }
 
-        public bool IsSatisfied { get; private set; }
+    public bool IsSatisfied { get; private set; }
 
-        public List<string> Reasons { get; }
+    public List<string> Reasons { get; }
 
-        internal void ReportFailure(string description)
-        {
-            IsSatisfied = false;
-            Reasons.Add(description);
-        }
+    internal void ReportFailure(string description)
+    {
+        IsSatisfied = false;
+        Reasons.Add(description);
     }
 }

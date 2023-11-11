@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.DataBus
-{
-    using System;
+﻿namespace NServiceBus.DataBus;
 
+using System;
+
+/// <summary>
+/// Defines a databus that can be used by NServiceBus.
+/// </summary>
+public abstract class DataBusDefinition
+{
     /// <summary>
-    /// Defines a databus that can be used by NServiceBus.
+    /// The feature to enable when this databus is selected.
     /// </summary>
-    public abstract class DataBusDefinition
-    {
-        /// <summary>
-        /// The feature to enable when this databus is selected.
-        /// </summary>
-        protected internal abstract Type ProvidedByFeature();
-    }
+    protected internal abstract Type ProvidedByFeature();
 }

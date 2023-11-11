@@ -1,39 +1,38 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope
+﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using FakeTransport;
+using NUnit.Framework;
+
+public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using FakeTransport;
-    using NUnit.Framework;
-
-    public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_work()
     {
-        [Test]
-        public async Task Should_work()
-        {
-            var context = await Scenario.Define<ScenarioContext>()
-                 .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
+        var context = await Scenario.Define<ScenarioContext>()
+             .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
+             {
+                 var transport = new FakeTransport
                  {
-                     var transport = new FakeTransport
-                     {
-                         TransportTransactionMode = TransportTransactionMode.ReceiveOnly
-                     };
-                     c.UseTransport(transport);
-                     c.UnitOfWork()
-                         .WrapHandlersInATransactionScope();
-                 }))
-                 .Done(c => c.EndpointsStarted)
-                 .Run();
+                     TransportTransactionMode = TransportTransactionMode.ReceiveOnly
+                 };
+                 c.UseTransport(transport);
+                 c.UnitOfWork()
+                     .WrapHandlersInATransactionScope();
+             }))
+             .Done(c => c.EndpointsStarted)
+             .Run();
 
-            Assert.True(context.EndpointsStarted);
-        }
+        Assert.True(context.EndpointsStarted);
+    }
 
-        public class ScopeEndpoint : EndpointConfigurationBuilder
+    public class ScopeEndpoint : EndpointConfigurationBuilder
+    {
+        public ScopeEndpoint()
         {
-            public ScopeEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
+            EndpointSetup<DefaultServer>();
         }
     }
 }

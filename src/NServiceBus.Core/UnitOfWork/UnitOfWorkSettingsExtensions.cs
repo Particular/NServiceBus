@@ -1,20 +1,19 @@
-namespace NServiceBus
-{
-    using System;
+namespace NServiceBus;
 
+using System;
+
+/// <summary>
+/// Provides configuration options for unit of work behavior.
+/// </summary>
+public static class UnitOfWorkSettingsExtensions
+{
     /// <summary>
-    /// Provides configuration options for unit of work behavior.
+    /// Entry point for unit of work related configuration.
     /// </summary>
-    public static class UnitOfWorkSettingsExtensions
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static UnitOfWorkSettings UnitOfWork(this EndpointConfiguration config)
     {
-        /// <summary>
-        /// Entry point for unit of work related configuration.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static UnitOfWorkSettings UnitOfWork(this EndpointConfiguration config)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            return new UnitOfWorkSettings(config);
-        }
+        ArgumentNullException.ThrowIfNull(config);
+        return new UnitOfWorkSettings(config);
     }
 }

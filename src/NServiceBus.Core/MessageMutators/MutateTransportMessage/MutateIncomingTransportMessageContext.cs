@@ -1,60 +1,59 @@
 #nullable enable
 
-namespace NServiceBus.MessageMutator
+namespace NServiceBus.MessageMutator;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+/// <summary>
+/// Context class for <see cref="IMutateIncomingTransportMessages" />.
+/// </summary>
+public class MutateIncomingTransportMessageContext : ICancellableContext
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+    /// <summary>
+    /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
+    /// </summary>
+    public MutateIncomingTransportMessageContext(ReadOnlyMemory<byte> body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(headers);
+        ArgumentNullException.ThrowIfNull(body);
+        Headers = headers;
+
+        // Intentionally assign to field to not set the MessageBodyChanged flag.
+        this.body = body;
+
+        CancellationToken = cancellationToken;
+    }
 
     /// <summary>
-    /// Context class for <see cref="IMutateIncomingTransportMessages" />.
+    /// The body of the message.
     /// </summary>
-    public class MutateIncomingTransportMessageContext : ICancellableContext
+    public ReadOnlyMemory<byte> Body
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
-        /// </summary>
-        public MutateIncomingTransportMessageContext(ReadOnlyMemory<byte> body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
+        get
         {
-            ArgumentNullException.ThrowIfNull(headers);
-            ArgumentNullException.ThrowIfNull(body);
-            Headers = headers;
-
-            // Intentionally assign to field to not set the MessageBodyChanged flag.
-            this.body = body;
-
-            CancellationToken = cancellationToken;
+            return body;
         }
-
-        /// <summary>
-        /// The body of the message.
-        /// </summary>
-        public ReadOnlyMemory<byte> Body
+        set
         {
-            get
-            {
-                return body;
-            }
-            set
-            {
-                ArgumentNullException.ThrowIfNull(value);
-                MessageBodyChanged = true;
-                body = value;
-            }
+            ArgumentNullException.ThrowIfNull(value);
+            MessageBodyChanged = true;
+            body = value;
         }
-
-        /// <summary>
-        /// The current incoming headers.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; }
-
-        /// <summary>
-        /// A <see cref="CancellationToken"/> to observe.
-        /// </summary>
-        public CancellationToken CancellationToken { get; }
-
-        ReadOnlyMemory<byte> body;
-
-        internal bool MessageBodyChanged;
     }
+
+    /// <summary>
+    /// The current incoming headers.
+    /// </summary>
+    public Dictionary<string, string> Headers { get; }
+
+    /// <summary>
+    /// A <see cref="CancellationToken"/> to observe.
+    /// </summary>
+    public CancellationToken CancellationToken { get; }
+
+    ReadOnlyMemory<byte> body;
+
+    internal bool MessageBodyChanged;
 }

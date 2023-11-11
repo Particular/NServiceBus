@@ -1,86 +1,85 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using Extensibility;
+using Pipeline;
+
+/// <summary>
+/// Provides options for disabling the best practice enforcement.
+/// </summary>
+public static class BestPracticesOptionExtensions
 {
-    using System;
-    using Extensibility;
-    using Pipeline;
+    /// <summary>
+    /// Turns off the best practice enforcement for the given message.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this ExtendableOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        options.Context.SetDoNotEnforceBestPractices();
+    }
 
     /// <summary>
-    /// Provides options for disabling the best practice enforcement.
+    /// Returns whether <see cref="DoNotEnforceBestPractices(ExtendableOptions)" /> has been called or not.
     /// </summary>
-    public static class BestPracticesOptionExtensions
+    /// <returns><c>true</c> if best practice enforcement has been disabled, <c>false</c> otherwise.</returns>
+    public static bool IgnoredBestPractices(this ExtendableOptions options)
     {
-        /// <summary>
-        /// Turns off the best practice enforcement for the given message.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this ExtendableOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            options.Context.SetDoNotEnforceBestPractices();
-        }
+        ArgumentNullException.ThrowIfNull(options);
+        options.Context.TryGet(out EnforceBestPracticesOptions bestPracticesOptions);
+        return !(bestPracticesOptions?.Enabled ?? true);
+    }
 
-        /// <summary>
-        /// Returns whether <see cref="DoNotEnforceBestPractices(ExtendableOptions)" /> has been called or not.
-        /// </summary>
-        /// <returns><c>true</c> if best practice enforcement has been disabled, <c>false</c> otherwise.</returns>
-        public static bool IgnoredBestPractices(this ExtendableOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-            options.Context.TryGet(out EnforceBestPracticesOptions bestPracticesOptions);
-            return !(bestPracticesOptions?.Enabled ?? true);
-        }
+    /// <summary>
+    /// Turns off the best practice enforcement for the given context.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Extensions.SetDoNotEnforceBestPractices();
+    }
 
-        /// <summary>
-        /// Turns off the best practice enforcement for the given context.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            context.Extensions.SetDoNotEnforceBestPractices();
-        }
+    /// <summary>
+    /// Turns off the best practice enforcement for the given context.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Extensions.SetDoNotEnforceBestPractices();
+    }
 
-        /// <summary>
-        /// Turns off the best practice enforcement for the given context.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            context.Extensions.SetDoNotEnforceBestPractices();
-        }
+    /// <summary>
+    /// Turns off the best practice enforcement for the given context.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this ISubscribeContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Extensions.SetDoNotEnforceBestPractices();
+    }
 
-        /// <summary>
-        /// Turns off the best practice enforcement for the given context.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this ISubscribeContext context)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            context.Extensions.SetDoNotEnforceBestPractices();
-        }
+    /// <summary>
+    /// Turns off the best practice enforcement for the given context.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Extensions.SetDoNotEnforceBestPractices();
+    }
 
-        /// <summary>
-        /// Turns off the best practice enforcement for the given context.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            context.Extensions.SetDoNotEnforceBestPractices();
-        }
+    /// <summary>
+    /// Turns off the best practice enforcement for the given context.
+    /// </summary>
+    public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.Extensions.SetDoNotEnforceBestPractices();
+    }
 
-        /// <summary>
-        /// Turns off the best practice enforcement for the given context.
-        /// </summary>
-        public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
+    static void SetDoNotEnforceBestPractices(this ContextBag context)
+    {
+        var bestPracticesOptions = new EnforceBestPracticesOptions
         {
-            ArgumentNullException.ThrowIfNull(context);
-            context.Extensions.SetDoNotEnforceBestPractices();
-        }
-
-        static void SetDoNotEnforceBestPractices(this ContextBag context)
-        {
-            var bestPracticesOptions = new EnforceBestPracticesOptions
-            {
-                Enabled = false
-            };
-            context.Set(bestPracticesOptions);
-        }
+            Enabled = false
+        };
+        context.Set(bestPracticesOptions);
     }
 }

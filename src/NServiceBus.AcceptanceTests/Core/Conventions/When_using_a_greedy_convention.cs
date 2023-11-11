@@ -1,72 +1,71 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Conventions
+﻿namespace NServiceBus.AcceptanceTests.Core.Conventions;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+using Conventions = NServiceBus.Conventions;
+
+public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
-
-    public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_receive_the_message()
     {
-        [Test]
-        public async Task Should_receive_the_message()
-        {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
-                {
-                    Id = c.Id
-                })))
-                .Done(c => c.WasCalled)
-                .Run();
+        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
+            {
+                Id = c.Id
+            })))
+            .Done(c => c.WasCalled)
+            .Run();
 
-            Assert.True(context.WasCalled, "The message handler should be called");
+        Assert.True(context.WasCalled, "The message handler should be called");
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool WasCalled { get; set; }
+
+        public Guid Id { get; set; }
+    }
+
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
+        {
+            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(MessageConvention));
         }
 
-        public class Context : ScenarioContext
+        static bool MessageConvention(Type t)
         {
-            public bool WasCalled { get; set; }
+            return (t.Namespace != null && (t.Assembly == typeof(Conventions).Assembly)) || (t == typeof(MyMessage));
+        }
+    }
 
-            public Guid Id { get; set; }
+    public class MyMessage
+    {
+        public Guid Id { get; set; }
+    }
+
+    public class MyMessageHandler : IHandleMessages<MyMessage>
+    {
+        public MyMessageHandler(Context context)
+        {
+            testContext = context;
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            public Endpoint()
+            if (testContext.Id != message.Id)
             {
-                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(MessageConvention));
-            }
-
-            static bool MessageConvention(Type t)
-            {
-                return (t.Namespace != null && (t.Assembly == typeof(Conventions).Assembly)) || (t == typeof(MyMessage));
-            }
-        }
-
-        public class MyMessage
-        {
-            public Guid Id { get; set; }
-        }
-
-        public class MyMessageHandler : IHandleMessages<MyMessage>
-        {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
-            {
-                if (testContext.Id != message.Id)
-                {
-                    return Task.CompletedTask;
-                }
-
-                testContext.WasCalled = true;
                 return Task.CompletedTask;
             }
 
-            Context testContext;
+            testContext.WasCalled = true;
+            return Task.CompletedTask;
         }
+
+        Context testContext;
     }
 }

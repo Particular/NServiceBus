@@ -1,70 +1,69 @@
-namespace NServiceBus.Logging
+namespace NServiceBus.Logging;
+
+using System;
+using System.IO;
+using IODirectory = System.IO.Directory;
+
+/// <summary>
+/// The default <see cref="LoggingFactoryDefinition" />.
+/// </summary>
+public class DefaultFactory : LoggingFactoryDefinition
 {
-    using System;
-    using System.IO;
-    using IODirectory = System.IO.Directory;
+    /// <summary>
+    /// Initializes a new instance of <see cref="DefaultFactory" />.
+    /// </summary>
+    public DefaultFactory()
+    {
+        directory = new Lazy<string>(() =>
+        {
+            try
+            {
+                return Host.GetOutputDirectory();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unable to determine the logging output directory. Check the inner exception for further information, or configure a custom logging directory using 'LogManager.Use<DefaultFactory>().Directory()'.", e);
+            }
+        });
+        level = new Lazy<LogLevel>(() => LogLevel.Info);
+    }
 
     /// <summary>
-    /// The default <see cref="LoggingFactoryDefinition" />.
+    /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
     /// </summary>
-    public class DefaultFactory : LoggingFactoryDefinition
+    protected internal override ILoggerFactory GetLoggingFactory()
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="DefaultFactory" />.
-        /// </summary>
-        public DefaultFactory()
-        {
-            directory = new Lazy<string>(() =>
-            {
-                try
-                {
-                    return Host.GetOutputDirectory();
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("Unable to determine the logging output directory. Check the inner exception for further information, or configure a custom logging directory using 'LogManager.Use<DefaultFactory>().Directory()'.", e);
-                }
-            });
-            level = new Lazy<LogLevel>(() => LogLevel.Info);
-        }
+        var loggerFactory = new DefaultLoggerFactory(level.Value, directory.Value);
+        var message = $"Logging to '{directory}' with level {level}";
+        loggerFactory.Write(GetType().Name, LogLevel.Info, message);
 
-        /// <summary>
-        /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
-        /// </summary>
-        protected internal override ILoggerFactory GetLoggingFactory()
-        {
-            var loggerFactory = new DefaultLoggerFactory(level.Value, directory.Value);
-            var message = $"Logging to '{directory}' with level {level}";
-            loggerFactory.Write(GetType().Name, LogLevel.Info, message);
-
-            return loggerFactory;
-        }
-
-        /// <summary>
-        /// Controls the <see cref="LogLevel" />.
-        /// </summary>
-        public void Level(LogLevel level)
-        {
-            this.level = new Lazy<LogLevel>(() => level);
-        }
-
-        /// <summary>
-        /// The directory to log files to.
-        /// </summary>
-        public void Directory(string directory)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-
-            if (!IODirectory.Exists(directory))
-            {
-                var message = $"Could not find logging directory: '{directory}'";
-                throw new DirectoryNotFoundException(message);
-            }
-
-            this.directory = new Lazy<string>(() => directory);
-        }
-
-        Lazy<string> directory;
-        Lazy<LogLevel> level;
+        return loggerFactory;
     }
+
+    /// <summary>
+    /// Controls the <see cref="LogLevel" />.
+    /// </summary>
+    public void Level(LogLevel level)
+    {
+        this.level = new Lazy<LogLevel>(() => level);
+    }
+
+    /// <summary>
+    /// The directory to log files to.
+    /// </summary>
+    public void Directory(string directory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+
+        if (!IODirectory.Exists(directory))
+        {
+            var message = $"Could not find logging directory: '{directory}'";
+            throw new DirectoryNotFoundException(message);
+        }
+
+        this.directory = new Lazy<string>(() => directory);
+    }
+
+    Lazy<string> directory;
+    Lazy<LogLevel> level;
 }

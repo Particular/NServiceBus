@@ -1,26 +1,25 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using DataBus;
+
+/// <summary>
+/// Contains extension methods to <see cref="EndpointConfiguration" /> for the file share data bus.
+/// </summary>
+public static class ConfigureFileShareDataBus
 {
-    using System;
-    using DataBus;
-
     /// <summary>
-    /// Contains extension methods to <see cref="EndpointConfiguration" /> for the file share data bus.
+    /// Sets the location to which to write/read serialized properties for the databus.
     /// </summary>
-    public static class ConfigureFileShareDataBus
+    /// <param name="config">The configuration object.</param>
+    /// <param name="basePath">The location to which to write/read serialized properties for the databus.</param>
+    /// <returns>The configuration.</returns>
+    public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)
     {
-        /// <summary>
-        /// Sets the location to which to write/read serialized properties for the databus.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <param name="basePath">The location to which to write/read serialized properties for the databus.</param>
-        /// <returns>The configuration.</returns>
-        public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentException.ThrowIfNullOrWhiteSpace(basePath);
-            config.Settings.Set("FileShareDataBusPath", basePath);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentException.ThrowIfNullOrWhiteSpace(basePath);
+        config.Settings.Set("FileShareDataBusPath", basePath);
 
-            return config;
-        }
+        return config;
     }
 }

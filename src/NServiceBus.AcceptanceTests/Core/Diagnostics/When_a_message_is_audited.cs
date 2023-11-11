@@ -1,85 +1,84 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_a_message_is_audited : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_a_message_is_audited : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_add_host_related_headers()
     {
-        [Test]
-        public async Task Should_add_host_related_headers()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
-                .WithEndpoint<AuditSpyEndpoint>()
-                .Done(c => c.Done)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<AuditSpyEndpoint>()
+            .Done(c => c.Done)
+            .Run();
 
-            Assert.IsNotNull(context.HostId);
-            Assert.IsNotNull(context.HostName);
-            Assert.IsNotNull(context.Endpoint);
-            Assert.IsNotNull(context.Machine);
+        Assert.IsNotNull(context.HostId);
+        Assert.IsNotNull(context.HostName);
+        Assert.IsNotNull(context.Endpoint);
+        Assert.IsNotNull(context.Machine);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool Done { get; set; }
+        public string HostId { get; set; }
+        public string HostName { get; set; }
+        public string Endpoint { get; set; }
+        public string Machine { get; set; }
+    }
+
+    public class EndpointWithAuditOn : EndpointConfigurationBuilder
+    {
+        public EndpointWithAuditOn()
+        {
+            EndpointSetup<DefaultServer>(c => c
+                .AuditProcessedMessagesTo<AuditSpyEndpoint>());
         }
 
-        public class Context : ScenarioContext
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public bool Done { get; set; }
-            public string HostId { get; set; }
-            public string HostName { get; set; }
-            public string Endpoint { get; set; }
-            public string Machine { get; set; }
-        }
-
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
-        {
-            public EndpointWithAuditOn()
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(c => c
-                    .AuditProcessedMessagesTo<AuditSpyEndpoint>());
-            }
-
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
-            {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                return Task.CompletedTask;
             }
         }
+    }
 
-        class AuditSpyEndpoint : EndpointConfigurationBuilder
+    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    {
+        public AuditSpyEndpoint()
         {
-            public AuditSpyEndpoint()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
-            {
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    testContext.HostId = context.MessageHeaders[Headers.HostId];
-                    testContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
-                    testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
-                    testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
-                    testContext.Done = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
+            EndpointSetup<DefaultServer>();
         }
 
-
-        public class MessageToBeAudited : IMessage
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
+            public MessageToBeAuditedHandler(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+            {
+                testContext.HostId = context.MessageHeaders[Headers.HostId];
+                testContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
+                testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
+                testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
+                testContext.Done = true;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+
+    public class MessageToBeAudited : IMessage
+    {
     }
 }

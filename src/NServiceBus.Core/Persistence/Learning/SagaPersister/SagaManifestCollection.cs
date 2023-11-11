@@ -1,38 +1,37 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Sagas;
+
+class SagaManifestCollection
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using Sagas;
-
-    class SagaManifestCollection
+    public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter)
     {
-        public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter)
+        foreach (var metadata in sagas)
         {
-            foreach (var metadata in sagas)
+            var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName));
+
+            if (!Directory.Exists(sagaStorageDir))
             {
-                var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName));
-
-                if (!Directory.Exists(sagaStorageDir))
-                {
-                    Directory.CreateDirectory(sagaStorageDir);
-                }
-
-                var manifest = new SagaManifest
-                {
-                    StorageDirectory = sagaStorageDir,
-                    SagaEntityType = metadata.SagaEntityType
-                };
-
-                sagaManifests[metadata.SagaEntityType] = manifest;
+                Directory.CreateDirectory(sagaStorageDir);
             }
-        }
 
-        public SagaManifest GetForEntityType(Type type)
-        {
-            return sagaManifests[type];
-        }
+            var manifest = new SagaManifest
+            {
+                StorageDirectory = sagaStorageDir,
+                SagaEntityType = metadata.SagaEntityType
+            };
 
-        readonly Dictionary<Type, SagaManifest> sagaManifests = [];
+            sagaManifests[metadata.SagaEntityType] = manifest;
+        }
     }
+
+    public SagaManifest GetForEntityType(Type type)
+    {
+        return sagaManifests[type];
+    }
+
+    readonly Dictionary<Type, SagaManifest> sagaManifests = [];
 }

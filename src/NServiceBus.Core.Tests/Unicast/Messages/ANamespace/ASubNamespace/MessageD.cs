@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Unicast.Tests.Messages.ANamespace.ASubNamespace
-{
-    public class MessageD : IMessage
-    {
+﻿namespace NServiceBus.Unicast.Tests.Messages.ANamespace.ASubNamespace;
 
-    }
+public class MessageD : IMessage
+{
+
 }

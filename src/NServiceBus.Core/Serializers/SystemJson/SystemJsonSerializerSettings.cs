@@ -1,11 +1,10 @@
 ﻿#nullable enable
-namespace NServiceBus.Serializers.SystemJson
-{
-    using System.Text.Json;
+namespace NServiceBus.Serializers.SystemJson;
 
-    class SystemJsonSerializerSettings
-    {
-        public JsonSerializerOptions? SerializerOptions { get; set; }
-        public string ContentType { get; set; } = ContentTypes.Json;
-    }
+using System.Text.Json;
+
+class SystemJsonSerializerSettings
+{
+    public JsonSerializerOptions? SerializerOptions { get; set; }
+    public string ContentType { get; set; } = ContentTypes.Json;
 }

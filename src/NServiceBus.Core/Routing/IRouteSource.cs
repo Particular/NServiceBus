@@ -1,11 +1,10 @@
-namespace NServiceBus
-{
-    using System.Collections.Generic;
-    using Routing;
+namespace NServiceBus;
 
-    interface IRouteSource
-    {
-        IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions);
-        RouteSourcePriority Priority { get; }
-    }
+using System.Collections.Generic;
+using Routing;
+
+interface IRouteSource
+{
+    IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions);
+    RouteSourcePriority Priority { get; }
 }

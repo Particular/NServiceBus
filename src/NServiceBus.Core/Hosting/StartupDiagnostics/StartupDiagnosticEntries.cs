@@ -1,40 +1,39 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// Holds diagnostics entries to be written at startup.
+/// </summary>
+public class StartupDiagnosticEntries
 {
-    using System.Collections.Generic;
+    /// <summary>
+    /// Adds a new section to the diagnostics.
+    /// </summary>
+    public void Add(string sectionName, object section)
+    {
+        entries.Add(new StartupDiagnosticEntry
+        {
+            Name = sectionName,
+            Data = section
+        });
+    }
+
+    internal List<StartupDiagnosticEntry> entries = [];
 
     /// <summary>
-    /// Holds diagnostics entries to be written at startup.
+    /// A diagnostics section.
     /// </summary>
-    public class StartupDiagnosticEntries
+    public class StartupDiagnosticEntry
     {
         /// <summary>
-        /// Adds a new section to the diagnostics.
+        /// The section name.
         /// </summary>
-        public void Add(string sectionName, object section)
-        {
-            entries.Add(new StartupDiagnosticEntry
-            {
-                Name = sectionName,
-                Data = section
-            });
-        }
-
-        internal List<StartupDiagnosticEntry> entries = [];
+        public string Name { get; set; }
 
         /// <summary>
-        /// A diagnostics section.
+        /// The actual diagnostics data.
         /// </summary>
-        public class StartupDiagnosticEntry
-        {
-            /// <summary>
-            /// The section name.
-            /// </summary>
-            public string Name { get; set; }
-
-            /// <summary>
-            /// The actual diagnostics data.
-            /// </summary>
-            public object Data { get; set; }
-        }
+        public object Data { get; set; }
     }
 }

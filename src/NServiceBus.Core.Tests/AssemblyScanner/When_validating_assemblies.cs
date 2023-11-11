@@ -1,42 +1,41 @@
-﻿namespace NServiceBus.Core.Tests.AssemblyScanner
+﻿namespace NServiceBus.Core.Tests.AssemblyScanner;
+
+using System;
+using System.Linq;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_validating_assemblies
 {
-    using System;
-    using System.Linq;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_validating_assemblies
+    [Test]
+    public void Should_not_validate_system_assemblies()
     {
-        [Test]
-        public void Should_not_validate_system_assemblies()
+        var systemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.Contains("System"));
+
+        foreach (var assembly in systemAssemblies)
         {
-            var systemAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.Contains("System"));
+            AssemblyValidator.ValidateAssemblyFile(assembly.Location, out var shouldLoad, out var reason);
 
-            foreach (var assembly in systemAssemblies)
-            {
-                AssemblyValidator.ValidateAssemblyFile(assembly.Location, out var shouldLoad, out var reason);
-
-                Assert.IsFalse(shouldLoad, $"Should not validate {assembly.FullName}");
-                Assert.That(reason == "File is a .NET runtime assembly.");
-            }
+            Assert.IsFalse(shouldLoad, $"Should not validate {assembly.FullName}");
+            Assert.That(reason == "File is a .NET runtime assembly.");
         }
+    }
 
-        [Test]
-        public void Should_validate_NServiceBus_Core_assembly()
-        {
-            AssemblyValidator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
+    [Test]
+    public void Should_validate_NServiceBus_Core_assembly()
+    {
+        AssemblyValidator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
 
-            Assert.IsTrue(shouldLoad);
-            Assert.That(reason == "File is a .NET assembly.");
-        }
+        Assert.IsTrue(shouldLoad);
+        Assert.That(reason == "File is a .NET assembly.");
+    }
 
-        [Test]
-        public void Should_validate_non_system_assemblies()
-        {
-            AssemblyValidator.ValidateAssemblyFile(GetType().Assembly.Location, out var shouldLoad, out var reason);
+    [Test]
+    public void Should_validate_non_system_assemblies()
+    {
+        AssemblyValidator.ValidateAssemblyFile(GetType().Assembly.Location, out var shouldLoad, out var reason);
 
-            Assert.IsTrue(shouldLoad);
-            Assert.That(reason == "File is a .NET assembly.");
-        }
+        Assert.IsTrue(shouldLoad);
+        Assert.That(reason == "File is a .NET assembly.");
     }
 }

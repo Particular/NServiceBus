@@ -1,78 +1,77 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Subsequent_handlers_will_not_be_invoked()
     {
-        [Test]
-        public async Task Subsequent_handlers_will_not_be_invoked()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
-                .Done(c => c.FirstHandlerInvoked)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<MyEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
+            .Done(c => c.FirstHandlerInvoked)
+            .Run();
 
-            Assert.That(context.FirstHandlerInvoked, Is.True);
-            Assert.That(context.SecondHandlerInvoked, Is.False);
+        Assert.That(context.FirstHandlerInvoked, Is.True);
+        Assert.That(context.SecondHandlerInvoked, Is.False);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool FirstHandlerInvoked { get; set; }
+        public bool SecondHandlerInvoked { get; set; }
+    }
+
+    public class SomeMessage : IMessage
+    {
+    }
+
+    public class MyEndpoint : EndpointConfigurationBuilder
+    {
+        public MyEndpoint()
+        {
+            EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
         }
 
-        public class Context : ScenarioContext
+        class FirstHandler : IHandleMessages<SomeMessage>
         {
-            public bool FirstHandlerInvoked { get; set; }
-            public bool SecondHandlerInvoked { get; set; }
+            public FirstHandler(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            {
+                testContext.FirstHandlerInvoked = true;
+
+                context.DoNotContinueDispatchingCurrentMessageToHandlers();
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
+
         }
 
-        public class SomeMessage : IMessage
+        class SecondHandler : IHandleMessages<SomeMessage>
         {
-        }
-
-        public class MyEndpoint : EndpointConfigurationBuilder
-        {
-            public MyEndpoint()
+            public SecondHandler(Context context)
             {
-                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
+                testContext = context;
             }
 
-            class FirstHandler : IHandleMessages<SomeMessage>
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                public FirstHandler(Context context)
-                {
-                    testContext = context;
-                }
+                testContext.SecondHandlerInvoked = true;
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
-                {
-                    testContext.FirstHandlerInvoked = true;
-
-                    context.DoNotContinueDispatchingCurrentMessageToHandlers();
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-
+                return Task.CompletedTask;
             }
 
-            class SecondHandler : IHandleMessages<SomeMessage>
-            {
-                public SecondHandler(Context context)
-                {
-                    testContext = context;
-                }
+            Context testContext;
 
-                public Task Handle(SomeMessage message, IMessageHandlerContext context)
-                {
-                    testContext.SecondHandlerInvoked = true;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-
-            }
         }
     }
 }

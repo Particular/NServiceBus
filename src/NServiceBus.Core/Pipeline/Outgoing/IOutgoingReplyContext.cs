@@ -1,13 +1,12 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Pipeline;
+
+/// <summary>
+/// Pipeline context for reply operations.
+/// </summary>
+public interface IOutgoingReplyContext : IOutgoingContext
 {
     /// <summary>
-    /// Pipeline context for reply operations.
+    /// The reply message.
     /// </summary>
-    public interface IOutgoingReplyContext : IOutgoingContext
-    {
-        /// <summary>
-        /// The reply message.
-        /// </summary>
-        OutgoingLogicalMessage Message { get; }
-    }
+    OutgoingLogicalMessage Message { get; }
 }

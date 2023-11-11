@@ -1,60 +1,59 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+/// <summary>
+/// The storage types used for NServiceBus needs.
+/// </summary>
+public abstract partial class StorageType
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    StorageType(string storage)
+    {
+        this.storage = storage;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return storage;
+    }
+
+    internal static List<Type> GetAvailableStorageTypes()
+    {
+        return typeof(StorageType).GetNestedTypes().Where(t => t.BaseType == typeof(StorageType)).ToList();
+    }
+
+    readonly string storage;
 
     /// <summary>
-    /// The storage types used for NServiceBus needs.
+    /// Storage for subscriptions.
     /// </summary>
-    public abstract partial class StorageType
+    public sealed class Subscriptions : StorageType
     {
-        StorageType(string storage)
+        internal Subscriptions() : base("Subscriptions")
         {
-            this.storage = storage;
         }
+    }
 
-        /// <inheritdoc />
-        public override string ToString()
+    /// <summary>
+    /// Storage for sagas.
+    /// </summary>
+    public sealed class Sagas : StorageType
+    {
+        internal Sagas() : base("Sagas")
         {
-            return storage;
         }
+    }
 
-        internal static List<Type> GetAvailableStorageTypes()
+    /// <summary>
+    /// Storage for outbox.
+    /// </summary>
+    public sealed class Outbox : StorageType
+    {
+        internal Outbox() : base("Outbox")
         {
-            return typeof(StorageType).GetNestedTypes().Where(t => t.BaseType == typeof(StorageType)).ToList();
-        }
-
-        readonly string storage;
-
-        /// <summary>
-        /// Storage for subscriptions.
-        /// </summary>
-        public sealed class Subscriptions : StorageType
-        {
-            internal Subscriptions() : base("Subscriptions")
-            {
-            }
-        }
-
-        /// <summary>
-        /// Storage for sagas.
-        /// </summary>
-        public sealed class Sagas : StorageType
-        {
-            internal Sagas() : base("Sagas")
-            {
-            }
-        }
-
-        /// <summary>
-        /// Storage for outbox.
-        /// </summary>
-        public sealed class Outbox : StorageType
-        {
-            internal Outbox() : base("Outbox")
-            {
-            }
         }
     }
 }

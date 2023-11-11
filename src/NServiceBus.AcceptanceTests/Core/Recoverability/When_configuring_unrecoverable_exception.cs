@@ -1,81 +1,80 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Support;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Support;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTest
+    [Test]
+    public void Should_move_to_error_queue_without_retries()
     {
-        [Test]
-        public void Should_move_to_error_queue_without_retries()
+        Requires.DelayedDelivery();
+
+        Context context = null;
+
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
         {
-            Requires.DelayedDelivery();
+            await Scenario.Define<Context>(ctx => context = ctx)
+                .WithEndpoint<EndpointWithFailingHandler>(b => b
+                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                    {
+                        Id = ctx.TestRunId
+                    }))
+                )
+                .Done(c => !c.FailedMessages.IsEmpty)
+                .Run();
+        });
 
-            Context context = null;
+        Assert.That(exception.FailedMessage.Exception, Is.TypeOf<CustomException>());
+        Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
+        Assert.AreEqual(1, context.HandlerInvoked);
+    }
 
-            var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+    class Context : ScenarioContext
+    {
+        public int HandlerInvoked { get; set; }
+    }
+
+    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    {
+        public EndpointWithFailingHandler()
+        {
+            EndpointSetup<DefaultServer>((config, context) =>
             {
-                await Scenario.Define<Context>(ctx => context = ctx)
-                    .WithEndpoint<EndpointWithFailingHandler>(b => b
-                        .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                        {
-                            Id = ctx.TestRunId
-                        }))
-                    )
-                    .Done(c => !c.FailedMessages.IsEmpty)
-                    .Run();
+                config.Recoverability().AddUnrecoverableException(typeof(CustomException));
+                config.Recoverability().Immediate(i => i.NumberOfRetries(2));
+                config.Recoverability().Delayed(d => d.NumberOfRetries(2));
             });
-
-            Assert.That(exception.FailedMessage.Exception, Is.TypeOf<CustomException>());
-            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
-            Assert.AreEqual(1, context.HandlerInvoked);
         }
 
-        class Context : ScenarioContext
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public int HandlerInvoked { get; set; }
-        }
-
-        class EndpointWithFailingHandler : EndpointConfigurationBuilder
-        {
-            public EndpointWithFailingHandler()
+            public InitiatingHandler(Context testContext)
             {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.Recoverability().AddUnrecoverableException(typeof(CustomException));
-                    config.Recoverability().Immediate(i => i.NumberOfRetries(2));
-                    config.Recoverability().Delayed(d => d.NumberOfRetries(2));
-                });
+                this.testContext = testContext;
             }
 
-            class InitiatingHandler : IHandleMessages<InitiatingMessage>
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
-                public InitiatingHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    testContext.HandlerInvoked++;
-                    throw new CustomException();
-                }
-
-                Context testContext;
+                testContext.HandlerInvoked++;
+                throw new CustomException();
             }
-        }
 
-        class CustomException : SimulatedException
-        {
+            Context testContext;
         }
+    }
 
-        public class InitiatingMessage : IMessage
-        {
-            public Guid Id { get; set; }
-        }
+    class CustomException : SimulatedException
+    {
+    }
+
+    public class InitiatingMessage : IMessage
+    {
+        public Guid Id { get; set; }
     }
 }

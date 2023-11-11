@@ -1,21 +1,20 @@
-namespace NServiceBus
-{
-    using System;
-    using AutomaticSubscriptions.Config;
+namespace NServiceBus;
 
+using System;
+using AutomaticSubscriptions.Config;
+
+/// <summary>
+/// Adds support for custom configuration of the auto subscribe feature.
+/// </summary>
+public static class AutoSubscribeSettingsExtensions
+{
     /// <summary>
-    /// Adds support for custom configuration of the auto subscribe feature.
+    /// Use this method to change how auto subscribe works.
     /// </summary>
-    public static class AutoSubscribeSettingsExtensions
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static AutoSubscribeSettings AutoSubscribe(this EndpointConfiguration config)
     {
-        /// <summary>
-        /// Use this method to change how auto subscribe works.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static AutoSubscribeSettings AutoSubscribe(this EndpointConfiguration config)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            return new AutoSubscribeSettings(config);
-        }
+        ArgumentNullException.ThrowIfNull(config);
+        return new AutoSubscribeSettings(config);
     }
 }

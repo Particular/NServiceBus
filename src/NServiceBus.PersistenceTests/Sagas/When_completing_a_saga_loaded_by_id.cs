@@ -1,59 +1,58 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using NUnit.Framework;
+
+public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
 {
-    using System;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-
-    public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
+    [Test]
+    public async Task Should_delete_the_saga()
     {
-        [Test]
-        public async Task Should_delete_the_saga()
+        var saga = new TestSagaData { SomeId = Guid.NewGuid().ToString(), DateTimeProperty = DateTime.UtcNow };
+        await SaveSaga(saga);
+
+        var context = configuration.GetContextBagForSagaStorage();
+        using (var completeSession = configuration.CreateStorageSession())
         {
-            var saga = new TestSagaData { SomeId = Guid.NewGuid().ToString(), DateTimeProperty = DateTime.UtcNow };
-            await SaveSaga(saga);
+            await completeSession.Open(context);
 
-            var context = configuration.GetContextBagForSagaStorage();
-            using (var completeSession = configuration.CreateStorageSession())
-            {
-                await completeSession.Open(context);
+            var sagaData = await configuration.SagaStorage.Get<TestSagaData>(saga.Id, completeSession, context);
 
-                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(saga.Id, completeSession, context);
-
-                await configuration.SagaStorage.Complete(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
-            }
-
-            var completedSaga = await GetById<TestSagaData>(saga.Id);
-            Assert.Null(completedSaga);
+            await configuration.SagaStorage.Complete(sagaData, completeSession, context);
+            await completeSession.CompleteAsync();
         }
 
-        public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
-        {
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
+        var completedSaga = await GetById<TestSagaData>(saga.Id);
+        Assert.Null(completedSaga);
+    }
 
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
+    public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+        {
+            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
         }
 
-        public class TestSagaData : ContainSagaData
+        public Task Handle(StartMessage message, IMessageHandlerContext context)
         {
-            public string SomeId { get; set; }
-
-            public DateTime DateTimeProperty { get; set; }
+            throw new NotImplementedException();
         }
+    }
 
-        public class StartMessage
-        {
-            public string SomeId { get; set; }
-        }
+    public class TestSagaData : ContainSagaData
+    {
+        public string SomeId { get; set; }
 
-        public When_completing_a_saga_loaded_by_id(TestVariant param) : base(param)
-        {
-        }
+        public DateTime DateTimeProperty { get; set; }
+    }
+
+    public class StartMessage
+    {
+        public string SomeId { get; set; }
+    }
+
+    public When_completing_a_saga_loaded_by_id(TestVariant param) : base(param)
+    {
     }
 }

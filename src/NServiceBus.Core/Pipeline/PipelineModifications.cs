@@ -1,12 +1,11 @@
-﻿namespace NServiceBus
-{
-    using System.Collections.Generic;
-    using Pipeline;
+﻿namespace NServiceBus;
 
-    class PipelineModifications
-    {
-        public List<RegisterStep> Additions = [];
-        public List<ReplaceStep> Replacements = [];
-        public List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
-    }
+using System.Collections.Generic;
+using Pipeline;
+
+class PipelineModifications
+{
+    public List<RegisterStep> Additions = [];
+    public List<ReplaceStep> Replacements = [];
+    public List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
 }
