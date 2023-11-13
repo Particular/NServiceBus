@@ -1,18 +1,17 @@
-namespace NServiceBus.AcceptanceTesting
+namespace NServiceBus.AcceptanceTesting;
+
+using System;
+using Logging;
+
+class ContextAppenderFactory : ILoggerFactory
 {
-    using System;
-    using Logging;
-
-    class ContextAppenderFactory : ILoggerFactory
+    public ILog GetLogger(Type type)
     {
-        public ILog GetLogger(Type type)
-        {
-            return GetLogger(type.FullName);
-        }
+        return GetLogger(type.FullName);
+    }
 
-        public ILog GetLogger(string name)
-        {
-            return new ContextAppender(name);
-        }
+    public ILog GetLogger(string name)
+    {
+        return new ContextAppender(name);
     }
 }

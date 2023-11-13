@@ -1,23 +1,22 @@
-namespace NServiceBus.Features
+namespace NServiceBus.Features;
+
+using Microsoft.Extensions.DependencyInjection;
+using Persistence;
+
+/// <summary>
+/// Configures the synchronized storage.
+/// </summary>
+public class SynchronizedStorage : Feature
 {
-    using Microsoft.Extensions.DependencyInjection;
-    using Persistence;
+    internal SynchronizedStorage()
+    {
+    }
 
     /// <summary>
-    /// Configures the synchronized storage.
+    /// See <see cref="Feature.Setup" />.
     /// </summary>
-    public class SynchronizedStorage : Feature
+    protected internal override void Setup(FeatureConfigurationContext context)
     {
-        internal SynchronizedStorage()
-        {
-        }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Services.AddScoped<ISynchronizedStorageSession>(provider => provider.GetService<ICompletableSynchronizedStorageSession>());
-        }
+        context.Services.AddScoped<ISynchronizedStorageSession>(provider => provider.GetService<ICompletableSynchronizedStorageSession>());
     }
 }

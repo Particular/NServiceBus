@@ -1,11 +1,10 @@
-﻿namespace NServiceBus
-{
-    using System.Threading;
+﻿namespace NServiceBus;
 
-    class FakeRootContext : PipelineRootContext
+using System.Threading;
+
+class FakeRootContext : PipelineRootContext
+{
+    public FakeRootContext() : base(null, null, null, CancellationToken.None)
     {
-        public FakeRootContext() : base(null, null, null, CancellationToken.None)
-        {
-        }
     }
 }

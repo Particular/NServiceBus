@@ -1,34 +1,34 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests
-{
-    using System.Threading.Tasks;
-    using Helpers;
-    using Microsoft.CodeAnalysis.CSharp;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Analyzer.Tests;
 
-    [TestFixture]
-    public class ForwardCancellationTokenTests : AnalyzerTestFixture<ForwardCancellationTokenAnalyzer>
-    {
-        [TestCase("IMessageHandlerContext context")]
-        [TestCase("int a, string b, IMessageHandlerContext context")]
-        [TestCase("IMessageHandlerContext context, int a, string b")]
-        [TestCase("int a, string b, IMessageHandlerContext context, float c, double d")]
-        [TestCase("IMessageHandlerContext context, string s = null, int i = 0")]
-        [TestCase("[Silly] IMessageHandlerContext context")]
-        [TestCase("IMessageHandlerContext mc")]
-        [TestCase("ICancellableContext context")]
-        [TestCase("IPipelineContext context")]
-        [TestCase("IMessageProcessingContext context")]
-        [TestCase("IBehaviorContext context")]
-        [TestCase("IIncomingLogicalMessageContext context")]
-        [TestCase("IOutgoingLogicalMessageContext context")]
-        [TestCase("IIncomingPhysicalMessageContext context")]
-        [TestCase("IOutgoingPhysicalMessageContext context")]
-        [TestCase("MutateIncomingMessageContext context")]
-        [TestCase("MutateOutgoingMessageContext context")]
-        [TestCase("MutateIncomingTransportMessageContext context")]
-        [TestCase("MutateOutgoingTransportMessageContext context")]
-        public Task NormalUsage(string arguments) => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
+using System.Threading.Tasks;
+using Helpers;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+
+[TestFixture]
+public class ForwardCancellationTokenTests : AnalyzerTestFixture<ForwardCancellationTokenAnalyzer>
+{
+    [TestCase("IMessageHandlerContext context")]
+    [TestCase("int a, string b, IMessageHandlerContext context")]
+    [TestCase("IMessageHandlerContext context, int a, string b")]
+    [TestCase("int a, string b, IMessageHandlerContext context, float c, double d")]
+    [TestCase("IMessageHandlerContext context, string s = null, int i = 0")]
+    [TestCase("[Silly] IMessageHandlerContext context")]
+    [TestCase("IMessageHandlerContext mc")]
+    [TestCase("ICancellableContext context")]
+    [TestCase("IPipelineContext context")]
+    [TestCase("IMessageProcessingContext context")]
+    [TestCase("IBehaviorContext context")]
+    [TestCase("IIncomingLogicalMessageContext context")]
+    [TestCase("IOutgoingLogicalMessageContext context")]
+    [TestCase("IIncomingPhysicalMessageContext context")]
+    [TestCase("IOutgoingPhysicalMessageContext context")]
+    [TestCase("MutateIncomingMessageContext context")]
+    [TestCase("MutateOutgoingMessageContext context")]
+    [TestCase("MutateIncomingTransportMessageContext context")]
+    [TestCase("MutateOutgoingTransportMessageContext context")]
+    public Task NormalUsage(string arguments) => Assert(
+        ForwardCancellationTokenAnalyzer.DiagnosticId,
 @"using NServiceBus;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
@@ -109,9 +109,9 @@ public class Foo
     public async Task ArrowMethod(" + arguments + @") => await [|StaticMethod()|];
 }");
 
-        [Test]
-        public Task DelegateBody() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
+    [Test]
+    public Task DelegateBody() => Assert(
+        ForwardCancellationTokenAnalyzer.DiagnosticId,
 @"using System;
 using System.Threading;
 using NServiceBus;
@@ -132,9 +132,9 @@ public class MyClass
     }
 }");
 
-        [Test]
-        public Task NoBaseType() => Assert(
-            ForwardCancellationTokenAnalyzer.DiagnosticId,
+    [Test]
+    public Task NoBaseType() => Assert(
+        ForwardCancellationTokenAnalyzer.DiagnosticId,
 @"using NServiceBus;
 using System;
 using System.Threading;
@@ -162,8 +162,8 @@ public class Foo
 public class TestMessage : ICommand {}
 public interface IMadeUpContext {}");
 
-        [Test]
-        public Task NoDiagnosticWhenNotNServiceBus() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenNotNServiceBus() => Assert(
 @"using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -204,8 +204,8 @@ public abstract class Behavior<TContext>
     public abstract Task Invoke(TContext context, Func<Task> next);
 }");
 
-        [Test]
-        public Task NoDiagnosticWhenTokenPassedToStaticMethod() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenTokenPassedToStaticMethod() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -223,8 +223,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenStaticMethodDoesNotSupportToken() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenStaticMethodDoesNotSupportToken() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -240,8 +240,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenTokenPassedToExternalStaticMethod() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenTokenPassedToExternalStaticMethod() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -259,8 +259,8 @@ public static class OtherClass
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportToken() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportToken() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -277,8 +277,8 @@ public static class OtherClass
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenTokenPassedToExternalStaticMethodWithStaticUsing() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenTokenPassedToExternalStaticMethodWithStaticUsing() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -297,8 +297,8 @@ public static class OtherClass
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportTokenWithStaticUsing() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenExternalStaticMethodDoesNotSupportTokenWithStaticUsing() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -316,8 +316,8 @@ public static class OtherClass
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenTokenPassedToMemberMethod() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenTokenPassedToMemberMethod() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -335,8 +335,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenMemberMethodDoesNotSupportToken() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenMemberMethodDoesNotSupportToken() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -352,8 +352,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticWhenMethodCandidateTakesASecondRequiredToken() => Assert(
+    [Test]
+    public Task NoDiagnosticWhenMethodCandidateTakesASecondRequiredToken() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -370,8 +370,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticIfMethodCandidateDoesntMatchExistingParameters() => Assert(
+    [Test]
+    public Task NoDiagnosticIfMethodCandidateDoesntMatchExistingParameters() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -388,8 +388,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticOnNamedRandomOrderParameters() => Assert(
+    [Test]
+    public Task NoDiagnosticOnNamedRandomOrderParameters() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -407,8 +407,8 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}");
 
-        [Test]
-        public Task NoDiagnosticOnNamedRandomOrderParametersInExtensionMethod() => Assert(
+    [Test]
+    public Task NoDiagnosticOnNamedRandomOrderParametersInExtensionMethod() => Assert(
 @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -430,8 +430,8 @@ public static class BarExtensions
     }
 }");
 
-        [Test]
-        public Task NoDiagnosticOnCrazyWaysToCreateAToken() => Assert(
+    [Test]
+    public Task NoDiagnosticOnCrazyWaysToCreateAToken() => Assert(
 @"using System;
 using NServiceBus;
 using System.Threading;
@@ -474,18 +474,18 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}
 public class Bar {}");
-    }
+}
 
-    public class ForwardCancellationTokenTestsCSharp8 : ForwardCancellationTokenTests
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+public class ForwardCancellationTokenTestsCSharp8 : ForwardCancellationTokenTests
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
 
-        [TestCase("default(CancellationToken)")]
-        [TestCase("default")]
-        [TestCase("CancellationToken.None")]
-        [TestCase("new CancellationToken(true)")]
-        [TestCase("context.CancellationToken")]
-        public Task DefaultTokenParameters(string parameterValue) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+    [TestCase("default(CancellationToken)")]
+    [TestCase("default")]
+    [TestCase("CancellationToken.None")]
+    [TestCase("new CancellationToken(true)")]
+    [TestCase("context.CancellationToken")]
+    public Task DefaultTokenParameters(string parameterValue) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -512,16 +512,16 @@ public class Foo : IHandleMessages<TestMessage>
 public class TestMessage : ICommand {}
 ");
 
-        [TestCase("AsyncEnumerator(context.CancellationToken)")]
-        [TestCase("AsyncEnumerator(CancellationToken.None)")]
-        [TestCase("AsyncEnumerator(default(CancellationToken))")]
-        [TestCase("AsyncEnumerator(default)")]
-        [TestCase("[|AsyncEnumerator()|]")]
-        [TestCase("[|AsyncEnumerator()|].WithCancellation(context.CancellationToken)")]
-        [TestCase("[|AsyncEnumerator()|].WithCancellation(CancellationToken.None)")]
-        [TestCase("[|AsyncEnumerator()|].WithCancellation(default(CancellationToken))")]
-        [TestCase("[|AsyncEnumerator()|].WithCancellation(default)")]
-        public Task AwaitForeach(string asyncCall) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+    [TestCase("AsyncEnumerator(context.CancellationToken)")]
+    [TestCase("AsyncEnumerator(CancellationToken.None)")]
+    [TestCase("AsyncEnumerator(default(CancellationToken))")]
+    [TestCase("AsyncEnumerator(default)")]
+    [TestCase("[|AsyncEnumerator()|]")]
+    [TestCase("[|AsyncEnumerator()|].WithCancellation(context.CancellationToken)")]
+    [TestCase("[|AsyncEnumerator()|].WithCancellation(CancellationToken.None)")]
+    [TestCase("[|AsyncEnumerator()|].WithCancellation(default(CancellationToken))")]
+    [TestCase("[|AsyncEnumerator()|].WithCancellation(default)")]
+    public Task AwaitForeach(string asyncCall) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -549,15 +549,14 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}
 ");
-    }
+}
 
-    public class ForwardCancellationTokenTestsCSharp9 : ForwardCancellationTokenTestsCSharp8
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-    }
+public class ForwardCancellationTokenTestsCSharp9 : ForwardCancellationTokenTestsCSharp8
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+}
 
-    public class ForwardCancellationTokenTestsCSharp10 : ForwardCancellationTokenTestsCSharp9
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-    }
+public class ForwardCancellationTokenTestsCSharp10 : ForwardCancellationTokenTestsCSharp9
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

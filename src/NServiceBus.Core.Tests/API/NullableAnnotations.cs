@@ -1,97 +1,96 @@
-﻿namespace NServiceBus.Core.Tests.API
+﻿namespace NServiceBus.Core.Tests.API;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using NServiceBus.Core.Tests.API.Infra;
+using NUnit.Framework;
+using Particular.Approvals;
+
+[TestFixture]
+public class NullableAnnotations
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-    using NServiceBus.Core.Tests.API.Infra;
-    using NUnit.Framework;
-    using Particular.Approvals;
+    readonly NullabilityInfoContext nullContext = new();
 
-    [TestFixture]
-    public class NullableAnnotations
+    [Test]
+    public void ApproveNullableTypes()
     {
-        readonly NullabilityInfoContext nullContext = new();
+        var b = new StringBuilder()
+            .AppendLine("The following types do not have annotations for nullable reference types.")
+            .AppendLine("Changes that make this list longer should not be approved.")
+            .AppendLine("-----");
 
-        [Test]
-        public void ApproveNullableTypes()
+        var context = new NullabilityInfoContext();
+
+        foreach (var type in NServiceBusAssembly.Types.Where(t => t.IsPublic).OrderBy(t => t.FullName))
         {
-            var b = new StringBuilder()
-                .AppendLine("The following types do not have annotations for nullable reference types.")
-                .AppendLine("Changes that make this list longer should not be approved.")
-                .AppendLine("-----");
-
-            var context = new NullabilityInfoContext();
-
-            foreach (var type in NServiceBusAssembly.Types.Where(t => t.IsPublic).OrderBy(t => t.FullName))
+            if (HasNonAnnotatedMember(type))
             {
-                if (HasNonAnnotatedMember(type))
-                {
-                    b.AppendLine(type.FullName);
-                }
+                b.AppendLine(type.FullName);
+            }
+        }
+
+        Console.WriteLine(b.ToString());
+        Approver.Verify(b.ToString());
+
+    }
+
+    bool HasNonAnnotatedMember(Type type)
+    {
+        var allInfo = AllMemberNullabilityInfoFor(type).ToArray();
+        var noNullInfoFor = allInfo.Where(info => info.Info.WriteState is NullabilityState.Unknown || info.Info.ReadState == NullabilityState.Unknown).ToArray();
+        return noNullInfoFor.Length != 0;
+    }
+
+    IEnumerable<(object Item, NullabilityInfo Info)> AllMemberNullabilityInfoFor(Type type)
+    {
+        foreach (var member in type.GetMembers())
+        {
+            if (member.DeclaringType.Assembly != typeof(IEndpointInstance).Assembly)
+            {
+                continue;
             }
 
-            Console.WriteLine(b.ToString());
-            Approver.Verify(b.ToString());
-
-        }
-
-        bool HasNonAnnotatedMember(Type type)
-        {
-            var allInfo = AllMemberNullabilityInfoFor(type).ToArray();
-            var noNullInfoFor = allInfo.Where(info => info.Info.WriteState is NullabilityState.Unknown || info.Info.ReadState == NullabilityState.Unknown).ToArray();
-            return noNullInfoFor.Length != 0;
-        }
-
-        IEnumerable<(object Item, NullabilityInfo Info)> AllMemberNullabilityInfoFor(Type type)
-        {
-            foreach (var member in type.GetMembers())
+            if (member.GetCustomAttribute<ObsoleteAttribute>() != null)
             {
-                if (member.DeclaringType.Assembly != typeof(IEndpointInstance).Assembly)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                if (member.GetCustomAttribute<ObsoleteAttribute>() != null)
+            if (member is PropertyInfo prop)
+            {
+                if (!prop.PropertyType.IsValueType)
                 {
-                    continue;
+                    yield return (prop, nullContext.Create(prop));
                 }
-
-                if (member is PropertyInfo prop)
+            }
+            else if (member is FieldInfo field)
+            {
+                if (!field.FieldType.IsValueType)
                 {
-                    if (!prop.PropertyType.IsValueType)
-                    {
-                        yield return (prop, nullContext.Create(prop));
-                    }
+                    yield return (field, nullContext.Create(field));
                 }
-                else if (member is FieldInfo field)
+            }
+            else if (member is EventInfo evt)
+            {
+                yield return (evt, nullContext.Create(evt));
+            }
+            else if (member is MethodBase method)
+            {
+                var parameters = method.GetParameters();
+                foreach (var parameter in parameters)
                 {
-                    if (!field.FieldType.IsValueType)
-                    {
-                        yield return (field, nullContext.Create(field));
-                    }
+                    yield return (parameter, nullContext.Create(parameter));
                 }
-                else if (member is EventInfo evt)
-                {
-                    yield return (evt, nullContext.Create(evt));
-                }
-                else if (member is MethodBase method)
-                {
-                    var parameters = method.GetParameters();
-                    foreach (var parameter in parameters)
-                    {
-                        yield return (parameter, nullContext.Create(parameter));
-                    }
-                }
-                else if (member.MemberType == MemberTypes.NestedType)
-                {
-                    continue;
-                }
-                else
-                {
-                    throw new Exception($"Unhandled MemberType: {member.MemberType}");
-                }
+            }
+            else if (member.MemberType == MemberTypes.NestedType)
+            {
+                continue;
+            }
+            else
+            {
+                throw new Exception($"Unhandled MemberType: {member.MemberType}");
             }
         }
     }

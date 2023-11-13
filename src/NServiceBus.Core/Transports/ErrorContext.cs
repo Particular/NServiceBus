@@ -1,78 +1,77 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport;
+
+using System;
+using System.Collections.Generic;
+using Extensibility;
+
+/// <summary>
+/// The context for messages that has failed processing.
+/// </summary>
+public class ErrorContext
 {
-    using System;
-    using System.Collections.Generic;
-    using Extensibility;
+    /// <summary>
+    /// Initializes the error context.
+    /// </summary>
+    /// <param name="exception">The exception that caused the message processing failure.</param>
+    /// <param name="headers">The message headers.</param>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <param name="body">The message body.</param>
+    /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+    /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
+    /// <param name="receiveAddress">The receive address.</param>
+    /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+    public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+        ArgumentNullException.ThrowIfNull(transportTransaction);
+        ArgumentOutOfRangeException.ThrowIfNegative(immediateProcessingFailures);
+        ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);
+        ArgumentNullException.ThrowIfNull(context);
+
+        Exception = exception;
+        TransportTransaction = transportTransaction;
+        ImmediateProcessingFailures = immediateProcessingFailures;
+
+        Message = new IncomingMessage(nativeMessageId, headers, body);
+
+        ReceiveAddress = receiveAddress;
+
+        DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
+        Extensions = context;
+    }
 
     /// <summary>
-    /// The context for messages that has failed processing.
+    /// Exception that caused the message processing to fail.
     /// </summary>
-    public class ErrorContext
-    {
-        /// <summary>
-        /// Initializes the error context.
-        /// </summary>
-        /// <param name="exception">The exception that caused the message processing failure.</param>
-        /// <param name="headers">The message headers.</param>
-        /// <param name="nativeMessageId">The native message ID.</param>
-        /// <param name="body">The message body.</param>
-        /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
-        /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
-        /// <param name="receiveAddress">The receive address.</param>
-        /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
-        {
-            ArgumentNullException.ThrowIfNull(exception);
-            ArgumentNullException.ThrowIfNull(transportTransaction);
-            ArgumentOutOfRangeException.ThrowIfNegative(immediateProcessingFailures);
-            ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);
-            ArgumentNullException.ThrowIfNull(context);
+    public Exception Exception { get; }
 
-            Exception = exception;
-            TransportTransaction = transportTransaction;
-            ImmediateProcessingFailures = immediateProcessingFailures;
+    /// <summary>
+    /// Transport transaction for failed receive message.
+    /// </summary>
+    public TransportTransaction TransportTransaction { get; }
 
-            Message = new IncomingMessage(nativeMessageId, headers, body);
+    /// <summary>
+    /// Number of failed immediate processing attempts. This number is re-set with each delayed delivery.
+    /// </summary>
+    public int ImmediateProcessingFailures { get; }
 
-            ReceiveAddress = receiveAddress;
+    /// <summary>
+    /// Number of delayed deliveries performed so far.
+    /// </summary>
+    public int DelayedDeliveriesPerformed { get; }
 
-            DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
-            Extensions = context;
-        }
+    /// <summary>
+    /// Failed incoming message.
+    /// </summary>
+    public IncomingMessage Message { get; }
 
-        /// <summary>
-        /// Exception that caused the message processing to fail.
-        /// </summary>
-        public Exception Exception { get; }
+    /// <summary>
+    /// Transport address that received the failed message.
+    /// </summary>
+    public string ReceiveAddress { get; }
 
-        /// <summary>
-        /// Transport transaction for failed receive message.
-        /// </summary>
-        public TransportTransaction TransportTransaction { get; }
-
-        /// <summary>
-        /// Number of failed immediate processing attempts. This number is re-set with each delayed delivery.
-        /// </summary>
-        public int ImmediateProcessingFailures { get; }
-
-        /// <summary>
-        /// Number of delayed deliveries performed so far.
-        /// </summary>
-        public int DelayedDeliveriesPerformed { get; }
-
-        /// <summary>
-        /// Failed incoming message.
-        /// </summary>
-        public IncomingMessage Message { get; }
-
-        /// <summary>
-        /// Transport address that received the failed message.
-        /// </summary>
-        public string ReceiveAddress { get; }
-
-        /// <summary>
-        /// A collection of additional information provided by the transport.
-        /// </summary>
-        public ContextBag Extensions { get; }
-    }
+    /// <summary>
+    /// A collection of additional information provided by the transport.
+    /// </summary>
+    public ContextBag Extensions { get; }
 }

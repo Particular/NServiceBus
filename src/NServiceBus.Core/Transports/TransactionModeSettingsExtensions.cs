@@ -1,24 +1,23 @@
-namespace NServiceBus.ConsistencyGuarantees
+namespace NServiceBus.ConsistencyGuarantees;
+
+using System;
+using Transport;
+using Settings;
+
+/// <summary>
+/// Extension methods to provide access to various consistency related convenience methods.
+/// </summary>
+public static class TransactionModeSettingsExtensions
 {
-    using System;
-    using Transport;
-    using Settings;
-
     /// <summary>
-    /// Extension methods to provide access to various consistency related convenience methods.
+    /// Returns the transactions required by the transport.
     /// </summary>
-    public static class TransactionModeSettingsExtensions
+    public static TransportTransactionMode GetRequiredTransactionModeForReceives(this IReadOnlySettings settings)
     {
-        /// <summary>
-        /// Returns the transactions required by the transport.
-        /// </summary>
-        public static TransportTransactionMode GetRequiredTransactionModeForReceives(this IReadOnlySettings settings)
-        {
-            ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(settings);
 
-            var transportDefinition = settings.Get<TransportDefinition>();
+        var transportDefinition = settings.Get<TransportDefinition>();
 
-            return transportDefinition.TransportTransactionMode;
-        }
+        return transportDefinition.TransportTransactionMode;
     }
 }

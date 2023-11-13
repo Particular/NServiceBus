@@ -1,6 +1,5 @@
-namespace NServiceBus.Unicast.Tests.Contexts
+namespace NServiceBus.Unicast.Tests.Contexts;
+
+public interface IInterfaceMessage : IMessage
 {
-    public interface IInterfaceMessage : IMessage
-    {
-    }
 }

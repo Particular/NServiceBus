@@ -1,53 +1,52 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.IO;
+using Logging;
+
+static class ColoredConsoleLogger
 {
-    using System;
-    using System.IO;
-    using Logging;
-
-    static class ColoredConsoleLogger
+    static ColoredConsoleLogger()
     {
-        static ColoredConsoleLogger()
+        using (var stream = Console.OpenStandardOutput())
         {
-            using (var stream = Console.OpenStandardOutput())
-            {
-                logToConsole = stream != Stream.Null;
-            }
+            logToConsole = stream != Stream.Null;
         }
-
-        public static void WriteLine(string message, LogLevel logLevel)
-        {
-            if (!logToConsole)
-            {
-                return;
-            }
-
-            try
-            {
-                Console.ForegroundColor = GetColor(logLevel);
-                Console.WriteLine(message);
-                Console.ResetColor();
-            }
-            catch (IOException)
-            {
-                logToConsole = false;
-            }
-        }
-
-        static ConsoleColor GetColor(LogLevel logLevel)
-        {
-            if (logLevel >= LogLevel.Error)
-            {
-                return ConsoleColor.Red;
-            }
-
-            if (logLevel == LogLevel.Warn)
-            {
-                return ConsoleColor.DarkYellow;
-            }
-
-            return ConsoleColor.White;
-        }
-
-        static bool logToConsole;
     }
+
+    public static void WriteLine(string message, LogLevel logLevel)
+    {
+        if (!logToConsole)
+        {
+            return;
+        }
+
+        try
+        {
+            Console.ForegroundColor = GetColor(logLevel);
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+        catch (IOException)
+        {
+            logToConsole = false;
+        }
+    }
+
+    static ConsoleColor GetColor(LogLevel logLevel)
+    {
+        if (logLevel >= LogLevel.Error)
+        {
+            return ConsoleColor.Red;
+        }
+
+        if (logLevel == LogLevel.Warn)
+        {
+            return ConsoleColor.DarkYellow;
+        }
+
+        return ConsoleColor.White;
+    }
+
+    static bool logToConsole;
 }

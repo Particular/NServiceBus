@@ -1,144 +1,143 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Feature
+﻿namespace NServiceBus.AcceptanceTests.Core.Feature;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Features;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+
+public class When_depending_on_feature : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
-    using Microsoft.Extensions.DependencyInjection;
-    using NUnit.Framework;
-
-    public class When_depending_on_feature : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_start_startup_tasks_in_order_of_dependency()
     {
-        [Test]
-        public async Task Should_start_startup_tasks_in_order_of_dependency()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithFeatures>(b => b.CustomConfig(c =>
-                {
-                    c.EnableFeature<DependencyFeature>();
-                    c.EnableFeature<TypedDependentFeature>();
-                }))
-                .Done(c => c.EndpointsStarted)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithFeatures>(b => b.CustomConfig(c =>
+            {
+                c.EnableFeature<DependencyFeature>();
+                c.EnableFeature<TypedDependentFeature>();
+            }))
+            .Done(c => c.EndpointsStarted)
+            .Run();
 
-            Assert.That(context.StartCalled, Is.True);
-            Assert.That(context.StopCalled, Is.True);
+        Assert.That(context.StartCalled, Is.True);
+        Assert.That(context.StopCalled, Is.True);
+    }
+
+    class Context : ScenarioContext
+    {
+        public bool StartCalled { get; set; }
+        public bool StopCalled { get; set; }
+        public bool InitializeCalled { get; set; }
+    }
+
+    public class EndpointWithFeatures : EndpointConfigurationBuilder
+    {
+        public EndpointWithFeatures()
+        {
+            EndpointSetup<DefaultServer>();
+        }
+    }
+
+    public class TypedDependentFeature : Feature
+    {
+        public TypedDependentFeature()
+        {
+            DependsOn<DependencyFeature>();
         }
 
-        class Context : ScenarioContext
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            public bool StartCalled { get; set; }
-            public bool StopCalled { get; set; }
-            public bool InitializeCalled { get; set; }
+            context.Services.AddSingleton<Runner>();
+            context.RegisterStartupTask(b => b.GetService<Runner>());
         }
 
-        public class EndpointWithFeatures : EndpointConfigurationBuilder
+        class Runner : FeatureStartupTask
         {
-            public EndpointWithFeatures()
+            Dependency dependency;
+
+            public Runner(Dependency dependency)
             {
-                EndpointSetup<DefaultServer>();
+                this.dependency = dependency;
+            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                dependency.Start();
+                return Task.CompletedTask;
+            }
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                dependency.Stop();
+                return Task.CompletedTask;
             }
         }
+    }
 
-        public class TypedDependentFeature : Feature
+    public class DependencyFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            public TypedDependentFeature()
-            {
-                DependsOn<DependencyFeature>();
-            }
-
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.Services.AddSingleton<Runner>();
-                context.RegisterStartupTask(b => b.GetService<Runner>());
-            }
-
-            class Runner : FeatureStartupTask
-            {
-                Dependency dependency;
-
-                public Runner(Dependency dependency)
-                {
-                    this.dependency = dependency;
-                }
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    dependency.Start();
-                    return Task.CompletedTask;
-                }
-
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    dependency.Stop();
-                    return Task.CompletedTask;
-                }
-            }
+            context.Services.AddSingleton<Dependency>();
+            context.Services.AddSingleton<Runner>();
+            context.RegisterStartupTask(b => b.GetService<Runner>());
         }
 
-        public class DependencyFeature : Feature
+        class Runner : FeatureStartupTask
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            Dependency dependency;
+
+            public Runner(Dependency dependency)
             {
-                context.Services.AddSingleton<Dependency>();
-                context.Services.AddSingleton<Runner>();
-                context.RegisterStartupTask(b => b.GetService<Runner>());
+                this.dependency = dependency;
+            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                dependency.Initialize();
+                return Task.CompletedTask;
             }
 
-            class Runner : FeatureStartupTask
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
             {
-                Dependency dependency;
-
-                public Runner(Dependency dependency)
-                {
-                    this.dependency = dependency;
-                }
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    dependency.Initialize();
-                    return Task.CompletedTask;
-                }
-
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    return Task.CompletedTask;
-                }
+                return Task.CompletedTask;
             }
         }
+    }
 
-        class Dependency
+    class Dependency
+    {
+        Context context;
+
+        public Dependency(Context context)
         {
-            Context context;
+            this.context = context;
+        }
 
-            public Dependency(Context context)
+        public void Start()
+        {
+            if (!context.InitializeCalled)
             {
-                this.context = context;
+                throw new InvalidOperationException("Not initialized");
+            }
+            context.StartCalled = true;
+        }
+
+        public void Stop()
+        {
+            if (!context.InitializeCalled)
+            {
+                throw new InvalidOperationException("Not initialized");
             }
 
-            public void Start()
-            {
-                if (!context.InitializeCalled)
-                {
-                    throw new InvalidOperationException("Not initialized");
-                }
-                context.StartCalled = true;
-            }
+            context.StopCalled = true;
+        }
 
-            public void Stop()
-            {
-                if (!context.InitializeCalled)
-                {
-                    throw new InvalidOperationException("Not initialized");
-                }
-
-                context.StopCalled = true;
-            }
-
-            public void Initialize()
-            {
-                context.InitializeCalled = true;
-            }
+        public void Initialize()
+        {
+            context.InitializeCalled = true;
         }
     }
 }

@@ -1,33 +1,32 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+
+static class TaskEx
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Threading.Tasks;
+    const string TaskIsNullExceptionMessage = "Return a Task or mark the method as async.";
 
-    static class TaskEx
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task wrapper.")]
+    public static Task<T> ThrowIfNull<T>(this Task<T> task)
     {
-        const string TaskIsNullExceptionMessage = "Return a Task or mark the method as async.";
-
-        [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task wrapper.")]
-        public static Task<T> ThrowIfNull<T>(this Task<T> task)
+        if (task != null)
         {
-            if (task != null)
-            {
-                return task;
-            }
-
-            throw new Exception(TaskIsNullExceptionMessage);
+            return task;
         }
 
-        [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task wrapper.")]
-        public static Task ThrowIfNull(this Task task)
-        {
-            if (task != null)
-            {
-                return task;
-            }
+        throw new Exception(TaskIsNullExceptionMessage);
+    }
 
-            throw new Exception(TaskIsNullExceptionMessage);
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Task wrapper.")]
+    public static Task ThrowIfNull(this Task task)
+    {
+        if (task != null)
+        {
+            return task;
         }
+
+        throw new Exception(TaskIsNullExceptionMessage);
     }
 }

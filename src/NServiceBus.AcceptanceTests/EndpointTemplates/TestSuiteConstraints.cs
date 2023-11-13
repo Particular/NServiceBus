@@ -1,28 +1,27 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTests;
+
+using AcceptanceTesting.Support;
+
+public interface ITestSuiteConstraints
 {
-    using AcceptanceTesting.Support;
+    bool SupportsDtc { get; }
 
-    public interface ITestSuiteConstraints
-    {
-        bool SupportsDtc { get; }
+    bool SupportsCrossQueueTransactions { get; }
 
-        bool SupportsCrossQueueTransactions { get; }
+    bool SupportsNativePubSub { get; }
 
-        bool SupportsNativePubSub { get; }
+    bool SupportsDelayedDelivery { get; }
 
-        bool SupportsDelayedDelivery { get; }
+    bool SupportsOutbox { get; }
 
-        bool SupportsOutbox { get; }
+    bool SupportsPurgeOnStartup { get; }
 
-        bool SupportsPurgeOnStartup { get; }
+    IConfigureEndpointTestExecution CreateTransportConfiguration();
 
-        IConfigureEndpointTestExecution CreateTransportConfiguration();
+    IConfigureEndpointTestExecution CreatePersistenceConfiguration();
+}
 
-        IConfigureEndpointTestExecution CreatePersistenceConfiguration();
-    }
-
-    public partial class TestSuiteConstraints : ITestSuiteConstraints
-    {
-        public static TestSuiteConstraints Current { get; } = new TestSuiteConstraints();
-    }
+public partial class TestSuiteConstraints : ITestSuiteConstraints
+{
+    public static TestSuiteConstraints Current { get; } = new TestSuiteConstraints();
 }

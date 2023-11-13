@@ -1,73 +1,72 @@
-﻿namespace NServiceBus.AcceptanceTests.Audit
+﻿namespace NServiceBus.AcceptanceTests.Audit;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_audit_to_target_queue()
     {
-        [Test]
-        public async Task Should_audit_to_target_queue()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-                .WithEndpoint<AuditSpy>()
-                .Done(c => c.MessageAudited)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<UserEndpoint>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<AuditSpy>()
+            .Done(c => c.MessageAudited)
+            .Run();
 
-            Assert.True(context.MessageAudited);
+        Assert.True(context.MessageAudited);
+    }
+
+    public class UserEndpoint : EndpointConfigurationBuilder
+    {
+        public UserEndpoint()
+        {
+            EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
         }
 
-        public class UserEndpoint : EndpointConfigurationBuilder
+        class Handler : IHandleMessages<MessageToBeAudited>
         {
-            public UserEndpoint()
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
-            }
-
-            class Handler : IHandleMessages<MessageToBeAudited>
-            {
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    return Task.CompletedTask;
-                }
+                return Task.CompletedTask;
             }
         }
+    }
 
-        public class AuditSpy : EndpointConfigurationBuilder
+    public class AuditSpy : EndpointConfigurationBuilder
+    {
+        public AuditSpy()
         {
-            public AuditSpy()
+            EndpointSetup<DefaultServer>()
+                .CustomEndpointName("audit_with_code_target");
+        }
+
+        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        {
+            public AuditMessageHandler(Context context)
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("audit_with_code_target");
+                testContext = context;
             }
 
-            class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
-                public AuditMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-                {
-                    testContext.MessageAudited = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext.MessageAudited = true;
+                return Task.CompletedTask;
             }
-        }
 
-        public class Context : ScenarioContext
-        {
-            public bool MessageAudited { get; set; }
+            Context testContext;
         }
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool MessageAudited { get; set; }
+    }
 
 
-        public class MessageToBeAudited : IMessage
-        {
-        }
+    public class MessageToBeAudited : IMessage
+    {
     }
 }

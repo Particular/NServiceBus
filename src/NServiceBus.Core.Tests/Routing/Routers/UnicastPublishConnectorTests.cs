@@ -1,38 +1,37 @@
-﻿namespace NServiceBus.Core.Tests.Routing.Routers
+﻿namespace NServiceBus.Core.Tests.Routing.Routers;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NServiceBus.Pipeline;
+using NServiceBus.Routing;
+using NUnit.Framework;
+using Testing;
+
+[TestFixture]
+public class UnicastPublishConnectorTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NUnit.Framework;
-    using Testing;
-
-    [TestFixture]
-    public class UnicastPublishConnectorTests
+    [Test]
+    public async Task Should_set_messageintent_to_publish()
     {
-        [Test]
-        public async Task Should_set_messageintent_to_publish()
+        var router = new UnicastPublishConnector(new FakePublishRouter(), new DistributionPolicy());
+        var context = new TestableOutgoingPublishContext();
+
+        await router.Invoke(context, ctx => Task.CompletedTask);
+
+        Assert.AreEqual(1, context.Headers.Count);
+        Assert.AreEqual(MessageIntent.Publish.ToString(), context.Headers[Headers.MessageIntent]);
+    }
+
+    class FakePublishRouter : IUnicastPublishRouter
+    {
+        public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
         {
-            var router = new UnicastPublishConnector(new FakePublishRouter(), new DistributionPolicy());
-            var context = new TestableOutgoingPublishContext();
-
-            await router.Invoke(context, ctx => Task.CompletedTask);
-
-            Assert.AreEqual(1, context.Headers.Count);
-            Assert.AreEqual(MessageIntent.Publish.ToString(), context.Headers[Headers.MessageIntent]);
-        }
-
-        class FakePublishRouter : IUnicastPublishRouter
-        {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
+            IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
             {
-                IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
-                {
-                    new UnicastRoutingStrategy("Fake")
-                };
-                return Task.FromResult(unicastRoutingStrategies);
-            }
+                new UnicastRoutingStrategy("Fake")
+            };
+            return Task.FromResult(unicastRoutingStrategies);
         }
     }
 }

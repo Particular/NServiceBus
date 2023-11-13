@@ -1,29 +1,28 @@
-namespace NServiceBus.Routing.MessageDrivenSubscriptions
+namespace NServiceBus.Routing.MessageDrivenSubscriptions;
+
+using System;
+
+/// <summary>
+/// Represents an entry in a publisher table.
+/// </summary>
+public class PublisherTableEntry
 {
-    using System;
+    /// <summary>
+    /// Creates a new entry.
+    /// </summary>
+    public PublisherTableEntry(Type eventType, PublisherAddress address)
+    {
+        EventType = eventType;
+        Address = address;
+    }
 
     /// <summary>
-    /// Represents an entry in a publisher table.
+    /// Type of event.
     /// </summary>
-    public class PublisherTableEntry
-    {
-        /// <summary>
-        /// Creates a new entry.
-        /// </summary>
-        public PublisherTableEntry(Type eventType, PublisherAddress address)
-        {
-            EventType = eventType;
-            Address = address;
-        }
+    public Type EventType { get; }
 
-        /// <summary>
-        /// Type of event.
-        /// </summary>
-        public Type EventType { get; }
-
-        /// <summary>
-        /// Address.
-        /// </summary>
-        public PublisherAddress Address { get; }
-    }
+    /// <summary>
+    /// Address.
+    /// </summary>
+    public PublisherAddress Address { get; }
 }

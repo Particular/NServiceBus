@@ -1,55 +1,54 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using AcceptanceTesting.Support;
+using Hosting.Helpers;
+
+public static class EndpointCustomizationConfigurationExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using AcceptanceTesting.Support;
-    using Hosting.Helpers;
-
-    public static class EndpointCustomizationConfigurationExtensions
+    [Obsolete("Use the `NServiceBus.AcceptanceTesting.Customization.EndpointConfigurationExtensions.ScanTypesForTest` extension method instead", false)]
+    public static IEnumerable<Type> GetTypesScopedByTestClass(this EndpointCustomizationConfiguration endpointConfiguration)
     {
-        [Obsolete("Use the `NServiceBus.AcceptanceTesting.Customization.EndpointConfigurationExtensions.ScanTypesForTest` extension method instead", false)]
-        public static IEnumerable<Type> GetTypesScopedByTestClass(this EndpointCustomizationConfiguration endpointConfiguration)
+        var assemblyScanner = new AssemblyScanner
         {
-            var assemblyScanner = new AssemblyScanner
-            {
-                ScanFileSystemAssemblies = false
-            };
+            ScanFileSystemAssemblies = false
+        };
 
-            var assemblies = assemblyScanner.GetScannableAssemblies();
+        var assemblies = assemblyScanner.GetScannableAssemblies();
 
-            var assembliesToScan = assemblies.Assemblies
-                //exclude acceptance tests by default
-                .Where(a => a != Assembly.GetExecutingAssembly()).ToList();
-            var types = assembliesToScan
-                .SelectMany(a => a.GetTypes());
+        var assembliesToScan = assemblies.Assemblies
+            //exclude acceptance tests by default
+            .Where(a => a != Assembly.GetExecutingAssembly()).ToList();
+        var types = assembliesToScan
+            .SelectMany(a => a.GetTypes());
 
-            types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
+        types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
 
-            types = types.Union(endpointConfiguration.TypesToInclude);
+        types = types.Union(endpointConfiguration.TypesToInclude);
 
-            return types.Where(t => !endpointConfiguration.TypesToExclude.Contains(t)).ToList();
+        return types.Where(t => !endpointConfiguration.TypesToExclude.Contains(t)).ToList();
+    }
+
+    static IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
+    {
+        if (rootType == null)
+        {
+            throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
         }
 
-        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
+        yield return rootType;
+
+        if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
         {
-            if (rootType == null)
-            {
-                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
-            }
+            yield break;
+        }
 
-            yield return rootType;
-
-            if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
-            {
-                yield break;
-            }
-
-            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
-            {
-                yield return nestedType;
-            }
+        foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
+        {
+            yield return nestedType;
         }
     }
 }

@@ -1,32 +1,31 @@
-namespace NServiceBus.Transport
+namespace NServiceBus.Transport;
+
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Transport infrastructure definitions.
+/// </summary>
+public abstract class TransportInfrastructure
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
+    /// <summary>
+    /// The dispatcher to send messages.
+    /// </summary>
+    public IMessageDispatcher Dispatcher { get; protected set; }
 
     /// <summary>
-    /// Transport infrastructure definitions.
+    /// A collection of all receivers.
     /// </summary>
-    public abstract class TransportInfrastructure
-    {
-        /// <summary>
-        /// The dispatcher to send messages.
-        /// </summary>
-        public IMessageDispatcher Dispatcher { get; protected set; }
+    public IReadOnlyDictionary<string, IMessageReceiver> Receivers { get; protected set; }
 
-        /// <summary>
-        /// A collection of all receivers.
-        /// </summary>
-        public IReadOnlyDictionary<string, IMessageReceiver> Receivers { get; protected set; }
+    /// <summary>
+    /// Disposes all transport internal resources.
+    /// </summary>
+    public abstract Task Shutdown(CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Disposes all transport internal resources.
-        /// </summary>
-        public abstract Task Shutdown(CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
-        /// </summary>
-        public abstract string ToTransportAddress(QueueAddress address);
-    }
+    /// <summary>
+    /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
+    /// </summary>
+    public abstract string ToTransportAddress(QueueAddress address);
 }

@@ -1,15 +1,14 @@
-namespace NServiceBus.Serializers.XML.Test.B
+namespace NServiceBus.Serializers.XML.Test.B;
+
+using System;
+
+
+public class Command2 : ICommand
 {
-    using System;
+    public Guid Id { get; set; }
 
-
-    public class Command2 : ICommand
+    public Command2(Guid id)
     {
-        public Guid Id { get; set; }
-
-        public Command2(Guid id)
-        {
-            Id = id;
-        }
+        Id = id;
     }
 }

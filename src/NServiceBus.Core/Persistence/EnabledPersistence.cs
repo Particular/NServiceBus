@@ -1,11 +1,10 @@
-﻿namespace NServiceBus
-{
-    using System;
-    using System.Collections.Generic;
+﻿namespace NServiceBus;
 
-    class EnabledPersistence
-    {
-        public List<Type> SelectedStorages { get; set; }
-        public Type DefinitionType;
-    }
+using System;
+using System.Collections.Generic;
+
+class EnabledPersistence
+{
+    public List<Type> SelectedStorages { get; set; }
+    public Type DefinitionType;
 }

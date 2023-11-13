@@ -1,57 +1,56 @@
-namespace NServiceBus.AcceptanceTesting.Support
+namespace NServiceBus.AcceptanceTesting.Support;
+
+using System;
+using System.Collections.Generic;
+using Customization;
+
+/// <summary>
+/// Metadata on events and their publishers.
+/// </summary>
+public class PublisherMetadata
 {
-    using System;
-    using System.Collections.Generic;
-    using Customization;
+    public IEnumerable<PublisherDetails> Publishers => publisherDetails.Values;
 
-    /// <summary>
-    /// Metadata on events and their publishers.
-    /// </summary>
-    public class PublisherMetadata
+    public void RegisterPublisherFor<T>(string endpointName)
     {
-        public IEnumerable<PublisherDetails> Publishers => publisherDetails.Values;
-
-        public void RegisterPublisherFor<T>(string endpointName)
+        if (!publisherDetails.TryGetValue(endpointName, out var publisher))
         {
-            if (!publisherDetails.TryGetValue(endpointName, out var publisher))
-            {
-                publisher = new PublisherDetails(endpointName);
+            publisher = new PublisherDetails(endpointName);
 
-                publisherDetails[endpointName] = publisher;
-            }
-
-            publisher.RegisterOwnedEvent<T>();
+            publisherDetails[endpointName] = publisher;
         }
 
-        public void RegisterPublisherFor<T>(Type endpointType)
+        publisher.RegisterOwnedEvent<T>();
+    }
+
+    public void RegisterPublisherFor<T>(Type endpointType)
+    {
+        RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
+    }
+
+    Dictionary<string, PublisherDetails> publisherDetails = [];
+
+    public class PublisherDetails
+    {
+        public PublisherDetails(string publisherName)
         {
-            RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
+            PublisherName = publisherName;
         }
 
-        Dictionary<string, PublisherDetails> publisherDetails = [];
+        public List<Type> Events { get; } = [];
 
-        public class PublisherDetails
+        public string PublisherName { get; }
+
+        public void RegisterOwnedEvent<T>()
         {
-            public PublisherDetails(string publisherName)
+            var eventType = typeof(T);
+
+            if (Events.Contains(eventType))
             {
-                PublisherName = publisherName;
+                return;
             }
 
-            public List<Type> Events { get; } = [];
-
-            public string PublisherName { get; }
-
-            public void RegisterOwnedEvent<T>()
-            {
-                var eventType = typeof(T);
-
-                if (Events.Contains(eventType))
-                {
-                    return;
-                }
-
-                Events.Add(eventType);
-            }
+            Events.Add(eventType);
         }
     }
 }

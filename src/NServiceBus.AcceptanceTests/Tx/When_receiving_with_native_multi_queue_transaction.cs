@@ -1,96 +1,95 @@
-﻿namespace NServiceBus.AcceptanceTests.Tx
+﻿namespace NServiceBus.AcceptanceTests.Tx;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
     {
-        [Test]
-        public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
+        Requires.CrossQueueTransactionSupport();
+
+        var context = await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
+            .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
+            .Done(c => c.MessageHandled)
+            .Run();
+
+        Assert.IsFalse(context.HasFailed);
+        Assert.IsTrue(context.MessageHandled);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool FirstAttempt { get; set; }
+        public bool MessageHandled { get; set; }
+        public bool HasFailed { get; set; }
+    }
+
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
         {
-            Requires.CrossQueueTransactionSupport();
-
-            var context = await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
-                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
-                .Done(c => c.MessageHandled)
-                .Run();
-
-            Assert.IsFalse(context.HasFailed);
-            Assert.IsTrue(context.MessageHandled);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public bool FirstAttempt { get; set; }
-            public bool MessageHandled { get; set; }
-            public bool HasFailed { get; set; }
-        }
-
-        public class Endpoint : EndpointConfigurationBuilder
-        {
-            public Endpoint()
+            EndpointSetup<DefaultServer>((config, context) =>
             {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
-                    config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
-                });
+                config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
+                config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
+            });
+        }
+
+        public class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public MyMessageHandler(Context context)
+            {
+                testContext = context;
             }
 
-            public class MyMessageHandler : IHandleMessages<MyMessage>
+            public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                public MyMessageHandler(Context context)
+                if (testContext.FirstAttempt)
                 {
-                    testContext = context;
-                }
-
-                public async Task Handle(MyMessage message, IMessageHandlerContext context)
-                {
-                    if (testContext.FirstAttempt)
+                    await context.SendLocal(new MessageHandledEvent
                     {
-                        await context.SendLocal(new MessageHandledEvent
-                        {
-                            HasFailed = true
-                        });
-                        testContext.FirstAttempt = false;
-                        throw new SimulatedException();
-                    }
-
-                    await context.SendLocal(new MessageHandledEvent());
+                        HasFailed = true
+                    });
+                    testContext.FirstAttempt = false;
+                    throw new SimulatedException();
                 }
 
-                Context testContext;
+                await context.SendLocal(new MessageHandledEvent());
             }
 
-            public class MessageHandledHandler : IHandleMessages<MessageHandledEvent>
+            Context testContext;
+        }
+
+        public class MessageHandledHandler : IHandleMessages<MessageHandledEvent>
+        {
+            public MessageHandledHandler(Context context)
             {
-                public MessageHandledHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
-                {
-                    testContext.MessageHandled = true;
-                    testContext.HasFailed |= message.HasFailed;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext = context;
             }
+
+            public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
+            {
+                testContext.MessageHandled = true;
+                testContext.HasFailed |= message.HasFailed;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
 
 
-        public class MyMessage : ICommand
-        {
-        }
+    public class MyMessage : ICommand
+    {
+    }
 
 
-        public class MessageHandledEvent : IMessage
-        {
-            public bool HasFailed { get; set; }
-        }
+    public class MessageHandledEvent : IMessage
+    {
+        public bool HasFailed { get; set; }
     }
 }

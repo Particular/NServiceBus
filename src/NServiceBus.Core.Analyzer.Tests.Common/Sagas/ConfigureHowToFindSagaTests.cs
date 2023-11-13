@@ -1,17 +1,17 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas
-{
-    using System.Threading.Tasks;
-    using Helpers;
-    using Microsoft.CodeAnalysis.CSharp;
-    using NUnit.Framework;
+﻿namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
-    [TestFixture]
-    public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
+using System.Threading.Tasks;
+using Helpers;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+
+[TestFixture]
+public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
+{
+    [Test]
+    public Task NewMappingInMethodBlock()
     {
-        [Test]
-        public Task NewMappingInMethodBlock()
-        {
-            var code = @"
+        var code = @"
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
     {
         mapper.MapSaga(saga => saga.CorrId)
@@ -19,51 +19,51 @@
             .ToMessage<Msg2>(msg => msg.CorrId);
     }";
 
-            return RunTest(code, null);
-        }
+        return RunTest(code, null);
+    }
 
-        [Test]
-        public Task NewMappingInArrowFunction()
-        {
-            var code = @"
+    [Test]
+    public Task NewMappingInArrowFunction()
+    {
+        var code = @"
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) =>
         mapper.MapSaga(saga => saga.CorrId)
             .ToMessage<Msg1>(msg => msg.CorrId)
             .ToMessage<Msg2>(msg => msg.CorrId);";
 
-            return RunTest(code, null);
-        }
+        return RunTest(code, null);
+    }
 
-        [Test]
-        public Task OldMapping()
-        {
-            var code = @"
+    [Test]
+    public Task OldMapping()
+    {
+        var code = @"
     protected override void [|ConfigureHowToFindSaga|](SagaPropertyMapper<MyData> mapper)
     {
         mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
     }";
 
-            return RunTest(code, SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId);
-        }
+        return RunTest(code, SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId);
+    }
 
-        [Test]
-        public Task OldMappingWithMultipleCorrelationIds()
-        {
-            var code = @"
+    [Test]
+    public Task OldMappingWithMultipleCorrelationIds()
+    {
+        var code = @"
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
     {
         mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga([|saga => saga.OtherId|]);
     }";
 
-            return RunTest(code, SagaDiagnostics.MultipleCorrelationIdValuesId);
-        }
+        return RunTest(code, SagaDiagnostics.MultipleCorrelationIdValuesId);
+    }
 
-        [Test]
-        public Task NonMappingExpressionInMethod()
-        {
-            var code = @"
+    [Test]
+    public Task NonMappingExpressionInMethod()
+    {
+        var code = @"
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
     {
         [|var i = 3 + 4;|]
@@ -76,12 +76,12 @@
     }
     void OtherMethod(int i) {}";
 
-            return RunTest(code, SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSagaId);
-        }
+        return RunTest(code, SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSagaId);
+    }
 
-        protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
-        {
-            var source =
+    protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
+    {
+        var source =
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -105,17 +105,17 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-            return Assert(diagnosticId, source);
-        }
+        return Assert(diagnosticId, source);
     }
+}
 
-    public class ConfigureHowToFindSagaTestsCSharp8 : ConfigureHowToFindSagaTests
+public class ConfigureHowToFindSagaTestsCSharp8 : ConfigureHowToFindSagaTests
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
+
+    protected override Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
     {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-
-        protected override Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
-        {
-            var nullableTypesSource =
+        var nullableTypesSource =
 @"
 #nullable enable
 using System;
@@ -142,17 +142,16 @@ public class Msg2 : ICommand
 }
 #nullable restore";
 
-            return Assert(diagnosticId, nullableTypesSource);
-        }
+        return Assert(diagnosticId, nullableTypesSource);
     }
+}
 
-    public class ConfigureHowToFindSagaTestsCSharp9 : ConfigureHowToFindSagaTestsCSharp8
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-    }
+public class ConfigureHowToFindSagaTestsCSharp9 : ConfigureHowToFindSagaTestsCSharp8
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
+}
 
-    public class ConfigureHowToFindSagaTestsCSharp10 : ConfigureHowToFindSagaTestsCSharp9
-    {
-        protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-    }
+public class ConfigureHowToFindSagaTestsCSharp10 : ConfigureHowToFindSagaTestsCSharp9
+{
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

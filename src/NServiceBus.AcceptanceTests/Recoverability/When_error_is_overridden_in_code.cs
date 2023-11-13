@@ -1,75 +1,74 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability
+﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_error_to_target_queue()
     {
-        [Test]
-        public async Task Should_error_to_target_queue()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b
-                    .When(session => session.SendLocal(new Message()))
-                    .DoNotFailOnErrorMessages())
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageReceived)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<UserEndpoint>(b => b
+                .When(session => session.SendLocal(new Message()))
+                .DoNotFailOnErrorMessages())
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageReceived)
+            .Run();
 
-            Assert.True(context.MessageReceived);
+        Assert.True(context.MessageReceived);
+    }
+
+    public class UserEndpoint : EndpointConfigurationBuilder
+    {
+        public UserEndpoint()
+        {
+            EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
         }
 
-        public class UserEndpoint : EndpointConfigurationBuilder
+        class Handler : IHandleMessages<Message>
         {
-            public UserEndpoint()
+            public Task Handle(Message message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
-            }
-
-            class Handler : IHandleMessages<Message>
-            {
-                public Task Handle(Message message, IMessageHandlerContext context)
-                {
-                    throw new SimulatedException();
-                }
+                throw new SimulatedException();
             }
         }
+    }
 
-        public class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy()
         {
-            public ErrorSpy()
+            EndpointSetup<DefaultServer>()
+                .CustomEndpointName("error_with_code_source");
+        }
+
+        class Handler : IHandleMessages<Message>
+        {
+            public Handler(Context context)
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("error_with_code_source");
+                testContext = context;
             }
 
-            class Handler : IHandleMessages<Message>
+            public Task Handle(Message message, IMessageHandlerContext context)
             {
-                public Handler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(Message message, IMessageHandlerContext context)
-                {
-                    testContext.MessageReceived = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                testContext.MessageReceived = true;
+                return Task.CompletedTask;
             }
-        }
 
-        public class Context : ScenarioContext
-        {
-            public bool MessageReceived { get; set; }
+            Context testContext;
         }
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool MessageReceived { get; set; }
+    }
 
 
-        public class Message : IMessage
-        {
-        }
+    public class Message : IMessage
+    {
     }
 }

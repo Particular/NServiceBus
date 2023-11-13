@@ -1,45 +1,44 @@
 ﻿#nullable enable
 
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
+
+static class DeterministicGuid
 {
-    using System;
-    using System.Buffers;
-    using System.Runtime.CompilerServices;
-    using System.Security.Cryptography;
-    using System.Text;
+    public static Guid Create(string data1, string data2) => Create($"{data1}{data2}");
 
-    static class DeterministicGuid
+    [SkipLocalsInit]
+    public static Guid Create(string data)
     {
-        public static Guid Create(string data1, string data2) => Create($"{data1}{data2}");
+        const int MaxStackLimit = 256;
+        var encoding = Encoding.UTF8;
+        var maxByteCount = encoding.GetMaxByteCount(data.Length);
 
-        [SkipLocalsInit]
-        public static Guid Create(string data)
+        byte[]? sharedBuffer = null;
+        var stringBufferSpan = maxByteCount <= MaxStackLimit ?
+            stackalloc byte[MaxStackLimit] :
+            sharedBuffer = ArrayPool<byte>.Shared.Rent(maxByteCount);
+
+        try
         {
-            const int MaxStackLimit = 256;
-            var encoding = Encoding.UTF8;
-            var maxByteCount = encoding.GetMaxByteCount(data.Length);
+            var numberOfBytesWritten = encoding.GetBytes(data, stringBufferSpan);
+            Span<byte> hashBytes = stackalloc byte[16];
 
-            byte[]? sharedBuffer = null;
-            var stringBufferSpan = maxByteCount <= MaxStackLimit ?
-                stackalloc byte[MaxStackLimit] :
-                sharedBuffer = ArrayPool<byte>.Shared.Rent(maxByteCount);
+            _ = MD5.HashData(stringBufferSpan[..numberOfBytesWritten], hashBytes);
 
-            try
+            // generate a guid from the hash:
+            return new Guid(hashBytes);
+        }
+        finally
+        {
+            if (sharedBuffer != null)
             {
-                var numberOfBytesWritten = encoding.GetBytes(data, stringBufferSpan);
-                Span<byte> hashBytes = stackalloc byte[16];
-
-                _ = MD5.HashData(stringBufferSpan[..numberOfBytesWritten], hashBytes);
-
-                // generate a guid from the hash:
-                return new Guid(hashBytes);
-            }
-            finally
-            {
-                if (sharedBuffer != null)
-                {
-                    ArrayPool<byte>.Shared.Return(sharedBuffer, clearArray: true);
-                }
+                ArrayPool<byte>.Shared.Return(sharedBuffer, clearArray: true);
             }
         }
     }

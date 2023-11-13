@@ -1,25 +1,24 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Threading.Tasks;
+using Pipeline;
+using Routing;
+
+class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
 {
-    using System;
-    using System.Threading.Tasks;
-    using Pipeline;
-    using Routing;
-
-    class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
     {
-        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
-        {
-            context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
+        context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
 
-            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
-                context.Message,
-                new[]
-                {
-                    new MulticastRoutingStrategy(context.Message.MessageType)
-                },
-                context);
+        var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
+            context.Message,
+            new[]
+            {
+                new MulticastRoutingStrategy(context.Message.MessageType)
+            },
+            context);
 
-            return stage(logicalMessageContext);
-        }
+        return stage(logicalMessageContext);
     }
 }

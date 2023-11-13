@@ -1,14 +1,13 @@
-﻿namespace NServiceBus
-{
-    using System;
-    using Sagas;
+﻿namespace NServiceBus;
 
-    class DefaultSagaIdGenerator : ISagaIdGenerator
+using System;
+using Sagas;
+
+class DefaultSagaIdGenerator : ISagaIdGenerator
+{
+    public Guid Generate(SagaIdGeneratorContext context)
     {
-        public Guid Generate(SagaIdGeneratorContext context)
-        {
-            // intentionally ignore the property name and the value.
-            return CombGuid.Generate();
-        }
+        // intentionally ignore the property name and the value.
+        return CombGuid.Generate();
     }
 }

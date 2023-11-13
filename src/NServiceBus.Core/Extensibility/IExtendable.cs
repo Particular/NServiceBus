@@ -1,16 +1,15 @@
-﻿namespace NServiceBus.Extensibility
-{
-    using System.ComponentModel;
+﻿namespace NServiceBus.Extensibility;
 
+using System.ComponentModel;
+
+/// <summary>
+/// Marks a class as extendable by giving access to a <see cref="ContextBag" />.
+/// </summary>
+public interface IExtendable
+{
     /// <summary>
-    /// Marks a class as extendable by giving access to a <see cref="ContextBag" />.
+    /// A <see cref="ContextBag" /> which can be used to extend the current object.
     /// </summary>
-    public interface IExtendable
-    {
-        /// <summary>
-        /// A <see cref="ContextBag" /> which can be used to extend the current object.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        ContextBag Extensions { get; }
-    }
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    ContextBag Extensions { get; }
 }

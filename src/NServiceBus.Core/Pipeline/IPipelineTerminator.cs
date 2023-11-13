@@ -1,9 +1,8 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+/// <summary>
+/// Marker interface for pipeline terminators.
+/// </summary>
+interface IPipelineTerminator
 {
-    /// <summary>
-    /// Marker interface for pipeline terminators.
-    /// </summary>
-    interface IPipelineTerminator
-    {
-    }
 }

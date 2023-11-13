@@ -1,51 +1,50 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Installers
+﻿namespace NServiceBus.AcceptanceTests.Core.Installers;
+
+using System.Threading;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Installation;
+using NUnit.Framework;
+
+public class When_installers_enabled : NServiceBusAcceptanceTest
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Installation;
-    using NUnit.Framework;
-
-    public class When_installers_enabled : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_run_installers()
     {
-        [Test]
-        public async Task Should_run_installers()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithInstaller>()
-                .Done(c => c.EndpointsStarted)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithInstaller>()
+            .Done(c => c.EndpointsStarted)
+            .Run();
 
-            Assert.IsTrue(context.InstallerCalled);
+        Assert.IsTrue(context.InstallerCalled);
+    }
+
+    class Context : ScenarioContext
+    {
+        public bool InstallerCalled { get; set; }
+    }
+
+    class EndpointWithInstaller : EndpointConfigurationBuilder
+    {
+        public EndpointWithInstaller()
+        {
+            EndpointSetup<DefaultServer>(c => c.EnableInstallers());
         }
 
-        class Context : ScenarioContext
+        public class CustomInstaller : INeedToInstallSomething
         {
-            public bool InstallerCalled { get; set; }
-        }
+            Context testContext;
 
-        class EndpointWithInstaller : EndpointConfigurationBuilder
-        {
-            public EndpointWithInstaller()
+            public CustomInstaller(Context testContext)
             {
-                EndpointSetup<DefaultServer>(c => c.EnableInstallers());
+                this.testContext = testContext;
             }
 
-            public class CustomInstaller : INeedToInstallSomething
+            public Task Install(string identity, CancellationToken cancellationToken = default)
             {
-                Context testContext;
-
-                public CustomInstaller(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Install(string identity, CancellationToken cancellationToken = default)
-                {
-                    testContext.InstallerCalled = true;
-                    return Task.CompletedTask;
-                }
+                testContext.InstallerCalled = true;
+                return Task.CompletedTask;
             }
         }
     }

@@ -1,12 +1,11 @@
-namespace NServiceBus
-{
-    class EnforceBestPracticesOptions
-    {
-        public EnforceBestPracticesOptions()
-        {
-            Enabled = true;
-        }
+namespace NServiceBus;
 
-        public bool Enabled { get; set; }
+class EnforceBestPracticesOptions
+{
+    public EnforceBestPracticesOptions()
+    {
+        Enabled = true;
     }
+
+    public bool Enabled { get; set; }
 }

@@ -1,30 +1,29 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+
+class SagaLookupValues
 {
-    using System;
-    using System.Collections.Generic;
-
-    class SagaLookupValues
+    public void Add<TSagaData>(string propertyName, object propertyValue)
     {
-        public void Add<TSagaData>(string propertyName, object propertyValue)
+        entries[typeof(TSagaData)] = new LookupValue
         {
-            entries[typeof(TSagaData)] = new LookupValue
-            {
-                PropertyName = propertyName,
-                PropertyValue = propertyValue
-            };
-        }
+            PropertyName = propertyName,
+            PropertyValue = propertyValue
+        };
+    }
 
-        public bool TryGet(Type sagaType, out LookupValue value)
-        {
-            return entries.TryGetValue(sagaType, out value);
-        }
+    public bool TryGet(Type sagaType, out LookupValue value)
+    {
+        return entries.TryGetValue(sagaType, out value);
+    }
 
-        readonly Dictionary<Type, LookupValue> entries = [];
+    readonly Dictionary<Type, LookupValue> entries = [];
 
-        public class LookupValue
-        {
-            public string PropertyName { get; set; }
-            public object PropertyValue { get; set; }
-        }
+    public class LookupValue
+    {
+        public string PropertyName { get; set; }
+        public object PropertyValue { get; set; }
     }
 }

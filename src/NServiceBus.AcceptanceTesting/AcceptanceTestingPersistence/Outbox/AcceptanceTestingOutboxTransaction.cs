@@ -1,33 +1,32 @@
-﻿namespace NServiceBus.AcceptanceTesting
+﻿namespace NServiceBus.AcceptanceTesting;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Outbox;
+
+class AcceptanceTestingOutboxTransaction : IOutboxTransaction
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Outbox;
-
-    class AcceptanceTestingOutboxTransaction : IOutboxTransaction
+    public AcceptanceTestingOutboxTransaction()
     {
-        public AcceptanceTestingOutboxTransaction()
-        {
-            Transaction = new AcceptanceTestingTransaction();
-        }
+        Transaction = new AcceptanceTestingTransaction();
+    }
 
-        public AcceptanceTestingTransaction Transaction { get; private set; }
+    public AcceptanceTestingTransaction Transaction { get; private set; }
 
-        public void Dispose()
-        {
-            Transaction = null;
-        }
+    public void Dispose()
+    {
+        Transaction = null;
+    }
 
-        public Task Commit(CancellationToken cancellationToken = default)
-        {
-            Transaction.Commit();
-            return Task.CompletedTask;
-        }
+    public Task Commit(CancellationToken cancellationToken = default)
+    {
+        Transaction.Commit();
+        return Task.CompletedTask;
+    }
 
-        public void Enlist(Action action)
-        {
-            Transaction.Enlist(action);
-        }
+    public void Enlist(Action action)
+    {
+        Transaction.Enlist(action);
     }
 }

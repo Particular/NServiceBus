@@ -1,135 +1,134 @@
-﻿namespace NServiceBus.TransportTests
+﻿namespace NServiceBus.TransportTests;
+
+using System;
+using System.Collections.Concurrent;
+using Logging;
+using NUnit.Framework;
+
+public class TransportTestLoggerFactory : ILoggerFactory
 {
-    using System;
-    using System.Collections.Concurrent;
-    using Logging;
-    using NUnit.Framework;
-
-    public class TransportTestLoggerFactory : ILoggerFactory
+    public ILog GetLogger(Type type)
     {
-        public ILog GetLogger(Type type)
+        return GetLogger(type.FullName);
+    }
+
+    public ILog GetLogger(string name)
+    {
+        return new TransportTestLogger(name, LogItems);
+    }
+
+    public ConcurrentQueue<LogItem> LogItems { get; } = new ConcurrentQueue<LogItem>();
+
+    public class LogItem
+    {
+        public LogLevel Level;
+
+        public string Message;
+    }
+
+    class TransportTestLogger : ILog
+    {
+        public TransportTestLogger(string name, ConcurrentQueue<LogItem> logItems)
         {
-            return GetLogger(type.FullName);
+            this.name = name;
+            this.logItems = logItems;
         }
 
-        public ILog GetLogger(string name)
+        public bool IsDebugEnabled { get; } = true;
+        public bool IsInfoEnabled { get; } = true;
+        public bool IsWarnEnabled { get; } = true;
+        public bool IsErrorEnabled { get; } = true;
+        public bool IsFatalEnabled { get; } = true;
+
+        public void Debug(string message)
         {
-            return new TransportTestLogger(name, LogItems);
+            Log(LogLevel.Debug, message);
         }
 
-        public ConcurrentQueue<LogItem> LogItems { get; } = new ConcurrentQueue<LogItem>();
-
-        public class LogItem
+        public void Debug(string message, Exception exception)
         {
-            public LogLevel Level;
-
-            public string Message;
+            Log(LogLevel.Debug, $"{message} {exception}");
         }
 
-        class TransportTestLogger : ILog
+        public void DebugFormat(string format, params object[] args)
         {
-            public TransportTestLogger(string name, ConcurrentQueue<LogItem> logItems)
-            {
-                this.name = name;
-                this.logItems = logItems;
-            }
+            Log(LogLevel.Debug, string.Format(format, args));
+        }
 
-            public bool IsDebugEnabled { get; } = true;
-            public bool IsInfoEnabled { get; } = true;
-            public bool IsWarnEnabled { get; } = true;
-            public bool IsErrorEnabled { get; } = true;
-            public bool IsFatalEnabled { get; } = true;
+        public void Info(string message)
+        {
+            Log(LogLevel.Info, message);
+        }
 
-            public void Debug(string message)
-            {
-                Log(LogLevel.Debug, message);
-            }
+        public void Info(string message, Exception exception)
+        {
+            Log(LogLevel.Info, $"{message} {exception}");
+        }
 
-            public void Debug(string message, Exception exception)
-            {
-                Log(LogLevel.Debug, $"{message} {exception}");
-            }
+        public void InfoFormat(string format, params object[] args)
+        {
+            Log(LogLevel.Info, string.Format(format, args));
+        }
 
-            public void DebugFormat(string format, params object[] args)
-            {
-                Log(LogLevel.Debug, string.Format(format, args));
-            }
+        public void Warn(string message)
+        {
+            Log(LogLevel.Warn, message);
+        }
 
-            public void Info(string message)
-            {
-                Log(LogLevel.Info, message);
-            }
+        public void Warn(string message, Exception exception)
+        {
+            Log(LogLevel.Warn, $"{message} {exception}");
+        }
 
-            public void Info(string message, Exception exception)
-            {
-                Log(LogLevel.Info, $"{message} {exception}");
-            }
+        public void WarnFormat(string format, params object[] args)
+        {
+            Log(LogLevel.Warn, string.Format(format, args));
+        }
 
-            public void InfoFormat(string format, params object[] args)
-            {
-                Log(LogLevel.Info, string.Format(format, args));
-            }
+        public void Error(string message)
+        {
+            Log(LogLevel.Error, message);
+        }
 
-            public void Warn(string message)
-            {
-                Log(LogLevel.Warn, message);
-            }
+        public void Error(string message, Exception exception)
+        {
+            Log(LogLevel.Error, $"{message} {exception}");
+        }
 
-            public void Warn(string message, Exception exception)
-            {
-                Log(LogLevel.Warn, $"{message} {exception}");
-            }
+        public void ErrorFormat(string format, params object[] args)
+        {
+            Log(LogLevel.Error, string.Format(format, args));
+        }
 
-            public void WarnFormat(string format, params object[] args)
-            {
-                Log(LogLevel.Warn, string.Format(format, args));
-            }
+        public void Fatal(string message)
+        {
+            Log(LogLevel.Fatal, message);
+        }
 
-            public void Error(string message)
-            {
-                Log(LogLevel.Error, message);
-            }
+        public void Fatal(string message, Exception exception)
+        {
+            Log(LogLevel.Fatal, $"{message} {exception}");
+        }
 
-            public void Error(string message, Exception exception)
-            {
-                Log(LogLevel.Error, $"{message} {exception}");
-            }
+        public void FatalFormat(string format, params object[] args)
+        {
+            Log(LogLevel.Fatal, string.Format(format, args));
+        }
 
-            public void ErrorFormat(string format, params object[] args)
+        void Log(LogLevel level, string message)
+        {
+            logItems.Enqueue(new LogItem
             {
-                Log(LogLevel.Error, string.Format(format, args));
-            }
-
-            public void Fatal(string message)
-            {
-                Log(LogLevel.Fatal, message);
-            }
-
-            public void Fatal(string message, Exception exception)
-            {
-                Log(LogLevel.Fatal, $"{message} {exception}");
-            }
-
-            public void FatalFormat(string format, params object[] args)
-            {
-                Log(LogLevel.Fatal, string.Format(format, args));
-            }
-
-            void Log(LogLevel level, string message)
-            {
-                logItems.Enqueue(new LogItem
-                {
-                    Level = level,
-                    Message = message
-                });
+                Level = level,
+                Message = message
+            });
 
 #pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For test logging
-                TestContext.WriteLine($"{DateTime.Now:T} {level} {name}: {message}");
+            TestContext.WriteLine($"{DateTime.Now:T} {level} {name}: {message}");
 #pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
-            }
-
-            string name;
-            ConcurrentQueue<LogItem> logItems;
         }
+
+        string name;
+        ConcurrentQueue<LogItem> logItems;
     }
 }

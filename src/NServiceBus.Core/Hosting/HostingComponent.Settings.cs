@@ -1,116 +1,115 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Settings;
+using Support;
+
+partial class HostingComponent
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Extensions.DependencyInjection;
-    using Settings;
-    using Support;
-
-    partial class HostingComponent
+    public class Settings
     {
-        public class Settings
+        public Settings(SettingsHolder settings)
         {
-            public Settings(SettingsHolder settings)
+            this.settings = settings;
+
+            fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
+
+            settings.SetDefault(DisplayNameSettingsKey, RuntimeEnvironment.MachineName);
+            settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
             {
-                this.settings = settings;
+                {"Machine", RuntimeEnvironment.MachineName},
+                {"ProcessID", Environment.ProcessId.ToString()},
+                {"UserName", Environment.UserName},
+                {"PathToExecutable", fullPathToStartingExe}
+            });
 
-                fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
-
-                settings.SetDefault(DisplayNameSettingsKey, RuntimeEnvironment.MachineName);
-                settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
-                {
-                    {"Machine", RuntimeEnvironment.MachineName},
-                    {"ProcessID", Environment.ProcessId.ToString()},
-                    {"UserName", Environment.UserName},
-                    {"PathToExecutable", fullPathToStartingExe}
-                });
-
-                settings.Set(new StartupDiagnosticEntries());
-            }
-
-            public Guid HostId
-            {
-                get { return settings.Get<Guid>(HostIdSettingsKey); }
-                set { settings.Set(HostIdSettingsKey, value); }
-            }
-
-            public string DisplayName
-            {
-                get { return settings.Get<string>(DisplayNameSettingsKey); }
-                set { settings.Set(DisplayNameSettingsKey, value); }
-            }
-
-            public string EndpointName => settings.EndpointName();
-
-            public Dictionary<string, string> Properties
-            {
-                get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }
-                set { settings.Set(PropertiesSettingsKey, value); }
-            }
-
-            public StartupDiagnosticEntries StartupDiagnostics
-            {
-                get { return settings.Get<StartupDiagnosticEntries>(); }
-                set { settings.Set(value); }
-            }
-
-            public string DiagnosticsPath
-            {
-                get { return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey); }
-                set { settings.Set(DiagnosticsPathSettingsKey, value); }
-            }
-
-            public Func<string, CancellationToken, Task> HostDiagnosticsWriter
-            {
-                get { return settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey); }
-                set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
-            }
-
-            public Func<ICriticalErrorContext, CancellationToken, Task> CustomCriticalErrorAction
-            {
-                get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
-                set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
-            }
-
-            public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
-
-            public string InstallationUserName
-            {
-                get => settings.GetOrDefault<string>("Installers.UserName");
-                set => settings.Set("Installers.UserName", value);
-            }
-
-            public bool ShouldRunInstallers
-            {
-                get => settings.GetOrDefault<bool>("Installers.Enable");
-                set => settings.Set("Installers.Enable", value);
-            }
-
-            public bool EnableOpenTelemetry { get; set; }
-
-            internal void ApplyHostIdDefaultIfNeeded()
-            {
-                // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.
-                // Changing the default implementation to a FIPS-compliant cipher would cause all users to get duplicates of every endpoint instance in ServicePulse.
-                if (settings.HasExplicitValue(HostIdSettingsKey))
-                {
-                    return;
-                }
-
-                settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
-            }
-
-            readonly SettingsHolder settings;
-            readonly string fullPathToStartingExe;
-
-            const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
-            const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
-            const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
-            const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
-            const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
-            const string CustomCriticalErrorActionSettingsKey = "onCriticalErrorAction";
+            settings.Set(new StartupDiagnosticEntries());
         }
+
+        public Guid HostId
+        {
+            get { return settings.Get<Guid>(HostIdSettingsKey); }
+            set { settings.Set(HostIdSettingsKey, value); }
+        }
+
+        public string DisplayName
+        {
+            get { return settings.Get<string>(DisplayNameSettingsKey); }
+            set { settings.Set(DisplayNameSettingsKey, value); }
+        }
+
+        public string EndpointName => settings.EndpointName();
+
+        public Dictionary<string, string> Properties
+        {
+            get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }
+            set { settings.Set(PropertiesSettingsKey, value); }
+        }
+
+        public StartupDiagnosticEntries StartupDiagnostics
+        {
+            get { return settings.Get<StartupDiagnosticEntries>(); }
+            set { settings.Set(value); }
+        }
+
+        public string DiagnosticsPath
+        {
+            get { return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey); }
+            set { settings.Set(DiagnosticsPathSettingsKey, value); }
+        }
+
+        public Func<string, CancellationToken, Task> HostDiagnosticsWriter
+        {
+            get { return settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey); }
+            set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
+        }
+
+        public Func<ICriticalErrorContext, CancellationToken, Task> CustomCriticalErrorAction
+        {
+            get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
+            set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
+        }
+
+        public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
+
+        public string InstallationUserName
+        {
+            get => settings.GetOrDefault<string>("Installers.UserName");
+            set => settings.Set("Installers.UserName", value);
+        }
+
+        public bool ShouldRunInstallers
+        {
+            get => settings.GetOrDefault<bool>("Installers.Enable");
+            set => settings.Set("Installers.Enable", value);
+        }
+
+        public bool EnableOpenTelemetry { get; set; }
+
+        internal void ApplyHostIdDefaultIfNeeded()
+        {
+            // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.
+            // Changing the default implementation to a FIPS-compliant cipher would cause all users to get duplicates of every endpoint instance in ServicePulse.
+            if (settings.HasExplicitValue(HostIdSettingsKey))
+            {
+                return;
+            }
+
+            settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+        }
+
+        readonly SettingsHolder settings;
+        readonly string fullPathToStartingExe;
+
+        const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
+        const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
+        const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
+        const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
+        const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
+        const string CustomCriticalErrorActionSettingsKey = "onCriticalErrorAction";
     }
 }

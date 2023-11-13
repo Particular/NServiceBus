@@ -1,8 +1,7 @@
-namespace NServiceBus
-{
-    using System.Collections.Generic;
+namespace NServiceBus;
 
-    class CurrentStaticHeaders : Dictionary<string, string>
-    {
-    }
+using System.Collections.Generic;
+
+class CurrentStaticHeaders : Dictionary<string, string>
+{
 }

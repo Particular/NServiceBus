@@ -1,75 +1,74 @@
 ﻿#nullable enable
 
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using Settings;
+
+/// <summary>
+/// A utility class to get the configured audit queue settings.
+/// </summary>
+public static class AuditConfigReader
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using Settings;
+    /// <summary>
+    /// Gets the audit queue address for the endpoint.
+    /// The audit queue address can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
+    /// </summary>
+    /// <param name="settings">The configuration settings for the endpoint.</param>
+    /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
+    /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
+    public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [NotNullWhen(true)] out string? address)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var result = GetConfiguredAuditQueue(settings);
+
+        if (result == null)
+        {
+            address = null;
+            return false;
+        }
+
+        address = result.Address;
+        return true;
+    }
 
     /// <summary>
-    /// A utility class to get the configured audit queue settings.
+    /// Gets the audit message expiration time span for the endpoint.
+    /// The audit message expiration time span can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
     /// </summary>
-    public static class AuditConfigReader
+    /// <param name="settings">The configuration settings for the endpoint.</param>
+    /// <param name="auditMessageExpiration">When this method returns, contains the audit message expiration time span, if it has been configured, or TimeSpan.Zero if has not.</param>
+    /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
+    public static bool TryGetAuditMessageExpiration(this IReadOnlySettings settings, out TimeSpan auditMessageExpiration)
     {
-        /// <summary>
-        /// Gets the audit queue address for the endpoint.
-        /// The audit queue address can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
-        /// </summary>
-        /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
-        /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
-        public static bool TryGetAuditQueueAddress(this IReadOnlySettings settings, [NotNullWhen(true)] out string? address)
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var result = GetConfiguredAuditQueue(settings);
+
+        if (result?.TimeToBeReceived == null)
         {
-            ArgumentNullException.ThrowIfNull(settings);
-
-            var result = GetConfiguredAuditQueue(settings);
-
-            if (result == null)
-            {
-                address = null;
-                return false;
-            }
-
-            address = result.Address;
-            return true;
+            auditMessageExpiration = TimeSpan.Zero;
+            return false;
         }
 
-        /// <summary>
-        /// Gets the audit message expiration time span for the endpoint.
-        /// The audit message expiration time span can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
-        /// </summary>
-        /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="auditMessageExpiration">When this method returns, contains the audit message expiration time span, if it has been configured, or TimeSpan.Zero if has not.</param>
-        /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
-        public static bool TryGetAuditMessageExpiration(this IReadOnlySettings settings, out TimeSpan auditMessageExpiration)
+        auditMessageExpiration = result.TimeToBeReceived.Value;
+        return true;
+    }
+
+    internal static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
+        => settings.TryGet(out Result configResult) ? configResult : null;
+
+    internal class Result
+    {
+        public Result(string address, TimeSpan? timeToBeReceived)
         {
-            ArgumentNullException.ThrowIfNull(settings);
-
-            var result = GetConfiguredAuditQueue(settings);
-
-            if (result?.TimeToBeReceived == null)
-            {
-                auditMessageExpiration = TimeSpan.Zero;
-                return false;
-            }
-
-            auditMessageExpiration = result.TimeToBeReceived.Value;
-            return true;
+            Address = address;
+            TimeToBeReceived = timeToBeReceived;
         }
 
-        internal static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
-            => settings.TryGet(out Result configResult) ? configResult : null;
-
-        internal class Result
-        {
-            public Result(string address, TimeSpan? timeToBeReceived)
-            {
-                Address = address;
-                TimeToBeReceived = timeToBeReceived;
-            }
-
-            public string Address;
-            public TimeSpan? TimeToBeReceived;
-        }
+        public string Address;
+        public TimeSpan? TimeToBeReceived;
     }
 }

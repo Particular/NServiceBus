@@ -1,24 +1,23 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using Sagas;
+using System;
+using System.Collections.Generic;
+
+class HeaderFinderSagaToMessageMap : CorrelationSagaToMessageMap
 {
-    using Sagas;
-    using System;
-    using System.Collections.Generic;
+    public string HeaderName;
 
-    class HeaderFinderSagaToMessageMap : CorrelationSagaToMessageMap
+    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
     {
-        public string HeaderName;
-
-        public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
-        {
-            return new SagaFinderDefinition(
-                typeof(HeaderPropertySagaFinder<>).MakeGenericType(sagaEntityType),
-                MessageType,
-                new Dictionary<string, object>
-                {
-                    {"message-header-name", HeaderName},
-                    {"saga-property-name", SagaPropName},
-                    {"saga-property-type", SagaPropType}
-                });
-        }
+        return new SagaFinderDefinition(
+            typeof(HeaderPropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            MessageType,
+            new Dictionary<string, object>
+            {
+                {"message-header-name", HeaderName},
+                {"saga-property-name", SagaPropName},
+                {"saga-property-type", SagaPropType}
+            });
     }
 }

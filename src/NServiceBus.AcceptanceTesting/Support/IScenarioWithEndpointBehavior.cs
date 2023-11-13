@@ -1,21 +1,20 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support;
+
+using System;
+using System.Threading.Tasks;
+
+public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
 {
-    using System;
-    using System.Threading.Tasks;
+    IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder, new();
 
-    public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
-    {
-        IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder, new();
+    IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> behavior) where T : EndpointConfigurationBuilder, new();
 
-        IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> behavior) where T : EndpointConfigurationBuilder, new();
+    IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior);
 
-        IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior);
+    IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior);
 
-        IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior);
+    IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
-        IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
-
-        Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
-        Task<TContext> Run(RunSettings settings);
-    }
+    Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
+    Task<TContext> Run(RunSettings settings);
 }

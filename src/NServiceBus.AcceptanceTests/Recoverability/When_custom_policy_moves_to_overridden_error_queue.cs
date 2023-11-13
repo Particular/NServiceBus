@@ -1,90 +1,89 @@
-namespace NServiceBus.AcceptanceTests.Recoverability
+namespace NServiceBus.AcceptanceTests.Recoverability;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_move_to_defined_error_queue()
     {
-        [Test]
-        public async Task Should_move_to_defined_error_queue()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithFailingHandler>(b => b
-                    .DoNotFailOnErrorMessages()
-                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                    {
-                        Id = ctx.TestRunId
-                    }))
-                )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithFailingHandler>(b => b
+                .DoNotFailOnErrorMessages()
+                .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                {
+                    Id = ctx.TestRunId
+                }))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageMovedToErrorQueue)
+            .Run();
 
-            Assert.IsTrue(context.MessageMovedToErrorQueue);
+        Assert.IsTrue(context.MessageMovedToErrorQueue);
+    }
+
+    class Context : ScenarioContext
+    {
+        public bool MessageMovedToErrorQueue { get; set; }
+    }
+
+    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    {
+        public EndpointWithFailingHandler()
+        {
+            EndpointSetup<DefaultServer>((config, context) =>
+            {
+                config.Recoverability().CustomPolicy((c, ec) =>
+                    RecoverabilityAction.MoveToError(Conventions.EndpointNamingConvention(typeof(ErrorSpy))));
+
+                config.SendFailedMessagesTo("error");
+            });
         }
 
-        class Context : ScenarioContext
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public bool MessageMovedToErrorQueue { get; set; }
-        }
-
-        class EndpointWithFailingHandler : EndpointConfigurationBuilder
-        {
-            public EndpointWithFailingHandler()
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.Recoverability().CustomPolicy((c, ec) =>
-                        RecoverabilityAction.MoveToError(Conventions.EndpointNamingConvention(typeof(ErrorSpy))));
-
-                    config.SendFailedMessagesTo("error");
-                });
-            }
-
-            class InitiatingHandler : IHandleMessages<InitiatingMessage>
-            {
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    throw new SimulatedException();
-                }
+                throw new SimulatedException();
             }
         }
+    }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+    class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy()
         {
-            public ErrorSpy()
+            EndpointSetup<DefaultServer>();
+        }
+
+        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        {
+            public InitiatingMessageHandler(Context context)
             {
-                EndpointSetup<DefaultServer>();
+                testContext = context;
             }
 
-            class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
-                public InitiatingMessageHandler(Context context)
+                if (initiatingMessage.Id == testContext.TestRunId)
                 {
-                    testContext = context;
-                }
-
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    if (initiatingMessage.Id == testContext.TestRunId)
-                    {
-                        testContext.MessageMovedToErrorQueue = true;
-                    }
-
-                    return Task.CompletedTask;
+                    testContext.MessageMovedToErrorQueue = true;
                 }
 
-                Context testContext;
+                return Task.CompletedTask;
             }
-        }
 
-        public class InitiatingMessage : IMessage
-        {
-            public Guid Id { get; set; }
+            Context testContext;
         }
+    }
+
+    public class InitiatingMessage : IMessage
+    {
+        public Guid Id { get; set; }
     }
 }

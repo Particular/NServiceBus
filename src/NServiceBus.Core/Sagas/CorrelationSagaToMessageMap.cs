@@ -1,10 +1,9 @@
-﻿namespace NServiceBus
-{
-    using System;
+﻿namespace NServiceBus;
 
-    abstract class CorrelationSagaToMessageMap : SagaToMessageMap
-    {
-        public string SagaPropName;
-        public Type SagaPropType;
-    }
+using System;
+
+abstract class CorrelationSagaToMessageMap : SagaToMessageMap
+{
+    public string SagaPropName;
+    public Type SagaPropType;
 }

@@ -1,110 +1,109 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Features;
+using NUnit.Framework;
+
+//Repro for #1323
+public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
-    using NUnit.Framework;
-
-    //Repro for #1323
-    public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
     {
-        [Test]
-        public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
-        {
-            var context = await Scenario.Define<SagaContext>()
-                .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.IsEventSubscriptionReceived,
-                        session => { return session.Publish<ISomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
-                )
-                .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                    b => b.When(async (session, c) =>
+        var context = await Scenario.Define<SagaContext>()
+            .WithEndpoint<Publisher>(b =>
+                b.When(c => c.IsEventSubscriptionReceived,
+                    session => { return session.Publish<ISomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
+            )
+            .WithEndpoint<SagaThatIsStartedByABaseEvent>(
+                b => b.When(async (session, c) =>
+                {
+                    await session.Subscribe<IBaseEvent>();
+
+                    if (c.HasNativePubSubSupport)
                     {
-                        await session.Subscribe<IBaseEvent>();
+                        c.IsEventSubscriptionReceived = true;
+                    }
+                }))
+            .Done(c => c.DidSagaComplete)
+            .Run();
 
-                        if (c.HasNativePubSubSupport)
-                        {
-                            c.IsEventSubscriptionReceived = true;
-                        }
-                    }))
-                .Done(c => c.DidSagaComplete)
-                .Run();
+        Assert.True(context.DidSagaComplete);
+    }
 
-            Assert.True(context.DidSagaComplete);
-        }
+    public class SagaContext : ScenarioContext
+    {
+        public bool IsEventSubscriptionReceived { get; set; }
+        public bool DidSagaComplete { get; set; }
+    }
 
-        public class SagaContext : ScenarioContext
+    public class Publisher : EndpointConfigurationBuilder
+    {
+        public Publisher()
         {
-            public bool IsEventSubscriptionReceived { get; set; }
-            public bool DidSagaComplete { get; set; }
-        }
-
-        public class Publisher : EndpointConfigurationBuilder
-        {
-            public Publisher()
+            EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
-                {
-                    context.AddTrace($"Subscription received for {s.SubscriberEndpoint}");
-                    context.IsEventSubscriptionReceived = true;
-                }));
-            }
+                context.AddTrace($"Subscription received for {s.SubscriberEndpoint}");
+                context.IsEventSubscriptionReceived = true;
+            }));
         }
+    }
 
-        public class SagaThatIsStartedByABaseEvent : EndpointConfigurationBuilder
+    public class SagaThatIsStartedByABaseEvent : EndpointConfigurationBuilder
+    {
+        public SagaThatIsStartedByABaseEvent()
         {
-            public SagaThatIsStartedByABaseEvent()
+            EndpointSetup<DefaultServer>(c =>
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                },
-                metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
-            }
+                c.DisableFeature<AutoSubscribe>();
+            },
+            metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
+        }
 
-            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
+        public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
+        {
+            public SagaStartedByBaseEvent(SagaContext context)
             {
-                public SagaStartedByBaseEvent(SagaContext context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(IBaseEvent message, IMessageHandlerContext context)
-                {
-                    Data.DataId = message.DataId;
-                    MarkAsComplete();
-                    testContext.DidSagaComplete = true;
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<IBaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
-                }
-
-                public class SagaStartedByBaseEventSagaData : ContainSagaData
-                {
-                    public virtual Guid DataId { get; set; }
-                }
-
-                SagaContext testContext;
+                testContext = context;
             }
+
+            public Task Handle(IBaseEvent message, IMessageHandlerContext context)
+            {
+                Data.DataId = message.DataId;
+                MarkAsComplete();
+                testContext.DidSagaComplete = true;
+                return Task.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
+            {
+                mapper.ConfigureMapping<IBaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
+            }
+
+            public class SagaStartedByBaseEventSagaData : ContainSagaData
+            {
+                public virtual Guid DataId { get; set; }
+            }
+
+            SagaContext testContext;
         }
+    }
 
 
-        public class StartSaga : ICommand
-        {
-            public Guid DataId { get; set; }
-        }
+    public class StartSaga : ICommand
+    {
+        public Guid DataId { get; set; }
+    }
 
-        public interface ISomethingHappenedEvent : IBaseEvent
-        {
-        }
+    public interface ISomethingHappenedEvent : IBaseEvent
+    {
+    }
 
-        public interface IBaseEvent : IEvent
-        {
-            Guid DataId { get; set; }
-        }
+    public interface IBaseEvent : IEvent
+    {
+        Guid DataId { get; set; }
     }
 }

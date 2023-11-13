@@ -1,34 +1,33 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus.Pipeline;
+
+using System;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Connects two stages of a pipeline and forks into an independent pipeline.
+/// </summary>
+/// <typeparam name="TFromContext">The context to connect from.</typeparam>
+/// <typeparam name="TToContext">The context to connect to.</typeparam>
+/// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
+public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : IStageForkConnector<TFromContext, TToContext, TForkContext>
+    where TFromContext : IBehaviorContext
+    where TToContext : IBehaviorContext
+    where TForkContext : IBehaviorContext
 {
-    using System;
-    using System.Threading.Tasks;
+    /// <inheritdoc />
+    public Task Invoke(TFromContext context, Func<TToContext, Task> next)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(next);
+
+        return Invoke(context, next, ctx => ctx.InvokePipeline());
+    }
 
     /// <summary>
-    /// Connects two stages of a pipeline and forks into an independent pipeline.
+    /// Called when the stage fork connector is executed.
     /// </summary>
-    /// <typeparam name="TFromContext">The context to connect from.</typeparam>
-    /// <typeparam name="TToContext">The context to connect to.</typeparam>
-    /// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
-    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : IStageForkConnector<TFromContext, TToContext, TForkContext>
-        where TFromContext : IBehaviorContext
-        where TToContext : IBehaviorContext
-        where TForkContext : IBehaviorContext
-    {
-        /// <inheritdoc />
-        public Task Invoke(TFromContext context, Func<TToContext, Task> next)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNull(next);
-
-            return Invoke(context, next, ctx => ctx.InvokePipeline());
-        }
-
-        /// <summary>
-        /// Called when the stage fork connector is executed.
-        /// </summary>
-        /// <param name="context">The current context.</param>
-        /// <param name="stage">The next <see cref="IBehavior{TToContext,TToContext}" /> in the chain to stage and execute.</param>
-        /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
-        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
-    }
+    /// <param name="context">The current context.</param>
+    /// <param name="stage">The next <see cref="IBehavior{TToContext,TToContext}" /> in the chain to stage and execute.</param>
+    /// <param name="fork">The next <see cref="IBehavior{TForkContext,TForkContext}" /> in the chain to fork and execute.</param>
+    public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
 }

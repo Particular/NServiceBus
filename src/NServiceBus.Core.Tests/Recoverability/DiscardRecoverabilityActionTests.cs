@@ -1,22 +1,21 @@
-﻿namespace NServiceBus.Core.Tests.Recoverability
+﻿namespace NServiceBus.Core.Tests.Recoverability;
+
+using NUnit.Framework;
+using Testing;
+using Transport;
+
+[TestFixture]
+public class DiscardRecoverabilityActionTests
 {
-    using NUnit.Framework;
-    using Testing;
-    using Transport;
-
-    [TestFixture]
-    public class DiscardRecoverabilityActionTests
+    [Test]
+    public void Discard_action_should_discard_message()
     {
-        [Test]
-        public void Discard_action_should_discard_message()
-        {
-            var discardAction = new Discard("not needed anymore");
-            var actionContext = new TestableRecoverabilityContext();
+        var discardAction = new Discard("not needed anymore");
+        var actionContext = new TestableRecoverabilityContext();
 
-            var routingContexts = discardAction.GetRoutingContexts(actionContext);
+        var routingContexts = discardAction.GetRoutingContexts(actionContext);
 
-            CollectionAssert.IsEmpty(routingContexts);
-            Assert.AreEqual(discardAction.ErrorHandleResult, ErrorHandleResult.Handled);
-        }
+        CollectionAssert.IsEmpty(routingContexts);
+        Assert.AreEqual(discardAction.ErrorHandleResult, ErrorHandleResult.Handled);
     }
 }

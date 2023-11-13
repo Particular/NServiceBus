@@ -1,11 +1,10 @@
-﻿namespace NServiceBus.Core.Tests.Features
-{
-    using NServiceBus.Features;
+﻿namespace NServiceBus.Core.Tests.Features;
 
-    public class FakeFeatureConfigurationContext : FeatureConfigurationContext
+using NServiceBus.Features;
+
+public class FakeFeatureConfigurationContext : FeatureConfigurationContext
+{
+    public FakeFeatureConfigurationContext() : base(null, null, null, null, null)
     {
-        public FakeFeatureConfigurationContext() : base(null, null, null, null, null)
-        {
-        }
     }
 }

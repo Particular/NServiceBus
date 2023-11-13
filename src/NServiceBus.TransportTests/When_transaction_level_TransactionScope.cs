@@ -1,36 +1,35 @@
-﻿namespace NServiceBus.TransportTests
+﻿namespace NServiceBus.TransportTests;
+
+using System.Threading.Tasks;
+using System.Transactions;
+using NUnit.Framework;
+using Transport;
+
+public class When_transaction_level_TransactionScope : NServiceBusTransportTest
 {
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using NUnit.Framework;
-    using Transport;
-
-    public class When_transaction_level_TransactionScope : NServiceBusTransportTest
+    [TestCase(TransportTransactionMode.TransactionScope)]
+    public async Task Should_have_active_transaction(TransportTransactionMode transactionMode)
     {
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_have_active_transaction(TransportTransactionMode transactionMode)
-        {
-            Transaction currentTransaction = null;
-            Transaction contextTransaction = null;
+        Transaction currentTransaction = null;
+        Transaction contextTransaction = null;
 
-            var messageProcessed = CreateTaskCompletionSource();
+        var messageProcessed = CreateTaskCompletionSource();
 
-            await StartPump(
-                (context, _) =>
-                {
-                    currentTransaction = Transaction.Current;
-                    contextTransaction = context.TransportTransaction.Get<Transaction>();
-                    return messageProcessed.SetCompleted();
-                },
-                (_, __) => Task.FromResult(ErrorHandleResult.Handled),
-                transactionMode);
+        await StartPump(
+            (context, _) =>
+            {
+                currentTransaction = Transaction.Current;
+                contextTransaction = context.TransportTransaction.Get<Transaction>();
+                return messageProcessed.SetCompleted();
+            },
+            (_, __) => Task.FromResult(ErrorHandleResult.Handled),
+            transactionMode);
 
-            await SendMessage(InputQueueName);
+        await SendMessage(InputQueueName);
 
-            await messageProcessed.Task;
+        await messageProcessed.Task;
 
-            Assert.NotNull(currentTransaction);
-            Assert.AreSame(currentTransaction, contextTransaction);
-        }
+        Assert.NotNull(currentTransaction);
+        Assert.AreSame(currentTransaction, contextTransaction);
     }
 }

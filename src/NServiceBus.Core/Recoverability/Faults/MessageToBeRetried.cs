@@ -1,19 +1,18 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using Transport;
+
+class MessageToBeRetried : MessageProcessingFailed
 {
-    using System;
-    using Transport;
+    public int Attempt { get; }
+    public TimeSpan Delay { get; }
+    public bool IsImmediateRetry { get; }
 
-    class MessageToBeRetried : MessageProcessingFailed
+    public MessageToBeRetried(int attempt, TimeSpan delay, bool immediateRetry, IncomingMessage failedMessage, Exception exception) : base(failedMessage, exception)
     {
-        public int Attempt { get; }
-        public TimeSpan Delay { get; }
-        public bool IsImmediateRetry { get; }
-
-        public MessageToBeRetried(int attempt, TimeSpan delay, bool immediateRetry, IncomingMessage failedMessage, Exception exception) : base(failedMessage, exception)
-        {
-            Attempt = attempt;
-            Delay = delay;
-            IsImmediateRetry = immediateRetry;
-        }
+        Attempt = attempt;
+        Delay = delay;
+        IsImmediateRetry = immediateRetry;
     }
 }

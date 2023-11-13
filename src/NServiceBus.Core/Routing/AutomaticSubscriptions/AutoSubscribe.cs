@@ -1,140 +1,139 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.Features;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Unicast;
+using Unicast.Queuing;
+
+/// <summary>
+/// Used to configure auto subscriptions.
+/// </summary>
+public class AutoSubscribe : Feature
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Logging;
-    using Microsoft.Extensions.DependencyInjection;
-    using Unicast;
-    using Unicast.Queuing;
+    internal AutoSubscribe()
+    {
+        EnableByDefault();
+        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
+    }
 
     /// <summary>
-    /// Used to configure auto subscriptions.
+    /// See <see cref="Feature.Setup" />.
     /// </summary>
-    public class AutoSubscribe : Feature
+    protected internal override void Setup(FeatureConfigurationContext context)
     {
-        internal AutoSubscribe()
+        if (!context.Settings.TryGet(out SubscribeSettings settings))
         {
-            EnableByDefault();
-            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
+            settings = new SubscribeSettings();
         }
 
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        var conventions = context.Settings.Get<Conventions>();
+
+        context.RegisterStartupTask(b =>
         {
-            if (!context.Settings.TryGet(out SubscribeSettings settings))
-            {
-                settings = new SubscribeSettings();
-            }
+            var handlerRegistry = b.GetRequiredService<MessageHandlerRegistry>();
 
-            var conventions = context.Settings.Get<Conventions>();
+            return new ApplySubscriptions(handlerRegistry, conventions, settings);
+        });
+    }
 
-            context.RegisterStartupTask(b =>
-            {
-                var handlerRegistry = b.GetRequiredService<MessageHandlerRegistry>();
-
-                return new ApplySubscriptions(handlerRegistry, conventions, settings);
-            });
+    class ApplySubscriptions : FeatureStartupTask
+    {
+        public ApplySubscriptions(MessageHandlerRegistry messageHandlerRegistry, Conventions conventions, SubscribeSettings subscribeSettings)
+        {
+            this.messageHandlerRegistry = messageHandlerRegistry;
+            this.conventions = conventions;
+            this.subscribeSettings = subscribeSettings;
         }
 
-        class ApplySubscriptions : FeatureStartupTask
+        protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
-            public ApplySubscriptions(MessageHandlerRegistry messageHandlerRegistry, Conventions conventions, SubscribeSettings subscribeSettings)
+            var eventsToSubscribe = GetHandledEventTypes(messageHandlerRegistry, conventions, subscribeSettings);
+
+            if (eventsToSubscribe.Length == 0)
             {
-                this.messageHandlerRegistry = messageHandlerRegistry;
-                this.conventions = conventions;
-                this.subscribeSettings = subscribeSettings;
+                Logger.Debug("Auto-subscribe found no event types to subscribe.");
+                return;
             }
 
-            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            try
             {
-                var eventsToSubscribe = GetHandledEventTypes(messageHandlerRegistry, conventions, subscribeSettings);
-
-                if (eventsToSubscribe.Length == 0)
+                var messageSession = session as MessageSession;
+                await messageSession.SubscribeAll(eventsToSubscribe, new SubscribeOptions(), cancellationToken)
+                    .ConfigureAwait(false);
+                if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Auto-subscribe found no event types to subscribe.");
-                    return;
+                    Logger.DebugFormat("Auto subscribed to events {0}",
+                        string.Join<Type>(",", eventsToSubscribe));
                 }
-
-                try
+            }
+            catch (AggregateException e)
+            {
+                foreach (var innerException in e.InnerExceptions)
                 {
-                    var messageSession = session as MessageSession;
-                    await messageSession.SubscribeAll(eventsToSubscribe, new SubscribeOptions(), cancellationToken)
-                        .ConfigureAwait(false);
-                    if (Logger.IsDebugEnabled)
+                    if (innerException is QueueNotFoundException)
                     {
-                        Logger.DebugFormat("Auto subscribed to events {0}",
-                            string.Join<Type>(",", eventsToSubscribe));
+                        throw innerException;
                     }
-                }
-                catch (AggregateException e)
-                {
-                    foreach (var innerException in e.InnerExceptions)
-                    {
-                        if (innerException is QueueNotFoundException)
-                        {
-                            throw innerException;
-                        }
 
-                        LogFailedSubscription(innerException);
-                    }
-                    //swallow
+                    LogFailedSubscription(innerException);
                 }
-                catch (QueueNotFoundException)
-                {
-                    throw;
-                }
-                // also catch regular exceptions in case a transport does not throw an AggregateException
-                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-                {
-                    LogFailedSubscription(ex);
-                    // swallow exception
-                }
-
-                void LogFailedSubscription(Exception exception)
-                {
-                    Logger.Error("AutoSubscribe was unable to subscribe to an event:", exception);
-                }
+                //swallow
             }
-
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+            catch (QueueNotFoundException)
             {
-                return Task.CompletedTask;
+                throw;
             }
-
-            static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
+            // also catch regular exceptions in case a transport does not throw an AggregateException
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
-                var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
-                    .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
-                    .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
-                    .Where(t => conventions.IsEventType(t)) //only events
-                    .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
-                    .Except(settings.ExcludedTypes)
-                    .ToArray();
-
-                return messageTypesHandled;
+                LogFailedSubscription(ex);
+                // swallow exception
             }
 
-            readonly MessageHandlerRegistry messageHandlerRegistry;
-            readonly Conventions conventions;
-            readonly SubscribeSettings subscribeSettings;
-            static readonly ILog Logger = LogManager.GetLogger<AutoSubscribe>();
+            void LogFailedSubscription(Exception exception)
+            {
+                Logger.Error("AutoSubscribe was unable to subscribe to an event:", exception);
+            }
         }
 
-        internal class SubscribeSettings
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
         {
-            public SubscribeSettings()
-            {
-                AutoSubscribeSagas = true;
-            }
-
-            public bool AutoSubscribeSagas { get; set; }
-
-            public HashSet<Type> ExcludedTypes { get; set; } = [];
+            return Task.CompletedTask;
         }
+
+        static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
+        {
+            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
+                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
+                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
+                .Where(t => conventions.IsEventType(t)) //only events
+                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
+                .Except(settings.ExcludedTypes)
+                .ToArray();
+
+            return messageTypesHandled;
+        }
+
+        readonly MessageHandlerRegistry messageHandlerRegistry;
+        readonly Conventions conventions;
+        readonly SubscribeSettings subscribeSettings;
+        static readonly ILog Logger = LogManager.GetLogger<AutoSubscribe>();
+    }
+
+    internal class SubscribeSettings
+    {
+        public SubscribeSettings()
+        {
+            AutoSubscribeSagas = true;
+        }
+
+        public bool AutoSubscribeSagas { get; set; }
+
+        public HashSet<Type> ExcludedTypes { get; set; } = [];
     }
 }

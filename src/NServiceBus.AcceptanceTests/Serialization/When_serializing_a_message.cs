@@ -1,90 +1,89 @@
-﻿namespace NServiceBus.AcceptanceTests.Serialization
+﻿namespace NServiceBus.AcceptanceTests.Serialization;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+[TestFixture]
+public class When_serializing_a_message : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class When_serializing_a_message : NServiceBusAcceptanceTest
+    [Test]
+    public async Task DateTime_properties_should_keep_their_original_timezone_information()
     {
-        [Test]
-        public async Task DateTime_properties_should_keep_their_original_timezone_information()
-        {
-            var expectedDateTime = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Unspecified);
-            var expectedDateTimeLocal = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Local);
-            var expectedDateTimeUtc = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Utc);
-            var expectedDateTimeOffset = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.FromHours(6));
+        var expectedDateTime = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Unspecified);
+        var expectedDateTimeLocal = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Local);
+        var expectedDateTimeUtc = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Utc);
+        var expectedDateTimeOffset = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.FromHours(6));
 #pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
-            var expectedDateTimeOffsetLocal = DateTimeOffset.Now;
+        var expectedDateTimeOffsetLocal = DateTimeOffset.Now;
 #pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
-            var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
+        var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<DateTimeReceiver>(b => b.When(
-                    (session, c) => session.SendLocal(new DateTimeMessage
-                    {
-                        DateTime = expectedDateTime,
-                        DateTimeLocal = expectedDateTimeLocal,
-                        DateTimeUtc = expectedDateTimeUtc,
-                        DateTimeOffset = expectedDateTimeOffset,
-                        DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
-                        DateTimeOffsetUtc = expectedDateTimeOffsetUtc
-                    })))
-                .Done(c => c.ReceivedMessage != null)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<DateTimeReceiver>(b => b.When(
+                (session, c) => session.SendLocal(new DateTimeMessage
+                {
+                    DateTime = expectedDateTime,
+                    DateTimeLocal = expectedDateTimeLocal,
+                    DateTimeUtc = expectedDateTimeUtc,
+                    DateTimeOffset = expectedDateTimeOffset,
+                    DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
+                    DateTimeOffsetUtc = expectedDateTimeOffsetUtc
+                })))
+            .Done(c => c.ReceivedMessage != null)
+            .Run();
 
-            Assert.AreEqual(expectedDateTime, context.ReceivedMessage.DateTime);
-            Assert.AreEqual(expectedDateTimeLocal, context.ReceivedMessage.DateTimeLocal);
-            Assert.AreEqual(expectedDateTimeUtc, context.ReceivedMessage.DateTimeUtc);
-            Assert.AreEqual(expectedDateTimeOffset, context.ReceivedMessage.DateTimeOffset);
-            Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
-            Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
-            Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
-            Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, context.ReceivedMessage.DateTimeOffsetLocal.Offset);
-            Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
-            Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, context.ReceivedMessage.DateTimeOffsetUtc.Offset);
+        Assert.AreEqual(expectedDateTime, context.ReceivedMessage.DateTime);
+        Assert.AreEqual(expectedDateTimeLocal, context.ReceivedMessage.DateTimeLocal);
+        Assert.AreEqual(expectedDateTimeUtc, context.ReceivedMessage.DateTimeUtc);
+        Assert.AreEqual(expectedDateTimeOffset, context.ReceivedMessage.DateTimeOffset);
+        Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
+        Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
+        Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
+        Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, context.ReceivedMessage.DateTimeOffsetLocal.Offset);
+        Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
+        Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, context.ReceivedMessage.DateTimeOffsetUtc.Offset);
+    }
+
+    class DateTimeReceiver : EndpointConfigurationBuilder
+    {
+        public DateTimeReceiver()
+        {
+            EndpointSetup<DefaultServer>();
         }
 
-        class DateTimeReceiver : EndpointConfigurationBuilder
+        class DateTimeMessageHandler : IHandleMessages<DateTimeMessage>
         {
-            public DateTimeReceiver()
+            public DateTimeMessageHandler(Context context)
             {
-                EndpointSetup<DefaultServer>();
+                testContext = context;
             }
 
-            class DateTimeMessageHandler : IHandleMessages<DateTimeMessage>
+            public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
             {
-                public DateTimeMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
+                testContext.ReceivedMessage = message;
 
-                public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
-                {
-                    testContext.ReceivedMessage = message;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                return Task.CompletedTask;
             }
-        }
 
-        public class DateTimeMessage : IMessage
-        {
-            public DateTime DateTime { get; set; }
-            public DateTime DateTimeLocal { get; set; }
-            public DateTime DateTimeUtc { get; set; }
-            public DateTimeOffset DateTimeOffset { get; set; }
-            public DateTimeOffset DateTimeOffsetLocal { get; set; }
-            public DateTimeOffset DateTimeOffsetUtc { get; set; }
+            Context testContext;
         }
+    }
 
-        class Context : ScenarioContext
-        {
-            public DateTimeMessage ReceivedMessage { get; set; }
-        }
+    public class DateTimeMessage : IMessage
+    {
+        public DateTime DateTime { get; set; }
+        public DateTime DateTimeLocal { get; set; }
+        public DateTime DateTimeUtc { get; set; }
+        public DateTimeOffset DateTimeOffset { get; set; }
+        public DateTimeOffset DateTimeOffsetLocal { get; set; }
+        public DateTimeOffset DateTimeOffsetUtc { get; set; }
+    }
+
+    class Context : ScenarioContext
+    {
+        public DateTimeMessage ReceivedMessage { get; set; }
     }
 }

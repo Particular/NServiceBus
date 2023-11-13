@@ -1,431 +1,430 @@
-namespace NServiceBus.Core.Tests.Routing
+namespace NServiceBus.Core.Tests.Routing;
+
+using System;
+using System.Collections.Generic;
+using NServiceBus.Pipeline;
+using NServiceBus.Routing;
+using NUnit.Framework;
+using Testing;
+using Transport;
+
+[TestFixture]
+public class UnicastSendRouterTests
 {
-    using System;
-    using System.Collections.Generic;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NUnit.Framework;
-    using Testing;
-    using Transport;
-
-    [TestFixture]
-    public class UnicastSendRouterTests
+    [Test]
+    public void Should_use_explicit_route_for_sends_if_present()
     {
-        [Test]
-        public void Should_use_explicit_route_for_sends_if_present()
+        var router = CreateRouter();
+        var options = new SendOptions();
+
+        options.SetDestination("destination endpoint");
+
+        var context = CreateContext(options);
+
+        var result = router.Route(context);
+        Assert.AreEqual("destination endpoint", ExtractDestination(result));
+    }
+
+
+    [Test]
+    public void Should_route_to_local_instance_if_requested_so()
+    {
+        var router = CreateRouter(new QueueAddress("MyInstance"));
+        var options = new SendOptions();
+
+        options.RouteToThisInstance();
+
+        var context = CreateContext(options);
+
+        var result = router.Route(context);
+
+        Assert.AreEqual("MyInstance", ExtractDestination(result));
+    }
+
+    [Test]
+    public void Should_throw_if_requested_to_route_to_local_instance_and_instance_has_no_specific_queue()
+    {
+        var router = CreateRouter();
+
+        var options = new SendOptions();
+
+        options.RouteToThisInstance();
+
+        var context = CreateContext(options);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+        Assert.AreEqual(exception.Message, "Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
+    }
+
+
+    [Test]
+    public void Should_throw_if_routing_to_local_instance_when_send_only()
+    {
+        var router = CreateRouter(isSendOnly: true);
+
+        var options = new SendOptions();
+
+        options.RouteToThisInstance();
+
+        var context = CreateContext(options);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+
+        StringAssert.Contains("send-only mode", exception.Message);
+    }
+
+    [Test]
+    public void Should_throw_if_routing_to_local_endpoint_when_send_only()
+    {
+        var router = CreateRouter(isSendOnly: true);
+
+        var options = new SendOptions();
+
+        options.RouteToThisEndpoint();
+
+        var context = CreateContext(options);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+
+        StringAssert.Contains("send-only mode", exception.Message);
+    }
+
+    [Test]
+    public void When_routing_to_specific_instance_should_throw_when_there_is_no_route_for_given_type()
+    {
+        var router = CreateRouter();
+
+        var options = new SendOptions();
+
+        options.RouteToSpecificInstance("instanceId");
+
+        var context = CreateContext(options);
+
+        var exception = Assert.Throws<Exception>(() => router.Route(context));
+        StringAssert.Contains("No destination specified for message", exception.Message);
+    }
+
+    [Test]
+    public void When_routing_to_specific_instance_should_throw_when_route_for_given_type_points_to_physical_address()
+    {
+        var table = new UnicastRoutingTable();
+        table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var router = CreateRouter();
-            var options = new SendOptions();
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("PhysicalAddress"))
+        });
+        var router = CreateRouter(routingTable: table);
+        var options = new SendOptions();
 
-            options.SetDestination("destination endpoint");
+        options.RouteToSpecificInstance("instanceId");
 
-            var context = CreateContext(options);
+        var context = CreateContext(options);
 
-            var result = router.Route(context);
-            Assert.AreEqual("destination endpoint", ExtractDestination(result));
-        }
+        var exception = Assert.Throws<Exception>(() => router.Route(context));
+        StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
+    }
 
-
-        [Test]
-        public void Should_route_to_local_instance_if_requested_so()
+    [Test]
+    public void When_routing_to_specific_instance_should_select_appropriate_instance()
+    {
+        var table = new UnicastRoutingTable();
+        var instances = new EndpointInstances();
+        table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var router = CreateRouter(new QueueAddress("MyInstance"));
-            var options = new SendOptions();
-
-            options.RouteToThisInstance();
-
-            var context = CreateContext(options);
-
-            var result = router.Route(context);
-
-            Assert.AreEqual("MyInstance", ExtractDestination(result));
-        }
-
-        [Test]
-        public void Should_throw_if_requested_to_route_to_local_instance_and_instance_has_no_specific_queue()
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
+        });
+        instances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var router = CreateRouter();
+            new EndpointInstance("Endpoint", "1"),
+            new EndpointInstance("Endpoint", "2"),
+            new EndpointInstance("Endpoint", "3")
+        });
+        var router = CreateRouter(routingTable: table, instances: instances);
+        var options = new SendOptions();
 
-            var options = new SendOptions();
+        options.RouteToSpecificInstance("2");
 
-            options.RouteToThisInstance();
+        var context = CreateContext(options);
 
-            var context = CreateContext(options);
-
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
-            Assert.AreEqual(exception.Message, "Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
-        }
+        var route = router.Route(context);
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+    }
 
 
-        [Test]
-        public void Should_throw_if_routing_to_local_instance_when_send_only()
+    [Test]
+    public void When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
+    {
+        var logicalEndpointName = "Sales";
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var router = CreateRouter(isSendOnly: true);
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(logicalEndpointName))
+        });
 
-            var options = new SendOptions();
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-            options.RouteToThisInstance();
+        var router = CreateRouter(routingTable: routingTable);
+        var route = router.Route(context);
 
-            var context = CreateContext(options);
+        Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
+    }
 
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
-
-            StringAssert.Contains("send-only mode", exception.Message);
-        }
-
-        [Test]
-        public void Should_throw_if_routing_to_local_endpoint_when_send_only()
+    [Test]
+    public void When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
+    {
+        var sales = "Sales";
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var router = CreateRouter(isSendOnly: true);
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
+        });
 
-            var options = new SendOptions();
-
-            options.RouteToThisEndpoint();
-
-            var context = CreateContext(options);
-
-            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
-
-            StringAssert.Contains("send-only mode", exception.Message);
-        }
-
-        [Test]
-        public void When_routing_to_specific_instance_should_throw_when_there_is_no_route_for_given_type()
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var router = CreateRouter();
+            new EndpointInstance(sales, "1"),
+            new EndpointInstance(sales, "2"),
+        });
 
-            var options = new SendOptions();
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-            options.RouteToSpecificInstance("instanceId");
+        var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
+        var route = router.Route(context);
 
-            var context = CreateContext(options);
+        Assert.AreEqual("Sales-1", ExtractDestination(route));
+    }
 
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
-            StringAssert.Contains("No destination specified for message", exception.Message);
-        }
-
-        [Test]
-        public void When_routing_to_specific_instance_should_throw_when_route_for_given_type_points_to_physical_address()
+    [Test]
+    public void When_multiple_dynamic_instances_for_logical_endpoints_should_round_robin()
+    {
+        var sales = "Sales";
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var table = new UnicastRoutingTable();
-            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("PhysicalAddress"))
-            });
-            var router = CreateRouter(routingTable: table);
-            var options = new SendOptions();
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
+        });
 
-            options.RouteToSpecificInstance("instanceId");
-
-            var context = CreateContext(options);
-
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
-            StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
-        }
-
-        [Test]
-        public void When_routing_to_specific_instance_should_select_appropriate_instance()
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var table = new UnicastRoutingTable();
-            var instances = new EndpointInstances();
-            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-            });
-            instances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint", "1"),
-                new EndpointInstance("Endpoint", "2"),
-                new EndpointInstance("Endpoint", "3")
-            });
-            var router = CreateRouter(routingTable: table, instances: instances);
-            var options = new SendOptions();
+            new EndpointInstance(sales, "1"),
+            new EndpointInstance(sales, "2"),
+        });
 
-            options.RouteToSpecificInstance("2");
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var context = CreateContext(options);
+        var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
+        var route1 = router.Route(context);
+        var route2 = router.Route(context);
+        var route3 = router.Route(context);
 
-            var route = router.Route(context);
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route));
-        }
+        Assert.AreEqual("Sales-1", ExtractDestination(route1));
+        Assert.AreEqual("Sales-2", ExtractDestination(route2));
+        Assert.AreEqual("Sales-1", ExtractDestination(route3));
+    }
 
+    [Test]
+    public void Should_throw_when_no_routes_found()
+    {
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-        [Test]
-        public void When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
+        var router = CreateRouter();
+
+        var exception = Assert.Throws<Exception>(() => router.Route(context));
+        StringAssert.Contains("No destination specified for message", exception.Message);
+    }
+
+    [Test]
+    public void Should_route_to_local_endpoint_if_requested_so()
+    {
+        var options = new SendOptions();
+
+        options.RouteToThisEndpoint();
+
+        var context = CreateContext(options, new MyMessage());
+
+        var router = CreateRouter();
+        var route = router.Route(context);
+
+        Assert.AreEqual("Endpoint", ExtractDestination(route));
+    }
+
+    [Test]
+    public void When_multiple_dynamic_instances_for_local_endpoint_should_route_message_to_a_single_instance()
+    {
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var logicalEndpointName = "Sales";
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(logicalEndpointName))
-            });
+            new EndpointInstance("Endpoint", "1"),
+            new EndpointInstance("Endpoint", "2"),
+        });
 
-            var context = CreateContext(new SendOptions(), new MyMessage());
+        var options = new SendOptions();
 
-            var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
+        options.RouteToThisEndpoint();
 
-            Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
-        }
+        var context = CreateContext(options, new MyMessage());
 
-        [Test]
-        public void When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
+        var router = CreateRouter(instances: endpointInstances);
+        var route = router.Route(context);
+
+        Assert.AreEqual("Endpoint-1", ExtractDestination(route));
+    }
+
+    [Test]
+    public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_route_to_instance()
+    {
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var sales = "Sales";
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
-            });
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
+        });
 
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance(sales, "1"),
-                new EndpointInstance(sales, "2"),
-            });
-
-            var context = CreateContext(new SendOptions(), new MyMessage());
-
-            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route = router.Route(context);
-
-            Assert.AreEqual("Sales-1", ExtractDestination(route));
-        }
-
-        [Test]
-        public void When_multiple_dynamic_instances_for_logical_endpoints_should_round_robin()
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var sales = "Sales";
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
-            });
+            new EndpointInstance("Endpoint", "1"),
+            new EndpointInstance("Endpoint", "2"),
+        });
 
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance(sales, "1"),
-                new EndpointInstance(sales, "2"),
-            });
+        var options = new SendOptions();
 
-            var context = CreateContext(new SendOptions(), new MyMessage());
+        options.RouteToSpecificInstance("2");
 
-            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
+        var context = CreateContext(options, new MyMessage());
 
-            Assert.AreEqual("Sales-1", ExtractDestination(route1));
-            Assert.AreEqual("Sales-2", ExtractDestination(route2));
-            Assert.AreEqual("Sales-1", ExtractDestination(route3));
-        }
+        var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
+        var route = router.Route(context);
 
-        [Test]
-        public void Should_throw_when_no_routes_found()
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+    }
+
+    [Test]
+    public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_not_round_robin()
+    {
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var context = CreateContext(new SendOptions(), new MyMessage());
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
+        });
 
-            var router = CreateRouter();
-
-            var exception = Assert.Throws<Exception>(() => router.Route(context));
-            StringAssert.Contains("No destination specified for message", exception.Message);
-        }
-
-        [Test]
-        public void Should_route_to_local_endpoint_if_requested_so()
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var options = new SendOptions();
+            new EndpointInstance("Endpoint", "1"),
+            new EndpointInstance("Endpoint", "2"),
+        });
 
-            options.RouteToThisEndpoint();
+        var options = new SendOptions();
 
-            var context = CreateContext(options, new MyMessage());
+        options.RouteToSpecificInstance("2");
 
-            var router = CreateRouter();
-            var route = router.Route(context);
+        var context = CreateContext(options, new MyMessage());
 
-            Assert.AreEqual("Endpoint", ExtractDestination(route));
-        }
+        var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
+        var route1 = router.Route(context);
+        var route2 = router.Route(context);
+        var route3 = router.Route(context);
 
-        [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_should_route_message_to_a_single_instance()
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route1));
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route3));
+    }
+
+    [Test]
+    public void When_multiple_dynamic_instances_for_local_endpoint_should_round_robin()
+    {
+        var endpointInstances = new EndpointInstances();
+        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
         {
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint", "1"),
-                new EndpointInstance("Endpoint", "2"),
-            });
+            new EndpointInstance("Endpoint", "1"),
+            new EndpointInstance("Endpoint", "2"),
+        });
 
-            var options = new SendOptions();
+        var options = new SendOptions();
 
-            options.RouteToThisEndpoint();
+        options.RouteToThisEndpoint();
 
-            var context = CreateContext(options, new MyMessage());
+        var context = CreateContext(options, new MyMessage());
 
-            var router = CreateRouter(instances: endpointInstances);
-            var route = router.Route(context);
+        var router = CreateRouter(instances: endpointInstances);
 
-            Assert.AreEqual("Endpoint-1", ExtractDestination(route));
-        }
+        var route1 = router.Route(context);
+        var route2 = router.Route(context);
+        var route3 = router.Route(context);
 
-        [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_route_to_instance()
+        Assert.AreEqual("Endpoint-1", ExtractDestination(route1));
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
+        Assert.AreEqual("Endpoint-1", ExtractDestination(route3));
+    }
+
+    [Test]
+    public void When_route_with_physical_address_routes_to_physical_address()
+    {
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-            });
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("Physical"))
+        });
 
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint", "1"),
-                new EndpointInstance("Endpoint", "2"),
-            });
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var options = new SendOptions();
+        var router = CreateRouter(routingTable: routingTable);
+        var route = router.Route(context);
 
-            options.RouteToSpecificInstance("2");
+        Assert.AreEqual("Physical", ExtractDestination(route));
+    }
 
-            var context = CreateContext(options, new MyMessage());
-
-            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route = router.Route(context);
-
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route));
-        }
-
-        [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_not_round_robin()
+    [Test]
+    public void When_route_with_endpoint_instance_routes_to_instance()
+    {
+        var routingTable = new UnicastRoutingTable();
+        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
         {
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-            });
+            new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointInstance(new EndpointInstance("Endpoint", "2")))
+        });
 
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint", "1"),
-                new EndpointInstance("Endpoint", "2"),
-            });
+        var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var options = new SendOptions();
+        var router = CreateRouter(routingTable: routingTable);
+        var route = router.Route(context);
 
-            options.RouteToSpecificInstance("2");
+        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+    }
 
-            var context = CreateContext(options, new MyMessage());
+    static string ExtractDestination(UnicastRoutingStrategy route)
+    {
+        var headers = new Dictionary<string, string>();
+        var addressTag = (UnicastAddressTag)route.Apply(headers);
+        return addressTag.Destination;
+    }
 
-            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
+    static UnicastSendRouter CreateRouter(QueueAddress instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
+    {
+        var table = routingTable ?? new UnicastRoutingTable();
+        var inst = instances ?? new EndpointInstances();
+        var pol = policy ?? new DistributionPolicy();
 
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route1));
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route3));
-        }
+        return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, new FakeAddressResolver());
+    }
 
-        [Test]
-        public void When_multiple_dynamic_instances_for_local_endpoint_should_round_robin()
+    class FakeAddressResolver : ITransportAddressResolver
+    {
+        public string ToTransportAddress(QueueAddress queueAddress) => queueAddress.ToString();
+    }
+
+    class MyMessage : ICommand
+    {
+    }
+
+    static TestableOutgoingSendContext CreateContext(SendOptions options, object message = null)
+    {
+        message ??= new MyMessage();
+
+        var context = new TestableOutgoingSendContext
         {
-            var endpointInstances = new EndpointInstances();
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint", "1"),
-                new EndpointInstance("Endpoint", "2"),
-            });
-
-            var options = new SendOptions();
-
-            options.RouteToThisEndpoint();
-
-            var context = CreateContext(options, new MyMessage());
-
-            var router = CreateRouter(instances: endpointInstances);
-
-            var route1 = router.Route(context);
-            var route2 = router.Route(context);
-            var route3 = router.Route(context);
-
-            Assert.AreEqual("Endpoint-1", ExtractDestination(route1));
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
-            Assert.AreEqual("Endpoint-1", ExtractDestination(route3));
-        }
-
-        [Test]
-        public void When_route_with_physical_address_routes_to_physical_address()
-        {
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("Physical"))
-            });
-
-            var context = CreateContext(new SendOptions(), new MyMessage());
-
-            var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
-
-            Assert.AreEqual("Physical", ExtractDestination(route));
-        }
-
-        [Test]
-        public void When_route_with_endpoint_instance_routes_to_instance()
-        {
-            var routingTable = new UnicastRoutingTable();
-            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointInstance(new EndpointInstance("Endpoint", "2")))
-            });
-
-            var context = CreateContext(new SendOptions(), new MyMessage());
-
-            var router = CreateRouter(routingTable: routingTable);
-            var route = router.Route(context);
-
-            Assert.AreEqual("Endpoint-2", ExtractDestination(route));
-        }
-
-        static string ExtractDestination(UnicastRoutingStrategy route)
-        {
-            var headers = new Dictionary<string, string>();
-            var addressTag = (UnicastAddressTag)route.Apply(headers);
-            return addressTag.Destination;
-        }
-
-        static UnicastSendRouter CreateRouter(QueueAddress instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
-        {
-            var table = routingTable ?? new UnicastRoutingTable();
-            var inst = instances ?? new EndpointInstances();
-            var pol = policy ?? new DistributionPolicy();
-
-            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, new FakeAddressResolver());
-        }
-
-        class FakeAddressResolver : ITransportAddressResolver
-        {
-            public string ToTransportAddress(QueueAddress queueAddress) => queueAddress.ToString();
-        }
-
-        class MyMessage : ICommand
-        {
-        }
-
-        static TestableOutgoingSendContext CreateContext(SendOptions options, object message = null)
-        {
-            message ??= new MyMessage();
-
-            var context = new TestableOutgoingSendContext
-            {
-                Message = new OutgoingLogicalMessage(message.GetType(), message),
-                Extensions = options.Context
-            };
-            return context;
-        }
+            Message = new OutgoingLogicalMessage(message.GetType(), message),
+            Extensions = options.Context
+        };
+        return context;
     }
 }

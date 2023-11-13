@@ -1,109 +1,108 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration
+﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using Configuration.AdvancedExtensibility;
+using NUnit.Framework;
+
+public class When_publisher_has_subscription_migration_mode_enabled : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using Configuration.AdvancedExtensibility;
-    using NUnit.Framework;
-
-    public class When_publisher_has_subscription_migration_mode_enabled : NServiceBusAcceptanceTest
+    [Test]
+    public async Task CanHandleMessageDrivenSubscribers()
     {
-        [Test]
-        public async Task CanHandleMessageDrivenSubscribers()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<MessageDrivenSubscriber>()
-                .WithEndpoint<MigratedPublisher>(publisher => publisher
-                    .When(ctx => Task.FromResult(ctx.Subscriber != null), (session, ctx) => session.Publish(new SomeEvent())))
-                .Done(c => c.EventReceived)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<MessageDrivenSubscriber>()
+            .WithEndpoint<MigratedPublisher>(publisher => publisher
+                .When(ctx => Task.FromResult(ctx.Subscriber != null), (session, ctx) => session.Publish(new SomeEvent())))
+            .Done(c => c.EventReceived)
+            .Run();
 
-            Assert.IsTrue(context.EventReceived);
-            Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(MessageDrivenSubscriber)), context.Subscriber);
+        Assert.IsTrue(context.EventReceived);
+        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(MessageDrivenSubscriber)), context.Subscriber);
+    }
+
+    [Test]
+    public async Task CanHandleNativeSubscribers()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<NativeSubscriber>()
+            .WithEndpoint<MigratedPublisher>(publisher => publisher
+                .When((session, ctx) => session.Publish(new SomeEvent())))
+            .Done(c => c.EventReceived)
+            .Run();
+
+        Assert.IsTrue(context.EventReceived);
+    }
+
+    class Context : ScenarioContext
+    {
+        public string Subscriber { get; set; }
+        public bool EventReceived { get; set; }
+    }
+
+    class MessageDrivenSubscriber : EndpointConfigurationBuilder
+    {
+        public MessageDrivenSubscriber()
+        {
+            EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent>(typeof(MigratedPublisher)));
         }
 
-        [Test]
-        public async Task CanHandleNativeSubscribers()
+        class SomeEventHandler : IHandleMessages<SomeEvent>
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<NativeSubscriber>()
-                .WithEndpoint<MigratedPublisher>(publisher => publisher
-                    .When((session, ctx) => session.Publish(new SomeEvent())))
-                .Done(c => c.EventReceived)
-                .Run();
+            Context testContext;
 
-            Assert.IsTrue(context.EventReceived);
-        }
-
-        class Context : ScenarioContext
-        {
-            public string Subscriber { get; set; }
-            public bool EventReceived { get; set; }
-        }
-
-        class MessageDrivenSubscriber : EndpointConfigurationBuilder
-        {
-            public MessageDrivenSubscriber()
+            public SomeEventHandler(Context testContext)
             {
-                EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent>(typeof(MigratedPublisher)));
+                this.testContext = testContext;
             }
 
-            class SomeEventHandler : IHandleMessages<SomeEvent>
+            public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
-                Context testContext;
-
-                public SomeEventHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
-                {
-                    testContext.EventReceived = true;
-                    return Task.CompletedTask;
-                }
+                testContext.EventReceived = true;
+                return Task.CompletedTask;
             }
         }
+    }
 
-        class NativeSubscriber : EndpointConfigurationBuilder
+    class NativeSubscriber : EndpointConfigurationBuilder
+    {
+        public NativeSubscriber()
         {
-            public NativeSubscriber()
-            {
-                EndpointSetup<EndpointWithNativePubSub>();
-            }
-
-            class SomeEventHandler : IHandleMessages<SomeEvent>
-            {
-                Context testContext;
-
-                public SomeEventHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
-                {
-                    testContext.EventReceived = true;
-                    return Task.CompletedTask;
-                }
-            }
+            EndpointSetup<EndpointWithNativePubSub>();
         }
 
-        class MigratedPublisher : EndpointConfigurationBuilder
+        class SomeEventHandler : IHandleMessages<SomeEvent>
         {
-            public MigratedPublisher()
+            Context testContext;
+
+            public SomeEventHandler(Context testContext)
             {
-                EndpointSetup<EndpointWithNativePubSub>(c =>
-                {
-                    // Enable Migration mode
-                    c.GetSettings().Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
-                    c.OnEndpointSubscribed<Context>((subscription, ctx) => { ctx.Subscriber = subscription.SubscriberEndpoint; });
-                });
+                this.testContext = testContext;
+            }
+
+            public Task Handle(SomeEvent message, IMessageHandlerContext context)
+            {
+                testContext.EventReceived = true;
+                return Task.CompletedTask;
             }
         }
+    }
 
-        public class SomeEvent : IEvent
+    class MigratedPublisher : EndpointConfigurationBuilder
+    {
+        public MigratedPublisher()
         {
+            EndpointSetup<EndpointWithNativePubSub>(c =>
+            {
+                // Enable Migration mode
+                c.GetSettings().Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
+                c.OnEndpointSubscribed<Context>((subscription, ctx) => { ctx.Subscriber = subscription.SubscriberEndpoint; });
+            });
         }
+    }
+
+    public class SomeEvent : IEvent
+    {
     }
 }

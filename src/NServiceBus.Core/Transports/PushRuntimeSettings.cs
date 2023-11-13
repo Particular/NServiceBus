@@ -1,39 +1,38 @@
-namespace NServiceBus.Transport
+namespace NServiceBus.Transport;
+
+using System;
+
+/// <summary>
+/// Controls how the message pump should behave.
+/// </summary>
+public class PushRuntimeSettings
 {
-    using System;
+    /// <summary>
+    /// Constructs the settings. NServiceBus will pick a suitable default for `MaxConcurrency`.
+    /// </summary>
+    public PushRuntimeSettings()
+    {
+        MaxConcurrency = Math.Max(2, Environment.ProcessorCount);
+    }
 
     /// <summary>
-    /// Controls how the message pump should behave.
+    /// Constructs the settings.
     /// </summary>
-    public class PushRuntimeSettings
+    /// <param name="maxConcurrency">The maximum concurrency to allow.</param>
+    public PushRuntimeSettings(int maxConcurrency)
     {
-        /// <summary>
-        /// Constructs the settings. NServiceBus will pick a suitable default for `MaxConcurrency`.
-        /// </summary>
-        public PushRuntimeSettings()
-        {
-            MaxConcurrency = Math.Max(2, Environment.ProcessorCount);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
 
-        /// <summary>
-        /// Constructs the settings.
-        /// </summary>
-        /// <param name="maxConcurrency">The maximum concurrency to allow.</param>
-        public PushRuntimeSettings(int maxConcurrency)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
-
-            MaxConcurrency = maxConcurrency;
-        }
-
-        /// <summary>
-        /// The maximum number of messages that should be in flight at any given time.
-        /// </summary>
-        public int MaxConcurrency { get; }
-
-        /// <summary>
-        /// Use default settings.
-        /// </summary>
-        public static PushRuntimeSettings Default { get; } = new PushRuntimeSettings();
+        MaxConcurrency = maxConcurrency;
     }
+
+    /// <summary>
+    /// The maximum number of messages that should be in flight at any given time.
+    /// </summary>
+    public int MaxConcurrency { get; }
+
+    /// <summary>
+    /// Use default settings.
+    /// </summary>
+    public static PushRuntimeSettings Default { get; } = new PushRuntimeSettings();
 }

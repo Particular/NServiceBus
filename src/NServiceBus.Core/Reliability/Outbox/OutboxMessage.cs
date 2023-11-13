@@ -1,34 +1,33 @@
-﻿namespace NServiceBus.Outbox
+﻿namespace NServiceBus.Outbox;
+
+using System;
+
+/// <summary>
+/// The Outbox message type.
+/// </summary>
+public class OutboxMessage
 {
-    using System;
+    /// <summary>
+    /// Creates an instance of an <see cref="OutboxMessage" />.
+    /// </summary>
+    /// <param name="messageId">The message identifier of the incoming message.</param>
+    /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
+    public OutboxMessage(string messageId, TransportOperation[] operations)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
+        ArgumentNullException.ThrowIfNull(operations);
+
+        MessageId = messageId;
+        TransportOperations = operations;
+    }
 
     /// <summary>
-    /// The Outbox message type.
+    /// Gets the message identifier of the incoming message.
     /// </summary>
-    public class OutboxMessage
-    {
-        /// <summary>
-        /// Creates an instance of an <see cref="OutboxMessage" />.
-        /// </summary>
-        /// <param name="messageId">The message identifier of the incoming message.</param>
-        /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
-        public OutboxMessage(string messageId, TransportOperation[] operations)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
-            ArgumentNullException.ThrowIfNull(operations);
+    public string MessageId { get; }
 
-            MessageId = messageId;
-            TransportOperations = operations;
-        }
-
-        /// <summary>
-        /// Gets the message identifier of the incoming message.
-        /// </summary>
-        public string MessageId { get; }
-
-        /// <summary>
-        /// The list of operations performed during the processing of the incoming message.
-        /// </summary>
-        public TransportOperation[] TransportOperations { get; }
-    }
+    /// <summary>
+    /// The list of operations performed during the processing of the incoming message.
+    /// </summary>
+    public TransportOperation[] TransportOperations { get; }
 }

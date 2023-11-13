@@ -1,33 +1,32 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus.Pipeline;
+
+using System;
+
+/// <summary>
+/// Represents a logical message about to be push out to the transport.
+/// </summary>
+public class OutgoingLogicalMessage
 {
-    using System;
+    /// <summary>
+    /// Initializes the message with a explicit message type and instance. Use this constructor if the message type is
+    /// different from the instance type.
+    /// </summary>
+    public OutgoingLogicalMessage(Type messageType, object message)
+    {
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(message);
+
+        MessageType = messageType;
+        Instance = message;
+    }
 
     /// <summary>
-    /// Represents a logical message about to be push out to the transport.
+    /// The <see cref="Type" /> of the message instance.
     /// </summary>
-    public class OutgoingLogicalMessage
-    {
-        /// <summary>
-        /// Initializes the message with a explicit message type and instance. Use this constructor if the message type is
-        /// different from the instance type.
-        /// </summary>
-        public OutgoingLogicalMessage(Type messageType, object message)
-        {
-            ArgumentNullException.ThrowIfNull(messageType);
-            ArgumentNullException.ThrowIfNull(message);
+    public Type MessageType { get; }
 
-            MessageType = messageType;
-            Instance = message;
-        }
-
-        /// <summary>
-        /// The <see cref="Type" /> of the message instance.
-        /// </summary>
-        public Type MessageType { get; }
-
-        /// <summary>
-        /// The message instance.
-        /// </summary>
-        public object Instance { get; }
-    }
+    /// <summary>
+    /// The message instance.
+    /// </summary>
+    public object Instance { get; }
 }

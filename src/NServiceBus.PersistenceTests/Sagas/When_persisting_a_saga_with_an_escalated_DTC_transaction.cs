@@ -1,159 +1,158 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using System.Transactions;
+using NUnit.Framework;
+using Transport;
+
+public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPersisterTests
 {
-    using System;
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using NUnit.Framework;
-    using Transport;
-
-    public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPersisterTests
+    [Test]
+    public async Task Should_rollback_when_the_dtc_transaction_is_aborted()
     {
-        [Test]
-        public async Task Should_rollback_when_the_dtc_transaction_is_aborted()
+        configuration.RequiresDtcSupport();
+
+        var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+        await SaveSaga(startingSagaData);
+
+        // This enlistment notifier emulates a participating DTC transaction that fails to commit.
+        var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: true);
+
+        Assert.That(async () =>
         {
-            configuration.RequiresDtcSupport();
+            using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
-            await SaveSaga(startingSagaData);
+            Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
 
-            // This enlistment notifier emulates a participating DTC transaction that fails to commit.
-            var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: true);
+            var transportTransaction = new TransportTransaction();
+            transportTransaction.Set(Transaction.Current);
 
-            Assert.That(async () =>
-            {
-                using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var session = configuration.CreateStorageSession();
+            var contextBag = configuration.GetContextBagForSagaStorage();
 
-                Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
+            await session.TryOpen(transportTransaction, contextBag);
 
-                var transportTransaction = new TransportTransaction();
-                transportTransaction.Set(Transaction.Current);
+            var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+            sagaData.LastUpdatedBy = "Changed";
+            await configuration.SagaStorage.Update(sagaData, session, contextBag);
 
-                using var session = configuration.CreateStorageSession();
-                var contextBag = configuration.GetContextBagForSagaStorage();
+            await session.CompleteAsync();
 
-                await session.TryOpen(transportTransaction, contextBag);
+            // When the enlistmentNotifier forces a rollback, the persister should also rollback with the rest of the DTC transaction.
+            tx.Complete();
+        }, Throws.Exception.TypeOf<TransactionAbortedException>());
 
-                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
-                sagaData.LastUpdatedBy = "Changed";
-                await configuration.SagaStorage.Update(sagaData, session, contextBag);
+        var updatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
-                await session.CompleteAsync();
+        Assert.NotNull(updatedSagaData);
+        Assert.AreEqual("Unchanged", updatedSagaData.LastUpdatedBy);
+    }
 
-                // When the enlistmentNotifier forces a rollback, the persister should also rollback with the rest of the DTC transaction.
-                tx.Complete();
-            }, Throws.Exception.TypeOf<TransactionAbortedException>());
+    [Test]
+    public async Task Should_rollback_dtc_transaction_when_storage_session_rolls_back()
+    {
+        configuration.RequiresDtcSupport();
 
-            var updatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
+        var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+        await SaveSaga(startingSagaData);
 
-            Assert.NotNull(updatedSagaData);
-            Assert.AreEqual("Unchanged", updatedSagaData.LastUpdatedBy);
+        var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: false);
+
+        using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        {
+            Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
+
+            var transportTransaction = new TransportTransaction();
+            transportTransaction.Set(Transaction.Current);
+
+            using var session = configuration.CreateStorageSession();
+            var contextBag = configuration.GetContextBagForSagaStorage();
+
+            await session.TryOpen(transportTransaction, contextBag);
+
+            var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
+            sagaData.LastUpdatedBy = "Changed";
+            await configuration.SagaStorage.Update(sagaData, session, contextBag);
+
+            // There is no call to CompleteAsync() here to emulate what would happen if Update() threw an exception: disposing the TransactionScope without completing the transaction
         }
 
-        [Test]
-        public async Task Should_rollback_dtc_transaction_when_storage_session_rolls_back()
+        await enlistmentNotifier.CompletionSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+        var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
+
+        Assert.NotNull(notUpdatedSagaData);
+        Assert.AreEqual("Unchanged", notUpdatedSagaData.LastUpdatedBy);
+        Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
+        Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
+    }
+
+    public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
+    {
+        public Task Handle(StartMessage message, IMessageHandlerContext context)
+            => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+            => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+    }
+
+    public class TestSagaData : ContainSagaData
+    {
+        public string SomeId { get; set; }
+
+        public string LastUpdatedBy { get; set; }
+    }
+
+    public class StartMessage
+    {
+        public string SomeId { get; set; }
+    }
+
+    class EnlistmentNotifier(bool abortTransaction) : IEnlistmentNotification
+    {
+        public TaskCompletionSource CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public bool RollbackWasCalled { get; private set; }
+
+        public bool CommitWasCalled { get; private set; }
+
+        public void Prepare(PreparingEnlistment preparingEnlistment)
         {
-            configuration.RequiresDtcSupport();
-
-            var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
-            await SaveSaga(startingSagaData);
-
-            var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: false);
-
-            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            if (!abortTransaction)
             {
-                Transaction.Current.EnlistDurable(EnlistmentNotifier.Id, enlistmentNotifier, EnlistmentOptions.None);
-
-                var transportTransaction = new TransportTransaction();
-                transportTransaction.Set(Transaction.Current);
-
-                using var session = configuration.CreateStorageSession();
-                var contextBag = configuration.GetContextBagForSagaStorage();
-
-                await session.TryOpen(transportTransaction, contextBag);
-
-                var sagaData = await configuration.SagaStorage.Get<TestSagaData>(startingSagaData.Id, session, contextBag);
-                sagaData.LastUpdatedBy = "Changed";
-                await configuration.SagaStorage.Update(sagaData, session, contextBag);
-
-                // There is no call to CompleteAsync() here to emulate what would happen if Update() threw an exception: disposing the TransactionScope without completing the transaction
+                preparingEnlistment.Prepared();
             }
-
-            await enlistmentNotifier.CompletionSource.Task.WaitAsync(TimeSpan.FromSeconds(30));
-
-            var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
-
-            Assert.NotNull(notUpdatedSagaData);
-            Assert.AreEqual("Unchanged", notUpdatedSagaData.LastUpdatedBy);
-            Assert.IsFalse(enlistmentNotifier.CommitWasCalled);
-            Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
-        }
-
-        public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
-        {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
-                => throw new NotImplementedException();
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-                => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
-
-        public class TestSagaData : ContainSagaData
-        {
-            public string SomeId { get; set; }
-
-            public string LastUpdatedBy { get; set; }
-        }
-
-        public class StartMessage
-        {
-            public string SomeId { get; set; }
-        }
-
-        class EnlistmentNotifier(bool abortTransaction) : IEnlistmentNotification
-        {
-            public TaskCompletionSource CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            public bool RollbackWasCalled { get; private set; }
-
-            public bool CommitWasCalled { get; private set; }
-
-            public void Prepare(PreparingEnlistment preparingEnlistment)
+            else
             {
-                if (!abortTransaction)
-                {
-                    preparingEnlistment.Prepared();
-                }
-                else
-                {
-                    preparingEnlistment.ForceRollback();
-                }
+                preparingEnlistment.ForceRollback();
             }
-
-            public void Commit(Enlistment enlistment)
-            {
-                CommitWasCalled = true;
-                CompletionSource.SetResult();
-                enlistment.Done();
-            }
-
-            public void Rollback(Enlistment enlistment)
-            {
-                RollbackWasCalled = true;
-                CompletionSource.SetResult();
-                enlistment.Done();
-            }
-
-            public void InDoubt(Enlistment enlistment)
-            {
-                CompletionSource.SetResult();
-                enlistment.Done();
-            }
-
-            public static readonly Guid Id = Guid.NewGuid();
         }
 
-        public When_persisting_a_saga_with_an_escalated_DTC_transaction(TestVariant param) : base(param)
+        public void Commit(Enlistment enlistment)
         {
+            CommitWasCalled = true;
+            CompletionSource.SetResult();
+            enlistment.Done();
         }
+
+        public void Rollback(Enlistment enlistment)
+        {
+            RollbackWasCalled = true;
+            CompletionSource.SetResult();
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+            CompletionSource.SetResult();
+            enlistment.Done();
+        }
+
+        public static readonly Guid Id = Guid.NewGuid();
+    }
+
+    public When_persisting_a_saga_with_an_escalated_DTC_transaction(TestVariant param) : base(param)
+    {
     }
 }

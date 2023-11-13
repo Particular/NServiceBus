@@ -1,20 +1,19 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus.Features;
+
+using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.DataBus;
+
+class CustomIDataBus : Feature
 {
-    using Microsoft.Extensions.DependencyInjection;
-    using NServiceBus.DataBus;
-
-    class CustomIDataBus : Feature
+    public CustomIDataBus()
     {
-        public CustomIDataBus()
-        {
-            DependsOn<DataBus>();
-        }
+        DependsOn<DataBus>();
+    }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            var customDataBusDefinition = context.Settings.Get<DataBusDefinition>(DataBus.SelectedDataBusKey) as CustomDataBus;
+    protected internal override void Setup(FeatureConfigurationContext context)
+    {
+        var customDataBusDefinition = context.Settings.Get<DataBusDefinition>(DataBus.SelectedDataBusKey) as CustomDataBus;
 
-            context.Services.AddSingleton(sp => customDataBusDefinition.DataBusFactory(sp));
-        }
+        context.Services.AddSingleton(sp => customDataBusDefinition.DataBusFactory(sp));
     }
 }

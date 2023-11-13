@@ -1,75 +1,74 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.SelfVerification
+﻿namespace NServiceBus.AcceptanceTests.Core.SelfVerification;
+
+using System;
+using System.Linq;
+using System.Reflection;
+using NUnit.Framework;
+
+[TestFixture]
+public class ConventionEnforcementTests : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Reflection;
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class ConventionEnforcementTests : NServiceBusAcceptanceTest
+    [Test]
+    public void Ensure_all_tests_derive_from_a_common_base_class()
     {
-        [Test]
-        public void Ensure_all_tests_derive_from_a_common_base_class()
-        {
-            var testTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(HasTestMethod);
+        var testTypes = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(HasTestMethod);
 
-            var missingBaseClass = testTypes
-                .Where(t => t.BaseType == null || !typeof(NServiceBusAcceptanceTest).IsAssignableFrom(t))
-                .ToList();
+        var missingBaseClass = testTypes
+            .Where(t => t.BaseType == null || !typeof(NServiceBusAcceptanceTest).IsAssignableFrom(t))
+            .ToList();
 
-            CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
-        }
+        CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
+    }
 
-        [Test]
-        public void Ensure_all_messages_are_public()
-        {
-            var testTypes = Assembly.GetExecutingAssembly().GetTypes();
+    [Test]
+    public void Ensure_all_messages_are_public()
+    {
+        var testTypes = Assembly.GetExecutingAssembly().GetTypes();
 
-            var missingBaseClass = testTypes
-                .Where(t => !t.IsPublic && !t.IsNestedPublic)
-                .Where(t =>
-                        typeof(ICommand).IsAssignableFrom(t) ||
-                        typeof(IMessage).IsAssignableFrom(t) ||
-                        typeof(IEvent).IsAssignableFrom(t)
-                )
-                .ToList();
+        var missingBaseClass = testTypes
+            .Where(t => !t.IsPublic && !t.IsNestedPublic)
+            .Where(t =>
+                    typeof(ICommand).IsAssignableFrom(t) ||
+                    typeof(IMessage).IsAssignableFrom(t) ||
+                    typeof(IEvent).IsAssignableFrom(t)
+            )
+            .ToList();
 
-            CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
-        }
+        CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
+    }
 
-        [Test]
-        public void Ensure_all_diagnostics_tests_are_run_sequentially()
-        {
-            var testTypes = Assembly.GetExecutingAssembly().GetTypes().Where(HasTestMethod);
+    [Test]
+    public void Ensure_all_diagnostics_tests_are_run_sequentially()
+    {
+        var testTypes = Assembly.GetExecutingAssembly().GetTypes().Where(HasTestMethod);
 
-            var diagnosticTests = testTypes
-                .Where(t => t.Namespace.StartsWith("NServiceBus.AcceptanceTests.Core.OpenTelemetry"))
-                .ToList();
+        var diagnosticTests = testTypes
+            .Where(t => t.Namespace.StartsWith("NServiceBus.AcceptanceTests.Core.OpenTelemetry"))
+            .ToList();
 
-            var diagnosticTestsWithoutNonParallelizableAttribute =
-                diagnosticTests.Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null);
+        var diagnosticTestsWithoutNonParallelizableAttribute =
+            diagnosticTests.Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null);
 
-            CollectionAssert.IsNotEmpty(diagnosticTests);
-            CollectionAssert.IsEmpty(diagnosticTestsWithoutNonParallelizableAttribute, string.Join(",", diagnosticTests));
-        }
+        CollectionAssert.IsNotEmpty(diagnosticTests);
+        CollectionAssert.IsEmpty(diagnosticTestsWithoutNonParallelizableAttribute, string.Join(",", diagnosticTests));
+    }
 
-        [Test]
-        public void Ensure_all_sagadatas_are_public()
-        {
-            var testTypes = Assembly.GetExecutingAssembly().GetTypes();
+    [Test]
+    public void Ensure_all_sagadatas_are_public()
+    {
+        var testTypes = Assembly.GetExecutingAssembly().GetTypes();
 
-            var sagaDatas = testTypes
-                .Where(t => !t.IsPublic && !t.IsNestedPublic)
-                .Where(t => typeof(IContainSagaData).IsAssignableFrom(t))
-                .ToList();
+        var sagaDatas = testTypes
+            .Where(t => !t.IsPublic && !t.IsNestedPublic)
+            .Where(t => typeof(IContainSagaData).IsAssignableFrom(t))
+            .ToList();
 
-            CollectionAssert.IsEmpty(sagaDatas, string.Join(",", sagaDatas));
-        }
+        CollectionAssert.IsEmpty(sagaDatas, string.Join(",", sagaDatas));
+    }
 
-        static bool HasTestMethod(Type t)
-        {
-            return t.GetMethods().Any(m => m.GetCustomAttributes<TestAttribute>().Any());
-        }
+    static bool HasTestMethod(Type t)
+    {
+        return t.GetMethods().Any(m => m.GetCustomAttributes<TestAttribute>().Any());
     }
 }

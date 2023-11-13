@@ -1,133 +1,132 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_throw_on_unmapped_uncorrelated_msg()
     {
-        [Test]
-        public async Task Should_throw_on_unmapped_uncorrelated_msg()
-        {
-            var id = Guid.NewGuid();
+        var id = Guid.NewGuid();
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<UnmappedMsgEndpoint>(b =>
-                {
-                    b.DoNotFailOnErrorMessages();
-
-                    b.When(session => session.SendLocal(new StartSagaMessage
-                    {
-                        SomeId = id
-                    }));
-                })
-                .Done(c => c.MappedEchoReceived && (c.EchoReceived || !c.FailedMessages.IsEmpty))
-                .Run();
-
-            Assert.AreEqual(true, context.StartReceived);
-            Assert.AreEqual(true, context.OutboundReceived);
-            Assert.AreEqual(true, context.MappedEchoReceived);
-            Assert.AreEqual(false, context.EchoReceived);
-            Assert.AreEqual(1, context.FailedMessages.Count);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public bool StartReceived { get; set; }
-            public bool OutboundReceived { get; set; }
-            public bool EchoReceived { get; set; }
-            public bool MappedEchoReceived { get; set; }
-        }
-
-        public class UnmappedMsgEndpoint : EndpointConfigurationBuilder
-        {
-            public UnmappedMsgEndpoint()
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<UnmappedMsgEndpoint>(b =>
             {
-                EndpointSetup<DefaultServer>();
+                b.DoNotFailOnErrorMessages();
+
+                b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = id
+                }));
+            })
+            .Done(c => c.MappedEchoReceived && (c.EchoReceived || !c.FailedMessages.IsEmpty))
+            .Run();
+
+        Assert.AreEqual(true, context.StartReceived);
+        Assert.AreEqual(true, context.OutboundReceived);
+        Assert.AreEqual(true, context.MappedEchoReceived);
+        Assert.AreEqual(false, context.EchoReceived);
+        Assert.AreEqual(1, context.FailedMessages.Count);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool StartReceived { get; set; }
+        public bool OutboundReceived { get; set; }
+        public bool EchoReceived { get; set; }
+        public bool MappedEchoReceived { get; set; }
+    }
+
+    public class UnmappedMsgEndpoint : EndpointConfigurationBuilder
+    {
+        public UnmappedMsgEndpoint()
+        {
+            EndpointSetup<DefaultServer>();
+        }
+
+        public class UnmappedMsgSaga : Saga<UnmappedMsgSagaData>,
+            IAmStartedByMessages<StartSagaMessage>,
+            IHandleMessages<MappedEchoMessage>,
+            IHandleMessages<EchoMessage>
+        {
+            public UnmappedMsgSaga(Context context)
+            {
+                testContext = context;
             }
 
-            public class UnmappedMsgSaga : Saga<UnmappedMsgSagaData>,
-                IAmStartedByMessages<StartSagaMessage>,
-                IHandleMessages<MappedEchoMessage>,
-                IHandleMessages<EchoMessage>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnmappedMsgSagaData> mapper)
             {
-                public UnmappedMsgSaga(Context context)
-                {
-                    testContext = context;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnmappedMsgSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                    mapper.ConfigureMapping<MappedEchoMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                    // No mapping for EchoMessage, so saga can't possibly be found
-                }
-
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-                {
-                    testContext.StartReceived = true;
-                    return context.SendLocal(new OutboundMessage { SomeId = message.SomeId });
-                }
-
-                public Task Handle(MappedEchoMessage message, IMessageHandlerContext context)
-                {
-                    testContext.MappedEchoReceived = true;
-                    return Task.CompletedTask;
-                }
-
-                public Task Handle(EchoMessage message, IMessageHandlerContext context)
-                {
-                    testContext.EchoReceived = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                mapper.ConfigureMapping<StartSagaMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                mapper.ConfigureMapping<MappedEchoMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                // No mapping for EchoMessage, so saga can't possibly be found
             }
 
-            public class UnmappedMsgSagaData : ContainSagaData
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                public virtual Guid SomeId { get; set; }
+                testContext.StartReceived = true;
+                return context.SendLocal(new OutboundMessage { SomeId = message.SomeId });
             }
 
-            public class OutboundMessageHandler : IHandleMessages<OutboundMessage>
+            public Task Handle(MappedEchoMessage message, IMessageHandlerContext context)
             {
-                public OutboundMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
-                {
-                    testContext.OutboundReceived = true;
-                    await context.SendLocal(new EchoMessage { SomeId = message.SomeId });
-                    await context.SendLocal(new MappedEchoMessage { SomeId = message.SomeId });
-                }
-
-                Context testContext;
+                testContext.MappedEchoReceived = true;
+                return Task.CompletedTask;
             }
+
+            public Task Handle(EchoMessage message, IMessageHandlerContext context)
+            {
+                testContext.EchoReceived = true;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
 
-        public class StartSagaMessage : ICommand
+        public class UnmappedMsgSagaData : ContainSagaData
         {
-            public Guid SomeId { get; set; }
+            public virtual Guid SomeId { get; set; }
         }
 
-        public class OutboundMessage : ICommand
+        public class OutboundMessageHandler : IHandleMessages<OutboundMessage>
         {
-            public Guid SomeId { get; set; }
-        }
+            public OutboundMessageHandler(Context context)
+            {
+                testContext = context;
+            }
 
-        public class EchoMessage : ICommand
-        {
-            public Guid SomeId { get; set; }
-        }
+            public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
+            {
+                testContext.OutboundReceived = true;
+                await context.SendLocal(new EchoMessage { SomeId = message.SomeId });
+                await context.SendLocal(new MappedEchoMessage { SomeId = message.SomeId });
+            }
 
-        public class MappedEchoMessage : ICommand
-        {
-            public Guid SomeId { get; set; }
+            Context testContext;
         }
+    }
+
+    public class StartSagaMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
+    }
+
+    public class OutboundMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
+    }
+
+    public class EchoMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
+    }
+
+    public class MappedEchoMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
     }
 }

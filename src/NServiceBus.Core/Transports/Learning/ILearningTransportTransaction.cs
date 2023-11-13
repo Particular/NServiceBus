@@ -1,22 +1,21 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System.Threading;
+using System.Threading.Tasks;
+
+interface ILearningTransportTransaction
 {
-    using System.Threading;
-    using System.Threading.Tasks;
+    string FileToProcess { get; }
 
-    interface ILearningTransportTransaction
-    {
-        string FileToProcess { get; }
+    Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default);
 
-        Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default);
+    Task Commit(CancellationToken cancellationToken = default);
 
-        Task Commit(CancellationToken cancellationToken = default);
+    void Rollback();
 
-        void Rollback();
+    void ClearPendingOutgoingOperations();
 
-        void ClearPendingOutgoingOperations();
+    Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default);
 
-        Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default);
-
-        bool Complete();
-    }
+    bool Complete();
 }

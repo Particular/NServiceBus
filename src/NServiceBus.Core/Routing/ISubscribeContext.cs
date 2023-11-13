@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.Pipeline
-{
-    using System;
+﻿namespace NServiceBus.Pipeline;
 
+using System;
+
+/// <summary>
+/// Provides context for subscription requests.
+/// </summary>
+public partial interface ISubscribeContext : IBehaviorContext
+{
     /// <summary>
-    /// Provides context for subscription requests.
+    /// The type of the events.
     /// </summary>
-    public partial interface ISubscribeContext : IBehaviorContext
-    {
-        /// <summary>
-        /// The type of the events.
-        /// </summary>
-        Type[] EventTypes { get; }
-    }
+    Type[] EventTypes { get; }
 }

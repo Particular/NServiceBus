@@ -1,15 +1,14 @@
-namespace NServiceBus.Testing
+namespace NServiceBus.Testing;
+
+/// <summary>
+/// A testable implementation of <see cref="IMessageHandlerContext" />.
+/// </summary>
+public partial class TestableMessageHandlerContext : TestableInvokeHandlerContext
 {
     /// <summary>
-    /// A testable implementation of <see cref="IMessageHandlerContext" />.
+    /// Creates a new instance of a <see cref="TestableMessageHandlerContext" />.
     /// </summary>
-    public partial class TestableMessageHandlerContext : TestableInvokeHandlerContext
+    public TestableMessageHandlerContext(IMessageCreator messageCreator = null) : base(messageCreator)
     {
-        /// <summary>
-        /// Creates a new instance of a <see cref="TestableMessageHandlerContext" />.
-        /// </summary>
-        public TestableMessageHandlerContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
     }
 }

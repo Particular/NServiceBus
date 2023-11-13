@@ -1,30 +1,29 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using System.Collections.Concurrent;
+using Routing;
+
+/// <summary>
+/// Configures distribution strategies.
+/// </summary>
+public class DistributionPolicy : IDistributionPolicy
 {
-    using System;
-    using System.Collections.Concurrent;
-    using Routing;
-
     /// <summary>
-    /// Configures distribution strategies.
+    /// Sets the distribution strategy for a given endpoint.
     /// </summary>
-    public class DistributionPolicy : IDistributionPolicy
+    /// <param name="distributionStrategy">Distribution strategy to be used.</param>
+    public void SetDistributionStrategy(DistributionStrategy distributionStrategy)
     {
-        /// <summary>
-        /// Sets the distribution strategy for a given endpoint.
-        /// </summary>
-        /// <param name="distributionStrategy">Distribution strategy to be used.</param>
-        public void SetDistributionStrategy(DistributionStrategy distributionStrategy)
-        {
-            ArgumentNullException.ThrowIfNull(distributionStrategy);
+        ArgumentNullException.ThrowIfNull(distributionStrategy);
 
-            configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
-        }
-
-        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
-        {
-            return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
-        }
-
-        readonly ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy>();
+        configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
     }
+
+    DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
+    {
+        return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
+    }
+
+    readonly ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy>();
 }

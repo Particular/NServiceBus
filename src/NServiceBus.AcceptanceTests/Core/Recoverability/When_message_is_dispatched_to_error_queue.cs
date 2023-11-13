@@ -1,105 +1,104 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NServiceBus.Pipeline;
+using NServiceBus.Routing;
+using NUnit.Framework;
+
+public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NUnit.Framework;
-
-    public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_allow_body_to_be_manipulated()
     {
-        [Test]
-        public async Task Should_allow_body_to_be_manipulated()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithFailingHandler>(b => b
-                    .DoNotFailOnErrorMessages()
-                    .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
-                )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithFailingHandler>(b => b
+                .DoNotFailOnErrorMessages()
+                .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageMovedToErrorQueue)
+            .Run();
 
-            Assert.True(context.MessageBodyWasEmpty);
+        Assert.True(context.MessageBodyWasEmpty);
+    }
+
+    class Context : ScenarioContext
+    {
+        public bool MessageMovedToErrorQueue { get; set; }
+        public bool MessageBodyWasEmpty { get; internal set; }
+    }
+
+    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    {
+        static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
+        public EndpointWithFailingHandler()
+        {
+            EndpointSetup<DefaultServer>((config, context) =>
+            {
+                config.SendFailedMessagesTo(errorQueueAddress);
+                config.Pipeline.Register(typeof(ErrorBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
+            });
         }
 
-        class Context : ScenarioContext
+        public class ErrorBodyStorageBehavior : Behavior<IDispatchContext>
         {
-            public bool MessageMovedToErrorQueue { get; set; }
-            public bool MessageBodyWasEmpty { get; internal set; }
-        }
-
-        class EndpointWithFailingHandler : EndpointConfigurationBuilder
-        {
-            static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
-
-            public EndpointWithFailingHandler()
+            public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
-                EndpointSetup<DefaultServer>((config, context) =>
+                foreach (var operation in context.Operations)
                 {
-                    config.SendFailedMessagesTo(errorQueueAddress);
-                    config.Pipeline.Register(typeof(ErrorBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
-                });
-            }
+                    var unicastAddress = operation.AddressTag as UnicastAddressTag;
 
-            public class ErrorBodyStorageBehavior : Behavior<IDispatchContext>
-            {
-                public override Task Invoke(IDispatchContext context, Func<Task> next)
-                {
-                    foreach (var operation in context.Operations)
+                    if (unicastAddress?.Destination != errorQueueAddress)
                     {
-                        var unicastAddress = operation.AddressTag as UnicastAddressTag;
-
-                        if (unicastAddress?.Destination != errorQueueAddress)
-                        {
-                            continue;
-                        }
-
-                        operation.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
+                        continue;
                     }
-                    return next();
-                }
-            }
 
-            class InitiatingHandler : IHandleMessages<InitiatingMessage>
-            {
-                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-                {
-                    throw new SimulatedException("Some failure");
+                    operation.Message.UpdateBody(ReadOnlyMemory<byte>.Empty);
                 }
+                return next();
             }
         }
 
-        class ErrorSpy : EndpointConfigurationBuilder
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public ErrorSpy()
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
-            }
-
-            class ErrorMessageDetector : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
-            {
-                public ErrorMessageDetector(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
-                {
-                    testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
-                    testContext.MessageMovedToErrorQueue = true;
-                    return next(context);
-                }
-
-                Context testContext;
+                throw new SimulatedException("Some failure");
             }
         }
+    }
 
-        public class InitiatingMessage : IMessage
+    class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy()
         {
+            EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
         }
+
+        class ErrorMessageDetector : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        {
+            public ErrorMessageDetector(Context testContext)
+            {
+                this.testContext = testContext;
+            }
+
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            {
+                testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
+                testContext.MessageMovedToErrorQueue = true;
+                return next(context);
+            }
+
+            Context testContext;
+        }
+    }
+
+    public class InitiatingMessage : IMessage
+    {
     }
 }

@@ -1,66 +1,65 @@
-namespace NServiceBus.AcceptanceTests.Core.Stopping
+namespace NServiceBus.AcceptanceTests.Core.Stopping;
+
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using FakeTransport;
+using Features;
+using Logging;
+using NUnit.Framework;
+
+public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using FakeTransport;
-    using Features;
-    using Logging;
-    using NUnit.Framework;
-
-    public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_log_exception()
     {
-        [Test]
-        public async Task Should_log_exception()
-        {
-            var context = await Scenario.Define<ScenarioContext>()
-                .WithEndpoint<EndpointThatThrowsOnInfrastructureStop>()
-                .Done(c => c.EndpointsStarted)
-                .Run();
+        var context = await Scenario.Define<ScenarioContext>()
+            .WithEndpoint<EndpointThatThrowsOnInfrastructureStop>()
+            .Done(c => c.EndpointsStarted)
+            .Run();
 
-            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("stopping of feature startup task") && item.Level == LogLevel.Warn);
-            Assert.IsNotNull(logItem);
-            StringAssert.Contains("Exception occurred during stopping of feature startup task 'CustomTask'. System.InvalidOperationException: CustomTaskThrows", logItem.Message);
+        var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("stopping of feature startup task") && item.Level == LogLevel.Warn);
+        Assert.IsNotNull(logItem);
+        StringAssert.Contains("Exception occurred during stopping of feature startup task 'CustomTask'. System.InvalidOperationException: CustomTaskThrows", logItem.Message);
+    }
+
+    public class EndpointThatThrowsOnInfrastructureStop : EndpointConfigurationBuilder
+    {
+        public EndpointThatThrowsOnInfrastructureStop()
+        {
+            EndpointSetup<DefaultServer>(builder =>
+            {
+                builder.UseTransport(new FakeTransport());
+            });
         }
 
-        public class EndpointThatThrowsOnInfrastructureStop : EndpointConfigurationBuilder
+        class CustomFeature : Feature
         {
-            public EndpointThatThrowsOnInfrastructureStop()
+            public CustomFeature()
             {
-                EndpointSetup<DefaultServer>(builder =>
-                {
-                    builder.UseTransport(new FakeTransport());
-                });
+                EnableByDefault();
             }
 
-            class CustomFeature : Feature
+            protected override void Setup(FeatureConfigurationContext context)
             {
-                public CustomFeature()
+                context.RegisterStartupTask(new CustomTask());
+            }
+
+            class CustomTask : FeatureStartupTask
+            {
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    EnableByDefault();
+                    return Task.CompletedTask;
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {
-                    context.RegisterStartupTask(new CustomTask());
-                }
+                    await Task.Yield();
 
-                class CustomTask : FeatureStartupTask
-                {
-                    protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                    {
-                        await Task.Yield();
-
-                        throw new InvalidOperationException("CustomTaskThrows");
-                    }
+                    throw new InvalidOperationException("CustomTaskThrows");
                 }
             }
         }

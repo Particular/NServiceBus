@@ -1,169 +1,168 @@
 #nullable enable
 
-namespace NServiceBus
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Logging;
-    using Settings;
-    using Transport;
+namespace NServiceBus;
 
-    class RunningEndpointInstance : IEndpointInstance
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Logging;
+using Settings;
+using Transport;
+
+class RunningEndpointInstance : IEndpointInstance
+{
+    public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider? serviceProvider)
     {
-        public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider? serviceProvider)
+        this.settings = settings;
+        this.receiveComponent = receiveComponent;
+        this.featureComponent = featureComponent;
+        this.messageSession = messageSession;
+        this.transportInfrastructure = transportInfrastructure;
+        this.stoppingTokenSource = stoppingTokenSource;
+        this.serviceProvider = serviceProvider;
+    }
+
+    public async Task Stop(CancellationToken cancellationToken = default)
+    {
+        if (status == Status.Stopped)
         {
-            this.settings = settings;
-            this.receiveComponent = receiveComponent;
-            this.featureComponent = featureComponent;
-            this.messageSession = messageSession;
-            this.transportInfrastructure = transportInfrastructure;
-            this.stoppingTokenSource = stoppingTokenSource;
-            this.serviceProvider = serviceProvider;
+            return;
         }
 
-        public async Task Stop(CancellationToken cancellationToken = default)
+        var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
+
+        stoppingTokenSource.Cancel();
+
+        try
         {
-            if (status == Status.Stopped)
+            // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
+            await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            if (status >= Status.Stopping) // Another invocation is already handling Stop
             {
                 return;
             }
 
-            var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
-
-            stoppingTokenSource.Cancel();
+            status = Status.Stopping;
 
             try
             {
-                // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
-                await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                Log.Info("Initiating shutdown.");
 
-                if (status >= Status.Stopping) // Another invocation is already handling Stop
-                {
-                    return;
-                }
+                // Cannot throw by design
+                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+                await featureComponent.Stop(cancellationToken).ConfigureAwait(false);
 
-                status = Status.Stopping;
+                // Can throw
+                await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            {
+                Log.Error("Shutdown of the transport infrastructure failed.", ex);
 
-                try
-                {
-                    Log.Info("Initiating shutdown.");
-
-                    // Cannot throw by design
-                    await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                    await featureComponent.Stop(cancellationToken).ConfigureAwait(false);
-
-                    // Can throw
-                    await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-                {
-                    Log.Error("Shutdown of the transport infrastructure failed.", ex);
-
-                    // TODO: Not throwing because reason unknown :)
-                }
-                finally
-                {
-                    settings.Clear();
-                    // When the service provider is externally managed the service provider is null
-                    if (serviceProvider is IAsyncDisposable asyncDisposableBuilder)
-                    {
-                        await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
-                    }
-                    status = Status.Stopped;
-                    Log.Info("Shutdown complete.");
-                }
+                // TODO: Not throwing because reason unknown :)
             }
             finally
             {
-                stopSemaphore.Release();
-
-                await tokenRegistration.DisposeAsync().ConfigureAwait(false);
-
-                stoppingTokenSource.Dispose();
+                settings.Clear();
+                // When the service provider is externally managed the service provider is null
+                if (serviceProvider is IAsyncDisposable asyncDisposableBuilder)
+                {
+                    await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
+                }
+                status = Status.Stopped;
+                Log.Info("Shutdown complete.");
             }
         }
-
-        public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+        finally
         {
-            ArgumentNullException.ThrowIfNull(message);
-            ArgumentNullException.ThrowIfNull(sendOptions);
+            stopSemaphore.Release();
 
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Send(message, sendOptions, cancellationToken);
+            await tokenRegistration.DisposeAsync().ConfigureAwait(false);
+
+            stoppingTokenSource.Dispose();
         }
+    }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send(message, sendOptions, cancellationToken);
+    }
+
+    public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(messageConstructor);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
+    }
+
+    public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish(message, publishOptions, cancellationToken);
+    }
+
+    public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(messageConstructor);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish(messageConstructor, publishOptions, cancellationToken);
+    }
+
+    public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(eventType);
+        ArgumentNullException.ThrowIfNull(subscribeOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Subscribe(eventType, subscribeOptions, cancellationToken);
+    }
+
+    public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(eventType);
+        ArgumentNullException.ThrowIfNull(unsubscribeOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Unsubscribe(eventType, unsubscribeOptions, cancellationToken);
+    }
+
+    void GuardAgainstUseWhenNotStarted()
+    {
+        if (status >= Status.Stopping)
         {
-            ArgumentNullException.ThrowIfNull(messageConstructor);
-            ArgumentNullException.ThrowIfNull(sendOptions);
-
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
+            throw new InvalidOperationException("Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
         }
+    }
 
-        public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(message);
-            ArgumentNullException.ThrowIfNull(publishOptions);
+    readonly ReceiveComponent receiveComponent;
+    readonly FeatureComponent featureComponent;
+    readonly IMessageSession messageSession;
+    readonly TransportInfrastructure transportInfrastructure;
+    readonly CancellationTokenSource stoppingTokenSource;
+    readonly IServiceProvider? serviceProvider;
+    readonly SettingsHolder settings;
 
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Publish(message, publishOptions, cancellationToken);
-        }
+    volatile Status status = Status.Running;
+    readonly SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(messageConstructor);
-            ArgumentNullException.ThrowIfNull(publishOptions);
+    static readonly ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
 
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Publish(messageConstructor, publishOptions, cancellationToken);
-        }
-
-        public Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(eventType);
-            ArgumentNullException.ThrowIfNull(subscribeOptions);
-
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Subscribe(eventType, subscribeOptions, cancellationToken);
-        }
-
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(eventType);
-            ArgumentNullException.ThrowIfNull(unsubscribeOptions);
-
-            GuardAgainstUseWhenNotStarted();
-            return messageSession.Unsubscribe(eventType, unsubscribeOptions, cancellationToken);
-        }
-
-        void GuardAgainstUseWhenNotStarted()
-        {
-            if (status >= Status.Stopping)
-            {
-                throw new InvalidOperationException("Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
-            }
-        }
-
-        readonly ReceiveComponent receiveComponent;
-        readonly FeatureComponent featureComponent;
-        readonly IMessageSession messageSession;
-        readonly TransportInfrastructure transportInfrastructure;
-        readonly CancellationTokenSource stoppingTokenSource;
-        readonly IServiceProvider? serviceProvider;
-        readonly SettingsHolder settings;
-
-        volatile Status status = Status.Running;
-        readonly SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
-
-        static readonly ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
-
-        enum Status
-        {
-            Running = 1,
-            Stopping = 2,
-            Stopped = 3
-        }
+    enum Status
+    {
+        Running = 1,
+        Stopping = 2,
+        Stopped = 3
     }
 }

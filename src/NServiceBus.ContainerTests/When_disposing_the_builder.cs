@@ -1,51 +1,50 @@
-namespace NServiceBus.ContainerTests
+namespace NServiceBus.ContainerTests;
+
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+
+public class When_disposing_the_builder
 {
-    using System;
-    using Microsoft.Extensions.DependencyInjection;
-    using NUnit.Framework;
-
-    public class When_disposing_the_builder
+    [Test]
+    public void Should_dispose_all_IDisposable_components()
     {
-        [Test]
-        public void Should_dispose_all_IDisposable_components()
+        var serviceCollection = new ServiceCollection();
+
+        DisposableComponent.DisposeCalled = false;
+        AnotherSingletonComponent.DisposeCalled = false;
+
+        serviceCollection.AddSingleton(typeof(DisposableComponent));
+        serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        serviceProvider.GetService(typeof(DisposableComponent));
+        serviceProvider.GetService(typeof(AnotherSingletonComponent));
+        (serviceProvider as IDisposable)?.Dispose();
+
+        Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
+        Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent");
+    }
+
+    public class DisposableComponent : IDisposable
+    {
+        public static bool DisposeCalled { get; set; }
+
+        public void Dispose()
         {
-            var serviceCollection = new ServiceCollection();
-
-            DisposableComponent.DisposeCalled = false;
-            AnotherSingletonComponent.DisposeCalled = false;
-
-            serviceCollection.AddSingleton(typeof(DisposableComponent));
-            serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            serviceProvider.GetService(typeof(DisposableComponent));
-            serviceProvider.GetService(typeof(AnotherSingletonComponent));
-            (serviceProvider as IDisposable)?.Dispose();
-
-            Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
-            Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent");
+            DisposeCalled = true;
+            GC.SuppressFinalize(this);
         }
+    }
 
-        public class DisposableComponent : IDisposable
+    public class AnotherSingletonComponent : IDisposable
+    {
+        public static bool DisposeCalled { get; set; }
+
+        public void Dispose()
         {
-            public static bool DisposeCalled { get; set; }
-
-            public void Dispose()
-            {
-                DisposeCalled = true;
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        public class AnotherSingletonComponent : IDisposable
-        {
-            public static bool DisposeCalled { get; set; }
-
-            public void Dispose()
-            {
-                DisposeCalled = true;
-                GC.SuppressFinalize(this);
-            }
+            DisposeCalled = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

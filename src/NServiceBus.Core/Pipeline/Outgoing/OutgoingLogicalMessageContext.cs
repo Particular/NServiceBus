@@ -1,32 +1,31 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using Pipeline;
+using Routing;
+
+class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageContext
 {
-    using System;
-    using System.Collections.Generic;
-    using Pipeline;
-    using Routing;
-
-    class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageContext
+    public OutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, IBehaviorContext parentContext)
+        : base(messageId, headers, parentContext)
     {
-        public OutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, IBehaviorContext parentContext)
-            : base(messageId, headers, parentContext)
+        Message = message;
+        RoutingStrategies = routingStrategies;
+        Set(message);
+    }
+
+    public OutgoingLogicalMessage Message { get; private set; }
+
+    public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
+
+    public void UpdateMessage(object newInstance)
+    {
+        ArgumentNullException.ThrowIfNull(newInstance);
+
+        if (Message.Instance != newInstance)
         {
-            Message = message;
-            RoutingStrategies = routingStrategies;
-            Set(message);
-        }
-
-        public OutgoingLogicalMessage Message { get; private set; }
-
-        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
-
-        public void UpdateMessage(object newInstance)
-        {
-            ArgumentNullException.ThrowIfNull(newInstance);
-
-            if (Message.Instance != newInstance)
-            {
-                Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);
-            }
+            Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);
         }
     }
 }

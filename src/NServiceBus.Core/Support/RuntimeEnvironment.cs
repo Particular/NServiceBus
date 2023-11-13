@@ -1,26 +1,25 @@
-﻿namespace NServiceBus.Support
+﻿namespace NServiceBus.Support;
+
+using System;
+
+/// <summary>
+/// Abstracts the runtime environment.
+/// </summary>
+public static partial class RuntimeEnvironment
 {
-    using System;
+    static RuntimeEnvironment()
+    {
+        MachineName = Environment.MachineName;
+    }
 
     /// <summary>
-    /// Abstracts the runtime environment.
+    /// Returns the machine name where this endpoint is currently running.
     /// </summary>
-    public static partial class RuntimeEnvironment
+    public static string MachineName { get; private set; }
+
+
+    internal static void SetMachineName(string machineName)
     {
-        static RuntimeEnvironment()
-        {
-            MachineName = Environment.MachineName;
-        }
-
-        /// <summary>
-        /// Returns the machine name where this endpoint is currently running.
-        /// </summary>
-        public static string MachineName { get; private set; }
-
-
-        internal static void SetMachineName(string machineName)
-        {
-            MachineName = machineName;
-        }
+        MachineName = machineName;
     }
 }

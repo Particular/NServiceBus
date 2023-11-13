@@ -1,72 +1,71 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_starting_a_new_saga : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_starting_a_new_saga : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_automatically_assign_correlation_property_value()
     {
-        [Test]
-        public async Task Should_automatically_assign_correlation_property_value()
-        {
-            var id = Guid.NewGuid();
+        var id = Guid.NewGuid();
 
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<NullPropertyEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
-                {
-                    SomeId = id
-                })))
-                .Done(c => c.SomeId != Guid.Empty)
-                .Run();
-
-            Assert.AreEqual(context.SomeId, id);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public Guid SomeId { get; set; }
-        }
-
-        public class NullPropertyEndpoint : EndpointConfigurationBuilder
-        {
-            public NullPropertyEndpoint()
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<NullPropertyEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
             {
-                EndpointSetup<DefaultServer>();
+                SomeId = id
+            })))
+            .Done(c => c.SomeId != Guid.Empty)
+            .Run();
+
+        Assert.AreEqual(context.SomeId, id);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public Guid SomeId { get; set; }
+    }
+
+    public class NullPropertyEndpoint : EndpointConfigurationBuilder
+    {
+        public NullPropertyEndpoint()
+        {
+            EndpointSetup<DefaultServer>();
+        }
+
+        public class NullCorrPropertySaga : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
+        {
+            public NullCorrPropertySaga(Context testContext)
+            {
+                this.testContext = testContext;
             }
 
-            public class NullCorrPropertySaga : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                public NullCorrPropertySaga(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-                {
-                    testContext.SomeId = Data.SomeId;
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                }
-
-                Context testContext;
+                testContext.SomeId = Data.SomeId;
+                return Task.CompletedTask;
             }
 
-            public class NullCorrPropertySagaData : ContainSagaData
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
             {
-                public virtual Guid SomeId { get; set; }
+                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
             }
+
+            Context testContext;
         }
 
-        public class StartSagaMessage : ICommand
+        public class NullCorrPropertySagaData : ContainSagaData
         {
-            public Guid SomeId { get; set; }
+            public virtual Guid SomeId { get; set; }
         }
+    }
+
+    public class StartSagaMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
     }
 }

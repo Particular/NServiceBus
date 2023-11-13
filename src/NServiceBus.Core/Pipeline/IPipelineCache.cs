@@ -1,10 +1,9 @@
-namespace NServiceBus
-{
-    using Pipeline;
+namespace NServiceBus;
 
-    interface IPipelineCache
-    {
-        IPipeline<TContext> Pipeline<TContext>()
-            where TContext : IBehaviorContext;
-    }
+using Pipeline;
+
+interface IPipelineCache
+{
+    IPipeline<TContext> Pipeline<TContext>()
+        where TContext : IBehaviorContext;
 }

@@ -1,21 +1,20 @@
 ﻿#nullable enable
 
-namespace NServiceBus
-{
-    using System;
+namespace NServiceBus;
 
+using System;
+
+/// <summary>
+/// Contains extension methods to configure the <see cref="AssemblyScanner"/> behavior.
+/// </summary>
+public static class AssemblyScannerConfigurationExtensions
+{
     /// <summary>
-    /// Contains extension methods to configure the <see cref="AssemblyScanner"/> behavior.
+    /// Configure the <see cref="AssemblyScanner"/>.
     /// </summary>
-    public static class AssemblyScannerConfigurationExtensions
+    public static AssemblyScannerConfiguration AssemblyScanner(this EndpointConfiguration configuration)
     {
-        /// <summary>
-        /// Configure the <see cref="AssemblyScanner"/>.
-        /// </summary>
-        public static AssemblyScannerConfiguration AssemblyScanner(this EndpointConfiguration configuration)
-        {
-            ArgumentNullException.ThrowIfNull(configuration);
-            return configuration.Settings.GetOrCreate<AssemblyScannerConfiguration>();
-        }
+        ArgumentNullException.ThrowIfNull(configuration);
+        return configuration.Settings.GetOrCreate<AssemblyScannerConfiguration>();
     }
 }

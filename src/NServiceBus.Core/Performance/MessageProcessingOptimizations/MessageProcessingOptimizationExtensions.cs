@@ -1,24 +1,23 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using Transport;
+
+/// <summary>
+/// Configuration class for durable messaging.
+/// </summary>
+public static class MessageProcessingOptimizationExtensions
 {
-    using System;
-    using Transport;
-
     /// <summary>
-    /// Configuration class for durable messaging.
+    /// Instructs the transport to limits the allowed concurrency when processing messages.
     /// </summary>
-    public static class MessageProcessingOptimizationExtensions
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    /// <param name="maxConcurrency">The max concurrency allowed.</param>
+    public static void LimitMessageProcessingConcurrencyTo(this EndpointConfiguration config, int maxConcurrency)
     {
-        /// <summary>
-        /// Instructs the transport to limits the allowed concurrency when processing messages.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="maxConcurrency">The max concurrency allowed.</param>
-        public static void LimitMessageProcessingConcurrencyTo(this EndpointConfiguration config, int maxConcurrency)
-        {
-            ArgumentNullException.ThrowIfNull(config);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrency);
 
-            config.Settings.Get<ReceiveComponent.Settings>().PushRuntimeSettings = new PushRuntimeSettings(maxConcurrency);
-        }
+        config.Settings.Get<ReceiveComponent.Settings>().PushRuntimeSettings = new PushRuntimeSettings(maxConcurrency);
     }
 }

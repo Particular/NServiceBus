@@ -1,84 +1,83 @@
-﻿namespace NServiceBus.Core.Tests.Performance.TimeToBeReceived
+﻿namespace NServiceBus.Core.Tests.Performance.TimeToBeReceived;
+
+using System;
+using NUnit.Framework;
+
+public class TimeToBeReceivedAttributeTests
 {
-    using System;
-    using NUnit.Framework;
-
-    public class TimeToBeReceivedAttributeTests
+    [Test]
+    public void Should_use_TimeToBeReceived_from_bottom_of_tree_when_initialized()
     {
-        [Test]
-        public void Should_use_TimeToBeReceived_from_bottom_of_tree_when_initialized()
+        var mappings = new TimeToBeReceivedMappings(new[]
         {
-            var mappings = new TimeToBeReceivedMappings(new[]
-            {
-                typeof(InheritedClassWithAttribute)
-            }, TimeToBeReceivedMappings.DefaultConvention, true);
+            typeof(InheritedClassWithAttribute)
+        }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
-            Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
-        }
+        Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
+        Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
+    }
 
-        [Test]
-        public void Should_use_inherited_TimeToBeReceived_when_initialized()
+    [Test]
+    public void Should_use_inherited_TimeToBeReceived_when_initialized()
+    {
+        var mappings = new TimeToBeReceivedMappings(new[]
         {
-            var mappings = new TimeToBeReceivedMappings(new[]
-            {
-                typeof(InheritedClassWithNoAttribute)
-            }, TimeToBeReceivedMappings.DefaultConvention, true);
+            typeof(InheritedClassWithNoAttribute)
+        }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
-            Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
-        }
+        Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
+        Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
+    }
 
-        [Test]
-        public void Should_throw_when_discard_before_received_not_supported_when_initialized()
+    [Test]
+    public void Should_throw_when_discard_before_received_not_supported_when_initialized()
+    {
+        Assert.That(() => new TimeToBeReceivedMappings(new[]
         {
-            Assert.That(() => new TimeToBeReceivedMappings(new[]
-            {
-                typeof(InheritedClassWithNoAttribute)
-            }, TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false), Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
-        }
+            typeof(InheritedClassWithNoAttribute)
+        }, TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false), Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
+    }
 
-        [Test]
-        public void Should_use_TimeToBeReceived_from_bottom_of_tree_when_tryget()
+    [Test]
+    public void Should_use_TimeToBeReceived_from_bottom_of_tree_when_tryget()
+    {
+        var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
+
+        Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
+        Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
+    }
+
+    [Test]
+    public void Should_use_inherited_TimeToBeReceived_when_tryget()
+    {
+        var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
+
+        Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
+        Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
+    }
+
+    [Test]
+    public void Should_throw_when_discard_before_received_not_supported_when_tryget()
+    {
+        var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false);
+
+        Assert.That(() =>
         {
-            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
+            return mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out _);
+        }, Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
+    }
 
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
-            Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
-        }
+    [TimeToBeReceived("00:00:01")]
+    class BaseClass
+    {
+    }
 
-        [Test]
-        public void Should_use_inherited_TimeToBeReceived_when_tryget()
-        {
-            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
+    [TimeToBeReceived("00:00:02")]
+    class InheritedClassWithAttribute : BaseClass
+    {
+    }
 
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
-            Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
-        }
-
-        [Test]
-        public void Should_throw_when_discard_before_received_not_supported_when_tryget()
-        {
-            var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false);
-
-            Assert.That(() =>
-            {
-                return mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out _);
-            }, Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
-        }
-
-        [TimeToBeReceived("00:00:01")]
-        class BaseClass
-        {
-        }
-
-        [TimeToBeReceived("00:00:02")]
-        class InheritedClassWithAttribute : BaseClass
-        {
-        }
-
-        class InheritedClassWithNoAttribute : BaseClass
-        {
-        }
+    class InheritedClassWithNoAttribute : BaseClass
+    {
     }
 }

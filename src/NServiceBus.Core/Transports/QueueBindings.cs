@@ -1,28 +1,27 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport;
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// Contains information about queues this endpoint is using.
+/// </summary>
+public partial class QueueBindings
 {
-    using System;
-    using System.Collections.Generic;
+    /// <summary>
+    /// Returns the collection of all transport addresses of queues this endpoint is sending to.
+    /// </summary>
+    public IReadOnlyCollection<string> SendingAddresses => sendingAddresses;
 
     /// <summary>
-    /// Contains information about queues this endpoint is using.
+    /// Declares that this endpoint will be using queue with address <paramref name="transportAddress" /> for sending.
     /// </summary>
-    public partial class QueueBindings
+    /// <param name="transportAddress">The address of the queue.</param>
+    public void BindSending(string transportAddress)
     {
-        /// <summary>
-        /// Returns the collection of all transport addresses of queues this endpoint is sending to.
-        /// </summary>
-        public IReadOnlyCollection<string> SendingAddresses => sendingAddresses;
-
-        /// <summary>
-        /// Declares that this endpoint will be using queue with address <paramref name="transportAddress" /> for sending.
-        /// </summary>
-        /// <param name="transportAddress">The address of the queue.</param>
-        public void BindSending(string transportAddress)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(transportAddress);
-            sendingAddresses.Add(transportAddress);
-        }
-
-        readonly List<string> sendingAddresses = [];
+        ArgumentException.ThrowIfNullOrWhiteSpace(transportAddress);
+        sendingAddresses.Add(transportAddress);
     }
+
+    readonly List<string> sendingAddresses = [];
 }

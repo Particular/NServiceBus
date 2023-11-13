@@ -1,18 +1,17 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus.Transport;
+
+/// <summary>
+/// Provides information about error handling.
+/// </summary>
+public enum ErrorHandleResult
 {
     /// <summary>
-    /// Provides information about error handling.
+    /// Indicates that the infrastructure handled the current error.
     /// </summary>
-    public enum ErrorHandleResult
-    {
-        /// <summary>
-        /// Indicates that the infrastructure handled the current error.
-        /// </summary>
-        Handled,
+    Handled,
 
-        /// <summary>
-        /// Indicates that the infrastructure did not handle the current error. A retry is required.
-        /// </summary>
-        RetryRequired
-    }
+    /// <summary>
+    /// Indicates that the infrastructure did not handle the current error. A retry is required.
+    /// </summary>
+    RetryRequired
 }

@@ -1,80 +1,79 @@
-namespace NServiceBus.AcceptanceTesting.Customization
+namespace NServiceBus.AcceptanceTesting.Customization;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Hosting.Helpers;
+using Support;
+
+public static class EndpointConfigurationExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Hosting.Helpers;
-    using Support;
-
-    public static class EndpointConfigurationExtensions
+    /// <summary>
+    /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
+    /// </summary>
+    /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+    /// <param name="typesToScan">Override the types to scan.</param>
+    public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan)
     {
-        /// <summary>
-        /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="typesToScan">Override the types to scan.</param>
-        public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan)
+        config.TypesToScanInternal(typesToScan);
+    }
+
+    /// <summary>
+    /// Uses <see cref="TypesToIncludeInScan"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
+    /// Additionally, this method excludes all types on the same assembly that not relevant to the specific test case. All types that should be scanned by default must be nested classes of the test class.
+    /// </summary>
+    public static void ScanTypesForTest(this EndpointConfiguration config,
+        EndpointCustomizationConfiguration customizationConfiguration)
+    {
+        // disable file system scanning for better performance
+        // note that this might cause issues when required assemblies are only being loaded at endpoint startup time
+        var assemblyScanner = new AssemblyScanner { ScanFileSystemAssemblies = false };
+
+        config.TypesToIncludeInScan(
+            assemblyScanner.GetScannableAssemblies().Types
+                .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
+                .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
+                .Union(customizationConfiguration.TypesToInclude)
+                .Except(customizationConfiguration.TypesToExclude)
+                .ToList());
+
+        IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
-            config.TypesToScanInternal(typesToScan);
-        }
-
-        /// <summary>
-        /// Uses <see cref="TypesToIncludeInScan"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
-        /// Additionally, this method excludes all types on the same assembly that not relevant to the specific test case. All types that should be scanned by default must be nested classes of the test class.
-        /// </summary>
-        public static void ScanTypesForTest(this EndpointConfiguration config,
-            EndpointCustomizationConfiguration customizationConfiguration)
-        {
-            // disable file system scanning for better performance
-            // note that this might cause issues when required assemblies are only being loaded at endpoint startup time
-            var assemblyScanner = new AssemblyScanner { ScanFileSystemAssemblies = false };
-
-            config.TypesToIncludeInScan(
-                assemblyScanner.GetScannableAssemblies().Types
-                    .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
-                    .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
-                    .Union(customizationConfiguration.TypesToInclude)
-                    .Except(customizationConfiguration.TypesToExclude)
-                    .ToList());
-
-            IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
+            if (rootType == null)
             {
-                if (rootType == null)
-                {
-                    throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
-                }
+                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
+            }
 
-                yield return rootType;
+            yield return rootType;
 
-                if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
-                {
-                    yield break;
-                }
+            if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
+            {
+                yield break;
+            }
 
-                foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
-                {
-                    yield return nestedType;
-                }
+            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
+            {
+                yield return nestedType;
             }
         }
+    }
 
-        public static void AuditProcessedMessagesTo<TAuditEndpoint>(this EndpointConfiguration config)
-        {
-            var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndpoint));
-            config.AuditProcessedMessagesTo(auditEndpointAddress);
-        }
+    public static void AuditProcessedMessagesTo<TAuditEndpoint>(this EndpointConfiguration config)
+    {
+        var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndpoint));
+        config.AuditProcessedMessagesTo(auditEndpointAddress);
+    }
 
-        public static void SendFailedMessagesTo<TErrorEndpoint>(this EndpointConfiguration config)
-        {
-            var errorEndpointAddress = Conventions.EndpointNamingConvention(typeof(TErrorEndpoint));
-            config.SendFailedMessagesTo(errorEndpointAddress);
-        }
+    public static void SendFailedMessagesTo<TErrorEndpoint>(this EndpointConfiguration config)
+    {
+        var errorEndpointAddress = Conventions.EndpointNamingConvention(typeof(TErrorEndpoint));
+        config.SendFailedMessagesTo(errorEndpointAddress);
+    }
 
-        public static void RouteToEndpoint(this RoutingSettings routingSettings, Type messageType, Type destinationEndpointType)
-        {
-            var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);
-            routingSettings.RouteToEndpoint(messageType, destinationEndpointAddress);
-        }
+    public static void RouteToEndpoint(this RoutingSettings routingSettings, Type messageType, Type destinationEndpointType)
+    {
+        var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);
+        routingSettings.RouteToEndpoint(messageType, destinationEndpointAddress);
     }
 }

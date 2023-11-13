@@ -1,29 +1,28 @@
-namespace NServiceBus.Routing
+namespace NServiceBus.Routing;
+
+using System;
+
+/// <summary>
+/// Represents an entry in a routing table.
+/// </summary>
+public class RouteTableEntry
 {
-    using System;
+    /// <summary>
+    /// Type of message.
+    /// </summary>
+    public Type MessageType { get; }
 
     /// <summary>
-    /// Represents an entry in a routing table.
+    /// Route for the message type.
     /// </summary>
-    public class RouteTableEntry
+    public UnicastRoute Route { get; }
+
+    /// <summary>
+    /// Creates a new entry.
+    /// </summary>
+    public RouteTableEntry(Type messageType, UnicastRoute route)
     {
-        /// <summary>
-        /// Type of message.
-        /// </summary>
-        public Type MessageType { get; }
-
-        /// <summary>
-        /// Route for the message type.
-        /// </summary>
-        public UnicastRoute Route { get; }
-
-        /// <summary>
-        /// Creates a new entry.
-        /// </summary>
-        public RouteTableEntry(Type messageType, UnicastRoute route)
-        {
-            MessageType = messageType;
-            Route = route;
-        }
+        MessageType = messageType;
+        Route = route;
     }
 }

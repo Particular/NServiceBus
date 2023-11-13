@@ -1,18 +1,17 @@
 ﻿#nullable enable
 
-namespace NServiceBus.Pipeline
-{
-    using System;
-    using Extensibility;
+namespace NServiceBus.Pipeline;
 
+using System;
+using Extensibility;
+
+/// <summary>
+/// Base interface for a pipeline behavior.
+/// </summary>
+public interface IBehaviorContext : ICancellableContext, IExtendable
+{
     /// <summary>
-    /// Base interface for a pipeline behavior.
+    /// The current <see cref="IServiceProvider" />.
     /// </summary>
-    public interface IBehaviorContext : ICancellableContext, IExtendable
-    {
-        /// <summary>
-        /// The current <see cref="IServiceProvider" />.
-        /// </summary>
-        IServiceProvider Builder { get; }
-    }
+    IServiceProvider Builder { get; }
 }

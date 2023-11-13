@@ -1,83 +1,82 @@
-﻿namespace NServiceBus.AcceptanceTests.TimeToBeReceived
+﻿namespace NServiceBus.AcceptanceTests.TimeToBeReceived;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Features;
+using NUnit.Framework;
+
+public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
-    using NUnit.Framework;
-
-    public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Message_should_not_be_received()
     {
-        [Test]
-        public async Task Message_should_not_be_received()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>()
-                .Run(TimeSpan.FromSeconds(10));
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Endpoint>()
+            .Run(TimeSpan.FromSeconds(10));
 
-            Assert.IsFalse(context.WasCalled);
+        Assert.IsFalse(context.WasCalled);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool WasCalled { get; set; }
+    }
+
+    class SendMessageAndDelayStartTask : FeatureStartupTask
+    {
+        protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+        {
+            await session.SendLocal(new MyCommand(), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
         }
 
-        public class Context : ScenarioContext
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
         {
-            public bool WasCalled { get; set; }
+            return Task.CompletedTask;
         }
+    }
 
-        class SendMessageAndDelayStartTask : FeatureStartupTask
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
         {
-            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            EndpointSetup<DefaultServer>(c =>
             {
-                await session.SendLocal(new MyCommand(), cancellationToken);
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                c.Conventions()
+                .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName)
+                .DefiningTimeToBeReceivedAs(messageType =>
+                {
+                    if (messageType == typeof(MyCommand))
+                    {
+                        return TimeSpan.FromSeconds(2);
+                    }
+                    return TimeSpan.MaxValue;
+                });
+                c.RegisterStartupTask(new SendMessageAndDelayStartTask());
+            }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+        }
+
+        public class MyMessageHandler : IHandleMessages<MyCommand>
+        {
+            public MyMessageHandler(Context context)
+            {
+                testContext = context;
             }
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+            public Task Handle(MyCommand message, IMessageHandlerContext context)
             {
+                testContext.WasCalled = true;
                 return Task.CompletedTask;
             }
+
+            Context testContext;
         }
+    }
 
-        public class Endpoint : EndpointConfigurationBuilder
-        {
-            public Endpoint()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Conventions()
-                    .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName)
-                    .DefiningTimeToBeReceivedAs(messageType =>
-                    {
-                        if (messageType == typeof(MyCommand))
-                        {
-                            return TimeSpan.FromSeconds(2);
-                        }
-                        return TimeSpan.MaxValue;
-                    });
-                    c.RegisterStartupTask(new SendMessageAndDelayStartTask());
-                }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
-            }
-
-            public class MyMessageHandler : IHandleMessages<MyCommand>
-            {
-                public MyMessageHandler(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
-                {
-                    testContext.WasCalled = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
-        }
-
-        public class MyCommand
-        {
-        }
+    public class MyCommand
+    {
     }
 }

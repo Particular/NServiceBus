@@ -1,18 +1,17 @@
 #nullable enable
 
-namespace NServiceBus
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace NServiceBus;
 
+using System.Threading;
+using System.Threading.Tasks;
+
+/// <summary>
+/// Represents an endpoint in the running phase.
+/// </summary>
+public interface IEndpointInstance : IMessageSession
+{
     /// <summary>
-    /// Represents an endpoint in the running phase.
+    /// Stops the endpoint.
     /// </summary>
-    public interface IEndpointInstance : IMessageSession
-    {
-        /// <summary>
-        /// Stops the endpoint.
-        /// </summary>
-        Task Stop(CancellationToken cancellationToken = default);
-    }
+    Task Stop(CancellationToken cancellationToken = default);
 }

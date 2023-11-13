@@ -1,123 +1,122 @@
-namespace NServiceBus.Serializers.XML.Test
+namespace NServiceBus.Serializers.XML.Test;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using MessageInterfaces.MessageMapper.Reflection;
+
+class SerializerFactory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Xml;
-    using MessageInterfaces.MessageMapper.Reflection;
-
-    class SerializerFactory
+    public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
     {
-        public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
+        var types = new List<Type>
         {
-            var types = new List<Type>
+            typeof(T)
+        };
+        mapper ??= new MessageMapper();
+
+        mapper.Initialize(types);
+        var serializer = new XmlMessageSerializer(mapper, new Conventions());
+
+        serializer.Initialize(types);
+
+        return serializer;
+    }
+
+    public static XmlMessageSerializer Create(params Type[] types)
+    {
+        var mapper = new MessageMapper();
+        mapper.Initialize(types);
+        var serializer = new XmlMessageSerializer(mapper, new Conventions());
+
+        serializer.Initialize(types);
+
+        return serializer;
+    }
+}
+
+public class ExecuteSerializer
+{
+    public static T ForMessage<T>(Action<T> a) where T : class, new()
+    {
+        var msg = new T();
+        a(msg);
+
+        return ForMessage<T>(msg);
+    }
+
+    public static T ForMessage<T>(object message)
+    {
+        using (var stream = new MemoryStream())
+        {
+            SerializerFactory.Create<T>().Serialize(message, stream);
+            stream.Position = 0;
+
+            var msgArray = SerializerFactory.Create<T>().Deserialize(stream.ToArray(), new[]
             {
-                typeof(T)
-            };
-            mapper ??= new MessageMapper();
-
-            mapper.Initialize(types);
-            var serializer = new XmlMessageSerializer(mapper, new Conventions());
-
-            serializer.Initialize(types);
-
-            return serializer;
+                message.GetType()
+            });
+            return (T)msgArray[0];
         }
+    }
+}
 
-        public static XmlMessageSerializer Create(params Type[] types)
+class Serializer
+{
+    Serializer(string result)
+    {
+        xmlResult = result;
+    }
+
+    public static Serializer Serialize<T>(Action<T> a) where T : class, new()
+    {
+        var msg = new T();
+        a(msg);
+
+        return ForMessage<T>(msg);
+    }
+
+    public static Serializer ForMessage<T>(object message, Action<XmlMessageSerializer> config = null)
+    {
+        using (var stream = new MemoryStream())
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(types);
-            var serializer = new XmlMessageSerializer(mapper, new Conventions());
+            var serializer = SerializerFactory.Create<T>();
 
-            serializer.Initialize(types);
+            config?.Invoke(serializer);
 
-            return serializer;
+
+            serializer.Serialize(message, stream);
+            stream.Position = 0;
+            var result = new StreamReader(stream);
+
+            return new Serializer(result.ReadToEnd());
         }
     }
 
-    public class ExecuteSerializer
+    public Serializer AssertResultingXml(Func<XmlDocument, bool> check, string message)
     {
-        public static T ForMessage<T>(Action<T> a) where T : class, new()
+        if (xmlDocument == null)
         {
-            var msg = new T();
-            a(msg);
+            xmlDocument = new XmlDocument();
 
-            return ForMessage<T>(msg);
-        }
-
-        public static T ForMessage<T>(object message)
-        {
-            using (var stream = new MemoryStream())
+            try
             {
-                SerializerFactory.Create<T>().Serialize(message, stream);
-                stream.Position = 0;
-
-                var msgArray = SerializerFactory.Create<T>().Deserialize(stream.ToArray(), new[]
-                {
-                    message.GetType()
-                });
-                return (T)msgArray[0];
+                xmlDocument.LoadXml(xmlResult);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to parse xml: " + xmlResult, ex);
             }
         }
+        if (!check(xmlDocument))
+        {
+            throw new Exception($"{message}, Offending XML: {xmlResult}");
+        }
+
+        return this;
     }
 
-    class Serializer
-    {
-        Serializer(string result)
-        {
-            xmlResult = result;
-        }
-
-        public static Serializer Serialize<T>(Action<T> a) where T : class, new()
-        {
-            var msg = new T();
-            a(msg);
-
-            return ForMessage<T>(msg);
-        }
-
-        public static Serializer ForMessage<T>(object message, Action<XmlMessageSerializer> config = null)
-        {
-            using (var stream = new MemoryStream())
-            {
-                var serializer = SerializerFactory.Create<T>();
-
-                config?.Invoke(serializer);
-
-
-                serializer.Serialize(message, stream);
-                stream.Position = 0;
-                var result = new StreamReader(stream);
-
-                return new Serializer(result.ReadToEnd());
-            }
-        }
-
-        public Serializer AssertResultingXml(Func<XmlDocument, bool> check, string message)
-        {
-            if (xmlDocument == null)
-            {
-                xmlDocument = new XmlDocument();
-
-                try
-                {
-                    xmlDocument.LoadXml(xmlResult);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Failed to parse xml: " + xmlResult, ex);
-                }
-            }
-            if (!check(xmlDocument))
-            {
-                throw new Exception($"{message}, Offending XML: {xmlResult}");
-            }
-
-            return this;
-        }
-
-        string xmlResult;
-        XmlDocument xmlDocument;
-    }
+    string xmlResult;
+    XmlDocument xmlDocument;
 }

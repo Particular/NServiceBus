@@ -1,23 +1,22 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System.Reflection;
+
+static class VersionInformation
 {
-    using System.Reflection;
+    public static string MajorMinorPatch { get; }
 
-    static class VersionInformation
+    static VersionInformation()
     {
-        public static string MajorMinorPatch { get; }
+        MajorMinorPatch = "0.0.0";
 
-        static VersionInformation()
+        var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>();
+
+        foreach (var attribute in attributes)
         {
-            MajorMinorPatch = "0.0.0";
-
-            var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>();
-
-            foreach (var attribute in attributes)
+            if (attribute.Key == "MajorMinorPatch")
             {
-                if (attribute.Key == "MajorMinorPatch")
-                {
-                    MajorMinorPatch = attribute.Value;
-                }
+                MajorMinorPatch = attribute.Value;
             }
         }
     }

@@ -1,40 +1,39 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using Transport;
+
+/// <summary>
+/// Event raised when a receive pipeline is completed.
+/// </summary>
+public class ReceivePipelineCompleted
 {
-    using System;
-    using Transport;
+    /// <summary>
+    /// Constructs the event.
+    /// </summary>
+    public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTimeOffset startedAt, DateTimeOffset completedAt)
+    {
+        ArgumentNullException.ThrowIfNull(processedMessage);
+        ArgumentNullException.ThrowIfNull(startedAt);
+        ArgumentNullException.ThrowIfNull(completedAt);
+
+        ProcessedMessage = processedMessage;
+        StartedAt = startedAt;
+        CompletedAt = completedAt;
+    }
 
     /// <summary>
-    /// Event raised when a receive pipeline is completed.
+    /// The processed message.
     /// </summary>
-    public class ReceivePipelineCompleted
-    {
-        /// <summary>
-        /// Constructs the event.
-        /// </summary>
-        public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTimeOffset startedAt, DateTimeOffset completedAt)
-        {
-            ArgumentNullException.ThrowIfNull(processedMessage);
-            ArgumentNullException.ThrowIfNull(startedAt);
-            ArgumentNullException.ThrowIfNull(completedAt);
+    public IncomingMessage ProcessedMessage { get; }
 
-            ProcessedMessage = processedMessage;
-            StartedAt = startedAt;
-            CompletedAt = completedAt;
-        }
+    /// <summary>
+    /// Time when the receive pipeline started.
+    /// </summary>
+    public DateTimeOffset StartedAt { get; }
 
-        /// <summary>
-        /// The processed message.
-        /// </summary>
-        public IncomingMessage ProcessedMessage { get; }
-
-        /// <summary>
-        /// Time when the receive pipeline started.
-        /// </summary>
-        public DateTimeOffset StartedAt { get; }
-
-        /// <summary>
-        /// Time when the receive pipeline completed.
-        /// </summary>
-        public DateTimeOffset CompletedAt { get; }
-    }
+    /// <summary>
+    /// Time when the receive pipeline completed.
+    /// </summary>
+    public DateTimeOffset CompletedAt { get; }
 }

@@ -1,26 +1,25 @@
-﻿namespace NServiceBus.DelayedDelivery
+﻿namespace NServiceBus.DelayedDelivery;
+
+using System;
+
+/// <summary>
+/// Represent a constraint that the message can't be delivered before the specified delay has elapsed.
+/// </summary>
+public class DelayDeliveryWith
 {
-    using System;
+    /// <summary>
+    /// Initializes a new instance of <see cref="DelayDeliveryWith" />.
+    /// </summary>
+    /// <param name="delay">How long to delay the delivery of the message.</param>
+    public DelayDeliveryWith(TimeSpan delay)
+    {
+        Guard.ThrowIfNegative(delay);
+
+        Delay = delay;
+    }
 
     /// <summary>
-    /// Represent a constraint that the message can't be delivered before the specified delay has elapsed.
+    /// The requested delay.
     /// </summary>
-    public class DelayDeliveryWith
-    {
-        /// <summary>
-        /// Initializes a new instance of <see cref="DelayDeliveryWith" />.
-        /// </summary>
-        /// <param name="delay">How long to delay the delivery of the message.</param>
-        public DelayDeliveryWith(TimeSpan delay)
-        {
-            Guard.ThrowIfNegative(delay);
-
-            Delay = delay;
-        }
-
-        /// <summary>
-        /// The requested delay.
-        /// </summary>
-        public TimeSpan Delay { get; }
-    }
+    public TimeSpan Delay { get; }
 }

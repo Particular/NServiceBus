@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration
+﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration;
+
+class EndpointWithNativePubSub : AcceptanceTestingTransportServer
 {
-    class EndpointWithNativePubSub : AcceptanceTestingTransportServer
+    public EndpointWithNativePubSub() : base(true)
     {
-        public EndpointWithNativePubSub() : base(true)
-        {
-        }
     }
 }

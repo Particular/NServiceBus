@@ -1,33 +1,32 @@
-namespace NServiceBus.Logging
+namespace NServiceBus.Logging;
+
+/// <summary>
+/// The allowed log levels. <seealso cref="LogManager" />.
+/// </summary>
+public enum LogLevel
 {
     /// <summary>
-    /// The allowed log levels. <seealso cref="LogManager" />.
+    /// Debug level messages.
     /// </summary>
-    public enum LogLevel
-    {
-        /// <summary>
-        /// Debug level messages.
-        /// </summary>
-        Debug,
+    Debug,
 
-        /// <summary>
-        /// Information level messages.
-        /// </summary>
-        Info,
+    /// <summary>
+    /// Information level messages.
+    /// </summary>
+    Info,
 
-        /// <summary>
-        /// Warning level messages.
-        /// </summary>
-        Warn,
+    /// <summary>
+    /// Warning level messages.
+    /// </summary>
+    Warn,
 
-        /// <summary>
-        /// Error level messages.
-        /// </summary>
-        Error,
+    /// <summary>
+    /// Error level messages.
+    /// </summary>
+    Error,
 
-        /// <summary>
-        /// Fatal level messages.
-        /// </summary>
-        Fatal
-    }
+    /// <summary>
+    /// Fatal level messages.
+    /// </summary>
+    Fatal
 }

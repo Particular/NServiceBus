@@ -1,88 +1,87 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+class When_correlating_special_chars : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    class When_correlating_special_chars : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Saga_persistence_and_correlation_should_work()
     {
-        [Test]
-        public async Task Saga_persistence_and_correlation_should_work()
+        const string propertyValue = "ʕノ•ᴥ•ʔノ ︵ ┻━┻";
+
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<SpecialCharacterSagaEndpoint>(e => e
+                .When(s => s.SendLocal(new MessageWithSpecialPropertyValues
+                {
+                    SpecialCharacterValues = propertyValue
+                })))
+            .Done(c => c.RehydratedValueForCorrelatedHandler != null)
+            .Run();
+
+        Assert.AreEqual(propertyValue, context.RehydratedValueForCorrelatedHandler);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public string RehydratedValueForCorrelatedHandler { get; set; }
+    }
+
+    public class SpecialCharacterSagaEndpoint : EndpointConfigurationBuilder
+    {
+        public SpecialCharacterSagaEndpoint()
         {
-            const string propertyValue = "ʕノ•ᴥ•ʔノ ︵ ┻━┻";
-
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<SpecialCharacterSagaEndpoint>(e => e
-                    .When(s => s.SendLocal(new MessageWithSpecialPropertyValues
-                    {
-                        SpecialCharacterValues = propertyValue
-                    })))
-                .Done(c => c.RehydratedValueForCorrelatedHandler != null)
-                .Run();
-
-            Assert.AreEqual(propertyValue, context.RehydratedValueForCorrelatedHandler);
+            EndpointSetup<DefaultServer>();
         }
 
-        public class Context : ScenarioContext
+        public class SagaDataSpecialValues : ContainSagaData
         {
-            public string RehydratedValueForCorrelatedHandler { get; set; }
+            public virtual string SpecialCharacterValues { get; set; }
         }
 
-        public class SpecialCharacterSagaEndpoint : EndpointConfigurationBuilder
+        public class SagaSpecialValues :
+            Saga<SagaDataSpecialValues>,
+            IAmStartedByMessages<MessageWithSpecialPropertyValues>,
+            IHandleMessages<FollowupMessageWithSpecialPropertyValues>
         {
-            public SpecialCharacterSagaEndpoint()
+            public SagaSpecialValues(Context testContext)
             {
-                EndpointSetup<DefaultServer>();
+                this.testContext = testContext;
             }
 
-            public class SagaDataSpecialValues : ContainSagaData
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataSpecialValues> mapper)
             {
-                public virtual string SpecialCharacterValues { get; set; }
+                mapper.ConfigureMapping<MessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
+                mapper.ConfigureMapping<FollowupMessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
             }
 
-            public class SagaSpecialValues :
-                Saga<SagaDataSpecialValues>,
-                IAmStartedByMessages<MessageWithSpecialPropertyValues>,
-                IHandleMessages<FollowupMessageWithSpecialPropertyValues>
+            public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context)
             {
-                public SagaSpecialValues(Context testContext)
+                return context.SendLocal(new FollowupMessageWithSpecialPropertyValues
                 {
-                    this.testContext = testContext;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataSpecialValues> mapper)
-                {
-                    mapper.ConfigureMapping<MessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
-                    mapper.ConfigureMapping<FollowupMessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
-                }
-
-                public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context)
-                {
-                    return context.SendLocal(new FollowupMessageWithSpecialPropertyValues
-                    {
-                        SpecialCharacterValues = message.SpecialCharacterValues
-                    });
-                }
-
-                public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
-                {
-                    testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                    SpecialCharacterValues = message.SpecialCharacterValues
+                });
             }
-        }
 
-        public class MessageWithSpecialPropertyValues : ICommand
-        {
-            public string SpecialCharacterValues { get; set; }
-        }
+            public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
+            {
+                testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
+                return Task.CompletedTask;
+            }
 
-        public class FollowupMessageWithSpecialPropertyValues : ICommand
-        {
-            public string SpecialCharacterValues { get; set; }
+            Context testContext;
         }
+    }
+
+    public class MessageWithSpecialPropertyValues : ICommand
+    {
+        public string SpecialCharacterValues { get; set; }
+    }
+
+    public class FollowupMessageWithSpecialPropertyValues : ICommand
+    {
+        public string SpecialCharacterValues { get; set; }
     }
 }

@@ -1,14 +1,13 @@
-namespace NServiceBus
-{
-    using Extensibility;
+namespace NServiceBus;
 
-    /// <summary>
-    /// Allows the users to control how the send is performed.
-    /// </summary>
-    /// <remarks>
-    /// The behavior of this class is exposed via extension methods.
-    /// </remarks>
-    public class SendOptions : ExtendableOptions
-    {
-    }
+using Extensibility;
+
+/// <summary>
+/// Allows the users to control how the send is performed.
+/// </summary>
+/// <remarks>
+/// The behavior of this class is exposed via extension methods.
+/// </remarks>
+public class SendOptions : ExtendableOptions
+{
 }

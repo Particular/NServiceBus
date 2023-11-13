@@ -1,42 +1,41 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+
+/// <summary>
+/// Provides information about the recoverability configuration.
+/// </summary>
+public class RecoverabilityConfig
 {
-    using System;
+    /// <summary>
+    /// Creates a new recoverability configuration.
+    /// </summary>
+    /// <param name="immediateConfig">The immediate retries configuration.</param>
+    /// <param name="delayedConfig">The delayed retries configuration.</param>
+    /// <param name="failedConfig">The failed retries configuration.</param>
+    public RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig, FailedConfig failedConfig)
+    {
+        ArgumentNullException.ThrowIfNull(immediateConfig);
+        ArgumentNullException.ThrowIfNull(delayedConfig);
+        ArgumentNullException.ThrowIfNull(failedConfig);
+
+        Immediate = immediateConfig;
+        Delayed = delayedConfig;
+        Failed = failedConfig;
+    }
 
     /// <summary>
-    /// Provides information about the recoverability configuration.
+    /// Exposes the immediate retries configuration.
     /// </summary>
-    public class RecoverabilityConfig
-    {
-        /// <summary>
-        /// Creates a new recoverability configuration.
-        /// </summary>
-        /// <param name="immediateConfig">The immediate retries configuration.</param>
-        /// <param name="delayedConfig">The delayed retries configuration.</param>
-        /// <param name="failedConfig">The failed retries configuration.</param>
-        public RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig, FailedConfig failedConfig)
-        {
-            ArgumentNullException.ThrowIfNull(immediateConfig);
-            ArgumentNullException.ThrowIfNull(delayedConfig);
-            ArgumentNullException.ThrowIfNull(failedConfig);
+    public ImmediateConfig Immediate { get; }
 
-            Immediate = immediateConfig;
-            Delayed = delayedConfig;
-            Failed = failedConfig;
-        }
+    /// <summary>
+    /// Exposes the delayed retries configuration.
+    /// </summary>
+    public DelayedConfig Delayed { get; }
 
-        /// <summary>
-        /// Exposes the immediate retries configuration.
-        /// </summary>
-        public ImmediateConfig Immediate { get; }
-
-        /// <summary>
-        /// Exposes the delayed retries configuration.
-        /// </summary>
-        public DelayedConfig Delayed { get; }
-
-        /// <summary>
-        /// Exposes the failed retries configuration.
-        /// </summary>
-        public FailedConfig Failed { get; }
-    }
+    /// <summary>
+    /// Exposes the failed retries configuration.
+    /// </summary>
+    public FailedConfig Failed { get; }
 }

@@ -1,78 +1,77 @@
-﻿namespace NServiceBus.AcceptanceTests.Serialization
+﻿namespace NServiceBus.AcceptanceTests.Serialization;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+public class When_xml_serializer_processes_message_without_type_header : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
-
-    public class When_xml_serializer_processes_message_without_type_header : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_work_in_unobtrusive()
     {
-        [Test]
-        public async Task Should_work_in_unobtrusive()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MessageToBeDetectedByRootNodeName())))
-                .Done(c => c.WasCalled)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MessageToBeDetectedByRootNodeName())))
+            .Done(c => c.WasCalled)
+            .Run();
 
-            Assert.True(context.WasCalled);
+        Assert.True(context.WasCalled);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool WasCalled { get; set; }
+    }
+
+    public class Sender : EndpointConfigurationBuilder
+    {
+        public Sender()
+        {
+            EndpointSetup<DefaultServer>(c =>
+            {
+                c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
+                c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
+                c.UseSerialization<XmlSerializer>();
+            })
+            //Need to include the message since it can't be nested inside the test class, see below
+            .IncludeType<MessageToBeDetectedByRootNodeName>();
         }
 
-        public class Context : ScenarioContext
+        public class MyMessageHandler : IHandleMessages<MessageToBeDetectedByRootNodeName>
         {
-            public bool WasCalled { get; set; }
+            public MyMessageHandler(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
+            {
+                testContext.WasCalled = true;
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
 
-        public class Sender : EndpointConfigurationBuilder
+        public class RemoveTheTypeHeader : Behavior<IDispatchContext>
         {
-            public Sender()
+            public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
-                EndpointSetup<DefaultServer>(c =>
+                foreach (var op in context.Operations)
                 {
-                    c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
-                    c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
-                    c.UseSerialization<XmlSerializer>();
-                })
-                //Need to include the message since it can't be nested inside the test class, see below
-                .IncludeType<MessageToBeDetectedByRootNodeName>();
-            }
-
-            public class MyMessageHandler : IHandleMessages<MessageToBeDetectedByRootNodeName>
-            {
-                public MyMessageHandler(Context context)
-                {
-                    testContext = context;
+                    op.Message.Headers.Remove(Headers.EnclosedMessageTypes);
                 }
 
-                public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
-                {
-                    testContext.WasCalled = true;
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
-            }
-
-            public class RemoveTheTypeHeader : Behavior<IDispatchContext>
-            {
-                public override Task Invoke(IDispatchContext context, Func<Task> next)
-                {
-                    foreach (var op in context.Operations)
-                    {
-                        op.Message.Headers.Remove(Headers.EnclosedMessageTypes);
-                    }
-
-                    return next();
-                }
+                return next();
             }
         }
     }
+}
 
-    //Can't be nested inside the test class since the xml serializer can't deal with nested types
-    public class MessageToBeDetectedByRootNodeName
-    {
-        public int Data { get; set; }
-    }
+//Can't be nested inside the test class since the xml serializer can't deal with nested types
+public class MessageToBeDetectedByRootNodeName
+{
+    public int Data { get; set; }
 }

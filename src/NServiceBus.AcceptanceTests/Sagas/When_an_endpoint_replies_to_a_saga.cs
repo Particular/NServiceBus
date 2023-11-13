@@ -1,120 +1,119 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
+using NUnit.Framework;
+
+// Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277 to test the fix
+// making sure that the saga correlation still works.
+public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277 to test the fix
-    // making sure that the saga correlation still works.
-    public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_correlate_all_saga_messages_properly()
     {
-        [Test]
-        public async Task Should_correlate_all_saga_messages_properly()
-        {
-            var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                .WithEndpoint<EndpointThatHostsASaga>(b => b.When((session, ctx) => session.SendLocal(new StartSaga
-                {
-                    RunId = ctx.RunId
-                })))
-                .WithEndpoint<EndpointThatRepliesToSagaMessage>()
-                .Done(c => c.Done)
-                .Run();
+        var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
+            .WithEndpoint<EndpointThatHostsASaga>(b => b.When((session, ctx) => session.SendLocal(new StartSaga
+            {
+                RunId = ctx.RunId
+            })))
+            .WithEndpoint<EndpointThatRepliesToSagaMessage>()
+            .Done(c => c.Done)
+            .Run();
 
-            Assert.AreEqual(context.RunId, context.ResponseRunId);
+        Assert.AreEqual(context.RunId, context.ResponseRunId);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public Guid RunId { get; set; }
+        public Guid ResponseRunId { get; set; }
+        public bool Done { get; set; }
+    }
+
+    public class EndpointThatRepliesToSagaMessage : EndpointConfigurationBuilder
+    {
+        public EndpointThatRepliesToSagaMessage()
+        {
+            EndpointSetup<DefaultServer>();
         }
 
-        public class Context : ScenarioContext
+        class DoSomethingHandler : IHandleMessages<DoSomething>
         {
-            public Guid RunId { get; set; }
-            public Guid ResponseRunId { get; set; }
-            public bool Done { get; set; }
-        }
-
-        public class EndpointThatRepliesToSagaMessage : EndpointConfigurationBuilder
-        {
-            public EndpointThatRepliesToSagaMessage()
+            public Task Handle(DoSomething message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>();
-            }
-
-            class DoSomethingHandler : IHandleMessages<DoSomething>
-            {
-                public Task Handle(DoSomething message, IMessageHandlerContext context)
+                return context.Reply(new DoSomethingResponse
                 {
-                    return context.Reply(new DoSomethingResponse
-                    {
-                        RunId = message.RunId
-                    });
-                }
+                    RunId = message.RunId
+                });
             }
         }
+    }
 
-        public class EndpointThatHostsASaga : EndpointConfigurationBuilder
+    public class EndpointThatHostsASaga : EndpointConfigurationBuilder
+    {
+        public EndpointThatHostsASaga()
         {
-            public EndpointThatHostsASaga()
+            EndpointSetup<DefaultServer>(c =>
             {
-                EndpointSetup<DefaultServer>(c =>
+                c.ConfigureRouting().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
+            });
+        }
+
+        public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
+            IAmStartedByMessages<StartSaga>,
+            IHandleMessages<DoSomethingResponse>
+        {
+            public CorrelationTestSaga(Context context)
+            {
+                testContext = context;
+            }
+
+            public Task Handle(StartSaga message, IMessageHandlerContext context)
+            {
+                return context.Send(new DoSomething
                 {
-                    c.ConfigureRouting().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
+                    RunId = message.RunId
                 });
             }
 
-            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
-                IAmStartedByMessages<StartSaga>,
-                IHandleMessages<DoSomethingResponse>
+            public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
             {
-                public CorrelationTestSaga(Context context)
-                {
-                    testContext = context;
-                }
-
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
-                {
-                    return context.Send(new DoSomething
-                    {
-                        RunId = message.RunId
-                    });
-                }
-
-                public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
-                {
-                    testContext.Done = true;
-                    testContext.ResponseRunId = message.RunId;
-                    MarkAsComplete();
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
-                    mapper.ConfigureMapping<DoSomethingResponse>(m => m.RunId).ToSaga(s => s.RunId);
-                }
-
-                public class CorrelationTestSagaData : ContainSagaData
-                {
-                    public virtual Guid RunId { get; set; }
-                }
-
-                Context testContext;
+                testContext.Done = true;
+                testContext.ResponseRunId = message.RunId;
+                MarkAsComplete();
+                return Task.CompletedTask;
             }
-        }
 
-        public class StartSaga : ICommand
-        {
-            public Guid RunId { get; set; }
-        }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
+            {
+                mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
+                mapper.ConfigureMapping<DoSomethingResponse>(m => m.RunId).ToSaga(s => s.RunId);
+            }
 
-        public class DoSomething : ICommand
-        {
-            public Guid RunId { get; set; }
-        }
+            public class CorrelationTestSagaData : ContainSagaData
+            {
+                public virtual Guid RunId { get; set; }
+            }
 
-        public class DoSomethingResponse : IMessage
-        {
-            public Guid RunId { get; set; }
+            Context testContext;
         }
+    }
+
+    public class StartSaga : ICommand
+    {
+        public Guid RunId { get; set; }
+    }
+
+    public class DoSomething : ICommand
+    {
+        public Guid RunId { get; set; }
+    }
+
+    public class DoSomethingResponse : IMessage
+    {
+        public Guid RunId { get; set; }
     }
 }

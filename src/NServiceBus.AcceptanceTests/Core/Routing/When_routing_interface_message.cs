@@ -1,71 +1,70 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Routing
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
+
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using AcceptanceTesting.Customization;
+using NUnit.Framework;
+
+public class When_routing_interface_message : NServiceBusAcceptanceTest
 {
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using AcceptanceTesting.Customization;
-    using NUnit.Framework;
-
-    public class When_routing_interface_message : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_use_interface_types_route()
     {
-        [Test]
-        public async Task Should_use_interface_types_route()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new StartMessage())))
-                .Done(c => c.GotTheMessage)
-                .Run();
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new StartMessage())))
+            .Done(c => c.GotTheMessage)
+            .Run();
 
-            Assert.True(context.GotTheMessage);
+        Assert.True(context.GotTheMessage);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public bool GotTheMessage { get; set; }
+    }
+
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
+        {
+            EndpointSetup<DefaultServer>((c, r) =>
+            {
+                c.ConfigureRouting().RouteToEndpoint(typeof(IMyMessage), typeof(Endpoint));
+            });
         }
 
-        public class Context : ScenarioContext
+        public class StartMessageHandler : IHandleMessages<StartMessage>
         {
-            public bool GotTheMessage { get; set; }
-        }
-
-        public class Endpoint : EndpointConfigurationBuilder
-        {
-            public Endpoint()
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    c.ConfigureRouting().RouteToEndpoint(typeof(IMyMessage), typeof(Endpoint));
-                });
-            }
-
-            public class StartMessageHandler : IHandleMessages<StartMessage>
-            {
-                public Task Handle(StartMessage message, IMessageHandlerContext context)
-                {
-                    return context.Send<IMyMessage>(_ => { });
-                }
-            }
-
-            public class MyMessageHandler : IHandleMessages<IMyMessage>
-            {
-                public MyMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(IMyMessage message, IMessageHandlerContext context)
-                {
-                    testContext.GotTheMessage = true;
-
-                    return Task.CompletedTask;
-                }
-
-                Context testContext;
+                return context.Send<IMyMessage>(_ => { });
             }
         }
 
-        public class StartMessage : IMessage
+        public class MyMessageHandler : IHandleMessages<IMyMessage>
         {
-        }
+            public MyMessageHandler(Context testContext)
+            {
+                this.testContext = testContext;
+            }
 
-        public interface IMyMessage : IMessage
-        {
+            public Task Handle(IMyMessage message, IMessageHandlerContext context)
+            {
+                testContext.GotTheMessage = true;
+
+                return Task.CompletedTask;
+            }
+
+            Context testContext;
         }
+    }
+
+    public class StartMessage : IMessage
+    {
+    }
+
+    public interface IMyMessage : IMessage
+    {
     }
 }

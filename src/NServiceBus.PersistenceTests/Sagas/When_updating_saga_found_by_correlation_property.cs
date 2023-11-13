@@ -1,72 +1,71 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas
+﻿namespace NServiceBus.PersistenceTesting.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using NUnit.Framework;
+
+public class When_updating_saga_found_by_correlation_property : SagaPersisterTests
 {
-    using System;
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-
-    public class When_updating_saga_found_by_correlation_property : SagaPersisterTests
+    [Test]
+    public async Task It_should_persist_successfully()
     {
-        [Test]
-        public async Task It_should_persist_successfully()
+        var correlationPropertyData = Guid.NewGuid().ToString();
+        var saga1 = new SagaWithCorrelationPropertyData
         {
-            var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga1 = new SagaWithCorrelationPropertyData
-            {
-                CorrelatedProperty = correlationPropertyData,
-                SomeProperty = "foo"
-            };
+            CorrelatedProperty = correlationPropertyData,
+            SomeProperty = "foo"
+        };
 
-            await SaveSaga(saga1);
+        await SaveSaga(saga1);
 
-            var updatedValue = "bar";
-            var context = configuration.GetContextBagForSagaStorage();
-            var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
-            var persister = configuration.SagaStorage;
-            using (var completeSession = configuration.CreateStorageSession())
-            {
-                await completeSession.Open(context);
+        var updatedValue = "bar";
+        var context = configuration.GetContextBagForSagaStorage();
+        var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
+        var persister = configuration.SagaStorage;
+        using (var completeSession = configuration.CreateStorageSession())
+        {
+            await completeSession.Open(context);
 
-                var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
+            var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData, completeSession, context);
 
-                sagaData.SomeProperty = updatedValue;
+            sagaData.SomeProperty = updatedValue;
 
-                await persister.Update(sagaData, completeSession, context);
-                await completeSession.CompleteAsync();
-            }
-
-            var updatedSagaData = await GetByCorrelationProperty<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData);
-
-            Assert.That(updatedSagaData, Is.Not.Null);
-            Assert.That(updatedSagaData.SomeProperty, Is.EqualTo(updatedValue));
+            await persister.Update(sagaData, completeSession, context);
+            await completeSession.CompleteAsync();
         }
 
-        public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
-        {
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
-            {
-                mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
-            }
+        var updatedSagaData = await GetByCorrelationProperty<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData);
 
-            public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
+        Assert.That(updatedSagaData, Is.Not.Null);
+        Assert.That(updatedSagaData.SomeProperty, Is.EqualTo(updatedValue));
+    }
+
+    public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
+        {
+            mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
         }
 
-        public class SagaWithCorrelationPropertyData : ContainSagaData
+        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
         {
-            public string CorrelatedProperty { get; set; }
-
-            public string SomeProperty { get; set; }
+            throw new NotImplementedException();
         }
+    }
 
-        public class SagaCorrelationPropertyStartingMessage
-        {
-            public string CorrelatedProperty { get; set; }
-        }
+    public class SagaWithCorrelationPropertyData : ContainSagaData
+    {
+        public string CorrelatedProperty { get; set; }
 
-        public When_updating_saga_found_by_correlation_property(TestVariant param) : base(param)
-        {
-        }
+        public string SomeProperty { get; set; }
+    }
+
+    public class SagaCorrelationPropertyStartingMessage
+    {
+        public string CorrelatedProperty { get; set; }
+    }
+
+    public When_updating_saga_found_by_correlation_property(TestVariant param) : base(param)
+    {
     }
 }

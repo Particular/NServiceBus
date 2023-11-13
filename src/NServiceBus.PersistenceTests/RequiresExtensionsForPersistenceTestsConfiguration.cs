@@ -1,47 +1,46 @@
-﻿namespace NServiceBus.PersistenceTesting
+﻿namespace NServiceBus.PersistenceTesting;
+
+using NUnit.Framework;
+
+public static class RequiresExtensionsForPersistenceTestsConfiguration
 {
-    using NUnit.Framework;
-
-    public static class RequiresExtensionsForPersistenceTestsConfiguration
+    public static void RequiresDtcSupport(this IPersistenceTestsConfiguration configuration)
     {
-        public static void RequiresDtcSupport(this IPersistenceTestsConfiguration configuration)
+        if (!configuration.SupportsDtc)
         {
-            if (!configuration.SupportsDtc)
-            {
-                Assert.Ignore("Ignoring this test because it requires DTC transaction support from persister.");
-            }
+            Assert.Ignore("Ignoring this test because it requires DTC transaction support from persister.");
         }
+    }
 
-        public static void RequiresOutboxSupport(this IPersistenceTestsConfiguration configuration)
+    public static void RequiresOutboxSupport(this IPersistenceTestsConfiguration configuration)
+    {
+        if (!configuration.SupportsOutbox)
         {
-            if (!configuration.SupportsOutbox)
-            {
-                Assert.Ignore("Ignoring this test because it requires outbox support from persister.");
-            }
+            Assert.Ignore("Ignoring this test because it requires outbox support from persister.");
         }
+    }
 
-        public static void RequiresFindersSupport(this IPersistenceTestsConfiguration configuration)
+    public static void RequiresFindersSupport(this IPersistenceTestsConfiguration configuration)
+    {
+        if (!configuration.SupportsFinders)
         {
-            if (!configuration.SupportsFinders)
-            {
-                Assert.Ignore("Ignoring this test because it requires custom finder support from persister.");
-            }
+            Assert.Ignore("Ignoring this test because it requires custom finder support from persister.");
         }
+    }
 
-        public static void RequiresOptimisticConcurrencySupport(this IPersistenceTestsConfiguration configuration)
+    public static void RequiresOptimisticConcurrencySupport(this IPersistenceTestsConfiguration configuration)
+    {
+        if (configuration.SupportsPessimisticConcurrency)
         {
-            if (configuration.SupportsPessimisticConcurrency)
-            {
-                Assert.Ignore("Ignoring this test because it requires optimistic concurrency support from persister.");
-            }
+            Assert.Ignore("Ignoring this test because it requires optimistic concurrency support from persister.");
         }
+    }
 
-        public static void RequiresPessimisticConcurrencySupport(this IPersistenceTestsConfiguration configuration)
+    public static void RequiresPessimisticConcurrencySupport(this IPersistenceTestsConfiguration configuration)
+    {
+        if (!configuration.SupportsPessimisticConcurrency)
         {
-            if (!configuration.SupportsPessimisticConcurrency)
-            {
-                Assert.Ignore("Ignoring this test because it requires pessimistic concurrency support from persister.");
-            }
+            Assert.Ignore("Ignoring this test because it requires pessimistic concurrency support from persister.");
         }
     }
 }

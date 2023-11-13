@@ -1,19 +1,18 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using Features;
+
+class StaticHeaders : Feature
 {
-    using Features;
-
-    class StaticHeaders : Feature
+    public StaticHeaders()
     {
-        public StaticHeaders()
-        {
-            EnableByDefault();
-            Prerequisite(c => c.Settings.HasSetting<CurrentStaticHeaders>(), "No static outgoing headers registered");
-        }
+        EnableByDefault();
+        Prerequisite(c => c.Settings.HasSetting<CurrentStaticHeaders>(), "No static outgoing headers registered");
+    }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            var headers = context.Settings.Get<CurrentStaticHeaders>();
-            context.Pipeline.Register("ApplyStaticHeaders", new ApplyStaticHeadersBehavior(headers), "Applies static headers to outgoing messages");
-        }
+    protected internal override void Setup(FeatureConfigurationContext context)
+    {
+        var headers = context.Settings.Get<CurrentStaticHeaders>();
+        context.Pipeline.Register("ApplyStaticHeaders", new ApplyStaticHeadersBehavior(headers), "Applies static headers to outgoing messages");
     }
 }

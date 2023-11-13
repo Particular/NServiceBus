@@ -1,47 +1,46 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Pipeline;
+
+class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.Extensions.DependencyInjection;
-    using Pipeline;
-
-    class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
+    internal IncomingLogicalMessageContext(LogicalMessage logicalMessage, IIncomingPhysicalMessageContext parentContext)
+        : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext)
     {
-        internal IncomingLogicalMessageContext(LogicalMessage logicalMessage, IIncomingPhysicalMessageContext parentContext)
-            : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext)
+    }
+
+    public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, IBehaviorContext parentContext)
+        : base(messageId, replyToAddress, headers, parentContext)
+    {
+        Message = logicalMessage;
+        Headers = headers;
+        Set(logicalMessage);
+    }
+
+    public LogicalMessage Message { get; }
+
+    public Dictionary<string, string> Headers { get; }
+
+    public bool MessageHandled { get; set; }
+
+    public void UpdateMessageInstance(object newInstance)
+    {
+        ArgumentNullException.ThrowIfNull(newInstance);
+        var sameInstance = ReferenceEquals(Message.Instance, newInstance);
+
+        Message.Instance = newInstance;
+
+        if (sameInstance)
         {
+            return;
         }
 
-        public IncomingLogicalMessageContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, IBehaviorContext parentContext)
-            : base(messageId, replyToAddress, headers, parentContext)
-        {
-            Message = logicalMessage;
-            Headers = headers;
-            Set(logicalMessage);
-        }
+        var factory = Builder.GetRequiredService<LogicalMessageFactory>();
+        var newLogicalMessage = factory.Create(newInstance);
 
-        public LogicalMessage Message { get; }
-
-        public Dictionary<string, string> Headers { get; }
-
-        public bool MessageHandled { get; set; }
-
-        public void UpdateMessageInstance(object newInstance)
-        {
-            ArgumentNullException.ThrowIfNull(newInstance);
-            var sameInstance = ReferenceEquals(Message.Instance, newInstance);
-
-            Message.Instance = newInstance;
-
-            if (sameInstance)
-            {
-                return;
-            }
-
-            var factory = Builder.GetRequiredService<LogicalMessageFactory>();
-            var newLogicalMessage = factory.Create(newInstance);
-
-            Message.Metadata = newLogicalMessage.Metadata;
-        }
+        Message.Metadata = newLogicalMessage.Metadata;
     }
 }

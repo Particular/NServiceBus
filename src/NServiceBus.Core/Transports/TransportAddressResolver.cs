@@ -1,16 +1,15 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using Transport;
+
+class TransportAddressResolver : ITransportAddressResolver
 {
-    using Transport;
+    readonly TransportInfrastructure transportInfrastructure;
 
-    class TransportAddressResolver : ITransportAddressResolver
+    public TransportAddressResolver(TransportInfrastructure transportInfrastructure)
     {
-        readonly TransportInfrastructure transportInfrastructure;
-
-        public TransportAddressResolver(TransportInfrastructure transportInfrastructure)
-        {
-            this.transportInfrastructure = transportInfrastructure;
-        }
-
-        public string ToTransportAddress(QueueAddress queueAddress) => transportInfrastructure.ToTransportAddress(queueAddress);
+        this.transportInfrastructure = transportInfrastructure;
     }
+
+    public string ToTransportAddress(QueueAddress queueAddress) => transportInfrastructure.ToTransportAddress(queueAddress);
 }

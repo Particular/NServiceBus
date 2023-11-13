@@ -1,97 +1,96 @@
-﻿namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using NServiceBus.Pipeline;
+using NServiceBus.Routing;
+using NUnit.Framework;
+using Testing;
+using Unicast.Messages;
+
+[TestFixture]
+public class SendConnectorTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NUnit.Framework;
-    using Testing;
-    using Unicast.Messages;
-
-    [TestFixture]
-    public class SendConnectorTests
+    [Test]
+    public async Task Should_set_messageintent_to_send()
     {
-        [Test]
-        public async Task Should_set_messageintent_to_send()
+        var physicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("destination endpoint") };
+
+        var behavior = InitializeBehavior(physicalRouter);
+
+        var context = CreateContext();
+
+        await behavior.Invoke(context, ctx => Task.CompletedTask);
+
+        Assert.AreEqual(1, context.Headers.Count);
+        Assert.AreEqual(MessageIntent.Send.ToString(), context.Headers[Headers.MessageIntent]);
+    }
+
+    [Test]
+    public async Task Should_use_router_to_route()
+    {
+        var logicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("LogicalAddress") };
+
+        var behavior = InitializeBehavior(logicalRouter);
+
+        var context = CreateContext();
+
+        UnicastAddressTag addressTag = null;
+        await behavior.Invoke(context, c =>
         {
-            var physicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("destination endpoint") };
+            addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply([]);
+            return Task.CompletedTask;
+        });
 
-            var behavior = InitializeBehavior(physicalRouter);
+        Assert.AreEqual("LogicalAddress", addressTag.Destination);
+    }
 
-            var context = CreateContext();
+    static TestableOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
+    {
+        message ??= new MyMessage();
 
-            await behavior.Invoke(context, ctx => Task.CompletedTask);
-
-            Assert.AreEqual(1, context.Headers.Count);
-            Assert.AreEqual(MessageIntent.Send.ToString(), context.Headers[Headers.MessageIntent]);
-        }
-
-        [Test]
-        public async Task Should_use_router_to_route()
+        var context = new TestableOutgoingSendContext
         {
-            var logicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("LogicalAddress") };
+            Message = new OutgoingLogicalMessage(message.GetType(), message),
+            Extensions = options?.Context
+        };
+        return context;
+    }
 
-            var behavior = InitializeBehavior(logicalRouter);
 
-            var context = CreateContext();
-
-            UnicastAddressTag addressTag = null;
-            await behavior.Invoke(context, c =>
-            {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply([]);
-                return Task.CompletedTask;
-            });
-
-            Assert.AreEqual("LogicalAddress", addressTag.Destination);
-        }
-
-        static TestableOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
+    static SendConnector InitializeBehavior(FakeRouter router = null)
+    {
+        var metadataRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
+        metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
         {
-            message ??= new MyMessage();
+            typeof(MyMessage),
+            typeof(MessageWithoutRouting)
+        });
 
-            var context = new TestableOutgoingSendContext
-            {
-                Message = new OutgoingLogicalMessage(message.GetType(), message),
-                Extensions = options?.Context
-            };
-            return context;
-        }
+        return new SendConnector(router ?? new FakeRouter());
+    }
 
-
-        static SendConnector InitializeBehavior(FakeRouter router = null)
-        {
-            var metadataRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
-            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
-            {
-                typeof(MyMessage),
-                typeof(MessageWithoutRouting)
-            });
-
-            return new SendConnector(router ?? new FakeRouter());
-        }
-
-        class FakeRouter : UnicastSendRouter
-        {
-            public FakeRouter() : base(false, null, null, null, null, null, null)
-            {
-            }
-
-            public UnicastRoutingStrategy FixedDestination { get; set; }
-
-            public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
-            {
-                return FixedDestination;
-            }
-        }
-
-        class MyMessage
+    class FakeRouter : UnicastSendRouter
+    {
+        public FakeRouter() : base(false, null, null, null, null, null, null)
         {
         }
 
-        class MessageWithoutRouting
+        public UnicastRoutingStrategy FixedDestination { get; set; }
+
+        public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
         {
+            return FixedDestination;
         }
+    }
+
+    class MyMessage
+    {
+    }
+
+    class MessageWithoutRouting
+    {
     }
 }

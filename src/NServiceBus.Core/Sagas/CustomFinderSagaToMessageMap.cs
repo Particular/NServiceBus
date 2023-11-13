@@ -1,28 +1,27 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus;
+
+using Sagas;
+using System;
+using System.Collections.Generic;
+
+class CustomFinderSagaToMessageMap : SagaToMessageMap
 {
-    using Sagas;
-    using System;
-    using System.Collections.Generic;
+    public Type CustomFinderType;
 
-    class CustomFinderSagaToMessageMap : SagaToMessageMap
+    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
     {
-        public Type CustomFinderType;
+        return new SagaFinderDefinition(
+            typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, MessageType),
+            MessageType,
+            new Dictionary<string, object>
+            {
+                {"custom-finder-clr-type", CustomFinderType}
+            });
+    }
 
-        public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
-        {
-            return new SagaFinderDefinition(
-                typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, MessageType),
-                MessageType,
-                new Dictionary<string, object>
-                {
-                    {"custom-finder-clr-type", CustomFinderType}
-                });
-        }
-
-        protected override string SagaDoesNotHandleMappedMessage(Type sagaType)
-        {
-            var msgType = MessageType.FullName;
-            return $"Custom saga finder {CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.";
-        }
+    protected override string SagaDoesNotHandleMappedMessage(Type sagaType)
+    {
+        var msgType = MessageType.FullName;
+        return $"Custom saga finder {CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.";
     }
 }

@@ -1,12 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support;
+
+using System;
+using System.Threading.Tasks;
+
+public interface IWhenDefinition
 {
-    using System;
-    using System.Threading.Tasks;
+    Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session);
 
-    public interface IWhenDefinition
-    {
-        Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session);
-
-        Guid Id { get; }
-    }
+    Guid Id { get; }
 }

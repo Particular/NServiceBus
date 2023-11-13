@@ -1,12 +1,11 @@
-namespace NServiceBus
-{
-    class RemoveStep
-    {
-        public RemoveStep(string removeId)
-        {
-            RemoveId = removeId;
-        }
+namespace NServiceBus;
 
-        public string RemoveId { get; }
+class RemoveStep
+{
+    public RemoveStep(string removeId)
+    {
+        RemoveId = removeId;
     }
+
+    public string RemoveId { get; }
 }

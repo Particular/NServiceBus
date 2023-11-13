@@ -1,41 +1,40 @@
-namespace NServiceBus
+namespace NServiceBus;
+
+using System;
+using Extensibility;
+
+/// <summary>
+/// Provides ways to request immediate dispatch of messages.
+/// </summary>
+public static partial class ImmediateDispatchOptionExtensions
 {
-    using System;
-    using Extensibility;
+    /// <summary>
+    /// Requests that the message be dispatched to the transport immediately.
+    /// This means that the message is ACKed by the transport as soon as the call to send returns.
+    /// The message will not be enlisted in any current receive transaction even if the transport support it.
+    /// </summary>
+    /// <param name="options">The options being extended.</param>
+    public static void RequireImmediateDispatch(this ExtendableOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.GetExtensions().Set(new RoutingToDispatchConnector.State
+        {
+            ImmediateDispatch = true
+        });
+    }
 
     /// <summary>
-    /// Provides ways to request immediate dispatch of messages.
+    /// Returns whether immediate dispatch has been requested by <see cref="RequireImmediateDispatch" /> or not.
     /// </summary>
-    public static partial class ImmediateDispatchOptionExtensions
+    /// <param name="options">The options being extended.</param>
+    /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
+    public static bool IsImmediateDispatchSet(this ExtendableOptions options)
     {
-        /// <summary>
-        /// Requests that the message be dispatched to the transport immediately.
-        /// This means that the message is ACKed by the transport as soon as the call to send returns.
-        /// The message will not be enlisted in any current receive transaction even if the transport support it.
-        /// </summary>
-        /// <param name="options">The options being extended.</param>
-        public static void RequireImmediateDispatch(this ExtendableOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options);
 
-            options.GetExtensions().Set(new RoutingToDispatchConnector.State
-            {
-                ImmediateDispatch = true
-            });
-        }
+        options.GetExtensions().TryGet(out RoutingToDispatchConnector.State state);
 
-        /// <summary>
-        /// Returns whether immediate dispatch has been requested by <see cref="RequireImmediateDispatch" /> or not.
-        /// </summary>
-        /// <param name="options">The options being extended.</param>
-        /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
-        public static bool IsImmediateDispatchSet(this ExtendableOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            options.GetExtensions().TryGet(out RoutingToDispatchConnector.State state);
-
-            return state?.ImmediateDispatch ?? false;
-        }
+        return state?.ImmediateDispatch ?? false;
     }
 }

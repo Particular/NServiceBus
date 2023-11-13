@@ -1,100 +1,99 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
+
+using System;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using NUnit.Framework;
+
+public class When_completing_a_saga : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using NUnit.Framework;
-
-    public class When_completing_a_saga : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_hydrate_and_complete_the_existing_instance()
     {
-        [Test]
-        public async Task Should_hydrate_and_complete_the_existing_instance()
-        {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
-                {
-                    b.When((session, ctx) => session.SendLocal(new StartSagaMessage
-                    {
-                        SomeId = ctx.Id
-                    }));
-                    b.When(ctx => ctx.StartSagaMessageReceived, (session, c) => session.SendLocal(new CompleteSagaMessage
-                    {
-                        SomeId = c.Id
-                    }));
-                })
-                .Done(c => c.SagaCompleted)
-                .Run();
-
-            Assert.True(context.SagaCompleted);
-        }
-
-        public class Context : ScenarioContext
-        {
-            public Guid Id { get; set; }
-            public bool StartSagaMessageReceived { get; set; }
-            public bool SagaCompleted { get; set; }
-        }
-
-        public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
-        {
-            public ReceiveCompletesSagaEndpoint()
+        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
             {
-                EndpointSetup<DefaultServer>(b =>
+                b.When((session, ctx) => session.SendLocal(new StartSagaMessage
                 {
-                    b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
-                    b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
-                });
+                    SomeId = ctx.Id
+                }));
+                b.When(ctx => ctx.StartSagaMessageReceived, (session, c) => session.SendLocal(new CompleteSagaMessage
+                {
+                    SomeId = c.Id
+                }));
+            })
+            .Done(c => c.SagaCompleted)
+            .Run();
+
+        Assert.True(context.SagaCompleted);
+    }
+
+    public class Context : ScenarioContext
+    {
+        public Guid Id { get; set; }
+        public bool StartSagaMessageReceived { get; set; }
+        public bool SagaCompleted { get; set; }
+    }
+
+    public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
+    {
+        public ReceiveCompletesSagaEndpoint()
+        {
+            EndpointSetup<DefaultServer>(b =>
+            {
+                b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
+                b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
+            });
+        }
+
+        public class TestSaga10 : Saga<TestSagaData10>,
+            IAmStartedByMessages<StartSagaMessage>,
+            IHandleMessages<CompleteSagaMessage>
+        {
+            public TestSaga10(Context testContext)
+            {
+                this.testContext = testContext;
             }
 
-            public class TestSaga10 : Saga<TestSagaData10>,
-                IAmStartedByMessages<StartSagaMessage>,
-                IHandleMessages<CompleteSagaMessage>
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
-                public TestSaga10(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
+                testContext.StartSagaMessageReceived = true;
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-                {
-                    testContext.StartSagaMessageReceived = true;
-
-                    return Task.CompletedTask;
-                }
-
-                public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
-                {
-                    MarkAsComplete();
-                    testContext.SagaCompleted = true;
-                    return Task.CompletedTask;
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                }
-
-                Context testContext;
+                return Task.CompletedTask;
             }
 
-            public class TestSagaData10 : ContainSagaData
+            public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
             {
-                public virtual Guid SomeId { get; set; }
+                MarkAsComplete();
+                testContext.SagaCompleted = true;
+                return Task.CompletedTask;
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
+            {
+                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+                mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
+                    .ToSaga(s => s.SomeId);
+            }
+
+            Context testContext;
         }
 
-        public class StartSagaMessage : ICommand
+        public class TestSagaData10 : ContainSagaData
         {
-            public Guid SomeId { get; set; }
+            public virtual Guid SomeId { get; set; }
         }
+    }
 
-        public class CompleteSagaMessage : ICommand
-        {
-            public Guid SomeId { get; set; }
-        }
+    public class StartSagaMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
+    }
+
+    public class CompleteSagaMessage : ICommand
+    {
+        public Guid SomeId { get; set; }
     }
 }

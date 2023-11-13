@@ -1,69 +1,68 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
+﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
+
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Features;
+using NServiceBus.Pipeline;
+using NUnit.Framework;
+
+public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBusAcceptanceTest
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Threading.Tasks;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
-
-    public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBusAcceptanceTest
+    [Test]
+    public async Task Should_not_autosubscribe_any_events()
     {
-        [Test]
-        public async Task Should_not_autosubscribe_any_events()
+
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Subscriber>()
+            .Done(ctx => ctx.EndpointsStarted)
+            .Run();
+
+        Assert.IsEmpty(context.SubscribedEvents);
+    }
+
+    class Context : ScenarioContext
+    {
+        public ConcurrentBag<Type> SubscribedEvents { get; set; } = [];
+    }
+
+    class Subscriber : EndpointConfigurationBuilder
+    {
+        public Subscriber()
         {
-
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>()
-                .Done(ctx => ctx.EndpointsStarted)
-                .Run();
-
-            Assert.IsEmpty(context.SubscribedEvents);
+            EndpointSetup<DefaultServer>(c =>
+            {
+                c.DisableFeature<AutoSubscribe>();
+                c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");
+            });
         }
 
-        class Context : ScenarioContext
+        class SubscribeSpy : Behavior<ISubscribeContext>
         {
-            public ConcurrentBag<Type> SubscribedEvents { get; set; } = [];
-        }
+            readonly Context testContext;
 
-        class Subscriber : EndpointConfigurationBuilder
-        {
-            public Subscriber()
+            public SubscribeSpy(Context testContext) => this.testContext = testContext;
+
+            public override Task Invoke(ISubscribeContext context, Func<Task> next)
             {
-                EndpointSetup<DefaultServer>(c =>
+                foreach (var eventType in context.EventTypes)
                 {
-                    c.DisableFeature<AutoSubscribe>();
-                    c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");
-                });
-            }
-
-            class SubscribeSpy : Behavior<ISubscribeContext>
-            {
-                readonly Context testContext;
-
-                public SubscribeSpy(Context testContext) => this.testContext = testContext;
-
-                public override Task Invoke(ISubscribeContext context, Func<Task> next)
-                {
-                    foreach (var eventType in context.EventTypes)
-                    {
-                        testContext.SubscribedEvents.Add(eventType);
-                    }
-
-                    return next();
+                    testContext.SubscribedEvents.Add(eventType);
                 }
-            }
 
-            class EventHandler : IHandleMessages<NonSubscribedEvent>
-            {
-                public Task Handle(NonSubscribedEvent message, IMessageHandlerContext context) => throw new InvalidOperationException();
+                return next();
             }
         }
 
-        public class NonSubscribedEvent : IEvent
+        class EventHandler : IHandleMessages<NonSubscribedEvent>
         {
+            public Task Handle(NonSubscribedEvent message, IMessageHandlerContext context) => throw new InvalidOperationException();
         }
+    }
+
+    public class NonSubscribedEvent : IEvent
+    {
     }
 }

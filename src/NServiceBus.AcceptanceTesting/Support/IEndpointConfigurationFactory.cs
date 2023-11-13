@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support;
+
+public interface IEndpointConfigurationFactory
 {
-    public interface IEndpointConfigurationFactory
-    {
-        EndpointCustomizationConfiguration Get();
-        ScenarioContext ScenarioContext { get; set; }
-    }
+    EndpointCustomizationConfiguration Get();
+    ScenarioContext ScenarioContext { get; set; }
 }

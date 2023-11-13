@@ -1,301 +1,300 @@
-namespace NServiceBus
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Logging;
-    using Microsoft.Extensions.DependencyInjection;
-    using Outbox;
-    using Pipeline;
-    using Transport;
-    using Unicast;
+namespace NServiceBus;
 
-    partial class ReceiveComponent
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Outbox;
+using Pipeline;
+using Transport;
+using Unicast;
+
+partial class ReceiveComponent
+{
+    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory)
     {
-        ReceiveComponent(Configuration configuration, IActivityFactory activityFactory)
+        this.configuration = configuration;
+        this.activityFactory = activityFactory;
+    }
+
+    public static ReceiveComponent Configure(
+        Configuration configuration,
+        string errorQueue,
+        HostingComponent.Configuration hostingConfiguration,
+        PipelineSettings pipelineSettings)
+    {
+        if (configuration.IsSendOnlyEndpoint)
         {
-            this.configuration = configuration;
-            this.activityFactory = activityFactory;
+            configuration.transportSeam.Configure([]);
+            return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
         }
 
-        public static ReceiveComponent Configure(
-            Configuration configuration,
-            string errorQueue,
-            HostingComponent.Configuration hostingConfiguration,
-            PipelineSettings pipelineSettings)
+        var receiveComponent = new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
+
+        hostingConfiguration.Services.AddSingleton(sp =>
         {
-            if (configuration.IsSendOnlyEndpoint)
+            var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+
+            var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
+
+            string instanceReceiveAddress = null;
+            if (transport.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
             {
-                configuration.transportSeam.Configure([]);
-                return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
+                instanceReceiveAddress = instanceReceiver.ReceiveAddress;
             }
 
-            var receiveComponent = new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
+            var satelliteReceiveAddresses = transport.Receivers.Values
+                .Where(r => r.Id is not MainReceiverId and not InstanceSpecificReceiverId)
+                .Select(r => r.ReceiveAddress)
+                .ToArray();
 
-            hostingConfiguration.Services.AddSingleton(sp =>
-            {
-                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+            return new ReceiveAddresses(mainReceiveAddress, instanceReceiveAddress, satelliteReceiveAddresses);
+        });
 
-                var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
+        hostingConfiguration.Services.AddSingleton(sp =>
+        {
+            var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+            return transport.Receivers[MainReceiverId].Subscriptions;
+        });
 
-                string instanceReceiveAddress = null;
-                if (transport.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
-                {
-                    instanceReceiveAddress = instanceReceiver.ReceiveAddress;
-                }
+        pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
+        {
+            var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
+            return new TransportReceiveToPhysicalMessageConnector(storage);
+        }, "Allows to abort processing the message");
 
-                var satelliteReceiveAddresses = transport.Receivers.Values
-                    .Where(r => r.Id is not MainReceiverId and not InstanceSpecificReceiverId)
-                    .Select(r => r.ReceiveAddress)
-                    .ToArray();
+        pipelineSettings.Register("LoadHandlersConnector", b =>
+        {
+            return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
+        }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-                return new ReceiveAddresses(mainReceiveAddress, instanceReceiveAddress, satelliteReceiveAddresses);
-            });
+        pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
-            hostingConfiguration.Services.AddSingleton(sp =>
-            {
-                var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
-                return transport.Receivers[MainReceiverId].Subscriptions;
-            });
-
-            pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
-            {
-                var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-                return new TransportReceiveToPhysicalMessageConnector(storage);
-            }, "Allows to abort processing the message");
-
-            pipelineSettings.Register("LoadHandlersConnector", b =>
-            {
-                return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
-            }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
-
-            pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
-
-            var handlerDiagnostics = new Dictionary<string, List<string>>();
+        var handlerDiagnostics = new Dictionary<string, List<string>>();
 
 
-            var messageHandlerRegistry = configuration.messageHandlerRegistry;
-            RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
+        var messageHandlerRegistry = configuration.messageHandlerRegistry;
+        RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
 
-            foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
-            {
-                handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
-                    .Select(handler => handler.HandlerType.FullName)
-                    .ToList();
-            }
+        foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
+        {
+            handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
+                .Select(handler => handler.HandlerType.FullName)
+                .ToList();
+        }
 
-            var receiveSettings = new List<ReceiveSettings>
-            {
-                new ReceiveSettings(
-                    MainReceiverId,
-                    configuration.LocalQueueAddress,
-                    configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
-                    configuration.PurgeOnStartup,
-                    errorQueue)
-            };
+        var receiveSettings = new List<ReceiveSettings>
+        {
+            new ReceiveSettings(
+                MainReceiverId,
+                configuration.LocalQueueAddress,
+                configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
+                configuration.PurgeOnStartup,
+                errorQueue)
+        };
 
-            if (configuration.InstanceSpecificQueueAddress != null)
-            {
-                receiveSettings.Add(new ReceiveSettings(
-                    InstanceSpecificReceiverId,
-                    configuration.InstanceSpecificQueueAddress,
-                    false,
-                    configuration.PurgeOnStartup,
-                    errorQueue));
-            }
-
-            receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
-                definition.Name,
-                definition.ReceiveAddress,
+        if (configuration.InstanceSpecificQueueAddress != null)
+        {
+            receiveSettings.Add(new ReceiveSettings(
+                InstanceSpecificReceiverId,
+                configuration.InstanceSpecificQueueAddress,
                 false,
                 configuration.PurgeOnStartup,
-                errorQueue)));
-
-
-            configuration.transportSeam.Configure(receiveSettings.ToArray());
-
-            hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
-            {
-                configuration.LocalQueueAddress,
-                configuration.InstanceSpecificQueueAddress,
-                configuration.PurgeOnStartup,
-                TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
-                configuration.PushRuntimeSettings.MaxConcurrency,
-                Satellites = configuration.SatelliteDefinitions.Select(s => new
-                {
-                    s.Name,
-                    s.ReceiveAddress,
-                    s.RuntimeSettings.MaxConcurrency
-                }).ToArray(),
-                MessageHandlers = handlerDiagnostics
-            });
-
-            return receiveComponent;
+                errorQueue));
         }
 
-        public async Task Initialize(
-            IServiceProvider builder,
-            RecoverabilityComponent recoverabilityComponent,
-            MessageOperations messageOperations,
-            PipelineComponent pipelineComponent,
-            IPipelineCache pipelineCache,
-            TransportInfrastructure transportInfrastructure,
-            ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
-            CancellationToken cancellationToken = default)
+        receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
+            definition.Name,
+            definition.ReceiveAddress,
+            false,
+            configuration.PurgeOnStartup,
+            errorQueue)));
+
+
+        configuration.transportSeam.Configure(receiveSettings.ToArray());
+
+        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
         {
-            if (configuration.IsSendOnlyEndpoint)
+            configuration.LocalQueueAddress,
+            configuration.InstanceSpecificQueueAddress,
+            configuration.PurgeOnStartup,
+            TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
+            configuration.PushRuntimeSettings.MaxConcurrency,
+            Satellites = configuration.SatelliteDefinitions.Select(s => new
             {
-                return;
-            }
+                s.Name,
+                s.ReceiveAddress,
+                s.RuntimeSettings.MaxConcurrency
+            }).ToArray(),
+            MessageHandlers = handlerDiagnostics
+        });
 
-            var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId]);
+        return receiveComponent;
+    }
 
-            var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
+    public async Task Initialize(
+        IServiceProvider builder,
+        RecoverabilityComponent recoverabilityComponent,
+        MessageOperations messageOperations,
+        PipelineComponent pipelineComponent,
+        IPipelineCache pipelineCache,
+        TransportInfrastructure transportInfrastructure,
+        ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
+        CancellationToken cancellationToken = default)
+    {
+        if (configuration.IsSendOnlyEndpoint)
+        {
+            return;
+        }
 
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
+        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId]);
 
-            var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
-                builder,
-                pipelineCache,
-                pipelineComponent,
-                messageOperations);
+        var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-            await mainPump.Initialize(
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
+
+        var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
+            builder,
+            pipelineCache,
+            pipelineComponent,
+            messageOperations);
+
+        await mainPump.Initialize(
+            configuration.PushRuntimeSettings,
+            mainPipelineExecutor.Invoke,
+            recoverabilityPipelineExecutor.Invoke,
+            cancellationToken).ConfigureAwait(false);
+
+        receivers.Add(mainPump);
+
+        if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
+        {
+            var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump);
+
+            await instancePump.Initialize(
                 configuration.PushRuntimeSettings,
                 mainPipelineExecutor.Invoke,
                 recoverabilityPipelineExecutor.Invoke,
                 cancellationToken).ConfigureAwait(false);
 
-            receivers.Add(mainPump);
-
-            if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
-            {
-                var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump);
-
-                await instancePump.Initialize(
-                    configuration.PushRuntimeSettings,
-                    mainPipelineExecutor.Invoke,
-                    recoverabilityPipelineExecutor.Invoke,
-                    cancellationToken).ConfigureAwait(false);
-
-                receivers.Add(instancePump);
-            }
-
-            foreach (var satellite in configuration.SatelliteDefinitions)
-            {
-                try
-                {
-                    var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
-                    var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
-                    var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
-
-                    await satellitePump.Initialize(
-                        satellite.RuntimeSettings,
-                        satellitePipeline.Invoke,
-                        satelliteRecoverabilityExecutor.Invoke,
-                        cancellationToken)
-                        .ConfigureAwait(false);
-
-                    receivers.Add(satellitePump);
-                }
-                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-                {
-                    Logger.Fatal("Satellite failed to start.", ex);
-                    throw;
-                }
-            }
+            receivers.Add(instancePump);
         }
 
-        public async Task Start(CancellationToken cancellationToken = default)
+        foreach (var satellite in configuration.SatelliteDefinitions)
         {
-            foreach (var messageReceiver in receivers)
+            try
             {
-                try
-                {
-                    Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
-                    await messageReceiver.StartReceive(cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-                {
-                    Logger.Fatal($"Receiver {messageReceiver.Id} failed to start.", ex);
-                    throw;
-                }
+                var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name]);
+                var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
+                var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
+
+                await satellitePump.Initialize(
+                    satellite.RuntimeSettings,
+                    satellitePipeline.Invoke,
+                    satelliteRecoverabilityExecutor.Invoke,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+
+                receivers.Add(satellitePump);
+            }
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            {
+                Logger.Fatal("Satellite failed to start.", ex);
+                throw;
             }
         }
-
-        public Task Stop(CancellationToken cancellationToken = default)
-        {
-            var receiverStopTasks = receivers.Select(async receiver =>
-            {
-                try
-                {
-                    Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
-                    await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
-                    Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
-                }
-                catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-                {
-                    Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", ex);
-                }
-            });
-
-            return Task.WhenAll(receiverStopTasks);
-        }
-
-        static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
-        {
-            var types = new List<Type>(availableTypes);
-
-            foreach (var t in orderedTypes)
-            {
-                types.Remove(t);
-            }
-
-            types.InsertRange(0, orderedTypes);
-
-            foreach (var t in types.Where(IsMessageHandler))
-            {
-                serviceCollection.AddScoped(t);
-
-                handlerRegistry.RegisterHandler(t);
-            }
-
-            serviceCollection.AddSingleton(handlerRegistry);
-        }
-
-        public static bool IsMessageHandler(Type type)
-        {
-            if (type.IsAbstract || type.IsGenericTypeDefinition)
-            {
-                return false;
-            }
-
-            return type.GetInterfaces()
-                .Where(@interface => @interface.IsGenericType)
-                .Select(@interface => @interface.GetGenericTypeDefinition())
-                .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
-        }
-
-        static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
-        {
-            if (consecutiveFailuresConfiguration.RateLimitSettings != null)
-            {
-                return new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver);
-            }
-
-            return receiver;
-        }
-
-        readonly Configuration configuration;
-        readonly IActivityFactory activityFactory;
-        readonly List<IMessageReceiver> receivers = [];
-
-        public const string MainReceiverId = "Main";
-        public const string InstanceSpecificReceiverId = "InstanceSpecific";
-
-        static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
-        static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
+
+    public async Task Start(CancellationToken cancellationToken = default)
+    {
+        foreach (var messageReceiver in receivers)
+        {
+            try
+            {
+                Logger.DebugFormat("Receiver {0} is starting.", messageReceiver.Id);
+                await messageReceiver.StartReceive(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            {
+                Logger.Fatal($"Receiver {messageReceiver.Id} failed to start.", ex);
+                throw;
+            }
+        }
+    }
+
+    public Task Stop(CancellationToken cancellationToken = default)
+    {
+        var receiverStopTasks = receivers.Select(async receiver =>
+        {
+            try
+            {
+                Logger.DebugFormat("Stopping {0} receiver", receiver.Id);
+                await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
+                Logger.DebugFormat("Stopped {0} receiver", receiver.Id);
+            }
+            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            {
+                Logger.Warn($"Receiver {receiver.Id} threw an exception on stopping.", ex);
+            }
+        });
+
+        return Task.WhenAll(receiverStopTasks);
+    }
+
+    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
+    {
+        var types = new List<Type>(availableTypes);
+
+        foreach (var t in orderedTypes)
+        {
+            types.Remove(t);
+        }
+
+        types.InsertRange(0, orderedTypes);
+
+        foreach (var t in types.Where(IsMessageHandler))
+        {
+            serviceCollection.AddScoped(t);
+
+            handlerRegistry.RegisterHandler(t);
+        }
+
+        serviceCollection.AddSingleton(handlerRegistry);
+    }
+
+    public static bool IsMessageHandler(Type type)
+    {
+        if (type.IsAbstract || type.IsGenericTypeDefinition)
+        {
+            return false;
+        }
+
+        return type.GetInterfaces()
+            .Where(@interface => @interface.IsGenericType)
+            .Select(@interface => @interface.GetGenericTypeDefinition())
+            .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
+    }
+
+    static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
+    {
+        if (consecutiveFailuresConfiguration.RateLimitSettings != null)
+        {
+            return new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver);
+        }
+
+        return receiver;
+    }
+
+    readonly Configuration configuration;
+    readonly IActivityFactory activityFactory;
+    readonly List<IMessageReceiver> receivers = [];
+
+    public const string MainReceiverId = "Main";
+    public const string InstanceSpecificReceiverId = "InstanceSpecific";
+
+    static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
+    static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
 }
