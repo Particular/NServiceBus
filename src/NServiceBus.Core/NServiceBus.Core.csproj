@@ -35,7 +35,7 @@
 
   <Target Name="AddPropsFileToPackage">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="NServiceBus.props" PackagePath="build/$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="NServiceBus.props" PackagePath="build/$(TargetFramework);buildTransitive/$(TargetFramework)" />
     </ItemGroup>
   </Target>
 
