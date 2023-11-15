@@ -3,8 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Serialization;
 using NUnit.Framework;
+using Serialization;
 
 [TestFixture]
 public class MessageDeserializerResolverTests
@@ -32,8 +32,8 @@ public class MessageDeserializerResolverTests
     [Test]
     public void UnknownContentTypeFallsBackToDefaultSerialization()
     {
-        var defaultSerializer = new FakeSerializer(ContentTypes.Xml);
-        var resolver = new MessageDeserializerResolver(defaultSerializer, new IMessageSerializer[]
+        var mainSerializer = new FakeSerializer(ContentTypes.Xml);
+        var resolver = new MessageDeserializerResolver(mainSerializer, new IMessageSerializer[]
         {
             new FakeSerializer(ContentTypes.Json)
         });
@@ -44,29 +44,29 @@ public class MessageDeserializerResolverTests
         };
         var serializer = resolver.Resolve(headers);
 
-        Assert.AreSame(defaultSerializer, serializer);
+        Assert.AreSame(mainSerializer, serializer);
     }
 
     [Test]
     public void NoContentTypeFallsBackToDefaultSerialization()
     {
-        var defaultSerializer = new FakeSerializer(ContentTypes.Xml);
-        var resolver = new MessageDeserializerResolver(defaultSerializer, new IMessageSerializer[]
+        var mainSerializer = new FakeSerializer(ContentTypes.Xml);
+        var resolver = new MessageDeserializerResolver(mainSerializer, new IMessageSerializer[]
         {
             new FakeSerializer(ContentTypes.Json)
         });
 
         var serializer = resolver.Resolve([]);
 
-        Assert.AreEqual(defaultSerializer, serializer);
+        Assert.AreEqual(mainSerializer, serializer);
     }
 
     [TestCase(null)]
     [TestCase("")]
     public void EmptyContentTypeFallsBackToDefaultSerialization(string headerValue)
     {
-        var defaultSerializer = new FakeSerializer(ContentTypes.Xml);
-        var resolver = new MessageDeserializerResolver(defaultSerializer, new IMessageSerializer[]
+        var mainSerializer = new FakeSerializer(ContentTypes.Xml);
+        var resolver = new MessageDeserializerResolver(mainSerializer, new IMessageSerializer[]
         {
             new FakeSerializer(ContentTypes.Json)
         });
@@ -76,7 +76,7 @@ public class MessageDeserializerResolverTests
             { Headers.ContentType, headerValue}
         });
 
-        Assert.AreEqual(defaultSerializer, serializer);
+        Assert.AreEqual(mainSerializer, serializer);
     }
 
     [Test]

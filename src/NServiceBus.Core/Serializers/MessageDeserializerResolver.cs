@@ -6,9 +6,9 @@ using Serialization;
 
 class MessageDeserializerResolver
 {
-    public MessageDeserializerResolver(IMessageSerializer defaultSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
+    public MessageDeserializerResolver(IMessageSerializer mainSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
     {
-        this.defaultSerializer = defaultSerializer;
+        this.mainSerializer = mainSerializer;
 
         foreach (var additionalDeserializer in additionalDeserializers)
         {
@@ -30,9 +30,10 @@ class MessageDeserializerResolver
                 return serializer;
             }
         }
-        return defaultSerializer;
+
+        return mainSerializer;
     }
 
-    readonly IMessageSerializer defaultSerializer;
+    readonly IMessageSerializer mainSerializer;
     readonly Dictionary<string, IMessageSerializer> serializersMap = [];
 }
