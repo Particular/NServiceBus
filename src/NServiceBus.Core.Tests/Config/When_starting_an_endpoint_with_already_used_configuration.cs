@@ -11,6 +11,7 @@ public class When_starting_an_endpoint_with_already_used_configuration
     {
         var configuration = new EndpointConfiguration("Endpoint1");
         configuration.UseTransport(new LearningTransport());
+        configuration.UseSerialization<SystemJsonSerializer>();
         var scanner = configuration.AssemblyScanner();
         scanner.ExcludeAssemblies("NServiceBus.Core.Tests.dll");
 
