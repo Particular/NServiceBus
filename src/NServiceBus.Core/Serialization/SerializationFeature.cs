@@ -26,9 +26,9 @@ class SerializationFeature : Feature
         var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
         mapper.Initialize(messageMetadataRegistry.GetAllMessages().Select(m => m.MessageType));
 
-        var defaultSerializerAndDefinition = settings.GetMainSerializer();
+        var mainSerializerAndDefinition = settings.GetMainSerializer();
 
-        var defaultSerializer = CreateMessageSerializer(defaultSerializerAndDefinition, mapper, settings);
+        var mainSerializer = CreateMessageSerializer(mainSerializerAndDefinition, mapper, settings);
 
         var additionalDeserializerDefinitions = context.Settings.GetAdditionalSerializers();
         var additionalDeserializers = new List<IMessageSerializer>();
@@ -51,10 +51,10 @@ class SerializationFeature : Feature
 
         var allowMessageTypeInference = settings.IsMessageTypeInferenceEnabled();
         var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
-        var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
+        var resolver = new MessageDeserializerResolver(mainSerializer, additionalDeserializers);
         var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
         context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
-        context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
+        context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(mainSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
         context.Services.AddSingleton(_ => mapper);
         context.Services.AddSingleton<IMessageCreator>(sp => sp.GetRequiredService<IMessageMapper>());
@@ -65,11 +65,11 @@ class SerializationFeature : Feature
 
         context.Settings.AddStartupDiagnosticsSection("Serialization", new
         {
-            DefaultSerializer = new
+            MainSerializer = new
             {
-                Type = defaultSerializerAndDefinition.Item1.GetType().FullName,
-                Version = FileVersionRetriever.GetFileVersion(defaultSerializerAndDefinition.Item1.GetType()),
-                defaultSerializer.ContentType
+                Type = mainSerializerAndDefinition.Item1.GetType().FullName,
+                Version = FileVersionRetriever.GetFileVersion(mainSerializerAndDefinition.Item1.GetType()),
+                mainSerializer.ContentType
             },
             AdditionalDeserializers = additionalDeserializerDiagnostics,
             AllowMessageTypeInference = allowMessageTypeInference,

@@ -32,6 +32,8 @@ class AcceptanceTestingTransportServer : IEndpointSetupTemplate
         await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
         runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
 
+        configuration.UseSerialization<SystemJsonSerializer>();
+
         await configurationBuilderCustomization(configuration);
 
         // scan types at the end so that all types used by the configuration have been loaded into the AppDomain

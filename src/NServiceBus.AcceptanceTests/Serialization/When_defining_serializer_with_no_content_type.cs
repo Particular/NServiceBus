@@ -13,7 +13,7 @@ using Settings;
 public class When_defining_serializer_with_no_content_type : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_fail_endpoint_startup_for_default_serializer()
+    public void Should_fail_endpoint_startup_for_main_serializer()
     {
         var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointWithInvalidSerializer>(e => e

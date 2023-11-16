@@ -15,6 +15,7 @@ public class When_configuring_transport_twice
     {
         var config = new EndpointConfiguration("Endpoint");
         config.AssemblyScanner().ExcludeAssemblies("NServiceBus.Core.Tests.dll");
+        config.UseSerialization<SystemJsonSerializer>();
         var transport1 = new FakeTransportDefinition();
         var transport2 = new FakeTransportDefinition();
         config.UseTransport(transport1).DisablePublishing();
