@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="4.0.0" PrivateAssets="All" />
     <!-- this package can only be upgraded when we drop support for older versions of Visual Studio -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0-1.final" />
   </ItemGroup>
