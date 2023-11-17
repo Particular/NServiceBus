@@ -29,7 +29,6 @@ jobs:
         uses: actions/setup-dotnet@v3.2.0
         with:
           dotnet-version: 8.0.x
-          dotnet-quality: 'preview'
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
