@@ -60,7 +60,6 @@ class LearningTransportMessagePump : IMessageReceiver
 
         // use concurrency 1 if the user hasn't explicitly configured a concurrency value
         maxConcurrency = limitations == PushRuntimeSettings.Default ? 1 : limitations.MaxConcurrency;
-        concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
 
         RecoverPendingTransactions();
 
@@ -71,6 +70,7 @@ class LearningTransportMessagePump : IMessageReceiver
 
     public Task StartReceive(CancellationToken cancellationToken = default)
     {
+        concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
         messagePumpCancellationTokenSource = new CancellationTokenSource();
         messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
@@ -110,7 +110,7 @@ class LearningTransportMessagePump : IMessageReceiver
             }
         }
 
-        concurrencyLimiter.Dispose();
+        concurrencyLimiter?.Dispose();
         messagePumpCancellationTokenSource?.Dispose();
         messageProcessingCancellationTokenSource.Dispose();
     }
