@@ -117,8 +117,8 @@ class LearningTransportMessagePump : IMessageReceiver
 
     public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
     {
-        maxConcurrency = limitations.MaxConcurrency;
         await StopReceive(cancellationToken).ConfigureAwait(false);
+        maxConcurrency = limitations.MaxConcurrency;
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
