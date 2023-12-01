@@ -60,17 +60,16 @@ class LearningTransportMessagePump : IMessageReceiver
 
         // use concurrency 1 if the user hasn't explicitly configured a concurrency value
         maxConcurrency = limitations == PushRuntimeSettings.Default ? 1 : limitations.MaxConcurrency;
-        concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
-
-        RecoverPendingTransactions();
-
-        EnsureDirectoriesExists();
 
         return Task.CompletedTask;
     }
 
     public Task StartReceive(CancellationToken cancellationToken = default)
     {
+        RecoverPendingTransactions();
+        EnsureDirectoriesExists();
+
+        concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
         messagePumpCancellationTokenSource = new CancellationTokenSource();
         messageProcessingCancellationTokenSource = new CancellationTokenSource();
 
@@ -110,7 +109,7 @@ class LearningTransportMessagePump : IMessageReceiver
             }
         }
 
-        concurrencyLimiter.Dispose();
+        concurrencyLimiter?.Dispose();
         messagePumpCancellationTokenSource?.Dispose();
         messageProcessingCancellationTokenSource.Dispose();
     }
@@ -118,7 +117,7 @@ class LearningTransportMessagePump : IMessageReceiver
     public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
     {
         await StopReceive(cancellationToken).ConfigureAwait(false);
-        await Initialize(limitations, onMessage, onError, cancellationToken).ConfigureAwait(false);
+        maxConcurrency = limitations.MaxConcurrency;
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
@@ -126,7 +125,7 @@ class LearningTransportMessagePump : IMessageReceiver
 
     public string Id { get; }
 
-    public string ReceiveAddress { get; private set; }
+    public string ReceiveAddress { get; }
 
     void RecoverPendingTransactions()
     {
