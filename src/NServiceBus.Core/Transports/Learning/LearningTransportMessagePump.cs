@@ -126,7 +126,7 @@
 
         public string Id { get; }
 
-        public string ReceiveAddress { get; private set; }
+        public string ReceiveAddress { get; }
 
         void RecoverPendingTransactions()
         {
