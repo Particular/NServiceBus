@@ -383,7 +383,7 @@ namespace NServiceBus
         public static string ErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string errorQueue) { }
     }
-    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface)]
     [System.Obsolete("Non-durable delivery support has been moved to the transports that can support it" +
         ". See the upgrade guide for more details. Will be removed in version 9.0.0.", true)]
     public sealed class ExpressAttribute : System.Attribute
@@ -482,14 +482,12 @@ namespace NServiceBus
     public interface IConfigureHowToFindSagaWithMessage
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object?>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty)
-            where TSagaEntity : NServiceBus.IContainSagaData
-        ;
+            where TSagaEntity : NServiceBus.IContainSagaData;
     }
     public interface IConfigureHowToFindSagaWithMessageHeaders
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
-            where TSagaEntity : NServiceBus.IContainSagaData
-        ;
+            where TSagaEntity : NServiceBus.IContainSagaData;
     }
     public interface IContainSagaData
     {
@@ -1194,7 +1192,7 @@ namespace NServiceBus
         public SystemJsonSerializer() { }
         public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings) { }
     }
-    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
         public TimeToBeReceivedAttribute(string timeSpan) { }
