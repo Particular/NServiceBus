@@ -40,7 +40,7 @@ jobs:
         shell: pwsh
       - name: Deploy
         if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: Particular/push-octopus-package-action@v1.2.0
+        uses: Particular/push-octopus-package-action@v1.2.1
         with:
           octopus-deploy-api-key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
 
