@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.8/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddPropsFileToPackage">
