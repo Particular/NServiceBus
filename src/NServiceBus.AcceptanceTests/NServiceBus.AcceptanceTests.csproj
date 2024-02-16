@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
+    <RemoveSourceFileFromPackage Remove="Core\OpenTelemetry\When_processing_completes.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 

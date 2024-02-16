@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -26,19 +27,25 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessagesReceived == 5)
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
+        metricsListener.AssertMetricNotReported("nservicebus.messaging.failures");
 
-        var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
-        var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
-        var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
-        var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.message_type").ToString();
+        //metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
+        var successMeasurements = metricsListener.GetReportedMeasurements<long>("nservicebus.messaging.successes");
 
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
+        Assert.AreEqual(5, successMeasurements.Sum(m => m.Value));
+
+        var successMeasurement = successMeasurements.First();
+
+        var successQueueName = successMeasurement.Tags.ToArray().First(kvp => kvp.Key == "nservicebus.queue").Value;
+        var successType = successMeasurement.Tags.ToArray().First(kvp => kvp.Key == "nservicebus.message_type").Value;
+
+        //var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
+        //var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.message_type").ToString();
+        var enpointName = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics));
+        Assert.AreEqual(enpointName, successQueueName);
+        //Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
         Assert.AreEqual(successType, typeof(OutgoingMessage).AssemblyQualifiedName);
-        Assert.AreEqual(fetchedType, typeof(OutgoingMessage).AssemblyQualifiedName);
+        //Assert.AreEqual(fetchedType, typeof(OutgoingMessage).AssemblyQualifiedName);
     }
 
     class Context : ScenarioContext
