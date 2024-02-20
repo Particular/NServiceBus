@@ -7,7 +7,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    public static Configuration PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam)
+    public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
     {
         var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
