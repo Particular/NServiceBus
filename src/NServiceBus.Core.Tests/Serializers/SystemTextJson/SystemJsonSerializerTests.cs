@@ -202,10 +202,10 @@ public class JsonMessageSerializerTest
         }, stream);
         stream.Position = 0;
 
-        var result = serializer.Deserialize(stream.ToArray(), new List<Type>
-        {
+        var result = serializer.Deserialize(stream.ToArray(),
+        [
             typeof(DateTimeMessage)
-        }).Cast<DateTimeMessage>().Single();
+        ]).Cast<DateTimeMessage>().Single();
 
         Assert.AreEqual(expectedDateTime.Kind, result.DateTime.Kind);
         Assert.AreEqual(expectedDateTime, result.DateTime);
@@ -234,7 +234,7 @@ public class JsonMessageSerializerTest
 
         stream.Position = 0;
 
-        Assert.DoesNotThrow(() => serializer.Deserialize(stream.ToArray(), new List<Type> { typeof(SomeMessage) }));
+        Assert.DoesNotThrow(() => serializer.Deserialize(stream.ToArray(), [typeof(SomeMessage)]));
     }
 }
 

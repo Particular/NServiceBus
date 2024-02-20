@@ -12,7 +12,7 @@ public partial class TestableDispatchContext : TestableBehaviorContext, IDispatc
     /// <summary>
     /// The operations to be dispatched to the transport.
     /// </summary>
-    public IList<TransportOperation> Operations { get; set; } = new List<TransportOperation>();
+    public IList<TransportOperation> Operations { get; set; } = [];
 
     IEnumerable<TransportOperation> IDispatchContext.Operations => Operations;
 }

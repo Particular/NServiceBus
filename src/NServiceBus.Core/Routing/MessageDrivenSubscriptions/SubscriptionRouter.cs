@@ -29,7 +29,7 @@ class SubscriptionRouter
 
     readonly EndpointInstances endpointInstances;
     readonly Func<EndpointInstance, string> transportAddressTranslation;
-    static readonly List<string> noAddresses = new List<string>(0);
+    static readonly List<string> noAddresses = [];
 
     readonly Publishers publishers;
 }

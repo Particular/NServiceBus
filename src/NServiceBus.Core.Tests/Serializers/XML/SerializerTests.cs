@@ -647,12 +647,12 @@ namespace NServiceBus.Serializers.XML.Test
                 2,
                 1
             ];
-            o.SomeStrings = new List<string>
-            {
+            o.SomeStrings =
+            [
                 "a",
                 "b",
                 "c"
-            };
+            ];
 
             o.ArrayFoos =
             [
@@ -1524,7 +1524,7 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
             set { stringList[index] = value; }
         }
 
-        IList<string> stringList = new List<string>();
+        IList<string> stringList = [];
     }
 
     class MessageImplementingISerializable : ISerializable

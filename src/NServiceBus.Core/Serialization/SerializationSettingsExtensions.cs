@@ -28,7 +28,7 @@ static class SerializationSettingsExtensions
         {
             return deserializers;
         }
-        return new List<Tuple<SerializationDefinition, SettingsHolder>>(0);
+        return [];
     }
 
     public static void SetMainSerializer(this SettingsHolder settings, SerializationDefinition definition, SettingsHolder serializerSpecificSettings)

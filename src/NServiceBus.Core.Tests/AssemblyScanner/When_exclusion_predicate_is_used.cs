@@ -14,10 +14,10 @@ public class When_exclusion_predicate_is_used
     {
         var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
         {
-            AssembliesToSkip = new List<string>
-                {
+            AssembliesToSkip =
+                [
                     "dotNet.dll"
-                },
+                ],
             ScanAppDomainAssemblies = false
         }
         .GetScannableAssemblies();
@@ -34,7 +34,7 @@ public class When_exclusion_predicate_is_used
     {
         var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
         {
-            AssembliesToSkip = new List<string> { "some.random" },
+            AssembliesToSkip = ["some.random"],
             ScanAppDomainAssemblies = false
         }
         .GetScannableAssemblies();

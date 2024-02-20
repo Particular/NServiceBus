@@ -108,10 +108,10 @@ public class UnicastSendRouterTests
     public void When_routing_to_specific_instance_should_throw_when_route_for_given_type_points_to_physical_address()
     {
         var table = new UnicastRoutingTable();
-        table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        table.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("PhysicalAddress"))
-        });
+        ]);
         var router = CreateRouter(routingTable: table);
         var options = new SendOptions();
 
@@ -128,16 +128,16 @@ public class UnicastSendRouterTests
     {
         var table = new UnicastRoutingTable();
         var instances = new EndpointInstances();
-        table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        table.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-        });
-        instances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        ]);
+        instances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance("Endpoint", "1"),
             new EndpointInstance("Endpoint", "2"),
             new EndpointInstance("Endpoint", "3")
-        });
+        ]);
         var router = CreateRouter(routingTable: table, instances: instances);
         var options = new SendOptions();
 
@@ -155,10 +155,10 @@ public class UnicastSendRouterTests
     {
         var logicalEndpointName = "Sales";
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(logicalEndpointName))
-        });
+        ]);
 
         var context = CreateContext(new SendOptions(), new MyMessage());
 
@@ -173,17 +173,17 @@ public class UnicastSendRouterTests
     {
         var sales = "Sales";
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
-        });
+        ]);
 
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(sales, "1"),
             new EndpointInstance(sales, "2"),
-        });
+        ]);
 
         var context = CreateContext(new SendOptions(), new MyMessage());
 
@@ -198,17 +198,17 @@ public class UnicastSendRouterTests
     {
         var sales = "Sales";
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName(sales))
-        });
+        ]);
 
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(sales, "1"),
             new EndpointInstance(sales, "2"),
-        });
+        ]);
 
         var context = CreateContext(new SendOptions(), new MyMessage());
 
@@ -252,11 +252,11 @@ public class UnicastSendRouterTests
     public void When_multiple_dynamic_instances_for_local_endpoint_should_route_message_to_a_single_instance()
     {
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance("Endpoint", "1"),
             new EndpointInstance("Endpoint", "2"),
-        });
+        ]);
 
         var options = new SendOptions();
 
@@ -274,17 +274,17 @@ public class UnicastSendRouterTests
     public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_route_to_instance()
     {
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-        });
+        ]);
 
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance("Endpoint", "1"),
             new EndpointInstance("Endpoint", "2"),
-        });
+        ]);
 
         var options = new SendOptions();
 
@@ -302,17 +302,17 @@ public class UnicastSendRouterTests
     public void When_multiple_dynamic_instances_for_local_endpoint_and_instance_selected_should_not_round_robin()
     {
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
-        });
+        ]);
 
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance("Endpoint", "1"),
             new EndpointInstance("Endpoint", "2"),
-        });
+        ]);
 
         var options = new SendOptions();
 
@@ -334,11 +334,11 @@ public class UnicastSendRouterTests
     public void When_multiple_dynamic_instances_for_local_endpoint_should_round_robin()
     {
         var endpointInstances = new EndpointInstances();
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance("Endpoint", "1"),
             new EndpointInstance("Endpoint", "2"),
-        });
+        ]);
 
         var options = new SendOptions();
 
@@ -361,10 +361,10 @@ public class UnicastSendRouterTests
     public void When_route_with_physical_address_routes_to_physical_address()
     {
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("Physical"))
-        });
+        ]);
 
         var context = CreateContext(new SendOptions(), new MyMessage());
 
@@ -378,10 +378,10 @@ public class UnicastSendRouterTests
     public void When_route_with_endpoint_instance_routes_to_instance()
     {
         var routingTable = new UnicastRoutingTable();
-        routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("A",
+        [
             new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointInstance(new EndpointInstance("Endpoint", "2")))
-        });
+        ]);
 
         var context = CreateContext(new SendOptions(), new MyMessage());
 

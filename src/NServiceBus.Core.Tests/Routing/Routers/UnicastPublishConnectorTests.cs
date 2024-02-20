@@ -27,10 +27,10 @@ public class UnicastPublishConnectorTests
     {
         public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
         {
-            IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
-            {
+            IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies =
+            [
                 new UnicastRoutingStrategy("Fake")
-            };
+            ];
             return Task.FromResult(unicastRoutingStrategies);
         }
     }

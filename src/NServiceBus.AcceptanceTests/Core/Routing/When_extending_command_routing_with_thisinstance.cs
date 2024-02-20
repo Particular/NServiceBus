@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Core.Routing;
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -48,15 +47,15 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                    .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
-                    {
+                    .AddOrReplaceRoutes("CustomRoutingFeature",
+                    [
                         new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<EndpointInstances>()
-                    .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
-                    {
+                    .AddOrReplaceInstances("CustomRoutingFeature",
+                    [
                         new EndpointInstance(ReceiverEndpoint, Discriminator2)
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<DistributionPolicy>()
                     .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)r.ScenarioContext));
             });

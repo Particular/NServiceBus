@@ -21,10 +21,10 @@ public class RoutingToDispatchConnectorTests
         IEnumerable<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
-            RoutingStrategies = new List<RoutingStrategy>
-            {
+            RoutingStrategies =
+            [
                 new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")
-            }
+            ]
         };
         var originalDispatchProperties = new DispatchProperties
         {
@@ -60,11 +60,11 @@ public class RoutingToDispatchConnectorTests
         IEnumerable<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
-            RoutingStrategies = new List<RoutingStrategy>
-            {
+            RoutingStrategies =
+            [
                 new DestinationRoutingStrategy("destination1", "HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1"),
                 new DestinationRoutingStrategy("destination2", "HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")
-            }
+            ]
         };
         var originalDispatchProperties = new DispatchProperties
         {
@@ -114,7 +114,7 @@ public class RoutingToDispatchConnectorTests
     {
         var behavior = new RoutingToDispatchConnector();
         Dictionary<string, string> headers = null;
-        await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new HeaderModifyingRoutingStrategy() } }, context =>
+        await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = [new HeaderModifyingRoutingStrategy()] }, context =>
             {
                 headers = context.Operations.First().Message.Headers;
                 return Task.CompletedTask;

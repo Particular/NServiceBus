@@ -19,7 +19,7 @@ public class MessageDrivenSubscribeTerminatorTests
     public void SetUp()
     {
         publishers = new Publishers();
-        publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> { new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1")) });
+        publishers.AddOrReplacePublishers("A", [new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))]);
         router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
         dispatcher = new FakeDispatcher();
         subscribeTerminator = new MessageDrivenSubscribeTerminator(router, new ReceiveAddresses("replyToAddress"), "Endpoint", dispatcher);
@@ -43,10 +43,10 @@ public class MessageDrivenSubscribeTerminatorTests
     [Test]
     public async Task Should_Dispatch_for_all_publishers()
     {
-        publishers.AddOrReplacePublishers("B", new List<PublisherTableEntry>()
-        {
+        publishers.AddOrReplacePublishers("B",
+        [
             new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher2"))
-        });
+        ]);
 
         await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
 
@@ -90,7 +90,7 @@ public class MessageDrivenSubscribeTerminatorTests
     public void Should_throw_when_no_publisher_for_message_found()
     {
         // clear publishers list
-        publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry>());
+        publishers.AddOrReplacePublishers("A", []);
 
         var exception = Assert.ThrowsAsync<Exception>(() =>
             subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask));
@@ -106,13 +106,13 @@ public class MessageDrivenSubscribeTerminatorTests
             EventTypes = new[] { typeof(EventA), typeof(EventB) }
         };
 
-        publishers.AddOrReplacePublishers("Test", new List<PublisherTableEntry>()
-        {
+        publishers.AddOrReplacePublishers("Test",
+        [
             new PublisherTableEntry(typeof(EventA), PublisherAddress.CreateFromPhysicalAddresses("publisher1")),
             new PublisherTableEntry(typeof(EventA), PublisherAddress.CreateFromPhysicalAddresses("publisher2")),
             new PublisherTableEntry(typeof(EventB), PublisherAddress.CreateFromPhysicalAddresses("publisher1")),
             new PublisherTableEntry(typeof(EventB), PublisherAddress.CreateFromPhysicalAddresses("publisher2"))
-        });
+        ]);
 
         await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
 
@@ -134,10 +134,10 @@ public class MessageDrivenSubscribeTerminatorTests
         dispatcher.FailDispatch(10);
 
         // no publisher for EventB
-        publishers.AddOrReplacePublishers("Test", new List<PublisherTableEntry>()
-        {
+        publishers.AddOrReplacePublishers("Test",
+        [
             new PublisherTableEntry(typeof(EventA), PublisherAddress.CreateFromPhysicalAddresses("publisher1")),
-        });
+        ]);
 
         var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
 

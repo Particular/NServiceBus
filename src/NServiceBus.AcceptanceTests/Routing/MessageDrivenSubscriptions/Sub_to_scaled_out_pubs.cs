@@ -54,11 +54,11 @@ public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
                 c =>
                 {
                     var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test", new List<EndpointInstance>
-                    {
+                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test",
+                    [
                         new EndpointInstance(publisherName, "1"),
                         new EndpointInstance(publisherName, "2")
-                    });
+                    ]);
                 },
                 metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
         }

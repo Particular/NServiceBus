@@ -14,10 +14,10 @@ public class PublishersTests
     {
         var publisherTable = new Publishers();
         var publisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
-        publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
-        {
+        publisherTable.AddOrReplacePublishers("key",
+        [
             new PublisherTableEntry(typeof(MyEvent), publisher),
-        });
+        ]);
 
         var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent)).Single();
         Assert.AreSame(publisher, retrievedPublisher);
@@ -29,15 +29,15 @@ public class PublishersTests
         var publisherTable = new Publishers();
         var oldPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
         var newPublisher = PublisherAddress.CreateFromEndpointName("Endpoint2");
-        publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
-        {
+        publisherTable.AddOrReplacePublishers("key",
+        [
             new PublisherTableEntry(typeof(MyEvent), oldPublisher),
-        });
+        ]);
 
-        publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
-        {
+        publisherTable.AddOrReplacePublishers("key",
+        [
             new PublisherTableEntry(typeof(MyEvent), newPublisher),
-        });
+        ]);
 
         var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent)).Single();
         Assert.AreSame(newPublisher, retrievedPublisher);
@@ -51,14 +51,14 @@ public class PublishersTests
         var pub1 = PublisherAddress.CreateFromEndpointName("Endpoint1");
         var pub2 = PublisherAddress.CreateFromEndpointName("Endpoint2");
 
-        publisherTable.AddOrReplacePublishers("key2", new List<PublisherTableEntry>
-        {
+        publisherTable.AddOrReplacePublishers("key2",
+        [
             new PublisherTableEntry(typeof(MyEvent), pub1),
-        });
-        publisherTable.AddOrReplacePublishers("key1", new List<PublisherTableEntry>
-        {
+        ]);
+        publisherTable.AddOrReplacePublishers("key1",
+        [
             new PublisherTableEntry(typeof(MyEvent), pub2),
-        });
+        ]);
 
         var pubs = publisherTable.GetPublisherFor(typeof(MyEvent)).ToArray();
 
@@ -78,15 +78,15 @@ public class PublishersTests
         var pub5 = PublisherAddress.CreateFromPhysicalAddresses("address1", "address2");
         var pub6 = PublisherAddress.CreateFromPhysicalAddresses("address1", "address2");
 
-        publisherTable.AddOrReplacePublishers("key2", new List<PublisherTableEntry>
-        {
+        publisherTable.AddOrReplacePublishers("key2",
+        [
             new PublisherTableEntry(typeof(MyEvent), pub1),
             new PublisherTableEntry(typeof(MyEvent), pub2),
             new PublisherTableEntry(typeof(MyEvent), pub3),
             new PublisherTableEntry(typeof(MyEvent), pub4),
             new PublisherTableEntry(typeof(MyEvent), pub5),
             new PublisherTableEntry(typeof(MyEvent), pub6)
-        });
+        ]);
 
         var pubs = publisherTable.GetPublisherFor(typeof(MyEvent)).ToArray();
 

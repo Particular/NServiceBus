@@ -235,7 +235,7 @@ public class RunResult
     {
         get
         {
-            activeEndpoints ??= new List<string>();
+            activeEndpoints ??= [];
 
             return activeEndpoints;
         }

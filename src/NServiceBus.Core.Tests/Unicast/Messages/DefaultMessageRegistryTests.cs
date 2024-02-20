@@ -30,7 +30,7 @@ public class MessageMetadataRegistryTests
     public void Should_return_metadata_for_a_mapped_type()
     {
         var defaultMessageRegistry = new MessageMetadataRegistry(type => type == typeof(int), true);
-        defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(int) });
+        defaultMessageRegistry.RegisterMessageTypesFoundIn([typeof(int)]);
 
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
 
@@ -44,7 +44,7 @@ public class MessageMetadataRegistryTests
     {
         var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
 
-        defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
+        defaultMessageRegistry.RegisterMessageTypesFoundIn([typeof(MyEvent)]);
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
 
         Assert.AreEqual(5, messageMetadata.MessageHierarchy.Length);
@@ -63,7 +63,7 @@ public class MessageMetadataRegistryTests
     public void Should_match_types_from_a_different_assembly(string typeName)
     {
         var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
-        defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
+        defaultMessageRegistry.RegisterMessageTypesFoundIn([typeof(MyEvent)]);
 
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeName);
 
@@ -74,7 +74,7 @@ public class MessageMetadataRegistryTests
     public void Should_not_match_same_type_names_with_different_namespace()
     {
         var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
-        defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
+        defaultMessageRegistry.RegisterMessageTypesFoundIn([typeof(MyEvent)]);
 
         string typeIdentifier = typeof(MyEvent).AssemblyQualifiedName.Replace(typeof(MyEvent).FullName, $"SomeNamespace.{nameof(MyEvent)}");
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeIdentifier);

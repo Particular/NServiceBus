@@ -232,6 +232,6 @@ class LicenseManagerTests
             Logs.Add((message, level));
         }
 
-        public List<(string message, LogLevel level)> Logs { get; } = new List<(string, LogLevel)>();
+        public List<(string message, LogLevel level)> Logs { get; } = [];
     }
 }
