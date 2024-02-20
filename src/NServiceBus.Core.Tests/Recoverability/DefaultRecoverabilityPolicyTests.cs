@@ -116,7 +116,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Delayed Retries cunter in headers reaches max delayed retries, policy should return MoveToErrors");
+        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Delayed Retries counter in headers reaches max delayed retries, policy should return MoveToErrors");
     }
 
     [Test]
@@ -160,9 +160,8 @@ public class DefaultRecoverabilityPolicyTests
         Assert.IsInstanceOf<MoveToError>(result);
     }
 
-    ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 1, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null) =>
-        new ErrorContext(
-            exception ?? new Exception(),
+    static ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 1, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null) =>
+        new(exception ?? new Exception(),
             retryNumber.HasValue
                 ? new Dictionary<string, string> { { Headers.DelayedRetries, retryNumber.ToString() } }
                 : headers ?? [],
