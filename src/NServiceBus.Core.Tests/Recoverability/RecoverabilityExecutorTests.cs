@@ -69,7 +69,7 @@ public class RecoverabilityExecutorTests
             new TestableMessageOperations(),
             null, (_, _) => RecoverabilityAction.Discard("test"),
             recoverabilityPipeline,
-            new FaultMetadataExtractor(new Dictionary<string, string>(0), _ => { }),
+            new FaultMetadataExtractor([], _ => { }),
             null);
         return executor;
     }

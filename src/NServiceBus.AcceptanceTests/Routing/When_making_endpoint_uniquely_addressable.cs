@@ -52,10 +52,10 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
                 c.GetSettings().GetOrCreate<EndpointInstances>()
-                    .AddOrReplaceInstances("testing", new List<EndpointInstance>
-                    {
+                    .AddOrReplaceInstances("testing",
+                    [
                         new EndpointInstance(ReceiverEndpoint, InstanceDiscriminator)
-                    });
+                    ]);
             });
         }
     }

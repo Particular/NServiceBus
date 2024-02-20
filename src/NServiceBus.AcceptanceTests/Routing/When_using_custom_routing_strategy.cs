@@ -55,16 +55,16 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c =>
             {
                 c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                    .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
-                    {
+                    .AddOrReplaceRoutes("CustomRoutingFeature",
+                    [
                         new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(receiverEndpoint))
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<EndpointInstances>()
-                    .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
-                    {
+                    .AddOrReplaceInstances("CustomRoutingFeature",
+                    [
                         new EndpointInstance(receiverEndpoint, Discriminator1),
                         new EndpointInstance(receiverEndpoint, Discriminator2)
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<DistributionPolicy>()
                     .SetDistributionStrategy(new ContentBasedRoutingStrategy(receiverEndpoint));
             });

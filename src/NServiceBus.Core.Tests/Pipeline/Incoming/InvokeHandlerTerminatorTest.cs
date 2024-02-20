@@ -111,7 +111,7 @@ public class InvokeHandlerTerminatorTest
 
     static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, IInvokeHandlerContext behaviorContext)
     {
-        var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), new List<Type>(), new Conventions()), () => DateTime.UtcNow);
+        var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), [], new Conventions()), () => DateTime.UtcNow);
         behaviorContext.Extensions.Set(sagaInstance);
         return sagaInstance;
     }

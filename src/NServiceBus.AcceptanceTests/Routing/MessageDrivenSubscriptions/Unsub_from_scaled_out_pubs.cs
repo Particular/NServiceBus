@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions;
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -56,11 +55,11 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
                 c =>
                 {
                     var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test", new List<EndpointInstance>
-                    {
+                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test",
+                    [
                         new EndpointInstance(publisherName, "1"),
                         new EndpointInstance(publisherName, "2")
-                    });
+                    ]);
                 },
                 metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
         }

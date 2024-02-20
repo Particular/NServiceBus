@@ -8,8 +8,8 @@ public class EndpointCustomizationConfiguration
 {
     public EndpointCustomizationConfiguration()
     {
-        TypesToExclude = new List<Type>();
-        TypesToInclude = new List<Type>();
+        TypesToExclude = [];
+        TypesToInclude = [];
         PublisherMetadata = new PublisherMetadata();
     }
 

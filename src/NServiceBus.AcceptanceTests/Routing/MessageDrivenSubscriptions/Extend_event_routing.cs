@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -52,10 +51,10 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
             {
                 c.DisableFeature<AutoSubscribe>();
                 c.GetSettings().GetOrCreate<Publishers>()
-                    .AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
-                    {
+                    .AddOrReplacePublishers("CustomRoutingFeature",
+                    [
                         new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
-                    });
+                    ]);
             });
         }
 

@@ -13,7 +13,7 @@ public partial class TestableBatchDispatchContext : TestableBehaviorContext, IBa
     /// <summary>
     /// The captured transport operations to dispatch.
     /// </summary>
-    public IList<TransportOperation> Operations { get; set; } = new List<TransportOperation>();
+    public IList<TransportOperation> Operations { get; set; } = [];
 
     IReadOnlyCollection<TransportOperation> IBatchDispatchContext.Operations => new ReadOnlyCollection<TransportOperation>(Operations);
 }

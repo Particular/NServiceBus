@@ -38,10 +38,10 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
                 c.GetSettings().GetOrCreate<EndpointInstances>()
-                    .AddOrReplaceInstances("testing", new List<EndpointInstance>
-                    {
+                    .AddOrReplaceInstances("testing",
+                    [
                         new EndpointInstance(ReceiverEndpoint, "XYZ")
-                    });
+                    ]);
             });
         }
 

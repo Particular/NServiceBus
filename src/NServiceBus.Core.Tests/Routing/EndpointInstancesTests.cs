@@ -14,11 +14,11 @@ public class EndpointInstancesTests
         var instances = new EndpointInstances();
         const string endpointName1 = "EndpointA";
         const string endpointName2 = "EndpointB";
-        instances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        instances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(endpointName1),
             new EndpointInstance(endpointName2)
-        });
+        ]);
 
         var salesInstances = instances.FindInstances(endpointName1);
         Assert.AreEqual(1, salesInstances.Count());
@@ -32,11 +32,11 @@ public class EndpointInstancesTests
     {
         var instances = new EndpointInstances();
         var sales = "Sales";
-        instances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        instances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(sales, "1"),
             new EndpointInstance(sales, "2")
-        });
+        ]);
 
         var salesInstances = instances.FindInstances(sales);
         Assert.AreEqual(2, salesInstances.Count());
@@ -47,11 +47,11 @@ public class EndpointInstancesTests
     {
         var instances = new EndpointInstances();
         var sales = "Sales";
-        instances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        instances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(sales, "dup"),
             new EndpointInstance(sales, "dup")
-        });
+        ]);
 
         var salesInstances = instances.FindInstances(sales);
         Assert.AreEqual(1, salesInstances.Count());

@@ -18,10 +18,10 @@ public class SerializeMessageConnectorTests
     {
         var registry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
 
-        registry.RegisterMessageTypesFoundIn(new List<Type>
-        {
+        registry.RegisterMessageTypesFoundIn(
+        [
             typeof(MyMessage)
-        });
+        ]);
 
         var context = new TestableOutgoingLogicalMessageContext
         {

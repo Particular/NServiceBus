@@ -78,11 +78,11 @@ public class UnicastPublisherRouterTests
     {
         var logicalEndpoint = "sales";
         subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
-        endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-        {
+        endpointInstances.AddOrReplaceInstances("A",
+        [
             new EndpointInstance(logicalEndpoint, "1"),
             new EndpointInstance(logicalEndpoint, "2")
-        });
+        ]);
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 

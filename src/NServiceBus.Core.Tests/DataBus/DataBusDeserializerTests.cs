@@ -13,7 +13,7 @@ public class DataBusDeserializerTests
     public void Should_deserialized_with_the_serializer_used()
     {
         var jsonSerializer = new SystemJsonDataBusSerializer();
-        var deserializer = new DataBusDeserializer(jsonSerializer, new List<IDataBusSerializer> { new FakeDataBusSerializer() });
+        var deserializer = new DataBusDeserializer(jsonSerializer, [new FakeDataBusSerializer()]);
         var somePropertyValue = "test";
 
         using (var stream = new MemoryStream())
@@ -31,7 +31,7 @@ public class DataBusDeserializerTests
     public void Should_throw_if_serializer_used_not_available()
     {
         var jsonSerializer = new SystemJsonDataBusSerializer();
-        var deserializer = new DataBusDeserializer(jsonSerializer, new List<IDataBusSerializer>());
+        var deserializer = new DataBusDeserializer(jsonSerializer, []);
         var somePropertyValue = "test";
 
         using (var stream = new MemoryStream())
@@ -50,7 +50,7 @@ public class DataBusDeserializerTests
     {
         var jsonSerializer = new SystemJsonDataBusSerializer();
 
-        var deserializer = new DataBusDeserializer(jsonSerializer, new List<IDataBusSerializer> { new FakeDataBusSerializer() });
+        var deserializer = new DataBusDeserializer(jsonSerializer, [new FakeDataBusSerializer()]);
         var somePropertyValue = "test";
         var deserializedProperty = deserializer.Deserialize(null, typeof(string), new MemoryStream());
 
@@ -62,7 +62,7 @@ public class DataBusDeserializerTests
     {
         var jsonSerializer = new SystemJsonDataBusSerializer();
 
-        var deserializer = new DataBusDeserializer(jsonSerializer, new List<IDataBusSerializer> { new FakeDataBusSerializer(throwOnDeserialize: true) });
+        var deserializer = new DataBusDeserializer(jsonSerializer, [new FakeDataBusSerializer(throwOnDeserialize: true)]);
 
         using (var stream = new MemoryStream())
         {

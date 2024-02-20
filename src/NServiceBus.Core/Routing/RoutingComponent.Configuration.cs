@@ -14,7 +14,7 @@ partial class RoutingComponent
             settings.Publishers,
             settings.DistributionPolicy,
             settings.ConfiguredUnicastRoutes,
-            settings.DistributionStrategies ?? new List<DistributionStrategy>(0),
+            settings.DistributionStrategies ?? [],
             settings.EndpointInstances,
             settings.EnforceBestPractices,
             settings.PublicReturnAddress);

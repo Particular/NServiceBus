@@ -13,7 +13,7 @@ partial class ReceiveComponent
         public Settings(SettingsHolder settings)
         {
             this.settings = settings;
-            ExecuteTheseHandlersFirst = new List<Type>(0);
+            ExecuteTheseHandlersFirst = [];
             ShouldCreateQueues = true;
         }
 

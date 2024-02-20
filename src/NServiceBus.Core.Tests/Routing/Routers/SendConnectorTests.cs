@@ -63,11 +63,11 @@ public class SendConnectorTests
     static SendConnector InitializeBehavior(FakeRouter router = null)
     {
         var metadataRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
-        metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
-        {
+        metadataRegistry.RegisterMessageTypesFoundIn(
+        [
             typeof(MyMessage),
             typeof(MessageWithoutRouting)
-        });
+        ]);
 
         return new SendConnector(router ?? new FakeRouter());
     }

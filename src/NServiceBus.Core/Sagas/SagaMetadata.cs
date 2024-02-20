@@ -141,7 +141,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
     public static SagaMetadata Create(Type sagaType)
     {
         ArgumentNullException.ThrowIfNull(sagaType);
-        return Create(sagaType, new List<Type>(), new Conventions());
+        return Create(sagaType, [], new Conventions());
     }
 
     /// <summary>

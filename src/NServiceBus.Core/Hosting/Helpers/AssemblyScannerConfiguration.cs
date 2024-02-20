@@ -68,6 +68,6 @@ public class AssemblyScannerConfiguration
         ExcludedTypes.AddRange(types);
     }
 
-    internal List<string> ExcludedAssemblies { get; } = new(0);
-    internal List<Type> ExcludedTypes { get; } = new(0);
+    internal List<string> ExcludedAssemblies { get; } = [];
+    internal List<Type> ExcludedTypes { get; } = [];
 }

@@ -47,16 +47,16 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c =>
             {
                 c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                    .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
-                    {
+                    .AddOrReplaceRoutes("CustomRoutingFeature",
+                    [
                         new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<EndpointInstances>()
-                    .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
-                    {
+                    .AddOrReplaceInstances("CustomRoutingFeature",
+                    [
                         new EndpointInstance(ReceiverEndpoint, "XYZ"),
                         new EndpointInstance(ReceiverEndpoint, "ABC")
-                    });
+                    ]);
                 c.GetSettings().GetOrCreate<DistributionPolicy>()
                     .SetDistributionStrategy(new XyzDistributionStrategy(ReceiverEndpoint));
             });

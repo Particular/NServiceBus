@@ -12,10 +12,10 @@ class UnicastRoutingTableTests
     {
         var routingTable = new UnicastRoutingTable();
         var route = UnicastRoute.CreateFromEndpointName("Endpoint1");
-        routingTable.AddOrReplaceRoutes("key", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("key",
+        [
             new RouteTableEntry(typeof(Command), route),
-        });
+        ]);
 
         var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
         Assert.AreSame(route, retrievedRoute);
@@ -27,15 +27,15 @@ class UnicastRoutingTableTests
         var routingTable = new UnicastRoutingTable();
         var oldRoute = UnicastRoute.CreateFromEndpointName("Endpoint1");
         var newRoute = UnicastRoute.CreateFromEndpointName("Endpoint2");
-        routingTable.AddOrReplaceRoutes("key", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("key",
+        [
             new RouteTableEntry(typeof(Command), oldRoute),
-        });
+        ]);
 
-        routingTable.AddOrReplaceRoutes("key", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("key",
+        [
             new RouteTableEntry(typeof(Command), newRoute),
-        });
+        ]);
 
         var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
         Assert.AreSame(newRoute, retrievedRoute);
@@ -48,17 +48,17 @@ class UnicastRoutingTableTests
         var lowPriorityRoute = UnicastRoute.CreateFromEndpointName("Endpoint1");
         var highPriorityRoute = UnicastRoute.CreateFromEndpointName("Endpoint2");
 
-        routingTable.AddOrReplaceRoutes("key2", new List<RouteTableEntry>
-        {
+        routingTable.AddOrReplaceRoutes("key2",
+        [
             new RouteTableEntry(typeof(Command), highPriorityRoute),
-        });
+        ]);
 
         Assert.That(() =>
         {
-            routingTable.AddOrReplaceRoutes("key1", new List<RouteTableEntry>
-            {
+            routingTable.AddOrReplaceRoutes("key1",
+            [
                 new RouteTableEntry(typeof(Command), lowPriorityRoute),
-            });
+            ]);
         }, Throws.Exception);
     }
 

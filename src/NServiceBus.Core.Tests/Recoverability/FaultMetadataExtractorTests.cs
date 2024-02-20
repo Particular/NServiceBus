@@ -64,10 +64,7 @@ public class FaultMetadataExtractorTests
         Assert.AreEqual("some other value", metadata["static-key"]);
     }
 
-    ErrorContext CreateErrorContext(Exception exception = null)
-    {
-        return new ErrorContext(exception ?? GetAnException(), [], "some-id", Array.Empty<byte>(), new TransportTransaction(), 0, "my-address", new ContextBag());
-    }
+    static ErrorContext CreateErrorContext(Exception exception = null) => new(exception ?? GetAnException(), [], "some-id", Array.Empty<byte>(), new TransportTransaction(), 0, "my-address", new ContextBag());
 
     static Exception GetAnException()
     {

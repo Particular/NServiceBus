@@ -37,7 +37,7 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public IList<Guid> SagaIds { get; } = new List<Guid>();
+        public IList<Guid> SagaIds { get; } = [];
     }
 
     public class ExistingSagaInstanceEndpoint : EndpointConfigurationBuilder
