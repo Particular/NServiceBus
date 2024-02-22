@@ -44,6 +44,6 @@ public class UnicastRoutingTable
     }
 
     Dictionary<Type, UnicastRoute> routeTable = [];
-    readonly Dictionary<object, IList<RouteTableEntry>> routeGroups = [];
+    readonly Dictionary<string, IList<RouteTableEntry>> routeGroups = [];
     readonly object updateLock = new object();
 }
