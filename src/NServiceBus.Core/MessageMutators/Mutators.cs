@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Features;
 
-using MessageMutator;
 using System.Collections.Generic;
+using MessageMutator;
 
 class Mutators : Feature
 {
@@ -20,6 +20,7 @@ class Mutators : Feature
         context.Pipeline.Register("MutateOutgoingTransportMessage", new MutateOutgoingTransportMessageBehavior(registry.OutgoingTransportMessage), "Executes IMutateOutgoingTransportMessages");
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
     public class RegisteredMutators
     {
         public readonly HashSet<IMutateIncomingMessages> IncomingMessage = [];
