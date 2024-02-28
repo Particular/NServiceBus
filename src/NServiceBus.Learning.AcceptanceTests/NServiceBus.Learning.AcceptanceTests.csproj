@@ -10,8 +10,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.3.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Particular.Approvals" Version="1.0.0" />
   </ItemGroup>

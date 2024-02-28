@@ -40,3 +40,11 @@ jobs:
           retention-days: 7
       - name: Run tests
         uses: Particular/run-tests-action@v1.6.0
+  repo-integrity:
+    name: Repo integrity
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Repo integrity tests
+        uses: Particular/repo-integrity-action@main
