@@ -17,10 +17,12 @@ public static class ConfigureAudit
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentException.ThrowIfNullOrWhiteSpace(auditQueue);
-        if (timeToBeReceived != null)
+
+        if (timeToBeReceived is not null)
         {
-            Guard.ThrowIfNegative(timeToBeReceived.Value);
+            ArgumentOutOfRangeException.ThrowIfLessThan(timeToBeReceived.Value, TimeSpan.Zero);
         }
+
         config.Settings.Set(new AuditConfigReader.Result(auditQueue, timeToBeReceived));
     }
 }

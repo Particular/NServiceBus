@@ -2,8 +2,8 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using Transport;
 using Pipeline;
+using Transport;
 
 /// <summary>
 /// Abstraction representing any recoverability action.
@@ -35,7 +35,7 @@ public abstract class RecoverabilityAction
     /// <returns>Delayed retry action.</returns>
     public static DelayedRetry DelayedRetry(TimeSpan timeSpan)
     {
-        Guard.ThrowIfNegative(timeSpan);
+        ArgumentOutOfRangeException.ThrowIfLessThan(timeSpan, TimeSpan.Zero);
 
         return new DelayedRetry(timeSpan);
     }
