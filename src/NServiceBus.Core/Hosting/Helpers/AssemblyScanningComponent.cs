@@ -3,13 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Settings;
-    using Hosting.Helpers;
     using System.Reflection;
+    using Hosting.Helpers;
+    using Settings;
 
     class AssemblyScanningComponent
     {
-        public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
+        public static AssemblyScanningComponent Initialize(Configuration configuration,
+            SettingsHolder settings,
+            Conventions conventions)
         {
             var shouldScanAssemblies = configuration.UserProvidedTypes == null;
 
@@ -38,6 +40,8 @@
             assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
             assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
             assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
+            assemblyScanner.ScanAssembliesBasedOnConvention = assemblyScannerSettings.ScanAssembliesBasedOnConvention;
+            assemblyScanner.IsMessageType = conventions.IsMessageType;
 
             if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
             {

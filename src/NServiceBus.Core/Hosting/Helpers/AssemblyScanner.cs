@@ -53,6 +53,11 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
+        /// <summary>
+        /// Register types from assemblies based on the IMessageConvention.
+        /// </summary>
+        public bool ScanAssembliesBasedOnConvention { get; set; } = false;
+
         internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
 
         internal IReadOnlyCollection<string> AssembliesToSkip
@@ -71,6 +76,8 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         internal string AdditionalAssemblyScanningPath { get; set; }
+
+        internal Func<Type, bool> IsMessageType { get; set; }
 
         /// <summary>
         /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
@@ -231,6 +238,11 @@ namespace NServiceBus.Hosting.Helpers
 
             if (ShouldScanDependencies(assembly))
             {
+                if (AssemblyContainsMessageTypes(assembly))
+                {
+                    return processed[assembly.FullName] = true;
+                }
+
                 foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
                     var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
@@ -262,6 +274,31 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             return referencedAssembly;
+        }
+
+        bool AssemblyContainsMessageTypes(Assembly assembly)
+        {
+            try
+            {
+                var types = assembly.GetTypes();
+                foreach (var type in FilterAllowedTypes(types))
+                {
+                    if (IsMessageType(type))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                var errorMessage = FormatReflectionTypeLoadException(assembly.FullName, e);
+                if (ThrowExceptions)
+                {
+                    throw new Exception(errorMessage);
+                }
+                LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
+            }
+            return false;
         }
 
         internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)

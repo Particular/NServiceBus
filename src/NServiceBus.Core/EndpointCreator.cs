@@ -24,7 +24,10 @@ namespace NServiceBus
             var settings = endpointConfiguration.Settings;
             CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
-            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+            var assemblyScanningComponent = AssemblyScanningComponent.Initialize(
+                settings.Get<AssemblyScanningComponent.Configuration>(),
+                settings,
+                endpointConfiguration.ConventionsBuilder.Conventions);
 
             endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 

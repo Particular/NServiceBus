@@ -24,6 +24,11 @@ namespace NServiceBus
         public bool ScanFileSystemAssemblies { get; set; } = true;
 
         /// <summary>
+        /// Determines if the scanner should register types from assemblies based on the IMessageConvention. By default, NServiceBus will only add assemblies that reference NServiceBus.Core.
+        /// </summary>
+        public bool ScanAssembliesBasedOnConvention { get; set; } = false;
+
+        /// <summary>
         /// Defines whether exceptions occurring during assembly scanning should be rethrown or ignored. Default value is <code>true</code>.
         /// </summary>
         public bool ThrowExceptions { get; set; } = true;
