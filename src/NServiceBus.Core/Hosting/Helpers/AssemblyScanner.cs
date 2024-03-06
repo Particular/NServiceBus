@@ -238,7 +238,8 @@ namespace NServiceBus.Hosting.Helpers
 
             if (ShouldScanDependencies(assembly))
             {
-                if (AssemblyContainsMessageTypes(assembly))
+                if (ScanAssembliesBasedOnConvention
+                    && AssemblyContainsMessageTypes(assembly))
                 {
                     return processed[assembly.FullName] = true;
                 }
