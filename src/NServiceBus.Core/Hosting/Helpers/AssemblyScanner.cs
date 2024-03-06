@@ -245,12 +245,20 @@ namespace NServiceBus.Hosting.Helpers
 
                 foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
-                    var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                    var referencesCore = ScanAssembly(referencedAssembly, processed);
-                    if (referencesCore)
+                    bool isProcessed;
+                    if (processed.TryGetValue(referencedAssemblyName.FullName, out var referencedIsProcessed))
                     {
-                        processed[assembly.FullName] = true;
-                        break;
+                        isProcessed = referencedIsProcessed;
+                    }
+                    else
+                    {
+                        var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                        isProcessed = ScanAssembly(referencedAssembly, processed);
+                    }
+
+                    if (isProcessed)
+                    {
+                        return processed[assembly.FullName] = true;
                     }
                 }
             }
