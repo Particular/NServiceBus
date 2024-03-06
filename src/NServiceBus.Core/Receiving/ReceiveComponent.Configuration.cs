@@ -7,7 +7,9 @@ namespace NServiceBus
 
     partial class ReceiveComponent
     {
+#pragma warning disable IDE0060 // Remove unused parameter - Don't want to pull at at a thread like this in a support branch
         public static Configuration PrepareConfiguration(HostingComponent.Configuration hostingConfiguration, Settings settings, TransportSeam transportSeam)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
 
