@@ -2,8 +2,8 @@
 {
     using System.IO;
     using System.Linq;
-    using Settings;
     using NUnit.Framework;
+    using Settings;
 
     [TestFixture]
     class AssemblyScanningComponentTests
@@ -18,7 +18,9 @@
 
             configuration.AssemblyScannerConfiguration.AdditionalAssemblyScanningPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested", "Subfolder");
 
-            var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+            var conventions = new Conventions();
+
+            var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder, conventions);
 
             var foundTypeFromScannedPath = component.AvailableTypes.Any(x => x.Name == "NestedClass");
 
