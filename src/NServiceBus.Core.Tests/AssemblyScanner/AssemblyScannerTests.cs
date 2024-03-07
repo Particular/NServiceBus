@@ -77,6 +77,55 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.AreEqual(2, result.Assemblies.Count);
         }
 
+
+        [Test]
+        [RunInApplicationDomain]
+        public void Assemblies_with_no_core_reference_matching_conventions_are_included()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference", new[]
+            {
+                busAssembly
+            });
+            var assemblyWithoutReference = new DynamicAssembly("UnobtrusiveContracts");
+
+
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
+
+            scanner.ScanAssembliesBasedOnConvention = true;
+            scanner.IsMessageType = type => type.Namespace != null && type.Namespace.Contains("UnobtrusiveContracts");
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyWithoutReference));
+            Assert.AreEqual(3, result.Assemblies.Count);
+        }
+
+        [Test]
+        [RunInApplicationDomain]
+        public void Assemblies_with_no_core_reference_matching_conventions_with_ScanAssembliesBasedOnConvention_disabled_are_excluded()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference", new[]
+            {
+                busAssembly
+            });
+            var assemblyWithoutReference = new DynamicAssembly("UnobtrusiveContracts");
+
+
+            var scanner = CreateDefaultAssemblyScanner(busAssembly);
+
+            scanner.ScanAssembliesBasedOnConvention = false;
+            scanner.IsMessageType = type => type.Namespace != null && type.Namespace.Contains("UnobtrusiveContracts");
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+            Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
+            Assert.AreEqual(2, result.Assemblies.Count);
+        }
+
         [Test]
         [RunInApplicationDomain]
         public void Assemblies_which_reference_older_core_version_are_included()
