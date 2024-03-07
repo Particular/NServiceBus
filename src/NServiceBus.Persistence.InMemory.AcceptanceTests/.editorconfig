@@ -5,3 +5,6 @@ dotnet_diagnostic.CA1711.severity = none
 
 # Justification: Test project
 dotnet_diagnostic.CA2007.severity = none
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = suggestion
