@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
+defaults:
+  run:
+    shell: pwsh
 jobs:
   release:
     runs-on: ubuntu-22.04
@@ -37,10 +40,10 @@ jobs:
       - name: Push packages to testing feed
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: dotnet nuget push nugets\*.nupkg --api-key ${{ secrets.FEEDZIO_PUBLISH_API_KEY }} --source "${{ vars.PARTICULAR_TESTING_FEED_URL }}"
-        shell: pwsh
       - name: Deploy
         if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: Particular/push-octopus-package-action@v2.0.0
+        # Does not follow standard practice of targeting explicit versions because configuration is tightly coupled to Octopus Deploy configuration
+        uses: Particular/push-octopus-package-action@main
         with:
           octopus-deploy-api-key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
 

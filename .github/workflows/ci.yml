@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 env:
   DOTNET_NOLOGO: true
+defaults:
+  run:
+    shell: pwsh
 jobs:
   build:
     name: ${{ matrix.name }}
