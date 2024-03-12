@@ -7,6 +7,7 @@ using MessageMutator;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
 class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
 {
     public MutateIncomingMessageBehavior(HashSet<IMutateIncomingMessages> mutators)
