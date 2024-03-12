@@ -1358,7 +1358,9 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class MessageWithDictionaryWithAnObjectAsKey
     {
+#pragma warning disable PS0025 // Dictionary keys should implement IEquatable<T>
         public Dictionary<object, string> Content { get; set; }
+#pragma warning restore PS0025 // Dictionary keys should implement IEquatable<T>
     }
 
     public class MessageWithDictionaryWithAnObjectAsValue

@@ -6,7 +6,9 @@
     class SemanticModelCache
     {
         Compilation compilation;
+#pragma warning disable PS0025 // Dictionary keys should implement IEquatable<T> - A SemanticModelCache is not long-lived and is meant to use reference equality
         Dictionary<SyntaxTree, SemanticModel> dict;
+#pragma warning restore PS0025 // Dictionary keys should implement IEquatable<T>
 
         public SemanticModelCache(Compilation compilation, SyntaxTree originalSyntaxTree, SemanticModel originalSemanticModel)
         {
