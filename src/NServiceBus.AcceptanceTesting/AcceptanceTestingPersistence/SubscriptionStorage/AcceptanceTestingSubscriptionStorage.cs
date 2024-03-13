@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -30,15 +31,12 @@ class AcceptanceTestingSubscriptionStorage : ISubscriptionStorage
 
     public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
     {
-        var result = new HashSet<Subscriber>();
-        foreach (var m in messageTypes)
-        {
-            if (storage.TryGetValue(m, out var list))
-            {
-                result.UnionWith(list.Values);
-            }
-        }
-        return Task.FromResult((IEnumerable<Subscriber>)result);
+        var subscribers = messageTypes
+            .SelectMany(msgType => storage.TryGetValue(msgType, out var subs) ? subs.Values : [])
+            .GroupBy(s => new { s.TransportAddress, s.Endpoint }) // Subscriber does not implement IEquatable<T>
+            .Select(g => g.First());
+
+        return Task.FromResult(subscribers);
     }
 
     ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>>();
