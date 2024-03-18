@@ -220,8 +220,8 @@ namespace NServiceBus
         public void SetValue(object valueToSet) { }
     }
     [System.Obsolete("Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for " +
-        "more details. Use `NServiceBus.DateTimeOffsetExtensions` instead. Will be remove" +
-        "d in version 9.0.0.", true)]
+        "more details. Use `NServiceBus.DateTimeOffsetHelper` instead. Will be removed in" +
+        " version 9.0.0.", true)]
     public static class DateTimeExtensions
     {
         [System.Obsolete("Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for " +
