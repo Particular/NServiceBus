@@ -683,7 +683,7 @@ namespace NServiceBus
 
     [ObsoleteEx(
         Message = "Public APIs no longer use DateTime but DateTimeOffset. See the upgrade guide for more details.",
-        ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetExtensions",
+        ReplacementTypeOrMember = "NServiceBus.DateTimeOffsetHelper",
         TreatAsErrorFromVersion = "8",
         RemoveInVersion = "9")]
     public static class DateTimeExtensions
