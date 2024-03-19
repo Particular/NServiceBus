@@ -18,6 +18,7 @@
 
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="NServiceBus.MessageInterfaces" Version="[1.0.0, 2.0.0)" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.3" />
