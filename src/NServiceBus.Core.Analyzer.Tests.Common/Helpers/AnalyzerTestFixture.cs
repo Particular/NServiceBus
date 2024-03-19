@@ -114,7 +114,8 @@
                 MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
 #endif
                 MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location));
+                MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location));
         }
 
         static readonly ImmutableList<PortableExecutableReference> ProjectReferences;

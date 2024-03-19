@@ -115,7 +115,7 @@
             public SpyContainer(IServiceCollection serviceCollection)
             {
                 foreach (var serviceDescriptor in serviceCollection
-                    .Where(sd => sd.ServiceType.Assembly == typeof(IMessage).Assembly))
+                    .Where(sd => sd.ServiceType.Assembly == typeof(IEndpointInstance).Assembly))
                 {
                     RegisteredServices[serviceDescriptor.ServiceType] = new RegisteredService
                     {
