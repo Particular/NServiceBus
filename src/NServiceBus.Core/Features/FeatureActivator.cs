@@ -150,10 +150,7 @@ class FeatureActivator
                 return true;
             }
 
-            var newVisitedNodes = visitedNodes.Union(new[]
-            {
-                node
-            }).ToArray();
+            Node[] newVisitedNodes = [.. visitedNodes, node];
 
             foreach (var subNode in node.previous)
             {
