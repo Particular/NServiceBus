@@ -62,7 +62,7 @@ class TransportSeam
         hostingConfiguration.Services.AddSingleton(_ => transportSeam.TransportInfrastructure.Dispatcher);
 
         hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(_ =>
-            new TransportAddressResolver(transportSeam.TransportInfrastructure));
+            new TransportAddressResolver(transportSeam.TransportInfrastructure ?? throw new Exception($"{nameof(TransportInfrastructure)} is accessed before the endpoint has been started.")));
 
         return transportSeam;
     }
