@@ -21,9 +21,9 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
             .Done(c => c.HandlerInvoked)
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
-        metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
-        metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
+        Assert.AreEqual(metricsListener.GetReportedMeasurements<long>("nservicebus.messaging.fetches").Sum(m => m.Value), 1);
+        Assert.AreEqual(metricsListener.GetReportedMeasurements<long>("nservicebus.messaging.failures").Sum(m => m.Value), 1);
+        Assert.AreEqual(metricsListener.GetReportedMeasurements<long>("nservicebus.messaging.successes").Sum(m => m.Value), 0);
     }
 
     [Test]

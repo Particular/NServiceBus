@@ -8,7 +8,6 @@ using Pipeline;
 
 class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
-
     public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
     {
         this.queueNameBase = queueNameBase;
@@ -19,12 +18,12 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
     {
         context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
 
-        var tags = new TagList(new KeyValuePair<string, object>[]
-        {
+        var tags = new TagList(
+        [
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
             new(MeterTags.QueueName, queueNameBase ?? ""),
             new(MeterTags.MessageType, messageTypes ?? ""),
-        }.AsSpan());
+        ]);
 
         Meters.TotalFetched.Add(1, tags);
 
