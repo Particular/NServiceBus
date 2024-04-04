@@ -1,15 +1,18 @@
 ﻿namespace NServiceBus;
 
+using System;
 using Transport;
 
 class TransportAddressResolver : ITransportAddressResolver
 {
-    readonly TransportInfrastructure transportInfrastructure;
+    readonly TransportSeam transportSeam;
+    readonly IServiceProvider serviceProvider;
 
-    public TransportAddressResolver(TransportInfrastructure transportInfrastructure)
+    public TransportAddressResolver(TransportSeam transportSeam, IServiceProvider serviceProvider)
     {
-        this.transportInfrastructure = transportInfrastructure;
+        this.transportSeam = transportSeam;
+        this.serviceProvider = serviceProvider;
     }
 
-    public string ToTransportAddress(QueueAddress queueAddress) => transportInfrastructure.ToTransportAddress(queueAddress);
+    public string ToTransportAddress(QueueAddress queueAddress) => transportSeam.GetTransportInfrastructure(serviceProvider).ToTransportAddress(queueAddress);
 }
