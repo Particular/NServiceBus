@@ -7,10 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
-public class When_resolving_transport_adddress_resolver_before_endpoint_is_started : NServiceBusAcceptanceTest
+public class When_resolving_before_endpoint_is_started : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_be_able_to_use_it_after_the_endpoint_is_started()
+    public async Task Should_be_able_to_use_transport_adddress_resolver_after_the_endpoint_is_started()
     {
         var serviceCollection = new ServiceCollection();
         string translatedAddress = null;
