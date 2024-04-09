@@ -6,7 +6,7 @@ namespace NServiceBus;
 public enum TransportTransactionMode
 {
     /// <summary>
-    /// No transactions used. This means that received messages will not be roll the message back to the queue if a failure
+    /// No transactions used. This means that received messages will not roll the message back to the queue if a failure
     /// occurs.
     /// This means that the message is lost.
     /// </summary>
