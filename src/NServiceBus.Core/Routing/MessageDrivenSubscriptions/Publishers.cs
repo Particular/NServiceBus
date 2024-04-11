@@ -45,6 +45,6 @@ public class Publishers
     }
 
     Dictionary<Type, HashSet<PublisherAddress>> publishers = [];
-    readonly Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = [];
+    readonly Dictionary<string, IList<PublisherTableEntry>> publisherRegistrations = [];
     readonly object updateLock = new object();
 }

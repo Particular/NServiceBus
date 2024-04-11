@@ -55,6 +55,6 @@ public class EndpointInstances
     }
 
     Dictionary<string, HashSet<EndpointInstance>> allInstances = [];
-    readonly Dictionary<object, IList<EndpointInstance>> registrations = [];
+    readonly Dictionary<string, IList<EndpointInstance>> registrations = [];
     readonly object updateLock = new object();
 }
