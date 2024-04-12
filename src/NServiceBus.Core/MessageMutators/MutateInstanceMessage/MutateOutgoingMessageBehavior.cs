@@ -8,6 +8,7 @@
     using Pipeline;
     using Transport;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
     class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators)
