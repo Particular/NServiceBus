@@ -1234,7 +1234,7 @@ namespace NServiceBus.Serializers.XML.Test
             var nServiceBusPublicTypeName = nameof(ReplyOptions);
 
             var xml = $@"<?xml version=""1.0""?>
-                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                        <{nServiceBusPublicTypeName} xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
                                 xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus"">
                         </{nServiceBusPublicTypeName}>";
 
@@ -1246,8 +1246,8 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_throw_exception_when_deserializing_payloads_with_system_types()
         {
             var xml = @"<?xml version=""1.0""?>
-                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                        <ArrayList xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                         xmlns=""http://tempuri.net/System.Collections"">
                     </ArrayList>";
 
@@ -1372,7 +1372,9 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class MessageWithDictionaryWithAnObjectAsKey
     {
+#pragma warning disable PS0025 // Dictionary keys should implement IEquatable<T>
         public Dictionary<object, string> Content { get; set; }
+#pragma warning restore PS0025 // Dictionary keys should implement IEquatable<T>
     }
 
     public class MessageWithDictionaryWithAnObjectAsValue
