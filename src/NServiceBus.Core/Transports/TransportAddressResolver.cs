@@ -14,5 +14,8 @@ class TransportAddressResolver : ITransportAddressResolver
         this.serviceProvider = serviceProvider;
     }
 
-    public string ToTransportAddress(QueueAddress queueAddress) => transportSeam.GetTransportInfrastructure(serviceProvider).ToTransportAddress(queueAddress);
+    public string ToTransportAddress(QueueAddress queueAddress)
+        => (transportSeam.GetTransportInfrastructure(serviceProvider)
+        ?? throw new Exception($"Transport address resolution is not supported before the NServiceBus transport has been started. Start the NServiceBus transport before calling `{nameof(ToTransportAddress)}`")
+        ).ToTransportAddress(queueAddress);
 }
