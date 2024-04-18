@@ -61,8 +61,8 @@ class TransportSeam
 
         hostingConfiguration.Services.AddSingleton(_ => transportSeam.TransportInfrastructure.Dispatcher);
 
-        hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(_ =>
-            new TransportAddressResolver(transportSeam.TransportInfrastructure));
+        hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(serviceProvider =>
+            new TransportAddressResolver(transportSeam, serviceProvider));
 
         return transportSeam;
     }
