@@ -7,8 +7,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel Condition="'$(AnalysisLevel)' == ''">5.0</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <!-- Will update this to 'all' in the future -->
-    <NuGetAuditMode>direct</NuGetAuditMode>
+    <NuGetAuditMode>all</NuGetAuditMode>
     <NuGetAuditLevel>low</NuGetAuditLevel>
     <!-- To lock the version of Particular.Analyzers, for example, in a release branch, set this property in Custom.Build.props -->
     <ParticularAnalyzersVersion Condition="'$(ParticularAnalyzersVersion)' == ''">2.1.2</ParticularAnalyzersVersion>
