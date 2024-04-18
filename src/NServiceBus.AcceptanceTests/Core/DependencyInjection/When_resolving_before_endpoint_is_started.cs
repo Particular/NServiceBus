@@ -54,36 +54,21 @@ public class When_resolving_before_endpoint_is_started : NServiceBusAcceptanceTe
             .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             b.ToCreateInstance(
                 config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                async (configured, ct) =>
+                (configured, ct) =>
                 {
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                    // HINT: Resolve before start
                     var transportAddressResolver = serviceProvider.GetRequiredService<ITransportAddressResolver>();
 
-                    try
-                    {
-                        // HINT: Call before start
-                        transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
-                    }
-                    catch (Exception ex)
-                    {
-                        thrownException = ex;
-                    }
+                    // HINT: Call before start
+                    thrownException = Assert.Throws<Exception>(() => transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress")));
 
-                    var endpoint = await configured.Start(serviceProvider, ct);
-
-                    return endpoint;
+                    return configured.Start(serviceProvider, ct);
                 })
-                .When((session, ctx) =>
-                {
-                    ctx.Done = true;
-                    return Task.CompletedTask;
-                }))
-            .Done(ctx => ctx.Done)
+            )
+            .Done(ctx => thrownException != null)
             .Run();
 
-        Assert.That(thrownException, Is.Not.Null);
         Assert.That(thrownException.Message.Contains("Transport address resolution is not supported before the NServiceBus transport has been started."), Is.True);
 
     }
