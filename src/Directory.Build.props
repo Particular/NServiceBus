@@ -7,7 +7,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel Condition="'$(AnalysisLevel)' == ''">5.0</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <NuGetAuditMode>all</NuGetAuditMode>
+    <!-- NuGetAuditMode set to 'all' for tool projects in Directory.Build.targets, other project types default to 'direct' -->
     <NuGetAuditLevel>low</NuGetAuditLevel>
     <!-- To lock the version of Particular.Analyzers, for example, in a release branch, set this property in Custom.Build.props -->
     <ParticularAnalyzersVersion Condition="'$(ParticularAnalyzersVersion)' == ''">2.1.2</ParticularAnalyzersVersion>
@@ -15,7 +15,7 @@
     <NServiceBusTestsKey>00240000048000009400000006020000002400005253413100040000010001007f16e21368ff041183fab592d9e8ed37e7be355e93323147a1d29983d6e591b04282e4da0c9e18bd901e112c0033925eb7d7872c2f1706655891c5c9d57297994f707d16ee9a8f40d978f064ee1ffc73c0db3f4712691b23bf596f75130f4ec978cf78757ec034625a5f27e6bb50c618931ea49f6f628fd74271c32959efb1c5</NServiceBusTestsKey>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(CI)' != '' Or '$(TEAMCITY_VERSION)' != ''">
+  <PropertyGroup Condition="'$(CI)' != ''">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
