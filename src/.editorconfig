@@ -241,7 +241,8 @@ dotnet_diagnostic.IDE0079.severity = error
 dotnet_remove_unnecessary_suppression_exclusions = none
 
 dotnet_diagnostic.IDE0080.severity = error
-dotnet_diagnostic.IDE0100.severity = error
+# Change IDE0100 to suggestion until 8.0.300 SDK works in VS and we can decide how to fix the errors
+dotnet_diagnostic.IDE0100.severity = suggestion
 dotnet_diagnostic.IDE0110.severity = error
 
 
