@@ -861,13 +861,15 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
             var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
 
-            msg.Items =
-            [
+#pragma warning disable IDE0028 // Simplify collection initialization
+            msg.Items = new AlternateItemListMultipleIEnumerableImplementations
+            {
                 new MessageWithListItemAlternate
                 {
                     Data = "Hello"
                 }
-            ];
+            };
+#pragma warning restore IDE0028 // Simplify collection initialization
 
             using (var stream = new MemoryStream())
             {
