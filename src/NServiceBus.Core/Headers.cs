@@ -32,7 +32,7 @@ public static partial class Headers
     public const string OriginatingSite = "NServiceBus.OriginatingSite";
 
     /// <summary>
-    /// Header containing the id of the saga instance the sent the message.
+    /// Header containing the id of the saga instance that sent the message.
     /// </summary>
     public const string SagaId = "NServiceBus.SagaId";
 
