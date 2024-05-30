@@ -17,6 +17,9 @@ class Meters
     internal static readonly Counter<long> TotalFailures =
         NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
 
+    internal static readonly Histogram<double> HandlingTime =
+        NServiceBusMeter.CreateHistogram<double>("nservicebus.messaging.handling_time", "ms", "The time in milliseconds for the execution of the business code.");
+
     internal static readonly Counter<long> TotalImmediateRetries =
         NServiceBusMeter.CreateCounter<long>("nservicebus.recoverability.immediate", description: "Total number of immediate retries requested.");
 
