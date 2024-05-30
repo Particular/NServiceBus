@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(IActivityFactory activityFactory, IHandlingMetricsFactory metricsFactory) : PipelineTerminator<IInvokeHandlerContext>
 {
-    public InvokeHandlerTerminator(IActivityFactory activityFactory)
-    {
-        this.activityFactory = activityFactory;
-    }
 
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
@@ -26,7 +22,7 @@ class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
-
+        IHandlingMetrics handlingMetrics = metricsFactory.StartHandling(context);
         var startTime = DateTimeOffset.UtcNow;
         try
         {
@@ -36,6 +32,7 @@ class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
                 .ConfigureAwait(false);
 
             activity?.SetStatus(ActivityStatusCode.Ok);
+            handlingMetrics.OnSuccess();
         }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
         catch (Exception ex)
@@ -48,10 +45,9 @@ class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
             ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
             activity?.SetErrorStatus(ex);
-
+            handlingMetrics.OnFailure(ex);
             throw;
         }
     }
 
-    readonly IActivityFactory activityFactory;
 }
