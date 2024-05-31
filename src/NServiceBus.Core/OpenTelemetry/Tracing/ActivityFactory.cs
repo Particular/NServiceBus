@@ -30,10 +30,9 @@ class ActivityFactory : IActivityFactory
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            if (context.Headers.ContainsKey(Headers.DeliverAt) ||
-                context.Headers.ContainsKey(Headers.DelayedRetries))
+            if (IsMessageDelayed(context))
             {
-                // this is a delayed message and should therefore start a new trace
+                // this is a delayed message and should therefore start a new trace and only link to the originating span
                 ActivityLink[] links = [new ActivityLink(sendSpanContext)];
                 // create a new trace or root activity
                 activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, CreateNewRootActivityContext(), tags: null, links: links);
@@ -66,6 +65,17 @@ class ActivityFactory : IActivityFactory
 
         return activity;
     }
+
+    /// <summary>
+    /// Message can be delayed due to requesting a saga timeout, deferring a message through send options or delayed retries.
+    /// Saga timeout and message deferral will result in the DeliverAt header set
+    /// Delayed retry will result in the DelayedRetries header set
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    static bool IsMessageDelayed(MessageContext context) =>
+        context.Headers.ContainsKey(Headers.DeliverAt) ||
+        context.Headers.ContainsKey(Headers.DelayedRetries);
 
     static ActivityContext CreateNewRootActivityContext() => new(Activity.TraceIdGenerator is null ? ActivityTraceId.CreateRandom() : Activity.TraceIdGenerator(), default, default, default);
 
