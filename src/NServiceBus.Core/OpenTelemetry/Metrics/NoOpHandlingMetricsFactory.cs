@@ -12,7 +12,7 @@ public class NoOpHandlingMetricsFactory : IHandlingMetricsFactory
     /// Instantiates a new <c>IHandlingMetrics</c> that does not record any metric.
     /// </summary>
     /// <param name="context">The invocation context.</param>
-    /// <returns></returns>
+    /// <returns>The instantiated <c>IHandlingMetrics</c>.</returns>
     public IHandlingMetrics StartHandling(IInvokeHandlerContext context) => new NoOpHandlingMetrics();
 }
 
