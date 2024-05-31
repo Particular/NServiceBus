@@ -2,7 +2,6 @@
 
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using AcceptanceTests.OpenTelemetry;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
 using NServiceBus.AcceptanceTests.EndpointTemplates;

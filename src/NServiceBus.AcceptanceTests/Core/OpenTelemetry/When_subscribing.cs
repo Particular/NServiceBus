@@ -3,7 +3,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using AcceptanceTests.OpenTelemetry;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.Features;
 using NUnit.Framework;

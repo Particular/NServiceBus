@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using System;
 using System.Diagnostics;
@@ -14,7 +14,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     [Test]
     public async Task By_sendoptions_Should_create_new_trace_and_link_to_send()
     {
-        Requires.DelayedDelivery();
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
@@ -52,8 +51,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     [Test]
     public async Task By_retry_Should_create_new_trace_and_link_to_send()
     {
-        Requires.DelayedDelivery();
-
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
                 .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
@@ -92,7 +89,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     class ReplyingEndpoint : EndpointConfigurationBuilder
     {
         public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
-
         class MessageHandler : IHandleMessages<IncomingMessage>
         {
             readonly Context testContext;
@@ -110,7 +106,21 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint()
+        {
+            var template = new DefaultServer
+            {
+                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
+            };
+            EndpointSetup(
+                template,
+                (c, _) =>
+                {
+                    c.EnableOpenTelemetry();
+                    var recoverability = c.Recoverability();
+                    recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                }, metadata => { });
+        }
 
         class MessageHandler : IHandleMessages<ReplyMessage>
         {
@@ -131,11 +141,18 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     {
         public RetryEndpoint()
         {
-            EndpointSetup<OpenTelemetryEnabledEndpoint, Context>((config, context) =>
+            var template = new DefaultServer
             {
-                var recoverability = config.Recoverability();
-                recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
-            });
+                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
+            };
+            EndpointSetup(
+                template,
+                (c, _) =>
+                {
+                    c.EnableOpenTelemetry();
+                    var recoverability = c.Recoverability();
+                    recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                }, metadata => { });
         }
 
         class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

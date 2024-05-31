@@ -30,4 +30,10 @@
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Core\OpenTelemetry\When_incoming_message_was_delayed.cs">
+      <Link>OpenTelemetry\When_incoming_message_was_delayed.cs</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>

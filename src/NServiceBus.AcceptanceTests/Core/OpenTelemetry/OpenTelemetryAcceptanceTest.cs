@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using NUnit.Framework;
 
