@@ -30,7 +30,7 @@ class ActivityFactory : IActivityFactory
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            if (context.Headers.ContainsKey(Headers.IsDeferredMessage) ||
+            if (context.Headers.ContainsKey(Headers.DeliverAt) ||
                 context.Headers.ContainsKey(Headers.DelayedRetries))
             {
                 // this is a delayed message and should therefore start a new trace
