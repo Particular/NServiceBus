@@ -84,7 +84,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     public async Task By_saga_timeout_Should_create_new_trace_and_link_to_send()
     {
         var context = await Scenario.Define<SagaContext>()
-            .WithEndpoint<SagaEndpoint>(b => b
+            .WithEndpoint<SagaOtelEndpoint>(b => b
                 .When(s => s.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
             .Done(c => c.SagaMarkedComplete)
             .Run();
@@ -181,9 +181,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
     }
 
-    class SagaEndpoint : EndpointConfigurationBuilder
+    class SagaOtelEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
+        public SagaOtelEndpoint()
         {
             var template = new DefaultServer
             {
@@ -199,11 +199,11 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
-        public class Saga : Saga<MySagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<TimeoutMessage>, IHandleMessages<CompleteSagaMessage>
+        public class OtelSaga : Saga<MyOtelSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<TimeoutMessage>, IHandleMessages<CompleteSagaMessage>
         {
             SagaContext testContext;
 
-            public Saga(SagaContext testContext) => this.testContext = testContext;
+            public OtelSaga(SagaContext testContext) => this.testContext = testContext;
 
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
@@ -212,7 +212,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 return RequestTimeout<TimeoutMessage>(context, DateTimeOffset.UtcNow.AddMilliseconds(2));
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyOtelSagaData> mapper)
             {
                 mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId).ToSaga(s => s.SomeId);
                 mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId).ToSaga(s => s.SomeId);
@@ -230,9 +230,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 return Task.CompletedTask;
             }
         }
-        public class MySagaData : ContainSagaData
+        public class MyOtelSagaData : ContainSagaData
         {
-            public string SomeId { get; set; }
+            public virtual string SomeId { get; set; }
         }
     }
 
