@@ -6,7 +6,7 @@ using Pipeline;
 /// <summary>
 /// Implementation of <c>IHandlingMetricsFactory</c> that does not perform anything.
 /// </summary>
-public class NoOpHandlingMetricsFactory : IHandlingMetricsFactory
+class NoOpHandlingMetricsFactory : IHandlingMetricsFactory
 {
     /// <summary>
     /// Instantiates a new <c>IHandlingMetrics</c> that does not record any metric.
