@@ -2,6 +2,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AcceptanceTests.OpenTelemetry;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
