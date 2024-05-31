@@ -10,14 +10,17 @@ class ActivityFactory : IActivityFactory
     public Activity StartIncomingPipelineActivity(MessageContext context)
     {
         Activity activity;
+        var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
+        var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
+
         if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null) // attach to transport span but link receive pipeline span to send pipeline span
         {
             ActivityLink[] links = null;
-            if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && sendSpanId != transportActivity.Id)
+            if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
             {
-                if (ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext))
+                if (activityContextCreatedFromIncomingTraceParent)
                 {
-                    links = new[] { new ActivityLink(sendSpanContext) };
+                    links = [new ActivityLink(sendSpanContext)];
                 }
             }
 
@@ -25,12 +28,24 @@ class ActivityFactory : IActivityFactory
                 ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
 
         }
-        else if (context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId) && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext)) // otherwise directly create child from logical send
+        else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            // TryParse doesn't have an overload that supports changing the isRemote setting yet
-            // This can be removed with .NET 7, see https://github.com/dotnet/runtime/issues/42575
-            var remoteParentActivityContext = new ActivityContext(sendSpanContext.TraceId, sendSpanContext.SpanId, sendSpanContext.TraceFlags, sendSpanContext.TraceState, isRemote: true);
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
+            if (context.Headers.ContainsKey(Headers.IsDeferredMessage) ||
+                context.Headers.ContainsKey(Headers.DelayedRetries))
+            {
+                // this is a delayed message and should therefore start a new trace
+                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
+                // create a new trace or root activity
+                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, CreateNewRootActivityContext(), tags: null, links: links);
+            }
+            else
+            {
+                // this is a regular message and should therefore start a child trace
+                // TryParse doesn't have an overload that supports changing the isRemote setting yet
+                // This can be removed with .NET 7, see https://github.com/dotnet/runtime/issues/42575
+                var remoteParentActivityContext = new ActivityContext(sendSpanContext.TraceId, sendSpanContext.SpanId, sendSpanContext.TraceFlags, sendSpanContext.TraceState, isRemote: true);
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
+            }
         }
         else // otherwise start new trace
         {
@@ -53,6 +68,8 @@ class ActivityFactory : IActivityFactory
 
         return activity;
     }
+
+    static ActivityContext CreateNewRootActivityContext() => new(Activity.TraceIdGenerator is null ? ActivityTraceId.CreateRandom() : Activity.TraceIdGenerator(), default, default, default);
 
     public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
