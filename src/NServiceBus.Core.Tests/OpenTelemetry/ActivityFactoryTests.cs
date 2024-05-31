@@ -42,7 +42,7 @@ public class ActivityFactoryTests
             var contextBag = new ContextBag();
             contextBag.Set(contextActivity);
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(contextBag: contextBag));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
@@ -60,7 +60,7 @@ public class ActivityFactoryTests
 
             var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(messageHeaders, contextBag));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
@@ -79,7 +79,7 @@ public class ActivityFactoryTests
             using var ambientActivity = ActivitySources.Main.StartActivity("ambient activity");
             Assert.AreEqual(ambientActivity, Activity.Current);
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(contextBag: contextBag));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
@@ -94,7 +94,7 @@ public class ActivityFactoryTests
             var contextBag = new ContextBag();
             contextBag.Set(contextActivity);
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(contextBag: contextBag));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.IsNull(activity.ParentId, "should create a new trace");
@@ -108,7 +108,7 @@ public class ActivityFactoryTests
 
             var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(messageHeaders));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.AreEqual(sendActivity.Id, activity.ParentId);
@@ -123,7 +123,7 @@ public class ActivityFactoryTests
             ambientActivity.SetIdFormat(ambientActivityIdFormat);
             ambientActivity.Start();
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext());
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.AreEqual(ambientActivity.Id, activity.ParentId, "should attach to ambient activity");
@@ -133,7 +133,7 @@ public class ActivityFactoryTests
         [Test]
         public void Should_start_new_trace_when_no_activity_on_context_and_no_trace_message_header_and_no_ambient_activity()
         {
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext());
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.IsNull(activity.ParentId, "should start a new trace");
@@ -145,7 +145,7 @@ public class ActivityFactoryTests
         {
             var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, "Some invalid traceparent format" } };
 
-            var activity = activityFactory.StartIncomingActivity(CreateMessageContext(messageHeaders));
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
             Assert.NotNull(activity, "should create activity for receive pipeline");
             Assert.IsNull(activity.ParentId, "should start new trace");
@@ -157,7 +157,7 @@ public class ActivityFactoryTests
         {
             MessageContext messageContext = CreateMessageContext();
 
-            var activity = activityFactory.StartIncomingActivity(messageContext);
+            var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
             Assert.AreEqual(messageContext.NativeMessageId, activity.Tags.ToImmutableDictionary()["nservicebus.native_message_id"]);
         }

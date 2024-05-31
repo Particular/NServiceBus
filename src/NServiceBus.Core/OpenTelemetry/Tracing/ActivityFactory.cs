@@ -7,7 +7,7 @@ using Transport;
 
 class ActivityFactory : IActivityFactory
 {
-    public Activity StartIncomingActivity(MessageContext context)
+    public Activity StartIncomingPipelineActivity(MessageContext context)
     {
         Activity activity;
         if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null) // attach to transport span but link receive pipeline span to send pipeline span

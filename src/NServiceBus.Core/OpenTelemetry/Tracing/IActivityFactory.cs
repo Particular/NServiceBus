@@ -7,7 +7,7 @@ using Transport;
 
 interface IActivityFactory
 {
-    Activity StartIncomingActivity(MessageContext context);
+    Activity StartIncomingPipelineActivity(MessageContext context);
     Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext);
     Activity StartHandlerActivity(MessageHandler messageHandler, ActiveSagaInstance saga);
 }
