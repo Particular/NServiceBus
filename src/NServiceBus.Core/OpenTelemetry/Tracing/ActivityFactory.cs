@@ -73,7 +73,6 @@ class ActivityFactory : IActivityFactory
 
     public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
-
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
 
         if (activity != null)
