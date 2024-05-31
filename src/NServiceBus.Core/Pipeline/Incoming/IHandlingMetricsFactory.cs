@@ -5,7 +5,7 @@ using Pipeline;
 /// <summary>
 /// Factory for IHandlingMetrics needed to record metrics for the handler invocation.
 /// </summary>
-public interface IHandlingMetricsFactory
+interface IHandlingMetricsFactory
 {
     /// <summary>
     /// Creates a new <c>IHandlingMetrics</c> instance for recording the metrics for a specific handler execution.
