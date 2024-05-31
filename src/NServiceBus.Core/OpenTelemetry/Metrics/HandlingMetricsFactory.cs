@@ -9,8 +9,8 @@ class HandlingMetricsFactory(string queueName/*, string discriminator*/) : IHand
 {
     public IHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
-        var handlerType = context.MessageHandler.Instance?.GetType();
-        var messageType = context.MessageBeingHandled?.GetType();
+        var handlerType = context.MessageHandler.Instance?.GetType().FullName;
+        var messageType = context.MessageBeingHandled?.GetType().FullName;
         return new RecordHandlingMetric(new(
         [
             new(MeterTags.QueueName, queueName ?? ""),
@@ -38,7 +38,7 @@ class RecordHandlingMetric : IHandlingMetrics
     public void OnFailure(Exception error)
     {
         stopWatch.Stop();
-        tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, error.GetType()));
+        tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, error.GetType().FullName));
         Meters.HandlingTime.Record(stopWatch.ElapsedMilliseconds, tags);
     }
 
