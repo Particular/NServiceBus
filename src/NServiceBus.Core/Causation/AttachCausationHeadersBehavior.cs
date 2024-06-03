@@ -50,6 +50,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
                 context.Headers[Headers.PreviousConversationId] = conversationIdFromCurrentMessageContext;
             }
             context.Headers[Headers.ConversationId] = newConversationId ?? conversationIdStrategy(context);
+            context.Headers[Headers.StartNewTrace] = true.ToString();
             return;
         }
 
@@ -61,6 +62,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
             }
 
             context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext;
+            context.Headers[Headers.StartNewTrace] = true.ToString();
             return;
         }
 
@@ -70,6 +72,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         }
 
         context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
+        context.Headers[Headers.StartNewTrace] = true.ToString();
     }
 
     readonly Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;

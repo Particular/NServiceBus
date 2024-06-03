@@ -254,4 +254,10 @@ public static partial class Headers
     /// The content type used to serialize the data bus properties in the message.
     /// </summary>
     public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
+
+    /// <summary>
+    /// When set, this header indicates a new OpenTelemetry trace should be started when receiving this message.
+    /// Controlled by <see cref="ConversationRoutingExtensions.StartNewConversation"/>
+    /// </summary>
+    public const string StartNewTrace = "NServiceBus.OpenTelemetry.StartNewTrace";
 }
