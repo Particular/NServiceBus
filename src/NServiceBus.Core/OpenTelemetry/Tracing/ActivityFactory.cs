@@ -13,8 +13,9 @@ class ActivityFactory : IActivityFactory
         var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
 
-        if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null) // attach to transport span but link receive pipeline span to send pipeline span
+        if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null)
         {
+            // attach to transport span but link receive pipeline span to send pipeline span
             ActivityLink[] links = null;
             if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
             {
@@ -24,9 +25,22 @@ class ActivityFactory : IActivityFactory
                 }
             }
 
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
-                ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-
+            if (context.Headers.ContainsKey(Headers.StartNewTrace))
+            {
+                // The user indicated to start a new trace when receiving this message but there's a transport span
+                // so check whether a new trace was already started by the transport client SDK
+                if (incomingTraceParentExists && !sendSpanContext.TraceId.Equals(transportActivity.TraceId))
+                {
+                    // no new trace was started, so start a new one
+                    activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, CreateNewRootActivityContext(), tags: null, links: links);
+                }
+            }
+            else
+            {
+                // no new trace was requested, so create a child span of the transport span, linking receive pipeline span to send pipeline span
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
+                    ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
+            }
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
