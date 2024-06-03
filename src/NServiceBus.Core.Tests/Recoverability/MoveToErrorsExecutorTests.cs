@@ -45,7 +45,7 @@ public class MoveToErrorsExecutorTests
 
         var outgoingMessageHeaders = routingContext.Message.Headers;
 
-        Assert.That(recoverabilityContext.FailedMessage.Headers, Is.SubsetOf(outgoingMessageHeaders));
+        Assert.That(recoverabilityContext.FailedMessage.Headers, Is.SupersetOf(outgoingMessageHeaders));
     }
 
     [Test]
