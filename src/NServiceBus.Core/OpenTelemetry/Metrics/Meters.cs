@@ -9,14 +9,14 @@ class Meters
         "0.2.0");
 
     internal static readonly Counter<long> TotalProcessedSuccessfully =
-        NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.successes", description: "Total number of messages processed successfully by the endpoint.");
+        NServiceBusMeter.CreateCounter<long>(Metrics.TotalProcessedSuccessfully, description: "Total number of messages processed successfully by the endpoint.");
 
     internal static readonly Counter<long> TotalFetched =
-        NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.fetches", description: "Total number of messages fetched from the queue by the endpoint.");
+        NServiceBusMeter.CreateCounter<long>(Metrics.TotalFetched, description: "Total number of messages fetched from the queue by the endpoint.");
 
     internal static readonly Counter<long> TotalFailures =
-        NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
+        NServiceBusMeter.CreateCounter<long>(Metrics.TotalFailures, description: "Total number of messages processed unsuccessfully by the endpoint.");
 
     internal static readonly Histogram<double> HandlingTime =
-        NServiceBusMeter.CreateHistogram<double>("nservicebus.messaging.handling_time", "ms", "The time in milliseconds for the execution of the business code.");
+        NServiceBusMeter.CreateHistogram<double>(Metrics.HandlingTime, "ms", "The time in milliseconds for the execution of the business code.");
 }
