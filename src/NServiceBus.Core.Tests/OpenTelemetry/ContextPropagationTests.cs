@@ -45,8 +45,9 @@ public class ContextPropagationTests
         var headers = new Dictionary<string, string>();
         var contextBag = new ContextBag();
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
-        ContextPropagation.PropagateContextToHeaders(null, headers, contextBag);
+        ContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
 
+        Assert.IsTrue(headers.ContainsKey(Headers.StartNewTrace), bool.TrueString);
         Assert.AreEqual(headers[Headers.StartNewTrace], bool.TrueString);
     }
 
