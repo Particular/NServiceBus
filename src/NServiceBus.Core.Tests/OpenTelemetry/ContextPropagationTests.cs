@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
@@ -19,7 +20,7 @@ public class ContextPropagationTests
 
         var headers = new Dictionary<string, string>();
 
-        ContextPropagation.PropagateContextToHeaders(activity, headers);
+        ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
         Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
     }
@@ -29,9 +30,35 @@ public class ContextPropagationTests
     {
         var headers = new Dictionary<string, string>();
 
-        ContextPropagation.PropagateContextToHeaders(null, headers);
+        ContextPropagation.PropagateContextToHeaders(null, headers, new ContextBag());
 
         Assert.IsEmpty(headers);
+    }
+
+    [Test]
+    public void Should_set_start_new_trace_header_when_adding_trace_parent_header()
+    {
+        using var activity = new Activity("test");
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
+
+        var headers = new Dictionary<string, string>();
+        var contextBag = new ContextBag();
+        contextBag.Set(Headers.StartNewTrace, bool.TrueString);
+        ContextPropagation.PropagateContextToHeaders(null, headers, contextBag);
+
+        Assert.AreEqual(headers[Headers.StartNewTrace], bool.TrueString);
+    }
+
+    [Test]
+    public void Should_not_set_start_new_trace_header_when_no_trace_parent_header_is_added()
+    {
+        var headers = new Dictionary<string, string>();
+        var contextBag = new ContextBag();
+        contextBag.Set(Headers.StartNewTrace, bool.TrueString);
+        ContextPropagation.PropagateContextToHeaders(null, headers, contextBag);
+
+        Assert.IsFalse(headers.ContainsKey(Headers.StartNewTrace));
     }
 
     [Test]
@@ -46,7 +73,7 @@ public class ContextPropagationTests
             { Headers.DiagnosticsTraceParent, "some existing id" }
         };
 
-        ContextPropagation.PropagateContextToHeaders(activity, headers);
+        ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
         Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
     }
@@ -90,7 +117,7 @@ public class ContextPropagationTests
             activity.AddBaggage(baggageItem.Key, baggageItem.Value);
         }
 
-        ContextPropagation.PropagateContextToHeaders(activity, headers);
+        ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
         var baggageHeaderSet = headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue);
 
@@ -119,7 +146,7 @@ public class ContextPropagationTests
             outgoingActivity.AddBaggage(baggageItem.Key, baggageItem.Value);
         }
 
-        ContextPropagation.PropagateContextToHeaders(outgoingActivity, outgoingHeaders);
+        ContextPropagation.PropagateContextToHeaders(outgoingActivity, outgoingHeaders, new ContextBag());
 
         // Simulate wire transfer
         var incomingHeaders = outgoingHeaders;

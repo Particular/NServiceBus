@@ -21,7 +21,10 @@ static class DelayedRetriesHeaderExtensions
     public static void SetCurrentDelayedDeliveries(this OutgoingMessage message, int currentDelayedRetry)
     {
         message.Headers[Headers.DelayedRetries] = currentDelayedRetry.ToString();
-        message.Headers[Headers.StartNewTrace] = bool.TrueString;
+        if (message.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
+        {
+            message.Headers[Headers.StartNewTrace] = bool.TrueString;
+        }
     }
 
     public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTimeOffset timestamp)
