@@ -57,6 +57,20 @@
             });
         }
 
+        [TestCase('/')]
+        [TestCase('\\')]
+        public async Task Should_handle_be_able_to_read_stored_values_when_received_from_different_environments(char pathSeparator)
+        {
+            const string content = "Test";
+
+            var key = await Put(content, TimeSpan.MaxValue);
+            using (var stream = await dataBus.Get(key.Replace(Path.DirectorySeparatorChar, pathSeparator)))
+            using (var streamReader = new StreamReader(stream))
+            {
+                Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
+            }
+        }
+
         [Test]
         public async Task Should_handle_max_ttl()
         {
