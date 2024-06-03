@@ -25,19 +25,19 @@ public class MeterTagsTests
         });
     }
 
+    [Test]
     public void Verify_Metrics()
     {
-        var meterTags = typeof(Meters)
+        var metrics = typeof(Metrics)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
             .Select(x => $"{x.Name} => {x.GetRawConstantValue()}")
             .ToList();
-
         Approver.Verify(new
         {
             Note = "Changes to metrics' names should result in Meters version updates",
             ActivitySourceVersion = Meters.NServiceBusMeter.Version,
-            Tags = meterTags
+            Metrics = metrics
         });
     }
 }
