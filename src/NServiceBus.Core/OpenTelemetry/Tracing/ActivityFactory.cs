@@ -77,6 +77,7 @@ class ActivityFactory : IActivityFactory
         context.Headers.ContainsKey(Headers.DeliverAt) ||
         context.Headers.ContainsKey(Headers.DelayedRetries);
 
+    // This could be cleaned up once a dedicated API is created, see https://github.com/dotnet/runtime/issues/65528
     static ActivityContext CreateNewRootActivityContext() => new(Activity.TraceIdGenerator is null ? ActivityTraceId.CreateRandom() : Activity.TraceIdGenerator(), default, default, default);
 
     public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
