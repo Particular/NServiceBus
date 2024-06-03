@@ -6,7 +6,7 @@ using AcceptanceTesting;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
+public class WhenIncomingMessageHandledSuccessfully : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_record_handling_time()
@@ -58,7 +58,7 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         }
     }
 
-    class MyMessage : IMessage
+    public class MyMessage : IMessage
     {
     }
 }
