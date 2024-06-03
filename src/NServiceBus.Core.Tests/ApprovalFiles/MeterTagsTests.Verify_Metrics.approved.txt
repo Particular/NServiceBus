@@ -1,0 +1,10 @@
+{
+  "Note": "Changes to metrics name should result in Meters version updates",
+  "ActivitySourceVersion": "0.2.0",
+  "Metrics": [
+    "TotalProcessedSuccessfully" = "nservicebus.messaging.successes";
+    "TotalFetched" = "nservicebus.messaging.fetches";
+    "TotalFailures" = "nservicebus.messaging.failures";
+    "HandlingTime" = "nservicebus.messaging.handling_time";
+  ]
+}
