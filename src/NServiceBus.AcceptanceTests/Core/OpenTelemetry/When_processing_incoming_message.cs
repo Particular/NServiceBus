@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NUnit.Framework;
 
 public class When_processing_incoming_message : OpenTelemetryAcceptanceTest

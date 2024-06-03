@@ -22,7 +22,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
 
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers);
+        ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers, context.Extensions);
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;

@@ -49,7 +49,7 @@ class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContex
 
             // HINT: Context is propagated to the message headers from the current activity, if present.
             // This may not be the outgoing message activity created by NServiceBus.
-            ContextPropagation.PropagateContextToHeaders(Activity.Current, unsubscribeMessage.Headers);
+            ContextPropagation.PropagateContextToHeaders(Activity.Current, unsubscribeMessage.Headers, context.Extensions);
 
             unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
         }

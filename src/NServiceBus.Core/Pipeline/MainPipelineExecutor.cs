@@ -23,7 +23,7 @@ class MainPipelineExecutor : IPipelineExecutor
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
 
-        using var activity = activityFactory.StartIncomingActivity(messageContext);
+        using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))

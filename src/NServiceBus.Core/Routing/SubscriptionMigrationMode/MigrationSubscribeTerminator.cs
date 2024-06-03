@@ -76,7 +76,7 @@ class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
 
                     // HINT: Context is propagated to the message headers from the current activity, if present.
                     // This may not be the outgoing message activity created by NServiceBus.
-                    ContextPropagation.PropagateContextToHeaders(Activity.Current, subscriptionMessage.Headers);
+                    ContextPropagation.PropagateContextToHeaders(Activity.Current, subscriptionMessage.Headers, context.Extensions);
 
                     subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions, 0, context.CancellationToken));
                 }

@@ -340,6 +340,7 @@ namespace NServiceBus
         public const string RouteTo = "NServiceBus.Header.RouteTo";
         public const string SagaId = "NServiceBus.SagaId";
         public const string SagaType = "NServiceBus.SagaType";
+        public const string StartNewTrace = "NServiceBus.OpenTelemetry.StartNewTrace";
         public const string SubscriberEndpoint = "NServiceBus.SubscriberEndpoint";
         public const string SubscriberTransportAddress = "NServiceBus.SubscriberAddress";
         public const string SubscriptionMessageType = "SubscriptionMessageType";
