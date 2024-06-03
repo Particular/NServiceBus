@@ -254,4 +254,10 @@ public static partial class Headers
     /// The content type used to serialize the data bus properties in the message.
     /// </summary>
     public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
+
+    /// <summary>
+    /// This header is set when a new trace should be started when receiving this message.
+    /// This is automatically set when: a saga timeout is requested, a message is set to be delivered at a certain time, a delayed retry is requested or a message is moved to the error queue.
+    /// </summary>
+    public const string StartNewTrace = "NServiceBus.OpenTelemetry.StartNewTrace";
 }

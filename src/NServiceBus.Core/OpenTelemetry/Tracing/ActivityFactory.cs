@@ -30,16 +30,16 @@ class ActivityFactory : IActivityFactory
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            if (IsMessageDelayed(context))
+            var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
+            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace.Equals(bool.TrueString))
             {
-                // this is a delayed message and should therefore start a new trace and only link to the originating span
-                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
                 // create a new trace or root activity
+                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
                 activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, CreateNewRootActivityContext(), tags: null, links: links);
             }
             else
             {
-                // this is a regular message and should therefore start a child trace
+                // no new trace was requested, so start a child trace
                 ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
                 activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
             }
@@ -65,17 +65,6 @@ class ActivityFactory : IActivityFactory
 
         return activity;
     }
-
-    /// <summary>
-    /// Message can be delayed due to requesting a saga timeout, deferring a message through send options or delayed retries.
-    /// Saga timeout and message deferral will result in the DeliverAt header set
-    /// Delayed retry will result in the DelayedRetries header set
-    /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    static bool IsMessageDelayed(MessageContext context) =>
-        context.Headers.ContainsKey(Headers.DeliverAt) ||
-        context.Headers.ContainsKey(Headers.DelayedRetries);
 
     /// <summary>
     /// This could be cleaned up once a dedicated API is created, see https://github.com/dotnet/runtime/issues/65528
