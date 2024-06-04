@@ -1,0 +1,17 @@
+{
+  "Note": "Changes to metrics API should result in Meters version updates",
+  "ActivitySourceVersion": "0.2.0",
+  "Tags": [
+    "EndpointDiscriminator => nservicebus.discriminator",
+    "QueueName => nservicebus.queue",
+    "MessageType => nservicebus.message_type",
+    "FailureType => nservicebus.failure_type",
+    "MessageHandlerType => nservicebus.message_handler_type"
+  ],
+  "Metrics": [
+    "TotalProcessedSuccessfully => nservicebus.messaging.successes",
+    "TotalFetched => nservicebus.messaging.fetches",
+    "TotalFailures => nservicebus.messaging.failures",
+    "HandlingTime => nservicebus.messaging.handling_time"
+  ]
+}
