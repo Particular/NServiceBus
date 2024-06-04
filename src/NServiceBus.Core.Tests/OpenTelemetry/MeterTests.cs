@@ -6,28 +6,16 @@ using NUnit.Framework;
 using Particular.Approvals;
 
 [TestFixture]
-public class MeterTagsTests
+public class MeterTests
 {
     [Test]
-    public void Verify_MeterTags()
+    public void Verify_MeterAPI()
     {
         var meterTags = typeof(MeterTags)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
             .Select(x => $"{x.Name} => {x.GetRawConstantValue()}")
             .ToList();
-
-        Approver.Verify(new
-        {
-            Note = "Changes to meter tags should result in Meters version updates",
-            ActivitySourceVersion = Meters.NServiceBusMeter.Version,
-            Tags = meterTags
-        });
-    }
-
-    [Test]
-    public void Verify_Metrics()
-    {
         var metrics = typeof(Metrics)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
@@ -35,8 +23,9 @@ public class MeterTagsTests
             .ToList();
         Approver.Verify(new
         {
-            Note = "Changes to metrics' names should result in Meters version updates",
+            Note = "Changes to metrics API should result in Meters version updates",
             ActivitySourceVersion = Meters.NServiceBusMeter.Version,
+            Tags = meterTags,
             Metrics = metrics
         });
     }
