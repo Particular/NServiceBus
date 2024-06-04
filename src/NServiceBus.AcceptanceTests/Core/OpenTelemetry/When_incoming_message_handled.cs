@@ -40,6 +40,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
             _ = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithMetrics>(b =>
                     b.DoNotFailOnErrorMessages()
+                        .CustomConfig(c => c.MakeInstanceUniquelyAddressable("discriminator"))
                         .When(async (session, _) =>
                         {
                             for (var x = 0; x < 5; x++)
@@ -76,6 +77,8 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         Assert.AreEqual(expectedHandlerType.FullName, handlerType);
         var endpoint = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.queue");
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), endpoint);
+        var discriminator = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.discriminator");
+        Assert.AreEqual("discriminator", discriminator);
     }
 
     class Context : ScenarioContext
