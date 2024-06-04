@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Pipeline;
 
-class HandlingMetricsFactory(string queueName/*, string discriminator*/) : IHandlingMetricsFactory
+class HandlingMetricsFactory(string queueName, string discriminator) : IHandlingMetricsFactory
 {
     public IHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
@@ -14,7 +14,7 @@ class HandlingMetricsFactory(string queueName/*, string discriminator*/) : IHand
         return new RecordHandlingMetric(new(
         [
             new(MeterTags.QueueName, queueName ?? ""),
-            // new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
+            new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
             new(MeterTags.MessageHandlerType, handlerType),
             new(MeterTags.MessageType, messageType)
         ]));

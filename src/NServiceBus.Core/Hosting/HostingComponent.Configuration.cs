@@ -29,7 +29,7 @@ partial class HostingComponent
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
-            settings.EnableOpenTelemetry ? new HandlingMetricsFactory(settings.EndpointName) : new NoOpHandlingMetricsFactory());
+            settings.EnableOpenTelemetry ? new HandlingMetricsFactory(settings.EndpointName, settings.Discriminator) : new NoOpHandlingMetricsFactory());
 
         return configuration;
     }
