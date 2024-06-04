@@ -19,13 +19,14 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
         context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
-        string handlerType = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').LastOrDefault() : default;
+        string fullHandlerType = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
+        string handlerTypeName = !string.IsNullOrEmpty(fullHandlerType) ? fullHandlerType.Split(',').FirstOrDefault() : default;
 
         var tags = new TagList(new KeyValuePair<string, object>[]
         {
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
             new(MeterTags.QueueName, queueNameBase ?? ""),
-            new(MeterTags.MessageType, handlerType ?? ""),
+            new(MeterTags.MessageType, handlerTypeName ?? ""),
         }.AsSpan());
 
         Meters.TotalFetched.Add(1, tags);
