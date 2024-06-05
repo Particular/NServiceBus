@@ -5,21 +5,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Pipeline;
 
-class HandlingMetricsFactory(string queueName, string discriminator) : IHandlingMetricsFactory
+class MessageHandlingMetricsFactory(string queueName, string discriminator) : IMessageHandlingMetricsFactory
 {
-    public IHandlingMetrics StartHandling(IInvokeHandlerContext context)
+    public IMessageHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
         var messageType = context.MessageBeingHandled?.GetType().FullName;
         TagList tagList = MeterTags.BaseTagList(queueName, discriminator, messageType);
         var handlerType = context.MessageHandler.Instance?.GetType().FullName;
         tagList.Add(MeterTags.MessageHandlerType, handlerType ?? "");
-        return new RecordHandlingMetric(tagList);
+        return new RecordMessageHandlingMetric(tagList);
     }
 }
 
-class RecordHandlingMetric : IHandlingMetrics
+class RecordMessageHandlingMetric : IMessageHandlingMetrics
 {
-    public RecordHandlingMetric(TagList tags)
+    public RecordMessageHandlingMetric(TagList tags)
     {
         this.tags = tags;
         stopWatch.Start();
