@@ -22,7 +22,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IHandlingMetrics
 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
-        IHandlingMetrics handlingMetrics = metricsFactory.StartHandling(context);
+        var handlingMetrics = metricsFactory.StartHandling(context);
         var startTime = DateTimeOffset.UtcNow;
         try
         {
