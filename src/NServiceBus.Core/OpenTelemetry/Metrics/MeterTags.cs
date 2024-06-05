@@ -1,5 +1,9 @@
 ﻿namespace NServiceBus;
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
 static class MeterTags
 {
     public const string EndpointDiscriminator = "nservicebus.discriminator";
