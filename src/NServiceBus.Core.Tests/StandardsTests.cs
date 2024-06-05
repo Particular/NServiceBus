@@ -55,16 +55,7 @@ public class StandardsTests
 
     static bool IsCompilerGenerated(Type x)
     {
-        if (Attribute.IsDefined(x, typeof(CompilerGeneratedAttribute), false))
-        {
-            return true;
-        }
-        // Exclusion of generated internal struct - this change was initially required by the code in HandlingMetricsFactory
-        if (x.Namespace is null && x.Name[0] == '<')
-        {
-            return true;
-        }
-        return false;
+        return Attribute.IsDefined(x, typeof(CompilerGeneratedAttribute), false);
     }
 
     [Test]
