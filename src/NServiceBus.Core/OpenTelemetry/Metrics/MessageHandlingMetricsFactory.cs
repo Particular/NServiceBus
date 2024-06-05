@@ -39,5 +39,5 @@ class RecordMessageHandlingMetric : IMessageHandlingMetrics
     }
 
     readonly Stopwatch stopWatch = new();
-    readonly TagList tags;
+    TagList tags;
 }
