@@ -55,7 +55,7 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
                         await session.SendLocal(new OutgoingWithComplexHierarchyMessage());
                     }
                 }))
-            .Done(c => c.OutgoingMessagesReceived == 5)
+            .Done(c => c.ComplexOutgoingMessagesReceived == 5)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
@@ -76,13 +76,14 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
     class Context : ScenarioContext
     {
         public int OutgoingMessagesReceived;
+        public int ComplexOutgoingMessagesReceived;
     }
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
         public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<OutgoingMessage>, IHandleMessages<OutgoingWithComplexHierarchyMessage>
+        class MessageHandler : IHandleMessages<OutgoingMessage>
         {
             readonly Context testContext;
 
@@ -90,17 +91,20 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
 
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
-                return Handle();
+                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                return Task.CompletedTask;
             }
+        }
+
+        class ComplexMessageHandler : IHandleMessages<OutgoingWithComplexHierarchyMessage>
+        {
+            readonly Context testContext;
+
+            public ComplexMessageHandler(Context testContext) => this.testContext = testContext;
 
             public Task Handle(OutgoingWithComplexHierarchyMessage message, IMessageHandlerContext context)
             {
-                return Handle();
-            }
-
-            Task Handle()
-            {
-                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                Interlocked.Increment(ref testContext.ComplexOutgoingMessagesReceived);
                 return Task.CompletedTask;
             }
         }
@@ -110,7 +114,11 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
     {
     }
 
-    public class OutgoingWithComplexHierarchyMessage : OutgoingMessage
+    public class BaseOutgoingMessage : IMessage
+    {
+    }
+
+    public class OutgoingWithComplexHierarchyMessage : BaseOutgoingMessage
     {
     }
 }
