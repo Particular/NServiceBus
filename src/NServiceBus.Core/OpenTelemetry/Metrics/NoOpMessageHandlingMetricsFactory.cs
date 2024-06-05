@@ -6,17 +6,17 @@ using Pipeline;
 /// <summary>
 /// Implementation of <c>IHandlingMetricsFactory</c> that does not perform anything.
 /// </summary>
-class NoOpHandlingMetricsFactory : IHandlingMetricsFactory
+class NoOpMessageHandlingMetricsFactory : IMessageHandlingMetricsFactory
 {
     /// <summary>
     /// Instantiates a new <c>IHandlingMetrics</c> that does not record any metric.
     /// </summary>
     /// <param name="context">The invocation context.</param>
     /// <returns>The instantiated <c>IHandlingMetrics</c>.</returns>
-    public IHandlingMetrics StartHandling(IInvokeHandlerContext context) => new NoOpHandlingMetrics();
+    public IMessageHandlingMetrics StartHandling(IInvokeHandlerContext context) => new NoOpMessageHandlingMetrics();
 }
 
-class NoOpHandlingMetrics : IHandlingMetrics
+class NoOpMessageHandlingMetrics : IMessageHandlingMetrics
 {
     public void OnSuccess()
     {

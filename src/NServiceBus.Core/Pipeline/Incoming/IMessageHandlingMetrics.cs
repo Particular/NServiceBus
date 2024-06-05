@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Registers the metrics related to a specific message handler execution.
 /// </summary>
-interface IHandlingMetrics
+interface IMessageHandlingMetrics
 {
     /// <summary>
     /// Registers the metrics related to the successful completion of the handler's execution.
