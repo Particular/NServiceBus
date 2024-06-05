@@ -9,15 +9,11 @@ class HandlingMetricsFactory(string queueName, string discriminator) : IHandling
 {
     public IHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
-        var handlerType = context.MessageHandler.Instance?.GetType().FullName;
         var messageType = context.MessageBeingHandled?.GetType().FullName;
-        return new RecordHandlingMetric(new(
-        [
-            new(MeterTags.QueueName, queueName ?? ""),
-            new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
-            new(MeterTags.MessageHandlerType, handlerType),
-            new(MeterTags.MessageType, messageType)
-        ]));
+        TagList tagList = MeterTags.BaseTagList(queueName, discriminator, messageType);
+        var handlerType = context.MessageHandler.Instance?.GetType().FullName;
+        tagList.Add(MeterTags.MessageHandlerType, handlerType ?? "");
+        return new RecordHandlingMetric(tagList);
     }
 }
 
