@@ -29,7 +29,7 @@ partial class HostingComponent
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
-            settings.EnableOpenTelemetry ? new HandlingMetricsFactory(settings.EndpointName, settings.Discriminator) : new NoOpHandlingMetricsFactory());
+            settings.EnableOpenTelemetry ? new MessageHandlingMetricsFactory(settings.EndpointName, settings.Discriminator) : new NoOpMessageHandlingMetricsFactory());
 
         return configuration;
     }
@@ -48,7 +48,7 @@ partial class HostingComponent
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory,
-            IHandlingMetricsFactory handlingMetricsFactory)
+            IMessageHandlingMetricsFactory messageHandlingMetricsFactory)
         {
             AvailableTypes = availableTypes;
             CriticalError = criticalError;
@@ -61,7 +61,7 @@ partial class HostingComponent
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
-            HandlingMetricsFactory = handlingMetricsFactory;
+            MessageHandlingMetricsFactory = messageHandlingMetricsFactory;
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -96,6 +96,6 @@ partial class HostingComponent
 
         public IActivityFactory ActivityFactory { get; set; }
 
-        public IHandlingMetricsFactory HandlingMetricsFactory { get; set; }
+        public IMessageHandlingMetricsFactory MessageHandlingMetricsFactory { get; set; }
     }
 }
