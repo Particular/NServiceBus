@@ -39,5 +39,5 @@ class RecordHandlingMetric : IHandlingMetrics
     }
 
     readonly Stopwatch stopWatch = new();
-    TagList tags;
+    readonly TagList tags;
 }
