@@ -23,7 +23,7 @@ public class MeterTests
             .ToList();
         Approver.Verify(new
         {
-            Note = "Changes to metrics API should result in Meters version updates",
+            Note = "Changes to metrics API should result in an update to NServiceBusMeter version.",
             ActivitySourceVersion = Meters.NServiceBusMeter.Version,
             Tags = meterTags,
             Metrics = metrics
