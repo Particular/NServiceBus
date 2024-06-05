@@ -16,7 +16,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     {
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
         metricsListener.AssertMetric(HandlingTimeMetricName, 5);
-        AsserMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyMessage));
+        AssertMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyMessageHandler).FullName, handlerType);
     }
@@ -26,7 +26,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     {
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
         metricsListener.AssertMetric(HandlingTimeMetricName, 5);
-        AsserMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyExceptionalMessage));
+        AssertMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyExceptionalHandler).FullName, handlerType);
         var exception = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.failure_type");
@@ -70,7 +70,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     }
 
 
-    static void AsserMandatoryTags(
+    static void AssertMandatoryTags(
         TestingMetricListener metricsListener,
         string metricName,
         Type expectedMessageType)
