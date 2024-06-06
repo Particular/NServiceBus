@@ -20,6 +20,6 @@ class Meters
     internal static readonly Histogram<double> MessageHandlerTime =
         NServiceBusMeter.CreateHistogram<double>(Metrics.MessageHandlerTime, "s", "The time in seconds for the execution of the business code.");
 
-    internal static readonly Histogram<double> HandlingTime =
-        NServiceBusMeter.CreateHistogram<double>("nservicebus.messaging.handling_time", "ms", "The time in milliseconds for the execution of the business code.");
+    internal static readonly Histogram<double> CriticalTime =
+        NServiceBusMeter.CreateHistogram<double>(Metrics.CriticalTime, "ms", "The time in milliseconds between when the message was sent until processed by the endpoint.");
 }
