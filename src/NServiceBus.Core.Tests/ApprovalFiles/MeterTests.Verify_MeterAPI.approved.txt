@@ -9,9 +9,9 @@
     "MessageHandlerType => nservicebus.message_handler_type"
   ],
   "Metrics": [
-    "TotalProcessedSuccessfully => nservicebus.messaging.successes",
-    "TotalFetched => nservicebus.messaging.fetches",
-    "TotalFailures => nservicebus.messaging.failures",
-    "MessageHandlerTime => nservicebus.messaging.handler_time"
+    "nservicebus.messaging.successes => Counter",
+    "nservicebus.messaging.fetches => Counter",
+    "nservicebus.messaging.failures => Counter",
+    "nservicebus.messaging.handler_time => Histogram"
   ]
 }
