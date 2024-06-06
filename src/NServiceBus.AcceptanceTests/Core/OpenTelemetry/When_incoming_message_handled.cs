@@ -22,6 +22,14 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     }
 
     [Test]
+    public async Task Should_record_critical_time()
+    {
+        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        metricsListener.AssertMetric(CriticalTimeMetricName, 5);
+        AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
+    }
+    
+    [Test]
     public async Task Should_record_success_handling_time()
     {
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
