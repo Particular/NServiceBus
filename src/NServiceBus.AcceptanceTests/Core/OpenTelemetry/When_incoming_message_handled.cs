@@ -4,20 +4,21 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
 {
-    static readonly string HandlingTimeMetricName = "nservicebus.messaging.handling_time";
+    static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
 
     [Test]
     public async Task Should_record_success_handling_time()
     {
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
-        metricsListener.AssertMetric(HandlingTimeMetricName, 5);
-        AssertMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyMessage));
-        var handlerType = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.message_handler_type");
+        metricsListener.AssertMetric(HandlerTimeMetricName, 5);
+        AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
+        var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyMessageHandler).FullName, handlerType);
     }
 
@@ -25,11 +26,11 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     public async Task Should_record_failure_handling_time()
     {
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
-        metricsListener.AssertMetric(HandlingTimeMetricName, 5);
-        AssertMandatoryTags(metricsListener, HandlingTimeMetricName, typeof(MyExceptionalMessage));
-        var handlerType = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.message_handler_type");
+        metricsListener.AssertMetric(HandlerTimeMetricName, 5);
+        AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
+        var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyExceptionalHandler).FullName, handlerType);
-        var exception = metricsListener.AssertTagKeyExists(HandlingTimeMetricName, "nservicebus.failure_type");
+        var exception = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.failure_type");
         Assert.AreEqual(typeof(Exception).FullName, exception);
     }
 
