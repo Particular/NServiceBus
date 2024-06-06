@@ -11,7 +11,16 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
 {
     static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
+    static readonly string CriticalTimeMetricName = "nservicebus.messaging.critical_time";
 
+    [Test]
+    public async Task Should_record_critical_time()
+    {
+        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        metricsListener.AssertMetric(CriticalTimeMetricName, 5);
+        AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
+    }
+    
     [Test]
     public async Task Should_record_success_handling_time()
     {
