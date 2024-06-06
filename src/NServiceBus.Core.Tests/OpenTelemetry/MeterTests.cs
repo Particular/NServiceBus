@@ -15,7 +15,7 @@ public class MeterTests
         var meterTags = typeof(MeterTags)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
-            .Select(x => $"{x.Name} => {x.GetRawConstantValue()}")
+            .Select(x => x.GetRawConstantValue())
             .ToList();
         var metrics = typeof(Meters)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
