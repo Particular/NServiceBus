@@ -12,6 +12,6 @@
     "TotalProcessedSuccessfully => nservicebus.messaging.successes",
     "TotalFetched => nservicebus.messaging.fetches",
     "TotalFailures => nservicebus.messaging.failures",
-    "HandlingTime => nservicebus.messaging.handling_time"
+    "MessageHandlerTime => nservicebus.messaging.handler_time"
   ]
 }
