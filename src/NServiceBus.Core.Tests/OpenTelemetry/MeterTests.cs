@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -16,10 +17,11 @@ public class MeterTests
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
             .Select(x => $"{x.Name} => {x.GetRawConstantValue()}")
             .ToList();
-        var metrics = typeof(Metrics)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
-            .Select(x => $"{x.Name} => {x.GetRawConstantValue()}")
+        var metrics = typeof(Meters)
+            .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+            .Where(fi => typeof(Instrument).IsAssignableFrom(fi.FieldType))
+            .Select(fi => (Instrument)fi.GetValue(null))
+            .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}")
             .ToList();
         Approver.Verify(new
         {

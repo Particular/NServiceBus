@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
