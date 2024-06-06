@@ -10,7 +10,7 @@ class MessageHandlingMetricsFactory(string queueName, string discriminator) : IM
     public IMessageHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
         var messageType = context.MessageBeingHandled?.GetType().FullName;
-        TagList tagList = MeterTags.BaseTagList(queueName, discriminator, messageType);
+        TagList tagList = MeterTags.CommonMessagingMetricTags(queueName, discriminator, messageType);
         var handlerType = context.MessageHandler.Instance?.GetType().FullName;
         tagList.Add(MeterTags.MessageHandlerType, handlerType ?? "");
         return new RecordMessageHandlingMetric(tagList);
