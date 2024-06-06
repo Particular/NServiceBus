@@ -13,7 +13,7 @@ static class MeterTags
     public const string MessageHandlerTypes = "nservicebus.message_handler_types";
     public const string MessageHandlerType = "nservicebus.message_handler_type";
 
-    public static TagList BaseTagList(string queueName, string discriminator, string messageType)
+    public static TagList CommonMessagingMetricTags(string queueName, string discriminator, string messageType)
     {
         return new TagList(new KeyValuePair<string, object>[]
         {
