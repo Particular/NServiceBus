@@ -16,9 +16,7 @@ public static class ConfigureLicenseExtensions
     /// <remarks>The license provided via code-first API takes precedence over other license sources.</remarks>
     public static void License(this EndpointConfiguration config, string licenseText)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(licenseText);
-        ArgumentNullException.ThrowIfNull(config);
-
+        // Intentionally not doing validation as passed value could be dynamic and (temporarily) be invalid
         config.Settings.Set(LicenseReminder.LicenseTextSettingsKey, licenseText);
     }
 
@@ -30,9 +28,7 @@ public static class ConfigureLicenseExtensions
     /// <remarks>The license provided via code-first API takes precedence over other license sources.</remarks>
     public static void LicensePath(this EndpointConfiguration config, string licenseFile)
     {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentException.ThrowIfNullOrWhiteSpace(licenseFile);
-
+        // Intentionally not doing validation as passed value could be dynamic and (temporarily) be invalid
         config.Settings.Set(LicenseReminder.LicenseFilePathSettingsKey, licenseFile);
     }
 }
