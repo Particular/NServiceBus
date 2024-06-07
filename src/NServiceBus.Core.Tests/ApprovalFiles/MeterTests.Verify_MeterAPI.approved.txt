@@ -12,6 +12,6 @@
     "nservicebus.messaging.successes => Counter",
     "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.failures => Counter",
-    "nservicebus.messaging.handler_time => Histogram"
+    "nservicebus.messaging.handler_time => Histogram, Unit: ms"
   ]
 }
