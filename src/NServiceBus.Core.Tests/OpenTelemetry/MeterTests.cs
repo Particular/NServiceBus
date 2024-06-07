@@ -21,7 +21,7 @@ public class MeterTests
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
             .Where(fi => typeof(Instrument).IsAssignableFrom(fi.FieldType))
             .Select(fi => (Instrument)fi.GetValue(null))
-            .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}")
+            .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}{(x.Unit == null ? "" : ", Unit: ")}{x.Unit ?? ""}")
             .ToList();
         Approver.Verify(new
         {
