@@ -18,5 +18,5 @@ class Meters
         NServiceBusMeter.CreateCounter<long>(Metrics.TotalFailures, description: "Total number of messages processed unsuccessfully by the endpoint.");
 
     internal static readonly Histogram<double> MessageHandlerTime =
-        NServiceBusMeter.CreateHistogram<double>(Metrics.MessageHandlerTime, "ms", "The time in milliseconds for the execution of the business code.");
+        NServiceBusMeter.CreateHistogram<double>(Metrics.MessageHandlerTime, "s", "The time in seconds for the execution of the business code.");
 }
