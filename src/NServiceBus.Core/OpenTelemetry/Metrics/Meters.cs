@@ -21,7 +21,7 @@ class Meters
         NServiceBusMeter.CreateHistogram<double>(Metrics.MessageHandlerTime, "s", "The time in seconds for the execution of the business code.");
 
     internal static readonly Histogram<double> CriticalTime =
-        NServiceBusMeter.CreateHistogram<double>(Metrics.CriticalTime, "ms", "The time in milliseconds between when the message was sent until processed by the endpoint.");
+        NServiceBusMeter.CreateHistogram<double>(Metrics.CriticalTime, "s", "The time in seconds between when the message was sent until processed by the endpoint.");
 
     internal static readonly Counter<long> TotalImmediateRetries =
         NServiceBusMeter.CreateCounter<long>("nservicebus.recoverability.immediate", description: "Total number of immediate retries requested.");

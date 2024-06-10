@@ -20,7 +20,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric(CriticalTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
     }
-    
+
     [Test]
     public async Task Should_record_success_handling_time()
     {
