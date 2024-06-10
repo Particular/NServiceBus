@@ -46,8 +46,7 @@ class TestingMetricListener : IDisposable
             ReportedMeters.AddOrUpdate(instrument.Name, 1, (_, val) => val + 1);
             Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
         });
-        meterListener.Start()
-            ;
+        meterListener.Start();
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
