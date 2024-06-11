@@ -2,16 +2,18 @@
   "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
   "ActivitySourceVersion": "0.2.0",
   "Tags": [
+    "error.type",
+    "execution.result",
     "nservicebus.discriminator",
-    "nservicebus.queue",
-    "nservicebus.message_type",
     "nservicebus.failure_type",
-    "nservicebus.message_handler_type"
+    "nservicebus.message_handler_type",
+    "nservicebus.message_type",
+    "nservicebus.queue"
   ],
   "Metrics": [
-    "nservicebus.messaging.successes => Counter",
-    "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.failures => Counter",
-    "nservicebus.messaging.handler_time => Histogram, Unit: s"
+    "nservicebus.messaging.fetches => Counter",
+    "nservicebus.messaging.handler_time => Histogram, Unit: s",
+    "nservicebus.messaging.successes => Counter"
   ]
 }

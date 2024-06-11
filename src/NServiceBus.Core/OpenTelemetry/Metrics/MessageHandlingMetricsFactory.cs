@@ -28,13 +28,15 @@ class RecordMessageHandlingMetric : IMessageHandlingMetrics
     public void OnSuccess()
     {
         stopWatch.Stop();
+        tags.Add(new KeyValuePair<string, object>(MeterTags.ExecutionResult, "success"));
         Meters.MessageHandlerTime.Record(stopWatch.Elapsed.TotalSeconds, tags);
     }
 
     public void OnFailure(Exception error)
     {
         stopWatch.Stop();
-        tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, error.GetType().FullName));
+        tags.Add(new KeyValuePair<string, object>(MeterTags.ExecutionResult, "failure"));
+        tags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, error.GetType().FullName));
         Meters.MessageHandlerTime.Record(stopWatch.Elapsed.TotalSeconds, tags);
     }
 

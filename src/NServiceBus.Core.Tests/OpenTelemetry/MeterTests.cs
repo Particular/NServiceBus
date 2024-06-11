@@ -16,12 +16,14 @@ public class MeterTests
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
             .Select(x => x.GetRawConstantValue())
+            .OrderBy(value => value)
             .ToList();
         var metrics = typeof(Meters)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
             .Where(fi => typeof(Instrument).IsAssignableFrom(fi.FieldType))
             .Select(fi => (Instrument)fi.GetValue(null))
             .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}{(x.Unit == null ? "" : ", Unit: ")}{x.Unit ?? ""}")
+            .OrderBy(value => value)
             .ToList();
         Approver.Verify(new
         {
