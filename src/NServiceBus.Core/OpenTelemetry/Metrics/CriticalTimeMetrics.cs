@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 class CriticalTimeMetrics(string queueName, string discriminator)
 {
-    public Task Record(ReceivePipelineCompleted pipeline, CancellationToken cancellationToken)
+    public Task Record(ReceivePipelineCompleted pipeline, CancellationToken cancellationToken = default)
     {
         pipeline.TryGetMessageType(out var messageType);
         var tags = MeterTags.CommonMessagingMetricTags(queueName, discriminator, messageType);
