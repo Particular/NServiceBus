@@ -19,6 +19,8 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyMessageHandler).FullName, handlerType);
+        var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
+        Assert.AreEqual("success", result);
     }
 
     [Test]
@@ -29,8 +31,10 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.AreEqual(typeof(MyExceptionalHandler).FullName, handlerType);
-        var exception = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.failure_type");
-        Assert.AreEqual(typeof(Exception).FullName, exception);
+        var error = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "error.type");
+        Assert.AreEqual(typeof(Exception).FullName, error);
+        var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
+        Assert.AreEqual("failure", result);
     }
 
     static async Task<TestingMetricListener> WhenMessagesHandled(Func<IMessage> messageFactory)
