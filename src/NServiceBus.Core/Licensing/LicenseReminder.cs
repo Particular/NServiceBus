@@ -19,7 +19,24 @@ class LicenseReminder : Feature
         try
         {
             var licenseManager = new LicenseManager();
-            licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
+
+            var settings = context.Settings;
+
+            var licenseTextHasValue = settings.HasExplicitValue(LicenseTextSettingsKey);
+            var licenseText = settings.Get<string>(LicenseTextSettingsKey);
+            if (licenseTextHasValue && string.IsNullOrEmpty(licenseText))
+            {
+                Logger.Error("Provided license text is null or empty and will not be used a license source");
+            }
+
+            var licensePath = settings.Get<string>(LicenseFilePathSettingsKey);
+            var licenseHasValue = settings.HasExplicitValue(LicenseFilePathSettingsKey);
+            if (licenseHasValue && string.IsNullOrEmpty(licensePath))
+            {
+                Logger.Error("Provided license path is null or empty and will not be used a license source");
+            }
+
+            licenseManager.InitializeLicense(licenseText, licensePath);
 
             context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
 

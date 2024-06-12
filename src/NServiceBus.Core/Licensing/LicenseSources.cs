@@ -9,18 +9,20 @@ static class LicenseSources
     {
         var sources = new List<LicenseSource>();
 
-        if (licenseText != null)
+        if (!string.IsNullOrEmpty(licenseText))
         {
             sources.Add(new LicenseSourceUserProvided(licenseText));
         }
 
-        if (licenseFilePath != null)
+        if (!string.IsNullOrEmpty(licenseFilePath))
         {
             sources.Add(new LicenseSourceFilePath(licenseFilePath));
         }
 
         if (licenseText == null && licenseFilePath == null)
         {
+            // TODO: When a user invokes either endpointConfiguration.LicensePath() or . License(string) with a null value
+            //       this would now probe file locations for a valid license which I think is unwanted.
             var standardSources = LicenseSource.GetStandardLicenseSources();
 
             sources.AddRange(standardSources);
