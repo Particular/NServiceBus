@@ -28,31 +28,18 @@ class LicenseReminder : Feature
             if (licenseTextHasValue)
             {
                 var licenseText = settings.Get<string>(LicenseTextSettingsKey);
-                if (string.IsNullOrEmpty(licenseText))
-                {
-                    Logger.Error("Provided license text is null or empty and will not be used as a license source");
-                }
-                else
-                {
-                    sources.Add(new LicenseSourceUserProvided(licenseText));
-                }
+                sources.Add(new LicenseSourceUserProvided(licenseText));
             }
 
-            var licenseHasValue = settings.HasExplicitValue(LicenseFilePathSettingsKey);
-            if (licenseHasValue)
+            var licensePathHasValue = settings.HasExplicitValue(LicenseFilePathSettingsKey);
+            if (licensePathHasValue)
             {
                 var licensePath = settings.Get<string>(LicenseFilePathSettingsKey);
-                if (string.IsNullOrEmpty(licensePath))
-                {
-                    Logger.Error("Provided license path is null or empty and will not be used as a license source");
-                }
-                else
-                {
-                    sources.Add(new LicenseSourceFilePath(licensePath));
-                }
+                sources.Add(new LicenseSourceFilePath(licensePath));
             }
 
-            if (!licenseHasValue && !licenseTextHasValue)
+            var noTextAndNoPathProvided = !licensePathHasValue && !licenseTextHasValue;
+            if (noTextAndNoPathProvided)
             {
                 sources = LicenseSource.GetStandardLicenseSources();
             }
