@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -14,11 +15,9 @@ class LicenseManager
 {
     public bool HasLicenseExpired => result?.License.HasExpired() ?? true;
 
-    public void InitializeLicense(string licenseText, string licenseFilePath)
+    public void InitializeLicense(IEnumerable<LicenseSource> sources)
     {
-        var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
-
-        result = ActiveLicense.Find("NServiceBus", licenseSources);
+        result = ActiveLicense.Find("NServiceBus", sources);
         var developerLicenseUrl = CreateDeveloperLicenseUrl();
 
         LogFindResults(result);

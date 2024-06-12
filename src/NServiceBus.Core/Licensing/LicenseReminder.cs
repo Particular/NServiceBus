@@ -1,8 +1,10 @@
 namespace NServiceBus.Features;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Logging;
+using Particular.Licensing;
 
 class LicenseReminder : Feature
 {
@@ -18,25 +20,45 @@ class LicenseReminder : Feature
     {
         try
         {
-            var licenseManager = new LicenseManager();
+            var sources = new List<LicenseSource>();
 
             var settings = context.Settings;
 
             var licenseTextHasValue = settings.HasExplicitValue(LicenseTextSettingsKey);
-            var licenseText = settings.Get<string>(LicenseTextSettingsKey);
-            if (licenseTextHasValue && string.IsNullOrEmpty(licenseText))
+            if (licenseTextHasValue)
             {
-                Logger.Error("Provided license text is null or empty and will not be used a license source");
+                var licenseText = settings.Get<string>(LicenseTextSettingsKey);
+                if (string.IsNullOrEmpty(licenseText))
+                {
+                    Logger.Error("Provided license text is null or empty and will not be used as a license source");
+                }
+                else
+                {
+                    sources.Add(new LicenseSourceUserProvided(licenseText));
+                }
             }
 
-            var licensePath = settings.Get<string>(LicenseFilePathSettingsKey);
             var licenseHasValue = settings.HasExplicitValue(LicenseFilePathSettingsKey);
-            if (licenseHasValue && string.IsNullOrEmpty(licensePath))
+            if (licenseHasValue)
             {
-                Logger.Error("Provided license path is null or empty and will not be used a license source");
+                var licensePath = settings.Get<string>(LicenseFilePathSettingsKey);
+                if (string.IsNullOrEmpty(licensePath))
+                {
+                    Logger.Error("Provided license path is null or empty and will not be used as a license source");
+                }
+                else
+                {
+                    sources.Add(new LicenseSourceFilePath(licensePath));
+                }
             }
 
-            licenseManager.InitializeLicense(licenseText, licensePath);
+            if (!licenseHasValue && !licenseTextHasValue)
+            {
+                sources = LicenseSource.GetStandardLicenseSources();
+            }
+
+            var licenseManager = new LicenseManager();
+            licenseManager.InitializeLicense(sources);
 
             context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
 
