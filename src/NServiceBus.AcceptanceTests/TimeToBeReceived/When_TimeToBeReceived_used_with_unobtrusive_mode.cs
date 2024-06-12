@@ -13,9 +13,12 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
     [Test]
     public async Task Message_should_not_be_received()
     {
+        var start = DateTime.UtcNow;
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Run(TimeSpan.FromSeconds(10));
+            .Done(c => c.WasCalled || DateTime.UtcNow - start > TimeSpan.FromSeconds(15))
+            .Run();
 
         Assert.IsFalse(context.WasCalled);
     }
