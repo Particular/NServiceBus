@@ -14,11 +14,15 @@ static class MeterTags
     public const string ExecutionResult = "execution.result";
     public const string ErrorType = "error.type";
 
-    public static TagList CommonMessagingMetricTags(string queueName, string discriminator, string messageType)
+    public static TagList CommonMessagingMetricTags(string queueName, string discriminator)
     {
         return new TagList(new KeyValuePair<string, object>[]
         {
-            new(QueueName, queueName ?? ""), new(EndpointDiscriminator, discriminator ?? ""), new(MessageType, messageType ?? "")
+            new(QueueName, queueName ?? ""), new(EndpointDiscriminator, discriminator ?? "")
         }.AsSpan());
     }
+
+    public static KeyValuePair<string, object> MessageTypeTag(Type messageType) => new(MessageType, messageType.FullName ?? "");
+    public static KeyValuePair<string, object> MessageHandlerTypeTag(Type messageHandlerType) => new(MessageHandlerType, messageHandlerType.FullName ?? "");
+
 }

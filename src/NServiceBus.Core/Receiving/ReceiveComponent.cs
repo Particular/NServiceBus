@@ -14,10 +14,11 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory)
+    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, IMetricsFactory metricsFactory)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
+        this.metricsFactory = metricsFactory;
     }
 
     public static ReceiveComponent Configure(
@@ -29,10 +30,10 @@ partial class ReceiveComponent
         if (configuration.IsSendOnlyEndpoint)
         {
             configuration.transportSeam.Configure([]);
-            return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
+            return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory, hostingConfiguration.MetricsFactory);
         }
 
-        var receiveComponent = new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
+        var receiveComponent = new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory, hostingConfiguration.MetricsFactory);
 
         hostingConfiguration.Services.AddSingleton(sp =>
         {
@@ -71,7 +72,7 @@ partial class ReceiveComponent
             return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
         }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory, hostingConfiguration.MessageHandlingMetricsFactory), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -154,7 +155,7 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, metricsFactory);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
@@ -290,6 +291,7 @@ partial class ReceiveComponent
 
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;
+    readonly IMetricsFactory metricsFactory;
     readonly List<IMessageReceiver> receivers = [];
 
     public const string MainReceiverId = "Main";

@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -9,7 +10,7 @@ using Transport;
 
 class MainPipelineExecutor : IPipelineExecutor
 {
-    public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
+    public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory, IMetricsFactory metricsFactory)
     {
         this.rootBuilder = rootBuilder;
         this.pipelineCache = pipelineCache;
@@ -17,6 +18,7 @@ class MainPipelineExecutor : IPipelineExecutor
         this.receivePipelineNotification = receivePipelineNotification;
         this.receivePipeline = receivePipeline;
         this.activityFactory = activityFactory;
+        this.metricsFactory = metricsFactory;
     }
 
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -24,7 +26,7 @@ class MainPipelineExecutor : IPipelineExecutor
         var pipelineStartedAt = DateTimeOffset.UtcNow;
 
         using var activity = activityFactory.StartIncomingActivity(messageContext);
-
+        IMetricsBag? metricsBag = metricsFactory.MetricsBag();
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
@@ -43,6 +45,8 @@ class MainPipelineExecutor : IPipelineExecutor
             {
                 transportReceiveContext.SetIncomingPipelineActitvity(activity);
             }
+
+            transportReceiveContext.SetPipelineMetrics(metricsBag);
 
             try
             {
@@ -63,7 +67,10 @@ class MainPipelineExecutor : IPipelineExecutor
 
                 throw;
             }
-
+            finally
+            {
+                metricsBag?.Record();
+            }
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
         }
     }
@@ -74,4 +81,5 @@ class MainPipelineExecutor : IPipelineExecutor
     readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
     readonly IPipeline<ITransportReceiveContext> receivePipeline;
     readonly IActivityFactory activityFactory;
+    readonly IMetricsFactory metricsFactory;
 }

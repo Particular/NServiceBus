@@ -118,7 +118,8 @@ public class MainPipelineExecutorTests
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
-            new ActivityFactory());
+            new ActivityFactory(),
+            new MetricsFactory("endpoint", "discriminator"));
 
         return executor;
     }

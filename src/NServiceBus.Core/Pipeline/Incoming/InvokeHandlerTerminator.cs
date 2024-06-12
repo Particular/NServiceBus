@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator(IActivityFactory activityFactory, IMessageHandlingMetricsFactory metricsFactory) : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTerminator<IInvokeHandlerContext>
 {
 
     protected override async Task Terminate(IInvokeHandlerContext context)
@@ -22,7 +22,8 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IMessageHandling
 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
-        var handlingMetrics = metricsFactory.StartHandling(context);
+        var metricsBag = context.Extensions.GetPipelineMetrics();
+        var handlerMetric = metricsBag?.StartExecution(Meters.MessageHandlerTime, MeterTags.MessageTypeTag(context.MessageBeingHandled.GetType()));
         var startTime = DateTimeOffset.UtcNow;
         try
         {
@@ -32,7 +33,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IMessageHandling
                 .ConfigureAwait(false);
 
             activity?.SetStatus(ActivityStatusCode.Ok);
-            handlingMetrics.OnSuccess();
+            handlerMetric?.OnSuccess(MeterTags.MessageHandlerTypeTag(messageHandler.HandlerType));
         }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
         catch (Exception ex)
@@ -45,7 +46,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IMessageHandling
             ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
             activity?.SetErrorStatus(ex);
-            handlingMetrics.OnFailure(ex);
+            handlerMetric?.OnFailure(ex, MeterTags.MessageHandlerTypeTag(messageHandler.HandlerType));
             throw;
         }
     }
