@@ -19,8 +19,8 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
         context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
-        string messageTypeHeader = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
-        string messageTypeName = !string.IsNullOrEmpty(messageTypeHeader) ? messageTypeHeader.Split(',').FirstOrDefault() : default;
+        var messageTypeHeader = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
+        var messageTypeName = !string.IsNullOrEmpty(messageTypeHeader) ? messageTypeHeader.Split(',').FirstOrDefault() : default;
 
         var tags = new TagList(new KeyValuePair<string, object>[]
         {
