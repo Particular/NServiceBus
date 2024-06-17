@@ -3,6 +3,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -18,12 +19,14 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
         context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
+        var messageTypeHeader = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
+        var messageTypeName = !string.IsNullOrEmpty(messageTypeHeader) ? messageTypeHeader.Split(',').FirstOrDefault() : default;
 
         var tags = new TagList(new KeyValuePair<string, object>[]
         {
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
             new(MeterTags.QueueName, queueNameBase ?? ""),
-            new(MeterTags.MessageType, messageTypes ?? ""),
+            new(MeterTags.MessageType, messageTypeName ?? ""),
         }.AsSpan());
 
         Meters.TotalFetched.Add(1, tags);
