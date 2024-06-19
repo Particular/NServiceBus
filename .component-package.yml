@@ -1,0 +1,6 @@
+ComponentType: Core
+ComponentPackages:
+  - Name: NServiceBus
+  - Name: NServiceBus.AcceptanceTesting
+  - Name: NServiceBus.AcceptanceTests.Sources
+  - Name: NServiceBus.ContainerTests.Sources
