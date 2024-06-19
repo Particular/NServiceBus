@@ -16,4 +16,13 @@ class Meters
 
     internal static readonly Counter<long> TotalFailures =
         NServiceBusMeter.CreateCounter<long>("nservicebus.messaging.failures", description: "Total number of messages processed unsuccessfully by the endpoint.");
+
+    internal static readonly Counter<long> TotalImmediateRetries =
+        NServiceBusMeter.CreateCounter<long>("nservicebus.recoverability.immediate", description: "Total number of immediate retries requested.");
+
+    internal static readonly Counter<long> TotalDelayedRetries =
+        NServiceBusMeter.CreateCounter<long>("nservicebus.recoverability.delayed", description: "Total number of delayed retries requested.");
+
+    internal static readonly Counter<long> TotalSentToErrorQueue =
+        NServiceBusMeter.CreateCounter<long>("nservicebus.recoverability.error", description: "Total number of messages sent to the error queue.");
 }
