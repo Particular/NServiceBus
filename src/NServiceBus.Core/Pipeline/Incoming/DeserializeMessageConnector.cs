@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Logging;
 using MessageInterfaces;
@@ -26,6 +27,11 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         var incomingMessage = context.Message;
 
         var messages = ExtractWithExceptionHandling(incomingMessage);
+        if (messages.Length == 1) // ignore the legacy case in which a single message payload contained multiple messages
+        {
+            // capture the message type to add it as a tag to applicable metrics
+            context.Extensions.Get<MetricTags>().MessageType = messages.First().MessageType.Name;
+        }
 
         foreach (var message in messages)
         {

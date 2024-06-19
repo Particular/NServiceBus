@@ -3,13 +3,11 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Pipeline;
 
 class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
-
     public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
     {
         this.queueNameBase = queueNameBase;
@@ -18,15 +16,12 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
-        var messageTypeHeader = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
-        var messageTypeName = !string.IsNullOrEmpty(messageTypeHeader) ? messageTypeHeader.Split(',').FirstOrDefault() : default;
+        context.Extensions.Set<MetricTags>(new());
 
         var tags = new TagList(new KeyValuePair<string, object>[]
         {
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
             new(MeterTags.QueueName, queueNameBase ?? ""),
-            new(MeterTags.MessageType, messageTypeName ?? ""),
         }.AsSpan());
 
         Meters.TotalFetched.Add(1, tags);
@@ -37,11 +32,15 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         }
         catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
         {
+            var onFailureMetricTags = context.Extensions.Get<MetricTags>();
+            onFailureMetricTags.ApplyToTags(tags);
             tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, ex.GetType()));
             Meters.TotalFailures.Add(1, tags);
             throw;
         }
 
+        var metricTags = context.Extensions.Get<MetricTags>();
+        metricTags.ApplyToTags(tags);
         Meters.TotalProcessedSuccessfully.Add(1, tags);
     }
 
