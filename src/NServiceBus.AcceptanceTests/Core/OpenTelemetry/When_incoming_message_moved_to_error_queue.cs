@@ -11,7 +11,6 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
     [Test]
     public async Task Should_add_start_new_trace_header()
     {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         var context = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
