@@ -1,5 +1,7 @@
 namespace NServiceBus;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Features;
 
 /// <summary>
