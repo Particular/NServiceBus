@@ -3,6 +3,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using Metrics;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
