@@ -22,4 +22,7 @@ class Meters
 
     internal static readonly Histogram<double> CriticalTime =
         NServiceBusMeter.CreateHistogram<double>(Metrics.CriticalTime, "s", "The time in seconds between when the message was sent until processed by the endpoint.");
+
+    internal static readonly Histogram<double> ProcessingTime =
+        NServiceBusMeter.CreateHistogram<double>(Metrics.ProcessingTime, "s", "The time in seconds since the message was fetched from the input queue until processed by the endpoint.");
 }

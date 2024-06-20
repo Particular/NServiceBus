@@ -1,5 +1,7 @@
 namespace NServiceBus;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Features;
 
 /// <summary>
@@ -22,6 +24,16 @@ class MessagingMetricsFeature : Feature
             "Provides OpenTelemetry counters for message processing"
         );
         var criticalTimeMetrics = new CriticalTimeMetrics(queueName, discriminator);
-        context.Pipeline.OnReceivePipelineCompleted((pipeline, token) => criticalTimeMetrics.Record(pipeline, token));
+        var processingTimeMetrics = new ProcessingTimeMetrics(queueName, discriminator);
+        context.Pipeline.OnReceivePipelineCompleted((pipeline, token) =>
+        {
+            List<Task> tasks =
+            [
+                processingTimeMetrics.Record(pipeline, token),
+                criticalTimeMetrics.Record(pipeline, token)
+            ];
+
+            return Task.WhenAll(tasks);
+        });
     }
 }
