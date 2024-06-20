@@ -113,6 +113,7 @@ NServiceBus.MoveToError
 NServiceBus.NServiceBusMarkerInterfaceConvention
 NServiceBus.OnSatelliteMessage
 NServiceBus.OpenTelemetryConfigurationExtensions
+NServiceBus.OpenTelemetryExtensions
 NServiceBus.Outbox.IOutboxStorage
 NServiceBus.Outbox.OutboxMessage
 NServiceBus.Outbox.TransportOperation
