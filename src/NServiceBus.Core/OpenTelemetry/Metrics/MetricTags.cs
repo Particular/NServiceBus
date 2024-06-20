@@ -1,6 +1,5 @@
 namespace NServiceBus;
 
-using System.Collections.Generic;
 using System.Diagnostics;
 
 /// <summary>
@@ -12,15 +11,14 @@ class MetricTags
 
     public string MessageType { get; set; }
 
-    public void ApplyToTags(TagList tags)
+    public void AddMessageTypeIfExists(ref TagList tags) => tags.Add(new(MeterTags.MessageType, MessageType));
+
+    public void AddMessageHandlerTypesIfExists(ref TagList tags)
     {
-        if (!string.IsNullOrEmpty(MessageType))
+        if (MessageHandlerTypes == null)
         {
-            tags.Add(new KeyValuePair<string, object>(MeterTags.MessageType, MessageType));
+            return;
         }
-        if (MessageHandlerTypes.Length != 0)
-        {
-            tags.Add(new KeyValuePair<string, object>(MeterTags.MessageHandlerTypes, string.Join(";", MessageHandlerTypes)));
-        }
+        tags.Add(new(MeterTags.MessageHandlerTypes, string.Join(";", MessageHandlerTypes)));
     }
 }

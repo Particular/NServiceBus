@@ -33,12 +33,10 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
         var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
         var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
         var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
-        var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.message_type").ToString();
 
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
         Assert.AreEqual(typeof(OutgoingMessage).FullName, successType);
-        Assert.AreEqual(typeof(OutgoingMessage).FullName, fetchedType);
     }
 
     [Test]
@@ -64,13 +62,14 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
 
         var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
         var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
+        var successHandlerType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_handler_types");
+
         var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
-        var fetchedType = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.message_type").ToString();
 
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
         Assert.AreEqual(typeof(OutgoingWithComplexHierarchyMessage).FullName, successType);
-        Assert.AreEqual(typeof(OutgoingWithComplexHierarchyMessage).FullName, fetchedType);
+        Assert.AreEqual(typeof(EndpointWithMetrics.ComplexMessageHandler).FullName, successHandlerType);
     }
 
     class Context : ScenarioContext
@@ -96,7 +95,7 @@ public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
             }
         }
 
-        class ComplexMessageHandler : IHandleMessages<OutgoingWithComplexHierarchyMessage>
+        public class ComplexMessageHandler : IHandleMessages<OutgoingWithComplexHierarchyMessage>
         {
             readonly Context testContext;
 
