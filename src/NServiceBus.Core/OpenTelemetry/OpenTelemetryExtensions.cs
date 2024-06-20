@@ -1,7 +1,7 @@
 namespace NServiceBus;
 
 /// <summary>
-/// Gives users control over the depth of an OpenTelemetry trace
+/// Gives users control over the depth of an OpenTelemetry trace.
 /// </summary>
 public static class OpenTelemetryExtensions
 {
@@ -9,7 +9,7 @@ public static class OpenTelemetryExtensions
     /// Start a new OpenTelemetry trace conversation.
     /// </summary>
     /// <param name="sendOptions">The option being extended.</param>
-    public static void StartNewTrace(this SendOptions sendOptions)
+    public static void StartNewTraceOnReceive(this SendOptions sendOptions)
     {
         sendOptions.SetHeader(Headers.StartNewTrace, bool.TrueString);
     }
@@ -18,7 +18,7 @@ public static class OpenTelemetryExtensions
     /// Start a new OpenTelemetry trace conversation.
     /// </summary>
     /// <param name="publishOptions">The option being extended.</param>
-    public static void StartNewTrace(this PublishOptions publishOptions)
+    public static void StartNewTraceOnReceive(this PublishOptions publishOptions)
     {
         publishOptions.SetHeader(Headers.StartNewTrace, bool.TrueString);
     }

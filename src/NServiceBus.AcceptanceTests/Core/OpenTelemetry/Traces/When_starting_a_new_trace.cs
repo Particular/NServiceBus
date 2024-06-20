@@ -20,7 +20,7 @@ public class When_starting_a_new_trace : OpenTelemetryAcceptanceTest
                 .When(ctx => ctx.SomeEventSubscribed, s =>
                 {
                     var publishOptions = new PublishOptions();
-                    publishOptions.StartNewTrace();
+                    publishOptions.StartNewTraceOnReceive();
                     return s.Publish(new ThisIsAnEvent(), publishOptions);
                 }))
             .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
@@ -60,7 +60,7 @@ public class When_starting_a_new_trace : OpenTelemetryAcceptanceTest
                 .When(s =>
                 {
                     var sendOptions = new SendOptions();
-                    sendOptions.StartNewTrace();
+                    sendOptions.StartNewTraceOnReceive();
                     return s.Send(new IncomingMessage(), sendOptions);
                 }))
             .WithEndpoint<Receiver>()
