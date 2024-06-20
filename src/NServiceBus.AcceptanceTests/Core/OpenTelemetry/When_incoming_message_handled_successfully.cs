@@ -26,7 +26,7 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
             .Done(c => c.TotalHandledMessages == 5)
             .Run();
 
-        string handlingTime = "nservicebus.messaging.handling_time";
+        string handlingTime = "nservicebus.messaging.handler_time";
         metricsListener.AssertMetric(handlingTime, 5);
         var messageType = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.message_type");
         Assert.AreEqual(typeof(MyMessage).FullName, messageType);
