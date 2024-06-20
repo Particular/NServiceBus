@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // assuming W3C trace!

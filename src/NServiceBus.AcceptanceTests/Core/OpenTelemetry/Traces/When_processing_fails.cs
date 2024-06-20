@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -10,22 +10,6 @@ using NUnit.Framework;
 
 public class When_processing_fails : OpenTelemetryAcceptanceTest
 {
-    [Test]
-    public async Task Should_report_failing_message_metrics()
-    {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-        _ = await Scenario.Define<Context>()
-            .WithEndpoint<FailingEndpoint>(e => e
-                .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.HandlerInvoked)
-            .Run();
-
-        metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
-        metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
-        metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
-    }
-
     [Test]
     public async Task Should_mark_span_as_failed()
     {

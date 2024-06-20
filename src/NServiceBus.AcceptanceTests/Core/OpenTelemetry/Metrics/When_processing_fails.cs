@@ -1,26 +1,29 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
-public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanceTest
+public class When_processing_fails : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_add_start_new_trace_header()
+    public async Task Should_report_failing_message_metrics()
     {
-        var context = await Scenario.Define<Context>()
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        _ = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.FailedMessages.Count == 1)
+            .Done(c => c.HandlerInvoked)
             .Run();
 
-        var failedMessage = context.FailedMessages.First().Value.First();
-        Assert.IsTrue(failedMessage.Headers.ContainsKey(Headers.StartNewTrace));
-        Assert.AreEqual(bool.TrueString, failedMessage.Headers[Headers.StartNewTrace]);
+        metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
     }
 
     class Context : ScenarioContext
