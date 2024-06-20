@@ -1,5 +1,8 @@
 namespace NServiceBus;
 
+/// <summary>
+/// Gives users control over the depth of an OpenTelemetry trace
+/// </summary>
 public static class OpenTelemetryExtensions
 {
     /// <summary>
