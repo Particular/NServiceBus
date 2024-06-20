@@ -7,6 +7,7 @@ using Metrics;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
+[NonParallelizable]
 public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 {
     [Test]
@@ -59,7 +60,7 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         }
     }
 
-    class MyMessage : IMessage
+    public class MyMessage : IMessage
     {
     }
 }
