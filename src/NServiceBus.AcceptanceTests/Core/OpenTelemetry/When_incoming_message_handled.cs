@@ -12,6 +12,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
 {
     static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
     static readonly string CriticalTimeMetricName = "nservicebus.messaging.critical_time";
+    static readonly string ProcessingTimeMetricName = "nservicebus.messaging.processing_time";
 
     [Test]
     public async Task Should_record_critical_time()
