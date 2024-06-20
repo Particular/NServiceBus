@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System;
 using System.Collections.Concurrent;
