@@ -12,6 +12,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
 {
     static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
     static readonly string CriticalTimeMetricName = "nservicebus.messaging.critical_time";
+    static readonly string ProcessingTimeMetricName = "nservicebus.messaging.processing_time";
 
     [Test]
     public async Task Should_record_critical_time()
@@ -19,6 +20,14 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
         metricsListener.AssertMetric(CriticalTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
+    }
+
+    [Test]
+    public async Task Should_record_processing_time()
+    {
+        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        metricsListener.AssertMetric(ProcessingTimeMetricName, 5);
+        AssertMandatoryTags(metricsListener, ProcessingTimeMetricName, typeof(MyMessage));
     }
 
     [Test]
