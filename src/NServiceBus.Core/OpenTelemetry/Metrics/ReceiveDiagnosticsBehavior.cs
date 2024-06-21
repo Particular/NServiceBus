@@ -16,8 +16,6 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        context.Extensions.Set<MetricTags>(new());
-
         var tags = new TagList(new KeyValuePair<string, object>[]
         {
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
