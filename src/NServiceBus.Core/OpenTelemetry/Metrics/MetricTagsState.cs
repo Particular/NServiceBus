@@ -5,7 +5,7 @@ using System.Diagnostics;
 /// <summary>
 /// Captures metric tags throughout the pipeline to add to applicable metrics
 /// </summary>
-class MetricTags
+class MetricTagsState
 {
     public string[] MessageHandlerTypes { get; set; }
     public string MessageType { get; set; }

@@ -15,7 +15,7 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        var metricTags = context.Extensions.Get<MetricTags>();
+        var metricTags = context.Extensions.Get<MetricTagsState>();
         metricTags.EndpointDiscriminator = discriminator;
         metricTags.QueueName = queueNameBase;
 

@@ -19,7 +19,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        context.Extensions.Set<MetricTags>(new());
+        context.Extensions.Set<MetricTagsState>(new());
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 

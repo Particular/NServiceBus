@@ -30,7 +30,7 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         if (messages.Length == 1) // ignore the legacy case in which a single message payload contained multiple messages
         {
             // capture the message type to add it as a tag to applicable metrics
-            context.Extensions.Get<MetricTags>().MessageType = messages.First().MessageType.FullName;
+            context.Extensions.Get<MetricTagsState>().MessageType = messages.First().MessageType.FullName;
         }
 
         foreach (var message in messages)
