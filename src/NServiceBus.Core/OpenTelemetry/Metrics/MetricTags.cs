@@ -8,8 +8,9 @@ using System.Diagnostics;
 class MetricTags
 {
     public string[] MessageHandlerTypes { get; set; }
-
     public string MessageType { get; set; }
+    public string EndpointDiscriminator { get; set; }
+    public string QueueName { get; set; }
 
     public void AddMessageTypeIfExists(ref TagList tags)
     {
@@ -26,5 +27,21 @@ class MetricTags
             return;
         }
         tags.Add(new(MeterTags.MessageHandlerTypes, string.Join(";", MessageHandlerTypes)));
+    }
+
+    public void AddEndpointDiscriminatorIfExists(ref TagList tags)
+    {
+        if (!string.IsNullOrEmpty(EndpointDiscriminator))
+        {
+            tags.Add(new(MeterTags.EndpointDiscriminator, EndpointDiscriminator));
+        }
+    }
+
+    public void AddQueueNameIfExists(ref TagList tags)
+    {
+        if (!string.IsNullOrEmpty(QueueName))
+        {
+            tags.Add(new(MeterTags.QueueName, QueueName));
+        }
     }
 }
