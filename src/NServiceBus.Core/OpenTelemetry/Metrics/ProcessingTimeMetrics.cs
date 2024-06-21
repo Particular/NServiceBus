@@ -3,12 +3,10 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 class ProcessingTimeMetrics(string queueName, string discriminator)
 {
-    public Task Record(ReceivePipelineCompleted pipeline, CancellationToken cancellationToken = default)
+    public void Record(ReceivePipelineCompleted pipeline)
     {
         _ = pipeline.TryGetMessageType(out var messageType);
         var tagList = new TagList(new KeyValuePair<string, object>[]
@@ -19,6 +17,5 @@ class ProcessingTimeMetrics(string queueName, string discriminator)
         }.AsSpan());
 
         Meters.ProcessingTime.Record((pipeline.CompletedAt - pipeline.StartedAt).TotalSeconds, tagList);
-        return Task.CompletedTask;
     }
 }

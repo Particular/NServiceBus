@@ -3,12 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 class CriticalTimeMetrics(string queueName, string discriminator)
 {
-    public Task Record(ReceivePipelineCompleted pipeline, CancellationToken cancellationToken = default)
+    public void Record(ReceivePipelineCompleted pipeline)
     {
         _ = pipeline.TryGetMessageType(out var messageType);
         var tagList = new TagList(new KeyValuePair<string, object>[]
@@ -22,6 +20,5 @@ class CriticalTimeMetrics(string queueName, string discriminator)
         {
             Meters.CriticalTime.Record((pipeline.CompletedAt - startTime).TotalSeconds, tagList);
         }
-        return Task.CompletedTask;
     }
 }

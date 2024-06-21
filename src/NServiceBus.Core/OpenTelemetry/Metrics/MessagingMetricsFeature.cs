@@ -24,9 +24,12 @@ class MessagingMetricsFeature : Feature
         );
         var criticalTimeMetrics = new CriticalTimeMetrics(queueName, discriminator);
         var processingTimeMetrics = new ProcessingTimeMetrics(queueName, discriminator);
-        context.Pipeline.OnReceivePipelineCompleted((pipeline, token) => Task.WhenAll(
-            processingTimeMetrics.Record(pipeline, token),
-            criticalTimeMetrics.Record(pipeline, token)
-        ));
+        context.Pipeline.OnReceivePipelineCompleted((pipeline, token) =>
+        {
+            processingTimeMetrics.Record(pipeline);
+            criticalTimeMetrics.Record(pipeline);
+
+            return Task.CompletedTask;
+        });
     }
 }
