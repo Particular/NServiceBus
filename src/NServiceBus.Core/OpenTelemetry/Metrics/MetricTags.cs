@@ -11,7 +11,13 @@ class MetricTags
 
     public string MessageType { get; set; }
 
-    public void AddMessageTypeIfExists(ref TagList tags) => tags.Add(new(MeterTags.MessageType, MessageType));
+    public void AddMessageTypeIfExists(ref TagList tags)
+    {
+        if (!string.IsNullOrEmpty(MessageType))
+        {
+            tags.Add(new(MeterTags.MessageType, MessageType));
+        }
+    }
 
     public void AddMessageHandlerTypesIfExists(ref TagList tags)
     {
