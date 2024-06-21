@@ -1,6 +1,5 @@
 namespace NServiceBus;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Features;
 
@@ -28,6 +27,6 @@ class MessagingMetricsFeature : Feature
         context.Pipeline.OnReceivePipelineCompleted((pipeline, token) => Task.WhenAll(
             processingTimeMetrics.Record(pipeline, token),
             criticalTimeMetrics.Record(pipeline, token)
-        );
+        ));
     }
 }
