@@ -1,47 +1,19 @@
 namespace NServiceBus;
 
+using System.Collections.Generic;
 using System.Diagnostics;
 
-/// <summary>
-/// Captures metric tags throughout the pipeline to add to applicable metrics
-/// </summary>
-class MetricTagsState
+static class MetricTagsExtensions
 {
-    public string[] MessageHandlerTypes { get; set; }
-    public string MessageType { get; set; }
-    public string EndpointDiscriminator { get; set; }
-    public string QueueName { get; set; }
-
-    public void AddMessageTypeIfExists(ref TagList tags)
+    public const string AvailableMetricsTags = "NServiceBus.OpenTelemetry.AvailableMetricsState";
+    public static void Apply(this Dictionary<string, object> availableTags, ref TagList taglist, params string[] tagKeys)
     {
-        if (!string.IsNullOrEmpty(MessageType))
+        foreach (var tagKey in tagKeys)
         {
-            tags.Add(new(MeterTags.MessageType, MessageType));
-        }
-    }
-
-    public void AddMessageHandlerTypesIfExists(ref TagList tags)
-    {
-        if (MessageHandlerTypes == null)
-        {
-            return;
-        }
-        tags.Add(new(MeterTags.MessageHandlerTypes, string.Join(";", MessageHandlerTypes)));
-    }
-
-    public void AddEndpointDiscriminatorIfExists(ref TagList tags)
-    {
-        if (!string.IsNullOrEmpty(EndpointDiscriminator))
-        {
-            tags.Add(new(MeterTags.EndpointDiscriminator, EndpointDiscriminator));
-        }
-    }
-
-    public void AddQueueNameIfExists(ref TagList tags)
-    {
-        if (!string.IsNullOrEmpty(QueueName))
-        {
-            tags.Add(new(MeterTags.QueueName, QueueName));
+            if (availableTags.TryGetValue(tagKey, out var value))
+            {
+                taglist.Add(new(tagKey, value));
+            }
         }
     }
 }
