@@ -11,15 +11,15 @@ public static class OpenTelemetryExtensions
     /// <param name="sendOptions">The option being extended.</param>
     public static void StartNewTraceOnReceive(this SendOptions sendOptions)
     {
-        sendOptions.SetHeader(Headers.StartNewTrace, bool.TrueString);
+        sendOptions.Context.Set(OpenTelemetrySendBehavior.StartNewTraceOnReceive, true);
     }
 
     /// <summary>
     /// Start a new OpenTelemetry trace conversation.
     /// </summary>
     /// <param name="publishOptions">The option being extended.</param>
-    public static void StartNewTraceOnReceive(this PublishOptions publishOptions)
+    public static void ContinueExistingTraceOnReceive(this PublishOptions publishOptions)
     {
-        publishOptions.SetHeader(Headers.StartNewTrace, bool.TrueString);
+        publishOptions.Context.Set(OpenTelemetryPublishBehavior.ContinueTraceOnReceive, true);
     }
 }

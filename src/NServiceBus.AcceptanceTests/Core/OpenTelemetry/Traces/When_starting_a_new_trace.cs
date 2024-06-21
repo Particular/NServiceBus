@@ -13,15 +13,50 @@ using NUnit.Framework;
 public class When_starting_a_new_trace : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Through_publish_options_should_create_new_trace_and_link_to_send()
+    public async Task Through_publish_options_should_continue_the_trace_with_a_new_child()
     {
         var context = await Scenario.Define<PublishContext>()
             .WithEndpoint<Publisher>(b => b
                 .When(ctx => ctx.SomeEventSubscribed, s =>
                 {
                     var publishOptions = new PublishOptions();
-                    publishOptions.StartNewTraceOnReceive();
+                    publishOptions.ContinueExistingTraceOnReceive();
                     return s.Publish(new ThisIsAnEvent(), publishOptions);
+                }))
+            .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Done(c => c.OutgoingEventReceived)
+            .Run();
+
+        var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, publishMessageActivities.Count, "1 message is published as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var publishRequest = publishMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreEqual(publishRequest.RootId, receiveRequest.RootId, "publish and receive operations are part the same root activity");
+        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+
+        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
+    }
+
+    [Test]
+    public async Task Publish_should_create_new_trace_and_link_to_publish_by_default()
+    {
+        var context = await Scenario.Define<PublishContext>()
+            .WithEndpoint<Publisher>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s =>
+                {
+                    return s.Publish(new ThisIsAnEvent());
                 }))
             .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
             {
@@ -49,6 +84,34 @@ public class When_starting_a_new_trace : OpenTelemetryAcceptanceTest
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.IsNotNull(link, "Receive has a link");
         Assert.AreEqual(publishRequest.TraceId, link.Context.TraceId, "receive is linked to publish operation");
+    }
+
+    [Test]
+    public async Task Send_should_create_new_child_by_default()
+    {
+        var context = await Scenario.Define<SendContext>()
+            .WithEndpoint<Sender>(b => b
+                .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(Receiver)))
+                .When(s =>
+                {
+                    return s.Send(new IncomingMessage());
+                }))
+            .WithEndpoint<Receiver>()
+            .Done(c => c.OutgoingMessageReceived)
+            .Run();
+
+        var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, sendMessageActivities.Count, "1 message is sent as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of the same root activity");
+        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+
+        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
     }
 
     [Test]
