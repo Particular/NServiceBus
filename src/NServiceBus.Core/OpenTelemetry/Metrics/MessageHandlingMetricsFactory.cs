@@ -10,14 +10,14 @@ class MessageHandlingMetricsFactory(string queueName, string discriminator) : IM
     public IMessageHandlingMetrics StartHandling(IInvokeHandlerContext context)
     {
         var messageType = context.MessageBeingHandled?.GetType().FullName;
+        var handlerType = context.MessageHandler.Instance?.GetType().FullName;
         var tagList = new TagList(new KeyValuePair<string, object>[]
         {
             new(MeterTags.QueueName, queueName ?? ""),
             new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
-            new(MeterTags.MessageType, messageType ?? "")
+            new(MeterTags.MessageType, messageType ?? ""),
+            new(MeterTags.MessageHandlerType, handlerType ?? "")
         }.AsSpan());
-        var handlerType = context.MessageHandler.Instance?.GetType().FullName;
-        tagList.Add(MeterTags.MessageHandlerType, handlerType ?? "");
         return new RecordMessageHandlingMetric(tagList);
     }
 }
