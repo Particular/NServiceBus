@@ -32,7 +32,7 @@ static class MetricsExtensions
 
     public static bool TryGetMessageType(this ReceivePipelineCompleted completed, out string processedMessageType)
         => completed.ProcessedMessage.Headers.TryGetMessageType(out processedMessageType);
-        
+
     static bool TryGetMessageType(this Dictionary<string, string> headers, out string processedMessageType)
     {
         if (headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageType))
