@@ -21,9 +21,9 @@ class ReceiveDiagnosticsBehaviorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFetched.Name, 1);
 
-        var fetchedTags = metricsListener.Tags[Meters.TotalFetched.Name].ToImmutableDictionary();
+        var fetchedTags = metricsListener.Tags[ReceiveDiagnosticsMeters.TotalFetched.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", fetchedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", fetchedTags[MeterTags.QueueName]);
         Assert.AreEqual("enclosedMessageTypesString", fetchedTags[MeterTags.MessageType]);
@@ -37,11 +37,11 @@ class ReceiveDiagnosticsBehaviorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         await behavior.Invoke(new TestableIncomingPhysicalMessageContext(), _ => Task.CompletedTask);
 
-        metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(Meters.TotalProcessedSuccessfully.Name, 1);
-        metricsListener.AssertMetric(Meters.TotalFailures.Name, 0);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalProcessedSuccessfully.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFailures.Name, 0);
 
-        var processedTags = metricsListener.Tags[Meters.TotalProcessedSuccessfully.Name].ToImmutableDictionary();
+        var processedTags = metricsListener.Tags[ReceiveDiagnosticsMeters.TotalProcessedSuccessfully.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", processedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", processedTags[MeterTags.QueueName]);
         Assert.AreEqual(string.Empty, processedTags[MeterTags.MessageType], "because no message type headers is present in the message headers");
@@ -56,11 +56,11 @@ class ReceiveDiagnosticsBehaviorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, _ => throw new Exception("test")));
 
-        metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(Meters.TotalProcessedSuccessfully.Name, 0);
-        metricsListener.AssertMetric(Meters.TotalFailures.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalProcessedSuccessfully.Name, 0);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFailures.Name, 1);
 
-        var failureTags = metricsListener.Tags[Meters.TotalFailures.Name].ToImmutableDictionary();
+        var failureTags = metricsListener.Tags[ReceiveDiagnosticsMeters.TotalFailures.Name].ToImmutableDictionary();
         Assert.AreEqual(typeof(Exception), failureTags[MeterTags.FailureType]);
         Assert.AreEqual("discriminator", failureTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", failureTags[MeterTags.QueueName]);
@@ -84,8 +84,8 @@ class ReceiveDiagnosticsBehaviorTests
             return Task.CompletedTask;
         }));
 
-        metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(Meters.TotalProcessedSuccessfully.Name, 0);
-        metricsListener.AssertMetric(Meters.TotalFailures.Name, 0);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalProcessedSuccessfully.Name, 0);
+        metricsListener.AssertMetric(ReceiveDiagnosticsMeters.TotalFailures.Name, 0);
     }
 }

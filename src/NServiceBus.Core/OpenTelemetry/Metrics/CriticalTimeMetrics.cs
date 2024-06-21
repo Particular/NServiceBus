@@ -18,7 +18,7 @@ class CriticalTimeMetrics(string queueName, string discriminator)
 
         if (pipeline.TryGetDeliverAt(out var startTime) || pipeline.TryGetTimeSent(out startTime))
         {
-            Meters.CriticalTime.Record((pipeline.CompletedAt - startTime).TotalSeconds, tagList);
+            PipelineMeters.CriticalTime.Record((pipeline.CompletedAt - startTime).TotalSeconds, tagList);
         }
     }
 }
