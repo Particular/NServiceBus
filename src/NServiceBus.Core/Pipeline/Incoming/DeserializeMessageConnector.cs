@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Logging;
 using MessageInterfaces;
@@ -27,15 +26,16 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         var incomingMessage = context.Message;
 
         var messages = ExtractWithExceptionHandling(incomingMessage);
-        if (messages.Length == 1) // ignore the legacy case in which a single message payload contained multiple messages
-        {
-            // capture the message type to add it as a tag to applicable metrics
-            context.Extensions.TryGet<Dictionary<string, object>>(MetricTagsExtensions.AvailableMetricsTags, out var availableMetricTags);
-            availableMetricTags.Add(MeterTags.MessageType, messages.First().MessageType.FullName);
-        }
 
+        bool first = true;
         foreach (var message in messages)
         {
+            if (first) // ignore the legacy case in which a single message payload contained multiple messages
+            {
+                var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+                availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName);
+                first = false;
+            }
             await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
         }
     }

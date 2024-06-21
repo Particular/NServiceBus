@@ -20,6 +20,7 @@ partial class TransportReceiveContext : PipelineRootContext, ITransportReceiveCo
         Message = receivedMessage;
         Set(Message);
         Set(transportTransaction);
+        _ = GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     /// <summary>

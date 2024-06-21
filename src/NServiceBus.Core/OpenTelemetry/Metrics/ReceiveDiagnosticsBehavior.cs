@@ -1,7 +1,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
@@ -16,12 +15,12 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        var metricTags = context.Extensions.Get<Dictionary<string, object>>(MetricTagsExtensions.AvailableMetricsTags);
-        metricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
-        metricTags.Add(MeterTags.QueueName, queueNameBase);
+        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        availableMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
+        availableMetricTags.Add(MeterTags.QueueName, queueNameBase);
 
         var tags = new TagList();
-        metricTags.Apply(ref tags, MeterTags.EndpointDiscriminator, MeterTags.QueueName);
+        availableMetricTags.ApplyTags(ref tags, MeterTags.EndpointDiscriminator, MeterTags.QueueName);
         Meters.TotalFetched.Add(1, tags);
 
         try
@@ -30,13 +29,13 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         }
         catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
         {
-            metricTags.Apply(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
             tags.Add(new(MeterTags.FailureType, ex.GetType()));
+            availableMetricTags.ApplyTags(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
             Meters.TotalFailures.Add(1, tags);
             throw;
         }
 
-        metricTags.Apply(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
+        availableMetricTags.ApplyTags(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
         Meters.TotalProcessedSuccessfully.Add(1, tags);
     }
 
