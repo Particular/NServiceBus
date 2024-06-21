@@ -13,6 +13,5 @@ class CriticalTimeMetrics(string queueName, string discriminator)
         {
             Meters.CriticalTime.Record((pipeline.CompletedAt - startTime).TotalMilliseconds, tags);
         }
-        return Task.CompletedTask;
     }
 }
