@@ -1,0 +1,13 @@
+{
+  "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
+  "ActivitySourceVersion": "0.2.0",
+  "Tags": [
+    "error.type",
+    "execution.result",
+    "nservicebus.discriminator",
+    "nservicebus.failure_type",
+    "nservicebus.message_handler_type",
+    "nservicebus.message_type",
+    "nservicebus.queue"
+  ]
+}

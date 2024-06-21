@@ -1,0 +1,9 @@
+{
+  "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
+  "ActivitySourceVersion": "0.2.0",
+  "Metrics": [
+    "nservicebus.messaging.critical_time => Histogram, Unit: s",
+    "nservicebus.messaging.handler_time => Histogram, Unit: s",
+    "nservicebus.messaging.processing_time => Histogram, Unit: s"
+  ]
+}

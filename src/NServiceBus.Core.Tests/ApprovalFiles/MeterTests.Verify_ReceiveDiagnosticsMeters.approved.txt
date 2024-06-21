@@ -1,0 +1,9 @@
+{
+  "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
+  "ActivitySourceVersion": "0.2.0",
+  "Metrics": [
+    "nservicebus.messaging.failures => Counter",
+    "nservicebus.messaging.fetches => Counter",
+    "nservicebus.messaging.successes => Counter"
+  ]
+}
