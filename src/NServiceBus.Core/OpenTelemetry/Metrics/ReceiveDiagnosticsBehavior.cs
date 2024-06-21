@@ -29,7 +29,7 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
             new(MeterTags.MessageType, messageTypeName ?? ""),
         }.AsSpan());
 
-        Meters.TotalFetched.Add(1, tags);
+        ReceiveDiagnosticsMeters.TotalFetched.Add(1, tags);
 
         try
         {
@@ -38,11 +38,11 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
         {
             tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, ex.GetType()));
-            Meters.TotalFailures.Add(1, tags);
+            ReceiveDiagnosticsMeters.TotalFailures.Add(1, tags);
             throw;
         }
 
-        Meters.TotalProcessedSuccessfully.Add(1, tags);
+        ReceiveDiagnosticsMeters.TotalProcessedSuccessfully.Add(1, tags);
     }
 
     readonly string queueNameBase;

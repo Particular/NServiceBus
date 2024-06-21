@@ -16,6 +16,6 @@ class ProcessingTimeMetrics(string queueName, string discriminator)
             new(MeterTags.MessageType, messageType ?? "")
         }.AsSpan());
 
-        Meters.ProcessingTime.Record((pipeline.CompletedAt - pipeline.StartedAt).TotalSeconds, tagList);
+        PipelineMeters.ProcessingTime.Record((pipeline.CompletedAt - pipeline.StartedAt).TotalSeconds, tagList);
     }
 }
