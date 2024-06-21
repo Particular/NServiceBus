@@ -33,6 +33,7 @@ class RecordMessageHandlingMetric : IMessageHandlingMetrics
     public void OnSuccess()
     {
         stopWatch.Stop();
+        // This is what Add(string, object) does so skipping an unnecessary stack frame
         tags.Add(new KeyValuePair<string, object>(MeterTags.ExecutionResult, "success"));
         Meters.MessageHandlerTime.Record(stopWatch.Elapsed.TotalSeconds, tags);
     }
