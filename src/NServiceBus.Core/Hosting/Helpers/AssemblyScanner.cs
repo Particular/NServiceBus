@@ -1,10 +1,13 @@
 namespace NServiceBus.Hosting.Helpers;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
@@ -52,8 +55,6 @@ public class AssemblyScanner
     public bool ScanFileSystemAssemblies { get; set; } = true;
 
     internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
-
-    internal string MessageInterfacesAssemblyName { get; set; } = NServiceBusMessageInterfacesAssemblyName;
 
     internal IReadOnlyCollection<string> AssembliesToSkip
     {
@@ -222,7 +223,7 @@ public class AssemblyScanner
         processed[assembly.FullName] = false;
 
         string assemblyName = assembly.GetName().Name;
-        if (assemblyName == CoreAssemblyName || assemblyName == MessageInterfacesAssemblyName)
+        if (assemblyName == CoreAssemblyName || AssemblyNamesOfForwardedTypes.Contains(assemblyName))
         {
             return processed[assembly.FullName] = true;
         }
@@ -376,7 +377,7 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
-        if (assemblyName.Name == CoreAssemblyName || assemblyName.Name == MessageInterfacesAssemblyName)
+        if (assemblyName.Name == CoreAssemblyName || AssemblyNamesOfForwardedTypes.Contains(assemblyName.Name))
         {
             return false;
         }
@@ -396,13 +397,8 @@ public class AssemblyScanner
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
-    const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
-    static readonly string[] FileSearchPatternsToUse =
-    {
-        "*.dll",
-        "*.exe"
-    };
+    static readonly string[] FileSearchPatternsToUse = { "*.dll", "*.exe" };
 
     static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -430,4 +426,25 @@ public class AssemblyScanner
         // And other windows azure stuff
         "Microsoft.WindowsAzure"
     };
+
+    static AssemblyScanner()
+    {
+        using var fs = File.OpenRead(typeof(AssemblyScanner).Assembly.Location);
+        using var peReader = new PEReader(fs);
+        if (!peReader.HasMetadata)
+        {
+            return;
+        }
+
+        var metadataReader = peReader.GetMetadataReader();
+
+        // Exported types only contains a small subset of types, so it's safe to enumerate all of them
+        AssemblyNamesOfForwardedTypes = metadataReader.ExportedTypes
+            .Select(exportedTypeHandle => metadataReader.GetExportedType(exportedTypeHandle)).Where(exportedType => exportedType.IsForwarder)
+            .Select(exportedType => (AssemblyReferenceHandle)exportedType.Implementation)
+            .Select(assemblyReferenceHandle => metadataReader.GetAssemblyReference(assemblyReferenceHandle))
+            .Select(assemblyReference => metadataReader.GetString(assemblyReference.Name)).ToFrozenSet();
+    }
+
+    static readonly FrozenSet<string> AssemblyNamesOfForwardedTypes;
 }
