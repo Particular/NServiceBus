@@ -499,6 +499,13 @@ namespace NServiceBus
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
+    public sealed class IncomingPipelineMetricTags
+    {
+        public IncomingPipelineMetricTags() { }
+        public void Add(string tagKey, object value) { }
+        public void ApplyTag(ref System.Diagnostics.TagList tagList, string tagKey) { }
+        public void ApplyTags(ref System.Diagnostics.TagList tagList, System.ReadOnlySpan<string> tagKeys) { }
+    }
     public static class InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
