@@ -3,9 +3,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NUnit.Framework;
 
 public class When_sending_messages : OpenTelemetryAcceptanceTest
@@ -39,6 +40,63 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         sentMessageTags.VerifyTag("nservicebus.message_intent", context.SentMessageHeaders[Headers.MessageIntent]);
     }
 
+    [Test]
+    public async Task Should_create_new_child_on_receive_by_default()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpoint>(b => b
+                .When(s =>
+                {
+                    return s.SendLocal(new OutgoingMessage());
+                }))
+            .Done(c => c.OutgoingMessageReceived)
+            .Run();
+
+        var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, sendMessageActivities.Count, "1 message is sent as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of the same root activity");
+        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+
+        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
+    }
+
+    [Test]
+    public async Task Should_create_new_linked_trace_on_receive_when_requested_via_options()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpoint>(b => b
+                .When(s =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.RouteToThisEndpoint();
+                    sendOptions.StartNewTraceOnReceive();
+                    return s.Send(new OutgoingMessage(), sendOptions);
+                }))
+            .Done(c => c.OutgoingMessageReceived)
+            .Run();
+
+        var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, sendMessageActivities.Count, "1 message is sent as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreNotEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of different root activities");
+        Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.IsNotNull(link, "Receive has a link");
+        Assert.AreEqual(sendRequest.TraceId, link.Context.TraceId, "receive is linked to send operation");
+    }
+
     class Context : ScenarioContext
     {
         public bool OutgoingMessageReceived { get; set; }
@@ -46,6 +104,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         public string MessageConversationId { get; set; }
         public IReadOnlyDictionary<string, string> SentMessageHeaders { get; set; }
     }
+
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
