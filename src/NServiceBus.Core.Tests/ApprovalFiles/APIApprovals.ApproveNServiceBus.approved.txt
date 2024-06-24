@@ -616,7 +616,7 @@ namespace NServiceBus
     }
     public static class OpenTelemetryExtensions
     {
-        public static void StartNewTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
+        public static void ContinueExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
     }
     public static class OutboxConfigExtensions
