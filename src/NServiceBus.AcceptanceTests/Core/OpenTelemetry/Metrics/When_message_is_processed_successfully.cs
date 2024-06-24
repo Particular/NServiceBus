@@ -7,7 +7,7 @@ using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class When_messages_processed_successfully : OpenTelemetryAcceptanceTest
+public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_report_successful_message_metric()
