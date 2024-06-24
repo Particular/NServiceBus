@@ -38,8 +38,8 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
         }
 
         // capture the message handler types to add them as tags to applicable metrics
-        context.Extensions.TryGet<Dictionary<string, object>>(MetricTagsExtensions.AvailableMetricsTags, out var availableMetricTags);
-        availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName).ToArray()));
+        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
 
         foreach (var messageHandler in handlersToInvoke)
         {
