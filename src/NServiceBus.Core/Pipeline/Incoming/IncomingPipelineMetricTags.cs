@@ -30,7 +30,7 @@ sealed class IncomingPipelineMetricTags
 
     public void ApplyTags(ref TagList tagList, ReadOnlySpan<string> tagKeys)
     {
-        if (tags == null)
+        if (tags == null || tagKeys.IsEmpty)
         {
             return;
         }
