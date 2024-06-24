@@ -20,7 +20,7 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         availableMetricTags.Add(MeterTags.QueueName, queueNameBase);
 
         var tags = new TagList();
-        availableMetricTags.ApplyTags(ref tags, MeterTags.EndpointDiscriminator, MeterTags.QueueName);
+        availableMetricTags.ApplyTags(ref tags, [MeterTags.EndpointDiscriminator, MeterTags.QueueName]);
         Meters.TotalFetched.Add(1, tags);
 
         try
@@ -30,12 +30,12 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
         {
             tags.Add(new(MeterTags.FailureType, ex.GetType()));
-            availableMetricTags.ApplyTags(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
+            availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
             Meters.TotalFailures.Add(1, tags);
             throw;
         }
 
-        availableMetricTags.ApplyTags(ref tags, MeterTags.MessageType, MeterTags.MessageHandlerTypes);
+        availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
         Meters.TotalProcessedSuccessfully.Add(1, tags);
     }
 

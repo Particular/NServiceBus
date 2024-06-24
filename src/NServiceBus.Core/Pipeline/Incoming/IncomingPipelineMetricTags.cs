@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -27,8 +28,7 @@ sealed class IncomingPipelineMetricTags
         }
     }
 
-    // This can be made a readonly span with CSharp 13
-    public void ApplyTags(ref TagList tagList, params string[] tagKeys)
+    public void ApplyTags(ref TagList tagList, ReadOnlySpan<string> tagKeys)
     {
         if (tags == null)
         {
