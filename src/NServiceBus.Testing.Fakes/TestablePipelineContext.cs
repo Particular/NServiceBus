@@ -19,6 +19,7 @@ public partial class TestablePipelineContext : IPipelineContext
     public TestablePipelineContext(IMessageCreator messageCreator = null)
     {
         this.messageCreator = messageCreator ?? new MessageMapper();
+        Extensions.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     /// <summary>

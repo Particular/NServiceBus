@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-sealed class IncomingPipelineMetricTags
+public sealed class IncomingPipelineMetricTags
 {
     Dictionary<string, KeyValuePair<string, object?>>? tags;
     public void Add(string tagKey, object value)
