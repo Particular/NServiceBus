@@ -7,14 +7,9 @@ using Pipeline;
 
 // This behavior is IIncomingPhysicalMessageContext and not ITransportReceiveContext
 // to avoid capture successes for messages deduplicated by the Outbox
-class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
+class ReceiveDiagnosticsBehavior(MessagingMetricsMeters metricsMeters, string queueNameBase, string discriminator)
+    : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
-    public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
-    {
-        this.queueNameBase = queueNameBase;
-        this.discriminator = discriminator;
-    }
-
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
         var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
@@ -23,7 +18,7 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
         var tags = new TagList();
         availableMetricTags.ApplyTags(ref tags, [MeterTags.EndpointDiscriminator, MeterTags.QueueName]);
-        Meters.TotalFetched.Add(1, tags);
+        metricsMeters.RecordFetchedMessage(tags);
 
         try
         {
@@ -33,14 +28,14 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         {
             tags.Add(new(MeterTags.FailureType, ex.GetType()));
             availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
-            Meters.TotalFailures.Add(1, tags);
+            metricsMeters.RecordMessageProcessingFailure(tags);
             throw;
         }
 
         availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
-        Meters.TotalProcessedSuccessfully.Add(1, tags);
+        metricsMeters.RecordMessageSuccessfullyProcessed(tags);
     }
 
-    readonly string queueNameBase;
-    readonly string discriminator;
+    readonly string queueNameBase = queueNameBase;
+    readonly string discriminator = discriminator;
 }
