@@ -7,6 +7,7 @@
     "nservicebus.discriminator",
     "nservicebus.failure_type",
     "nservicebus.message_handler_type",
+    "nservicebus.message_handler_types",
     "nservicebus.message_type",
     "nservicebus.queue"
   ],
