@@ -24,7 +24,6 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
         var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
         var pendingTransportOperations = new PendingTransportOperations();
-
         if (deduplicationEntry == null)
         {
             physicalMessageContext.Extensions.Set(pendingTransportOperations);

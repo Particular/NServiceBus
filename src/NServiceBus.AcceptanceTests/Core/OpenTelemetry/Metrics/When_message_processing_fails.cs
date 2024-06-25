@@ -1,14 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NUnit.Framework;
 
-public class When_processing_fails : OpenTelemetryAcceptanceTest
+public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_report_failing_message_metrics()
@@ -37,8 +33,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
 
         class FailingMessageHandler : IHandleMessages<FailingMessage>
         {
-
-            Context textContext;
+            readonly Context textContext;
 
             public FailingMessageHandler(Context textContext) => this.textContext = textContext;
 
@@ -47,12 +42,13 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
                 textContext.HandlerInvoked = true;
                 throw new SimulatedException(ErrorMessage);
             }
+
+            const string ErrorMessage = "oh no!";
+
         }
     }
 
     public class FailingMessage : IMessage
     {
     }
-
-    const string ErrorMessage = "oh no!";
 }

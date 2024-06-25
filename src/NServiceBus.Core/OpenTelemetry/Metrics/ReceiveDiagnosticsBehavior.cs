@@ -1,15 +1,12 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Pipeline;
 
 class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
-
     public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
     {
         this.queueNameBase = queueNameBase;
@@ -18,17 +15,12 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
 
     public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        context.MessageHeaders.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes);
-        var messageTypeHeader = !string.IsNullOrEmpty(messageTypes) ? messageTypes.Split(';').FirstOrDefault() : default;
-        var messageTypeName = !string.IsNullOrEmpty(messageTypeHeader) ? messageTypeHeader.Split(',').FirstOrDefault() : default;
+        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        availableMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
+        availableMetricTags.Add(MeterTags.QueueName, queueNameBase);
 
-        var tags = new TagList(new KeyValuePair<string, object>[]
-        {
-            new(MeterTags.EndpointDiscriminator, discriminator ?? ""),
-            new(MeterTags.QueueName, queueNameBase ?? ""),
-            new(MeterTags.MessageType, messageTypeName ?? ""),
-        }.AsSpan());
-
+        var tags = new TagList();
+        availableMetricTags.ApplyTags(ref tags, [MeterTags.EndpointDiscriminator, MeterTags.QueueName]);
         Meters.TotalFetched.Add(1, tags);
 
         try
@@ -37,11 +29,13 @@ class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, II
         }
         catch (Exception ex) when (!ex.IsCausedBy(context.CancellationToken))
         {
-            tags.Add(new KeyValuePair<string, object>(MeterTags.FailureType, ex.GetType()));
+            tags.Add(new(MeterTags.FailureType, ex.GetType()));
+            availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
             Meters.TotalFailures.Add(1, tags);
             throw;
         }
 
+        availableMetricTags.ApplyTags(ref tags, [MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
         Meters.TotalProcessedSuccessfully.Add(1, tags);
     }
 

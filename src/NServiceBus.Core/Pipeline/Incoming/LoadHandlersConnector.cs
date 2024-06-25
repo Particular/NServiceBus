@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -35,6 +36,10 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
         {
             LogHandlersInvocation(context, handlersToInvoke);
         }
+
+        // capture the message handler types to add them as tags to applicable metrics
+        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
 
         foreach (var messageHandler in handlersToInvoke)
         {

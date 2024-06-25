@@ -27,8 +27,15 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
 
         var messages = ExtractWithExceptionHandling(incomingMessage);
 
+        bool first = true;
         foreach (var message in messages)
         {
+            if (first) // ignore the legacy case in which a single message payload contained multiple messages
+            {
+                var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+                availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName);
+                first = false;
+            }
             await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
         }
     }

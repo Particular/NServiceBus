@@ -15,18 +15,15 @@ class ReceiveDiagnosticsBehaviorTests
     public async Task Should_increase_total_fetched_when_processing_message()
     {
         var behavior = new ReceiveDiagnosticsBehavior("queueBaseName", "discriminator");
-        var context = new TestableIncomingPhysicalMessageContext();
-        context.MessageHeaders.Add(Headers.EnclosedMessageTypes, "enclosedMessageTypesString");
-
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-        await behavior.Invoke(context, _ => Task.CompletedTask);
+        var testableIncomingPhysicalMessageContext = new TestableIncomingPhysicalMessageContext();
+        await behavior.Invoke(testableIncomingPhysicalMessageContext, _ => Task.CompletedTask);
 
         metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
 
         var fetchedTags = metricsListener.Tags[Meters.TotalFetched.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", fetchedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", fetchedTags[MeterTags.QueueName]);
-        Assert.AreEqual("enclosedMessageTypesString", fetchedTags[MeterTags.MessageType]);
     }
 
     [Test]
@@ -35,7 +32,10 @@ class ReceiveDiagnosticsBehaviorTests
         var behavior = new ReceiveDiagnosticsBehavior("queueBaseName", "discriminator");
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-        await behavior.Invoke(new TestableIncomingPhysicalMessageContext(), _ => Task.CompletedTask);
+        var testableIncomingPhysicalMessageContext = new TestableIncomingPhysicalMessageContext();
+        var tags = testableIncomingPhysicalMessageContext.Extensions.Get<IncomingPipelineMetricTags>();
+        tags.Add(MeterTags.MessageType, "SomeType");
+        await behavior.Invoke(testableIncomingPhysicalMessageContext, _ => Task.CompletedTask);
 
         metricsListener.AssertMetric(Meters.TotalFetched.Name, 1);
         metricsListener.AssertMetric(Meters.TotalProcessedSuccessfully.Name, 1);
@@ -44,7 +44,7 @@ class ReceiveDiagnosticsBehaviorTests
         var processedTags = metricsListener.Tags[Meters.TotalProcessedSuccessfully.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", processedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", processedTags[MeterTags.QueueName]);
-        Assert.AreEqual(string.Empty, processedTags[MeterTags.MessageType], "because no message type headers is present in the message headers");
+        Assert.AreEqual("SomeType", processedTags[MeterTags.MessageType]);
     }
 
     [Test]
@@ -64,7 +64,6 @@ class ReceiveDiagnosticsBehaviorTests
         Assert.AreEqual(typeof(Exception), failureTags[MeterTags.FailureType]);
         Assert.AreEqual("discriminator", failureTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", failureTags[MeterTags.QueueName]);
-        Assert.AreEqual(string.Empty, failureTags[MeterTags.MessageType], "because no message type headers is present in the message headers");
     }
 
     [Test]
