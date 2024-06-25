@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 
+// This behavior is IIncomingPhysicalMessageContext and not ITransportReceiveContext
+// to avoid capture successes for messages deduplicated by the Outbox
 class ReceiveDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
     public ReceiveDiagnosticsBehavior(string queueNameBase, string discriminator)
