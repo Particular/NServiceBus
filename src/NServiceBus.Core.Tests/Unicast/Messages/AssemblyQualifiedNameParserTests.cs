@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 
 [TestFixture]
-public class AssemblyQuallifiedNameParserTests
+public class AssemblyQualifiedNameParserTests
 {
     [Theory]
     [TestCaseSource(nameof(AssemblyQualifiedNames))]
