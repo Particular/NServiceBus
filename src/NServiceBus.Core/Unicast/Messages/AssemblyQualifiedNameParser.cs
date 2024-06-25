@@ -1,13 +1,23 @@
 namespace NServiceBus.Unicast.Messages;
 
+using System;
+
 static class AssemblyQualifiedNameParser
 {
-    public static string GetMessageTypeNameWithoutAssemblyOld(string messageTypeIdentifier)
+    public static string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
     {
-        var typeParts = messageTypeIdentifier.Split(',');
-        if (typeParts.Length > 1)
+        int lastIndexOf = messageTypeIdentifier.LastIndexOf(']');
+        if (lastIndexOf > 0)
         {
-            return typeParts[0]; //Take the type part only
+            var messageType = messageTypeIdentifier.AsSpan()[..++lastIndexOf].ToString();
+            return messageType;
+        }
+
+        int firstIndexOfComma = messageTypeIdentifier.IndexOf(',');
+        if (firstIndexOfComma > 0)
+        {
+            var messageType = messageTypeIdentifier.AsSpan()[..firstIndexOfComma].ToString();
+            return messageType;
         }
 
         return messageTypeIdentifier;
