@@ -16,8 +16,8 @@ public sealed class IncomingPipelineMetricTags
     /// <summary>
     /// Adds the specified tag and value to the collection.
     /// </summary>
-    /// <param name="tagKey"></param>
-    /// <param name="value"></param>
+    /// <param name="tagKey">The tag to add.</param>
+    /// <param name="value">The value assigned to the tag.</param>
     public void Add(string tagKey, object value)
     {
         tags ??= [];
