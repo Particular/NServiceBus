@@ -8,18 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
 
-class MainPipelineExecutor : IPipelineExecutor
+class MainPipelineExecutor(
+    IServiceProvider rootBuilder,
+    IPipelineCache pipelineCache,
+    MessageOperations messageOperations,
+    INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
+    IPipeline<ITransportReceiveContext> receivePipeline,
+    IActivityFactory activityFactory,
+    MessagingMetricsMeters messagingMetricsMeters)
+    : IPipelineExecutor
 {
-    public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
-    {
-        this.rootBuilder = rootBuilder;
-        this.pipelineCache = pipelineCache;
-        this.messageOperations = messageOperations;
-        this.receivePipelineNotification = receivePipelineNotification;
-        this.receivePipeline = receivePipeline;
-        this.activityFactory = activityFactory;
-    }
-
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
@@ -77,18 +75,11 @@ class MainPipelineExecutor : IPipelineExecutor
 
                 if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
                 {
-                    Meters.CriticalTime.Record((completedAt - startTime).TotalSeconds, tags);
+                    messagingMetricsMeters.RecordMessageCriticalTime(completedAt - startTime, tags);
                 }
             }
 
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
-
-    readonly IServiceProvider rootBuilder;
-    readonly IPipelineCache pipelineCache;
-    readonly MessageOperations messageOperations;
-    readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
-    readonly IPipeline<ITransportReceiveContext> receivePipeline;
-    readonly IActivityFactory activityFactory;
 }

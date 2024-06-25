@@ -8,7 +8,6 @@ using Sagas;
 
 class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTerminator<IInvokeHandlerContext>
 {
-
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
         if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
