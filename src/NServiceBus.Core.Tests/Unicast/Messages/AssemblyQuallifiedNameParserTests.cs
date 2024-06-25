@@ -53,17 +53,7 @@ public class AssemblyQuallifiedNameParserTests
         ["TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass", "TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass"]
     ];
 
-    class MyEvent : ConcreteParent1, IInterfaceParent1;
+    class MyEvent;
 
-    class ConcreteParent1 : ConcreteParentBase;
-    class ConcreteParentBase : IMessage;
-
-    interface IInterfaceParent1 : IInterfaceParent1Base;
-
-    interface IInterfaceParent1Base : IMessage;
-
-    class MyEventGeneric<T>
-    {
-        public T Payload { get; set; }
-    }
+    class MyEventGeneric<T>;
 }
