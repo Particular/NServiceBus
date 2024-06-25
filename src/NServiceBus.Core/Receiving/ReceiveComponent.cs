@@ -71,7 +71,7 @@ partial class ReceiveComponent
             return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
         }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory, hostingConfiguration.MessageHandlingMetricsFactory), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
