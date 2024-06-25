@@ -65,7 +65,7 @@ class MainPipelineExecutor : IPipelineExecutor
                 throw;
             }
 
-            var completedAt = DateTimeOffset.UtcNow;
+            var pipelineCompletedAt = DateTimeOffset.UtcNow;
             var incomingPipelineMetricTags = transportReceiveContext.Extensions.Get<IncomingPipelineMetricTags>();
             if (incomingPipelineMetricTags.IsMetricTagsCollectionEnabled)
             {
@@ -75,13 +75,14 @@ class MainPipelineExecutor : IPipelineExecutor
                     MeterTags.EndpointDiscriminator,
                     MeterTags.MessageType]);
 
+                Meters.ProcessingTime.Record((pipelineCompletedAt - pipelineStartedAt).TotalSeconds, tags);
                 if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
                 {
-                    Meters.CriticalTime.Record((completedAt - startTime).TotalSeconds, tags);
+                    Meters.CriticalTime.Record((pipelineCompletedAt - startTime).TotalSeconds, tags);
                 }
             }
 
-            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
+            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, pipelineCompletedAt), cancellationToken).ConfigureAwait(false);
         }
     }
 
