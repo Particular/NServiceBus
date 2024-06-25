@@ -47,6 +47,13 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         Assert.AreEqual("failure", result);
     }
 
+    [Test]
+    public async Task Should_not_record_critical_time_on_failure()
+    {
+        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
+        metricsListener.AssertMetric(CriticalTimeMetricName, 0);
+    }
+
     static async Task<TestingMetricListener> WhenMessagesHandled(Func<IMessage> messageFactory)
     {
         TestingMetricListener metricsListener = null;
