@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Messages;
+namespace NServiceBus;
 
 using System;
 

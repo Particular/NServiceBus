@@ -2,7 +2,6 @@ namespace NServiceBus.Unicast.Tests;
 
 using System;
 using System.Collections.Generic;
-using NServiceBus.Unicast.Messages;
 using NUnit.Framework;
 
 [TestFixture]
