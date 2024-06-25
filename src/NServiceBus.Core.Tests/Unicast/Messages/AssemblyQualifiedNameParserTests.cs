@@ -22,10 +22,18 @@ public class AssemblyQualifiedNameParserTests
     [
         [typeof(ICommand).AssemblyQualifiedName, typeof(ICommand).FullName],
         [typeof(MyEvent).AssemblyQualifiedName, typeof(MyEvent).FullName],
+        // Array types
+        [typeof(ICommand[]).AssemblyQualifiedName, typeof(ICommand[]).FullName],
+        [typeof(MyEvent[]).AssemblyQualifiedName, typeof(MyEvent[]).FullName],
         // Yes generic are not officially supported but we should still make sure the type parsing logic doesn't break
         [typeof(MyEventGeneric<>).AssemblyQualifiedName, typeof(MyEventGeneric<>).FullName],
         [typeof(MyEventGeneric<MyEvent>).AssemblyQualifiedName, typeof(MyEventGeneric<MyEvent>).FullName],
         [typeof(MyEventGeneric<MyEventGeneric<MyEvent>>).AssemblyQualifiedName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>>).FullName],
+        // Generic array types
+        [typeof(MyEventGeneric<MyEvent>[]).AssemblyQualifiedName, typeof(MyEventGeneric<MyEvent>[]).FullName],
+        [typeof(MyEventGeneric<MyEventGeneric<MyEvent>>[]).AssemblyQualifiedName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>>[]).FullName],
+        // Generic Nested array types
+        [typeof(MyEventGeneric<MyEventGeneric<MyEvent>[]>[]).AssemblyQualifiedName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>[]>[]).FullName],
         // Special case according to https://learn.microsoft.com/de-de/dotnet/api/system.type.assemblyqualifiedname
         ["TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass, MyAssembly, Version=1.3.0.0, Culture=neutral, PublicKeyToken=b17a5c561934e089", "TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass"]
     ];
@@ -45,10 +53,18 @@ public class AssemblyQualifiedNameParserTests
     [
         [typeof(ICommand).FullName, typeof(ICommand).FullName],
         [typeof(MyEvent).FullName, typeof(MyEvent).FullName],
+        // Array types
+        [typeof(ICommand[]).FullName, typeof(ICommand[]).FullName],
+        [typeof(MyEvent[]).FullName, typeof(MyEvent[]).FullName],
         // Yes generic are not officially supported but we should still make sure the type parsing logic doesn't break
         [typeof(MyEventGeneric<>).FullName, typeof(MyEventGeneric<>).FullName],
         [typeof(MyEventGeneric<MyEvent>).FullName, typeof(MyEventGeneric<MyEvent>).FullName],
         [typeof(MyEventGeneric<MyEventGeneric<MyEvent>>).FullName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>>).FullName],
+        // Generic array types
+        [typeof(MyEventGeneric<MyEvent>[]).FullName, typeof(MyEventGeneric<MyEvent>[]).FullName],
+        [typeof(MyEventGeneric<MyEventGeneric<MyEvent>>[]).FullName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>>[]).FullName],
+        // Generic Nested array types
+        [typeof(MyEventGeneric<MyEventGeneric<MyEvent>[]>[]).FullName, typeof(MyEventGeneric<MyEventGeneric<MyEvent>[]>[]).FullName],
         // Special case according to https://learn.microsoft.com/de-de/dotnet/api/system.type.assemblyqualifiedname
         ["TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass", "TopNamespace.Sub\\+Namespace.ContainingClass+NestedClass"]
     ];
