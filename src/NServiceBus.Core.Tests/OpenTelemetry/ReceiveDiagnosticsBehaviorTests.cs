@@ -4,7 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Helpers;
+using AcceptanceTests.Core.OpenTelemetry.Metrics;
 using NServiceBus.Testing;
 using NUnit.Framework;
 

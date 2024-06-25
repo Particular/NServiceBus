@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTesting.Customization;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
 using NUnit.Framework;
 
 public class When_publishing_messages : OpenTelemetryAcceptanceTest
@@ -36,15 +37,89 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
         var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
-        sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
+        sentMessageTags.VerifyTag("nservicebus.message_id", context.PublishedMessageId);
 
         Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
+    }
+
+    [Test]
+    public async Task Should_create_child_on_receive_when_requested_via_options()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Publisher>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s =>
+                {
+                    var publishOptions = new PublishOptions();
+                    publishOptions.ContinueExistingTraceOnReceive();
+                    return s.Publish(new ThisIsAnEvent(), publishOptions);
+                }))
+            .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Done(c => c.OutgoingEventReceived)
+            .Run();
+
+        var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, publishMessageActivities.Count, "1 message is published as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var publishRequest = publishMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreEqual(publishRequest.RootId, receiveRequest.RootId, "publish and receive operations are part the same root activity");
+        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+
+        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
+    }
+
+    [Test]
+    public async Task Should_create_new_linked_trace_on_receive_by_default()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<Publisher>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s =>
+                {
+                    return s.Publish(new ThisIsAnEvent());
+                }))
+            .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Done(c => c.OutgoingEventReceived)
+            .Run();
+
+        var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.AreEqual(1, publishMessageActivities.Count, "1 message is published as part of this test");
+        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+
+        var publishRequest = publishMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        Assert.AreNotEqual(publishRequest.RootId, receiveRequest.RootId, "publish and receive operations are part of different root activities");
+        Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.IsNotNull(link, "Receive has a link");
+        Assert.AreEqual(publishRequest.TraceId, link.Context.TraceId, "receive is linked to publish operation");
     }
 
     public class Context : ScenarioContext
     {
         public bool OutgoingEventReceived { get; set; }
-        public string SentMessageId { get; set; }
+        public string PublishedMessageId { get; set; }
         public string TraceParentHeader { get; set; }
         public bool SomeEventSubscribed { get; set; }
     }
@@ -71,8 +146,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
     {
         public Subscriber() =>
             EndpointSetup<OpenTelemetryEnabledEndpoint>(c =>
-                {
-                },
+            {
+            },
                 metadata =>
                 {
                     metadata.RegisterPublisherFor<ThisIsAnEvent>(typeof(Publisher));
@@ -80,24 +155,24 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         public class ThisHandlesSomethingHandler : IHandleMessages<ThisIsAnEvent>
         {
-            public ThisHandlesSomethingHandler(Context testContext)
+            public ThisHandlesSomethingHandler(Context testPublishContext)
             {
-                this.testContext = testContext;
+                this.testPublishContext = testPublishContext;
             }
 
             public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)
             {
                 if (context.MessageHeaders.TryGetValue(Headers.DiagnosticsTraceParent, out var traceParentHeader))
                 {
-                    testContext.TraceParentHeader = traceParentHeader;
+                    testPublishContext.TraceParentHeader = traceParentHeader;
                 }
 
-                testContext.SentMessageId = context.MessageId;
-                testContext.OutgoingEventReceived = true;
+                testPublishContext.PublishedMessageId = context.MessageId;
+                testPublishContext.OutgoingEventReceived = true;
                 return Task.CompletedTask;
             }
 
-            Context testContext;
+            Context testPublishContext;
         }
     }
 
