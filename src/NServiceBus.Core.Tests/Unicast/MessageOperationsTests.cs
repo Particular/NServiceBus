@@ -192,7 +192,7 @@ public class MessageOperationsTests
         messageOperations.PublishPipeline.LastContext.Headers["header1"] = "updated header1 value";
 
         var optionsHeaders = publishOptions.GetHeaders();
-        Assert.AreEqual(2, optionsHeaders.Count); //1 header added by the default behavior of OpenTelemetry - StartNewTrace
+        Assert.AreEqual(1, optionsHeaders.Count);
         Assert.AreEqual("header1 value", optionsHeaders["header1"]);
     }
 
