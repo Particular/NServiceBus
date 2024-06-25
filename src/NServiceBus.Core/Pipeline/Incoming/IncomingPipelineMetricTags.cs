@@ -46,7 +46,7 @@ public sealed class IncomingPipelineMetricTags
     /// Applies the specified tags to the <paramref name="tagList"/>.
     /// </summary>
     /// <param name="tagList">The tagList to add the tags to.</param>
-    /// <param name="tagKeys">The collection of tag keys to apply to the <paramref name="tagList"/></param>
+    /// <param name="tagKeys">The collection of tag keys to apply to the <paramref name="tagList"/>.</param>
     public void ApplyTags(ref TagList tagList, ReadOnlySpan<string> tagKeys)
     {
         if (tags == null || tagKeys.IsEmpty)
