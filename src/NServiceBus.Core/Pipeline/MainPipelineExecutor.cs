@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,7 +65,23 @@ class MainPipelineExecutor : IPipelineExecutor
                 throw;
             }
 
-            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
+            var completedAt = DateTimeOffset.UtcNow;
+            var incomingPipelineMetricTags = transportReceiveContext.Extensions.Get<IncomingPipelineMetricTags>();
+            if (incomingPipelineMetricTags.IsMetricTagsCollectionEnabled)
+            {
+                TagList tags;
+                incomingPipelineMetricTags.ApplyTags(ref tags, [
+                    MeterTags.QueueName,
+                    MeterTags.EndpointDiscriminator,
+                    MeterTags.MessageType]);
+
+                if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
+                {
+                    Meters.CriticalTime.Record((completedAt - startTime).TotalSeconds, tags);
+                }
+            }
+
+            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
 
