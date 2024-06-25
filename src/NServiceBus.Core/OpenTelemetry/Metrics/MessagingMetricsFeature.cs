@@ -12,11 +12,10 @@ class MessagingMetricsFeature : Feature
     /// <inheritdoc />
     protected internal override void Setup(FeatureConfigurationContext context)
     {
-        var queueName = context.Receiving.QueueNameBase;
-        var discriminator = context.Receiving.InstanceSpecificQueueAddress?.Discriminator;
-        var queueNameBase = context.Receiving.QueueNameBase;
         var enableMetricTagsCollectionBehavior = new EnableMetricTagsCollectionBehavior();
-        var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(queueNameBase, discriminator);
+        var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(
+            context.Receiving.QueueNameBase,
+            context.Receiving.InstanceSpecificQueueAddress?.Discriminator);
 
         context.Pipeline.Register(
             enableMetricTagsCollectionBehavior,
@@ -26,7 +25,5 @@ class MessagingMetricsFeature : Feature
             performanceDiagnosticsBehavior,
             "Provides OpenTelemetry counters for message processing"
         );
-        var criticalTimeMetrics = new CriticalTimeMetrics(queueName, discriminator);
-        context.Pipeline.OnReceivePipelineCompleted((pipeline, token) => criticalTimeMetrics.Record(pipeline, token));
     }
 }
