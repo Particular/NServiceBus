@@ -44,6 +44,8 @@ partial class HostingComponent
 
         public string EndpointName => settings.EndpointName();
 
+        public string Discriminator => settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
+
         public Dictionary<string, string> Properties
         {
             get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }

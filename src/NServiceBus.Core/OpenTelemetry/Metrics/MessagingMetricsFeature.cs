@@ -14,8 +14,13 @@ class MessagingMetricsFeature : Feature
     {
         var discriminator = context.Receiving.InstanceSpecificQueueAddress?.Discriminator;
         var queueNameBase = context.Receiving.QueueNameBase;
+        var enableMetricTagsCollectionBehavior = new EnableMetricTagsCollectionBehavior();
         var performanceDiagnosticsBehavior = new ReceiveDiagnosticsBehavior(queueNameBase, discriminator);
 
+        context.Pipeline.Register(
+            enableMetricTagsCollectionBehavior,
+            "Enables OpenTelemetry Metric Tags collection throughout the pipeline"
+        );
         context.Pipeline.Register(
             performanceDiagnosticsBehavior,
             "Provides OpenTelemetry counters for message processing"

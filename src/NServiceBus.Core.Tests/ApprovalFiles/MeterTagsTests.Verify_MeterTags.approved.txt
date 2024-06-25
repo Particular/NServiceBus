@@ -7,5 +7,6 @@
     "MessageType => nservicebus.message_type",
     "FailureType => nservicebus.failure_type",
     "MessageHandlerTypes => nservicebus.message_handler_types"
+    "MessageHandlerType => nservicebus.message_handler_type"
   ]
 }
