@@ -39,6 +39,9 @@ public class StandardsTests
                 !IsCompilerGenerated(x) &&
                 !x.FullName.Contains("System") &&
                 !x.FullName.StartsWith("FastExpressionCompiler") &&
+                // TODO: This can be removed once this bug is fixed in Roslyn: https://github.com/dotnet/roslyn/issues/72539
+                // so that we can use inline arrays in public code without breaking this test
+                !x.FullName.Contains("__InlineArray") &&
                 x.Namespace != "Particular.Licensing" &&
                 x.Namespace != "NServiceBus.Features" &&
                 x.Name != "NServiceBusCore_ProcessedByFody" &&
