@@ -154,7 +154,10 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory);
+        // TODO: this is effectively using a provider pattern. It would be better to make that explicit allowing the
+        // provider to return a NoOpMessagingMetricsMeters kind of meter
+        var messagingMeters = builder.GetService<MessagingMetricsMeters>();
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, messagingMeters);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
