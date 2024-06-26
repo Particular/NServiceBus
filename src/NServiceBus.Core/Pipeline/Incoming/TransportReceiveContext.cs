@@ -20,7 +20,8 @@ partial class TransportReceiveContext : PipelineRootContext, ITransportReceiveCo
         Message = receivedMessage;
         Set(Message);
         Set(transportTransaction);
-        _ = GetOrCreate<IncomingPipelineMetricTags>();
+        //Hack to be able to get the tags in the recoverability pipeline
+        _ = parentContext.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     /// <summary>
