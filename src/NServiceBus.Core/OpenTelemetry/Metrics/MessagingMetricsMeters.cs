@@ -30,6 +30,7 @@ class MessagingMetricsMeters
     public void RecordFetchedMessage(TagList tags) => totalFetched.Add(1, tags);
     public void RecordMessageCriticalTime(TimeSpan messageCriticalTime, TagList tags) => criticalTime.Record(messageCriticalTime.TotalSeconds, tags);
 
+    // TODO another approach to the above one could be to fully encapsulate the tag choice/set and the recording
     public void RecordSuccessfulMessageHandlerTime(IInvokeHandlerContext invokeHandlerContext, TimeSpan elapsed)
     {
         // TODO if there was a provider/factory style approach to getting the MessagingMetricsMeters
