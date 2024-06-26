@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Sagas;
 
@@ -19,9 +20,12 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTermin
 
         var messageHandler = context.MessageHandler;
 
+        // TODO: this is effectively using a provider pattern. It would be better to make that explicit allowing the
+        // provider to return a NoOpMessagingMetricsMeters kind of meter
+        var messagingMetricsMeters = context.Builder.GetService<MessagingMetricsMeters>();
+
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
-        var handlingMetric = new RecordMessageHandlingMetric(context);
         var startTime = DateTimeOffset.UtcNow;
         try
         {
@@ -31,7 +35,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTermin
                 .ConfigureAwait(false);
 
             activity?.SetStatus(ActivityStatusCode.Ok);
-            handlingMetric.OnSuccess();
+            messagingMetricsMeters.RecordSuccessfulMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime);
         }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
         catch (Exception ex)
@@ -44,7 +48,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTermin
             ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
             activity?.SetErrorStatus(ex);
-            handlingMetric.OnFailure(ex);
+            messagingMetricsMeters.RecordFailedMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime, ex);
             throw;
         }
     }
