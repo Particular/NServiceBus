@@ -67,7 +67,7 @@ public class MessageMetadataRegistry
             {
                 foreach (var item in messages.Values)
                 {
-                    var messageTypeFullName = GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
+                    var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
 
                     if (item.MessageType.FullName == messageTypeIdentifier ||
                         item.MessageType.FullName == messageTypeFullName)
@@ -108,17 +108,6 @@ public class MessageMetadataRegistry
     /// </summary>
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
     public MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
-
-    static string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
-    {
-        var typeParts = messageTypeIdentifier.Split(',');
-        if (typeParts.Length > 1)
-        {
-            return typeParts[0]; //Take the type part only
-        }
-
-        return messageTypeIdentifier;
-    }
 
     Type GetType(string messageTypeIdentifier)
     {
