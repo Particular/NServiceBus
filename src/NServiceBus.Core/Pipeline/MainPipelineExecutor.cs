@@ -14,9 +14,7 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    PipelineMetrics pipelineMetrics,
-    string queueNameBase,
-    string endpointDiscriminator)
+    PipelineMetrics pipelineMetrics)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -25,10 +23,7 @@ class MainPipelineExecutor(
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = new IncomingPipelineMetricTags();
-        incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
-        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
-
+        var incomingPipelineMetricsTags = pipelineMetrics.CreateDefaultIncomingPipelineMetricTags();
         pipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
