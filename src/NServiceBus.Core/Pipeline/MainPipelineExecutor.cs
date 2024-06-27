@@ -1,7 +1,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +14,9 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    MessagingMetricsMeters messagingMetricsMeters)
+    PipelineMetrics pipelineMetrics,
+    string queueNameBase,
+    string endpointDiscriminator)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -23,6 +24,12 @@ class MainPipelineExecutor(
         var pipelineStartedAt = DateTimeOffset.UtcNow;
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        var incomingPipelineMetricsTags = new IncomingPipelineMetricTags();
+        incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
+        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
+
+        pipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -43,6 +50,8 @@ class MainPipelineExecutor(
                 transportReceiveContext.SetIncomingPipelineActitvity(activity);
             }
 
+            transportReceiveContext.Extensions.Set(incomingPipelineMetricsTags);
+
             try
             {
                 await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
@@ -60,23 +69,18 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                pipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+
                 throw;
             }
 
             var completedAt = DateTimeOffset.UtcNow;
-            var incomingPipelineMetricTags = transportReceiveContext.Extensions.Get<IncomingPipelineMetricTags>();
-            if (incomingPipelineMetricTags.IsMetricTagsCollectionEnabled)
+            // TODO the following metrics should be recorded only if the Outbox did not dedup the incoming message
+            // We should not publish a successfully processed or critical time for a duplicate message
+            pipelineMetrics.RecordMessageSuccessfullyProcessed(incomingPipelineMetricsTags);
+            if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
             {
-                TagList tags;
-                incomingPipelineMetricTags.ApplyTags(ref tags, [
-                    MeterTags.QueueName,
-                    MeterTags.EndpointDiscriminator,
-                    MeterTags.MessageType]);
-
-                if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
-                {
-                    messagingMetricsMeters.RecordMessageCriticalTime(completedAt - startTime, tags);
-                }
+                pipelineMetrics.RecordMessageCriticalTime(completedAt - startTime, incomingPipelineMetricsTags);
             }
 
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);

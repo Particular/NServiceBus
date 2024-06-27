@@ -25,6 +25,9 @@ class PipelineComponent
             step.ApplyContainerRegistration(hostingConfiguration.Services);
         }
 
+        // make the PipelineMetrics available to the Pipeline 
+        hostingConfiguration.Services.AddSingleton<PipelineMetrics>();
+
         return new PipelineComponent(modifications);
     }
 

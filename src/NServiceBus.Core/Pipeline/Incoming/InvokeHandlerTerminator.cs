@@ -22,7 +22,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTermin
 
         // TODO: this is effectively using a provider pattern. It would be better to make that explicit allowing the
         // provider to return a NoOpMessagingMetricsMeters kind of meter
-        var messagingMetricsMeters = context.Builder.GetService<MessagingMetricsMeters>();
+        var messagingMetricsMeters = context.Builder.GetService<PipelineMetrics>();
 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
