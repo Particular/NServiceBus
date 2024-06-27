@@ -16,8 +16,6 @@ class PipelineMetrics
 
     public PipelineMetrics(IMeterFactory meterFactory)
     {
-        // TODO the problem with this approach is that it's harder to do approval testing on the exposed meters
-        // TODO we also probably need to keep the meter around to assert that the version did not change 
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline", "0.2.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
