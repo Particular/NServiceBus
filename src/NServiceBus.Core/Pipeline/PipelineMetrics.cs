@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Pipeline;
+using Settings;
 
 class PipelineMetrics
 {
@@ -14,7 +15,7 @@ class PipelineMetrics
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
 
-    public PipelineMetrics(IMeterFactory meterFactory)
+    public PipelineMetrics(IMeterFactory meterFactory, IReadOnlySettings settings)
     {
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline", "0.2.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
@@ -27,12 +28,10 @@ class PipelineMetrics
             "The time in seconds for the execution of the business code.");
         criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
             "The time in seconds between when the message was sent until processed by the endpoint.");
-    }
 
-    public void Initialize(string queueNameBase, string endpointDiscriminator)
-    {
-        this.queueNameBase = queueNameBase;
-        this.endpointDiscriminator = endpointDiscriminator;
+        var config = settings.Get<ReceiveComponent.Configuration>();
+        queueNameBase = config.QueueNameBase;
+        endpointDiscriminator = config.InstanceSpecificQueueAddress?.Discriminator ?? "";
     }
 
     public IncomingPipelineMetricTags CreateDefaultIncomingPipelineMetricTags()
