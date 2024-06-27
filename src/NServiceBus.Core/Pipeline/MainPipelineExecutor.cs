@@ -1,30 +1,30 @@
 namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
 
-class MainPipelineExecutor : IPipelineExecutor
+class MainPipelineExecutor(
+    IServiceProvider rootBuilder,
+    IPipelineCache pipelineCache,
+    MessageOperations messageOperations,
+    INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
+    IPipeline<ITransportReceiveContext> receivePipeline,
+    IActivityFactory activityFactory,
+    IncomingPipelineMetrics incomingPipelineMetrics)
+    : IPipelineExecutor
 {
-    public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
-    {
-        this.rootBuilder = rootBuilder;
-        this.pipelineCache = pipelineCache;
-        this.messageOperations = messageOperations;
-        this.receivePipelineNotification = receivePipelineNotification;
-        this.receivePipeline = receivePipeline;
-        this.activityFactory = activityFactory;
-    }
-
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        var incomingPipelineMetricsTags = incomingPipelineMetrics.CreateDefaultIncomingPipelineMetricTags();
+        incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -45,6 +45,8 @@ class MainPipelineExecutor : IPipelineExecutor
                 transportReceiveContext.SetIncomingPipelineActitvity(activity);
             }
 
+            transportReceiveContext.Extensions.Set(incomingPipelineMetricsTags);
+
             try
             {
                 await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
@@ -62,33 +64,21 @@ class MainPipelineExecutor : IPipelineExecutor
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+
                 throw;
             }
 
             var completedAt = DateTimeOffset.UtcNow;
-            var incomingPipelineMetricTags = transportReceiveContext.Extensions.Get<IncomingPipelineMetricTags>();
-            if (incomingPipelineMetricTags.IsMetricTagsCollectionEnabled)
+            // TODO the following metrics should be recorded only if the Outbox did not dedup the incoming message
+            // We should not publish a successfully processed or critical time for a duplicate message
+            incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(incomingPipelineMetricsTags);
+            if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
             {
-                TagList tags;
-                incomingPipelineMetricTags.ApplyTags(ref tags, [
-                    MeterTags.QueueName,
-                    MeterTags.EndpointDiscriminator,
-                    MeterTags.MessageType]);
-
-                if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
-                {
-                    Meters.CriticalTime.Record((completedAt - startTime).TotalSeconds, tags);
-                }
+                incomingPipelineMetrics.RecordMessageCriticalTime(completedAt - startTime, incomingPipelineMetricsTags);
             }
 
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
-
-    readonly IServiceProvider rootBuilder;
-    readonly IPipelineCache pipelineCache;
-    readonly MessageOperations messageOperations;
-    readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
-    readonly IPipeline<ITransportReceiveContext> receivePipeline;
-    readonly IActivityFactory activityFactory;
 }

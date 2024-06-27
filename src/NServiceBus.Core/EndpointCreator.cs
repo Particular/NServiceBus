@@ -117,6 +117,9 @@ class EndpointCreator
             }
         );
 
+        // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
+        _ = hostingConfiguration.Services.AddMetrics();
+
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
     }
 
