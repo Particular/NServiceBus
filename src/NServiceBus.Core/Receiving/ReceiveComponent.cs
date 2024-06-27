@@ -154,7 +154,7 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var pipelineMetrics = builder.GetService<PipelineMetrics>();
+        var pipelineMetrics = builder.GetService<IncomingPipelineMetrics>();
         var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
