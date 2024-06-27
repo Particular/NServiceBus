@@ -18,7 +18,7 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
 
     public override async Task Invoke(IRecoverabilityContext context, Func<IRoutingContext, Task> stage)
     {
-        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        var availableMetricTags = context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
         var recoverabilityActionContext = context.PreventChanges();
         var recoverabilityAction = context.RecoverabilityAction;
         var routingContexts = recoverabilityAction
