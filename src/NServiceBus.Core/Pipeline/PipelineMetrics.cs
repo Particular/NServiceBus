@@ -29,6 +29,21 @@ class PipelineMetrics
             "The time in seconds between when the message was sent until processed by the endpoint.");
     }
 
+    public void Initialize(string queueNameBase, string endpointDiscriminator)
+    {
+        this.queueNameBase = queueNameBase;
+        this.endpointDiscriminator = endpointDiscriminator;
+    }
+
+    public IncomingPipelineMetricTags CreateDefaultIncomingPipelineMetricTags()
+    {
+        var incomingPipelineMetricsTags = new IncomingPipelineMetricTags();
+        incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
+        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
+
+        return incomingPipelineMetricsTags;
+    }
+
     public void RecordMessageSuccessfullyProcessed(IncomingPipelineMetricTags incomingPipelineMetricTags)
     {
         if (!totalProcessedSuccessfully.Enabled)
@@ -136,4 +151,6 @@ class PipelineMetrics
     readonly Counter<long> totalFailures;
     readonly Histogram<double> messageHandlerTime;
     readonly Histogram<double> criticalTime;
+    string queueNameBase;
+    string endpointDiscriminator;
 }
