@@ -14,7 +14,7 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    PipelineMetrics pipelineMetrics)
+    IncomingPipelineMetrics incomingPipelineMetrics)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -23,8 +23,8 @@ class MainPipelineExecutor(
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = pipelineMetrics.CreateDefaultIncomingPipelineMetricTags();
-        pipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+        var incomingPipelineMetricsTags = incomingPipelineMetrics.CreateDefaultIncomingPipelineMetricTags();
+        incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -64,7 +64,7 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                pipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
 
                 throw;
             }
@@ -72,10 +72,10 @@ class MainPipelineExecutor(
             var completedAt = DateTimeOffset.UtcNow;
             // TODO the following metrics should be recorded only if the Outbox did not dedup the incoming message
             // We should not publish a successfully processed or critical time for a duplicate message
-            pipelineMetrics.RecordMessageSuccessfullyProcessed(incomingPipelineMetricsTags);
+            incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(incomingPipelineMetricsTags);
             if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
             {
-                pipelineMetrics.RecordMessageCriticalTime(completedAt - startTime, incomingPipelineMetricsTags);
+                incomingPipelineMetrics.RecordMessageCriticalTime(completedAt - startTime, incomingPipelineMetricsTags);
             }
 
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);

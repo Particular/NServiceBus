@@ -7,7 +7,7 @@ using System.Diagnostics.Metrics;
 using Pipeline;
 using Settings;
 
-class PipelineMetrics
+class IncomingPipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -15,9 +15,9 @@ class PipelineMetrics
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
 
-    public PipelineMetrics(IMeterFactory meterFactory, IReadOnlySettings settings)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, IReadOnlySettings settings)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline", "0.2.0");
+        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.2.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,

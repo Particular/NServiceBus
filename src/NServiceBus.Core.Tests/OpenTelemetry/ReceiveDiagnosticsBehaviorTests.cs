@@ -19,9 +19,9 @@ class ReceiveDiagnosticsBehaviorTests
         var testableIncomingPhysicalMessageContext = new TestableIncomingPhysicalMessageContext();
         await behavior.Invoke(testableIncomingPhysicalMessageContext, _ => Task.CompletedTask);
 
-        metricsListener.AssertMetric(PipelineMetrics.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFetched.Name, 1);
 
-        var fetchedTags = metricsListener.Tags[PipelineMetrics.TotalFetched.Name].ToImmutableDictionary();
+        var fetchedTags = metricsListener.Tags[IncomingPipelineMetrics.TotalFetched.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", fetchedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", fetchedTags[MeterTags.QueueName]);
     }
@@ -37,11 +37,11 @@ class ReceiveDiagnosticsBehaviorTests
         tags.Add(MeterTags.MessageType, "SomeType");
         await behavior.Invoke(testableIncomingPhysicalMessageContext, _ => Task.CompletedTask);
 
-        metricsListener.AssertMetric(PipelineMetrics.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(PipelineMetrics.TotalProcessedSuccessfully.Name, 1);
-        metricsListener.AssertMetric(PipelineMetrics.TotalFailures.Name, 0);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalProcessedSuccessfully.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFailures.Name, 0);
 
-        var processedTags = metricsListener.Tags[PipelineMetrics.TotalProcessedSuccessfully.Name].ToImmutableDictionary();
+        var processedTags = metricsListener.Tags[IncomingPipelineMetrics.TotalProcessedSuccessfully.Name].ToImmutableDictionary();
         Assert.AreEqual("discriminator", processedTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", processedTags[MeterTags.QueueName]);
         Assert.AreEqual("SomeType", processedTags[MeterTags.MessageType]);
@@ -56,11 +56,11 @@ class ReceiveDiagnosticsBehaviorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, _ => throw new Exception("test")));
 
-        metricsListener.AssertMetric(PipelineMetrics.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(PipelineMetrics.TotalProcessedSuccessfully.Name, 0);
-        metricsListener.AssertMetric(PipelineMetrics.TotalFailures.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalProcessedSuccessfully.Name, 0);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFailures.Name, 1);
 
-        var failureTags = metricsListener.Tags[PipelineMetrics.TotalFailures.Name].ToImmutableDictionary();
+        var failureTags = metricsListener.Tags[IncomingPipelineMetrics.TotalFailures.Name].ToImmutableDictionary();
         Assert.AreEqual(typeof(Exception), failureTags[MeterTags.FailureType]);
         Assert.AreEqual("discriminator", failureTags[MeterTags.EndpointDiscriminator]);
         Assert.AreEqual("queueBaseName", failureTags[MeterTags.QueueName]);
@@ -83,8 +83,8 @@ class ReceiveDiagnosticsBehaviorTests
             return Task.CompletedTask;
         }));
 
-        metricsListener.AssertMetric(PipelineMetrics.TotalFetched.Name, 1);
-        metricsListener.AssertMetric(PipelineMetrics.TotalProcessedSuccessfully.Name, 0);
-        metricsListener.AssertMetric(PipelineMetrics.TotalFailures.Name, 0);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFetched.Name, 1);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalProcessedSuccessfully.Name, 0);
+        metricsListener.AssertMetric(IncomingPipelineMetrics.TotalFailures.Name, 0);
     }
 }

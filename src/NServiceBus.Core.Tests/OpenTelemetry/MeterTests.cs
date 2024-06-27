@@ -23,7 +23,7 @@ public class MeterTests
             .Select(x => x.GetRawConstantValue())
             .OrderBy(value => value)
             .ToList();
-        var metrics = typeof(PipelineMetrics)
+        var metrics = typeof(IncomingPipelineMetrics)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
             .Where(fi => typeof(Instrument).IsAssignableFrom(fi.FieldType))
             .Select(fi => (Instrument)fi.GetValue(null))
@@ -33,7 +33,7 @@ public class MeterTests
         Approver.Verify(new
         {
             Note = "Changes to metrics API should result in an update to NServiceBusMeter version.",
-            ActivitySourceVersion = PipelineMetrics.NServiceBusMeter.Version,
+            ActivitySourceVersion = IncomingPipelineMetrics.NServiceBusMeter.Version,
             Tags = meterTags,
             Metrics = metrics
         });

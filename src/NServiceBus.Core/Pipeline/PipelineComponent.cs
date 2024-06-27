@@ -26,7 +26,7 @@ class PipelineComponent
         }
 
         // make the PipelineMetrics available to the Pipeline 
-        hostingConfiguration.Services.AddSingleton<PipelineMetrics>();
+        hostingConfiguration.Services.AddSingleton<IncomingPipelineMetrics>();
 
         return new PipelineComponent(modifications);
     }
