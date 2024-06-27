@@ -11,13 +11,6 @@ using System.Diagnostics;
 /// </summary>
 public sealed class IncomingPipelineMetricTags
 {
-    internal bool IsMetricTagsCollectionEnabled { get; private set; }
-
-    internal void CollectMetricTags()
-    {
-        IsMetricTagsCollectionEnabled = true;
-    }
-
     Dictionary<string, KeyValuePair<string, object?>>? tags;
 
     /// <summary>
