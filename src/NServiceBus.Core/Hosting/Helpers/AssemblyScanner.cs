@@ -221,8 +221,8 @@ public class AssemblyScanner
 
         processed[assembly.FullName] = false;
 
-        string assemblyName = assembly.GetName().Name;
-        if (assemblyName == CoreAssemblyName || assemblyName == MessageInterfacesAssemblyName)
+        var assemblyName = assembly.GetName();
+        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
             return processed[assembly.FullName] = true;
         }
@@ -376,7 +376,7 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
-        if (assemblyName.Name == CoreAssemblyName || assemblyName.Name == MessageInterfacesAssemblyName)
+        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
             return false;
         }
@@ -389,6 +389,15 @@ public class AssemblyScanner
         // AssemblyName.Name is without the file extension
         return !IsExcluded(assemblyName.Name);
     }
+
+    // We are deliberately checking here against the MessageInterfaces assembly name because
+    // we the command, event and message interfaces have been moved there by using type forwarding.
+    // While it would be possible to read the type forwarding information from the assembly that imposes
+    // some performance overhead, and we don't expect that the assembly name will change nor that we will add many
+    // more type forwarding cases. Should that be the case we might want to revisit the idea of reading the metadata
+    // information from the assembly.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => assemblyName.Name == CoreAssemblyName || assemblyName.Name == MessageInterfacesAssemblyName;
 
     internal bool ScanNestedDirectories;
     readonly Assembly assemblyToScan;
