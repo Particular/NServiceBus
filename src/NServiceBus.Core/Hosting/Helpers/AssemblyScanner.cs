@@ -53,6 +53,8 @@ public class AssemblyScanner
 
     internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
 
+    internal string MessageInterfacesAssemblyName { get; set; } = NServiceBusMessageInterfacesAssemblyName;
+
     internal IReadOnlyCollection<string> AssembliesToSkip
     {
         set => assembliesToSkip = new HashSet<string>(value.Select(RemoveExtension), StringComparer.OrdinalIgnoreCase);
@@ -219,7 +221,8 @@ public class AssemblyScanner
 
         processed[assembly.FullName] = false;
 
-        if (assembly.GetName().Name == CoreAssemblyName)
+        var assemblyName = assembly.GetName();
+        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
             return processed[assembly.FullName] = true;
         }
@@ -373,7 +376,7 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
-        if (assemblyName.Name == CoreAssemblyName)
+        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
             return false;
         }
@@ -387,12 +390,22 @@ public class AssemblyScanner
         return !IsExcluded(assemblyName.Name);
     }
 
+    // We are deliberately checking here against the MessageInterfaces assembly name because
+    // the command, event, and message interfaces have been moved there by using type forwarding.
+    // While it would be possible to read the type forwarding information from the assembly, that imposes
+    // some performance overhead, and we don't expect that the assembly name will change nor that we will add many
+    // more type forwarding cases. Should that be the case we might want to revisit the idea of reading the metadata
+    // information from the assembly.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => string.Equals(assemblyName.Name, CoreAssemblyName, StringComparison.Ordinal) || string.Equals(assemblyName.Name, MessageInterfacesAssemblyName, StringComparison.Ordinal);
+
     internal bool ScanNestedDirectories;
     readonly Assembly assemblyToScan;
     readonly string baseDirectoryToScan;
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
+    const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
     static readonly string[] FileSearchPatternsToUse =
     {
