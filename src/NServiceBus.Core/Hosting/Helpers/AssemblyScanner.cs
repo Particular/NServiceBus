@@ -397,7 +397,7 @@ public class AssemblyScanner
     // more type forwarding cases. Should that be the case we might want to revisit the idea of reading the metadata
     // information from the assembly.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => assemblyName.Name == CoreAssemblyName || assemblyName.Name == MessageInterfacesAssemblyName;
+    bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => string.Equals(assemblyName.Name, CoreAssemblyName, StringComparison.Ordinal) || string.Equals(assemblyName.Name, MessageInterfacesAssemblyName, StringComparison.Ordinal);
 
     internal bool ScanNestedDirectories;
     readonly Assembly assemblyToScan;
