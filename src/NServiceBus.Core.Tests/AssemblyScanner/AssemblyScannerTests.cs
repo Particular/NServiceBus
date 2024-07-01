@@ -96,7 +96,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             {
                 ThrowExceptions = false,
                 ScanAppDomainAssemblies = false,
-                CoreAssemblyName = busAssemblyV2.Name
+                CoreAssemblyName = busAssemblyV2.Name,
+                MessageInterfacesAssemblyName = null
             };
 
             var result = scanner.GetScannableAssemblies();
@@ -320,6 +321,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
             {
                 CoreAssemblyName = coreAssembly.DynamicName,
+                MessageInterfacesAssemblyName = null,
                 ScanAppDomainAssemblies = true,
                 ScanFileSystemAssemblies = true,
                 ThrowExceptions = true
