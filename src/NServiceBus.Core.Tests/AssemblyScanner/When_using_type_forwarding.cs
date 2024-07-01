@@ -24,7 +24,8 @@ public class When_using_type_forwarding
 
         // Exported types only contains a small subset of types, so it's safe to enumerate all of them
         var assemblyNamesOfForwardedTypes = metadataReader.ExportedTypes
-            .Select(exportedTypeHandle => metadataReader.GetExportedType(exportedTypeHandle)).Where(exportedType => exportedType.IsForwarder)
+            .Select(exportedTypeHandle => metadataReader.GetExportedType(exportedTypeHandle))
+            .Where(exportedType => exportedType.IsForwarder)
             .Select(exportedType => (AssemblyReferenceHandle)exportedType.Implementation)
             .Select(assemblyReferenceHandle => metadataReader.GetAssemblyReference(assemblyReferenceHandle))
             .Select(assemblyReference => metadataReader.GetString(assemblyReference.Name))
