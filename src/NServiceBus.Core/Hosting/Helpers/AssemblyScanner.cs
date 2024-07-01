@@ -391,8 +391,8 @@ public class AssemblyScanner
     }
 
     // We are deliberately checking here against the MessageInterfaces assembly name because
-    // we the command, event and message interfaces have been moved there by using type forwarding.
-    // While it would be possible to read the type forwarding information from the assembly that imposes
+    // the command, event, and message interfaces have been moved there by using type forwarding.
+    // While it would be possible to read the type forwarding information from the assembly, that imposes
     // some performance overhead, and we don't expect that the assembly name will change nor that we will add many
     // more type forwarding cases. Should that be the case we might want to revisit the idea of reading the metadata
     // information from the assembly.
