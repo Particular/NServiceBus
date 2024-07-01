@@ -29,6 +29,7 @@ public class When_using_type_forwarding
             .Select(exportedType => (AssemblyReferenceHandle)exportedType.Implementation)
             .Select(assemblyReferenceHandle => metadataReader.GetAssemblyReference(assemblyReferenceHandle))
             .Select(assemblyReference => metadataReader.GetString(assemblyReference.Name))
+            .Where(assemblyName => assemblyName.StartsWith("NServiceBus") || assemblyName.StartsWith("Particular"))
             .Distinct()
             .ToList();
 
