@@ -33,10 +33,7 @@ public class When_using_type_forwarding
             .Distinct()
             .ToList();
 
-        var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
-        {
-            ScanAppDomainAssemblies = false
-        };
+        var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
 
         var result = scanner.GetScannableAssemblies();
         var assemblyFullNames = result.Assemblies.Select(a => a.GetName().Name).ToList();

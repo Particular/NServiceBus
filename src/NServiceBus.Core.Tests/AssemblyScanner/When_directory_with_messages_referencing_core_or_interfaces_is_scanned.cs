@@ -11,10 +11,8 @@ public class When_directory_with_messages_referencing_core_or_interfaces_is_scan
     [Test]
     public void Assemblies_should_be_scanned()
     {
-        var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Messages"))
-        {
-            ScanAppDomainAssemblies = false
-        };
+        var scanner =
+            new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Messages"));
 
         var result = scanner.GetScannableAssemblies();
         var assemblyFullNames = result.Assemblies.Select(a => a.GetName().Name).ToList();
