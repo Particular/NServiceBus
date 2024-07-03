@@ -33,6 +33,9 @@ public partial class MessageContext : IExtendable
         Extensions = context;
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
+
+        //Hack to be able to get the tags in the recoverability pipeline
+        context.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     /// <summary>

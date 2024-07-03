@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Hosting;
 using NServiceBus.Logging;
 using NServiceBus.Pipeline;
@@ -56,7 +57,7 @@ class RecoverabilityComponent
 
         faultMetadataExtractor = CreateFaultMetadataExtractor();
 
-        pipelineSettings.Register(new RecoverabilityRoutingConnector(messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
+        pipelineSettings.Register(sp => new RecoverabilityRoutingConnector(sp.GetRequiredService<IncomingPipelineMetrics>(), messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
 
         hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
         {

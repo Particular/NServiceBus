@@ -23,7 +23,9 @@ class MainPipelineExecutor(
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = incomingPipelineMetrics.CreateDefaultIncomingPipelineMetricTags();
+        var incomingPipelineMetricsTags = messageContext.Extensions.parentBag.GetOrCreate<IncomingPipelineMetricTags>();
+
+        incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
         incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
@@ -44,8 +46,6 @@ class MainPipelineExecutor(
             {
                 transportReceiveContext.SetIncomingPipelineActitvity(activity);
             }
-
-            transportReceiveContext.Extensions.Set(incomingPipelineMetricsTags);
 
             try
             {
