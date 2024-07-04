@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
-using NServiceBus.Pipeline.Incoming;
 using NServiceBus.Routing;
 using NUnit.Framework;
 using Settings;

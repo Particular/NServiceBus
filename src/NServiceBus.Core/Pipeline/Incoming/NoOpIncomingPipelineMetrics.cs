@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Pipeline.Incoming;
+﻿namespace NServiceBus;
 
 using System;
+using Pipeline;
 
 class NoOpIncomingPipelineMetrics : IIncomingPipelineMetrics
 {
