@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
+using NServiceBus.Pipeline.Incoming;
 using NUnit.Framework;
 using OpenTelemetry.Helpers;
 using Settings;
@@ -120,7 +121,7 @@ public class MainPipelineExecutorTests
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
             new ActivityFactory(),
-            new IncomingPipelineMetrics(null, new SettingsHolder()));
+            new NoOpIncomingPipelineMetrics());
 
         return executor;
     }
