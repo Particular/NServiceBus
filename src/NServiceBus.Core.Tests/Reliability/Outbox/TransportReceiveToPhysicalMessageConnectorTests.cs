@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
+using NServiceBus.Pipeline.Incoming;
 using NServiceBus.Routing;
 using NUnit.Framework;
 using Settings;
@@ -181,7 +182,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(null, new SettingsHolder()));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new NoOpIncomingPipelineMetrics());
     }
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));

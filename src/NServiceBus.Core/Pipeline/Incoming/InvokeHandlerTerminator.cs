@@ -3,11 +3,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(IActivityFactory activityFactory, Func<IServiceProvider, IIncomingPipelineMetrics> incomingPipelineMetricsProvider) : PipelineTerminator<IInvokeHandlerContext>
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
@@ -22,7 +21,7 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory) : PipelineTermin
 
         // TODO: this is effectively using a provider pattern. It would be better to make that explicit allowing the
         // provider to return a NoOpMessagingMetricsMeters kind of meter
-        var messagingMetricsMeters = context.Builder.GetService<IncomingPipelineMetrics>();
+        var messagingMetricsMeters = incomingPipelineMetricsProvider.Invoke(context.Builder);
 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();

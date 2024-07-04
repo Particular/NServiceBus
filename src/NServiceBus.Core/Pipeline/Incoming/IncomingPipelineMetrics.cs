@@ -7,7 +7,7 @@ using System.Diagnostics.Metrics;
 using Pipeline;
 using Settings;
 
-class IncomingPipelineMetrics
+class IncomingPipelineMetrics : IIncomingPipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";

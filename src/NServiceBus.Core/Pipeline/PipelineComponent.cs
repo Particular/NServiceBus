@@ -1,8 +1,10 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
+using Settings;
 
 class PipelineComponent
 {
@@ -26,7 +28,8 @@ class PipelineComponent
         }
 
         // make the PipelineMetrics available to the Pipeline 
-        hostingConfiguration.Services.AddSingleton<IncomingPipelineMetrics>();
+        hostingConfiguration.Services.AddSingleton<IncomingPipelineMetrics>(sp =>
+            new IncomingPipelineMetrics(sp.GetService<IMeterFactory>(), sp.GetService<IReadOnlySettings>()));
 
         return new PipelineComponent(modifications);
     }

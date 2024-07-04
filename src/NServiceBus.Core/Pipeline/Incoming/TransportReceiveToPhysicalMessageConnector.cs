@@ -12,7 +12,7 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
-    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IncomingPipelineMetrics incomingPipelineMetrics)
+    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IIncomingPipelineMetrics incomingPipelineMetrics)
     {
         this.outboxStorage = outboxStorage;
         this.incomingPipelineMetrics = incomingPipelineMetrics;
@@ -34,7 +34,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
                 context.Extensions.Set(outboxTransaction);
                 await next(physicalMessageContext).ConfigureAwait(false);
 
-                var incomingPipelineMetricsTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+                context.Extensions.TryGet<IncomingPipelineMetricTags>(out IncomingPipelineMetricTags incomingPipelineMetricsTags);
                 incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(context, incomingPipelineMetricsTags);
 
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
@@ -135,5 +135,5 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
     }
 
     readonly IOutboxStorage outboxStorage;
-    readonly IncomingPipelineMetrics incomingPipelineMetrics;
+    readonly IIncomingPipelineMetrics incomingPipelineMetrics;
 }
