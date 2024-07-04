@@ -49,19 +49,35 @@ class IncomingPipelineMetrics
         incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
     }
 
-    public void RecordMessageSuccessfullyProcessed(IncomingPipelineMetricTags incomingPipelineMetricTags)
+    public void RecordMessageSuccessfullyProcessed(ITransportReceiveContext context, IncomingPipelineMetricTags incomingPipelineMetricTags)
     {
-        if (!totalProcessedSuccessfully.Enabled)
+        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled)
         {
             return;
         }
 
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
             MeterTags.MessageType,
             MeterTags.MessageHandlerTypes]);
 
-        totalProcessedSuccessfully.Add(1, tags);
+        if (totalProcessedSuccessfully.Enabled)
+        {
+            totalProcessedSuccessfully.Add(1, tags);
+        }
+        if (criticalTime.Enabled)
+        {
+            var completedAt = DateTimeOffset.UtcNow;
+
+            if (context.Message.Headers.TryGetDeliverAt(out var startTime)
+                || context.Message.Headers.TryGetTimeSent(out startTime))
+            {
+                var criticalTimeElapsed = completedAt - startTime;
+                criticalTime.Record(criticalTimeElapsed.TotalSeconds, tags);
+            }
+        }
     }
 
     public void RecordMessageProcessingFailure(IncomingPipelineMetricTags incomingPipelineMetricTags, Exception error)
@@ -72,8 +88,10 @@ class IncomingPipelineMetrics
         }
 
         TagList tags;
-        tags.Add(new(MeterTags.FailureType, error.GetType()));
+        tags.Add(new(MeterTags.FailureType, error.GetType().FullName));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
             MeterTags.MessageType,
             MeterTags.MessageHandlerTypes]);
         totalFailures.Add(1, tags);
@@ -92,22 +110,6 @@ class IncomingPipelineMetrics
             MeterTags.QueueName]);
 
         totalFetched.Add(1, tags);
-    }
-
-    public void RecordMessageCriticalTime(TimeSpan messageCriticalTime, IncomingPipelineMetricTags incomingPipelineMetricTags)
-    {
-        if (!criticalTime.Enabled)
-        {
-            return;
-        }
-
-        TagList tags;
-        incomingPipelineMetricTags.ApplyTags(ref tags, [
-            MeterTags.QueueName,
-            MeterTags.EndpointDiscriminator,
-            MeterTags.MessageType]);
-
-        criticalTime.Record(messageCriticalTime.TotalSeconds, tags);
     }
 
     public void RecordSuccessfulMessageHandlerTime(IInvokeHandlerContext invokeHandlerContext, TimeSpan elapsed)

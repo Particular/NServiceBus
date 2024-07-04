@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -15,7 +16,7 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         _ = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithMetrics>(b => b
+            .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x => x.MakeInstanceUniquelyAddressable("disc"))
                 .When(async (session, ctx) =>
                 {
                     for (var x = 0; x < 5; x++)
@@ -30,13 +31,20 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
 
-        var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
-        var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
-        var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
+        metricsListener.AssertTags("nservicebus.messaging.fetches",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "disc",
+            });
 
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
-        Assert.AreEqual(typeof(OutgoingMessage).FullName, successType);
+        metricsListener.AssertTags("nservicebus.messaging.successes",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName,
+            });
     }
 
     [Test]

@@ -34,7 +34,6 @@ public partial class MessageContext : IExtendable
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
 
-        //Hack to be able to get the tags in the recoverability pipeline
         context.GetOrCreate<IncomingPipelineMetricTags>();
     }
 

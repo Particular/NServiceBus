@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using NUnit.Framework;
+using AcceptanceTesting.Customization;
 
 public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 {
@@ -13,6 +15,7 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
         _ = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
+                .CustomConfig(x => x.MakeInstanceUniquelyAddressable("disc"))
                 .When(s => s.SendLocal(new FailingMessage())))
             .Done(c => c.HandlerInvoked)
             .Run();
@@ -20,6 +23,14 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
         metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
+
+        metricsListener.AssertTags("nservicebus.messaging.failures",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.failure_type"] = typeof(SimulatedException).FullName,
+            });
     }
 
     class Context : ScenarioContext

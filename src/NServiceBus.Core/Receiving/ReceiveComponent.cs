@@ -63,7 +63,7 @@ partial class ReceiveComponent
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage);
+            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>());
         }, "Allows to abort processing the message");
 
         pipelineSettings.Register("LoadHandlersConnector", b =>

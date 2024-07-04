@@ -50,7 +50,7 @@ class TestingMetricListener : IDisposable
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core");
+        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {
@@ -91,5 +91,14 @@ class TestingMetricListener : IDisposable
         }
 
         return meterTag.Value;
+    }
+
+    public void AssertTags(string metricName, Dictionary<string, object> expectedTags)
+    {
+        foreach (var kvp in expectedTags)
+        {
+            var actualTagValue = AssertTagKeyExists(metricName, kvp.Key);
+            Assert.AreEqual(kvp.Value, actualTagValue);
+        }
     }
 }

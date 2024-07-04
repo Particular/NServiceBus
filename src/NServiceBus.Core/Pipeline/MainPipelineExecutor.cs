@@ -23,7 +23,7 @@ class MainPipelineExecutor(
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = messageContext.Extensions.parentBag.GetOrCreate<IncomingPipelineMetricTags>();
+        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
         incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
@@ -70,14 +70,6 @@ class MainPipelineExecutor(
             }
 
             var completedAt = DateTimeOffset.UtcNow;
-            // TODO the following metrics should be recorded only if the Outbox did not dedup the incoming message
-            // We should not publish a successfully processed or critical time for a duplicate message
-            incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(incomingPipelineMetricsTags);
-            if (message.Headers.TryGetDeliverAt(out var startTime) || message.Headers.TryGetTimeSent(out startTime))
-            {
-                incomingPipelineMetrics.RecordMessageCriticalTime(completedAt - startTime, incomingPipelineMetricsTags);
-            }
-
             await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
