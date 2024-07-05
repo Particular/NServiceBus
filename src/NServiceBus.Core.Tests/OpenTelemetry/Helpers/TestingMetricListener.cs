@@ -10,6 +10,8 @@ using NUnit.Framework;
 class TestingMetricListener : IDisposable
 {
     readonly MeterListener meterListener;
+    public List<Instrument> metrics = [];
+    public string version = "";
 
     public TestingMetricListener(string sourceName)
     {
@@ -21,6 +23,8 @@ class TestingMetricListener : IDisposable
                 {
                     TestContext.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
                     listener.EnableMeasurementEvents(instrument);
+                    metrics.Add(instrument);
+                    version = instrument.Meter.Version;
                 }
             }
         };
@@ -40,7 +44,7 @@ class TestingMetricListener : IDisposable
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core");
+        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {

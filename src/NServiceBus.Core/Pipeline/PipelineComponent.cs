@@ -13,7 +13,8 @@ class PipelineComponent
         this.modifications = modifications;
     }
 
-    public static PipelineComponent Initialize(PipelineSettings settings, HostingComponent.Configuration hostingConfiguration)
+    public static PipelineComponent Initialize(PipelineSettings settings,
+        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration)
     {
         var modifications = settings.modifications;
 
@@ -28,8 +29,12 @@ class PipelineComponent
         }
 
         // make the PipelineMetrics available to the Pipeline 
-        hostingConfiguration.Services.AddSingleton<IncomingPipelineMetrics>(sp =>
-            new IncomingPipelineMetrics(sp.GetService<IMeterFactory>(), sp.GetService<IReadOnlySettings>()));
+        hostingConfiguration.Services.AddSingleton(sp =>
+        {
+            var meterFactory = sp.GetService<IMeterFactory>();
+            string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
+            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.QueueNameBase, discriminator);
+        });
 
         return new PipelineComponent(modifications);
     }

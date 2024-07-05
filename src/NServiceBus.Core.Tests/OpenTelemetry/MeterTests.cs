@@ -1,41 +1,39 @@
-﻿//namespace NServiceBus.Core.Tests.OpenTelemetry;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
-//using System.Diagnostics.Metrics;
-//using System.Linq;
-//using System.Reflection;
-//using NUnit.Framework;
-//using Particular.Approvals;
+using System.Diagnostics.Metrics;
+using System.Linq;
+using System.Reflection;
+using AcceptanceTests.Core.OpenTelemetry.Metrics;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+using Particular.Approvals;
+using Settings;
 
-//[TestFixture]
-//public class MeterTests
-//{
-//    [Test]
-//    public void Verify_MeterAPI()
-//    {
-//        //TODO: Create a test IMeterFactory implementation
-//        // - Instantiate the *Metrics call to test
-//        // - Use the test IMeterFactory implementation to record calls
-//        // - Dump recorded call into a file and approve it 
-
-//        var meterTags = typeof(MeterTags)
-//            .GetFields(BindingFlags.Public | BindingFlags.Static)
-//            .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
-//            .Select(x => x.GetRawConstantValue())
-//            .OrderBy(value => value)
-//            .ToList();
-//        var metrics = typeof(IncomingPipelineMetrics)
-//            .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-//            .Where(fi => typeof(Instrument).IsAssignableFrom(fi.FieldType))
-//            .Select(fi => (Instrument)fi.GetValue(null))
-//            .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}{(x.Unit == null ? "" : ", Unit: ")}{x.Unit ?? ""}")
-//            .OrderBy(value => value)
-//            .ToList();
-//        Approver.Verify(new
-//        {
-//            Note = "Changes to metrics API should result in an update to NServiceBusMeter version.",
-//            ActivitySourceVersion = IncomingPipelineMetrics.NServiceBusMeter.Version,
-//            Tags = meterTags,
-//            Metrics = metrics
-//        });
-//    }
-//}
+[TestFixture]
+public class MeterTests
+{
+    [Test]
+    public void Verify_MeterAPI()
+    {
+        var meterTags = typeof(MeterTags)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
+            .Select(x => x.GetRawConstantValue())
+            .OrderBy(value => value)
+            .ToList();
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        //The IncomingPipelineMetrics constructor creates the meters, therefore a new instance before collecting the metrics.
+        new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
+        var metrics = metricsListener.metrics
+            .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}{(x.Unit == null ? "" : ", Unit: ")}{x.Unit ?? ""}")
+            .OrderBy(value => value)
+            .ToList();
+        Approver.Verify(new
+        {
+            Note = "Changes to metrics API should result in an update to NServiceBusMeter version.",
+            ActivitySourceVersion = metricsListener.version,
+            Tags = meterTags,
+            Metrics = metrics
+        });
+    }
+}

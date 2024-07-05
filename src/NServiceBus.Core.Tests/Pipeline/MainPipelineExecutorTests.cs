@@ -7,8 +7,8 @@ using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
+using OpenTelemetry;
 using OpenTelemetry.Helpers;
-using Settings;
 using Transport;
 
 [TestFixture]
@@ -120,7 +120,7 @@ public class MainPipelineExecutorTests
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
             new ActivityFactory(),
-            new NoOpIncomingPipelineMetrics());
+            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         return executor;
     }

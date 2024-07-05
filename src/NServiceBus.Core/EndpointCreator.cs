@@ -99,7 +99,7 @@ class EndpointCreator
             hostingConfiguration,
             pipelineSettings);
 
-        pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
+        pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration, receiveConfiguration);
 
         // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
         // As well as all the other components have been initialized

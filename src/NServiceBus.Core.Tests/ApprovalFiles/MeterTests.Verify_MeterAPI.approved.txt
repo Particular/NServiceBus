@@ -16,6 +16,9 @@
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.handler_time => Histogram, Unit: s",
-    "nservicebus.messaging.successes => Counter"
+    "nservicebus.messaging.successes => Counter",
+    "nservicebus.recoverability.delayed => Counter",
+    "nservicebus.recoverability.error => Counter",
+    "nservicebus.recoverability.immediate => Counter"
   ]
 }

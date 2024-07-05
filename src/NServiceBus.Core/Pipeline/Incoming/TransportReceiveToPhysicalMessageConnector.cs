@@ -12,7 +12,7 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
-    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IIncomingPipelineMetrics incomingPipelineMetrics)
+    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IncomingPipelineMetrics incomingPipelineMetrics)
     {
         this.outboxStorage = outboxStorage;
         this.incomingPipelineMetrics = incomingPipelineMetrics;
@@ -135,5 +135,5 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
     }
 
     readonly IOutboxStorage outboxStorage;
-    readonly IIncomingPipelineMetrics incomingPipelineMetrics;
+    readonly IncomingPipelineMetrics incomingPipelineMetrics;
 }

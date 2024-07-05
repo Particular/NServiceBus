@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Pipeline;
-using Settings;
 
-class IncomingPipelineMetrics : IIncomingPipelineMetrics
+class IncomingPipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -18,7 +17,7 @@ class IncomingPipelineMetrics : IIncomingPipelineMetrics
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, IReadOnlySettings settings)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.2.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
@@ -38,9 +37,8 @@ class IncomingPipelineMetrics : IIncomingPipelineMetrics
         totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
             description: "Total number of messages sent to the error queue.");
 
-        var config = settings.Get<ReceiveComponent.Configuration>();
-        queueNameBase = config.QueueNameBase;
-        endpointDiscriminator = config.InstanceSpecificQueueAddress?.Discriminator ?? "";
+        queueNameBase = queueName;
+        endpointDiscriminator = discriminator;
     }
 
     public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricTags incomingPipelineMetricsTags)
