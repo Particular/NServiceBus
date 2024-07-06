@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
-using Settings;
 
 class PipelineComponent
 {
