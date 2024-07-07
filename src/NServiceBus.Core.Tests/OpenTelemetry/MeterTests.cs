@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
-using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection;
 using AcceptanceTests.Core.OpenTelemetry.Metrics;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Particular.Approvals;
-using Settings;
 
 [TestFixture]
 public class MeterTests
