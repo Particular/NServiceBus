@@ -99,7 +99,7 @@ class EndpointCreator
             hostingConfiguration,
             pipelineSettings);
 
-        pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration);
+        pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration, receiveConfiguration);
 
         // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
         // As well as all the other components have been initialized
@@ -116,6 +116,9 @@ class EndpointCreator
                 NServiceBusVersion = VersionInformation.MajorMinorPatch
             }
         );
+
+        // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
+        _ = hostingConfiguration.Services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
     }

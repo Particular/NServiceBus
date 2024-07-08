@@ -16,6 +16,5 @@ public static class OpenTelemetryConfigurationExtensions
 
         endpointConfiguration.Settings.Get<HostingComponent.Settings>().EnableOpenTelemetry = true;
         endpointConfiguration.EnableFeature<OpenTelemetryFeature>();
-        endpointConfiguration.EnableFeature<MessagingMetricsFeature>();
     }
 }

@@ -7,23 +7,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
 
-class MainPipelineExecutor : IPipelineExecutor
+class MainPipelineExecutor(
+    IServiceProvider rootBuilder,
+    IPipelineCache pipelineCache,
+    MessageOperations messageOperations,
+    INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
+    IPipeline<ITransportReceiveContext> receivePipeline,
+    IActivityFactory activityFactory,
+    IncomingPipelineMetrics incomingPipelineMetrics)
+    : IPipelineExecutor
 {
-    public MainPipelineExecutor(IServiceProvider rootBuilder, IPipelineCache pipelineCache, MessageOperations messageOperations, INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification, IPipeline<ITransportReceiveContext> receivePipeline, IActivityFactory activityFactory)
-    {
-        this.rootBuilder = rootBuilder;
-        this.pipelineCache = pipelineCache;
-        this.messageOperations = messageOperations;
-        this.receivePipelineNotification = receivePipelineNotification;
-        this.receivePipeline = receivePipeline;
-        this.activityFactory = activityFactory;
-    }
-
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
 
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
+
+        incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
+        incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -61,17 +64,13 @@ class MainPipelineExecutor : IPipelineExecutor
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+
                 throw;
             }
 
-            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTimeOffset.UtcNow), cancellationToken).ConfigureAwait(false);
+            var completedAt = DateTimeOffset.UtcNow;
+            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
-
-    readonly IServiceProvider rootBuilder;
-    readonly IPipelineCache pipelineCache;
-    readonly MessageOperations messageOperations;
-    readonly INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification;
-    readonly IPipeline<ITransportReceiveContext> receivePipeline;
-    readonly IActivityFactory activityFactory;
 }

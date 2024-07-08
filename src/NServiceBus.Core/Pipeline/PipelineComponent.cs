@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 
@@ -11,7 +12,8 @@ class PipelineComponent
         this.modifications = modifications;
     }
 
-    public static PipelineComponent Initialize(PipelineSettings settings, HostingComponent.Configuration hostingConfiguration)
+    public static PipelineComponent Initialize(PipelineSettings settings,
+        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration)
     {
         var modifications = settings.modifications;
 
@@ -24,6 +26,14 @@ class PipelineComponent
         {
             step.ApplyContainerRegistration(hostingConfiguration.Services);
         }
+
+        // make the PipelineMetrics available to the Pipeline 
+        hostingConfiguration.Services.AddSingleton(sp =>
+        {
+            var meterFactory = sp.GetService<IMeterFactory>();
+            string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
+            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.QueueNameBase, discriminator);
+        });
 
         return new PipelineComponent(modifications);
     }

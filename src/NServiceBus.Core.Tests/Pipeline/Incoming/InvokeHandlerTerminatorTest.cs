@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.Incoming;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
 using NUnit.Framework;
+using OpenTelemetry;
 using Testing;
 
 [TestFixture]
 public class InvokeHandlerTerminatorTest
 {
-    InvokeHandlerTerminator terminator = new InvokeHandlerTerminator(new NoOpActivityFactory());
+    InvokeHandlerTerminator terminator = new(new NoOpActivityFactory(), new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
     [Test]
     public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()

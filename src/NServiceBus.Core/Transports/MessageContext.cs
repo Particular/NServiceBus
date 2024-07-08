@@ -33,6 +33,8 @@ public partial class MessageContext : IExtendable
         Extensions = context;
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
+
+        context.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     /// <summary>

@@ -36,11 +36,21 @@ class TestingMetricListener : IDisposable
             ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);
             Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
         });
+        meterListener.SetMeasurementEventCallback((Instrument instrument,
+            double measurement,
+            ReadOnlySpan<KeyValuePair<string, object>> t,
+            object _) =>
+        {
+            TestContext.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+            var tags = t.ToArray();
+            ReportedMeters.AddOrUpdate(instrument.Name, 1, (_, val) => val + 1);
+            Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
+        });
         meterListener.Start();
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core");
+        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {
@@ -81,5 +91,14 @@ class TestingMetricListener : IDisposable
         }
 
         return meterTag.Value;
+    }
+
+    public void AssertTags(string metricName, Dictionary<string, object> expectedTags)
+    {
+        foreach (var kvp in expectedTags)
+        {
+            var actualTagValue = AssertTagKeyExists(metricName, kvp.Key);
+            Assert.AreEqual(kvp.Value, actualTagValue);
+        }
     }
 }
