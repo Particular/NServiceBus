@@ -20,13 +20,12 @@ class MainPipelineExecutor(
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
-
+        messageContext.Extensions.SetPipelineStartedAt(pipelineStartedAt);
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
         var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
-        incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -67,6 +66,10 @@ class MainPipelineExecutor(
                 incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
 
                 throw;
+            }
+            finally
+            {
+                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;

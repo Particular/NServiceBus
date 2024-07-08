@@ -30,7 +30,8 @@ public class MeterTests
         Approver.Verify(new
         {
             Note = "Changes to metrics API should result in an update to NServiceBusMeter version.",
-            ActivitySourceVersion = metricsListener.version,
+            MetricsSourceName = metricsListener.metricsSourceName,
+            MetricsSourceVersion = metricsListener.version,
             Tags = meterTags,
             Metrics = metrics
         });

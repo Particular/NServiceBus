@@ -13,6 +13,7 @@ class IncomingPipelineMetrics
     const string TotalFailures = "nservicebus.messaging.failures";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
+    const string ProcessingTime = "nservicebus.messaging.processing_time";
     const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
@@ -30,6 +31,8 @@ class IncomingPipelineMetrics
             "The time in seconds for the execution of the business code.");
         criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
             "The time in seconds between when the message was sent until processed by the endpoint.");
+        processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
+            "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
         totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
             description: "Total number of immediate retries requested.");
         totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
@@ -49,7 +52,7 @@ class IncomingPipelineMetrics
 
     public void RecordMessageSuccessfullyProcessed(ITransportReceiveContext context, IncomingPipelineMetricTags incomingPipelineMetricTags)
     {
-        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled)
+        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled && !processingTime.Enabled)
         {
             return;
         }
@@ -66,10 +69,17 @@ class IncomingPipelineMetrics
         {
             totalProcessedSuccessfully.Add(1, tags);
         }
+        var completedAt = DateTimeOffset.UtcNow;
+        if (processingTime.Enabled)
+        {
+            if (context.Extensions.TryGetPipelineStartedAt(out var pipelineStartedAt))
+            {
+                var processingTimeElapsed = completedAt - pipelineStartedAt;
+                processingTime.Record(processingTimeElapsed.TotalSeconds, tags);
+            }
+        }
         if (criticalTime.Enabled)
         {
-            var completedAt = DateTimeOffset.UtcNow;
-
             if (context.Message.Headers.TryGetDeliverAt(out var startTime)
                 || context.Message.Headers.TryGetTimeSent(out startTime))
             {
@@ -96,7 +106,7 @@ class IncomingPipelineMetrics
             MeterTags.MessageHandlerTypes]);
         totalFailures.Add(1, tags);
 
-        // the critical time is intentionally not recorded in case of failure
+        // the processing and critical time are intentionally not recorded in case of failure
     }
 
     public void RecordFetchedMessage(IncomingPipelineMetricTags incomingPipelineMetricTags)
@@ -109,7 +119,8 @@ class IncomingPipelineMetrics
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.EndpointDiscriminator,
-            MeterTags.QueueName]);
+            MeterTags.QueueName,
+            MeterTags.MessageType]);
 
         totalFetched.Add(1, tags);
     }
@@ -217,6 +228,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalFailures;
     readonly Histogram<double> messageHandlerTime;
     readonly Histogram<double> criticalTime;
+    readonly Histogram<double> processingTime;
     readonly Counter<long> totalImmediateRetries;
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;

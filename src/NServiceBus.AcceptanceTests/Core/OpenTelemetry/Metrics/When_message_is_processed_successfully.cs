@@ -30,12 +30,16 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.critical_time", 5);
+        metricsListener.AssertMetric("nservicebus.messaging.processing_time", 5);
+        metricsListener.AssertMetric("nservicebus.messaging.handler_time", 5);
 
         metricsListener.AssertTags("nservicebus.messaging.fetches",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
             });
 
         metricsListener.AssertTags("nservicebus.messaging.successes",
@@ -43,7 +47,33 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+            });
+
+        metricsListener.AssertTags("nservicebus.messaging.critical_time",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+            });
+
+        metricsListener.AssertTags("nservicebus.messaging.processing_time",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+            });
+
+        metricsListener.AssertTags("nservicebus.messaging.handler_time",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "disc",
                 ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName,
+                ["nservicebus.message_handler_type"] = typeof(EndpointWithMetrics.MessageHandler).FullName,
+                ["execution.result"] = "success"
             });
     }
 
@@ -68,9 +98,12 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
 
-        var successEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
-        var successType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
-        var successHandlerType = metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_handler_types");
+        var successEndpoint =
+            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
+        var successType =
+            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
+        var successHandlerType =
+            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_handler_types");
 
         var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
 
@@ -90,7 +123,7 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
     {
         public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<OutgoingMessage>
+        public class MessageHandler : IHandleMessages<OutgoingMessage>
         {
             readonly Context testContext;
 
