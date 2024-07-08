@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -22,7 +21,6 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
 
     public override async Task Invoke(IRecoverabilityContext context, Func<IRoutingContext, Task> stage)
     {
-        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
         var recoverabilityActionContext = context.PreventChanges();
         var recoverabilityAction = context.RecoverabilityAction;
         var routingContexts = recoverabilityAction
@@ -32,11 +30,6 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
         {
             await stage(routingContext).ConfigureAwait(false);
         }
-
-        var tags = new TagList();
-
-        availableMetricTags.ApplyTags(ref tags,
-            [MeterTags.EndpointDiscriminator, MeterTags.QueueName, MeterTags.FailureType, MeterTags.MessageType, MeterTags.MessageHandlerTypes]);
 
         if (context.RecoverabilityAction is ImmediateRetry)
         {

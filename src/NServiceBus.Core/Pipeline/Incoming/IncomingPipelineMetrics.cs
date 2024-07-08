@@ -55,6 +55,7 @@ class IncomingPipelineMetrics
         }
 
         TagList tags;
+        tags.Add(new(MeterTags.ExecutionResult, "success"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -86,13 +87,16 @@ class IncomingPipelineMetrics
         }
 
         TagList tags;
-        tags.Add(new(MeterTags.FailureType, error.GetType().FullName));
+        tags.Add(new(MeterTags.ErrorType, error.GetType().FullName));
+        tags.Add(new(MeterTags.ExecutionResult, "failure"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
             MeterTags.MessageType,
             MeterTags.MessageHandlerTypes]);
         totalFailures.Add(1, tags);
+
+        // the critical time is intentionally not recorded in case of failure
     }
 
     public void RecordFetchedMessage(IncomingPipelineMetricTags incomingPipelineMetricTags)

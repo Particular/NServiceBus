@@ -29,7 +29,7 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
                 ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.failure_type"] = typeof(SimulatedException).FullName,
+                ["error.type"] = typeof(SimulatedException).FullName,
             });
     }
 
