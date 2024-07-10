@@ -63,8 +63,10 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
-
+                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                {
+                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                }
                 throw;
             }
             finally

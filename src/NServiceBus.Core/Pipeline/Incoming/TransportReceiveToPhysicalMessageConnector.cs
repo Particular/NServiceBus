@@ -20,6 +20,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
+        //startedAt
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
@@ -35,13 +36,13 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
                 await next(physicalMessageContext).ConfigureAwait(false);
 
                 context.Extensions.TryGet<IncomingPipelineMetricTags>(out IncomingPipelineMetricTags incomingPipelineMetricsTags);
-                incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(context, incomingPipelineMetricsTags);
 
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                 await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
+                incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(context, incomingPipelineMetricsTags);
             }
 
             physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
