@@ -11,6 +11,7 @@
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="[1.0.0, 2.0.0)" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="8.0.0" />
   </ItemGroup>
 
