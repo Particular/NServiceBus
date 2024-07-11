@@ -50,12 +50,34 @@ class IncomingPipelineMetrics
         incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
     }
 
-    public void RecordMessageSuccessfullyProcessed(ITransportReceiveContext context, IncomingPipelineMetricTags incomingPipelineMetricTags)
+    public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
     {
-        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled && !processingTime.Enabled)
+        if (!processingTime.Enabled)
         {
             return;
         }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+
+        TagList tags;
+        tags.Add(new(MeterTags.ExecutionResult, "success"));
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes]);
+
+        processingTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordCriticalTimeAndTotalProcessed(ITransportReceiveContext context)
+    {
+        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
 
         TagList tags;
         tags.Add(new(MeterTags.ExecutionResult, "success"));
@@ -70,14 +92,6 @@ class IncomingPipelineMetrics
             totalProcessedSuccessfully.Add(1, tags);
         }
         var completedAt = DateTimeOffset.UtcNow;
-        if (processingTime.Enabled)
-        {
-            if (context.Extensions.TryGetPipelineStartedAt(out var pipelineStartedAt))
-            {
-                var processingTimeElapsed = completedAt - pipelineStartedAt;
-                processingTime.Record(processingTimeElapsed.TotalSeconds, tags);
-            }
-        }
         if (criticalTime.Enabled)
         {
             if (context.Message.Headers.TryGetDeliverAt(out var startTime)

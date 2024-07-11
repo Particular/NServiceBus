@@ -20,7 +20,6 @@ class MainPipelineExecutor(
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
-        messageContext.Extensions.SetPipelineStartedAt(pipelineStartedAt);
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
         var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();

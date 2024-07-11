@@ -20,6 +20,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
+        var processingStartedAt = DateTimeOffset.UtcNow;
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
@@ -34,14 +35,14 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
                 context.Extensions.Set(outboxTransaction);
                 await next(physicalMessageContext).ConfigureAwait(false);
 
-                context.Extensions.TryGet<IncomingPipelineMetricTags>(out IncomingPipelineMetricTags incomingPipelineMetricsTags);
-
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                 await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
-                incomingPipelineMetrics.RecordMessageSuccessfullyProcessed(context, incomingPipelineMetricsTags);
+
+                var processingCompletedAt = DateTimeOffset.UtcNow;
+                incomingPipelineMetrics.RecordProcessingTime(context, processingCompletedAt - processingStartedAt);
             }
 
             physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
@@ -68,6 +69,11 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
         }
 
         await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+
+        if (pendingTransportOperations.HasOperations || deduplicationEntry == null)
+        {
+            incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
+        }
     }
 
     static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)

@@ -2,7 +2,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using Extensibility;
 
 static class MetricsExtensions
 {
@@ -27,10 +26,4 @@ static class MetricsExtensions
         deliverAt = DateTimeOffset.MinValue;
         return false;
     }
-
-    public static void SetPipelineStartedAt(this ContextBag contextBag, DateTimeOffset pipelineStartedAt) =>
-        contextBag.Set("PipelineStartedAt", pipelineStartedAt);
-
-    public static bool TryGetPipelineStartedAt(this ContextBag contextBag, out DateTimeOffset pipelineStartedAt) =>
-        contextBag.TryGet("PipelineStartedAt", out pipelineStartedAt);
 }
