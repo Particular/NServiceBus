@@ -54,7 +54,7 @@ public class ConventionsBuilder : ExposeSettings
     public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
     {
         ArgumentNullException.ThrowIfNull(definesDataBusProperty);
-        Conventions.IsDataBusPropertyAction = definesDataBusProperty;
+        // Conventions.IsDataBusPropertyAction = definesDataBusProperty;
         return this;
     }
 
