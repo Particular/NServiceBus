@@ -175,10 +175,7 @@ public class MessageMetadataRegistry
             .Where(t => isMessageType(t))
             .OrderByDescending(PlaceInMessageHierarchy);
 
-        var metadata = new MessageMetadata(messageType, new[]
-        {
-                messageType
-            }.Concat(parentMessages).ToArray());
+        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
 
         messages[messageType.TypeHandle] = metadata;
         cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
