@@ -65,10 +65,9 @@ public class MessageMetadataRegistry
 
             if (messageType == null)
             {
+                var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
                 foreach (var item in messages.Values)
                 {
-                    var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
-
                     if (item.MessageType.FullName == messageTypeIdentifier ||
                         item.MessageType.FullName == messageTypeFullName)
                     {
