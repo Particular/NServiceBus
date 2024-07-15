@@ -20,13 +20,11 @@ class MainPipelineExecutor(
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
-
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
         var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
-        incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -64,9 +62,15 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
-
+                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                {
+                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                }
                 throw;
+            }
+            finally
+            {
+                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;

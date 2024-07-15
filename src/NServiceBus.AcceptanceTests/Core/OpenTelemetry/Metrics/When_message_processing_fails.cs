@@ -23,12 +23,34 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 1);
         metricsListener.AssertMetric("nservicebus.messaging.successes", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.critical_time", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.processing_time", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.handler_time", 1);
+
+        metricsListener.AssertTags("nservicebus.messaging.fetches",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(FailingMessage).FullName
+            });
 
         metricsListener.AssertTags("nservicebus.messaging.failures",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
                 ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(FailingMessage).FullName,
+                ["error.type"] = typeof(SimulatedException).FullName,
+            });
+
+        metricsListener.AssertTags("nservicebus.messaging.handler_time",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
+                ["nservicebus.discriminator"] = "disc",
+                ["nservicebus.message_type"] = typeof(FailingMessage).FullName,
+                ["execution.result"] = "failure",
                 ["error.type"] = typeof(SimulatedException).FullName,
             });
     }
@@ -55,7 +77,6 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
             }
 
             const string ErrorMessage = "oh no!";
-
         }
     }
 

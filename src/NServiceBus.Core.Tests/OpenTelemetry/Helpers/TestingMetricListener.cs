@@ -12,6 +12,7 @@ class TestingMetricListener : IDisposable
     readonly MeterListener meterListener;
     public List<Instrument> metrics = [];
     public string version = "";
+    public string metricsSourceName = "";
 
     public TestingMetricListener(string sourceName)
     {
@@ -25,6 +26,7 @@ class TestingMetricListener : IDisposable
                     listener.EnableMeasurementEvents(instrument);
                     metrics.Add(instrument);
                     version = instrument.Meter.Version;
+                    metricsSourceName = instrument.Meter.Name;
                 }
             }
         };
