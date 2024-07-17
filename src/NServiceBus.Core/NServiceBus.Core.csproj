@@ -21,7 +21,7 @@
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="[1.0.0, 2.0.0)" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
-    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup Label="System.Security.Cryptography.Xml 7.0.1 references Pkcs 7.0.0, which has a vulnerability. This should be removed when Xml updates to reference a non-vulernable version">
