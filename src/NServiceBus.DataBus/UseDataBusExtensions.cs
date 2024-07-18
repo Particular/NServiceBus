@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Configuration.AdvancedExtensibility;
 using DataBus;
 
 /// <summary>
@@ -34,7 +35,7 @@ public static partial class UseDataBusExtensions
         ArgumentNullException.ThrowIfNull(dataBusSerializer);
 
         var dataBusExtensionType = typeof(DataBusExtensions<>).MakeGenericType(typeof(TDataBusDefinition));
-        var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.Settings);
+        var dataBusExtension = (DataBusExtensions<TDataBusDefinition>)Activator.CreateInstance(dataBusExtensionType, config.GetSettings());
         var dataBusDefinition = new TDataBusDefinition();
 
         EnableDataBus(config, dataBusDefinition, dataBusSerializer);
@@ -56,14 +57,14 @@ public static partial class UseDataBusExtensions
 
         EnableDataBus(config, new CustomDataBus(dataBusFactory), dataBusSerializer);
 
-        return new DataBusExtensions(config.Settings);
+        return new DataBusExtensions(config.GetSettings());
     }
 
     static void EnableDataBus(EndpointConfiguration config, DataBusDefinition selectedDataBus, IDataBusSerializer dataBusSerializer)
     {
-        config.Settings.Set(Features.DataBus.SelectedDataBusKey, selectedDataBus);
-        config.Settings.Set(Features.DataBus.DataBusSerializerKey, dataBusSerializer);
-        config.Settings.Set(Features.DataBus.AdditionalDataBusDeserializersKey, new List<IDataBusSerializer>());
+        config.GetSettings().Set(Features.DataBus.SelectedDataBusKey, selectedDataBus);
+        config.GetSettings().Set(Features.DataBus.DataBusSerializerKey, dataBusSerializer);
+        config.GetSettings().Set(Features.DataBus.AdditionalDataBusDeserializersKey, new List<IDataBusSerializer>());
 
         config.EnableFeature<Features.DataBus>();
     }

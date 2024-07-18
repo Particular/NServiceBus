@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using Configuration.AdvancedExtensibility;
 using DataBus;
 
 /// <summary>
@@ -18,7 +19,7 @@ public static class ConfigureFileShareDataBus
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentException.ThrowIfNullOrWhiteSpace(basePath);
-        config.Settings.Set("FileShareDataBusPath", basePath);
+        config.GetSettings().Set("FileShareDataBusPath", basePath);
 
         return config;
     }
