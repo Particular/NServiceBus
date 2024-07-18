@@ -11,7 +11,7 @@ class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomi
     public DataBusReceiveBehavior(
         IDataBus dataBus,
         DataBusDeserializer deserializer,
-        Conventions conventions)
+        DataBusConventions conventions)
     {
         this.conventions = conventions;
         this.deserializer = deserializer;
@@ -68,7 +68,7 @@ class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomi
         await next(context).ConfigureAwait(false);
     }
 
-    readonly Conventions conventions;
+    readonly DataBusConventions conventions;
     readonly IDataBus dataBus;
     readonly DataBusDeserializer deserializer;
 

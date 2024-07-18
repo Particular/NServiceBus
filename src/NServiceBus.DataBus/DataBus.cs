@@ -37,7 +37,7 @@ public class DataBus : Feature
 
         var serializer = context.Settings.Get<IDataBusSerializer>(DataBusSerializerKey);
         var additionalDeserializers = context.Settings.Get<List<IDataBusSerializer>>(AdditionalDataBusDeserializersKey);
-        var conventions = context.Settings.Get<Conventions>();
+        var conventions = new DataBusConventions();
 
         context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
         context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions, serializer));

@@ -11,7 +11,7 @@ using Transport;
 
 class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public DataBusSendBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
+    public DataBusSendBehavior(IDataBus databus, IDataBusSerializer serializer, DataBusConventions conventions)
     {
         this.conventions = conventions;
         dataBusSerializer = serializer;
@@ -80,13 +80,13 @@ class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingL
         await next(context).ConfigureAwait(false);
     }
 
-    readonly Conventions conventions;
+    readonly DataBusConventions conventions;
     readonly IDataBus dataBus;
     readonly IDataBusSerializer dataBusSerializer;
 
     public class Registration : RegisterStep
     {
-        public Registration(Conventions conventions, IDataBusSerializer serializer) : base(
+        public Registration(DataBusConventions conventions, IDataBusSerializer serializer) : base(
             "DataBusSend",
             typeof(DataBusSendBehavior),
             "Saves the payload into the shared location",

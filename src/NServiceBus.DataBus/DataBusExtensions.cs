@@ -51,14 +51,14 @@ public class DataBusExtensions : ExposeSettings
     {
         ArgumentNullException.ThrowIfNull(serializer);
 
-        var deserializers = Settings.Get<List<IDataBusSerializer>>(Features.DataBus.AdditionalDataBusDeserializersKey);
+        var deserializers = this.GetSettings().Get<List<IDataBusSerializer>>(Features.DataBus.AdditionalDataBusDeserializersKey);
 
         if (deserializers.Any(d => d.ContentType == serializer.ContentType))
         {
             throw new ArgumentException($"Deserializer for content type  '{serializer.ContentType}' is already registered.");
         }
 
-        var mainSerializer = Settings.Get<IDataBusSerializer>(Features.DataBus.DataBusSerializerKey);
+        var mainSerializer = this.GetSettings().Get<IDataBusSerializer>(Features.DataBus.DataBusSerializerKey);
 
         if (mainSerializer.ContentType == serializer.ContentType)
         {
