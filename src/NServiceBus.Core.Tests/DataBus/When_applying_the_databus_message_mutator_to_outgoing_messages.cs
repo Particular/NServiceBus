@@ -27,7 +27,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
 
         var fakeDatabus = new FakeDataBus();
 
-        var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
+        var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new DataBusConventions());
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
@@ -48,7 +48,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
         var fakeDatabus = new FakeDataBus();
         var serializer = new SystemJsonDataBusSerializer();
 
-        var sendBehavior = new DataBusSendBehavior(fakeDatabus, serializer, new Conventions());
+        var sendBehavior = new DataBusSendBehavior(fakeDatabus, serializer, new DataBusConventions());
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
@@ -70,7 +70,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
 
         var fakeDatabus = new FakeDataBus();
 
-        var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new Conventions());
+        var sendBehavior = new DataBusSendBehavior(fakeDatabus, new SystemJsonDataBusSerializer(), new DataBusConventions());
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 

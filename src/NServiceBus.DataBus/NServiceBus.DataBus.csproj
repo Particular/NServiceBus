@@ -10,4 +10,9 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="NServiceBus.AcceptanceTesting" Key="$(NServiceBusKey)" />    
+    <InternalsVisibleTo Include="NServiceBus.Core.Tests" Key="$(NServiceBusTestsKey)" />    
+  </ItemGroup>
+
 </Project>

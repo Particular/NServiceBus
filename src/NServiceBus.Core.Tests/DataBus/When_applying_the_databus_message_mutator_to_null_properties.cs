@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.DataBus;
 
 using System.IO;
 using System.Threading.Tasks;
+using NServiceBus.DataBus;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Testing;
@@ -18,7 +19,7 @@ class When_applying_the_databus_message_mutator_to_null_properties
         };
 
         var serializer = new SystemJsonDataBusSerializer();
-        var sendBehavior = new DataBusSendBehavior(null, serializer, new Conventions());
+        var sendBehavior = new DataBusSendBehavior(null, serializer, new DataBusConventions());
 
         using (var stream = new MemoryStream())
         {

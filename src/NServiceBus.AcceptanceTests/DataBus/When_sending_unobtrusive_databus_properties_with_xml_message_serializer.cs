@@ -7,6 +7,7 @@ using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using MessageMutator;
+using NServiceBus.DataBus;
 using NUnit.Framework;
 
 public class When_sending_unobtrusive_databus_properties_with_xml_message_serializer : NServiceBusAcceptanceTest

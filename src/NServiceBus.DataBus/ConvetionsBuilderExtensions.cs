@@ -10,7 +10,7 @@ public static class ConvetionsBuilderExtensions
     public static ConventionsBuilder DefiningDataBusPropertiesAs(this ConventionsBuilder builder, Func<PropertyInfo, bool> definesDataBusProperty)
     {
         ArgumentNullException.ThrowIfNull(definesDataBusProperty);
-        Conventions.IsDataBusPropertyAction = definesDataBusProperty;
+        // Conventions.IsDataBusPropertyAction = definesDataBusProperty;
         return builder;
     }
 }
