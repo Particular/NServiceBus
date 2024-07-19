@@ -37,7 +37,7 @@ public class DataBus : Feature
 
         var serializer = context.Settings.Get<IDataBusSerializer>(DataBusSerializerKey);
         var additionalDeserializers = context.Settings.Get<List<IDataBusSerializer>>(AdditionalDataBusDeserializersKey);
-        var conventions = new DataBusConventions();
+        var conventions = context.Settings.Get<DataBusConventions>(DataBusConventionsKey);
 
         context.RegisterStartupTask(b => new DataBusInitializer(b.GetRequiredService<IDataBus>()));
         context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions, serializer));
@@ -53,6 +53,7 @@ public class DataBus : Feature
     internal static string SelectedDataBusKey = "SelectedDataBus";
     internal static string DataBusSerializerKey = "DataBusSerializer";
     internal static string AdditionalDataBusDeserializersKey = "AdditionalDataBusDeserializers";
+    internal static string DataBusConventionsKey = "DataBusConventions";
 
     class DataBusInitializer : FeatureStartupTask
     {

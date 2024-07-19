@@ -66,6 +66,11 @@ public static partial class UseDataBusExtensions
         config.GetSettings().Set(Features.DataBus.DataBusSerializerKey, dataBusSerializer);
         config.GetSettings().Set(Features.DataBus.AdditionalDataBusDeserializersKey, new List<IDataBusSerializer>());
 
+        if (!config.GetSettings().HasSetting(Features.DataBus.DataBusConventionsKey))
+        {
+            config.GetSettings().Set(Features.DataBus.DataBusConventionsKey, new DataBusConventions());
+        }
+
         config.EnableFeature<Features.DataBus>();
     }
 }
