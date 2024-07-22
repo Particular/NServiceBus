@@ -15,6 +15,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.1.0" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0-preview.6.24327.7" />
   </ItemGroup>
 
   <PropertyGroup>
