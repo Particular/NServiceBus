@@ -4,7 +4,10 @@ using System;
 using System.Reflection;
 using Configuration.AdvancedExtensibility;
 
-public static class ConvetionsBuilderExtensions
+/// <summary>
+/// A set of extension methods for configuring unobtrusive DataBus properties.
+/// </summary>
+public static class ConventionsBuilderExtensions
 {
     /// <summary>
     /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.

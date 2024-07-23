@@ -5,6 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
+/// <summary>
+/// This class contains helper methods to extract and cache databus properties from messages.
+/// </summary>
 public class DataBusConventions
 {
     /// <summary>
