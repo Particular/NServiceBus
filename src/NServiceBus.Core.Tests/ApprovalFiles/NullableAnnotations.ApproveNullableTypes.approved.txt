@@ -24,6 +24,8 @@ NServiceBus.ConversationIdStrategyContext
 NServiceBus.ConversationRoutingExtensions
 NServiceBus.CriticalError
 NServiceBus.CriticalErrorContext
+NServiceBus.DataBus.ConventionsBuilderExtensions
+NServiceBus.DataBus.DataBusConventions
 NServiceBus.DataBus.DataBusExtensions
 NServiceBus.DataBus.DataBusExtensions`1
 NServiceBus.DataBus.IDataBus
