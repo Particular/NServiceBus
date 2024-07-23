@@ -28,7 +28,7 @@ public class DataBus : Feature
     /// <summary>
     /// Called when the features is activated.
     /// </summary>
-    protected override void Setup(FeatureConfigurationContext context)
+    protected internal override void Setup(FeatureConfigurationContext context)
     {
         if (context.Services.Any(sd => sd.ServiceType == typeof(IDataBusSerializer)))
         {

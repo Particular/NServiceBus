@@ -14,7 +14,7 @@ class DataBusFileBased : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />
     /// </summary>
-    protected override void Setup(FeatureConfigurationContext context)
+    protected internal override void Setup(FeatureConfigurationContext context)
     {
         if (!context.Settings.TryGet("FileShareDataBusPath", out string basePath))
         {
