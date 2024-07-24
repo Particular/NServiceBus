@@ -1,4 +1,4 @@
-namespace NServiceBus.DataBus;
+namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
@@ -8,7 +8,7 @@ using System.Reflection;
 /// <summary>
 /// This class contains helper methods to extract and cache databus properties from messages.
 /// </summary>
-public class DataBusConventions
+class DataBusConventions
 {
     /// <summary>
     /// Returns true if the given property should be send via the DataBus.
@@ -47,6 +47,11 @@ public class DataBusConventions
 
             return properties;
         });
+    }
+
+    internal void DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+    {
+        IsDataBusPropertyAction = definesDataBusProperty;
     }
 
     internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;

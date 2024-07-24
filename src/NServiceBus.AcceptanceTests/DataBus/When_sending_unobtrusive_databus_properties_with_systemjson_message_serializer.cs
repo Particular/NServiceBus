@@ -8,7 +8,6 @@ using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using MessageMutator;
 using NUnit.Framework;
-using NServiceBus.DataBus;
 
 public class When_sending_unobtrusive_databus_properties_with_systemjson_message_serializer : NServiceBusAcceptanceTest
 {

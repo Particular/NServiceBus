@@ -111,6 +111,7 @@ namespace NServiceBus
         public Conventions() { }
         public void AddSystemMessagesConventions(System.Func<System.Type, bool> definesMessageType) { }
         public bool IsCommandType(System.Type t) { }
+        public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
@@ -121,6 +122,7 @@ namespace NServiceBus
         public NServiceBus.Conventions Conventions { get; }
         public NServiceBus.ConventionsBuilder Add(NServiceBus.IMessageConvention messageConvention) { }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
+        public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
@@ -1055,15 +1057,6 @@ namespace NServiceBus.ConsistencyGuarantees
 }
 namespace NServiceBus.DataBus
 {
-    public static class ConventionsBuilderExtensions
-    {
-        public static NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
-    }
-    public class DataBusConventions
-    {
-        public DataBusConventions() { }
-        public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
-    }
     public abstract class DataBusDefinition
     {
         protected DataBusDefinition() { }

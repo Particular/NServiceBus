@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Logging;
 
 /// <summary>
@@ -141,6 +142,14 @@ public class Conventions
     }
 
     /// <summary>
+    /// Returns true if the given property should be send via the DataBus.
+    /// </summary>
+    public bool IsDataBusProperty(PropertyInfo property)
+    {
+        return databusConventions.IsDataBusProperty(property);
+    }
+
+    /// <summary>
     /// Returns true if the given type is a event type.
     /// </summary>
     public bool IsEventType(Type t)
@@ -209,6 +218,7 @@ public class Conventions
 
     readonly List<IMessageConvention> conventions = [];
     readonly OverridableMessageConvention defaultMessageConvention;
+    internal DataBusConventions databusConventions;
 
     static readonly ILog logger = LogManager.GetLogger<Conventions>();
 

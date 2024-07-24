@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Reflection;
 using Configuration.AdvancedExtensibility;
 using Settings;
 
@@ -15,6 +16,14 @@ public class ConventionsBuilder : ExposeSettings
     /// <param name="settings">An instance of the current settings.</param>
     public ConventionsBuilder(SettingsHolder settings) : base(settings)
     {
+        var dataBusConventions = settings.GetOrDefault<DataBusConventions>(Features.DataBus.DataBusConventionsKey);
+        if (dataBusConventions == null)
+        {
+            dataBusConventions = new DataBusConventions();
+            settings.Set(Features.DataBus.DataBusConventionsKey, dataBusConventions);
+        }
+
+        Conventions.databusConventions = dataBusConventions;
     }
 
     /// <summary>
@@ -44,6 +53,16 @@ public class ConventionsBuilder : ExposeSettings
     {
         ArgumentNullException.ThrowIfNull(definesEventType);
         Conventions.DefineEventTypeConventions(definesEventType);
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
+    /// </summary>
+    public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
+    {
+        ArgumentNullException.ThrowIfNull(definesDataBusProperty);
+        Conventions.databusConventions.DefiningDataBusPropertiesAs(definesDataBusProperty);
         return this;
     }
 

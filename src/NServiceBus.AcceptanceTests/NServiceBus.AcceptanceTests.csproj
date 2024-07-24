@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
-    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />    
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
