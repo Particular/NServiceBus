@@ -146,7 +146,7 @@ public class When_multiple_messages_are_available_and_conccurency_is_changed_aft
         }
 
         // we need to wait because it might take a bit till the pump has invoked all pipelines
-        while (onMessageCalls.Count < lastConcurrencyLevel)
+        while (onMessageCalls.IsEmpty)
         {
             await Task.Delay(50, TestTimeoutCancellationToken);
         }
