@@ -17,7 +17,7 @@ public class When_multiple_messages_are_available_and_concurrency_is_increased_a
     {
         const int startConcurrencyLevel = 5;
         const int newConcurrencyLevel = 10;
-        const int lastConcurrencyLevel = 1;
+        const int lastConcurrencyLevel = 2;
         var onMessageCalls = new ConcurrentQueue<TaskCompletionSource>();
 
         await StartPump(async (context, _) =>
@@ -40,7 +40,7 @@ public class When_multiple_messages_are_available_and_concurrency_is_increased_a
         }
 
         // we need to wait because it might take a bit till the pump has invoked all pipelines
-        while (onMessageCalls.IsEmpty)
+        while (onMessageCalls.Count < lastConcurrencyLevel)
         {
             await Task.Delay(50, TestTimeoutCancellationToken);
         }
