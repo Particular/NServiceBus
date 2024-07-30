@@ -13,6 +13,10 @@ public static partial class UseDataBusExtensions
     /// Configures NServiceBus to use the given data bus definition.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    [ObsoleteEx(
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this EndpointConfiguration config)
         where TDataBusDefinition : DataBusDefinition, new()
         where TDataBusSerializer : IDataBusSerializer, new()
@@ -27,6 +31,10 @@ public static partial class UseDataBusExtensions
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
+    [ObsoleteEx(
+    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
         where TDataBusDefinition : DataBusDefinition, new()
     {
@@ -48,6 +56,10 @@ public static partial class UseDataBusExtensions
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="dataBusFactory">The factory to create the custom <see cref="IDataBus" /> to use.</param>
     /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
+    [ObsoleteEx(
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer)
     {
         ArgumentNullException.ThrowIfNull(config);
