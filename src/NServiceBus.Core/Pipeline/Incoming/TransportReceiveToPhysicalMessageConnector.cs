@@ -125,15 +125,13 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
     {
-        if (options.TryGetValue("Destination", out var destination))
+        if (options.Remove("Destination", out var destination))
         {
-            options.Remove("Destination");
             return new UnicastAddressTag(destination);
         }
 
-        if (options.TryGetValue("EventType", out var eventType))
+        if (options.Remove("EventType", out var eventType))
         {
-            options.Remove("EventType");
             return new MulticastAddressTag(Type.GetType(eventType, true));
         }
 
