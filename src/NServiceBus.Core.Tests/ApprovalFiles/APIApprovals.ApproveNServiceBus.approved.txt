@@ -63,6 +63,9 @@ namespace NServiceBus
     }
     public static class ConfigureFileShareDataBus
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
     public static class ConfigureLicenseExtensions
@@ -159,19 +162,46 @@ namespace NServiceBus
         public System.Exception Exception { get; }
         public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty
         where T :  class
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public DataBusProperty() { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public DataBusProperty(T value) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public bool HasValue { get; set; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public string Key { get; set; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         [System.Text.Json.Serialization.JsonIgnore]
         public System.Type Type { get; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         [System.Text.Json.Serialization.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         public T Value { get; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public object GetValue() { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public void SetValue(object valueToSet) { }
     }
     public static class DateTimeOffsetHelper
@@ -285,9 +315,15 @@ namespace NServiceBus
         public string ErrorQueue { get; }
         public System.Collections.Generic.HashSet<System.Type> UnrecoverableExceptionTypes { get; }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
         public FileShareDataBus() { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         protected override System.Type ProvidedByFeature() { }
     }
     public static class HeaderOptionExtensions
@@ -386,12 +422,30 @@ namespace NServiceBus
         System.Exception Exception { get; }
         System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public interface IDataBusProperty
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         bool HasValue { get; set; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         string Key { get; set; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         System.Type Type { get; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         object GetValue();
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         void SetValue(object value);
     }
     public interface IDistributionPolicy
@@ -939,11 +993,23 @@ namespace NServiceBus
         public static void ContentType(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, string contentType) { }
         public static void Options(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, System.Text.Json.JsonSerializerOptions options) { }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public string ContentType { get; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public void Serialize(object dataBusProperty, System.IO.Stream stream) { }
     }
     public class SystemJsonSerializer : NServiceBus.Serialization.SerializationDefinition
@@ -996,9 +1062,18 @@ namespace NServiceBus
     }
     public static class UseDataBusExtensions
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Func<System.IServiceProvider, NServiceBus.DataBus.IDataBus> dataBusFactory, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this NServiceBus.EndpointConfiguration config, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer)
             where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new () { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
             where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new ()
             where TDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
@@ -1057,34 +1132,82 @@ namespace NServiceBus.ConsistencyGuarantees
 }
 namespace NServiceBus.DataBus
 {
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public abstract class DataBusDefinition
     {
         protected DataBusDefinition() { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         protected abstract System.Type ProvidedByFeature();
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class DataBusExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>()
             where TSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer)
             where TSerializer : NServiceBus.DataBus.IDataBusSerializer { }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class DataBusExtensions<T> : NServiceBus.DataBus.DataBusExtensions
         where T : NServiceBus.DataBus.DataBusDefinition
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public interface IDataBus
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         System.Threading.Tasks.Task<System.IO.Stream> Get(string key, System.Threading.CancellationToken cancellationToken = default);
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         System.Threading.Tasks.Task<string> Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived, System.Threading.CancellationToken cancellationToken = default);
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         System.Threading.Tasks.Task Start(System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public interface IDataBusSerializer
     {
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         string ContentType { get; }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         object Deserialize(System.Type propertyType, System.IO.Stream stream);
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         void Serialize(object databusProperty, System.IO.Stream stream);
     }
 }
@@ -1193,6 +1316,9 @@ namespace NServiceBus.Features
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+        "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+        "ion 11.0.0.", false)]
     public class DataBus : NServiceBus.Features.Feature
     {
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
