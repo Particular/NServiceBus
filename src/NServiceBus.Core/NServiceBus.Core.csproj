@@ -24,19 +24,20 @@
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
-  <ItemGroup Label="System.Security.Cryptography.Xml 7.0.1 references Pkcs 7.0.0, which has a vulnerability. This should be removed when Xml updates to reference a non-vulernable version">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
-  </ItemGroup>
-
   <ItemGroup Label="Private dependencies">
+    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="3.3.4" PrivateAssets="All" />
     <PackageReference Include="Fody" Version="6.7.0" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="5.1.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
-    <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
-    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="3.3.4" PrivateAssets="All" />
     <PackageReference Include="PolySharp" Version="1.13.2" PrivateAssets="All" />
+    <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Label="Direct references to transitive dependencies to avoid versions with CVE">
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
   </ItemGroup>
 
   <PropertyGroup>
