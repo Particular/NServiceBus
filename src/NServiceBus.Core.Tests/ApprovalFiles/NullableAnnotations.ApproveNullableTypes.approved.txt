@@ -11,7 +11,6 @@ NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions
 NServiceBus.ConfigureAudit
 NServiceBus.ConfigureCriticalErrorAction
 NServiceBus.ConfigureError
-NServiceBus.ConfigureFileShareDataBus
 NServiceBus.ConfigureLicenseExtensions
 NServiceBus.ConfigurePurging
 NServiceBus.ConnectorContextExtensions
@@ -24,11 +23,6 @@ NServiceBus.ConversationIdStrategyContext
 NServiceBus.ConversationRoutingExtensions
 NServiceBus.CriticalError
 NServiceBus.CriticalErrorContext
-NServiceBus.DataBus.DataBusExtensions
-NServiceBus.DataBus.DataBusExtensions`1
-NServiceBus.DataBus.IDataBus
-NServiceBus.DataBus.IDataBusSerializer
-NServiceBus.DataBusProperty`1
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
 NServiceBus.DelayedDeliveryOptionExtensions
@@ -53,7 +47,6 @@ NServiceBus.Faults.FaultsHeaderKeys
 NServiceBus.Faults.ImmediateRetryMessage
 NServiceBus.Features.Audit
 NServiceBus.Features.AutoSubscribe
-NServiceBus.Features.DataBus
 NServiceBus.Features.Feature
 NServiceBus.Features.FeatureConfigurationContext
 NServiceBus.Features.Outbox
@@ -70,7 +63,6 @@ NServiceBus.Hosting.Helpers.AssemblyScannerResults
 NServiceBus.Hosting.Helpers.SkippedFile
 NServiceBus.Hosting.HostInformation
 NServiceBus.ICriticalErrorContext
-NServiceBus.IDataBusProperty
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageConvention
 NServiceBus.IMessageCreator
@@ -211,7 +203,6 @@ NServiceBus.StartupDiagnosticEntries
 NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Support.RuntimeEnvironment
-NServiceBus.SystemJsonDataBusSerializer
 NServiceBus.TimeToBeReceivedAttribute
 NServiceBus.TimeToBeReceivedConventionExtensions
 NServiceBus.Transport.DispatchProperties
@@ -250,6 +241,5 @@ NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorag
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber
 NServiceBus.Unicast.Subscriptions.MessageType
 NServiceBus.UnitOfWorkSettingsExtensions
-NServiceBus.UseDataBusExtensions
 NServiceBus.XmlSerializationExtensions
 NServiceBus.XmlSerializer
