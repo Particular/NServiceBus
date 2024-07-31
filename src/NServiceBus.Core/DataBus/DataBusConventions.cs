@@ -14,9 +14,9 @@ class DataBusConventions
     /// Returns true if the given property should be send via the DataBus.
     /// </summary>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
-    RemoveInVersion = "11",
-    TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public bool IsDataBusProperty(PropertyInfo property)
     {
         ArgumentNullException.ThrowIfNull(property);

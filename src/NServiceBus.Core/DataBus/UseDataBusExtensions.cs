@@ -33,7 +33,7 @@ public static partial class UseDataBusExtensions
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="dataBusSerializer">The <see cref="IDataBusSerializer" /> instance to use.</param>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
