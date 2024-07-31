@@ -14,14 +14,15 @@ public sealed class IncomingPipelineMetricTags
     Dictionary<string, KeyValuePair<string, object?>>? tags;
 
     /// <summary>
-    /// Adds the specified tag and value to the collection.
+    /// Adds the specified tag and value to the collection if not already present.
     /// </summary>
     /// <param name="tagKey">The tag to add.</param>
     /// <param name="value">The value assigned to the tag.</param>
     public void Add(string tagKey, object value)
     {
         tags ??= [];
-        tags.Add(tagKey, new(tagKey, value));
+        // We are using tryAdd to mitigate multiple logical messages transmitted in a single physical message
+        tags.TryAdd(tagKey, new(tagKey, value));
     }
 
     /// <summary>
