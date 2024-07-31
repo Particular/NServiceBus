@@ -20,9 +20,9 @@ public class DataBusExtensions<T> : DataBusExtensions where T : DataBusDefinitio
     /// Default constructor.
     /// </summary>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
-    RemoveInVersion = "11",
-    TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public DataBusExtensions(SettingsHolder settings)
         : base(settings)
     {
@@ -42,9 +42,9 @@ public class DataBusExtensions : ExposeSettings
     /// Default constructor.
     /// </summary>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
-    RemoveInVersion = "11",
-    TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public DataBusExtensions(SettingsHolder settings)
         : base(settings)
     {
@@ -54,9 +54,9 @@ public class DataBusExtensions : ExposeSettings
     /// Configures additional deserializers to be considered when processing data bus properties. Can be called multiple times.
     /// </summary>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
-    RemoveInVersion = "11",
-    TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public DataBusExtensions AddDeserializer<TSerializer>() where TSerializer : IDataBusSerializer, new()
     {
         var serializer = (TSerializer)Activator.CreateInstance(typeof(TSerializer));
@@ -68,9 +68,9 @@ public class DataBusExtensions : ExposeSettings
     /// Configures additional deserializers to be considered when processing data bus properties. Can be called multiple times.
     /// </summary>
     [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
-    RemoveInVersion = "11",
-    TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer) where TSerializer : IDataBusSerializer
     {
         ArgumentNullException.ThrowIfNull(serializer);
