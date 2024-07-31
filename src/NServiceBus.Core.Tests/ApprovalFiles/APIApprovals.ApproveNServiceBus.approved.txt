@@ -114,6 +114,9 @@ namespace NServiceBus
         public Conventions() { }
         public void AddSystemMessagesConventions(System.Func<System.Type, bool> definesMessageType) { }
         public bool IsCommandType(System.Type t) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
@@ -125,6 +128,9 @@ namespace NServiceBus
         public NServiceBus.Conventions Conventions { get; }
         public NServiceBus.ConventionsBuilder Add(NServiceBus.IMessageConvention messageConvention) { }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
@@ -337,6 +343,9 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
+        [System.Obsolete("The DataBus feature is released as a dedicated \'NServiceBus.ClaimCheck.DataBus\' p" +
+            "ackage. Will be treated as an error from version 10.0.0. Will be removed in vers" +
+            "ion 11.0.0.", false)]
         public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
