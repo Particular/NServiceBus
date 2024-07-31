@@ -7,7 +7,7 @@ using System.IO;
 /// Interface used for serializing and deserializing of databus properties.
 /// </summary>
 [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
     RemoveInVersion = "11",
     TreatAsErrorFromVersion = "10")]
 public interface IDataBusSerializer
@@ -18,7 +18,7 @@ public interface IDataBusSerializer
     /// <param name="databusProperty">The property to serialize.</param>
     /// <param name="stream">The stream to which to write the property.</param>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     void Serialize(object databusProperty, Stream stream);
@@ -30,7 +30,7 @@ public interface IDataBusSerializer
     /// <param name="propertyType">The type of the property that should be deserialized.</param>
     /// <returns>The deserialized object.</returns>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     object Deserialize(Type propertyType, Stream stream);
@@ -39,7 +39,7 @@ public interface IDataBusSerializer
     /// The content type this serializer handles. Used to populate the <see cref="Headers.DataBusConfigContentType"/> header.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     string ContentType { get; }

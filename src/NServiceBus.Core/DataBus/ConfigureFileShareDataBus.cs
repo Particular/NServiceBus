@@ -15,7 +15,7 @@ public static class ConfigureFileShareDataBus
     /// <param name="basePath">The location to which to write/read serialized properties for the databus.</param>
     /// <returns>The configuration.</returns>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)

@@ -6,7 +6,7 @@ using System;
 /// Defines a databus that can be used by NServiceBus.
 /// </summary>
 [ObsoleteEx(
-    Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
     RemoveInVersion = "11",
     TreatAsErrorFromVersion = "10")]
 public abstract class DataBusDefinition
@@ -15,7 +15,7 @@ public abstract class DataBusDefinition
     /// The feature to enable when this databus is selected.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     protected internal abstract Type ProvidedByFeature();

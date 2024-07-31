@@ -145,7 +145,7 @@ public class Conventions
     /// Returns true if the given property should be send via the DataBus.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public bool IsDataBusProperty(PropertyInfo property)
