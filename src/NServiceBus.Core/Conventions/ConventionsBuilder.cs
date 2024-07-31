@@ -51,6 +51,10 @@ public class ConventionsBuilder : ExposeSettings
     /// <summary>
     /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
     /// </summary>
+    [ObsoleteEx(
+        Message = "The DataBus feature is released as a dedicated 'NServiceBus.ClaimCheck.DataBus' package.",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
     {
         ArgumentNullException.ThrowIfNull(definesDataBusProperty);
