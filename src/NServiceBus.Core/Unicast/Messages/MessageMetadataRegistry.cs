@@ -167,7 +167,7 @@ public class MessageMetadataRegistry
         if (messageType.IsGenericType)
         {
             // This is not an error because in most cases it will work, but it's still not supported should issues arise
-            Logger.Warn($"Generic messages types are not supported. Consider converting {messageType.AssemblyQualifiedName} to a dedicated, simple type");
+            Logger.Debug($"Generic messages types are not supported. Consider converting '{messageType.AssemblyQualifiedName}' to a dedicated, simple type");
         }
 
         //get the parent types
