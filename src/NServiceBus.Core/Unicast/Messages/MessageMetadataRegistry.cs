@@ -65,10 +65,9 @@ public class MessageMetadataRegistry
 
             if (messageType == null)
             {
+                var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
                 foreach (var item in messages.Values)
                 {
-                    var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
-
                     if (item.MessageType.FullName == messageTypeIdentifier ||
                         item.MessageType.FullName == messageTypeFullName)
                     {
@@ -165,15 +164,18 @@ public class MessageMetadataRegistry
 
     MessageMetadata RegisterMessageType(Type messageType)
     {
+        if (messageType.IsGenericType)
+        {
+            // This is not an error because in most cases it will work, but it's still not supported should issues arise
+            Logger.Debug($"Generic messages types are not supported. Consider converting '{messageType.AssemblyQualifiedName}' to a dedicated, simple type");
+        }
+
         //get the parent types
         var parentMessages = GetParentTypes(messageType)
             .Where(t => isMessageType(t))
             .OrderByDescending(PlaceInMessageHierarchy);
 
-        var metadata = new MessageMetadata(messageType, new[]
-        {
-                messageType
-            }.Concat(parentMessages).ToArray());
+        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
 
         messages[messageType.TypeHandle] = metadata;
         cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
