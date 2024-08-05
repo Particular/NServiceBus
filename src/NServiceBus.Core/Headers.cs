@@ -253,6 +253,10 @@ public static partial class Headers
     /// <summary>
     /// The content type used to serialize the data bus properties in the message.
     /// </summary>
+    [ObsoleteEx(
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
 
     /// <summary>

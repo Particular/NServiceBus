@@ -12,6 +12,10 @@ using Settings;
 /// <summary>
 /// Used to configure the databus.
 /// </summary>
+[ObsoleteEx(
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+    RemoveInVersion = "11",
+    TreatAsErrorFromVersion = "10")]
 public class DataBus : Feature
 {
     internal DataBus()
