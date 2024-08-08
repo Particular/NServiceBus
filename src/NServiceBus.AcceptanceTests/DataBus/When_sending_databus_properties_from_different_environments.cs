@@ -1,4 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.DataBus;
+﻿// Remove unnecessary pragmas
+#pragma warning disable IDE0079
+// Type or member is obsolete
+#pragma warning disable CS0618
+
+namespace NServiceBus.AcceptanceTests.DataBus;
 
 using System;
 using System.IO;
