@@ -22,7 +22,7 @@ class TestingMetricListener : IDisposable
             {
                 if (instrument.Meter.Name == sourceName)
                 {
-                    TestContext.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
+                    TestContext.Out.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
                     listener.EnableMeasurementEvents(instrument);
                     metrics.Add(instrument);
                     version = instrument.Meter.Version;
@@ -36,7 +36,7 @@ class TestingMetricListener : IDisposable
             ReadOnlySpan<KeyValuePair<string, object>> t,
             object _) =>
         {
-            TestContext.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+            TestContext.Out.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
 
             var tags = t.ToArray();
             ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);

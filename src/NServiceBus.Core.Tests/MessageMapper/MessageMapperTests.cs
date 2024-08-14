@@ -166,7 +166,6 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
 
-        Assert.That(messageInstance, Is.Not.Null);
         Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageStruct)));
     }
 

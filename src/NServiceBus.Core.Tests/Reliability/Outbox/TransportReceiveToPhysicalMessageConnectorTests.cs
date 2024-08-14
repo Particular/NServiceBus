@@ -152,10 +152,10 @@ public class TransportReceiveToPhysicalMessageConnectorTests
             return Task.CompletedTask;
         });
 
-        var startDispatchErActivityEventsvent = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
-        Assert.That(startDispatchErActivityEventsvent, Has.Length.EqualTo(1));
-        Assert.That(startDispatchErActivityEventsvent.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(3));
-        Assert.AreEqual(1, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
+        var startDispatcherActivityEvents = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
+        Assert.That(startDispatcherActivityEvents, Has.Length.EqualTo(1));
+        Assert.That(startDispatcherActivityEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(3));
+        Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1));
     }
 
     [Test]

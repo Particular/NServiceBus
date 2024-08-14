@@ -48,23 +48,23 @@ public abstract partial class NServiceBusAcceptanceTest
 
         if (Environment.GetEnvironmentVariable("CI") != "true" || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true")
         {
-            TestContext.WriteLine($@"Test settings:
+            TestContext.Out.WriteLine($@"Test settings:
 {string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
 
-            TestContext.WriteLine($@"Context:
+            TestContext.Out.WriteLine($@"Context:
 {string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(scenarioContext, null)}"))}");
         }
 
         if (TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error)
         {
-            TestContext.WriteLine(string.Empty);
-            TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
-            TestContext.WriteLine("--- Start log entries ---------------------------------------------------");
+            TestContext.Out.WriteLine(string.Empty);
+            TestContext.Out.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
+            TestContext.Out.WriteLine("--- Start log entries ---------------------------------------------------");
             foreach (var logEntry in scenarioContext.Logs)
             {
-                TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? TestContext.CurrentContext.Test.Name}: {logEntry.Message}");
+                TestContext.Out.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? TestContext.CurrentContext.Test.Name}: {logEntry.Message}");
             }
-            TestContext.WriteLine("--- End log entries ---------------------------------------------------");
+            TestContext.Out.WriteLine("--- End log entries ---------------------------------------------------");
         }
     }
 }

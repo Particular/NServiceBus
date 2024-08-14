@@ -90,7 +90,7 @@ public class When_mutating : NServiceBusAcceptanceTest
                 Assert.Multiple(() =>
                 {
                     Assert.That(context.Headers, Is.Not.Empty);
-                    Assert.That(context.Body, Is.Not.Null);
+                    Assert.That(context.Body, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
                 });
                 return Task.CompletedTask;
             }
@@ -117,7 +117,7 @@ public class When_mutating : NServiceBusAcceptanceTest
                 Assert.Multiple(() =>
                 {
                     Assert.That(context.OutgoingHeaders, Is.Not.Empty);
-                    Assert.That(context.OutgoingBody, Is.Not.Null);
+                    Assert.That(context.OutgoingBody, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
                 });
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);

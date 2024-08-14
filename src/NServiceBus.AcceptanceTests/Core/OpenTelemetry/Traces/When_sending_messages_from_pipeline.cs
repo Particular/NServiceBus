@@ -24,7 +24,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
         var startDispatchingEvents = sentMessage.Events.Where(e => e.Name == "Start dispatching").ToArray();
         Assert.That(startDispatchingEvents.Length, Is.EqualTo(1), "should raise dispatch start event");
         Assert.That(startDispatchingEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(1));
-        Assert.AreEqual(1, sentMessage.Events.Count(e => e.Name == "Finished dispatching"), "should raise dispatch completed event");
+        Assert.That(sentMessage.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1), "should raise dispatch completed event");
     }
 
     class Context : ScenarioContext

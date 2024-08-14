@@ -39,7 +39,7 @@ public class RoutingToDispatchConnectorTests
             return Task.CompletedTask;
         });
 
-        Assert.That(operations, Has.Length.EqualTo(1));
+        Assert.That(operations.ToList(), Has.Count.EqualTo(1));
 
         TransportOperation destination1Operation = operations.ElementAt(0);
         Assert.Multiple(() =>
@@ -82,7 +82,7 @@ public class RoutingToDispatchConnectorTests
             return Task.CompletedTask;
         });
 
-        Assert.That(operations, Has.Length.EqualTo(2));
+        Assert.That(operations.ToList(), Has.Count.EqualTo(2));
 
         TransportOperation destination1Operation = operations.ElementAt(0);
         Assert.Multiple(() =>
