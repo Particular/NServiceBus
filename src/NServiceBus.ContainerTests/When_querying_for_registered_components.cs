@@ -22,7 +22,7 @@ public class When_querying_for_registered_components
         var serviceCollection = new ServiceCollection();
         InitializeBuilder(serviceCollection);
 
-        Assert.False(serviceCollection.Any(sd => sd.ServiceType == typeof(NonExistingComponent)));
+        Assert.That(serviceCollection.Any(sd => sd.ServiceType == typeof(NonExistingComponent)), Is.False);
     }
 
     [Test]

@@ -83,7 +83,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageBodyCalled);
+        Assert.That(context.UpdateMessageBodyCalled, Is.False);
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageBodyCalled);
+        Assert.That(context.UpdateMessageBodyCalled, Is.False);
     }
 
     [Test]

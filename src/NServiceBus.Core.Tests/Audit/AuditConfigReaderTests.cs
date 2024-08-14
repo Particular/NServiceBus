@@ -33,6 +33,6 @@ public class AuditConfigReaderTests
     [Test]
     public void ShouldReturnFalseIfNoExpirationIsConfigured()
     {
-        Assert.False(new SettingsHolder().TryGetAuditMessageExpiration(out _));
+        Assert.That(new SettingsHolder().TryGetAuditMessageExpiration(out _), Is.False);
     }
 }

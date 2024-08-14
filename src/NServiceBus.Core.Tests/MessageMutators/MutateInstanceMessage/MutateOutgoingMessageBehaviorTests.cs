@@ -85,7 +85,7 @@ class MutateOutgoingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.False);
     }
 
     [Test]
@@ -99,7 +99,7 @@ class MutateOutgoingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.False);
     }
 
     [Test]
