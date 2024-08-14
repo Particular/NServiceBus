@@ -85,7 +85,7 @@ public class ContextPropagationTests
     [TestCaseSource(nameof(TestCases))]
     public void Can_propagate_baggage_from_header_to_activity(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var headers = new Dictionary<string, string>();
 
@@ -110,7 +110,7 @@ public class ContextPropagationTests
     [TestCaseSource(nameof(TestCases))]
     public void Can_propagate_baggage_from_activity_to_header(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var headers = new Dictionary<string, string>();
 
@@ -143,7 +143,7 @@ public class ContextPropagationTests
     [TestCaseSource(nameof(TestCases))]
     public void Can_roundtrip_baggage(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var outgoingHeaders = new Dictionary<string, string>();
         var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);

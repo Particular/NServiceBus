@@ -46,7 +46,7 @@ public class EndpointBehavior : IComponentBehavior
         }
         catch (Exception)
         {
-            TestContext.WriteLine($"Endpoint {runner.Name} failed to initialize");
+            await TestContext.Out.WriteLineAsync($"Endpoint {runner.Name} failed to initialize").ConfigureAwait(false);
             throw;
         }
         return runner;

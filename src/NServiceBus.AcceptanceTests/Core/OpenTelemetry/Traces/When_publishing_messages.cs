@@ -127,7 +127,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         });
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.That(link, Is.Not.Null, "Receive has a link");
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(publishRequest.TraceId), "receive is linked to publish operation");
     }
 

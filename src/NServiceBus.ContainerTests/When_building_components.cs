@@ -13,7 +13,10 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.That(serviceProvider.GetService(typeof(SingletonComponent)), Is.EqualTo(serviceProvider.GetService(typeof(SingletonComponent))));
+        var instance1 = serviceProvider.GetService(typeof(SingletonComponent));
+        var instance2 = serviceProvider.GetService(typeof(SingletonComponent));
+
+        Assert.That(instance1, Is.EqualTo(instance2));
     }
 
     [Test]
@@ -23,7 +26,10 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.That(serviceProvider.GetService<TransientComponent>(), Is.Not.EqualTo(serviceProvider.GetService<TransientComponent>()));
+        var instance1 = serviceProvider.GetService<TransientComponent>();
+        var instance2 = serviceProvider.GetService<TransientComponent>();
+
+        Assert.That(instance1, Is.Not.EqualTo(instance2));
     }
 
     [Test]
@@ -59,7 +65,10 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.That(serviceProvider.GetService(typeof(TransientLambdaComponent)), Is.Not.EqualTo(serviceProvider.GetService(typeof(TransientLambdaComponent))));
+        var instance1 = serviceProvider.GetService(typeof(TransientLambdaComponent));
+        var instance2 = serviceProvider.GetService(typeof(TransientLambdaComponent));
+
+        Assert.That(instance1, Is.Not.EqualTo(instance2));
     }
 
     [Test]
@@ -69,7 +78,10 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.That(serviceProvider.GetService(typeof(SingletonLambdaComponent)), Is.EqualTo(serviceProvider.GetService(typeof(SingletonLambdaComponent))));
+        var instance1 = serviceProvider.GetService(typeof(SingletonLambdaComponent));
+        var instance2 = serviceProvider.GetService(typeof(SingletonLambdaComponent));
+
+        Assert.That(instance1, Is.EqualTo(instance2));
     }
 
     [Test]

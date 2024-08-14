@@ -50,7 +50,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         });
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.That(link, Is.Not.Null, "second receive has a link");
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
@@ -86,7 +86,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             Assert.That(secondAttemptReceiveRequest.ParentId, Is.Null, "first incoming message does not have a parent, it's a root");
         });
         ActivityLink link = secondAttemptReceiveRequest.Links.FirstOrDefault();
-        Assert.That(link, Is.Not.Null, "second receive has a link");
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
@@ -124,7 +124,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             Assert.That(timeoutReceive.ParentId, Is.Null, "timeout receive operation does not have a parent, it's a root");
         });
         ActivityLink timeoutReceiveLink = timeoutReceive.Links.FirstOrDefault();
-        Assert.That(timeoutReceiveLink, Is.Not.Null, "timeout receive operation is linked");
+        Assert.That(timeoutReceiveLink, Is.Not.EqualTo(default(ActivityLink)), "timeout receive operation is linked");
         Assert.Multiple(() =>
         {
             Assert.That(timeoutReceiveLink.Context.TraceId, Is.EqualTo(timeoutSend.TraceId), "imeout receive operation links to the timeout send operation");

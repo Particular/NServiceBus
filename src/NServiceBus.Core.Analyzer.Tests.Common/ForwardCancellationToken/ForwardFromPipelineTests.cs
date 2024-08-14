@@ -46,20 +46,20 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
         var coveredTypes = pipelineTypes.Intersect(typesCoveredByThisTest).ToArray();
         var missingTestCases = pipelineTypes.Except(typesCoveredByThisTest).ToArray();
 
-        TestContext.WriteLine($"Types covered by a {nameof(RunTestOnType)} TestCase to ensure analyzer support:");
+        TestContext.Out.WriteLine($"Types covered by a {nameof(RunTestOnType)} TestCase to ensure analyzer support:");
         foreach (var t in coveredTypes)
         {
-            TestContext.WriteLine(t.FullName);
+            TestContext.Out.WriteLine(t.FullName);
         }
 
-        TestContext.WriteLine();
-        TestContext.WriteLine($"Types missing a {nameof(RunTestOnType)} TestCase:");
+        TestContext.Out.WriteLine();
+        TestContext.Out.WriteLine($"Types missing a {nameof(RunTestOnType)} TestCase:");
         foreach (var t in missingTestCases)
         {
-            TestContext.WriteLine(t.FullName);
+            TestContext.Out.WriteLine(t.FullName);
         }
 
-        NUnit.Framework.Assert.AreEqual(0, missingTestCases.Length, $"One or more pipeline type(s) are not covered by the {nameof(RunTestOnType)} test in this class.");
+        NUnit.Framework.Assert.That(missingTestCases.Length, Is.EqualTo(0), $"One or more pipeline type(s) are not covered by the {nameof(RunTestOnType)} test in this class.");
     }
 
     [TestCase(typeof(IHandleMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
