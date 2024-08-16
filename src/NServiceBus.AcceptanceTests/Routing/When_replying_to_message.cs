@@ -21,7 +21,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Run();
 
         Assert.IsTrue(ctx.SendingEndpointGotResponse);
-        Assert.IsFalse(ctx.OtherEndpointGotResponse);
+        Assert.That(ctx.OtherEndpointGotResponse, Is.False);
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Run();
 
         Assert.IsTrue(ctx.OtherEndpointGotResponse);
-        Assert.IsFalse(ctx.SendingEndpointGotResponse);
+        Assert.That(ctx.SendingEndpointGotResponse, Is.False);
     }
 
     public class Context : ScenarioContext

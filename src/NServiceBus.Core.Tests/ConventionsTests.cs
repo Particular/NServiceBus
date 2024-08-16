@@ -10,7 +10,7 @@ public class ConventionsTests
     public void IsMessageType_should_return_false_for_unknown_type()
     {
         var conventions = new Conventions();
-        Assert.IsFalse(conventions.IsMessageType(typeof(NoAMessage)));
+        Assert.That(conventions.IsMessageType(typeof(NoAMessage)), Is.False);
     }
 
     public class NoAMessage
@@ -75,7 +75,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.DefineCommandTypeConventions(t => t.Assembly == typeof(Conventions).Assembly);
-            Assert.IsFalse(conventions.IsCommandType(typeof(Conventions)));
+            Assert.That(conventions.IsCommandType(typeof(Conventions)), Is.False);
         }
 
         [Test]
@@ -84,7 +84,7 @@ public class ConventionsTests
             var conventions = new Conventions();
 
             conventions.DefineMessageTypeConvention(t => t.Assembly == typeof(Conventions).Assembly);
-            Assert.IsFalse(conventions.IsMessageType(typeof(Conventions)));
+            Assert.That(conventions.IsMessageType(typeof(Conventions)), Is.False);
         }
 
         [Test]
@@ -92,7 +92,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.DefineEventTypeConventions(t => t.Assembly == typeof(Conventions).Assembly);
-            Assert.IsFalse(conventions.IsEventType(typeof(Conventions)));
+            Assert.That(conventions.IsEventType(typeof(Conventions)), Is.False);
         }
 
         public class MyConventionExpress

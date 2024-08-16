@@ -22,7 +22,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
 
         Assert.IsTrue(context.InstallerCalled, "Should run installers");
         Assert.IsTrue(context.FeatureSetupCalled, "Should initialize Features");
-        Assert.IsFalse(context.FeatureStartupTaskCalled, "Should not start FeatureStartupTasks");
+        Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
         CollectionAssert.AreEqual(context.TransportStartupSequence, new string[]
         {
             $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",

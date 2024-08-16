@@ -75,7 +75,7 @@ public class RetryAcknowledgementBehaviorTests
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
         Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
-        Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+        Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class RetryAcknowledgementBehaviorTests
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
         Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
-        Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+        Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
     }
 
     static TestableTransportReceiveContext SetupTestableContext(RoutingPipeline routingPipeline)

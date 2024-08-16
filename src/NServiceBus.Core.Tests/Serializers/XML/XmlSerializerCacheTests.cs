@@ -15,7 +15,7 @@ public class XmlSerializerCacheTests
 
         cache.InitType(typeof(XElement));
 
-        Assert.IsFalse(cache.typeMembers.ContainsKey(typeof(XElement)));
+        Assert.That(cache.typeMembers.ContainsKey(typeof(XElement)), Is.False);
     }
 
     [Test]

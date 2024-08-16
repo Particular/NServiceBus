@@ -174,7 +174,7 @@ public class RoutingToDispatchConnectorTests
                 return Task.CompletedTask;
             });
 
-        Assert.IsFalse(dispatched);
+        Assert.That(dispatched, Is.False);
     }
 
     [Test]

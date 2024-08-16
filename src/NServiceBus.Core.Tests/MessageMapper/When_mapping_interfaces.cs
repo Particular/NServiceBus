@@ -62,7 +62,7 @@ public class When_mapping_interfaces
         Assert.IsTrue(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
 
         // Doesn't affect properties without attributes
-        Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
+        Assert.That(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))), Is.False);
     }
 
     public interface IInterfaceWithPropertiesAndAttributes

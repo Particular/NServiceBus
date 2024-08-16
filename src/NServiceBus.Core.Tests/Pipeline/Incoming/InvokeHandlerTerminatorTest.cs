@@ -41,7 +41,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsFalse(handlerInvoked);
+        Assert.That(handlerInvoked, Is.False);
     }
 
     [Test]

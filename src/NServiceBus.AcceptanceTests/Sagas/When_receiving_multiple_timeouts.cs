@@ -23,7 +23,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
             .Run(TimeSpan.FromSeconds(60));
 
-        Assert.IsFalse(context.SagaNotFound);
+        Assert.That(context.SagaNotFound, Is.False);
         Assert.IsTrue(context.Saga1TimeoutFired);
         Assert.IsTrue(context.Saga2TimeoutFired);
     }

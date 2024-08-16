@@ -81,7 +81,7 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.IsFalse(originalBehaviorFactoryCalled);
+        Assert.That(originalBehaviorFactoryCalled, Is.False);
         Assert.IsInstanceOf<BehaviorB>(behavior);
     }
 

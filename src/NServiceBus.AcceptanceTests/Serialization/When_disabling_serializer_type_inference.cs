@@ -25,7 +25,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.IsFalse(context.HandlerInvoked);
+        Assert.That(context.HandlerInvoked, Is.False);
         Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.IsInstanceOf<MessageDeserializationException>(exception);
@@ -42,7 +42,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.IsFalse(context.HandlerInvoked);
+        Assert.That(context.HandlerInvoked, Is.False);
         Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.IsInstanceOf<MessageDeserializationException>(exception);

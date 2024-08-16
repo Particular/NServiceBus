@@ -58,7 +58,7 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.IsFalse(mutator.MutateIncomingCalled);
+        Assert.That(mutator.MutateIncomingCalled, Is.False);
     }
 
     [Test]

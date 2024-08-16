@@ -61,7 +61,7 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.IsFalse(mutator.MutateOutgoingCalled);
+        Assert.That(mutator.MutateOutgoingCalled, Is.False);
     }
 
     [Test]

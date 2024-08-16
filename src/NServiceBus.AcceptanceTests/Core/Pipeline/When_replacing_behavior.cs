@@ -18,7 +18,7 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
             .Done(c => c.MessageHandled)
             .Run();
 
-        Assert.IsFalse(context.OriginalBehaviorInvoked);
+        Assert.That(context.OriginalBehaviorInvoked, Is.False);
         Assert.IsTrue(context.ReplacementBehaviorInvoked);
     }
 

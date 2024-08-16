@@ -27,7 +27,7 @@ public class When_outbox_enabled_with_transactions_off : NServiceBusAcceptanceTe
         var satisfied = outboxFeature["PrerequisiteStatus"]["IsSatisfied"].GetValue<bool>();
         var reason = (outboxFeature["PrerequisiteStatus"]["Reasons"] as JsonArray).Single().GetValue<string>();
 
-        Assert.IsFalse(satisfied);
+        Assert.That(satisfied, Is.False);
         Assert.AreEqual("Outbox isn't needed since the receive transactions have been turned off", reason);
     }
 

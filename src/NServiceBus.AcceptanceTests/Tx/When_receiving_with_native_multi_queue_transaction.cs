@@ -17,7 +17,7 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
             .Done(c => c.MessageHandled)
             .Run();
 
-        Assert.IsFalse(context.HasFailed);
+        Assert.That(context.HasFailed, Is.False);
         Assert.IsTrue(context.MessageHandled);
     }
 

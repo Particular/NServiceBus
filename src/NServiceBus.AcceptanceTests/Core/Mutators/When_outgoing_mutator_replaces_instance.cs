@@ -17,7 +17,7 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             .Run();
 
         Assert.IsTrue(context.V2MessageReceived);
-        Assert.IsFalse(context.V1MessageReceived);
+        Assert.That(context.V1MessageReceived, Is.False);
     }
 
     public class Context : ScenarioContext

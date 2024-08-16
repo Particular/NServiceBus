@@ -17,7 +17,7 @@
             var routes = source.GenerateRoutes(new Conventions()).ToArray();
 
             Assert.IsTrue(routes.Any(r => r.MessageType == typeof(Message)));
-            Assert.IsFalse(routes.Any(r => r.MessageType == typeof(NonMessage)));
+            Assert.That(routes.Any(r => r.MessageType == typeof(NonMessage)), Is.False);
         }
 
         [Test]
@@ -27,7 +27,7 @@
             var routes = source.GenerateRoutes(new Conventions()).ToArray();
 
             Assert.IsTrue(routes.Any(r => r.MessageType == typeof(Message)));
-            Assert.IsFalse(routes.Any(r => r.MessageType == typeof(ExcludedMessage)));
+            Assert.That(routes.Any(r => r.MessageType == typeof(ExcludedMessage)), Is.False);
         }
 
         [Test]

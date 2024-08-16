@@ -14,7 +14,7 @@ public class ActivityExtensionsTests
         ambientActivity.Start();
 
         var contextBag = new ContextBag();
-        Assert.IsFalse(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity));
+        Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
         Assert.IsNull(activity);
     }
 
@@ -27,7 +27,7 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         contextBag.SetOutgoingPipelineActitvity(null);
 
-        Assert.IsFalse(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity));
+        Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
         Assert.IsNull(activity);
     }
 

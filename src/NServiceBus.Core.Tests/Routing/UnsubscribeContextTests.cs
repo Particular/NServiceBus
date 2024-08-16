@@ -17,7 +17,7 @@ public class UnsubscribeContextTests
         testee.Extensions.Set("anotherKey", "anotherValue");
         context.TryGet("someKey", out string value);
         Assert.AreEqual("someValue", value);
-        Assert.IsFalse(context.TryGet("anotherKey", out string _));
+        Assert.That(context.TryGet("anotherKey", out string _), Is.False);
         testee.Extensions.TryGet("someKey", out string updatedValue);
         testee.Extensions.TryGet("anotherKey", out string anotherValue2);
         Assert.AreEqual("updatedValue", updatedValue);
@@ -36,7 +36,7 @@ public class UnsubscribeContextTests
 
         var valueFound = parentContext.TryGet("someKey", out string _);
 
-        Assert.IsFalse(valueFound);
+        Assert.That(valueFound, Is.False);
     }
 
     [Test]
@@ -68,11 +68,11 @@ public class UnsubscribeContextTests
         var innerOperationProperties = innerContext.GetOperationProperties();
         Assert.AreEqual("inner value", innerOperationProperties.Get<string>("inner key"));
         Assert.AreEqual("inner shared value", innerOperationProperties.Get<string>("shared key"));
-        Assert.IsFalse(innerOperationProperties.TryGet("outer key", out string _));
+        Assert.That(innerOperationProperties.TryGet("outer key", out string _), Is.False);
 
         var outerOperationProperties = parentContext.GetOperationProperties();
         Assert.AreEqual("outer value", outerOperationProperties.Get<string>("outer key"));
         Assert.AreEqual("outer shared value", outerOperationProperties.Get<string>("shared key"));
-        Assert.IsFalse(outerOperationProperties.TryGet("inner key", out string _));
+        Assert.That(outerOperationProperties.TryGet("inner key", out string _), Is.False);
     }
 }

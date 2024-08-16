@@ -18,11 +18,11 @@ public class StandardsTests
         foreach (var featureType in GetFeatures())
         {
             Assert.AreEqual("NServiceBus.Features", featureType.Namespace, "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
-            Assert.IsFalse(featureType.Name.EndsWith("Feature"), "Features should not be suffixed with 'Feature'. " + featureType.FullName);
+            Assert.That(featureType.Name.EndsWith("Feature"), Is.False, "Features should not be suffixed with 'Feature'. " + featureType.FullName);
             if (featureType.IsPublic)
             {
                 var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Array.Empty<Type>(), null);
-                Assert.IsFalse(constructorInfo.IsPublic, "Features should have an internal constructor. " + featureType.FullName);
+                Assert.That(constructorInfo.IsPublic, Is.False, "Features should have an internal constructor. " + featureType.FullName);
             }
         }
     }
@@ -78,7 +78,7 @@ public class StandardsTests
     {
         foreach (var featureType in GetBehaviors())
         {
-            Assert.IsFalse(featureType.IsPublic, "Behaviors should internal " + featureType.FullName);
+            Assert.That(featureType.IsPublic, Is.False, "Behaviors should internal " + featureType.FullName);
             Assert.AreEqual("NServiceBus", featureType.Namespace, "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
             Assert.IsTrue(featureType.Name.EndsWith("Terminator") || featureType.Name.EndsWith("Behavior") || featureType.Name.EndsWith("Connector"), "Behaviors should be suffixed with 'Behavior' or 'Connector'. " + featureType.FullName);
         }
