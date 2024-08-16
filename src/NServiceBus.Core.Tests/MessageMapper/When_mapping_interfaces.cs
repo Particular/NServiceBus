@@ -86,7 +86,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAttribute), true);
         var attr = (NoDefaultConstructorAttribute)attributes[0];
-        Assert.That("Blah", Is.EqualTo(attr.Name));
+        Assert.That(attr.Name, Is.EqualTo("Blah"));
     }
 
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructor
@@ -113,7 +113,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAndNoMatchingParametersAttribute), true);
         var attr = (NoDefaultConstructorAndNoMatchingParametersAttribute)attributes[0];
-        Assert.That("Blah", Is.EqualTo(attr.Name));
+        Assert.That(attr.Name, Is.EqualTo("Blah"));
     }
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
     {
@@ -158,10 +158,10 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));
         var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(ValuePropertiesAttribute), true);
         var attr = attributes[0] as ValuePropertiesAttribute;
-        Assert.That(true, Is.EqualTo(attr != null && attr.FlagIsSet));
+        Assert.That(attr != null && attr.FlagIsSet, Is.EqualTo(true));
         if (attr != null)
         {
-            Assert.That(21, Is.EqualTo(attr.MyAge));
+            Assert.That(attr.MyAge, Is.EqualTo(21));
         }
     }
 

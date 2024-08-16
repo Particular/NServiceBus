@@ -29,7 +29,7 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType("TestMessage", "1.2.3.4");
 
-        Assert.That("TestMessage", Is.EqualTo(messageType.TypeName));
+        Assert.That(messageType.TypeName, Is.EqualTo("TestMessage"));
         Assert.That(new Version(1, 2, 3, 4), Is.EqualTo(messageType.Version));
     }
 

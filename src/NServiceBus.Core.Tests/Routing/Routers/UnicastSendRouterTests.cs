@@ -53,7 +53,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
-        Assert.That("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).", Is.EqualTo(exception.Message));
+        Assert.That(exception.Message, Is.EqualTo("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)."));
     }
 
 
