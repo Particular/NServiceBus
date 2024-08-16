@@ -19,7 +19,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Step registration with id 'Root1' is already registered for 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+RootBehavior'.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Step registration with id 'Root1' is already registered for 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+RootBehavior'."));
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'DoesNotExist'.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'DoesNotExist'."));
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Can't find any behaviors/connectors for the root context (NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext)", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Can't find any behaviors/connectors for the root context (NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext)"));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Multiple stage connectors found for stage 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext'. Remove one of: 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextConnector', 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextNotInheritedFromParentContextConnector'", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Multiple stage connectors found for stage 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext'. Remove one of: 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextConnector', 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextNotInheritedFromParentContextConnector'"));
     }
 
     [Test]
@@ -109,7 +109,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Registration 'DoesNotExist' specified in the insertafter of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Registration 'DoesNotExist' specified in the insertafter of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'"));
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.AreEqual("Registration 'DoesNotExist' specified in the insertbefore of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Registration 'DoesNotExist' specified in the insertbefore of the 'AnotherBehaviorOfParentContext' step does not exist. Current StepIds: 'SomeBehaviorOfParentContext', 'AnotherBehaviorOfParentContext'"));
     }
 
     [Test]
@@ -141,7 +141,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.AreEqual(3, model.Count);
+        Assert.That(model.Count, Is.EqualTo(3));
     }
 
     [Test]
@@ -155,7 +155,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.AreEqual(2, model.Count);
+        Assert.That(model.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -170,7 +170,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.AreEqual(3, model.Count);
+        Assert.That(model.Count, Is.EqualTo(3));
     }
 
     class ConfigurePipelineModelBuilder

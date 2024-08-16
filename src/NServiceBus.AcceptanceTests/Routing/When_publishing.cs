@@ -79,7 +79,7 @@ public class When_publishing : NServiceBusAcceptanceTest
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
         Assert.That(context.Subscriber2GotTheEvent, Is.True);
-        Assert.AreEqual("SomeValue", context.HeaderValue);
+        Assert.That(context.HeaderValue, Is.EqualTo("SomeValue"));
     }
 
     public class Context : ScenarioContext

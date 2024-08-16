@@ -18,7 +18,7 @@ public class ApplyReplyToAddressBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("PublicAddress", context.Headers[Headers.ReplyToAddress]);
+        Assert.That(context.Headers[Headers.ReplyToAddress], Is.EqualTo("PublicAddress"));
     }
 
     static TestableOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
@@ -40,7 +40,7 @@ public class ApplyReplyToAddressBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
+        Assert.That(context.Headers[Headers.ReplyToAddress], Is.EqualTo("MyEndpoint"));
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class ApplyReplyToAddressBehaviorTests
         var context = CreateContext(options);
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
+        Assert.That(context.Headers[Headers.ReplyToAddress], Is.EqualTo("MyEndpoint"));
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class ApplyReplyToAddressBehaviorTests
         var context = CreateContext(options);
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("MyInstance", context.Headers[Headers.ReplyToAddress]);
+        Assert.That(context.Headers[Headers.ReplyToAddress], Is.EqualTo("MyInstance"));
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class ApplyReplyToAddressBehaviorTests
         var context = CreateContext(options);
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("Destination", context.Headers[Headers.ReplyToAddress]);
+        Assert.That(context.Headers[Headers.ReplyToAddress], Is.EqualTo("Destination"));
     }
 
     [Test]

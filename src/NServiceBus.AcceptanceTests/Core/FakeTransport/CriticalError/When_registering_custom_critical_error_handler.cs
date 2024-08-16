@@ -20,7 +20,7 @@ public class When_registering_custom_critical_error_handler : NServiceBusAccepta
             .Run();
 
         Assert.That(context.Message.StartsWith("Startup task failed to complete."), Is.True);
-        Assert.AreEqual("ExceptionInBusStarts", context.Exception.Message);
+        Assert.That(context.Exception.Message, Is.EqualTo("ExceptionInBusStarts"));
     }
 
     public class Context : ScenarioContext

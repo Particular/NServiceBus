@@ -12,10 +12,10 @@ public class ExtensionMethodsTests
     [Test]
     public void SerializationFriendlyNameTests()
     {
-        Assert.AreEqual("String", typeof(string).SerializationFriendlyName());
-        Assert.AreEqual("DictionaryOfStringAndInt32", typeof(Dictionary<string, int>).SerializationFriendlyName());
-        Assert.AreEqual("DictionaryOfStringAndTupleOfInt32", typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName());
-        Assert.AreEqual("NServiceBus.KeyValuePairOfStringAndTupleOfInt32", typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName());
+        Assert.That(typeof(string).SerializationFriendlyName(), Is.EqualTo("String"));
+        Assert.That(typeof(Dictionary<string, int>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndInt32"));
+        Assert.That(typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndTupleOfInt32"));
+        Assert.That(typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("NServiceBus.KeyValuePairOfStringAndTupleOfInt32"));
     }
 
     [Test]

@@ -41,7 +41,7 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
             .Done(c => c.CriticalErrorsRaised > 0 && exceptions.Keys.Count > 0)
             .Run();
 
-        Assert.AreEqual(1, exceptions.Keys.Count);
+        Assert.That(exceptions.Keys.Count, Is.EqualTo(1));
     }
 
     public class TestContext : ScenarioContext

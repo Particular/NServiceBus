@@ -72,7 +72,7 @@ public class DefaultRecoverabilityPolicyTests
         var delayedRetryAction = recoverabilityAction as DelayedRetry;
 
         Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
-        Assert.AreEqual(deliveryDelay, delayedRetryAction.Delay);
+        Assert.That(delayedRetryAction.Delay, Is.EqualTo(deliveryDelay));
     }
 
     [Test]
@@ -134,8 +134,8 @@ public class DefaultRecoverabilityPolicyTests
         errorContext = CreateErrorContext(retryNumber: 2);
         var result3 = policy(errorContext);
 
-        Assert.AreEqual(baseDelay, result1.Delay);
-        Assert.AreEqual(TimeSpan.FromSeconds(20), result2.Delay);
+        Assert.That(result1.Delay, Is.EqualTo(baseDelay));
+        Assert.That(result2.Delay, Is.EqualTo(TimeSpan.FromSeconds(20)));
         Assert.IsInstanceOf<MoveToError>(result3);
     }
 

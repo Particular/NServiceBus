@@ -18,7 +18,7 @@ public class When_registering_components
         serviceCollection.AddTransient(typeof(DuplicateClass));
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.AreEqual(2, serviceProvider.GetServices(typeof(DuplicateClass)).Count());
+        Assert.That(serviceProvider.GetServices(typeof(DuplicateClass)).Count(), Is.EqualTo(2));
     }
 
     [Test]
@@ -52,8 +52,8 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(SingletonComponent), singleton);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.AreEqual(serviceProvider.GetService(typeof(SingletonComponent)), singleton);
-        Assert.AreEqual(serviceProvider.GetService(typeof(ISingletonComponent)), singleton);
+        Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(SingletonComponent))));
+        Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingletonComponent))));
     }
 
     [Test]
@@ -71,8 +71,8 @@ public class When_registering_components
         Assert.NotNull(dependency.Singleton1);
         Assert.NotNull(dependency.Singleton2);
 
-        Assert.AreEqual(serviceProvider.GetService(typeof(ISingleton1)), singleton);
-        Assert.AreEqual(serviceProvider.GetService(typeof(ISingleton2)), singleton);
+        Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton1))));
+        Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton2))));
     }
 
     [Test]
@@ -83,11 +83,11 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(SomeClass), expected);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.AreEqual(expected, serviceProvider.GetService(typeof(SomeClass)));
+        Assert.That(serviceProvider.GetService(typeof(SomeClass)), Is.EqualTo(expected));
 
         using (var scope = serviceProvider.CreateScope())
         {
-            Assert.AreEqual(expected, scope.ServiceProvider.GetService(typeof(SomeClass)));
+            Assert.That(scope.ServiceProvider.GetService(typeof(SomeClass)), Is.EqualTo(expected));
         }
     }
 }

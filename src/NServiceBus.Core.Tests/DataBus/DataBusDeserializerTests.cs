@@ -23,7 +23,7 @@ public class DataBusDeserializerTests
 
             var deserializedProperty = deserializer.Deserialize(jsonSerializer.ContentType, typeof(string), stream);
 
-            Assert.AreEqual(somePropertyValue, deserializedProperty);
+            Assert.That(deserializedProperty, Is.EqualTo(somePropertyValue));
         }
     }
 
@@ -54,7 +54,7 @@ public class DataBusDeserializerTests
         var somePropertyValue = "test";
         var deserializedProperty = deserializer.Deserialize(null, typeof(string), new MemoryStream());
 
-        Assert.AreEqual(somePropertyValue, deserializedProperty);
+        Assert.That(deserializedProperty, Is.EqualTo(somePropertyValue));
     }
 
     [Test]

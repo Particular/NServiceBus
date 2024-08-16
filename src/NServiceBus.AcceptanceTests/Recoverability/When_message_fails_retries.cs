@@ -18,15 +18,15 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
                 .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
-        Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
+        Assert.That(exception.ScenarioContext.FailedMessages.Count, Is.EqualTo(1));
 
         var testContext = (Context)exception.ScenarioContext;
-        Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, exception.FailedMessage.Headers[Headers.EnclosedMessageTypes]);
-        Assert.AreEqual(testContext.PhysicalMessageId, exception.FailedMessage.MessageId);
+        Assert.That(exception.FailedMessage.Headers[Headers.EnclosedMessageTypes], Is.EqualTo(typeof(MessageWhichFailsRetries).AssemblyQualifiedName));
+        Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(testContext.PhysicalMessageId));
         Assert.IsAssignableFrom(typeof(SimulatedException), exception.FailedMessage.Exception);
 
-        Assert.AreEqual(1, testContext.Logs.Count(l => l.Message
-            .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")));
+        Assert.That(testContext.Logs.Count(l => l.Message
+            .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")), Is.EqualTo(1));
     }
 
     public class RetryEndpoint : EndpointConfigurationBuilder

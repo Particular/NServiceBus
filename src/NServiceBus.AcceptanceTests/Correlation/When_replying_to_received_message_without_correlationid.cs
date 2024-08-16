@@ -24,7 +24,7 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
             .Done(c => c.GotResponse)
             .Run();
 
-        Assert.AreEqual(mycustomid, context.CorrelationIdReceived, "Correlation id should match MessageId");
+        Assert.That(context.CorrelationIdReceived, Is.EqualTo(mycustomid), "Correlation id should match MessageId");
     }
 
     public class Context : ScenarioContext

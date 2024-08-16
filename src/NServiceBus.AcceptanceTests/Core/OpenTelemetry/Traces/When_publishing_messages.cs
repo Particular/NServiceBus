@@ -29,11 +29,11 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
-        Assert.AreEqual(1, outgoingEventActivities.Count, "1 event is being published");
+        Assert.That(outgoingEventActivities.Count, Is.EqualTo(1), "1 event is being published");
 
         var publishedMessage = outgoingEventActivities.Single();
         publishedMessage.VerifyUniqueTags();
-        Assert.AreEqual("publish event", publishedMessage.DisplayName);
+        Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish event"));
         Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
 
         var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
@@ -67,13 +67,13 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, publishMessageActivities.Count, "1 message is published as part of this test");
-        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+        Assert.That(publishMessageActivities.Count, Is.EqualTo(1), "1 message is published as part of this test");
+        Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
 
         var publishRequest = publishMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.AreEqual(publishRequest.RootId, receiveRequest.RootId, "publish and receive operations are part the same root activity");
+        Assert.That(receiveRequest.RootId, Is.EqualTo(publishRequest.RootId), "publish and receive operations are part the same root activity");
         Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
 
         CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
@@ -102,8 +102,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, publishMessageActivities.Count, "1 message is published as part of this test");
-        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+        Assert.That(publishMessageActivities.Count, Is.EqualTo(1), "1 message is published as part of this test");
+        Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
 
         var publishRequest = publishMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
@@ -113,7 +113,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.IsNotNull(link, "Receive has a link");
-        Assert.AreEqual(publishRequest.TraceId, link.Context.TraceId, "receive is linked to publish operation");
+        Assert.That(link.Context.TraceId, Is.EqualTo(publishRequest.TraceId), "receive is linked to publish operation");
     }
 
     public class Context : ScenarioContext

@@ -30,9 +30,9 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             .Done(c => c.SagaContinued && c.ReplyToOriginatorReceived && c.BehaviorMessageReceived && c.BehaviorEventReceived)
             .Run();
 
-        Assert.AreEqual(context.StartingSagaCorrId, context.ReplyToOriginatorReceivedCorrId, "When using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
-        Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorMessageCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new messages sent from a behavior");
-        Assert.AreEqual(context.ContinueSagaMessageCorrId, context.HandlingBehaviorEventCorrId, "When ReplyToOriginator is used, it shouldn't leak the CorrId to new events published from a behavior");
+        Assert.That(context.ReplyToOriginatorReceivedCorrId, Is.EqualTo(context.StartingSagaCorrId), "When using ReplyToOriginator, the correlationId should be the same of the message that originally started the saga");
+        Assert.That(context.HandlingBehaviorMessageCorrId, Is.EqualTo(context.ContinueSagaMessageCorrId), "When ReplyToOriginator is used, it shouldn't leak the CorrId to new messages sent from a behavior");
+        Assert.That(context.HandlingBehaviorEventCorrId, Is.EqualTo(context.ContinueSagaMessageCorrId), "When ReplyToOriginator is used, it shouldn't leak the CorrId to new events published from a behavior");
     }
 
     public class Context : ScenarioContext

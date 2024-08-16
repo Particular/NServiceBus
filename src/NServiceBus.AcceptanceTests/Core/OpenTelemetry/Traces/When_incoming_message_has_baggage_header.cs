@@ -24,7 +24,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
             .Run();
 
         var incomingMessageTraces = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, incomingMessageTraces.Count, "There should be 1 message received");
+        Assert.That(incomingMessageTraces.Count, Is.EqualTo(1), "There should be 1 message received");
         var incomingMessageTrace = incomingMessageTraces.Single();
 
         VerifyBaggageItem("key1", "value1");
@@ -34,7 +34,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
         {
             var baggageItemValue = incomingMessageTrace.GetBaggageItem(key);
             Assert.IsNotNull(baggageItemValue, $"Baggage item {key} should be populated");
-            Assert.AreEqual(expectedValue, baggageItemValue, $"Baggage item {key} is not set correctly");
+            Assert.That(baggageItemValue, Is.EqualTo(expectedValue), $"Baggage item {key} is not set correctly");
         }
     }
 

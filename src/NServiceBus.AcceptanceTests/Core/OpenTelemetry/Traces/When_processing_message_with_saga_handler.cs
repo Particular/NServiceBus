@@ -23,7 +23,7 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
 
         var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
 
-        Assert.AreEqual(1, invokedHandlerActivities.Count, "One handlers should be invoked");
+        Assert.That(invokedHandlerActivities.Count, Is.EqualTo(1), "One handlers should be invoked");
 
         var handlerActivityTags = invokedHandlerActivities.Single().Tags.ToImmutableDictionary();
         handlerActivityTags.VerifyTag("nservicebus.handler.handler_type", typeof(TestEndpoint.TracedSaga).FullName);

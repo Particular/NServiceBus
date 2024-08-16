@@ -68,7 +68,7 @@ class TestingMetricListener : IDisposable
         else
         {
             Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
-            Assert.AreEqual(expected, ReportedMeters[metricName]);
+            Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
         }
     }
 

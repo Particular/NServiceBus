@@ -35,8 +35,8 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
             .Done(c => c.Done && c.MessagesReceivedByDownstreamEndpoint >= 2 && c.MessagesReceivedByOutboxEndpoint >= 2)
             .Run();
 
-        Assert.AreEqual(2, context.MessagesReceivedByDownstreamEndpoint);
-        Assert.AreEqual(2, context.MessagesReceivedByOutboxEndpoint);
+        Assert.That(context.MessagesReceivedByDownstreamEndpoint, Is.EqualTo(2));
+        Assert.That(context.MessagesReceivedByOutboxEndpoint, Is.EqualTo(2));
     }
 
     public class Context : ScenarioContext

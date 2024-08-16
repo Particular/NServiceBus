@@ -13,7 +13,7 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.AreEqual(serviceProvider.GetService(typeof(SingletonComponent)), serviceProvider.GetService(typeof(SingletonComponent)));
+        Assert.That(serviceProvider.GetService(typeof(SingletonComponent)), Is.EqualTo(serviceProvider.GetService(typeof(SingletonComponent))));
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.AreEqual(serviceProvider.GetService(typeof(SingletonLambdaComponent)), serviceProvider.GetService(typeof(SingletonLambdaComponent)));
+        Assert.That(serviceProvider.GetService(typeof(SingletonLambdaComponent)), Is.EqualTo(serviceProvider.GetService(typeof(SingletonLambdaComponent))));
     }
 
     [Test]

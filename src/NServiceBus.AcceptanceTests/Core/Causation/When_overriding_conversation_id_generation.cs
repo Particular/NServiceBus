@@ -34,7 +34,7 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
             .Done(c => c.MatchingMessageReceived && c.NonMatchingMessageReceived)
             .Run();
 
-        Assert.AreEqual($"{tennantId}-{myBusinessMessage.MyBusinessId}", context.MatchingConversationIdReceived);
+        Assert.That(context.MatchingConversationIdReceived, Is.EqualTo($"{tennantId}-{myBusinessMessage.MyBusinessId}"));
         Assert.That(Guid.TryParse(context.NonMatchingConversationIdReceived, out var _), Is.True);
     }
 

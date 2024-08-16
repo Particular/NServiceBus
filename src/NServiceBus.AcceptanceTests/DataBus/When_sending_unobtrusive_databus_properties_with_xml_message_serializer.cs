@@ -30,7 +30,7 @@ public class When_sending_unobtrusive_databus_properties_with_xml_message_serial
             .Done(c => c.ReceivedPayload != null)
             .Run();
 
-        Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
+        Assert.That(context.ReceivedPayload, Is.EqualTo(payloadToSend), "The large payload should be marshalled correctly using the databus");
     }
 
     const int PayloadSize = 500;

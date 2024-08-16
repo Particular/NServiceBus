@@ -61,7 +61,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.EqualTo(setup.ShouldBeActive));
     }
 
     [Test]

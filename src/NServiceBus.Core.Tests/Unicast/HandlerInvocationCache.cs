@@ -90,7 +90,7 @@ public class When_invoking_a_cached_message_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(stubMessage, handlerContext);
 
-        Assert.AreEqual(stubMessage, ((StubHandler)handler.Instance).HandledMessage);
+        Assert.That(((StubHandler)handler.Instance).HandledMessage, Is.EqualTo(stubMessage));
     }
 
     [Test]
@@ -153,7 +153,7 @@ public class When_invoking_a_cached_timeout_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(stubState, handlerContext);
 
-        Assert.AreEqual(stubState, ((StubHandler)handler.Instance).HandledState);
+        Assert.That(((StubHandler)handler.Instance).HandledState, Is.EqualTo(stubState));
     }
 
     [Test]

@@ -29,7 +29,7 @@ public class When_publishing_an_interface : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.GotTheEvent, Is.True);
-        Assert.AreEqual(typeof(IMyEvent), context.EventTypePassedToRouting);
+        Assert.That(context.EventTypePassedToRouting, Is.EqualTo(typeof(IMyEvent)));
     }
 
     public class Context : ScenarioContext

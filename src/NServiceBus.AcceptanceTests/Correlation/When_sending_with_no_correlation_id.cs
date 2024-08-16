@@ -15,7 +15,7 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
             .Done(c => c.GotRequest)
             .Run();
 
-        Assert.AreEqual(context.MessageIdReceived, context.CorrelationIdReceived, "Correlation id should match MessageId");
+        Assert.That(context.CorrelationIdReceived, Is.EqualTo(context.MessageIdReceived), "Correlation id should match MessageId");
     }
 
     public class Context : ScenarioContext

@@ -32,8 +32,8 @@ public class FeatureSettingsTests
 
         Assert.That(featureWithTrueCondition.IsActive, Is.True);
         Assert.That(featureWithFalseCondition.IsActive, Is.False);
-        Assert.AreEqual("The description",
-            featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First());
+        Assert.That(featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
+            Is.EqualTo("The description"));
     }
 
     [Test]

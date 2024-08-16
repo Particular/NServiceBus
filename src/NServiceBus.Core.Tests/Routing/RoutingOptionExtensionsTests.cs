@@ -14,7 +14,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.AreEqual(expectedDestination, destination);
+        Assert.That(destination, Is.EqualTo(expectedDestination));
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.AreEqual(expectedDestination, destination);
+        Assert.That(destination, Is.EqualTo(expectedDestination));
     }
 
     [Test]
@@ -93,7 +93,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteToSpecificInstance(expectedInstanceId);
 
-        Assert.AreEqual(expectedInstanceId, options.GetRouteToSpecificInstance());
+        Assert.That(options.GetRouteToSpecificInstance(), Is.EqualTo(expectedInstanceId));
     }
 
     [Test]
@@ -184,7 +184,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyTo(expectedReplyToAddress);
 
-        Assert.AreEqual(expectedReplyToAddress, options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.EqualTo(expectedReplyToAddress));
     }
 
     [Test]
@@ -203,7 +203,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyTo(expectedReplyToAddress);
 
-        Assert.AreEqual(expectedReplyToAddress, options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.EqualTo(expectedReplyToAddress));
     }
 
     [Test]

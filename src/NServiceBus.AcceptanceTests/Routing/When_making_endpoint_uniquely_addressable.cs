@@ -25,7 +25,7 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
             .Done(c => c.MessagesReceived > 1)
             .Run();
 
-        Assert.AreEqual(2, context.MessagesReceived);
+        Assert.That(context.MessagesReceived, Is.EqualTo(2));
     }
 
     public class Context : ScenarioContext

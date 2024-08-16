@@ -38,6 +38,6 @@ public class When_on_message_throws_after_delayed_retry : NServiceBusTransportTe
 
         var errorContext = await sentDelayedMessage.Task;
 
-        Assert.AreEqual(1, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
+        Assert.That(errorContext.ImmediateProcessingFailures, Is.EqualTo(1), "Should track delivery attempts between immediate retries");
     }
 }

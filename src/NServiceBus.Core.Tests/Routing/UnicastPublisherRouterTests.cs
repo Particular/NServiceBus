@@ -35,7 +35,7 @@ public class UnicastPublisherRouterTests
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
         var destinations = routes.Select(ExtractDestination).ToList();
-        Assert.AreEqual(2, destinations.Count);
+        Assert.That(destinations.Count, Is.EqualTo(2));
         Assert.Contains("address1", destinations);
         Assert.Contains("address2", destinations);
     }
@@ -53,7 +53,7 @@ public class UnicastPublisherRouterTests
         var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext())).ToArray();
 
         var destinations = routes.Select(ExtractDestination).ToList();
-        Assert.AreEqual(2, destinations.Count);
+        Assert.That(destinations.Count, Is.EqualTo(2));
         Assert.Contains("sales1", destinations);
         Assert.Contains("shipping1", destinations);
     }
@@ -69,8 +69,8 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.AreEqual(1, routes.Count());
-        Assert.AreEqual("address", ExtractDestination(routes.Single()));
+        Assert.That(routes.Count(), Is.EqualTo(1));
+        Assert.That(ExtractDestination(routes.Single()), Is.EqualTo("address"));
     }
 
     [Test]
@@ -86,8 +86,8 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.AreEqual(1, routes.Count());
-        Assert.AreEqual("address", ExtractDestination(routes.First()));
+        Assert.That(routes.Count(), Is.EqualTo(1));
+        Assert.That(ExtractDestination(routes.First()), Is.EqualTo("address"));
     }
 
     [Test]

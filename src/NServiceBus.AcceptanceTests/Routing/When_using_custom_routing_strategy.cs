@@ -33,8 +33,8 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
             .Done(c => c.MessageDeliveredReceiver1 >= 3 && c.MessageDeliveredReceiver2 >= 1)
             .Run();
 
-        Assert.AreEqual(3, ctx.MessageDeliveredReceiver1);
-        Assert.AreEqual(1, ctx.MessageDeliveredReceiver2);
+        Assert.That(ctx.MessageDeliveredReceiver1, Is.EqualTo(3));
+        Assert.That(ctx.MessageDeliveredReceiver2, Is.EqualTo(1));
     }
 
     static string Discriminator1 = "553E9649";

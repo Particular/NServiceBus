@@ -44,6 +44,6 @@ public class ActivityExtensionsTests
         contextBag.SetOutgoingPipelineActitvity(recordingActivity);
 
         Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.True);
-        Assert.AreEqual(recordingActivity, activity);
+        Assert.That(activity, Is.EqualTo(recordingActivity));
     }
 }

@@ -22,7 +22,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
             await completeSession.Open(context1);
 
             var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga1.CorrelatedProperty), correlationPropertyData, completeSession, context1);
-            Assert.AreEqual(saga1.DataProperty, sagaData.DataProperty);
+            Assert.That(sagaData.DataProperty, Is.EqualTo(saga1.DataProperty));
 
             await persister.Complete(sagaData, completeSession, context1);
             await completeSession.CompleteAsync();
@@ -37,7 +37,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
             await completeSession.Open(context2);
 
             var sagaData = await persister.Get<SagaWithCorrelationPropertyData>(nameof(saga2.CorrelatedProperty), correlationPropertyData, completeSession, context2);
-            Assert.AreEqual(saga2.DataProperty, sagaData.DataProperty);
+            Assert.That(sagaData.DataProperty, Is.EqualTo(saga2.DataProperty));
 
             await persister.Complete(sagaData, completeSession, context2);
             await completeSession.CompleteAsync();

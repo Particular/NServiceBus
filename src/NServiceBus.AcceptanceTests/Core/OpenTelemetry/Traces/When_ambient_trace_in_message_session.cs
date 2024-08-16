@@ -37,12 +37,12 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
         var outgoingMessageActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
         var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
 
-        Assert.AreEqual(context.WrapperActivityId, outgoingMessageActivity.ParentId, "outgoing message should be connected to the ambient span");
-        Assert.AreEqual(context.WrapperActivityRootId, outgoingMessageActivity.RootId, "outgoing message should be connected to the ambient trace");
-        Assert.AreEqual(wrapperActivityTraceState, outgoingMessageActivity.TraceStateString, "ambient trace state should be floated to outgoing message span");
-        Assert.AreEqual(outgoingMessageActivity.Id, incomingMessageActivity.ParentId, "received message should be connected to send operation span");
-        Assert.AreEqual(context.WrapperActivityRootId, incomingMessageActivity.RootId, "received message should be connected to the ambient trace");
-        Assert.AreEqual(wrapperActivityTraceState, incomingMessageActivity.TraceStateString, "ambient trace state should be floated to incoming message span");
+        Assert.That(outgoingMessageActivity.ParentId, Is.EqualTo(context.WrapperActivityId), "outgoing message should be connected to the ambient span");
+        Assert.That(outgoingMessageActivity.RootId, Is.EqualTo(context.WrapperActivityRootId), "outgoing message should be connected to the ambient trace");
+        Assert.That(outgoingMessageActivity.TraceStateString, Is.EqualTo(wrapperActivityTraceState), "ambient trace state should be floated to outgoing message span");
+        Assert.That(incomingMessageActivity.ParentId, Is.EqualTo(outgoingMessageActivity.Id), "received message should be connected to send operation span");
+        Assert.That(incomingMessageActivity.RootId, Is.EqualTo(context.WrapperActivityRootId), "received message should be connected to the ambient trace");
+        Assert.That(incomingMessageActivity.TraceStateString, Is.EqualTo(wrapperActivityTraceState), "ambient trace state should be floated to incoming message span");
     }
 
     class Context : ScenarioContext

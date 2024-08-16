@@ -13,7 +13,7 @@ public class DefaultFactoryTests
     {
         var defaultFactory = new DefaultFactory();
         var nonExistingDirectoryException = Assert.Throws<DirectoryNotFoundException>(() => defaultFactory.Directory("baddir"));
-        Assert.AreEqual("Could not find logging directory: 'baddir'", nonExistingDirectoryException.Message);
+        Assert.That(nonExistingDirectoryException.Message, Is.EqualTo("Could not find logging directory: 'baddir'"));
         Assert.Throws<ArgumentNullException>(() => defaultFactory.Directory(null));
         Assert.Throws<ArgumentException>(() => defaultFactory.Directory(""));
         Assert.Throws<ArgumentException>(() => defaultFactory.Directory(" "));

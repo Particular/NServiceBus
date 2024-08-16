@@ -31,7 +31,7 @@ public class When_sending_databus_properties_from_different_environments : NServ
             .Done(c => c.ReceivedPayload != null)
             .Run();
 
-        Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
+        Assert.That(context.ReceivedPayload, Is.EqualTo(payloadToSend), "The large payload should be marshalled correctly using the databus");
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class When_sending_databus_properties_from_different_environments : NServ
             .Done(c => c.ReceivedPayload != null)
             .Run();
 
-        Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
+        Assert.That(context.ReceivedPayload, Is.EqualTo(payloadToSend), "The large payload should be marshalled correctly using the databus");
     }
 
     const int PayloadSize = 500;

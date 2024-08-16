@@ -17,7 +17,7 @@ public class StandardsTests
     {
         foreach (var featureType in GetFeatures())
         {
-            Assert.AreEqual("NServiceBus.Features", featureType.Namespace, "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
+            Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus.Features"), "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
             Assert.That(featureType.Name.EndsWith("Feature"), Is.False, "Features should not be suffixed with 'Feature'. " + featureType.FullName);
             if (featureType.IsPublic)
             {
@@ -79,7 +79,7 @@ public class StandardsTests
         foreach (var featureType in GetBehaviors())
         {
             Assert.That(featureType.IsPublic, Is.False, "Behaviors should internal " + featureType.FullName);
-            Assert.AreEqual("NServiceBus", featureType.Namespace, "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
+            Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus"), "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
             Assert.That(featureType.Name.EndsWith("Terminator") || featureType.Name.EndsWith("Behavior") || featureType.Name.EndsWith("Connector"), Is.True, "Behaviors should be suffixed with 'Behavior' or 'Connector'. " + featureType.FullName);
         }
     }

@@ -39,6 +39,6 @@ public class When_modifying_headers_before_retry : NServiceBusTransportTest
 
         var retryMessageContext = await retried.Task;
 
-        Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
+        Assert.That(retryMessageContext.Headers["test-header"], Is.EqualTo("original"));
     }
 }

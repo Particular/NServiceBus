@@ -22,8 +22,8 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
             .Done(c => c.ProcessedByA > 0 && c.ProcessedByB > 0)
             .Run();
 
-        Assert.AreEqual(1, context.ProcessedByA);
-        Assert.AreEqual(1, context.ProcessedByB);
+        Assert.That(context.ProcessedByA, Is.EqualTo(1));
+        Assert.That(context.ProcessedByB, Is.EqualTo(1));
 
     }
 

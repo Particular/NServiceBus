@@ -29,7 +29,7 @@
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(typeof(MessageWithoutNamespace), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessage));
         }
 
         [Test]
@@ -39,7 +39,7 @@
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessage));
         }
 
         [Test]
@@ -49,7 +49,7 @@
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessage));
         }
 
         [Test]

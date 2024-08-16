@@ -25,7 +25,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(typeof(BehaviorB), registerStep.BehaviorType);
+        Assert.That(registerStep.BehaviorType, Is.EqualTo(typeof(BehaviorB)));
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(originalDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(originalDescription));
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(originalDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(originalDescription));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(replacementDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(replacementDescription));
     }
 
     [Test]

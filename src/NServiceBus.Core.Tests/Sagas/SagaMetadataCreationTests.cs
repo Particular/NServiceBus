@@ -24,14 +24,14 @@ public class SagaMetadataCreationTests
     public void GetEntityClrType()
     {
         var metadata = SagaMetadata.Create(typeof(MySaga));
-        Assert.AreEqual(typeof(MySaga.MyEntity), metadata.SagaEntityType);
+        Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(MySaga.MyEntity)));
     }
 
     [Test]
     public void GetSagaClrType()
     {
         var metadata = SagaMetadata.Create(typeof(MySaga));
-        Assert.AreEqual(typeof(MySaga), metadata.SagaType);
+        Assert.That(metadata.SagaType, Is.EqualTo(typeof(MySaga)));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class SagaMetadataCreationTests
     {
         var metadata = SagaMetadata.Create(typeof(MySaga));
         Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
-        Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
+        Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class SagaMetadataCreationTests
             typeof(SagaWithNonMessageFinder.Finder)
         };
         var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder), availableTypes, new Conventions()); });
-        Assert.AreEqual("A custom ISagaFinder must target a valid message type as defined by the message conventions. Change 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+StartSagaMessage' to a valid message type or add it to the message conventions. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+Finder'.", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo("A custom ISagaFinder must target a valid message type as defined by the message conventions. Change 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+StartSagaMessage' to a valid message type or add it to the message conventions. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+Finder'."));
     }
 
     [Test]
@@ -61,8 +61,8 @@ public class SagaMetadataCreationTests
             typeof(SagaWithFinderOnly.Finder)
         };
         var metadata = SagaMetadata.Create(typeof(SagaWithFinderOnly), availableTypes, new Conventions());
-        Assert.AreEqual(1, metadata.Finders.Count);
-        Assert.AreEqual(typeof(CustomFinderAdapter<SagaWithFinderOnly.SagaData, SagaWithFinderOnly.StartSagaMessage>), metadata.Finders.First().Type);
+        Assert.That(metadata.Finders.Count, Is.EqualTo(1));
+        Assert.That(metadata.Finders.First().Type, Is.EqualTo(typeof(CustomFinderAdapter<SagaWithFinderOnly.SagaData, SagaWithFinderOnly.StartSagaMessage>)));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class SagaMetadataCreationTests
             typeof(SagaWithMappingAndFinder.Finder)
         };
         var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions()); });
-        Assert.AreEqual("A custom ISagaFinder and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping or remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo("A custom ISagaFinder and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping or remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'."));
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class SagaMetadataCreationTests
     {
         var metadata = SagaMetadata.Create(typeof(MySagaWithMappedAndUniqueProperty));
         Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
-        Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
+        Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
     }
 
     [TestCase(typeof(MySagaWithMappedProperty))]
@@ -90,7 +90,7 @@ public class SagaMetadataCreationTests
     {
         var metadata = SagaMetadata.Create(sagaType);
         Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
-        Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
+        Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class SagaMetadataCreationTests
 
         var messages = metadata.AssociatedMessages;
 
-        Assert.AreEqual(4, messages.Count);
+        Assert.That(messages.Count, Is.EqualTo(4));
 
         Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage1).FullName), Is.True);
 
@@ -134,9 +134,9 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.AreEqual(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>), finder.Type);
+        Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
         Assert.NotNull(finder.Properties["property-accessor"]);
-        Assert.AreEqual("UniqueProperty", finder.Properties["saga-property-name"]);
+        Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
     }
 
     [Test]
@@ -146,10 +146,10 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.AreEqual(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>), finder.Type);
-        Assert.AreEqual("CorrelationHeader", finder.Properties["message-header-name"]);
-        Assert.AreEqual("UniqueProperty", finder.Properties["saga-property-name"]);
-        Assert.AreEqual(typeof(int), finder.Properties["saga-property-type"]);
+        Assert.That(finder.Type, Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
+        Assert.That(finder.Properties["message-header-name"], Is.EqualTo("CorrelationHeader"));
+        Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
+        Assert.That(finder.Properties["saga-property-type"], Is.EqualTo(typeof(int)));
     }
 
     [Test]
@@ -198,8 +198,8 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.AreEqual(typeof(CustomFinderAdapter<MySagaWithScannedFinder.SagaData, SomeMessage>), finder.Type);
-        Assert.AreEqual(typeof(MySagaWithScannedFinder.CustomFinder), finder.Properties["custom-finder-clr-type"]);
+        Assert.That(finder.Type, Is.EqualTo(typeof(CustomFinderAdapter<MySagaWithScannedFinder.SagaData, SomeMessage>)));
+        Assert.That(finder.Properties["custom-finder-clr-type"], Is.EqualTo(typeof(MySagaWithScannedFinder.CustomFinder)));
     }
 
     [TestCase(typeof(SagaThatMapsMessageItDoesntHandle))]
@@ -228,7 +228,7 @@ public class SagaMetadataCreationTests
     {
         var metadata = SagaMetadata.Create(typeof(SagaWithInheritanceChain));
 
-        Assert.AreEqual(typeof(SagaWithInheritanceChain.SagaData), metadata.SagaEntityType);
+        Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(SagaWithInheritanceChain.SagaData)));
     }
 
     static SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)

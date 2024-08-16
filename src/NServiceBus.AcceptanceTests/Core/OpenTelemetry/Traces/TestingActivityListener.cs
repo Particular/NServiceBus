@@ -48,7 +48,7 @@ public class TestingActivityListener : IDisposable
 
     public void VerifyAllActivitiesCompleted()
     {
-        Assert.AreEqual(StartedActivities.Count, CompletedActivities.Count, "all started activities should be completed");
+        Assert.That(CompletedActivities.Count, Is.EqualTo(StartedActivities.Count), "all started activities should be completed");
     }
 }
 

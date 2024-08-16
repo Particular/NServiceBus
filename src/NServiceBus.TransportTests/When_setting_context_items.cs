@@ -32,6 +32,6 @@ public class When_setting_context_items : NServiceBusTransportTest
 
         var errorContext = await onError.Task;
 
-        Assert.AreEqual("MyValue", errorContext.Extensions.Get<string>("MyKey"));
+        Assert.That(errorContext.Extensions.Get<string>("MyKey"), Is.EqualTo("MyValue"));
     }
 }

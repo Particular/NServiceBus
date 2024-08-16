@@ -22,8 +22,8 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.AreEqual(1, ctx.EventsSubscribedTo.Count);
-        Assert.AreEqual(typeof(EventToSubscribeTo), ctx.EventsSubscribedTo[0]);
+        Assert.That(ctx.EventsSubscribedTo.Count, Is.EqualTo(1));
+        Assert.That(ctx.EventsSubscribedTo[0], Is.EqualTo(typeof(EventToSubscribeTo)));
 
         CollectionAssert.IsEmpty(ctx.Logs.Where(l => l.LoggerName == typeof(AutoSubscribe).FullName && l.Level == LogLevel.Error));
     }

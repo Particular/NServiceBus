@@ -22,7 +22,7 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
-        Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        Assert.That(activity.Id, Is.EqualTo(headers[Headers.DiagnosticsTraceParent]));
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class ContextPropagationTests
         ContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
 
         Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.True, bool.TrueString);
-        Assert.AreEqual(headers[Headers.StartNewTrace], bool.TrueString);
+        Assert.That(bool.TrueString, Is.EqualTo(headers[Headers.StartNewTrace]));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
-        Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        Assert.That(activity.Id, Is.EqualTo(headers[Headers.DiagnosticsTraceParent]));
     }
 
     [TestCaseSource(nameof(TestCases))]
@@ -100,7 +100,7 @@ public class ContextPropagationTests
             var key = baggageItem.Key;
             var actualValue = activity.GetBaggageItem(key);
             Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
-            Assert.AreEqual(baggageItem.Value, actualValue, $"Baggage item |{key}| has the wrong value");
+            Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }
 
@@ -126,7 +126,7 @@ public class ContextPropagationTests
         {
             Assert.That(baggageHeaderSet, Is.True, "Should have a baggage header if there is baggage");
 
-            Assert.AreEqual(testCase.BaggageHeaderValueWithoutOptionalWhitespace, baggageValue, "baggage header is set but is not correct");
+            Assert.That(baggageValue, Is.EqualTo(testCase.BaggageHeaderValueWithoutOptionalWhitespace), "baggage header is set but is not correct");
         }
         else
         {
@@ -160,7 +160,7 @@ public class ContextPropagationTests
             var key = baggageItem.Key;
             var actualValue = incomingActivity.GetBaggageItem(key);
             Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
-            Assert.AreEqual(baggageItem.Value, actualValue, $"Baggage item |{key}| has the wrong value");
+            Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }
 

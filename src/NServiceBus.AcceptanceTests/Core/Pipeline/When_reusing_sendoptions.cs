@@ -25,8 +25,8 @@ public class When_reusing_sendoptions : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedMessageIds.Count >= 3)
             .Run();
 
-        Assert.AreEqual(3, context.ReceivedMessageIds.Count);
-        Assert.AreEqual(3, context.ReceivedMessageIds.Distinct().Count(), "the message ids should be distinct");
+        Assert.That(context.ReceivedMessageIds.Count, Is.EqualTo(3));
+        Assert.That(context.ReceivedMessageIds.Distinct().Count(), Is.EqualTo(3), "the message ids should be distinct");
     }
 
     class Context : ScenarioContext

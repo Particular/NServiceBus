@@ -13,7 +13,7 @@ public class IdGenerationTests
         var oldCombGuid = LocalCopyOfCombGuid.GenerateOld(guid, now);
         var improvedCombGuid = CombGuid.Generate(guid, now);
 
-        Assert.AreEqual(oldCombGuid, improvedCombGuid);
+        Assert.That(improvedCombGuid, Is.EqualTo(oldCombGuid));
     }
 
     static readonly Random Random = new Random();

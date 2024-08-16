@@ -35,7 +35,7 @@ public class TracingExtensionsTests
 
         await pipeline.Invoke(new FakeRootContext(), activity);
 
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
     }
 
     [Test]
@@ -48,14 +48,14 @@ public class TracingExtensionsTests
 
         Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity));
 
-        Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 
         var tags = activity.Tags.ToImmutableDictionary();
-        Assert.AreEqual("ERROR", tags["otel.status_code"]);
-        Assert.AreEqual(exception.Message, tags["otel.status_description"]);
+        Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
+        Assert.That(tags["otel.status_description"], Is.EqualTo(exception.Message));
 
         var errorEvent = activity.Events.Single();
-        Assert.AreEqual("exception", errorEvent.Name);
+        Assert.That(errorEvent.Name, Is.EqualTo("exception"));
     }
 
     class FakePipeline : IPipeline<IBehaviorContext>

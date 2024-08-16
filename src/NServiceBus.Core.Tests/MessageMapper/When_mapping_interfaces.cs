@@ -86,7 +86,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAttribute), true);
         var attr = (NoDefaultConstructorAttribute)attributes[0];
-        Assert.AreEqual(attr.Name, "Blah");
+        Assert.That("Blah", Is.EqualTo(attr.Name));
     }
 
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructor
@@ -113,7 +113,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAndNoMatchingParametersAttribute), true);
         var attr = (NoDefaultConstructorAndNoMatchingParametersAttribute)attributes[0];
-        Assert.AreEqual(attr.Name, "Blah");
+        Assert.That("Blah", Is.EqualTo(attr.Name));
     }
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
     {
@@ -142,7 +142,7 @@ public class When_mapping_interfaces
         var mapper = new MessageMapper();
         mapper.Initialize(new[] { typeof(IInterfaceToGenerate) });
 
-        Assert.AreEqual(typeof(IInterfaceToGenerate).Namespace, mapper.CreateInstance(typeof(IInterfaceToGenerate)).GetType().Namespace);
+        Assert.That(mapper.CreateInstance(typeof(IInterfaceToGenerate)).GetType().Namespace, Is.EqualTo(typeof(IInterfaceToGenerate).Namespace));
     }
 
     public interface IInterfaceToGenerate : IMessage
@@ -158,10 +158,10 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));
         var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(ValuePropertiesAttribute), true);
         var attr = attributes[0] as ValuePropertiesAttribute;
-        Assert.AreEqual(attr != null && attr.FlagIsSet, true);
+        Assert.That(true, Is.EqualTo(attr != null && attr.FlagIsSet));
         if (attr != null)
         {
-            Assert.AreEqual(attr.MyAge, 21);
+            Assert.That(21, Is.EqualTo(attr.MyAge));
         }
     }
 

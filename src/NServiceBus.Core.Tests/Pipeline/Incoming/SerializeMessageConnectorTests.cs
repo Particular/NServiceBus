@@ -32,7 +32,7 @@ public class SerializeMessageConnectorTests
 
         await behavior.Invoke(context, c => Task.CompletedTask);
 
-        Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
+        Assert.That(context.Headers[Headers.ContentType], Is.EqualTo("myContentType"));
     }
 
     class FakeSerializer : IMessageSerializer

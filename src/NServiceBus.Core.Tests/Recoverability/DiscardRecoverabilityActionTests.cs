@@ -16,6 +16,6 @@ public class DiscardRecoverabilityActionTests
         var routingContexts = discardAction.GetRoutingContexts(actionContext);
 
         CollectionAssert.IsEmpty(routingContexts);
-        Assert.AreEqual(discardAction.ErrorHandleResult, ErrorHandleResult.Handled);
+        Assert.That(ErrorHandleResult.Handled, Is.EqualTo(discardAction.ErrorHandleResult));
     }
 }

@@ -20,9 +20,9 @@ public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.ForwardedToErrorQueue, Is.True);
-        Assert.AreEqual(numberOfRetries + 1, context.NumberOfTimesInvoked, "Message should be retried 5 times immediately");
-        Assert.AreEqual(numberOfRetries, context.Logs.Count(l => l.Message
-            .StartsWith($"Immediate Retry is going to retry message '{context.MessageId}' because of an exception:")));
+        Assert.That(context.NumberOfTimesInvoked, Is.EqualTo(numberOfRetries + 1), "Message should be retried 5 times immediately");
+        Assert.That(context.Logs.Count(l => l.Message
+            .StartsWith($"Immediate Retry is going to retry message '{context.MessageId}' because of an exception:")), Is.EqualTo(numberOfRetries));
     }
 
     const int numberOfRetries = 5;

@@ -38,8 +38,8 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1ReceivedMessages >= 4)
             .Run();
 
-        Assert.AreEqual(4, context.Subscriber1ReceivedMessages);
-        Assert.AreEqual(1, context.Subscriber2ReceivedMessages);
+        Assert.That(context.Subscriber1ReceivedMessages, Is.EqualTo(4));
+        Assert.That(context.Subscriber2ReceivedMessages, Is.EqualTo(1));
         Assert.That(context.Subscriber2Unsubscribed, Is.True);
     }
 

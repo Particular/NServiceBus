@@ -21,7 +21,7 @@ public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusA
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.AreEqual(ConfiguredNumberOfDelayedRetries + 1, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");
+        Assert.That(context.ReceiveCount, Is.EqualTo(ConfiguredNumberOfDelayedRetries + 1), "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");
     }
 
     const int ConfiguredNumberOfDelayedRetries = 3;
