@@ -55,7 +55,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         Assert.NotNull(discard);
         Assert.That(discard.MaxTime, Is.EqualTo(maxTime));
 
-        Assert.Null(fakeOutbox.StoredMessage);
+        Assert.That(fakeOutbox.StoredMessage, Is.Null);
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
         Assert.NotNull(routing);
         Assert.That(routing.Destination, Is.EqualTo("myEndpoint"));
-        Assert.Null(fakeOutbox.StoredMessage);
+        Assert.That(fakeOutbox.StoredMessage, Is.Null);
     }
 
 
@@ -103,7 +103,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
         Assert.NotNull(routing);
         Assert.That(routing.MessageType, Is.EqualTo(typeof(MyEvent)));
-        Assert.Null(fakeOutbox.StoredMessage);
+        Assert.That(fakeOutbox.StoredMessage, Is.Null);
     }
 
     [Test]

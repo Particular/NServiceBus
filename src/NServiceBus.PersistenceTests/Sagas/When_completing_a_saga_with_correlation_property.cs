@@ -26,7 +26,7 @@ public class When_completing_a_saga_with_correlation_property : SagaPersisterTes
         }
 
         var completedSaga = await GetByCorrelationProperty<SagaWithCorrelationPropertyData>(correlatedPropertyName, correlationPropertyData);
-        Assert.Null(completedSaga);
+        Assert.That(completedSaga, Is.Null);
     }
 
     public class SagaWithCorrelationPropertyData : ContainSagaData
