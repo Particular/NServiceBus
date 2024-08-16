@@ -21,7 +21,7 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
             .Run();
 
         Assert.That(context.EventsSubscribedTo.Count, Is.EqualTo(1));
-        Assert.That(context.EventsSubscribedTo.Contains(typeof(MyEvent).AssemblyQualifiedName), Is.True, "Events should be auto subscribed");
+        Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEvent).AssemblyQualifiedName), "Events should be auto subscribed");
         Assert.That(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting).AssemblyQualifiedName), Is.False, "Events without routing should not be auto subscribed");
         Assert.That(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler).AssemblyQualifiedName), Is.False, "Events without handlers should not be auto subscribed");
         Assert.That(context.EventsSubscribedTo.Contains(typeof(MyCommand).AssemblyQualifiedName), Is.False, "Commands should not be auto subscribed");
