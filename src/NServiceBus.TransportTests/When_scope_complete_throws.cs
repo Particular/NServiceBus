@@ -38,7 +38,7 @@ public class When_scope_complete_throws : NServiceBusTransportTest
 
         // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
         // dispose throws the message might be picked up before the counter is incremented
-        Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
+        Assert.That(1, Is.LessThanOrEqualTo(errorContext.ImmediateProcessingFailures));
     }
 
     class EnlistmentWhichFailsDuringPrepare : IEnlistmentNotification
