@@ -36,8 +36,8 @@ public class UnicastPublisherRouterTests
 
         var destinations = routes.Select(ExtractDestination).ToList();
         Assert.That(destinations.Count, Is.EqualTo(2));
-        Assert.Contains("address1", destinations);
-        Assert.Contains("address2", destinations);
+        Assert.That(destinations, Does.Contain("address1"));
+        Assert.That(destinations, Does.Contain("address2"));
     }
 
     [Test]
@@ -54,8 +54,8 @@ public class UnicastPublisherRouterTests
 
         var destinations = routes.Select(ExtractDestination).ToList();
         Assert.That(destinations.Count, Is.EqualTo(2));
-        Assert.Contains("sales1", destinations);
-        Assert.Contains("shipping1", destinations);
+        Assert.That(destinations, Does.Contain("sales1"));
+        Assert.That(destinations, Does.Contain("shipping1"));
     }
 
     [Test]
