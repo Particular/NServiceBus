@@ -32,7 +32,7 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
             .Done(c => c.MessageDelivered >= 4)
             .Run();
 
-        Assert.That(ctx.MessageDelivered >= 4, Is.True);
+        Assert.That(ctx.MessageDelivered, Is.GreaterThanOrEqualTo(4));
     }
 
     public class Context : ScenarioContext
