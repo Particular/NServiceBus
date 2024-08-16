@@ -108,7 +108,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var publishRequest = publishMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.AreNotEqual(publishRequest.RootId, receiveRequest.RootId, "publish and receive operations are part of different root activities");
+        Assert.That(receiveRequest.RootId, Is.Not.EqualTo(publishRequest.RootId), "publish and receive operations are part of different root activities");
         Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();

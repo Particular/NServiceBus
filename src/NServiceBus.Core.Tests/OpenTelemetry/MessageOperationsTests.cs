@@ -179,6 +179,6 @@ public class MessageOperationsTests
         Assert.IsNotNull(activity);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
-        Assert.AreNotEqual(ambientActivity.TraceId, activity.TraceId);
+        Assert.That(activity.TraceId, Is.Not.EqualTo(ambientActivity.TraceId));
     }
 }

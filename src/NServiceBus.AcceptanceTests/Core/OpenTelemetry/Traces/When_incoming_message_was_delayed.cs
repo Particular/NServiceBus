@@ -37,9 +37,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var sendReply = outgoingMessageActivities[1];
         var receiveReply = incomingMessageActivities[1];
 
-        Assert.AreNotEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of different root activities");
+        Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
         Assert.IsNull(receiveRequest.ParentId, "first incoming message does not have a parent, it's a root");
-        Assert.AreNotEqual(sendRequest.RootId, sendReply.RootId, "first send operation is different than the root activity of the reply");
+        Assert.That(sendReply.RootId, Is.Not.EqualTo(sendRequest.RootId), "first send operation is different than the root activity of the reply");
         Assert.That(receiveReply.ParentId, Is.EqualTo(sendReply.Id), "second incoming message is correlated to the second send operation");
         Assert.That(receiveReply.RootId, Is.EqualTo(sendReply.RootId), "second incoming message is the root activity");
 
@@ -71,7 +71,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(firstAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
         Assert.That(firstAttemptReceiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
 
-        Assert.AreNotEqual(sendRequest.RootId, secondAttemptReceiveRequest.RootId, "send and 2nd receive operations are part of different root activities");
+        Assert.That(secondAttemptReceiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and 2nd receive operations are part of different root activities");
         Assert.IsNull(secondAttemptReceiveRequest.ParentId, "first incoming message does not have a parent, it's a root");
         ActivityLink link = secondAttemptReceiveRequest.Links.FirstOrDefault();
         Assert.IsNotNull(link, "second receive has a link");
@@ -103,7 +103,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(startSagaReceive.ParentId, Is.EqualTo(startSagaSend.Id), "start saga receive operation is child of the start saga send operation");
         Assert.That(timeoutSend.RootId, Is.EqualTo(startSagaSend.RootId), "timeout send operation is part of the start saga operation root");
 
-        Assert.AreNotEqual(timeoutSend.RootId, timeoutReceive.RootId, "timeout send and receive operations are part of different root activities");
+        Assert.That(timeoutReceive.RootId, Is.Not.EqualTo(timeoutSend.RootId), "timeout send and receive operations are part of different root activities");
         Assert.IsNull(timeoutReceive.ParentId, "timeout receive operation does not have a parent, it's a root");
         ActivityLink timeoutReceiveLink = timeoutReceive.Links.FirstOrDefault();
         Assert.IsNotNull(timeoutReceiveLink, "timeout receive operation is linked");
