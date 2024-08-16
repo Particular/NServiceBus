@@ -59,7 +59,7 @@ class DateTimeExtensionsTests
         var dateString = "201-08-16 10:06:20:123456 Z";
 
         var exception = Assert.Throws<FormatException>(() => DateTimeOffsetHelper.ToDateTimeOffset(dateString));
-        Assert.That("String was not recognized as a valid DateTime.", Is.EqualTo(exception.Message));
+        Assert.That(exception.Message, Is.EqualTo("String was not recognized as a valid DateTime."));
     }
 
     [Test]
@@ -68,6 +68,6 @@ class DateTimeExtensionsTests
         var dateString = "201j-08-16 10:06:20:123456 Z";
 
         var exception = Assert.Throws<FormatException>(() => DateTimeOffsetHelper.ToDateTimeOffset(dateString));
-        Assert.That("String was not recognized as a valid DateTime.", Is.EqualTo(exception.Message));
+        Assert.That(exception.Message, Is.EqualTo("String was not recognized as a valid DateTime."));
     }
 }

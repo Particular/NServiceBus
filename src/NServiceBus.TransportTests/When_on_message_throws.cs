@@ -29,7 +29,7 @@ public class When_on_message_throws : NServiceBusTransportTest
 
         var errorContext = await onErrorCalled.Task;
 
-        Assert.That("Simulated exception", Is.EqualTo(errorContext.Exception.Message), "Should preserve the exception");
+        Assert.That(errorContext.Exception.Message, Is.EqualTo("Simulated exception"), "Should preserve the exception");
         Assert.That(errorContext.ImmediateProcessingFailures, Is.EqualTo(1), "Should track the number of delivery attempts");
         Assert.That(errorContext.Message.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
     }

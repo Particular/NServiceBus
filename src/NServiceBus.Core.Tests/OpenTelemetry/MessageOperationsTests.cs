@@ -172,7 +172,7 @@ public class MessageOperationsTests
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.SetIdFormat(ActivityIdFormat.Hierarchical);
         ambientActivity.Start();
-        Assert.That(ActivityIdFormat.Hierarchical, Is.EqualTo(ambientActivity.IdFormat));
+        Assert.That(ambientActivity.IdFormat, Is.EqualTo(ActivityIdFormat.Hierarchical));
 
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 

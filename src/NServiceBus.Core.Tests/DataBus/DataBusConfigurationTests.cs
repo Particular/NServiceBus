@@ -20,7 +20,7 @@ public class DataBusConfigurationTests
             .AddDeserializer(new FakeDataBusSerializer("content-type-1"))
             .AddDeserializer(new FakeDataBusSerializer("content-type-2"));
 
-        Assert.That(2, Is.EqualTo(endpointConfiguration.Settings.Get<List<IDataBusSerializer>>(NServiceBus.Features.DataBus.AdditionalDataBusDeserializersKey).Count));
+        Assert.That(endpointConfiguration.Settings.Get<List<IDataBusSerializer>>(NServiceBus.Features.DataBus.AdditionalDataBusDeserializersKey).Count, Is.EqualTo(2));
     }
 
     [Test]

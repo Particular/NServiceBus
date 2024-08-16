@@ -39,7 +39,7 @@ public class RetryAcknowledgementBehaviorTests
         Assert.That(outgoingMessage.Message.Headers[Headers.ControlMessageHeader], Is.EqualTo(bool.TrueString));
 
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
-        Assert.That(acknowledgementQueue, Is.EqualTo(addressTag.Destination));
+        Assert.That(addressTag.Destination, Is.EqualTo(acknowledgementQueue));
 
         Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.True);
     }

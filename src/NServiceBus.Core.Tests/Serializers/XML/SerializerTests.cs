@@ -537,7 +537,7 @@ namespace NServiceBus.Serializers.XML.Test
                     }
                 }
             }
-            Assert.That(1, Is.EqualTo(count));
+            Assert.That(count, Is.EqualTo(1));
         }
 
 
