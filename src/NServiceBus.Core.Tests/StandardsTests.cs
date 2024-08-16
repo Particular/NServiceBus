@@ -18,7 +18,7 @@ public class StandardsTests
         foreach (var featureType in GetFeatures())
         {
             Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus.Features"), "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
-            Assert.That(featureType.Name.EndsWith("Feature"), Is.False, "Features should not be suffixed with 'Feature'. " + featureType.FullName);
+            Assert.That(featureType.Name, Does.Not.EndWith("Feature"), "Features should not be suffixed with 'Feature'. " + featureType.FullName);
             if (featureType.IsPublic)
             {
                 var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Array.Empty<Type>(), null);
