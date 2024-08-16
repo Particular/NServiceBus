@@ -111,7 +111,7 @@ public class JsonMessageSerializerTest
 
         Assert.That(a.AGuid, Is.EqualTo(expectedGuid));
 
-        Assert.IsInstanceOf<B>(a.Bs[0]);
+        Assert.That(a.Bs[0], Is.InstanceOf<B>());
         Assert.IsNotInstanceOf<BB>(a.Bs[1]);
     }
 

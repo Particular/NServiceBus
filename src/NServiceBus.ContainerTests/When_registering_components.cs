@@ -40,7 +40,7 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.IsInstanceOf<AnotherSingletonComponent>(serviceProvider.GetService(typeof(ISingletonComponent)));
+        Assert.That(serviceProvider.GetService(typeof(ISingletonComponent)), Is.InstanceOf<AnotherSingletonComponent>());
     }
 
     [Test]

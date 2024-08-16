@@ -27,7 +27,7 @@ public class When_sending_event : NServiceBusAcceptanceTest
             .Done(c => c.GotTheException)
             .Run();
 
-        Assert.IsInstanceOf<Exception>(context.Exception);
+        Assert.That(context.Exception, Is.InstanceOf<Exception>());
     }
 
     public class Context : ScenarioContext

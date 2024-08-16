@@ -40,7 +40,7 @@ public class When_scope_throws_after_successful_message_processing : NServiceBus
 
         var errorContext = await secondFailure.Task;
 
-        Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
+        Assert.That(errorContext.Exception, Is.InstanceOf<TransactionAbortedException>());
         Assert.That(2, Is.LessThanOrEqualTo(errorContext.ImmediateProcessingFailures));
     }
 }

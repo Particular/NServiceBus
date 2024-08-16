@@ -31,11 +31,11 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsInstanceOf<OverridenDependency>(context.DependencyFromFeature);
-        Assert.IsInstanceOf<OverridenDependency>(context.DependencyBeforeEndpointConfiguration);
+        Assert.That(context.DependencyFromFeature, Is.InstanceOf<OverridenDependency>());
+        Assert.That(context.DependencyBeforeEndpointConfiguration, Is.InstanceOf<OverridenDependency>());
 
         // Registrations after the startable endpoint has been created can't be overriden by the RegisterComponents API
-        Assert.IsInstanceOf<OriginallyDefinedDependency>(context.DependencyBeforeEndpointStart);
+        Assert.That(context.DependencyBeforeEndpointStart, Is.InstanceOf<OriginallyDefinedDependency>());
     }
 
     public class Context : ScenarioContext

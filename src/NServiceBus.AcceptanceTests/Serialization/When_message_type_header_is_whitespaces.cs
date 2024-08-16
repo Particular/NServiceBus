@@ -23,7 +23,7 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
         Assert.That(context.HandlerInvoked, Is.False);
         Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
-        Assert.IsInstanceOf<MessageDeserializationException>(exception);
+        Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
     }
 
     class Context : ScenarioContext

@@ -26,7 +26,7 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
             .Done(c => c.MessageSentToError)
             .Run();
 
-        Assert.IsInstanceOf<SimulatedException>(context.LastDelayedRetryInfo?.Exception);
+        Assert.That(context.LastDelayedRetryInfo?.Exception, Is.InstanceOf<SimulatedException>());
         // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
         Assert.That(context.TotalNumberOfHandlerInvocations, Is.EqualTo(4 * 3));
         Assert.That(context.NumberOfDelayedRetriesPerformed, Is.EqualTo(2));

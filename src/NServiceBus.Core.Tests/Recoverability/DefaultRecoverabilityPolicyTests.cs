@@ -17,7 +17,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move custom exception directly to error.");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "Should move custom exception directly to error.");
     }
 
     class MyBaseCustomException : Exception
@@ -36,7 +36,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<ImmediateRetry>(recoverabilityAction, "Should have one immediate retry left. It is second delivery attempt and we configured immediate reties to 2.");
+        Assert.That(recoverabilityAction, Is.InstanceOf<ImmediateRetry>(), "Should have one immediate retry left. It is second delivery attempt and we configured immediate reties to 2.");
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When max number of immediate retries exceeded should return DelayedRetry.");
+        Assert.That(recoverabilityAction, Is.InstanceOf<DelayedRetry>(), "When max number of immediate retries exceeded should return DelayedRetry.");
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When max number of immediate retries exceeded and delayed retry disabled should return MoveToErrors.");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "When max number of immediate retries exceeded and delayed retry disabled should return MoveToErrors.");
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class DefaultRecoverabilityPolicyTests
         var recoverabilityAction = policy(errorContext);
         var delayedRetryAction = recoverabilityAction as DelayedRetry;
 
-        Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
+        Assert.That(recoverabilityAction, Is.InstanceOf<DelayedRetry>(), "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
         Assert.That(delayedRetryAction.Delay, Is.EqualTo(deliveryDelay));
     }
 
@@ -83,7 +83,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Immediate Retries turned off and Delayed Retry turned off should return MoveToErrors");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "When Immediate Retries turned off and Delayed Retry turned off should return MoveToErrors");
     }
 
     [Test]
@@ -94,7 +94,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Immediate Retries turned off and Delayed Retries policy returns no delay should return MoveToErrors");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "When Immediate Retries turned off and Delayed Retries policy returns no delay should return MoveToErrors");
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and delayed retries disabled should return MoveToErrors");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "When immediate retries turned off and delayed retries disabled should return MoveToErrors");
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var recoverabilityAction = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Delayed Retries counter in headers reaches max delayed retries, policy should return MoveToErrors");
+        Assert.That(recoverabilityAction, Is.InstanceOf<MoveToError>(), "When Delayed Retries counter in headers reaches max delayed retries, policy should return MoveToErrors");
     }
 
     [Test]
@@ -136,7 +136,7 @@ public class DefaultRecoverabilityPolicyTests
 
         Assert.That(result1.Delay, Is.EqualTo(baseDelay));
         Assert.That(result2.Delay, Is.EqualTo(TimeSpan.FromSeconds(20)));
-        Assert.IsInstanceOf<MoveToError>(result3);
+        Assert.That(result3, Is.InstanceOf<MoveToError>());
     }
 
     [Test]
@@ -157,7 +157,7 @@ public class DefaultRecoverabilityPolicyTests
 
         var result = policy(errorContext);
 
-        Assert.IsInstanceOf<MoveToError>(result);
+        Assert.That(result, Is.InstanceOf<MoveToError>());
     }
 
     static ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 1, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null) =>

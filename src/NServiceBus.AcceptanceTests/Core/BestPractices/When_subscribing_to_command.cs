@@ -27,7 +27,7 @@ public class When_subscribing_to_command : NServiceBusAcceptanceTest
             .Done(c => c.GotTheException)
             .Run();
 
-        Assert.IsInstanceOf<Exception>(context.Exception);
+        Assert.That(context.Exception, Is.InstanceOf<Exception>());
     }
 
     public class Context : ScenarioContext

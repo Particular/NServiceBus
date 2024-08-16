@@ -92,9 +92,9 @@ public class FeatureDefaultsTests
         Assert.That(level2.IsActive, Is.True, "Activate2 wasn't activated");
         Assert.That(level3.IsActive, Is.True, "Activate3 wasn't activated");
 
-        Assert.IsInstanceOf<Activate1>(defaultsOrder[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Activate2>(defaultsOrder[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Activate3>(defaultsOrder[2], "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[0], Is.InstanceOf<Activate1>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[1], Is.InstanceOf<Activate2>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[2], Is.InstanceOf<Activate3>(), "Upstream dependencies should be activated first");
 
         CollectionAssert.AreEqual(defaultsOrder, activatedOrder);
     }
@@ -122,7 +122,7 @@ public class FeatureDefaultsTests
 
         Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(defaultsOrder.First(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder.First(), Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
     }
 
     [Test]
@@ -160,9 +160,9 @@ public class FeatureDefaultsTests
 
         Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(defaultsOrder[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature2>(defaultsOrder[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature3>(defaultsOrder[2], "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[0], Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[1], Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[2], Is.InstanceOf<MyFeature3>(), "Upstream dependencies should be activated first");
     }
 
     [Test]
@@ -194,9 +194,9 @@ public class FeatureDefaultsTests
         Assert.That(level2.IsActive, Is.True, "Level2 wasn't activated");
         Assert.That(level3.IsActive, Is.True, "Level3 wasn't activated");
 
-        Assert.IsInstanceOf<Level1>(defaultsOrder[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level2>(defaultsOrder[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level3>(defaultsOrder[2], "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[0], Is.InstanceOf<Level1>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[1], Is.InstanceOf<Level2>(), "Upstream dependencies should be activated first");
+        Assert.That(defaultsOrder[2], Is.InstanceOf<Level3>(), "Upstream dependencies should be activated first");
     }
 
     public class Level1 : TestFeature
