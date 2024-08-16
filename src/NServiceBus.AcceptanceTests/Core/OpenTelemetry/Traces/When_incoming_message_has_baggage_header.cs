@@ -33,7 +33,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
         void VerifyBaggageItem(string key, string expectedValue)
         {
             var baggageItemValue = incomingMessageTrace.GetBaggageItem(key);
-            Assert.IsNotNull(baggageItemValue, $"Baggage item {key} should be populated");
+            Assert.That(baggageItemValue, Is.Not.Null, $"Baggage item {key} should be populated");
             Assert.That(baggageItemValue, Is.EqualTo(expectedValue), $"Baggage item {key} is not set correctly");
         }
     }

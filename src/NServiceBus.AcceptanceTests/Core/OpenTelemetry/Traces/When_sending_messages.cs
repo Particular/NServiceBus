@@ -61,7 +61,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var receiveRequest = receiveMessageActivities[0];
 
         Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "send and receive operations are part of the same root activity");
-        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+        Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
 
         CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
     }
@@ -93,7 +93,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.IsNotNull(link, "Receive has a link");
+        Assert.That(link, Is.Not.Null, "Receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to send operation");
     }
 

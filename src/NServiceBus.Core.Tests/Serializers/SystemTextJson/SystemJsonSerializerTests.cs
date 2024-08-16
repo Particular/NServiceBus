@@ -171,7 +171,7 @@ public class JsonMessageSerializerTest
         Assert.That(obj.Data, Is.EqualTo(a.Data));
         Assert.That(a.I, Is.EqualTo(42));
         Assert.That(a.S, Is.EqualTo("kalle"));
-        Assert.IsNotNull(a.B);
+        Assert.That(a.B, Is.Not.Null);
         Assert.That(a.B.BString, Is.EqualTo("BOO"));
         Assert.That(a.B.C, Is.TypeOf(typeof(JsonElement)));
         Assert.That(((JsonElement)a.B.C).GetProperty("Cstr").GetString(), Is.EqualTo("COO"));

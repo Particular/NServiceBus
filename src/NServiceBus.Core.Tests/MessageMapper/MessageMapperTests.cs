@@ -128,7 +128,7 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<ISampleMessageInterface>();
 
-        Assert.IsNotNull(messageInstance);
+        Assert.That(messageInstance, Is.Not.Null);
         Assert.IsInstanceOf<ISampleMessageInterface>(messageInstance);
     }
 
@@ -139,7 +139,7 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<SampleMessageClass>();
 
-        Assert.IsNotNull(messageInstance);
+        Assert.That(messageInstance, Is.Not.Null);
         Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageClass)));
         Assert.That(messageInstance.CtorInvoked, Is.True);
     }
@@ -152,7 +152,7 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
 
-        Assert.IsNotNull(messageInstance);
+        Assert.That(messageInstance, Is.Not.Null);
         Assert.That(messageInstance.CtorInvoked, Is.False);
     }
 
@@ -163,7 +163,7 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
 
-        Assert.IsNotNull(messageInstance);
+        Assert.That(messageInstance, Is.Not.Null);
         Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageStruct)));
     }
 
@@ -184,7 +184,7 @@ public class MessageMapperTests
 
         var messageInstance = mapper.CreateInstance<IMessageInterfaceWithNullableProperty>();
 
-        Assert.IsNotNull(messageInstance);
+        Assert.That(messageInstance, Is.Not.Null);
     }
 
     public class SampleMessageClass

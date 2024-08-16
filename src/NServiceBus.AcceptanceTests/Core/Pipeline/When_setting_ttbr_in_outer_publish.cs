@@ -23,7 +23,7 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
             .Done(c => c.OuterEventReceived && c.InnerEventReceived)
             .Run();
 
-        Assert.IsNotNull(context.OuterEventTtbr, "Outer event should have TTBR settings applied");
+        Assert.That(context.OuterEventTtbr, Is.Not.Null, "Outer event should have TTBR settings applied");
         Assert.That(context.InnerEventTtbr, Is.Null, "Inner event should not have TTBR settings applied");
     }
 

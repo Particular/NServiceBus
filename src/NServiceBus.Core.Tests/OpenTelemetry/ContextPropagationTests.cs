@@ -99,7 +99,7 @@ public class ContextPropagationTests
         {
             var key = baggageItem.Key;
             var actualValue = activity.GetBaggageItem(key);
-            Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
+            Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
             Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }
@@ -159,7 +159,7 @@ public class ContextPropagationTests
         {
             var key = baggageItem.Key;
             var actualValue = incomingActivity.GetBaggageItem(key);
-            Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
+            Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
             Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }

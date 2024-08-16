@@ -215,7 +215,7 @@ public class ActivityFactoryTests
             var context = new FakeRootContext();
             activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
 
-            Assert.IsNotNull(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.That(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.Not.Null);
         }
     }
 
@@ -240,7 +240,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
 
-            Assert.IsNotNull(activity);
+            Assert.That(activity, Is.Not.Null);
             var tags = activity.Tags.ToImmutableDictionary();
             Assert.That(tags[ActivityTags.HandlerType], Is.EqualTo(handlerType.FullName));
         }
@@ -255,7 +255,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, typeof(StartHandlerActivity)), sagaInstance);
 
-            Assert.IsNotNull(activity);
+            Assert.That(activity, Is.Not.Null);
             var tags = activity.Tags.ToImmutableDictionary();
 
             Assert.That(tags[ActivityTags.HandlerSagaId], Is.EqualTo(sagaInstance.SagaId));

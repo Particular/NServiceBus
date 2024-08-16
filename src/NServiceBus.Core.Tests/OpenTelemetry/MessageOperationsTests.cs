@@ -37,7 +37,7 @@ public class MessageOperationsTests
 
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
@@ -60,7 +60,7 @@ public class MessageOperationsTests
 
         await operations.Publish(new FakeRootContext(), new object(), new PublishOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
@@ -83,7 +83,7 @@ public class MessageOperationsTests
 
         await operations.Reply(new FakeRootContext(), new object(), new ReplyOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
@@ -106,7 +106,7 @@ public class MessageOperationsTests
 
         await operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
@@ -129,7 +129,7 @@ public class MessageOperationsTests
 
         await operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
@@ -176,7 +176,7 @@ public class MessageOperationsTests
 
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
-        Assert.IsNotNull(activity);
+        Assert.That(activity, Is.Not.Null);
         Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
         Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
         Assert.That(activity.TraceId, Is.Not.EqualTo(ambientActivity.TraceId));

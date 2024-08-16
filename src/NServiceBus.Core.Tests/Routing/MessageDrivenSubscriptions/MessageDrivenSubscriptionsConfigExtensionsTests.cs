@@ -56,7 +56,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
-            Assert.IsNotNull(publishersForEvent);
+            Assert.That(publishersForEvent, Is.Not.Null);
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
-            Assert.IsNotNull(publishersForEvent);
-            Assert.IsNotNull(publishersForEventWithNamespace);
+            Assert.That(publishersForEvent, Is.Not.Null);
+            Assert.That(publishersForEventWithNamespace, Is.Not.Null);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
             Assert.That(publishersForEvent, Is.Null);
-            Assert.IsNotNull(publishersForEventWithNamespace);
+            Assert.That(publishersForEventWithNamespace, Is.Not.Null);
         }
 
         [Test]
@@ -102,10 +102,10 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result2);
-            Assert.IsNotNull(result3);
-            Assert.IsNotNull(result4);
+            Assert.That(result1, Is.Not.Null);
+            Assert.That(result2, Is.Not.Null);
+            Assert.That(result3, Is.Not.Null);
+            Assert.That(result4, Is.Not.Null);
         }
 
         [Test]
@@ -121,8 +121,8 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.IsNotNull(result1);
-            Assert.IsNotNull(result4);
+            Assert.That(result1, Is.Not.Null);
+            Assert.That(result4, Is.Not.Null);
             Assert.That(result2, Is.Null);
             Assert.That(result3, Is.Null);
         }
@@ -142,7 +142,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.IsNotNull(result3);
+            Assert.That(result3, Is.Not.Null);
             Assert.That(result1, Is.Null);
             Assert.That(result2, Is.Null);
             Assert.That(result4, Is.Null);

@@ -78,36 +78,36 @@ public class When_mutating : NServiceBusAcceptanceTest
             public Task MutateIncoming(MutateIncomingMessageContext context)
             {
                 Assert.IsNotEmpty(context.Headers);
-                Assert.IsNotNull(context.Message);
+                Assert.That(context.Message, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 Assert.IsNotEmpty(context.Headers);
-                Assert.IsNotNull(context.Body);
+                Assert.That(context.Body, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
                 Assert.IsNotEmpty(context.OutgoingHeaders);
-                Assert.IsNotNull(context.OutgoingMessage);
+                Assert.That(context.OutgoingMessage, Is.Not.Null);
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
                 Assert.IsNotEmpty(incomingHeaders);
-                Assert.IsNotNull(incomingMessage);
+                Assert.That(incomingMessage, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
                 Assert.IsNotEmpty(context.OutgoingHeaders);
-                Assert.IsNotNull(context.OutgoingBody);
+                Assert.That(context.OutgoingBody, Is.Not.Null);
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
                 Assert.IsNotEmpty(incomingHeaders);
-                Assert.IsNotNull(incomingMessage);
+                Assert.That(incomingMessage, Is.Not.Null);
                 return Task.CompletedTask;
             }
         }

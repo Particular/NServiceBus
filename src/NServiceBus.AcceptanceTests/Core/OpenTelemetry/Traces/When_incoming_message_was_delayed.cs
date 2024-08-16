@@ -44,7 +44,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(receiveReply.RootId, Is.EqualTo(sendReply.RootId), "second incoming message is the root activity");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.IsNotNull(link, "second receive has a link");
+        Assert.That(link, Is.Not.Null, "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
@@ -74,7 +74,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(secondAttemptReceiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and 2nd receive operations are part of different root activities");
         Assert.That(secondAttemptReceiveRequest.ParentId, Is.Null, "first incoming message does not have a parent, it's a root");
         ActivityLink link = secondAttemptReceiveRequest.Links.FirstOrDefault();
-        Assert.IsNotNull(link, "second receive has a link");
+        Assert.That(link, Is.Not.Null, "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
@@ -106,7 +106,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(timeoutReceive.RootId, Is.Not.EqualTo(timeoutSend.RootId), "timeout send and receive operations are part of different root activities");
         Assert.That(timeoutReceive.ParentId, Is.Null, "timeout receive operation does not have a parent, it's a root");
         ActivityLink timeoutReceiveLink = timeoutReceive.Links.FirstOrDefault();
-        Assert.IsNotNull(timeoutReceiveLink, "timeout receive operation is linked");
+        Assert.That(timeoutReceiveLink, Is.Not.Null, "timeout receive operation is linked");
         Assert.That(timeoutReceiveLink.Context.TraceId, Is.EqualTo(timeoutSend.TraceId), "imeout receive operation links to the timeout send operation");
 
         Assert.That(completeSagaSend.RootId, Is.EqualTo(timeoutReceive.RootId), "timeout receive operation is the root of the complete saga send operation");

@@ -22,7 +22,7 @@ public class When_pump_throws_on_stop : NServiceBusAcceptanceTest
         var logEntry = context.Logs.FirstOrDefault(l =>
             l.LoggerName == "NServiceBus.ReceiveComponent" && l.Level == LogLevel.Warn);
 
-        Assert.IsNotNull(logEntry);
+        Assert.That(logEntry, Is.Not.Null);
         StringAssert.StartsWith("Receiver Main threw an exception on stopping. System.InvalidOperationException: ExceptionInPumpStop", logEntry.Message);
     }
 
