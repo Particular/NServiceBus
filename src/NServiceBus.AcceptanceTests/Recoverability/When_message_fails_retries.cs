@@ -25,8 +25,8 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         {
             Assert.That(exception.FailedMessage.Headers[Headers.EnclosedMessageTypes], Is.EqualTo(typeof(MessageWhichFailsRetries).AssemblyQualifiedName));
             Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(testContext.PhysicalMessageId));
+            Assert.That(exception.FailedMessage.Exception, Is.AssignableFrom<SimulatedException>());
         });
-        Assert.IsAssignableFrom(typeof(SimulatedException), exception.FailedMessage.Exception);
 
         Assert.That(testContext.Logs.Count(l => l.Message
             .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")), Is.EqualTo(1));
