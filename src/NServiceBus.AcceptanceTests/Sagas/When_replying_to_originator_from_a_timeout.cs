@@ -18,7 +18,7 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
             .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run(TimeSpan.FromSeconds(15));
 
-        Assert.True(context.DidRequestingSagaGetTheResponse);
+        Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
     }
 
     public class Context : ScenarioContext

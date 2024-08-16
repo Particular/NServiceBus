@@ -21,7 +21,7 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.AreEqual($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}", context.MessageNamespace);
+        Assert.That(context.MessageNamespace, Is.EqualTo($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}"));
     }
 
     class Context : ScenarioContext

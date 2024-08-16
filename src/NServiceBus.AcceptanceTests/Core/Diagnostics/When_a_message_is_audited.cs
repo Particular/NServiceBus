@@ -17,10 +17,13 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.IsNotNull(context.HostId);
-        Assert.IsNotNull(context.HostName);
-        Assert.IsNotNull(context.Endpoint);
-        Assert.IsNotNull(context.Machine);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HostId, Is.Not.Null);
+            Assert.That(context.HostName, Is.Not.Null);
+            Assert.That(context.Endpoint, Is.Not.Null);
+            Assert.That(context.Machine, Is.Not.Null);
+        });
     }
 
     public class Context : ScenarioContext

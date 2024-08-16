@@ -30,9 +30,12 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
                 .Run();
         });
 
-        Assert.That(exception.FailedMessage.Exception, Is.TypeOf<CustomException>());
-        Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
-        Assert.AreEqual(1, context.HandlerInvoked);
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.FailedMessage.Exception, Is.TypeOf<CustomException>());
+            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
+            Assert.That(context.HandlerInvoked, Is.EqualTo(1));
+        });
     }
 
     class Context : ScenarioContext

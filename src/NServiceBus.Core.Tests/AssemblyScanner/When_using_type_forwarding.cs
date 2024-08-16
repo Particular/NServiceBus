@@ -41,6 +41,6 @@ public class When_using_type_forwarding
         var result = scanner.GetScannableAssemblies();
         var assemblyFullNames = result.Assemblies.Select(a => a.GetName().Name).ToList();
 
-        CollectionAssert.IsSubsetOf(assemblyNamesOfForwardedTypes, assemblyFullNames);
+        Assert.That(assemblyNamesOfForwardedTypes, Is.SubsetOf(assemblyFullNames));
     }
 }

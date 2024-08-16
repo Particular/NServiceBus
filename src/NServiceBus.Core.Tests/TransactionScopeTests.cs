@@ -18,7 +18,7 @@ public class TransactionScopeTests
             {
                 var resourceManager = new FakePromotableResourceManager();
                 Transaction.Current.EnlistDurable(resourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
-                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+                Assert.That(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()), Is.False);
 
                 tx.Complete();
             }
@@ -34,9 +34,9 @@ public class TransactionScopeTests
     {
         using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+            Assert.That(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()), Is.True);
 
-            Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+            Assert.That(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()), Is.False);
 
             tx.Complete();
         }

@@ -31,7 +31,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
+        Assert.That(fakeDatabus.TTBRUsed, Is.EqualTo(TimeSpan.MaxValue));
     }
 
     [Test]
@@ -52,7 +52,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(serializer.ContentType, context.Headers[Headers.DataBusConfigContentType]);
+        Assert.That(context.Headers[Headers.DataBusConfigContentType], Is.EqualTo(serializer.ContentType));
     }
 
     [Test]
@@ -74,7 +74,7 @@ class When_applying_the_databus_message_mutator_to_outgoing_messages
 
         await sendBehavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(TimeSpan.FromMinutes(1), fakeDatabus.TTBRUsed);
+        Assert.That(fakeDatabus.TTBRUsed, Is.EqualTo(TimeSpan.FromMinutes(1)));
     }
 
     class FakeDataBus : IDataBus

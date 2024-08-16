@@ -25,7 +25,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsFalse(handlerInvoked);
+        Assert.That(handlerInvoked, Is.False);
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.AreSame(behaviorContext.MessageBeingHandled, receivedMessage);
+        Assert.That(receivedMessage, Is.SameAs(behaviorContext.MessageBeingHandled));
     }
 
     [Test]
@@ -93,11 +93,14 @@ public class InvokeHandlerTerminatorTest
 
         var caughtException = Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask));
 
-        Assert.AreSame(thrownException, caughtException);
-        Assert.AreEqual("System.Object", caughtException.Data["Message type"]);
-        Assert.AreEqual("NServiceBus.Core.Tests.Pipeline.Incoming.InvokeHandlerTerminatorTest+FakeMessageHandler", caughtException.Data["Handler type"]);
-        Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler start time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
-        Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler failure time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
+        Assert.That(caughtException, Is.SameAs(thrownException));
+        Assert.Multiple(() =>
+        {
+            Assert.That(caughtException.Data["Message type"], Is.EqualTo("System.Object"));
+            Assert.That(caughtException.Data["Handler type"], Is.EqualTo("NServiceBus.Core.Tests.Pipeline.Incoming.InvokeHandlerTerminatorTest+FakeMessageHandler"));
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler start time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset((string)caughtException.Data["Handler failure time"]), Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromSeconds(5)));
+        });
     }
 
     [Test]

@@ -32,31 +32,37 @@ public class MessageHandlerRegistryTests
 
         var handlers = registry.GetHandlersFor(typeof(MyMessage));
 
-        Assert.AreEqual(2, handlers.Count);
+        Assert.That(handlers.Count, Is.EqualTo(2));
 
         var timeoutHandler = handlers.SingleOrDefault(h => h.IsTimeoutHandler);
 
-        Assert.NotNull(timeoutHandler, "Timeout handler should be marked as such");
+        Assert.That(timeoutHandler, Is.Not.Null, "Timeout handler should be marked as such");
 
         var timeoutInstance = new SagaWithTimeoutOfMessage();
 
         timeoutHandler.Instance = timeoutInstance;
         await timeoutHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
 
-        Assert.True(timeoutInstance.TimeoutCalled);
-        Assert.False(timeoutInstance.HandlerCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(timeoutInstance.TimeoutCalled, Is.True);
+            Assert.That(timeoutInstance.HandlerCalled, Is.False);
+        });
 
         var regularHandler = handlers.SingleOrDefault(h => !h.IsTimeoutHandler);
 
-        Assert.NotNull(regularHandler, "Regular handler should be marked as timeout handler");
+        Assert.That(regularHandler, Is.Not.Null, "Regular handler should be marked as timeout handler");
 
         var regularInstance = new SagaWithTimeoutOfMessage();
 
         regularHandler.Instance = regularInstance;
         await regularHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
 
-        Assert.False(regularInstance.TimeoutCalled);
-        Assert.True(regularInstance.HandlerCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(regularInstance.TimeoutCalled, Is.False);
+            Assert.That(regularInstance.HandlerCalled, Is.True);
+        });
     }
 
     class HandlerWithIMessageSessionProperty : IHandleMessages<MyMessage>

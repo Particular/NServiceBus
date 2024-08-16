@@ -14,7 +14,7 @@ public class ContextBagTests
         contextBag.Set("MonkeyPatch", "some string");
 
         ((IReadOnlyContextBag)contextBag).TryGet("MonkeyPatch", out string theValue);
-        Assert.AreEqual("some string", theValue);
+        Assert.That(theValue, Is.EqualTo("some string"));
     }
 
     [Test]
@@ -29,8 +29,11 @@ public class ContextBagTests
 
         context.SetOnRoot(key, 42);
 
-        Assert.AreEqual(42, root.Get<int>(key), "should store value on root context");
-        Assert.AreEqual(42, context.Get<int>(key), "stored value should be readable in the writing context");
-        Assert.AreEqual(42, fork.Get<int>(key), "stored value should be visible to a forked context");
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.Get<int>(key), Is.EqualTo(42), "should store value on root context");
+            Assert.That(context.Get<int>(key), Is.EqualTo(42), "stored value should be readable in the writing context");
+            Assert.That(fork.Get<int>(key), Is.EqualTo(42), "stored value should be visible to a forked context");
+        });
     }
 }

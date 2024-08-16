@@ -19,7 +19,7 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.False(context.EventsSubscribedTo.Count != 0, "Events only handled by sagas should not be auto subscribed");
+        Assert.That(context.EventsSubscribedTo.Count, Is.EqualTo(0), "Events only handled by sagas should not be auto subscribed");
     }
 
     class Context : ScenarioContext

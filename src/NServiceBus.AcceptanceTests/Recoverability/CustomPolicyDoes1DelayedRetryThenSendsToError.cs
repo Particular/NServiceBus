@@ -29,8 +29,8 @@ public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptan
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.AreEqual(2, context.Count);
-        Assert.AreEqual(messageId, context.FailedMessages.Single().Value.Single().MessageId);
+        Assert.That(context.Count, Is.EqualTo(2));
+        Assert.That(context.FailedMessages.Single().Value.Single().MessageId, Is.EqualTo(messageId));
     }
 
     class Context : ScenarioContext

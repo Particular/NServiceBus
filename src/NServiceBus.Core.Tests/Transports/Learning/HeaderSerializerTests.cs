@@ -24,6 +24,6 @@ public class HeaderSerializerTests
 
         Approver.Verify(serialized);
         var deserialize = HeaderSerializer.Deserialize(serialized);
-        CollectionAssert.AreEquivalent(input, deserialize);
+        Assert.That(deserialize, Is.EquivalentTo(input));
     }
 }

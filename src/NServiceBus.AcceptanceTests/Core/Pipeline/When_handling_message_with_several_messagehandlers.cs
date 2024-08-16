@@ -20,8 +20,11 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             .Done(c => c.FirstHandlerWasCalled)
             .Run();
 
-        Assert.True(context.FirstHandlerWasCalled);
-        Assert.True(context.SecondHandlerWasCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.FirstHandlerWasCalled, Is.True);
+            Assert.That(context.SecondHandlerWasCalled, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

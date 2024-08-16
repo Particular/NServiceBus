@@ -12,8 +12,8 @@ public class TransportCapabilityAdjustmentTests
         var recoverabilityAction = RecoverabilityComponent.AdjustForTransportCapabilities(ErrorQueueAddress, false, false, RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(1)));
 
         var errorAction = recoverabilityAction as MoveToError;
-        Assert.NotNull(errorAction);
-        Assert.AreEqual(ErrorQueueAddress, errorAction.ErrorQueue);
+        Assert.That(errorAction, Is.Not.Null);
+        Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
     [Test]
@@ -22,8 +22,8 @@ public class TransportCapabilityAdjustmentTests
         var recoverabilityAction = RecoverabilityComponent.AdjustForTransportCapabilities(ErrorQueueAddress, false, false, RecoverabilityAction.ImmediateRetry());
 
         var errorAction = recoverabilityAction as MoveToError;
-        Assert.NotNull(errorAction);
-        Assert.AreEqual(ErrorQueueAddress, errorAction.ErrorQueue);
+        Assert.That(errorAction, Is.Not.Null);
+        Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
     static string ErrorQueueAddress = "error-queue";

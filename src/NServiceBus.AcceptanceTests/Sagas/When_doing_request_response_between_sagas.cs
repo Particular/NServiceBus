@@ -16,7 +16,7 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
             .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run();
 
-        Assert.True(context.DidRequestingSagaGetTheResponse);
+        Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
     }
 
     public class Context : ScenarioContext

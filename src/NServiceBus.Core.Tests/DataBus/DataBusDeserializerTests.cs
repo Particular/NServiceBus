@@ -23,7 +23,7 @@ public class DataBusDeserializerTests
 
             var deserializedProperty = deserializer.Deserialize(jsonSerializer.ContentType, typeof(string), stream);
 
-            Assert.AreEqual(somePropertyValue, deserializedProperty);
+            Assert.That(deserializedProperty, Is.EqualTo(somePropertyValue));
         }
     }
 
@@ -41,7 +41,7 @@ public class DataBusDeserializerTests
 
             var ex = Assert.Throws<Exception>(() => deserializer.Deserialize("other-serializer-not-configured", typeof(string), stream));
 
-            StringAssert.Contains("other-serializer-not-configured", ex.Message);
+            Assert.That(ex.Message, Does.Contain("other-serializer-not-configured"));
         }
     }
 
@@ -54,7 +54,7 @@ public class DataBusDeserializerTests
         var somePropertyValue = "test";
         var deserializedProperty = deserializer.Deserialize(null, typeof(string), new MemoryStream());
 
-        Assert.AreEqual(somePropertyValue, deserializedProperty);
+        Assert.That(deserializedProperty, Is.EqualTo(somePropertyValue));
     }
 
     [Test]

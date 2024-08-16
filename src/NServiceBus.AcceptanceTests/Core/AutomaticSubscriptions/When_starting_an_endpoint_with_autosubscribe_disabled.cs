@@ -20,7 +20,7 @@ public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBus
             .Done(ctx => ctx.EndpointsStarted)
             .Run();
 
-        Assert.IsEmpty(context.SubscribedEvents);
+        Assert.That(context.SubscribedEvents, Is.Empty);
     }
 
     class Context : ScenarioContext

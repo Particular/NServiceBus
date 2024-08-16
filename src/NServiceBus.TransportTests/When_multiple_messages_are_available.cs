@@ -55,7 +55,10 @@ public class When_multiple_messages_are_available : NServiceBusTransportTest
             TestTimeoutCancellationToken.ThrowIfCancellationRequested();
         }
 
-        Assert.AreEqual(concurrencyLevel, maximumConcurrentMessages, "should not process more messages than configured at once");
-        Assert.AreEqual(concurrencyLevel * 2, messagesProcessed, "should process all enqueued messages");
+        Assert.Multiple(() =>
+        {
+            Assert.That(maximumConcurrentMessages, Is.EqualTo(concurrencyLevel), "should not process more messages than configured at once");
+            Assert.That(messagesProcessed, Is.EqualTo(concurrencyLevel * 2), "should process all enqueued messages");
+        });
     }
 }

@@ -22,7 +22,7 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
             .Done(c => c.ReplyToAddress != null)
             .Run();
 
-        StringAssert.DoesNotContain("XZY", context.ReplyToAddress);
+        Assert.That(context.ReplyToAddress, Does.Not.Contain("XZY"));
     }
 
     public class Context : ScenarioContext

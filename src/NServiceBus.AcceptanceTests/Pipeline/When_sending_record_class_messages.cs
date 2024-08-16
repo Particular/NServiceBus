@@ -19,7 +19,7 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedText != null)
             .Run();
 
-        Assert.AreEqual(expectedText, context.ReceivedText);
+        Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
     }
 
     [Test]
@@ -33,7 +33,7 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedText != null)
             .Run();
 
-        Assert.AreEqual(expectedText, context.ReceivedText);
+        Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
     }
 
     public class Context : ScenarioContext

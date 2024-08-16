@@ -18,7 +18,7 @@ public class When_auditing : NServiceBusAcceptanceTest
             .Done(c => c.IsMessageHandlingComplete)
             .Run();
 
-        Assert.IsFalse(context.IsMessageHandledByTheAuditEndpoint);
+        Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.False);
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class When_auditing : NServiceBusAcceptanceTest
             .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
-        Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
+        Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.True);
     }
 
     public class Context : ScenarioContext

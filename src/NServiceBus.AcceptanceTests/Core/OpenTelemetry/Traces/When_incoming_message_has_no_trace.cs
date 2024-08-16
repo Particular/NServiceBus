@@ -20,7 +20,7 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
             .Run();
 
         var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
-        Assert.AreEqual(null, incomingMessageActivity.ParentId, "should start a trace when incoming message isn't part of a trace already");
+        Assert.That(incomingMessageActivity.ParentId, Is.EqualTo(null), "should start a trace when incoming message isn't part of a trace already");
     }
 
     class Context : ScenarioContext

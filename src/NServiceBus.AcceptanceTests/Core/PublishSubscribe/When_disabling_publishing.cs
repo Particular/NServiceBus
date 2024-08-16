@@ -37,7 +37,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Publishing has been explicitly disabled on this endpoint", exception.Message);
+        Assert.That(exception.Message, Does.Contain("Publishing has been explicitly disabled on this endpoint"));
     }
 
     class Context : ScenarioContext

@@ -31,7 +31,7 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
             .Done(c => c.DidSagaComplete)
             .Run();
 
-        Assert.True(context.DidSagaComplete);
+        Assert.That(context.DidSagaComplete, Is.True);
     }
 
     public class SagaContext : ScenarioContext

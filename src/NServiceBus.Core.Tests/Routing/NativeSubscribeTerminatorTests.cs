@@ -22,7 +22,7 @@ public class NativeSubscribeTerminatorTests
 
         var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
-        Assert.AreSame(innerException, exception);
+        Assert.That(exception, Is.SameAs(innerException));
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class NativeSubscribeTerminatorTests
 
         var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
-        Assert.AreSame(expectedException, exception);
+        Assert.That(exception, Is.SameAs(expectedException));
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class NativeSubscribeTerminatorTests
 
         var exception = Assert.ThrowsAsync<AggregateException>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
 
-        Assert.AreSame(aggregateException, exception);
+        Assert.That(exception, Is.SameAs(aggregateException));
     }
 
     [Test]
@@ -65,7 +65,7 @@ public class NativeSubscribeTerminatorTests
 
         var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
 
-        Assert.AreSame(expectedException, exception);
+        Assert.That(exception, Is.SameAs(expectedException));
     }
 
     class FakeSubscriptionManager : ISubscriptionManager

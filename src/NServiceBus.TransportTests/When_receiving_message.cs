@@ -18,7 +18,7 @@ public class When_receiving_message : NServiceBusTransportTest
         await StartPump(
             (context, _) =>
             {
-                Assert.AreEqual(receiver.ReceiveAddress, context.ReceiveAddress);
+                Assert.That(context.ReceiveAddress, Is.EqualTo(receiver.ReceiveAddress));
                 throw new Exception("Simulated exception");
             },
             (context, _) =>
@@ -31,6 +31,6 @@ public class When_receiving_message : NServiceBusTransportTest
         await SendMessage(InputQueueName);
 
         var errorContext = await onError.Task;
-        Assert.AreEqual(receiver.ReceiveAddress, errorContext.ReceiveAddress);
+        Assert.That(errorContext.ReceiveAddress, Is.EqualTo(receiver.ReceiveAddress));
     }
 }

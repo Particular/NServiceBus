@@ -14,7 +14,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.AreEqual(expectedDestination, destination);
+        Assert.That(destination, Is.EqualTo(expectedDestination));
     }
 
     [Test]
@@ -24,7 +24,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.IsNull(destination);
+        Assert.That(destination, Is.Null);
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.AreEqual(expectedDestination, destination);
+        Assert.That(destination, Is.EqualTo(expectedDestination));
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.IsNull(destination);
+        Assert.That(destination, Is.Null);
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IsRoutingToThisEndpoint());
+        Assert.That(options.IsRoutingToThisEndpoint(), Is.False);
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteToThisEndpoint();
 
-        Assert.IsTrue(options.IsRoutingToThisEndpoint());
+        Assert.That(options.IsRoutingToThisEndpoint(), Is.True);
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IsRoutingToThisInstance());
+        Assert.That(options.IsRoutingToThisInstance(), Is.False);
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteToThisInstance();
 
-        Assert.IsTrue(options.IsRoutingToThisInstance());
+        Assert.That(options.IsRoutingToThisInstance(), Is.True);
     }
 
     [Test]
@@ -93,7 +93,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteToSpecificInstance(expectedInstanceId);
 
-        Assert.AreEqual(expectedInstanceId, options.GetRouteToSpecificInstance());
+        Assert.That(options.GetRouteToSpecificInstance(), Is.EqualTo(expectedInstanceId));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetRouteToSpecificInstance());
+        Assert.That(options.GetRouteToSpecificInstance(), Is.Null);
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyToThisInstance();
 
-        Assert.IsTrue(options.IsRoutingReplyToThisInstance());
+        Assert.That(options.IsRoutingReplyToThisInstance(), Is.True);
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IsRoutingReplyToThisInstance());
+        Assert.That(options.IsRoutingReplyToThisInstance(), Is.False);
     }
 
     [Test]
@@ -129,7 +129,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyToThisInstance();
 
-        Assert.IsTrue(options.IsRoutingReplyToThisInstance());
+        Assert.That(options.IsRoutingReplyToThisInstance(), Is.True);
     }
 
     [Test]
@@ -137,7 +137,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new ReplyOptions();
 
-        Assert.IsFalse(options.IsRoutingReplyToThisInstance());
+        Assert.That(options.IsRoutingReplyToThisInstance(), Is.False);
     }
 
     [Test]
@@ -147,7 +147,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyToAnyInstance();
 
-        Assert.IsTrue(options.IsRoutingReplyToAnyInstance());
+        Assert.That(options.IsRoutingReplyToAnyInstance(), Is.True);
     }
 
     [Test]
@@ -155,7 +155,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IsRoutingReplyToAnyInstance());
+        Assert.That(options.IsRoutingReplyToAnyInstance(), Is.False);
     }
 
     [Test]
@@ -165,7 +165,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyToAnyInstance();
 
-        Assert.IsTrue(options.IsRoutingReplyToAnyInstance());
+        Assert.That(options.IsRoutingReplyToAnyInstance(), Is.True);
     }
 
     [Test]
@@ -173,7 +173,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new ReplyOptions();
 
-        Assert.IsFalse(options.IsRoutingReplyToAnyInstance());
+        Assert.That(options.IsRoutingReplyToAnyInstance(), Is.False);
     }
 
     [Test]
@@ -184,7 +184,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyTo(expectedReplyToAddress);
 
-        Assert.AreEqual(expectedReplyToAddress, options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.EqualTo(expectedReplyToAddress));
     }
 
     [Test]
@@ -192,7 +192,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new ReplyOptions();
 
-        Assert.IsNull(options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.Null);
     }
 
     [Test]
@@ -203,7 +203,7 @@ public class RoutingOptionExtensionsTests
 
         options.RouteReplyTo(expectedReplyToAddress);
 
-        Assert.AreEqual(expectedReplyToAddress, options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.EqualTo(expectedReplyToAddress));
     }
 
     [Test]
@@ -211,6 +211,6 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.Null);
     }
 }

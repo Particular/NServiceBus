@@ -21,22 +21,28 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
         var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
 
-        Assert.AreEqual(2, invokedHandlerActivities.Count, "a dedicated span for each handler should be created");
-        Assert.AreEqual(1, receivePipelineActivities.Count, "the receive pipeline should be invoked once");
+        Assert.Multiple(() =>
+        {
+            Assert.That(invokedHandlerActivities, Has.Count.EqualTo(2), "a dedicated span for each handler should be created");
+            Assert.That(receivePipelineActivities, Has.Count.EqualTo(1), "the receive pipeline should be invoked once");
+        });
 
         var recordedHandlerTypes = new HashSet<string>();
 
         foreach (var invokedHandlerActivity in invokedHandlerActivities)
         {
             var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler.handler_type") as string;
-            Assert.NotNull(handlerTypeTag, "Handler type tag should be set");
+            Assert.That(handlerTypeTag, Is.Not.Null, "Handler type tag should be set");
             recordedHandlerTypes.Add(handlerTypeTag);
-            Assert.AreEqual(receivePipelineActivities[0].Id, invokedHandlerActivity.ParentId);
-            Assert.AreEqual(ActivityStatusCode.Ok, invokedHandlerActivity.Status);
+            Assert.Multiple(() =>
+            {
+                Assert.That(invokedHandlerActivity.ParentId, Is.EqualTo(receivePipelineActivities[0].Id));
+                Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            });
         }
 
-        Assert.True(recordedHandlerTypes.Contains(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");
-        Assert.True(recordedHandlerTypes.Contains(typeof(ReceivingEndpoint.HandlerTwo).FullName), "invocation of handler two should be traced");
+        Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");
+        Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerTwo).FullName), "invocation of handler two should be traced");
     }
 
     class Context : ScenarioContext

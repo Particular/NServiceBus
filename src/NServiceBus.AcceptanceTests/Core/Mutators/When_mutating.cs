@@ -19,7 +19,7 @@ public class When_mutating : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run(TimeSpan.FromHours(1));
 
-        Assert.True(context.WasCalled, "The message handler should be called");
+        Assert.That(context.WasCalled, Is.True, "The message handler should be called");
     }
 
     public class Context : ScenarioContext
@@ -77,37 +77,55 @@ public class When_mutating : NServiceBusAcceptanceTest
         {
             public Task MutateIncoming(MutateIncomingMessageContext context)
             {
-                Assert.IsNotEmpty(context.Headers);
-                Assert.IsNotNull(context.Message);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(context.Headers, Is.Not.Empty);
+                    Assert.That(context.Message, Is.Not.Null);
+                });
                 return Task.CompletedTask;
             }
 
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
-                Assert.IsNotEmpty(context.Headers);
-                Assert.IsNotNull(context.Body);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(context.Headers, Is.Not.Empty);
+                    Assert.That(context.Body, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
+                });
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
-                Assert.IsNotEmpty(context.OutgoingHeaders);
-                Assert.IsNotNull(context.OutgoingMessage);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(context.OutgoingHeaders, Is.Not.Empty);
+                    Assert.That(context.OutgoingMessage, Is.Not.Null);
+                });
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.IsNotEmpty(incomingHeaders);
-                Assert.IsNotNull(incomingMessage);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(incomingHeaders, Is.Not.Empty);
+                    Assert.That(incomingMessage, Is.Not.Null);
+                });
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
-                Assert.IsNotEmpty(context.OutgoingHeaders);
-                Assert.IsNotNull(context.OutgoingBody);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(context.OutgoingHeaders, Is.Not.Empty);
+                    Assert.That(context.OutgoingBody, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
+                });
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.IsNotEmpty(incomingHeaders);
-                Assert.IsNotNull(incomingMessage);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(incomingHeaders, Is.Not.Empty);
+                    Assert.That(incomingMessage, Is.Not.Null);
+                });
                 return Task.CompletedTask;
             }
         }

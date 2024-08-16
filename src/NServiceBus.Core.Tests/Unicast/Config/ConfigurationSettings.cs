@@ -10,49 +10,49 @@ public class ConfigUnicastBusTests
     [Test]
     public void Simple_handler_should_be_classified_as_a_handler()
     {
-        Assert.IsTrue(ReceiveComponent.IsMessageHandler(typeof(SimpleHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(SimpleHandler)), Is.True);
     }
 
     [Test]
     public void Concrete_implementation_of_abstract_handler_should_be_classified_as_a_handler()
     {
-        Assert.IsTrue(ReceiveComponent.IsMessageHandler(typeof(ConcreteImplementationOfAbstractHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(ConcreteImplementationOfAbstractHandler)), Is.True);
     }
 
     [Test]
     public void Abstract_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(AbstractHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(AbstractHandler)), Is.False);
     }
 
     [Test]
     public void Not_implementing_IHandleMessages_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(NotImplementingIHandleMessages)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(NotImplementingIHandleMessages)), Is.False);
     }
 
     [Test]
     public void Interface_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(IInterfaceHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(IInterfaceHandler)), Is.False);
     }
 
     [Test]
     public void Generic_type_definition_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<>)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<>)), Is.False);
     }
 
     [Test]
     public void Specific_generic_type_definition_handler_should_be_classified_as_a_handler()
     {
-        Assert.IsTrue(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)), Is.True);
     }
 
     [Test]
     public void Generic_implemented_type_definition_handler_should_be_classified_as_a_handler()
     {
-        Assert.IsTrue(ReceiveComponent.IsMessageHandler(typeof(GenericImplementedHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(GenericImplementedHandler)), Is.True);
     }
 
 

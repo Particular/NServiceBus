@@ -61,7 +61,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.EqualTo(setup.ShouldBeActive));
     }
 
     [Test]
@@ -88,9 +88,12 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream dependencies should be activated first");
+            Assert.That(order.First(), Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
+        });
     }
 
     [Test]
@@ -117,8 +120,11 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
-        Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
+        Assert.Multiple(() =>
+        {
+            Assert.That(dependingFeature.IsActive, Is.True);
+            Assert.That(order.First(), Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
+        });
     }
 
     [Test]
@@ -143,8 +149,11 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.False(dependingFeature.IsActive);
-        Assert.IsEmpty(order);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dependingFeature.IsActive, Is.False);
+            Assert.That(order, Is.Empty);
+        });
     }
 
     [Test]
@@ -183,11 +192,14 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream dependencies should be activated first");
+            Assert.That(order[0], Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
+            Assert.That(order[1], Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
+            Assert.That(order[2], Is.InstanceOf<MyFeature3>(), "Upstream dependencies should be activated first");
+        });
     }
 
     [Test]
@@ -219,14 +231,16 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
+        Assert.Multiple(() =>
+        {
+            Assert.That(level1.IsActive, Is.True, "Level1 wasn't activated");
+            Assert.That(level2.IsActive, Is.True, "Level2 wasn't activated");
+            Assert.That(level3.IsActive, Is.True, "Level3 wasn't activated");
 
-        Assert.True(level1.IsActive, "Level1 wasn't activated");
-        Assert.True(level2.IsActive, "Level2 wasn't activated");
-        Assert.True(level3.IsActive, "Level3 wasn't activated");
-
-        Assert.IsInstanceOf<Level1>(order[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level2>(order[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level3>(order[2], "Upstream dependencies should be activated first");
+            Assert.That(order[0], Is.InstanceOf<Level1>(), "Upstream dependencies should be activated first");
+            Assert.That(order[1], Is.InstanceOf<Level2>(), "Upstream dependencies should be activated first");
+            Assert.That(order[2], Is.InstanceOf<Level3>(), "Upstream dependencies should be activated first");
+        });
     }
 
     [Test]

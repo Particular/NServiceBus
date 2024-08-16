@@ -46,10 +46,13 @@ public class When_storage_overrides_are_provided
 
         var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
-        Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-            new List<Type> { typeof(StorageType.Subscriptions) }));
-        Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
-            new List<Type> { typeof(StorageType.Sagas) }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
+                    new List<Type> { typeof(StorageType.Subscriptions) }));
+            Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
+                new List<Type> { typeof(StorageType.Sagas) }));
+        });
     }
 
     class FakePersistence2 : PersistenceDefinition
@@ -84,7 +87,7 @@ public class When_explicitly_enabling_selected_storage
 
         var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
-        Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
+        Assert.That(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))), Is.False);
     }
 
     class FakePersistence : PersistenceDefinition

@@ -21,10 +21,10 @@ public class EndpointInstancesTests
         ]);
 
         var salesInstances = instances.FindInstances(endpointName1);
-        Assert.AreEqual(1, salesInstances.Count());
+        Assert.That(salesInstances.Count(), Is.EqualTo(1));
 
         var otherInstances = instances.FindInstances(endpointName2);
-        Assert.AreEqual(1, otherInstances.Count());
+        Assert.That(otherInstances.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class EndpointInstancesTests
         ]);
 
         var salesInstances = instances.FindInstances(sales);
-        Assert.AreEqual(2, salesInstances.Count());
+        Assert.That(salesInstances.Count(), Is.EqualTo(2));
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class EndpointInstancesTests
         ]);
 
         var salesInstances = instances.FindInstances(sales);
-        Assert.AreEqual(1, salesInstances.Count());
+        Assert.That(salesInstances.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -64,7 +64,10 @@ public class EndpointInstancesTests
         var salesInstances = instances.FindInstances("Sales");
 
         var singleInstance = salesInstances.Single();
-        Assert.IsNull(singleInstance.Discriminator);
-        Assert.IsEmpty(singleInstance.Properties);
+        Assert.Multiple(() =>
+        {
+            Assert.That(singleInstance.Discriminator, Is.Null);
+            Assert.That(singleInstance.Properties, Is.Empty);
+        });
     }
 }

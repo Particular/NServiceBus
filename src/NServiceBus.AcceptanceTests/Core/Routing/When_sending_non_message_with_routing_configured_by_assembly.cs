@@ -27,7 +27,7 @@ public class When_sending_non_message_with_routing_configured_by_assembly : NSer
             .Done(c => c.GotTheException)
             .Run();
 
-        StringAssert.Contains("No destination specified for message", context.Exception.ToString());
+        Assert.That(context.Exception.ToString(), Does.Contain("No destination specified for message"));
     }
 
     public class Context : ScenarioContext

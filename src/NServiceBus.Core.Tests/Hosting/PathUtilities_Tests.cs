@@ -10,7 +10,7 @@ public class PathUtilities_Tests
     {
         var path = PathUtilities.SanitizedPath("\"pathto\\my.exe\" somevar");
 
-        Assert.AreEqual("pathto\\my.exe", path);
+        Assert.That(path, Is.EqualTo("pathto\\my.exe"));
     }
 
     [Test]
@@ -18,7 +18,7 @@ public class PathUtilities_Tests
     {
         var path = PathUtilities.SanitizedPath("pathto\\my.exe somevar");
 
-        Assert.AreEqual("pathto\\my.exe", path);
+        Assert.That(path, Is.EqualTo("pathto\\my.exe"));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class PathUtilities_Tests
         var path1 = PathUtilities.SanitizedPath("\"pathto\\my.exe\" somevar");
         var path2 = PathUtilities.SanitizedPath("pathto\\my.exe somevar");
 
-        Assert.AreEqual(path1, path2);
+        Assert.That(path2, Is.EqualTo(path1));
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class PathUtilities_Tests
     {
         var path = PathUtilities.SanitizedPath("\"pathto\\mysuper duper.exe\" \"somevar with spaces\"");
 
-        Assert.AreEqual("pathto\\mysuper duper.exe", path);
+        Assert.That(path, Is.EqualTo("pathto\\mysuper duper.exe"));
     }
 
     [Test]
@@ -43,7 +43,7 @@ public class PathUtilities_Tests
     {
         var path = PathUtilities.SanitizedPath("\"pathto\\mysuper duper.exe\" somevar");
 
-        Assert.AreEqual("pathto\\mysuper duper.exe", path);
+        Assert.That(path, Is.EqualTo("pathto\\mysuper duper.exe"));
     }
 
     [Test]
@@ -52,6 +52,6 @@ public class PathUtilities_Tests
         var path1 = PathUtilities.SanitizedPath("\"pathto\\mysuper duper.exe\" \"somevar with spaces\"");
         var path2 = PathUtilities.SanitizedPath("\"pathto\\mysuper duper.exe\" somevar");
 
-        Assert.AreEqual(path1, path2);
+        Assert.That(path2, Is.EqualTo(path1));
     }
 }

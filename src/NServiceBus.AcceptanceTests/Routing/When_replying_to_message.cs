@@ -20,8 +20,11 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.SendingEndpointGotResponse);
-        Assert.IsFalse(ctx.OtherEndpointGotResponse);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ctx.SendingEndpointGotResponse, Is.True);
+            Assert.That(ctx.OtherEndpointGotResponse, Is.False);
+        });
     }
 
     [Test]
@@ -37,8 +40,8 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.SendingEndpointGotResponse);
-        StringAssert.DoesNotContain(instanceDiscriminator, ctx.ReplyToAddress);
+        Assert.That(ctx.SendingEndpointGotResponse, Is.True);
+        Assert.That(ctx.ReplyToAddress, Does.Not.Contain(instanceDiscriminator));
     }
 
     [Test]
@@ -53,8 +56,11 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.OtherEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.OtherEndpointGotResponse);
-        Assert.IsFalse(ctx.SendingEndpointGotResponse);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ctx.OtherEndpointGotResponse, Is.True);
+            Assert.That(ctx.SendingEndpointGotResponse, Is.False);
+        });
     }
 
     public class Context : ScenarioContext

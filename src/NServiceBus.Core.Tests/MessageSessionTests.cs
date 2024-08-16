@@ -32,7 +32,7 @@ public class MessageSessionTests
         await session.Send(new object());
         await session.Send(new object());
 
-        Assert.IsEmpty(readValues, "writes should not leak to other pipeline invocations");
+        Assert.That(readValues, Is.Empty, "writes should not leak to other pipeline invocations");
     }
 
     [Test]

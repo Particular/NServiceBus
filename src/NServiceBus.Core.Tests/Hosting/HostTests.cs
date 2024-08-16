@@ -12,6 +12,6 @@ public class HostTests
     {
         var directory = Host.GetOutputDirectory();
 
-        Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, directory);
+        Assert.That(directory, Is.EqualTo(AppDomain.CurrentDomain.BaseDirectory));
     }
 }

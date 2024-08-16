@@ -21,8 +21,11 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
             .Done(c => c.MessageCorrelated)
             .Run();
 
-        Assert.That(context.MessageCorrelated, Is.True);
-        Assert.That(context.CorrelatedId, Is.EqualTo(default(int)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageCorrelated, Is.True);
+            Assert.That(context.CorrelatedId, Is.EqualTo(default(int)));
+        });
     }
 
     public class MessageWithIntCorrelationProperty : IMessage

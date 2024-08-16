@@ -12,10 +12,13 @@ public class ExtensionMethodsTests
     [Test]
     public void SerializationFriendlyNameTests()
     {
-        Assert.AreEqual("String", typeof(string).SerializationFriendlyName());
-        Assert.AreEqual("DictionaryOfStringAndInt32", typeof(Dictionary<string, int>).SerializationFriendlyName());
-        Assert.AreEqual("DictionaryOfStringAndTupleOfInt32", typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName());
-        Assert.AreEqual("NServiceBus.KeyValuePairOfStringAndTupleOfInt32", typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName());
+        Assert.Multiple(() =>
+        {
+            Assert.That(typeof(string).SerializationFriendlyName(), Is.EqualTo("String"));
+            Assert.That(typeof(Dictionary<string, int>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndInt32"));
+            Assert.That(typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndTupleOfInt32"));
+            Assert.That(typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("NServiceBus.KeyValuePairOfStringAndTupleOfInt32"));
+        });
     }
 
     [Test]
@@ -25,8 +28,11 @@ public class ExtensionMethodsTests
         var customTypeResult = typeof(Target).IsSystemType();
         var systemTypeResult = typeof(string).IsSystemType();
 
-        Assert.IsTrue(systemTypeResult, "Expected string to be a system type.");
-        Assert.IsFalse(customTypeResult, "Expected Target to be a custom type.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(systemTypeResult, Is.True, "Expected string to be a system type.");
+            Assert.That(customTypeResult, Is.False, "Expected Target to be a custom type.");
+        });
     }
 
     public class Target
@@ -37,20 +43,20 @@ public class ExtensionMethodsTests
     [Test]
     public void Should_return_false_for_SN_and_non_particular_assembly()
     {
-        Assert.IsFalse(typeof(string).IsFromParticularAssembly());
+        Assert.That(typeof(string).IsFromParticularAssembly(), Is.False);
     }
 
     [Test]
     public void Should_return_true_for_particular_assembly()
     {
-        Assert.IsTrue(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly());
+        Assert.That(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly(), Is.True);
     }
 
     [Test]
     public void Should_return_false_for_non_SN_and_non_particular_assembly()
     {
         var type = GetNonSnFakeType();
-        Assert.IsFalse(type.IsFromParticularAssembly());
+        Assert.That(type.IsFromParticularAssembly(), Is.False);
     }
 
     static Type GetNonSnFakeType()

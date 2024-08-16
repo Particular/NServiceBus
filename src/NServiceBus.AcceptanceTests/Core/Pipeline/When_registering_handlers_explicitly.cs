@@ -17,7 +17,7 @@ public class When_registering_handlers_explicitly : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.AreEqual(simpleValue, context.PropertyValue);
+        Assert.That(context.PropertyValue, Is.EqualTo(simpleValue));
     }
 
     static string simpleValue = "SomeValue";

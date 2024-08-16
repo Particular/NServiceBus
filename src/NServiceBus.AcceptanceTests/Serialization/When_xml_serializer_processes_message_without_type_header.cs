@@ -17,7 +17,7 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.True(context.WasCalled);
+        Assert.That(context.WasCalled, Is.True);
     }
 
     public class Context : ScenarioContext

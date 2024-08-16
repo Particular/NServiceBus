@@ -17,10 +17,10 @@ public class When_applying_message_conventions_to_messages : MessageConventionTe
             return false;
         });
         conventions.IsMessageType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
 
         conventions.IsMessageType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
     }
 }
 
@@ -40,10 +40,10 @@ public class When_applying_message_conventions_to_events : MessageConventionTest
         });
 
         conventions.IsEventType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
 
         conventions.IsEventType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
     }
 }
 
@@ -63,10 +63,10 @@ public class When_applying_message_conventions_to_commands : MessageConventionTe
         });
 
         conventions.IsCommandType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
 
         conventions.IsCommandType(GetType());
-        Assert.AreEqual(1, timesCalled);
+        Assert.That(timesCalled, Is.EqualTo(1));
     }
 }
 

@@ -21,9 +21,12 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
             .Done(c => c.MessageAudited)
             .Run();
 
-        Assert.True(context.MessageProcessed);
-        Assert.True(context.MessageAudited);
-        Assert.AreEqual("SomeValue", context.HeaderValue);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageProcessed, Is.True);
+            Assert.That(context.MessageAudited, Is.True);
+            Assert.That(context.HeaderValue, Is.EqualTo("SomeValue"));
+        });
     }
 
     public static byte Checksum(byte[] data)

@@ -44,18 +44,21 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations.First().Properties);
         var delayDeliveryWith = operationProperties.DelayDeliveryWith;
-        Assert.NotNull(delayDeliveryWith);
-        Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
+        Assert.That(delayDeliveryWith, Is.Not.Null);
+        Assert.That(delayDeliveryWith.Delay, Is.EqualTo(TimeSpan.FromSeconds(10)));
 
         var doNotDeliverBefore = operationProperties.DoNotDeliverBefore;
-        Assert.NotNull(doNotDeliverBefore);
-        Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
+        Assert.That(doNotDeliverBefore, Is.Not.Null);
+        Assert.That(doNotDeliverBefore.At.ToString(), Is.EqualTo(deliverTime.ToString()));
 
         var discard = operationProperties.DiscardIfNotReceivedBefore;
-        Assert.NotNull(discard);
-        Assert.AreEqual(maxTime, discard.MaxTime);
+        Assert.That(discard, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(discard.MaxTime, Is.EqualTo(maxTime));
 
-        Assert.Null(fakeOutbox.StoredMessage);
+            Assert.That(fakeOutbox.StoredMessage, Is.Null);
+        });
     }
 
     [Test]
@@ -75,9 +78,12 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context);
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
-        Assert.NotNull(routing);
-        Assert.AreEqual("myEndpoint", routing.Destination);
-        Assert.Null(fakeOutbox.StoredMessage);
+        Assert.That(routing, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(routing.Destination, Is.EqualTo("myEndpoint"));
+            Assert.That(fakeOutbox.StoredMessage, Is.Null);
+        });
     }
 
 
@@ -101,9 +107,12 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context);
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
-        Assert.NotNull(routing);
-        Assert.AreEqual(typeof(MyEvent), routing.MessageType);
-        Assert.Null(fakeOutbox.StoredMessage);
+        Assert.That(routing, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(routing.MessageType, Is.EqualTo(typeof(MyEvent)));
+            Assert.That(fakeOutbox.StoredMessage, Is.Null);
+        });
     }
 
     [Test]
@@ -119,7 +128,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        Assert.AreEqual(true, pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"]);
+        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"], Is.EqualTo(true));
     }
 
     [Test]
@@ -143,10 +152,10 @@ public class TransportReceiveToPhysicalMessageConnectorTests
             return Task.CompletedTask;
         });
 
-        var startDispatchErActivityEventsvent = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
-        Assert.AreEqual(1, startDispatchErActivityEventsvent.Length);
-        Assert.AreEqual(3, startDispatchErActivityEventsvent.Single().Tags.ToImmutableDictionary()["message-count"]);
-        Assert.AreEqual(1, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
+        var startDispatcherActivityEvents = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
+        Assert.That(startDispatcherActivityEvents, Has.Length.EqualTo(1));
+        Assert.That(startDispatcherActivityEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(3));
+        Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1));
     }
 
     [Test]
@@ -160,8 +169,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        Assert.AreEqual(0, pipelineActivity.Events.Count(e => e.Name == "Start dispatching"));
-        Assert.AreEqual(0, pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(pipelineActivity.Events.Count(e => e.Name == "Start dispatching"), Is.EqualTo(0));
+            Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(0));
+        });
     }
 
     static TestableTransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)

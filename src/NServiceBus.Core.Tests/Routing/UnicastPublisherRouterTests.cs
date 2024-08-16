@@ -35,9 +35,9 @@ public class UnicastPublisherRouterTests
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
         var destinations = routes.Select(ExtractDestination).ToList();
-        Assert.AreEqual(2, destinations.Count);
-        Assert.Contains("address1", destinations);
-        Assert.Contains("address2", destinations);
+        Assert.That(destinations.Count, Is.EqualTo(2));
+        Assert.That(destinations, Does.Contain("address1"));
+        Assert.That(destinations, Does.Contain("address2"));
     }
 
     [Test]
@@ -53,9 +53,9 @@ public class UnicastPublisherRouterTests
         var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext())).ToArray();
 
         var destinations = routes.Select(ExtractDestination).ToList();
-        Assert.AreEqual(2, destinations.Count);
-        Assert.Contains("sales1", destinations);
-        Assert.Contains("shipping1", destinations);
+        Assert.That(destinations.Count, Is.EqualTo(2));
+        Assert.That(destinations, Does.Contain("sales1"));
+        Assert.That(destinations, Does.Contain("shipping1"));
     }
 
     [Test]
@@ -69,8 +69,11 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.AreEqual(1, routes.Count());
-        Assert.AreEqual("address", ExtractDestination(routes.Single()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(routes.Count(), Is.EqualTo(1));
+            Assert.That(ExtractDestination(routes.Single()), Is.EqualTo("address"));
+        });
     }
 
     [Test]
@@ -86,8 +89,11 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.AreEqual(1, routes.Count());
-        Assert.AreEqual("address", ExtractDestination(routes.First()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(routes.Count(), Is.EqualTo(1));
+            Assert.That(ExtractDestination(routes.First()), Is.EqualTo("address"));
+        });
     }
 
     [Test]
@@ -95,7 +101,7 @@ public class UnicastPublisherRouterTests
     {
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.IsEmpty(routes);
+        Assert.That(routes, Is.Empty);
     }
 
     [Test]
@@ -105,8 +111,8 @@ public class UnicastPublisherRouterTests
 
         var warning = $"No subscribers found for the event of type {typeof(Event).FullName}.";
 
-        StringAssert.Contains(warning, logStatements.ToString());
-        StringAssert.Contains(" DEBUG ", logStatements.ToString());
+        Assert.That(logStatements.ToString(), Does.Contain(warning));
+        Assert.That(logStatements.ToString(), Does.Contain(" DEBUG "));
     }
 
     static string ExtractDestination(UnicastRoutingStrategy route)

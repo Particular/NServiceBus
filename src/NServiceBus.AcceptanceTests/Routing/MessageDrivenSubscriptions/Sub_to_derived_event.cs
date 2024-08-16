@@ -24,7 +24,7 @@ public class Sub_to_derived_event : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.IsFalse(context.SubscriberGotEvent);
+        Assert.That(context.SubscriberGotEvent, Is.False);
     }
 
     public class Context : ScenarioContext

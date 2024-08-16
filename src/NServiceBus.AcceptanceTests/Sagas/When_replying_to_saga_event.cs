@@ -31,7 +31,7 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
             .Done(c => c.CorrelatedResponseReceived)
             .Run();
 
-        Assert.True(context.CorrelatedResponseReceived);
+        Assert.That(context.CorrelatedResponseReceived, Is.True);
     }
 
     public class Context : ScenarioContext

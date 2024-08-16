@@ -20,12 +20,15 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
             .Done(c => c.EndpointsStarted && c.EventsSubscribedTo.Count >= 1)
             .Run();
 
-        Assert.AreEqual(1, context.EventsSubscribedTo.Count);
-        Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent).AssemblyQualifiedName), "Events should be auto subscribed");
-        Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting).AssemblyQualifiedName), "Events without routing should not be auto subscribed");
-        Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler).AssemblyQualifiedName), "Events without handlers should not be auto subscribed");
-        Assert.False(context.EventsSubscribedTo.Contains(typeof(MyCommand).AssemblyQualifiedName), "Commands should not be auto subscribed");
-        Assert.False(context.EventsSubscribedTo.Contains(typeof(MyMessage).AssemblyQualifiedName), "Plain messages should not be auto subscribed by default");
+        Assert.That(context.EventsSubscribedTo, Has.Count.EqualTo(1));
+        Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEvent).AssemblyQualifiedName), "Events should be auto subscribed");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting).AssemblyQualifiedName), Is.False, "Events without routing should not be auto subscribed");
+            Assert.That(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler).AssemblyQualifiedName), Is.False, "Events without handlers should not be auto subscribed");
+            Assert.That(context.EventsSubscribedTo.Contains(typeof(MyCommand).AssemblyQualifiedName), Is.False, "Commands should not be auto subscribed");
+            Assert.That(context.EventsSubscribedTo.Contains(typeof(MyMessage).AssemblyQualifiedName), Is.False, "Plain messages should not be auto subscribed by default");
+        });
     }
 
     class Context : ScenarioContext

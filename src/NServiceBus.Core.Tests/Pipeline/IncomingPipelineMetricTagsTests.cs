@@ -16,7 +16,7 @@ using Unicast.Messages;
 public class IncomingPipelineMetricTagsTests
 {
     [Test]
-    public async Task Should_not_fail_when_handling_more_than_one_logical_message()
+    public void Should_not_fail_when_handling_more_than_one_logical_message()
     {
         var registry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
 
@@ -36,13 +36,11 @@ public class IncomingPipelineMetricTagsTests
         var messageMapper = new MessageMapper();
         var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false);
 
-        await behavior.Invoke(context, c =>
+        Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
             c.Extensions.Get<IncomingPipelineMetricTags>().Add("Same", "Same");
             return Task.CompletedTask;
-        });
-
-        Assert.That(true, Is.True);
+        }));
     }
 
     class MyMessage : IMessage { }

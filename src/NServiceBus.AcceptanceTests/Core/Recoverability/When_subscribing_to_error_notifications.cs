@@ -27,13 +27,16 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
             .Done(c => c.MessageSentToError)
             .Run();
 
-        Assert.IsInstanceOf<SimulatedException>(context.MessageSentToErrorException);
-        Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageSentToErrorException, Is.InstanceOf<SimulatedException>());
+            Assert.That(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), Is.True, "The last exception should be logged as `error` before sending it to the error queue");
 
-        // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
-        Assert.AreEqual(4 * 3, context.TotalNumberOfHandlerInvocations);
-        Assert.AreEqual(3 * 3, context.TotalNumberOfImmediateRetriesEventInvocations);
-        Assert.AreEqual(2, context.NumberOfDelayedRetriesPerformed);
+            // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
+            Assert.That(context.TotalNumberOfHandlerInvocations, Is.EqualTo(4 * 3));
+            Assert.That(context.TotalNumberOfImmediateRetriesEventInvocations, Is.EqualTo(3 * 3));
+            Assert.That(context.NumberOfDelayedRetriesPerformed, Is.EqualTo(2));
+        });
     }
 
     class Context : ScenarioContext

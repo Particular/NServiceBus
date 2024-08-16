@@ -28,20 +28,26 @@ public class RetryAcknowledgementBehaviorTests
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
         var outgoingMessage = routingPipeline.ForkInvocations.Single();
-        Assert.AreEqual(
-            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
-            outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+                    outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
+                    Is.EqualTo(context.Message.Headers["ServiceControl.Retry.UniqueMessageId"]));
 
-        Assert.IsTrue(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"));
+            Assert.That(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"), Is.True);
 
-        Assert.AreEqual(0, outgoingMessage.Message.Body.Length);
+            Assert.That(outgoingMessage.Message.Body.Length, Is.EqualTo(0));
 
-        Assert.AreEqual(bool.TrueString, outgoingMessage.Message.Headers[Headers.ControlMessageHeader]);
+            Assert.That(outgoingMessage.Message.Headers[Headers.ControlMessageHeader], Is.EqualTo(bool.TrueString));
+        });
 
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
-        Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
+        Assert.Multiple(() =>
+        {
+            Assert.That(addressTag.Destination, Is.EqualTo(acknowledgementQueue));
 
-        Assert.IsTrue(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.True);
+        });
     }
 
     [Test]
@@ -58,8 +64,11 @@ public class RetryAcknowledgementBehaviorTests
         var exception = new Exception("some pipeline failure");
         var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
 
-        Assert.AreSame(thrownException, exception);
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception, Is.SameAs(thrownException));
+            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+        });
     }
 
     [Test]
@@ -74,8 +83,11 @@ public class RetryAcknowledgementBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
-        Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+        Assert.Multiple(() =>
+        {
+            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
+        });
     }
 
     [Test]
@@ -89,8 +101,11 @@ public class RetryAcknowledgementBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
-        Assert.IsFalse(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+        Assert.Multiple(() =>
+        {
+            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
+        });
     }
 
     static TestableTransportReceiveContext SetupTestableContext(RoutingPipeline routingPipeline)

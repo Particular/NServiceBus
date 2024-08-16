@@ -31,6 +31,6 @@ public class When_modifying_headers_in_on_error : NServiceBusTransportTest
 
         var retryMessageContext = await retried.Task;
 
-        Assert.AreEqual("original", retryMessageContext.Headers["test-header"]);
+        Assert.That(retryMessageContext.Headers["test-header"], Is.EqualTo("original"));
     }
 }

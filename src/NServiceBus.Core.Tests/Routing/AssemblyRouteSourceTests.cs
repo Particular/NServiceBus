@@ -15,7 +15,7 @@ public class AssemblyRouteSourceTests
         var routes = source.GenerateRoutes(new Conventions()).ToArray();
         var routeTypes = routes.Select(r => r.MessageType);
 
-        CollectionAssert.DoesNotContain(routeTypes, typeof(NonMessage));
+        Assert.That(routeTypes, Has.No.Member(typeof(NonMessage)));
     }
 
 

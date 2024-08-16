@@ -26,7 +26,7 @@ public class When_completing_a_saga : NServiceBusAcceptanceTest
             .Done(c => c.SagaCompleted)
             .Run();
 
-        Assert.True(context.SagaCompleted);
+        Assert.That(context.SagaCompleted, Is.True);
     }
 
     public class Context : ScenarioContext

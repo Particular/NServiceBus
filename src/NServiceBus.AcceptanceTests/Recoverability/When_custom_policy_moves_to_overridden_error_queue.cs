@@ -24,7 +24,7 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.IsTrue(context.MessageMovedToErrorQueue);
+        Assert.That(context.MessageMovedToErrorQueue, Is.True);
     }
 
     class Context : ScenarioContext

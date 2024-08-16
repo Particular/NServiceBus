@@ -29,7 +29,7 @@ public class HandlerTransactionScopeWrapperBehaviorTests
 
         return behavior.Invoke(null, ctx =>
         {
-            Assert.NotNull(Transaction.Current);
+            Assert.That(Transaction.Current, Is.Not.Null);
             return Task.CompletedTask;
         });
     }

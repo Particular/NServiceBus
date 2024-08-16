@@ -16,7 +16,7 @@ public class When_no_persistence_has_been_configured
 
         var supported = PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(settings);
 
-        Assert.IsFalse(supported);
+        Assert.That(supported, Is.False);
     }
 }
 

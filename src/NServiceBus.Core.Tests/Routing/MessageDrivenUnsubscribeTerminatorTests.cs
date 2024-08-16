@@ -34,7 +34,7 @@ public class MessageDrivenUnsubscribeTerminatorTests
     {
         await terminator.Invoke(new TestableUnsubscribeContext(), c => Task.CompletedTask);
 
-        Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
+        Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -53,8 +53,11 @@ public class MessageDrivenUnsubscribeTerminatorTests
 
         await terminator.Invoke(context, c => Task.CompletedTask);
 
-        Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
-        Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(1));
+            Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(10));
+        });
     }
 
     [Test]
@@ -73,8 +76,11 @@ public class MessageDrivenUnsubscribeTerminatorTests
 
         Assert.That(async () => await terminator.Invoke(context, c => Task.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
-        Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
-        Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(0));
+            Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(11));
+        });
     }
 
     class FakeDispatcher : IMessageDispatcher

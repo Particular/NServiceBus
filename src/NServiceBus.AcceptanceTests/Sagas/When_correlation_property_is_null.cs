@@ -23,7 +23,7 @@ class When_correlation_property_is_null : NServiceBusAcceptanceTest
 
         var errorMessage = $"Message {typeof(MessageWithNullCorrelationProperty).FullName} mapped to saga {typeof(SagaWithCorrelationPropertyEndpoint.SagaWithCorrelatedProperty).FullName} has attempted to assign null to the correlation property {nameof(SagaWithCorrelationPropertyEndpoint.SagaDataWithCorrelatedProperty.CorrelatedProperty)}. Correlation properties cannot be assigned null.";
 
-        StringAssert.Contains(errorMessage, exception.FailedMessage.Exception.Message);
+        Assert.That(exception.FailedMessage.Exception.Message, Does.Contain(errorMessage));
     }
 
     public class SagaWithCorrelationPropertyEndpoint : EndpointConfigurationBuilder

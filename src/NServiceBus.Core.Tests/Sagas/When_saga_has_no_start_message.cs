@@ -14,7 +14,7 @@ public class When_saga_has_no_start_message
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), [], new Conventions()));
 
-        StringAssert.Contains("Sagas must have at least one message that is allowed to start the saga", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Sagas must have at least one message that is allowed to start the saga"));
     }
 
     class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IHandleMessages<Message1>

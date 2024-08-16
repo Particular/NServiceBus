@@ -22,11 +22,14 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
                 .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
-        Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);
-        Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
-        StringAssert.Contains(
-            "Changing the value of correlated properties at runtime is currently not supported",
-            exception.FailedMessage.Exception.Message);
+        Assert.Multiple(() =>
+        {
+            Assert.That(((Context)exception.ScenarioContext).ModifiedCorrelationProperty, Is.True);
+            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
+        });
+        Assert.That(
+            exception.FailedMessage.Exception.Message,
+            Does.Contain("Changing the value of correlated properties at runtime is currently not supported"));
     }
 
     public class Context : ScenarioContext

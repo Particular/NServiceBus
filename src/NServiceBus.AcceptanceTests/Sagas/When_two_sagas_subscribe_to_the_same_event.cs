@@ -27,7 +27,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
             .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
             .Run();
 
-        Assert.True(context.DidSaga1EventHandlerGetInvoked && context.DidSaga2EventHandlerGetInvoked);
+        Assert.That(context.DidSaga1EventHandlerGetInvoked && context.DidSaga2EventHandlerGetInvoked, Is.True);
     }
 
     public class Context : ScenarioContext

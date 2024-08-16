@@ -36,7 +36,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
             .Run();
 
-        Assert.True(context.DidSaga1Complete && context.DidSaga2Complete);
+        Assert.That(context.DidSaga1Complete && context.DidSaga2Complete, Is.True);
     }
 
     public class Context : ScenarioContext

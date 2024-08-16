@@ -21,8 +21,8 @@ public class When_persisting_a_saga_with_record_type : SagaPersisterTests
 
         var retrieved = await GetById<SagaWithRecordTypeEntity>(sagaData.Id);
 
-        CollectionAssert.AreEqual(sagaData.Ints, retrieved.Ints);
-        Assert.False(ReferenceEquals(sagaData.Ints, retrieved.Ints));
+        Assert.That(retrieved.Ints, Is.EqualTo(sagaData.Ints).AsCollection);
+        Assert.That(ReferenceEquals(sagaData.Ints, retrieved.Ints), Is.False);
     }
 
     [Test]
@@ -37,8 +37,8 @@ public class When_persisting_a_saga_with_record_type : SagaPersisterTests
 
         var retrieved = await GetById<SagaWithNestedRecordTypeEntity>(sagaData.Id);
 
-        Assert.IsNotNull(retrieved);
-        Assert.AreEqual(person, retrieved.SomePerson);
+        Assert.That(retrieved, Is.Not.Null);
+        Assert.That(retrieved.SomePerson, Is.EqualTo(person));
     }
 
     public class SagaWithRecordType : Saga<SagaWithRecordTypeEntity>, IAmStartedByMessages<StartMessage>

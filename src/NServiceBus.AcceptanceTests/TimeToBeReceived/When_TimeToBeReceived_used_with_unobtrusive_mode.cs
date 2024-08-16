@@ -20,7 +20,7 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
             .Done(c => c.WasCalled || DateTime.UtcNow - start > TimeSpan.FromSeconds(15))
             .Run();
 
-        Assert.IsFalse(context.WasCalled);
+        Assert.That(context.WasCalled, Is.False);
     }
 
     public class Context : ScenarioContext

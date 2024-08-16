@@ -30,8 +30,11 @@ public class FeatureStartupTests
         await featureSettings.StartFeatures(null, null);
         await featureSettings.StopFeatures();
 
-        Assert.True(feature.TaskStarted);
-        Assert.True(feature.TaskStopped);
+        Assert.Multiple(() =>
+        {
+            Assert.That(feature.TaskStarted, Is.True);
+            Assert.That(feature.TaskStopped, Is.True);
+        });
     }
 
     [Test]
@@ -53,7 +56,7 @@ public class FeatureStartupTests
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Stop");
         expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Stop");
 
-        Assert.AreEqual(expectedOrderBuilder.ToString(), orderBuilder.ToString());
+        Assert.That(orderBuilder.ToString(), Is.EqualTo(expectedOrderBuilder.ToString()));
     }
 
     [Test]
@@ -68,7 +71,7 @@ public class FeatureStartupTests
         await featureSettings.StartFeatures(null, null);
         await featureSettings.StopFeatures();
 
-        Assert.True(feature.TaskDisposed);
+        Assert.That(feature.TaskDisposed, Is.True);
     }
 
     [Test]
@@ -85,13 +88,16 @@ public class FeatureStartupTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
-        Assert.AreEqual("feature2", exception.Message);
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.Message, Is.EqualTo("feature2"));
 
-        Assert.True(feature1.TaskStarted, "Feature 1 should have been started.");
-        Assert.True(feature2.TaskStartCalled, "An attempt should have been made to start feature 2.");
-        Assert.True(feature1.TaskStopCalled, "An attempt should have been made to stop feature 1.");
-        Assert.False(feature2.TaskStopCalled, "No attempt should have been made to stop feature 2.");
-        Assert.False(feature3.TaskStartCalled, "No attempt should have been made to start feature 3.");
+            Assert.That(feature1.TaskStarted, Is.True, "Feature 1 should have been started.");
+            Assert.That(feature2.TaskStartCalled, Is.True, "An attempt should have been made to start feature 2.");
+            Assert.That(feature1.TaskStopCalled, Is.True, "An attempt should have been made to stop feature 1.");
+            Assert.That(feature2.TaskStopCalled, Is.False, "No attempt should have been made to stop feature 2.");
+            Assert.That(feature3.TaskStartCalled, Is.False, "No attempt should have been made to start feature 3.");
+        });
     }
 
     [Test]
@@ -109,8 +115,11 @@ public class FeatureStartupTests
 
         Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
 
-        Assert.True(feature1.TaskStarted && feature1.TaskStopped);
-        Assert.True(feature2.TaskStarted && !feature2.TaskStopped);
+        Assert.Multiple(() =>
+        {
+            Assert.That(feature1.TaskStarted && feature1.TaskStopped, Is.True);
+            Assert.That(feature2.TaskStarted && !feature2.TaskStopped, Is.True);
+        });
     }
 
     [Test]
@@ -124,7 +133,7 @@ public class FeatureStartupTests
         await featureSettings.StartFeatures(null, null);
 
         await featureSettings.StopFeatures();
-        Assert.True(feature.TaskDisposed);
+        Assert.That(feature.TaskDisposed, Is.True);
     }
 
     FeatureActivator featureSettings;

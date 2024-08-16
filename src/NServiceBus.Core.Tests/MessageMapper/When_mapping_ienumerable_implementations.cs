@@ -18,7 +18,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(ClassImplementingIEnumerable<string>)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<string>)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<string>)), Is.Not.Null);
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(ClassImplementingIEnumerableAndIReturnMyself<string>)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerableAndIReturnMyself<string>)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerableAndIReturnMyself<string>)), Is.Not.Null);
     }
     class ClassImplementingIEnumerableAndIReturnMyself<TItem> : IEnumerable<TItem>, IReturnMyself<ClassImplementingIEnumerableAndIReturnMyself<TItem>>
     {
@@ -60,7 +60,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(ClassImplementingIEnumerable<ReturnMyself>)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<ReturnMyself>)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<ReturnMyself>)), Is.Not.Null);
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(DerivedReturnMyselfCollectionObject)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionObject)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionObject)), Is.Not.Null);
     }
 
     class DerivedReturnMyselfCollectionObject : ClassImplementingIEnumerable<ReturnMyself>
@@ -88,7 +88,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself)), Is.Not.Null);
     }
 
     class DerivedReturnMyselfCollectionImplementingIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<DerivedReturnMyselfCollectionImplementingIReturnMyself>
@@ -109,7 +109,7 @@ public class When_mapping_iEnumerable_implementations
                 typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)
             });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)), Is.Not.Null);
     }
 
     class DerivedReturnMyselfCollectionImplementingBaseIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<ClassImplementingIEnumerable<ReturnMyself>>
