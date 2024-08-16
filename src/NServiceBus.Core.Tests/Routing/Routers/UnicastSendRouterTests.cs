@@ -70,7 +70,7 @@ public class UnicastSendRouterTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-        StringAssert.Contains("send-only mode", exception.Message);
+        Assert.That(exception.Message, Does.Contain("send-only mode"));
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class UnicastSendRouterTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-        StringAssert.Contains("send-only mode", exception.Message);
+        Assert.That(exception.Message, Does.Contain("send-only mode"));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("No destination specified for message", exception.Message);
+        Assert.That(exception.Message, Does.Contain("No destination specified for message"));
     }
 
     [Test]
@@ -120,7 +120,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
+        Assert.That(exception.Message, Does.Contain("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance."));
     }
 
     [Test]
@@ -233,7 +233,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter();
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("No destination specified for message", exception.Message);
+        Assert.That(exception.Message, Does.Contain("No destination specified for message"));
     }
 
     [Test]

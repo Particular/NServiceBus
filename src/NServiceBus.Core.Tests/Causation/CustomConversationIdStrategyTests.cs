@@ -26,7 +26,7 @@ public class CustomConversationIdStrategyTests
     {
         var ex = Assert.Throws<Exception>(() => Invoke(_ => throw new Exception("User invocation failed")));
 
-        StringAssert.Contains("Failed to execute the custom conversation ID strategy", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Failed to execute the custom conversation ID strategy"));
     }
 
     [Test]

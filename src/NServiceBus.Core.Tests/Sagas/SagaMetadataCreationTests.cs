@@ -174,35 +174,35 @@ public class SagaMetadataCreationTests
     public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageProps()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
-        StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
+        Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnSagaIdFromStringToGuidForMessagePropsThrowsException()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
-        StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
+        Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnNonSagaIdGuidPropertyFromStringToGuidForMessagePropsThrowsException()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
-        StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
+        Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
-        StringAssert.Contains(nameof(SomeMessage), ex.Message);
+        Assert.That(ex.Message, Does.Contain(nameof(SomeMessage)));
     }
 
     [Test]
     public void ValidateThatSagaPropertyIsNotAField()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty)));
-        StringAssert.Contains(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData).FullName, ex.Message);
+        Assert.That(ex.Message, Does.Contain(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData).FullName));
     }
 
     [Test]

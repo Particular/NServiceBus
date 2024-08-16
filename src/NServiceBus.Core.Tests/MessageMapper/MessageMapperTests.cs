@@ -109,7 +109,7 @@ public class MessageMapperTests
         var mapper = new MessageMapper();
 
         var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IInterfaceMessageWithIllegalInterfaceProperty) }));
-        StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+        Assert.That(ex.Message, Does.Contain($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods."));
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class MessageMapperTests
         var mapper = new MessageMapper();
 
         var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IPrivateInterfaceMessage) }));
-        StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public.", ex.Message);
+        Assert.That(ex.Message, Does.Contain($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public."));
     }
 
     [Test]

@@ -41,7 +41,7 @@ public class DataBusDeserializerTests
 
             var ex = Assert.Throws<Exception>(() => deserializer.Deserialize("other-serializer-not-configured", typeof(string), stream));
 
-            StringAssert.Contains("other-serializer-not-configured", ex.Message);
+            Assert.That(ex.Message, Does.Contain("other-serializer-not-configured"));
         }
     }
 

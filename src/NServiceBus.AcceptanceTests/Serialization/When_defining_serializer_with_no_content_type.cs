@@ -21,7 +21,7 @@ public class When_defining_serializer_with_no_content_type : NServiceBusAcceptan
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value.", exception.Message);
+        Assert.That(exception.Message, Does.Contain($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value."));
     }
 
     [Test]
@@ -33,7 +33,7 @@ public class When_defining_serializer_with_no_content_type : NServiceBusAcceptan
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value.", exception.Message);
+        Assert.That(exception.Message, Does.Contain($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value."));
     }
 
     class EndpointWithInvalidSerializer : EndpointConfigurationBuilder

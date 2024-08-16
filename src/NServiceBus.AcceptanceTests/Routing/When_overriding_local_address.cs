@@ -38,7 +38,7 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
            .Done(c => c.EndpointsStarted)
            .Run());
 
-        StringAssert.Contains("send-only", ex.Message);
+        Assert.That(ex.Message, Does.Contain("send-only"));
     }
 
     public class Context : ScenarioContext

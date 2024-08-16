@@ -104,7 +104,7 @@ public class MessageDrivenSubscribeTerminatorTests
         var exception = Assert.ThrowsAsync<Exception>(() =>
             subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask));
 
-        StringAssert.Contains($"No publisher address could be found for message type '{typeof(object)}'.", exception.Message);
+        Assert.That(exception.Message, Does.Contain($"No publisher address could be found for message type '{typeof(object)}'."));
     }
 
     [Test]

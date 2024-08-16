@@ -111,8 +111,8 @@ public class UnicastPublisherRouterTests
 
         var warning = $"No subscribers found for the event of type {typeof(Event).FullName}.";
 
-        StringAssert.Contains(warning, logStatements.ToString());
-        StringAssert.Contains(" DEBUG ", logStatements.ToString());
+        Assert.That(logStatements.ToString(), Does.Contain(warning));
+        Assert.That(logStatements.ToString(), Does.Contain(" DEBUG "));
     }
 
     static string ExtractDestination(UnicastRoutingStrategy route)

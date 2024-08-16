@@ -28,7 +28,7 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
             Assert.That(log.Level, Is.EqualTo(LogLevel.Error));
             Assert.That(log.LoggerName, Is.EqualTo(typeof(AutoSubscribe).FullName));
         });
-        StringAssert.Contains($"No publisher address could be found for message type '{typeof(MyEvent).FullName}'.", log.Message);
+        Assert.That(log.Message, Does.Contain($"No publisher address could be found for message type '{typeof(MyEvent).FullName}'."));
     }
 
     public class Subscriber : EndpointConfigurationBuilder

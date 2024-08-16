@@ -39,9 +39,9 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
         Assert.That(context.SagaData, Is.Not.Null);
         Assert.That(context.SagaData.ContinueCount, Is.EqualTo(3));
 
-        StringAssert.Contains("1", context.SagaData.CollectedIndexes);
-        StringAssert.Contains("2", context.SagaData.CollectedIndexes);
-        StringAssert.Contains("3", context.SagaData.CollectedIndexes);
+        Assert.That(context.SagaData.CollectedIndexes, Does.Contain("1"));
+        Assert.That(context.SagaData.CollectedIndexes, Does.Contain("2"));
+        Assert.That(context.SagaData.CollectedIndexes, Does.Contain("3"));
     }
 
     public class Context : ScenarioContext

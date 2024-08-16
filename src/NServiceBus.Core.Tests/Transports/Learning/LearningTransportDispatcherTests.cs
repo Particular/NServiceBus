@@ -22,7 +22,7 @@ public class LearningTransportDispatcherTests
         await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction());
         var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction()));
 
-        StringAssert.Contains("The total size of the 'TestMessage' message", ex.Message);
+        Assert.That(ex.Message, Does.Contain("The total size of the 'TestMessage' message"));
     }
 
     const int MessageSizeLimit = (64 * 1024) - headerSize;
