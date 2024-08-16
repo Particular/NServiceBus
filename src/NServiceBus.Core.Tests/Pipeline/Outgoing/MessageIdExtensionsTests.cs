@@ -10,7 +10,7 @@ public class MessageIdExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNotEmpty(options.GetMessageId());
+        Assert.That(options.GetMessageId(), Is.Not.Empty);
     }
 
     [Test]
