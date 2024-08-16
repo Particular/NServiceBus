@@ -19,7 +19,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
                 .When(s => s.SendLocal(new FailingMessage())))
             .Done(c => c.HandlerInvoked).Run();
 
-        Assert.That(context.FailedMessages.Count, Is.EqualTo(1), "the message should have failed");
+        Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
         Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
         Assert.Multiple(() =>

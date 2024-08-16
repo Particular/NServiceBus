@@ -32,7 +32,7 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
         Assert.Multiple(() =>
         {
             Assert.That(context.CriticalErrorsRaised, Is.EqualTo(2));
-            Assert.That(exceptions.Count, Is.EqualTo(context.CriticalErrorsRaised));
+            Assert.That(exceptions, Has.Count.EqualTo(context.CriticalErrorsRaised));
         });
     }
 

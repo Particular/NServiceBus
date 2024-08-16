@@ -26,7 +26,7 @@ public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
         // each instance should receive a subscription message
         Assert.That(context.PublisherReceivedSubscription, Does.Contain("1"));
         Assert.That(context.PublisherReceivedSubscription, Does.Contain("2"));
-        Assert.That(context.PublisherReceivedSubscription.Count, Is.EqualTo(2));
+        Assert.That(context.PublisherReceivedSubscription, Has.Count.EqualTo(2));
     }
 
     class Context : ScenarioContext

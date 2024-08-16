@@ -16,7 +16,7 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.That(outgoingMessageActivities.Count, Is.EqualTo(2), "2 messages are being sent");
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
         var replyMessage = outgoingMessageActivities[1];
 
         Assert.Multiple(() =>

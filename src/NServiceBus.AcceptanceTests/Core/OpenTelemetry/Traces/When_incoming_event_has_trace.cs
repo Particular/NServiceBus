@@ -32,9 +32,9 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 
         Assert.Multiple(() =>
         {
-            Assert.That(incomingActivities.Count, Is.EqualTo(2), "2 messages are received as part of this test (event + reply)");
-            Assert.That(outgoingActivities.Count, Is.EqualTo(1), "1 message is sent as part of this test (reply)");
-            Assert.That(NServicebusActivityListener.CompletedActivities.GetPublishEventActivities().Count, Is.EqualTo(1), "1 event is published as part of this test");
+            Assert.That(incomingActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test (event + reply)");
+            Assert.That(outgoingActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test (reply)");
+            Assert.That(NServicebusActivityListener.CompletedActivities.GetPublishEventActivities(), Has.Count.EqualTo(1), "1 event is published as part of this test");
 
             Assert.That(incomingActivities.Concat(outgoingActivities)
                 .All(a => a.RootId == incomingActivities[0].RootId), Is.True, "all activities should belong to the same trace");

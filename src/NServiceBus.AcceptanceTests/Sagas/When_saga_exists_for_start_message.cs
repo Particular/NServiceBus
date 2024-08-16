@@ -31,7 +31,7 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
             .Done(c => c.SagaIds.Count >= 2)
             .Run();
 
-        Assert.That(context.SagaIds.Count, Is.EqualTo(2));
+        Assert.That(context.SagaIds, Has.Count.EqualTo(2));
         Assert.That(context.SagaIds[1], Is.EqualTo(context.SagaIds[0]));
     }
 

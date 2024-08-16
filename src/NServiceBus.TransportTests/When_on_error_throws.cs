@@ -62,6 +62,6 @@ public class When_on_error_throws : NServiceBusTransportTest
         });
 
         var logItemsAboveInfo = LogFactory.LogItems.Where(item => item.Level > LogLevel.Info).Select(log => $"{log.Level}: {log.Message}").ToArray();
-        Assert.That(logItemsAboveInfo.Length, Is.EqualTo(0), "Transport should not log anything above LogLevel.Info:" + string.Join(Environment.NewLine, logItemsAboveInfo));
+        Assert.That(logItemsAboveInfo, Is.Empty, "Transport should not log anything above LogLevel.Info:" + string.Join(Environment.NewLine, logItemsAboveInfo));
     }
 }

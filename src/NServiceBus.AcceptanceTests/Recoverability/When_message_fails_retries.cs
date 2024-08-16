@@ -18,7 +18,7 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
                 .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
-        Assert.That(exception.ScenarioContext.FailedMessages.Count, Is.EqualTo(1));
+        Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
 
         var testContext = (Context)exception.ScenarioContext;
         Assert.Multiple(() =>

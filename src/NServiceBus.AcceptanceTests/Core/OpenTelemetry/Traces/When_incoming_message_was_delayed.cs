@@ -31,8 +31,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(incomingMessageActivities.Count, Is.EqualTo(2), "2 messages are received as part of this test");
-            Assert.That(outgoingMessageActivities.Count, Is.EqualTo(2), "2 messages are sent as part of this test");
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are sent as part of this test");
         });
 
         var sendRequest = outgoingMessageActivities[0];
@@ -69,8 +69,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(incomingMessageActivities.Count, Is.EqualTo(2), "2 messages are received as part of this test (2 attempts)");
-            Assert.That(outgoingMessageActivities.Count, Is.EqualTo(1), "1 message sent as part of this test");
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test (2 attempts)");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message sent as part of this test");
         });
 
         var sendRequest = outgoingMessageActivities[0];
@@ -103,8 +103,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(incomingMessageActivities.Count, Is.EqualTo(3), "3 messages are received as part of this test");
-            Assert.That(outgoingMessageActivities.Count, Is.EqualTo(3), "3 messages are sent as part of this test");
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(3), "3 messages are received as part of this test");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(3), "3 messages are sent as part of this test");
         });
 
         var startSagaSend = outgoingMessageActivities[0];

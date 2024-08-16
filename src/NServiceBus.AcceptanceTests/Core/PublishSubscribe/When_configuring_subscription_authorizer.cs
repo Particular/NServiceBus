@@ -33,7 +33,7 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
             .Done(c => c.ReceivedAllowedEventSubscriptionMessage && c.ReceivedForbiddenEventSubscriptionMessage)
             .Run();
 
-        Assert.That(context.SubscriptionStorage.SubscribedEvents.Count, Is.EqualTo(1));
+        Assert.That(context.SubscriptionStorage.SubscribedEvents, Has.Count.EqualTo(1));
         Assert.That(context.SubscriptionStorage.SubscribedEvents.Single(), Is.EqualTo(typeof(AllowedEvent).FullName));
     }
 

@@ -1207,7 +1207,7 @@ namespace NServiceBus.Serializers.XML.Test
                 {
                     typeof(EmptyMessage)
                 });
-                Assert.That(msgArray.Length, Is.EqualTo(3));
+                Assert.That(msgArray, Has.Length.EqualTo(3));
             }
         }
 

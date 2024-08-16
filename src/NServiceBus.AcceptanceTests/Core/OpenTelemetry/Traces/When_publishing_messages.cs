@@ -29,7 +29,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
-        Assert.That(outgoingEventActivities.Count, Is.EqualTo(1), "1 event is being published");
+        Assert.That(outgoingEventActivities, Has.Count.EqualTo(1), "1 event is being published");
 
         var publishedMessage = outgoingEventActivities.Single();
         publishedMessage.VerifyUniqueTags();
@@ -72,8 +72,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(publishMessageActivities.Count, Is.EqualTo(1), "1 message is published as part of this test");
-            Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
         });
 
         var publishRequest = publishMessageActivities[0];
@@ -113,8 +113,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(publishMessageActivities.Count, Is.EqualTo(1), "1 message is published as part of this test");
-            Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
         });
 
         var publishRequest = publishMessageActivities[0];
