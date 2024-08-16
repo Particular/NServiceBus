@@ -16,7 +16,7 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Send-only endpoints cannot subscribe to events", exception.Message);
+        Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot subscribe to events"));
     }
 
     [Test]
@@ -28,7 +28,7 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Send-only endpoints cannot unsubscribe to events", exception.Message);
+        Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot unsubscribe to events"));
     }
 
     class SendOnlyEndpoint : EndpointConfigurationBuilder

@@ -55,7 +55,7 @@ public class ReflectTests
         public void Should_throw_when_dots_not_allowed()
         {
             var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target1>.GetProperty(target => target.Property1.Property2, true));
-            StringAssert.StartsWith("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2", argumentException.Message);
+            Assert.That(argumentException.Message, Does.StartWith("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2"));
             Assert.That(argumentException.ParamName, Is.EqualTo("member"));
         }
 

@@ -16,7 +16,7 @@ public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAc
             .Done(_ => false)
             .Run());
 
-        StringAssert.Contains("The selected persistence doesn't have support for outbox storage", exception.Message);
+        Assert.That(exception.Message, Does.Contain("The selected persistence doesn't have support for outbox storage"));
     }
 
     public class Context : ScenarioContext

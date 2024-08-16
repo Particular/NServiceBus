@@ -26,7 +26,7 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedMessage)
             .Run());
 
-        StringAssert.Contains($"Cannot set the {Headers.ConversationId} header to 'intermediate message header' as it cannot override the incoming header value ('{initialConversationId}').", exception.InnerException.Message);
+        Assert.That(exception.InnerException.Message, Does.Contain($"Cannot set the {Headers.ConversationId} header to 'intermediate message header' as it cannot override the incoming header value ('{initialConversationId}')."));
         Assert.That(((Context)exception.ScenarioContext).SentOutgoingMessage, Is.False, "because send should fail");
     }
 

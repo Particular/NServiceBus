@@ -32,7 +32,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
-        StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+        Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
     [Test]
@@ -52,7 +52,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
-        StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+        Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
     class Context : ScenarioContext

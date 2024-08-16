@@ -15,7 +15,7 @@ public class When_disabling_assembly_scanning : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality from loading correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}", exception.Message);
+        Assert.That(exception.Message, Does.Contain($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality from loading correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}"));
     }
 
     public class EndpointWithDisabledAssemblyScanning : EndpointConfigurationBuilder

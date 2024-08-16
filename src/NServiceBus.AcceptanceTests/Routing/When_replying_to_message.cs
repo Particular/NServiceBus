@@ -41,7 +41,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(ctx.SendingEndpointGotResponse, Is.True);
-        StringAssert.DoesNotContain(instanceDiscriminator, ctx.ReplyToAddress);
+        Assert.That(ctx.ReplyToAddress, Does.Not.Contain(instanceDiscriminator));
     }
 
     [Test]

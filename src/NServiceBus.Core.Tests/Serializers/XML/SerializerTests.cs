@@ -104,7 +104,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var ex = Assert.Throws<Exception>(() => serializer.Deserialize(stream.ToArray()));
 
-                StringAssert.StartsWith("Type not supported by the serializer", ex.Message);
+                Assert.That(ex.Message, Does.StartWith("Type not supported by the serializer"));
             }
         }
 
