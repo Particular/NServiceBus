@@ -15,7 +15,7 @@ public class ActivityExtensionsTests
 
         var contextBag = new ContextBag();
         Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
-        Assert.IsNull(activity);
+        Assert.That(activity, Is.Null);
     }
 
     [Test]
@@ -28,7 +28,7 @@ public class ActivityExtensionsTests
         contextBag.SetOutgoingPipelineActitvity(null);
 
         Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
-        Assert.IsNull(activity);
+        Assert.That(activity, Is.Null);
     }
 
     [Test]

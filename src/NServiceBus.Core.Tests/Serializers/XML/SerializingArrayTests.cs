@@ -89,7 +89,7 @@ public class SerializingArrayTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 
-        Assert.IsNull(result.SomeWords);
+        Assert.That(result.SomeWords, Is.Null);
     }
 
     [Test]
@@ -241,10 +241,10 @@ public class SerializingArrayTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithNullableArray>(message);
 
-        Assert.IsNull(result.SomeInts[0]);
+        Assert.That(result.SomeInts[0], Is.Null);
         Assert.That(result.SomeInts[1], Is.EqualTo(1));
-        Assert.IsNull(result.SomeInts[2]);
+        Assert.That(result.SomeInts[2], Is.Null);
         Assert.That(result.SomeInts[3], Is.EqualTo(3));
-        Assert.IsNull(result.SomeInts[4]);
+        Assert.That(result.SomeInts[4], Is.Null);
     }
 }

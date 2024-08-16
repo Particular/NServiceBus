@@ -24,7 +24,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities.Count, Is.EqualTo(1), "1 message is being sent");
         var sentMessage = outgoingMessageActivities.Single();
 
-        Assert.IsNull(sentMessage.ParentId, "sends without ambient span should start a new trace");
+        Assert.That(sentMessage.ParentId, Is.Null, "sends without ambient span should start a new trace");
         Assert.That(sentMessage.DisplayName, Is.EqualTo("send message"));
 
         var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
@@ -90,7 +90,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var receiveRequest = receiveMessageActivities[0];
 
         Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
-        Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
+        Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.IsNotNull(link, "Receive has a link");

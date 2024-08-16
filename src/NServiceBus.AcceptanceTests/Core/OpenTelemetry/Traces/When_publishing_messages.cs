@@ -34,7 +34,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var publishedMessage = outgoingEventActivities.Single();
         publishedMessage.VerifyUniqueTags();
         Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish event"));
-        Assert.IsNull(publishedMessage.ParentId, "publishes without ambient span should start a new trace");
+        Assert.That(publishedMessage.ParentId, Is.Null, "publishes without ambient span should start a new trace");
 
         var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
         sentMessageTags.VerifyTag("nservicebus.message_id", context.PublishedMessageId);
@@ -109,7 +109,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var receiveRequest = receiveMessageActivities[0];
 
         Assert.That(receiveRequest.RootId, Is.Not.EqualTo(publishRequest.RootId), "publish and receive operations are part of different root activities");
-        Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
+        Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.IsNotNull(link, "Receive has a link");

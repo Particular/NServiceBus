@@ -194,7 +194,7 @@ public class RoutingToDispatchConnectorTests
         var contentTypeTag = pipelineActivity.GetTagItem(ActivityTags.ContentType);
         Assert.That(contentTypeTag, Is.EqualTo("test content type"), "should set tags on activity from pipeline context");
 
-        Assert.IsNull(ambientActivity.GetTagItem(ActivityTags.ContentType), "should not set tags on Activity.Current");
+        Assert.That(ambientActivity.GetTagItem(ActivityTags.ContentType), Is.Null, "should not set tags on Activity.Current");
     }
 
     static OutgoingSendContext CreateContext(SendOptions options, bool fromHandler)

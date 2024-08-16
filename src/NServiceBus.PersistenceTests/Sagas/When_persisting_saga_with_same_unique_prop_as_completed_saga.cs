@@ -28,7 +28,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
             await completeSession.CompleteAsync();
         }
 
-        Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga1.Id));
+        Assert.That(await GetById<SagaWithCorrelationPropertyData>(saga1.Id), Is.Null);
 
         await SaveSaga(saga2);
         var context2 = configuration.GetContextBagForSagaStorage();
@@ -43,7 +43,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
             await completeSession.CompleteAsync();
         }
 
-        Assert.IsNull(await GetById<SagaWithCorrelationPropertyData>(saga2.Id));
+        Assert.That(await GetById<SagaWithCorrelationPropertyData>(saga2.Id), Is.Null);
     }
 
     public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
