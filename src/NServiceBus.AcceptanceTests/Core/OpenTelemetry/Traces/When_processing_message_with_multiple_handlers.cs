@@ -35,8 +35,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         }
 
-        Assert.That(recordedHandlerTypes.Contains(typeof(ReceivingEndpoint.HandlerOne).FullName), Is.True, "invocation of handler one should be traced");
-        Assert.That(recordedHandlerTypes.Contains(typeof(ReceivingEndpoint.HandlerTwo).FullName), Is.True, "invocation of handler two should be traced");
+        Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");
+        Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerTwo).FullName), "invocation of handler two should be traced");
     }
 
     class Context : ScenarioContext

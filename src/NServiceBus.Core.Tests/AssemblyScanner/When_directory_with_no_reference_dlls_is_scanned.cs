@@ -16,7 +16,7 @@ public class When_directory_with_no_reference_dlls_is_scanned
 
         var result = scanner.GetScannableAssemblies();
 
-        Assert.That(result.Assemblies.Contains(assemblyToScan), Is.False);
+        Assert.That(result.Assemblies, Does.Not.Contain(assemblyToScan));
     }
 
 }
