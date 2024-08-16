@@ -88,8 +88,8 @@ public class TestableMessageHandlerContextTests
         await context.ForwardCurrentMessageTo("destination1");
         await context.ForwardCurrentMessageTo("destination2");
 
-        Assert.Contains("destination1", context.ForwardedMessages);
-        Assert.Contains("destination2", context.ForwardedMessages);
+        Assert.That(context.ForwardedMessages, Does.Contain("destination1"));
+        Assert.That(context.ForwardedMessages, Does.Contain("destination2"));
     }
 
     [Test]

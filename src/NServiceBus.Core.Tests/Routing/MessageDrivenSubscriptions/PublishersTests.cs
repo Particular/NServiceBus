@@ -62,8 +62,8 @@ public class PublishersTests
 
         var pubs = publisherTable.GetPublisherFor(typeof(MyEvent)).ToArray();
 
-        Assert.Contains(pub1, pubs);
-        Assert.Contains(pub2, pubs);
+        Assert.That(pubs, Does.Contain(pub1));
+        Assert.That(pubs, Does.Contain(pub2));
     }
 
     [Test]
@@ -91,12 +91,12 @@ public class PublishersTests
         var pubs = publisherTable.GetPublisherFor(typeof(MyEvent)).ToArray();
 
         Assert.That(pubs.Length, Is.EqualTo(3));
-        Assert.Contains(pub1, pubs);
-        Assert.Contains(pub2, pubs);
-        Assert.Contains(pub3, pubs);
-        Assert.Contains(pub4, pubs);
-        Assert.Contains(pub5, pubs);
-        Assert.Contains(pub6, pubs);
+        Assert.That(pubs, Does.Contain(pub1));
+        Assert.That(pubs, Does.Contain(pub2));
+        Assert.That(pubs, Does.Contain(pub3));
+        Assert.That(pubs, Does.Contain(pub4));
+        Assert.That(pubs, Does.Contain(pub5));
+        Assert.That(pubs, Does.Contain(pub6));
     }
 
     class MyEvent : IEvent
