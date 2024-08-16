@@ -162,7 +162,7 @@ public class JsonMessageSerializerTest
 
         Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
 
-        Assert.IsNotEmpty(result);
+        Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Length.EqualTo(1));
 
         Assert.That(result[0], Is.AssignableTo(typeof(IA)));

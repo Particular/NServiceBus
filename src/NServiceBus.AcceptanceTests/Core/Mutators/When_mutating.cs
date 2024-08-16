@@ -77,36 +77,36 @@ public class When_mutating : NServiceBusAcceptanceTest
         {
             public Task MutateIncoming(MutateIncomingMessageContext context)
             {
-                Assert.IsNotEmpty(context.Headers);
+                Assert.That(context.Headers, Is.Not.Empty);
                 Assert.That(context.Message, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
-                Assert.IsNotEmpty(context.Headers);
+                Assert.That(context.Headers, Is.Not.Empty);
                 Assert.That(context.Body, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
-                Assert.IsNotEmpty(context.OutgoingHeaders);
+                Assert.That(context.OutgoingHeaders, Is.Not.Empty);
                 Assert.That(context.OutgoingMessage, Is.Not.Null);
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.IsNotEmpty(incomingHeaders);
+                Assert.That(incomingHeaders, Is.Not.Empty);
                 Assert.That(incomingMessage, Is.Not.Null);
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
-                Assert.IsNotEmpty(context.OutgoingHeaders);
+                Assert.That(context.OutgoingHeaders, Is.Not.Empty);
                 Assert.That(context.OutgoingBody, Is.Not.Null);
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.IsNotEmpty(incomingHeaders);
+                Assert.That(incomingHeaders, Is.Not.Empty);
                 Assert.That(incomingMessage, Is.Not.Null);
                 return Task.CompletedTask;
             }

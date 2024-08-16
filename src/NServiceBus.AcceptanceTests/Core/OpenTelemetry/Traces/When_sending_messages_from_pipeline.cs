@@ -20,7 +20,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var sentMessage = outgoingMessageActivities.First();
 
-        Assert.IsNotEmpty(sentMessage.Events);
+        Assert.That(sentMessage.Events, Is.Not.Empty);
         var startDispatchingEvents = sentMessage.Events.Where(e => e.Name == "Start dispatching").ToArray();
         Assert.That(startDispatchingEvents.Length, Is.EqualTo(1), "should raise dispatch start event");
         Assert.That(startDispatchingEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(1));
