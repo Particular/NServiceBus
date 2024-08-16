@@ -30,10 +30,13 @@ public class FeatureSettingsTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.That(featureWithTrueCondition.IsActive, Is.True);
-        Assert.That(featureWithFalseCondition.IsActive, Is.False);
-        Assert.That(featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
-            Is.EqualTo("The description"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(featureWithTrueCondition.IsActive, Is.True);
+            Assert.That(featureWithFalseCondition.IsActive, Is.False);
+            Assert.That(featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
+                Is.EqualTo("The description"));
+        });
     }
 
     [Test]
@@ -55,8 +58,11 @@ public class FeatureSettingsTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.That(settings.HasSetting("Test1"), Is.False);
-        Assert.That(settings.HasSetting("Test2"), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(settings.HasSetting("Test1"), Is.False);
+            Assert.That(settings.HasSetting("Test2"), Is.False);
+        });
     }
 
 

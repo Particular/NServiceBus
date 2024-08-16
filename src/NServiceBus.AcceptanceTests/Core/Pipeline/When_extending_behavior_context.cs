@@ -20,8 +20,11 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
             .Done(c => c.HandlerAExtensionValue != null && c.HandlerBExtensionValue != null)
             .Run();
 
-        Assert.That(context.HandlerAExtensionValue, Is.EqualTo(ExtensionValue));
-        Assert.That(context.HandlerBExtensionValue, Is.EqualTo(ExtensionValue));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HandlerAExtensionValue, Is.EqualTo(ExtensionValue));
+            Assert.That(context.HandlerBExtensionValue, Is.EqualTo(ExtensionValue));
+        });
     }
 
     static string ExtensionValue;

@@ -31,8 +31,11 @@
                 var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(Namespace1.FirstMessage), typeof(Namespace2.FirstMessage));
 
                 var messageDeserialized = serializer.Deserialize(stream.ToArray());
-                Assert.That(messageDeserialized[0], Is.InstanceOf<Namespace2.FirstMessage>());
-                Assert.That(messageDeserialized[1], Is.InstanceOf<Namespace1.FirstMessage>());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(messageDeserialized[0], Is.InstanceOf<Namespace2.FirstMessage>());
+                    Assert.That(messageDeserialized[1], Is.InstanceOf<Namespace1.FirstMessage>());
+                });
             }
         }
     }

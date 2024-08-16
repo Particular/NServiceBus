@@ -30,7 +30,10 @@ public class SerializingGenericTests
 
         var result = ExecuteSerializer.ForMessage<GenericMessage<int, string>>(message);
 
-        Assert.That(result.Data1, Is.EqualTo(1234));
-        Assert.That(result.Data2, Is.EqualTo("Lorem ipsum"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Data1, Is.EqualTo(1234));
+            Assert.That(result.Data2, Is.EqualTo("Lorem ipsum"));
+        });
     }
 }

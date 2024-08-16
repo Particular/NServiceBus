@@ -22,24 +22,30 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
         var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.That(incomingMessageActivities.Count, Is.EqualTo(2), "2 messages are received as part of this test");
-        Assert.That(outgoingMessageActivities.Count, Is.EqualTo(2), "2 messages are sent as part of this test");
+        Assert.Multiple(() =>
+        {
+            Assert.That(incomingMessageActivities.Count, Is.EqualTo(2), "2 messages are received as part of this test");
+            Assert.That(outgoingMessageActivities.Count, Is.EqualTo(2), "2 messages are sent as part of this test");
+        });
 
         var sendRequest = outgoingMessageActivities[0];
         var receiveRequest = incomingMessageActivities[0];
         var sendReply = outgoingMessageActivities[1];
         var receiveReply = incomingMessageActivities[1];
 
-        Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
-        Assert.That(receiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
-        Assert.That(sendReply.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
-        Assert.That(receiveReply.ParentId, Is.EqualTo(sendReply.Id), "second incoming message is correlated to the second send operation");
-        Assert.That(receiveReply.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
+        Assert.Multiple(() =>
+        {
+            Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
+            Assert.That(receiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
+            Assert.That(sendReply.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
+            Assert.That(receiveReply.ParentId, Is.EqualTo(sendReply.Id), "second incoming message is correlated to the second send operation");
+            Assert.That(receiveReply.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
 
-        Assert.That(sendRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
-        Assert.That(receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
-        Assert.That(sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
-        Assert.That(receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
+            Assert.That(sendRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
+            Assert.That(receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
+            Assert.That(sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
+            Assert.That(receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
+        });
     }
 
     class Context : ScenarioContext

@@ -75,8 +75,11 @@ public class SerializingArrayTests
 
         Assert.That(result.SomeInts, Is.Not.Null);
         Assert.That(result.SomeInts, Has.Length.EqualTo(2));
-        Assert.That(result.SomeInts[0], Is.EqualTo(1234));
-        Assert.That(result.SomeInts[1], Is.EqualTo(5323));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.SomeInts[0], Is.EqualTo(1234));
+            Assert.That(result.SomeInts[1], Is.EqualTo(5323));
+        });
     }
 
     [Test]
@@ -241,10 +244,13 @@ public class SerializingArrayTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithNullableArray>(message);
 
-        Assert.That(result.SomeInts[0], Is.Null);
-        Assert.That(result.SomeInts[1], Is.EqualTo(1));
-        Assert.That(result.SomeInts[2], Is.Null);
-        Assert.That(result.SomeInts[3], Is.EqualTo(3));
-        Assert.That(result.SomeInts[4], Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.SomeInts[0], Is.Null);
+            Assert.That(result.SomeInts[1], Is.EqualTo(1));
+            Assert.That(result.SomeInts[2], Is.Null);
+            Assert.That(result.SomeInts[3], Is.EqualTo(3));
+            Assert.That(result.SomeInts[4], Is.Null);
+        });
     }
 }

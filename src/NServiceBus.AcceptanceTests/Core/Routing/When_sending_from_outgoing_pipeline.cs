@@ -25,8 +25,11 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
             .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
             .Run(TimeSpan.FromSeconds(15));
 
-        Assert.That(context.LocalMessageReceived, Is.True);
-        Assert.That(context.BehaviorMessageReceived, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.LocalMessageReceived, Is.True);
+            Assert.That(context.BehaviorMessageReceived, Is.True);
+        });
     }
 
     [Test]
@@ -43,8 +46,11 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
             .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
             .Run(TimeSpan.FromSeconds(15));
 
-        Assert.That(context.LocalMessageReceived, Is.True);
-        Assert.That(context.BehaviorMessageReceived, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.LocalMessageReceived, Is.True);
+            Assert.That(context.BehaviorMessageReceived, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

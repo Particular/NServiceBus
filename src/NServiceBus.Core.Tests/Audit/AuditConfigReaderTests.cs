@@ -14,8 +14,11 @@ public class AuditConfigReaderTests
 
         settingsHolder.Set(new AuditConfigReader.Result(configuredAddress, null));
 
-        Assert.That(settingsHolder.TryGetAuditQueueAddress(out var address), Is.True);
-        Assert.That(address, Is.EqualTo(configuredAddress));
+        Assert.Multiple(() =>
+        {
+            Assert.That(settingsHolder.TryGetAuditQueueAddress(out var address), Is.True);
+            Assert.That(address, Is.EqualTo(configuredAddress));
+        });
     }
 
     [Test]
@@ -26,8 +29,11 @@ public class AuditConfigReaderTests
 
         settingsHolder.Set(new AuditConfigReader.Result("someAddress", configuredExpiration));
 
-        Assert.That(settingsHolder.TryGetAuditMessageExpiration(out var expiration), Is.True);
-        Assert.That(expiration, Is.EqualTo(configuredExpiration));
+        Assert.Multiple(() =>
+        {
+            Assert.That(settingsHolder.TryGetAuditMessageExpiration(out var expiration), Is.True);
+            Assert.That(expiration, Is.EqualTo(configuredExpiration));
+        });
     }
 
     [Test]

@@ -77,9 +77,12 @@ public class When_publishing : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.That(context.Subscriber1GotTheEvent, Is.True);
-        Assert.That(context.Subscriber2GotTheEvent, Is.True);
-        Assert.That(context.HeaderValue, Is.EqualTo("SomeValue"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.Subscriber1GotTheEvent, Is.True);
+            Assert.That(context.Subscriber2GotTheEvent, Is.True);
+            Assert.That(context.HeaderValue, Is.EqualTo("SomeValue"));
+        });
     }
 
     public class Context : ScenarioContext

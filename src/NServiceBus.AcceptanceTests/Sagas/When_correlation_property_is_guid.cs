@@ -22,8 +22,11 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
             .Done(c => c.MessageCorrelated)
             .Run();
 
-        Assert.That(context.MessageCorrelated, Is.True);
-        Assert.That(context.CorrelatedId, Is.EqualTo(default(Guid)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageCorrelated, Is.True);
+            Assert.That(context.CorrelatedId, Is.EqualTo(default(Guid)));
+        });
     }
 
     public class MessageWithGuidCorrelationProperty : IMessage

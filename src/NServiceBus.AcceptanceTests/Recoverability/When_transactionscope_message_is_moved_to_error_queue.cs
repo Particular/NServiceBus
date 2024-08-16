@@ -27,8 +27,11 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.That(context.OutgoingMessageSent, Is.False, "Outgoing messages should not be sent");
-        Assert.That(!context.FailedMessages.IsEmpty, Is.True, "There should be failed messages registered in this scenario");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.OutgoingMessageSent, Is.False, "Outgoing messages should not be sent");
+            Assert.That(!context.FailedMessages.IsEmpty, Is.True, "There should be failed messages registered in this scenario");
+        });
     }
 
     class Context : ScenarioContext

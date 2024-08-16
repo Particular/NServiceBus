@@ -23,8 +23,11 @@ public class Sub_to_base_event : NServiceBusAcceptanceTest
             .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
             .Run();
 
-        Assert.That(context.SubscriberGotBaseEvent, Is.True);
-        Assert.That(context.SubscriberGotSpecificEvent, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SubscriberGotBaseEvent, Is.True);
+            Assert.That(context.SubscriberGotSpecificEvent, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

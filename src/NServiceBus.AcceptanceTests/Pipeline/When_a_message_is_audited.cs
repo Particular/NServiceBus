@@ -17,8 +17,11 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.That(context.RelatedTo, Is.EqualTo(context.OriginRelatedTo), "The RelatedTo header in audit message should be be equal to RelatedTo header in origin.");
-        Assert.That(context.ConversationId, Is.EqualTo(context.OriginConversationId), "The ConversationId header in audit message should be be equal to ConversationId header in origin.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.RelatedTo, Is.EqualTo(context.OriginRelatedTo), "The RelatedTo header in audit message should be be equal to RelatedTo header in origin.");
+            Assert.That(context.ConversationId, Is.EqualTo(context.OriginConversationId), "The ConversationId header in audit message should be be equal to ConversationId header in origin.");
+        });
     }
 
     public class Context : ScenarioContext

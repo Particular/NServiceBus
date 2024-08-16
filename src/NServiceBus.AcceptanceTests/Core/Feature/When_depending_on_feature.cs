@@ -23,8 +23,11 @@ public class When_depending_on_feature : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.StartCalled, Is.True);
-        Assert.That(context.StopCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.StartCalled, Is.True);
+            Assert.That(context.StopCalled, Is.True);
+        });
     }
 
     class Context : ScenarioContext

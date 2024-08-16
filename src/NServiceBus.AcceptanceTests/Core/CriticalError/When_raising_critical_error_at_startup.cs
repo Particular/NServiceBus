@@ -29,8 +29,11 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
             .Done(c => c.CriticalErrorsRaised >= 2 && exceptions.Count >= 2)
             .Run();
 
-        Assert.That(context.CriticalErrorsRaised, Is.EqualTo(2));
-        Assert.That(exceptions.Count, Is.EqualTo(context.CriticalErrorsRaised));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.CriticalErrorsRaised, Is.EqualTo(2));
+            Assert.That(exceptions.Count, Is.EqualTo(context.CriticalErrorsRaised));
+        });
     }
 
     public class TestContext : ScenarioContext

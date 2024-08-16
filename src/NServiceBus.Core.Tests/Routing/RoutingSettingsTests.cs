@@ -77,9 +77,12 @@
             var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
             var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
-            Assert.That(someMessageRoute, Is.Not.Null);
-            Assert.That(otherMessageRoute, Is.Not.Null);
-            Assert.That(messageWithoutNamespaceRoute, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(someMessageRoute, Is.Not.Null);
+                Assert.That(otherMessageRoute, Is.Not.Null);
+                Assert.That(messageWithoutNamespaceRoute, Is.Not.Null);
+            });
         }
 
         [Test]
@@ -94,9 +97,12 @@
             var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
             var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
-            Assert.That(someMessageRoute, Is.Not.Null, "because SomeMessageType is in the given namespace");
-            Assert.That(otherMessageRoute, Is.Null, "because OtherMessageType is not in the given namespace");
-            Assert.That(messageWithoutNamespaceRoute, Is.Null, "because MessageWithoutNamespace is not in the given namespace");
+            Assert.Multiple(() =>
+            {
+                Assert.That(someMessageRoute, Is.Not.Null, "because SomeMessageType is in the given namespace");
+                Assert.That(otherMessageRoute, Is.Null, "because OtherMessageType is not in the given namespace");
+                Assert.That(messageWithoutNamespaceRoute, Is.Null, "because MessageWithoutNamespace is not in the given namespace");
+            });
         }
 
         [Theory]
@@ -113,9 +119,12 @@
             var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
             var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
-            Assert.That(someMessageRoute, Is.Null);
-            Assert.That(otherMessageRoute, Is.Null);
-            Assert.That(messageWithoutNamespaceRoute, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(someMessageRoute, Is.Null);
+                Assert.That(otherMessageRoute, Is.Null);
+                Assert.That(messageWithoutNamespaceRoute, Is.Not.Null);
+            });
         }
 
         static UnicastRoutingTable ApplyConfiguredRoutes(RoutingSettings routingSettings)

@@ -17,11 +17,14 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
             .Done(c => c.GotTheRequest)
             .Run();
 
-        Assert.That(context.GotExceptionFromReply, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.GotExceptionFromReply, Is.True);
 
-        //this verifies a callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
-        // See https://github.com/Particular/NServiceBus.Callbacks/blob/develop/src/NServiceBus.Callbacks/Reply/SetCallbackResponseReturnCodeBehavior.cs#L7
-        Assert.That(context.WasAbleToInterceptBeforeCoreThrows, Is.True, "Callbacks needs to be able to intercept the pipeline before core throws");
+            //this verifies a callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
+            // See https://github.com/Particular/NServiceBus.Callbacks/blob/develop/src/NServiceBus.Callbacks/Reply/SetCallbackResponseReturnCodeBehavior.cs#L7
+            Assert.That(context.WasAbleToInterceptBeforeCoreThrows, Is.True, "Callbacks needs to be able to intercept the pipeline before core throws");
+        });
     }
 
     public class Context : ScenarioContext

@@ -45,8 +45,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-            Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [Test]
@@ -63,10 +66,13 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-            Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
-            Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
-            Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            });
         }
 
         [Test]
@@ -97,8 +103,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.Null, "should create a new trace");
-            Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should create a new trace");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -111,8 +120,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id));
-            Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id));
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [TestCase(ActivityIdFormat.W3C)]
@@ -126,8 +138,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should attach to ambient activity");
-            Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should attach to ambient activity");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -136,8 +151,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.Null, "should start a new trace");
-            Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start a new trace");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -148,8 +166,11 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.Null, "should start new trace");
-            Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start new trace");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [Test]
@@ -205,8 +226,11 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
 
-            Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
-            Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]

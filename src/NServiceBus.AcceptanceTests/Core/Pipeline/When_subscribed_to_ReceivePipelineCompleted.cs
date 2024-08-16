@@ -17,10 +17,13 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
             .Done(c => c.NotificationEventFired)
             .Run();
 
-        Assert.That(context.NotificationEventFired, Is.True, "ReceivePipelineCompleted was not raised");
-        Assert.That(context.ReceivePipelineCompletedMessage.ProcessedMessage.MessageId, Is.EqualTo(context.MessageId), "MessageId mismatch");
-        Assert.That(context.ReceivePipelineCompletedMessage.StartedAt, Is.Not.EqualTo(DateTime.MinValue), "StartedAt was not set");
-        Assert.That(context.ReceivePipelineCompletedMessage.CompletedAt, Is.Not.EqualTo(DateTime.MinValue), "CompletedAt was not set");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.NotificationEventFired, Is.True, "ReceivePipelineCompleted was not raised");
+            Assert.That(context.ReceivePipelineCompletedMessage.ProcessedMessage.MessageId, Is.EqualTo(context.MessageId), "MessageId mismatch");
+            Assert.That(context.ReceivePipelineCompletedMessage.StartedAt, Is.Not.EqualTo(DateTime.MinValue), "StartedAt was not set");
+            Assert.That(context.ReceivePipelineCompletedMessage.CompletedAt, Is.Not.EqualTo(DateTime.MinValue), "CompletedAt was not set");
+        });
     }
 
     class Context : ScenarioContext

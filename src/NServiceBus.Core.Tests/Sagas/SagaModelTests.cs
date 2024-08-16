@@ -48,21 +48,30 @@ public class SagaModelTests
 
         Assert.That(metadata, Is.Not.Null);
 
-        Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(MyEntity)));
-        Assert.That(metadata.EntityName, Is.EqualTo(typeof(MyEntity).FullName));
-        Assert.That(metadata.SagaType, Is.EqualTo(typeof(MySaga)));
-        Assert.That(metadata.Name, Is.EqualTo(typeof(MySaga).FullName));
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(MyEntity)));
+            Assert.That(metadata.EntityName, Is.EqualTo(typeof(MyEntity).FullName));
+            Assert.That(metadata.SagaType, Is.EqualTo(typeof(MySaga)));
+            Assert.That(metadata.Name, Is.EqualTo(typeof(MySaga).FullName));
 
-        Assert.That(metadata.AssociatedMessages.Count, Is.EqualTo(2));
-        Assert.That(metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga), Is.EqualTo(1));
-        Assert.That(metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message2).FullName && !am.IsAllowedToStartSaga), Is.EqualTo(1));
+            Assert.That(metadata.AssociatedMessages.Count, Is.EqualTo(2));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga), Is.EqualTo(1));
+            Assert.That(metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message2).FullName && !am.IsAllowedToStartSaga), Is.EqualTo(1));
 
-        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
-        Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
+            Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
+            Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
 
-        Assert.That(metadata.Finders.Count, Is.EqualTo(2));
-        Assert.That(metadata.Finders.Count(f => f.MessageType == typeof(Message1)), Is.EqualTo(1));
-        Assert.That(metadata.Finders.Count(f => f.MessageType == typeof(Message2)), Is.EqualTo(1));
+            Assert.That(metadata.Finders.Count, Is.EqualTo(2));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.Finders.Count(f => f.MessageType == typeof(Message1)), Is.EqualTo(1));
+            Assert.That(metadata.Finders.Count(f => f.MessageType == typeof(Message2)), Is.EqualTo(1));
+        });
     }
 
     [Test]
@@ -80,8 +89,11 @@ public class SagaModelTests
 
         var metadata = model.Find(typeof(MyHeaderMappedSaga));
 
-        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
-        Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
+            Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
+        });
     }
 
     [Test]

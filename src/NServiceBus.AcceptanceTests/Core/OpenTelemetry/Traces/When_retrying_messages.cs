@@ -22,12 +22,18 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
         var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
 
-        Assert.That(sendActivities.Count, Is.EqualTo(1));
-        Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
-        Assert.That(receiveActivities[0].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
-        Assert.That(receiveActivities[1].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
+        Assert.Multiple(() =>
+        {
+            Assert.That(sendActivities.Count, Is.EqualTo(1));
+            Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(receiveActivities[0].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
+            Assert.That(receiveActivities[1].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
 
-        Assert.That(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), Is.True, "all activities should be part of the same trace");
+            Assert.That(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), Is.True, "all activities should be part of the same trace");
+        });
     }
 
     [Test]
@@ -46,12 +52,18 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
         var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
 
-        Assert.That(sendActivities.Count, Is.EqualTo(1));
-        Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
-        Assert.That(receiveActivities[0].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
-        Assert.That(receiveActivities[1].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
+        Assert.Multiple(() =>
+        {
+            Assert.That(sendActivities.Count, Is.EqualTo(1));
+            Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(receiveActivities[0].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
+            Assert.That(receiveActivities[1].ParentId, Is.EqualTo(sendActivities[0].Id), "should not change parent span");
 
-        Assert.That(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), Is.True, "all activities should be part of the same trace");
+            Assert.That(sendActivities.Concat(receiveActivities).All(a => a.TraceId == sendActivities[0].TraceId), Is.True, "all activities should be part of the same trace");
+        });
     }
 
     class Context : ScenarioContext

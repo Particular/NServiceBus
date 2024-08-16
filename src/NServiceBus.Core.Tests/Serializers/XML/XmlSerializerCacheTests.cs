@@ -26,9 +26,12 @@ public class XmlSerializerCacheTests
         cache.InitType(typeof(RecursiveType));
 
         var members = cache.typeMembers[typeof(RecursiveType)];
-        Assert.That(members.Item1.Single().FieldType, Is.EqualTo(typeof(RecursiveType)));
-        Assert.That(members.Item2[0].PropertyType, Is.EqualTo(typeof(RecursiveType)));
-        Assert.That(members.Item2[1].PropertyType, Is.EqualTo(typeof(RecursiveType[])));
+        Assert.Multiple(() =>
+        {
+            Assert.That(members.Item1.Single().FieldType, Is.EqualTo(typeof(RecursiveType)));
+            Assert.That(members.Item2[0].PropertyType, Is.EqualTo(typeof(RecursiveType)));
+            Assert.That(members.Item2[1].PropertyType, Is.EqualTo(typeof(RecursiveType[])));
+        });
     }
 
     [Test]
@@ -42,8 +45,11 @@ public class XmlSerializerCacheTests
 
             var members = cache.typeMembers[typeof(SimpleType)];
             Assert.That(members, Is.Not.Null);
-            Assert.That(members.Item1.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleField)));
-            Assert.That(members.Item2.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleProperty)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(members.Item1.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleField)));
+                Assert.That(members.Item2.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleProperty)));
+            });
         });
     }
 }

@@ -17,12 +17,18 @@ public class SubscribeContextTests
         testee.Extensions.Set("someKey", "updatedValue");
         testee.Extensions.Set("anotherKey", "anotherValue");
         context.TryGet("someKey", out string value);
-        Assert.That(value, Is.EqualTo("someValue"));
-        Assert.That(context.TryGet("anotherKey", out string _), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(value, Is.EqualTo("someValue"));
+            Assert.That(context.TryGet("anotherKey", out string _), Is.False);
+        });
         testee.Extensions.TryGet("someKey", out string updatedValue);
         testee.Extensions.TryGet("anotherKey", out string anotherValue2);
-        Assert.That(updatedValue, Is.EqualTo("updatedValue"));
-        Assert.That(anotherValue2, Is.EqualTo("anotherValue"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(updatedValue, Is.EqualTo("updatedValue"));
+            Assert.That(anotherValue2, Is.EqualTo("anotherValue"));
+        });
     }
 
     [Test]
@@ -67,13 +73,19 @@ public class SubscribeContextTests
         var innerContext = new SubscribeContext(parentContext, Type.EmptyTypes, innerOptions);
 
         var innerOperationProperties = innerContext.GetOperationProperties();
-        Assert.That(innerOperationProperties.Get<string>("inner key"), Is.EqualTo("inner value"));
-        Assert.That(innerOperationProperties.Get<string>("shared key"), Is.EqualTo("inner shared value"));
-        Assert.That(innerOperationProperties.TryGet("outer key", out string _), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(innerOperationProperties.Get<string>("inner key"), Is.EqualTo("inner value"));
+            Assert.That(innerOperationProperties.Get<string>("shared key"), Is.EqualTo("inner shared value"));
+            Assert.That(innerOperationProperties.TryGet("outer key", out string _), Is.False);
+        });
 
         var outerOperationProperties = parentContext.GetOperationProperties();
-        Assert.That(outerOperationProperties.Get<string>("outer key"), Is.EqualTo("outer value"));
-        Assert.That(outerOperationProperties.Get<string>("shared key"), Is.EqualTo("outer shared value"));
-        Assert.That(outerOperationProperties.TryGet("inner key", out string _), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(outerOperationProperties.Get<string>("outer key"), Is.EqualTo("outer value"));
+            Assert.That(outerOperationProperties.Get<string>("shared key"), Is.EqualTo("outer shared value"));
+            Assert.That(outerOperationProperties.TryGet("inner key", out string _), Is.False);
+        });
     }
 }

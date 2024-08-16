@@ -23,11 +23,14 @@ public class When_wrapping_is_not_skipped : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.That(context.XmlPropertyValue.ToString(), Is.EqualTo(xmlContent.ToString()));
-        Assert.That(context.XmlMessage.Root.Name.LocalName, Is.EqualTo(nameof(MessageWithRawXml)));
-        Assert.That(context.XmlMessage.Root.Elements().Single().Name.LocalName, Is.EqualTo("Document"));
-        Assert.That(context.XmlMessage.Root.Elements().Single().Elements().Single().Name.LocalName, Is.EqualTo("Document"));
-        Assert.That(context.XmlMessage.Root.Elements().Single().Elements().Single().ToString(), Is.EqualTo(xmlContent.ToString()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.XmlPropertyValue.ToString(), Is.EqualTo(xmlContent.ToString()));
+            Assert.That(context.XmlMessage.Root.Name.LocalName, Is.EqualTo(nameof(MessageWithRawXml)));
+            Assert.That(context.XmlMessage.Root.Elements().Single().Name.LocalName, Is.EqualTo("Document"));
+            Assert.That(context.XmlMessage.Root.Elements().Single().Elements().Single().Name.LocalName, Is.EqualTo("Document"));
+            Assert.That(context.XmlMessage.Root.Elements().Single().Elements().Single().ToString(), Is.EqualTo(xmlContent.ToString()));
+        });
     }
 
     class Context : ScenarioContext

@@ -35,8 +35,11 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
             .Done(c => c.Done)
             .Run();
 
-        Assert.That(context.SessionNotNullAfterOpening, Is.True, "The adapted session was null after opening the session.");
-        Assert.That(context.StorageSessionEqual, Is.True, "The scoped storage session should be equal.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SessionNotNullAfterOpening, Is.True, "The adapted session was null after opening the session.");
+            Assert.That(context.StorageSessionEqual, Is.True, "The scoped storage session should be equal.");
+        });
 
         if (useOutbox)
         {

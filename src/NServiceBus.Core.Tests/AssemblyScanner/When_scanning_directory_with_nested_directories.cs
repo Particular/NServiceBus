@@ -21,8 +21,11 @@ public class When_scanning_directory_with_nested_directories
         var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
         var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
 
-        Assert.That(foundTypeFromNestedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
-        Assert.That(foundTypeFromDerivedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(foundTypeFromNestedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
+            Assert.That(foundTypeFromDerivedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
+        });
     }
 
     [Test]
@@ -39,7 +42,10 @@ public class When_scanning_directory_with_nested_directories
         var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
         var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
 
-        Assert.That(foundTypeFromNestedAssembly, Is.True, "Was expected to scan nested assemblies, but 'nested.dll' was not scanned.");
-        Assert.That(foundTypeFromDerivedAssembly, Is.True, "Was expected to scan nested assemblies, but 'Derived.dll' was not scanned.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(foundTypeFromNestedAssembly, Is.True, "Was expected to scan nested assemblies, but 'nested.dll' was not scanned.");
+            Assert.That(foundTypeFromDerivedAssembly, Is.True, "Was expected to scan nested assemblies, but 'Derived.dll' was not scanned.");
+        });
     }
 }

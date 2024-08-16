@@ -24,9 +24,12 @@ public class When_saga_id_changed : NServiceBusAcceptanceTest
                 .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
-        Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
-        Assert.That(((Context)exception.ScenarioContext).MessageId, Is.EqualTo(exception.FailedMessage.MessageId), "Message should be moved to errorqueue");
-        Assert.That(exception.FailedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
+            Assert.That(((Context)exception.ScenarioContext).MessageId, Is.EqualTo(exception.FailedMessage.MessageId), "Message should be moved to errorqueue");
+            Assert.That(exception.FailedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
+        });
     }
 
     public class Context : ScenarioContext

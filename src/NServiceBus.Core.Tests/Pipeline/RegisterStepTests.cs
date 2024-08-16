@@ -81,8 +81,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.That(originalBehaviorFactoryCalled, Is.False);
-        Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(originalBehaviorFactoryCalled, Is.False);
+            Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        });
     }
 
     [Test]
@@ -102,8 +105,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.That(replacementBehaviorFactoryCalled, Is.True);
-        Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(replacementBehaviorFactoryCalled, Is.True);
+            Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        });
     }
 
     class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>

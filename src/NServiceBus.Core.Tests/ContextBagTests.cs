@@ -29,8 +29,11 @@ public class ContextBagTests
 
         context.SetOnRoot(key, 42);
 
-        Assert.That(root.Get<int>(key), Is.EqualTo(42), "should store value on root context");
-        Assert.That(context.Get<int>(key), Is.EqualTo(42), "stored value should be readable in the writing context");
-        Assert.That(fork.Get<int>(key), Is.EqualTo(42), "stored value should be visible to a forked context");
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.Get<int>(key), Is.EqualTo(42), "should store value on root context");
+            Assert.That(context.Get<int>(key), Is.EqualTo(42), "stored value should be readable in the writing context");
+            Assert.That(fork.Get<int>(key), Is.EqualTo(42), "stored value should be visible to a forked context");
+        });
     }
 }

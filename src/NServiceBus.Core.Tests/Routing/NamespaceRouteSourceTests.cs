@@ -16,8 +16,11 @@
             var source = new NamespaceRouteSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespaceRouteSourceTest", UnicastRoute.CreateFromEndpointName("Destination"));
             var routes = source.GenerateRoutes(new Conventions()).ToArray();
 
-            Assert.That(routes.Any(r => r.MessageType == typeof(Message)), Is.True);
-            Assert.That(routes.Any(r => r.MessageType == typeof(NonMessage)), Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(routes.Any(r => r.MessageType == typeof(Message)), Is.True);
+                Assert.That(routes.Any(r => r.MessageType == typeof(NonMessage)), Is.False);
+            });
         }
 
         [Test]
@@ -26,8 +29,11 @@
             var source = new NamespaceRouteSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespaceRouteSourceTest", UnicastRoute.CreateFromEndpointName("Destination"));
             var routes = source.GenerateRoutes(new Conventions()).ToArray();
 
-            Assert.That(routes.Any(r => r.MessageType == typeof(Message)), Is.True);
-            Assert.That(routes.Any(r => r.MessageType == typeof(ExcludedMessage)), Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(routes.Any(r => r.MessageType == typeof(Message)), Is.True);
+                Assert.That(routes.Any(r => r.MessageType == typeof(ExcludedMessage)), Is.False);
+            });
         }
 
         [Test]

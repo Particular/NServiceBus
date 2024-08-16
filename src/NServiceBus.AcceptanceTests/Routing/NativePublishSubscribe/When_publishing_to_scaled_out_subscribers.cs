@@ -23,8 +23,11 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
             .Done(c => c.SubscriberACounter > 0 && c.SubscriberBCounter > 0)
             .Run();
 
-        Assert.That(context.SubscriberACounter, Is.EqualTo(1));
-        Assert.That(context.SubscriberBCounter, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SubscriberACounter, Is.EqualTo(1));
+            Assert.That(context.SubscriberBCounter, Is.EqualTo(1));
+        });
     }
 
     public class Context : ScenarioContext

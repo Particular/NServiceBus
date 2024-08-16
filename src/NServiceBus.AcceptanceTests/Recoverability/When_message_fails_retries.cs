@@ -21,8 +21,11 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         Assert.That(exception.ScenarioContext.FailedMessages.Count, Is.EqualTo(1));
 
         var testContext = (Context)exception.ScenarioContext;
-        Assert.That(exception.FailedMessage.Headers[Headers.EnclosedMessageTypes], Is.EqualTo(typeof(MessageWhichFailsRetries).AssemblyQualifiedName));
-        Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(testContext.PhysicalMessageId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.FailedMessage.Headers[Headers.EnclosedMessageTypes], Is.EqualTo(typeof(MessageWhichFailsRetries).AssemblyQualifiedName));
+            Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(testContext.PhysicalMessageId));
+        });
         Assert.IsAssignableFrom(typeof(SimulatedException), exception.FailedMessage.Exception);
 
         Assert.That(testContext.Logs.Count(l => l.Message

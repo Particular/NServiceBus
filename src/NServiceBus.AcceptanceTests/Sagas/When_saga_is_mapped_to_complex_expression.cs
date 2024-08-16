@@ -25,8 +25,11 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
             .Done(c => c.SecondMessageReceived)
             .Run();
 
-        Assert.That(context.SecondMessageReceived, Is.True);
-        Assert.That(context.SagaIdWhenOtherMessageReceived, Is.EqualTo(context.SagaIdWhenStartSagaMessageReceived));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SecondMessageReceived, Is.True);
+            Assert.That(context.SagaIdWhenOtherMessageReceived, Is.EqualTo(context.SagaIdWhenStartSagaMessageReceived));
+        });
     }
 
     public class Context : ScenarioContext

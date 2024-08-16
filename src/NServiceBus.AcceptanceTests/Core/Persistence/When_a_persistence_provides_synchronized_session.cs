@@ -16,8 +16,11 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.That(result.SynchronizedStorageSessionInstanceInContainer, Is.Not.Null);
-        Assert.That(result.SynchronizedStorageSessionInstanceInHandlingContext, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.SynchronizedStorageSessionInstanceInContainer, Is.Not.Null);
+            Assert.That(result.SynchronizedStorageSessionInstanceInHandlingContext, Is.Not.Null);
+        });
         Assert.That(result.SynchronizedStorageSessionInstanceInHandlingContext, Is.SameAs(result.SynchronizedStorageSessionInstanceInContainer));
     }
 

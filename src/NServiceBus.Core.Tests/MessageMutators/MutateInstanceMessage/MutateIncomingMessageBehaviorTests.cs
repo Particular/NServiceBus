@@ -23,8 +23,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.That(mutator.MutateIncomingCalled, Is.True);
-        Assert.That(otherMutator.MutateIncomingCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(mutator.MutateIncomingCalled, Is.True);
+            Assert.That(otherMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -40,8 +43,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.That(explicitMutator.MutateIncomingCalled, Is.True);
-        Assert.That(containerMutator.MutateIncomingCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(explicitMutator.MutateIncomingCalled, Is.True);
+            Assert.That(containerMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]

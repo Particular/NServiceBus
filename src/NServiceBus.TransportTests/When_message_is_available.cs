@@ -30,8 +30,11 @@ public class When_message_is_available : NServiceBusTransportTest
 
         var messageContext = await onMessageInvoked.Task;
 
-        Assert.That(string.IsNullOrEmpty(messageContext.NativeMessageId), Is.False, "Should pass the native message id");
-        Assert.That(messageContext.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
-        Assert.That(messageBody, Is.EqualTo(new byte[] { 1, 2, 3 }), "Should pass the body");
+        Assert.Multiple(() =>
+        {
+            Assert.That(string.IsNullOrEmpty(messageContext.NativeMessageId), Is.False, "Should pass the native message id");
+            Assert.That(messageContext.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
+            Assert.That(messageBody, Is.EqualTo(new byte[] { 1, 2, 3 }), "Should pass the body");
+        });
     }
 }

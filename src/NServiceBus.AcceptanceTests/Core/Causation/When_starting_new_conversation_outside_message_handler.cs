@@ -26,8 +26,11 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
             .Done(ctx => ctx.MessageHandled)
             .Run();
 
-        Assert.That(context.ConversationId, Is.EqualTo(NewConversionId), "ConversationId should be set to configured user defined value.");
-        Assert.That(context.PreviousConversationId, Is.Null, "Previous ConversationId should not be set when handling a message outside of a message handler.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ConversationId, Is.EqualTo(NewConversionId), "ConversationId should be set to configured user defined value.");
+            Assert.That(context.PreviousConversationId, Is.Null, "Previous ConversationId should not be set when handling a message outside of a message handler.");
+        });
     }
 
     [Test]
@@ -46,8 +49,11 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
             .Run();
 
         Assert.That(context.ConversationId, Is.EqualTo(GeneratedConversationId), "ConversationId should be generated.");
-        Assert.That(context.ConversationId, Is.Not.EqualTo(context.PreviousConversationId), "ConversationId should not match the previous conversationId.");
-        Assert.That(context.PreviousConversationId, Is.Null, "Previous ConversationId should not be set when handling a message outside of a message handler.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ConversationId, Is.Not.EqualTo(context.PreviousConversationId), "ConversationId should not match the previous conversationId.");
+            Assert.That(context.PreviousConversationId, Is.Null, "Previous ConversationId should not be set when handling a message outside of a message handler.");
+        });
     }
 
     [Test]
@@ -77,8 +83,11 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
             .Run();
 
         var expectedExceptionMessage = $"Cannot set the NServiceBus.ConversationId header to '{overrideConversationId}' as StartNewConversation() was called.";
-        Assert.That(context.ExceptionThrown, Is.True, "Exception should be thrown when trying to directly set conversationId");
-        Assert.That(context.ExceptionMessage, Is.EqualTo(expectedExceptionMessage));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ExceptionThrown, Is.True, "Exception should be thrown when trying to directly set conversationId");
+            Assert.That(context.ExceptionMessage, Is.EqualTo(expectedExceptionMessage));
+        });
     }
 
     public class AnyMessage : IMessage

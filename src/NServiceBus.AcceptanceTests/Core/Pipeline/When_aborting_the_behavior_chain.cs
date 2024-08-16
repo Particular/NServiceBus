@@ -15,8 +15,11 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             .Done(c => c.FirstHandlerInvoked)
             .Run();
 
-        Assert.That(context.FirstHandlerInvoked, Is.True);
-        Assert.That(context.SecondHandlerInvoked, Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.FirstHandlerInvoked, Is.True);
+            Assert.That(context.SecondHandlerInvoked, Is.False);
+        });
     }
 
     public class Context : ScenarioContext

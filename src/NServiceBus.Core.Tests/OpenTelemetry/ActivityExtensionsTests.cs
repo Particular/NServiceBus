@@ -14,8 +14,11 @@ public class ActivityExtensionsTests
         ambientActivity.Start();
 
         var contextBag = new ContextBag();
-        Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
-        Assert.That(activity, Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
+            Assert.That(activity, Is.Null);
+        });
     }
 
     [Test]
@@ -27,8 +30,11 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         contextBag.SetOutgoingPipelineActitvity(null);
 
-        Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
-        Assert.That(activity, Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
+            Assert.That(activity, Is.Null);
+        });
     }
 
     [Test]
@@ -43,7 +49,10 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         contextBag.SetOutgoingPipelineActitvity(recordingActivity);
 
-        Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.True);
-        Assert.That(activity, Is.EqualTo(recordingActivity));
+        Assert.Multiple(() =>
+        {
+            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.True);
+            Assert.That(activity, Is.EqualTo(recordingActivity));
+        });
     }
 }
