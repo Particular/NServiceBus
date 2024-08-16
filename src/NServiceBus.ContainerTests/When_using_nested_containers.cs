@@ -32,7 +32,7 @@ public class When_using_nested_containers
         {
             var childInstance = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
-            Assert.AreNotSame(parentInstance, childInstance);
+            Assert.That(childInstance, Is.Not.SameAs(parentInstance));
         }
     }
 
@@ -55,7 +55,7 @@ public class When_using_nested_containers
             instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
         }
 
-        Assert.AreNotSame(instance1, instance2);
+        Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class When_using_nested_containers
             instance2 = scope.ServiceProvider.GetService(typeof(TransientComponent));
         }
 
-        Assert.AreNotSame(instance1, instance2);
+        Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
     [Test]
