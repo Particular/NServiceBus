@@ -12,10 +12,13 @@ public class ExtensionMethodsTests
     [Test]
     public void SerializationFriendlyNameTests()
     {
-        Assert.That(typeof(string).SerializationFriendlyName(), Is.EqualTo("String"));
-        Assert.That(typeof(Dictionary<string, int>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndInt32"));
-        Assert.That(typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndTupleOfInt32"));
-        Assert.That(typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("NServiceBus.KeyValuePairOfStringAndTupleOfInt32"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(typeof(string).SerializationFriendlyName(), Is.EqualTo("String"));
+            Assert.That(typeof(Dictionary<string, int>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndInt32"));
+            Assert.That(typeof(Dictionary<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("DictionaryOfStringAndTupleOfInt32"));
+            Assert.That(typeof(KeyValuePair<string, Tuple<int>>).SerializationFriendlyName(), Is.EqualTo("NServiceBus.KeyValuePairOfStringAndTupleOfInt32"));
+        });
     }
 
     [Test]
@@ -25,8 +28,11 @@ public class ExtensionMethodsTests
         var customTypeResult = typeof(Target).IsSystemType();
         var systemTypeResult = typeof(string).IsSystemType();
 
-        Assert.That(systemTypeResult, Is.True, "Expected string to be a system type.");
-        Assert.That(customTypeResult, Is.False, "Expected Target to be a custom type.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(systemTypeResult, Is.True, "Expected string to be a system type.");
+            Assert.That(customTypeResult, Is.False, "Expected Target to be a custom type.");
+        });
     }
 
     public class Target

@@ -29,7 +29,10 @@ public class When_transaction_level_TransactionScope : NServiceBusTransportTest
 
         await messageProcessed.Task;
 
-        Assert.That(currentTransaction, Is.Not.Null);
-        Assert.That(contextTransaction, Is.SameAs(currentTransaction));
+        Assert.Multiple(() =>
+        {
+            Assert.That(currentTransaction, Is.Not.Null);
+            Assert.That(contextTransaction, Is.SameAs(currentTransaction));
+        });
     }
 }

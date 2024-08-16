@@ -27,8 +27,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredSubscription, logger, new License(), "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
-        Assert.That(logger.Logs[0].message, Is.EqualTo("License expired. Contact us to renew your license: contact@particular.net"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
+            Assert.That(logger.Logs[0].message, Is.EqualTo("License expired. Contact us to renew your license: contact@particular.net"));
+        });
     }
 
     [Test]
@@ -39,8 +42,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License(), "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
-        Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
+            Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
+        });
     }
 
     [TestCase(false, "Trial license expired. Get your free development license at fake-url")]
@@ -53,8 +59,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredTrial, logger, license, "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
-        Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
+            Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        });
     }
 
     [TestCase(3, false, "Trial license expiring in 3 days. Get your free development license at fake-url")]
@@ -78,8 +87,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringTrial, logger, license, "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-        Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
+            Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        });
     }
 
     [TestCase(3, "License expiring in 3 days. Contact us to renew your license: contact@particular.net")]
@@ -99,8 +111,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringSubscription, logger, license, "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-        Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
+            Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        });
     }
 
     [TestCase(3, "Upgrade protection expiring in 3 days. Contact us to renew your license: contact@particular.net")]
@@ -120,8 +135,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license, "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-        Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
+            Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
+        });
     }
 
     [Test]
@@ -140,8 +158,11 @@ class LicenseManagerTests
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license, "fake-url");
 
         Assert.That(logger.Logs.Count, Is.EqualTo(1));
-        Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-        Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
+            Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
+        });
     }
 
     class TestableLogger : ILog

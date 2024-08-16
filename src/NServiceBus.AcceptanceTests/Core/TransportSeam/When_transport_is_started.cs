@@ -21,12 +21,15 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
 
         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 
-        Assert.That(context.ResolvedAddress, Is.EqualTo("SomeAddress"));
-        Assert.That(context.ReceiveAddresses.MainReceiveAddress, Is.EqualTo(endpointName));
-        Assert.That(context.ReceiveAddresses.InstanceReceiveAddress, Is.EqualTo(endpointName + "-MyInstance"));
-        Assert.That(context.ReceiveAddresses.SatelliteReceiveAddresses.Single(), Is.EqualTo("MySatellite"));
-        Assert.That(context.LocalQueueAddress.ToString(), Is.EqualTo(endpointName));
-        Assert.That(context.InstanceSpecificQueueAddress.ToString(), Is.EqualTo(endpointName + "-MyInstance"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ResolvedAddress, Is.EqualTo("SomeAddress"));
+            Assert.That(context.ReceiveAddresses.MainReceiveAddress, Is.EqualTo(endpointName));
+            Assert.That(context.ReceiveAddresses.InstanceReceiveAddress, Is.EqualTo(endpointName + "-MyInstance"));
+            Assert.That(context.ReceiveAddresses.SatelliteReceiveAddresses.Single(), Is.EqualTo("MySatellite"));
+            Assert.That(context.LocalQueueAddress.ToString(), Is.EqualTo(endpointName));
+            Assert.That(context.InstanceSpecificQueueAddress.ToString(), Is.EqualTo(endpointName + "-MyInstance"));
+        });
     }
 
     class Context : ScenarioContext

@@ -67,8 +67,11 @@ class TestingMetricListener : IDisposable
         }
         else
         {
-            Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
-            Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
+            Assert.Multiple(() =>
+            {
+                Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
+                Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
+            });
         }
     }
 

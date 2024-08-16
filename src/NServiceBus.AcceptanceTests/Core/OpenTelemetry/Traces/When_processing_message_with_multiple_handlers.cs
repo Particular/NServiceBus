@@ -21,8 +21,11 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
         var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
 
-        Assert.That(invokedHandlerActivities.Count, Is.EqualTo(2), "a dedicated span for each handler should be created");
-        Assert.That(receivePipelineActivities.Count, Is.EqualTo(1), "the receive pipeline should be invoked once");
+        Assert.Multiple(() =>
+        {
+            Assert.That(invokedHandlerActivities.Count, Is.EqualTo(2), "a dedicated span for each handler should be created");
+            Assert.That(receivePipelineActivities.Count, Is.EqualTo(1), "the receive pipeline should be invoked once");
+        });
 
         var recordedHandlerTypes = new HashSet<string>();
 
@@ -31,8 +34,11 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler.handler_type") as string;
             Assert.That(handlerTypeTag, Is.Not.Null, "Handler type tag should be set");
             recordedHandlerTypes.Add(handlerTypeTag);
-            Assert.That(invokedHandlerActivity.ParentId, Is.EqualTo(receivePipelineActivities[0].Id));
-            Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            Assert.Multiple(() =>
+            {
+                Assert.That(invokedHandlerActivity.ParentId, Is.EqualTo(receivePipelineActivities[0].Id));
+                Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            });
         }
 
         Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");

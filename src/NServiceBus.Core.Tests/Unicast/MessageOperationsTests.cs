@@ -35,8 +35,11 @@ public class MessageOperationsTests
         await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
 
         var messageId = messageOperations.SendPipeline.LastContext.MessageId;
-        Assert.That(messageId, Is.Not.Null);
-        Assert.That(messageOperations.SendPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageId, Is.Not.Null);
+            Assert.That(messageOperations.SendPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        });
     }
 
     [Test]
@@ -50,8 +53,11 @@ public class MessageOperationsTests
         sendOptions.SetMessageId(expectedMessageID);
         await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, sendOptions);
 
-        Assert.That(messageOperations.SendPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
-        Assert.That(messageOperations.SendPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageOperations.SendPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
+            Assert.That(messageOperations.SendPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        });
     }
 
     [Test]
@@ -98,8 +104,11 @@ public class MessageOperationsTests
         await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
 
         var messageId = messageOperations.ReplyPipeline.LastContext.MessageId;
-        Assert.That(messageId, Is.Not.Null);
-        Assert.That(messageOperations.ReplyPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageId, Is.Not.Null);
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        });
     }
 
     [Test]
@@ -113,8 +122,11 @@ public class MessageOperationsTests
         replyOptions.SetMessageId(expectedMessageID);
         await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, replyOptions);
 
-        Assert.That(messageOperations.ReplyPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
-        Assert.That(messageOperations.ReplyPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageOperations.ReplyPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        });
     }
 
     [Test]
@@ -161,8 +173,11 @@ public class MessageOperationsTests
         await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
 
         var messageId = messageOperations.PublishPipeline.LastContext.MessageId;
-        Assert.That(messageId, Is.Not.Null);
-        Assert.That(messageOperations.PublishPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageId, Is.Not.Null);
+            Assert.That(messageOperations.PublishPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
+        });
     }
 
     [Test]
@@ -176,8 +191,11 @@ public class MessageOperationsTests
         publishOptions.SetMessageId(expectedMessageID);
         await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, publishOptions);
 
-        Assert.That(messageOperations.PublishPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
-        Assert.That(messageOperations.PublishPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageOperations.PublishPipeline.LastContext.MessageId, Is.EqualTo(expectedMessageID));
+            Assert.That(messageOperations.PublishPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(expectedMessageID));
+        });
     }
 
     [Test]

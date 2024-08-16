@@ -35,15 +35,21 @@ public class When_serializing_a_message : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedMessage != null)
             .Run();
 
-        Assert.That(context.ReceivedMessage.DateTime, Is.EqualTo(expectedDateTime));
-        Assert.That(context.ReceivedMessage.DateTimeLocal, Is.EqualTo(expectedDateTimeLocal));
-        Assert.That(context.ReceivedMessage.DateTimeUtc, Is.EqualTo(expectedDateTimeUtc));
-        Assert.That(context.ReceivedMessage.DateTimeOffset, Is.EqualTo(expectedDateTimeOffset));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ReceivedMessage.DateTime, Is.EqualTo(expectedDateTime));
+            Assert.That(context.ReceivedMessage.DateTimeLocal, Is.EqualTo(expectedDateTimeLocal));
+            Assert.That(context.ReceivedMessage.DateTimeUtc, Is.EqualTo(expectedDateTimeUtc));
+            Assert.That(context.ReceivedMessage.DateTimeOffset, Is.EqualTo(expectedDateTimeOffset));
+            Assert.That(context.ReceivedMessage.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
+            Assert.That(context.ReceivedMessage.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
+        });
         Assert.That(context.ReceivedMessage.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
-        Assert.That(context.ReceivedMessage.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
-        Assert.That(context.ReceivedMessage.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
-        Assert.That(context.ReceivedMessage.DateTimeOffsetLocal.Offset, Is.EqualTo(expectedDateTimeOffsetLocal.Offset));
-        Assert.That(context.ReceivedMessage.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ReceivedMessage.DateTimeOffsetLocal.Offset, Is.EqualTo(expectedDateTimeOffsetLocal.Offset));
+            Assert.That(context.ReceivedMessage.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
+        });
         Assert.That(context.ReceivedMessage.DateTimeOffsetUtc.Offset, Is.EqualTo(expectedDateTimeOffsetUtc.Offset));
     }
 

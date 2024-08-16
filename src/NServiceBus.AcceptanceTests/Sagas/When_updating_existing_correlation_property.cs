@@ -22,8 +22,11 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
                 .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
-        Assert.That(((Context)exception.ScenarioContext).ModifiedCorrelationProperty, Is.True);
-        Assert.That(exception.ScenarioContext.FailedMessages.Count, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(((Context)exception.ScenarioContext).ModifiedCorrelationProperty, Is.True);
+            Assert.That(exception.ScenarioContext.FailedMessages.Count, Is.EqualTo(1));
+        });
         StringAssert.Contains(
             "Changing the value of correlated properties at runtime is currently not supported",
             exception.FailedMessage.Exception.Message);

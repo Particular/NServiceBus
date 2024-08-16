@@ -17,8 +17,11 @@ public class When_retrieving_the_same_saga_twice : SagaPersisterTests
         var returnedSaga1 = await GetById<TestSagaData>(saga.Id);
         var returnedSaga2 = await GetById<TestSagaData>(saga.Id);
 
-        Assert.That(returnedSaga1, Is.Not.SameAs(returnedSaga2));
-        Assert.That(saga, Is.Not.SameAs(returnedSaga1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(returnedSaga1, Is.Not.SameAs(returnedSaga2));
+            Assert.That(saga, Is.Not.SameAs(returnedSaga1));
+        });
         Assert.That(saga, Is.Not.SameAs(returnedSaga2));
     }
 

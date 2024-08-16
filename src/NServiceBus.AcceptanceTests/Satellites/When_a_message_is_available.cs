@@ -20,12 +20,15 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.That(context.MessageReceived, Is.True);
-        // In the future we want the transport transaction to be an explicit
-        // concept in the persisters API as well. Adding transport transaction
-        // to the context will not be necessary at that point.
-        // See GitHub issue #4047 for more background information.
-        Assert.That(context.TransportTransactionAddedToContext, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageReceived, Is.True);
+            // In the future we want the transport transaction to be an explicit
+            // concept in the persisters API as well. Adding transport transaction
+            // to the context will not be necessary at that point.
+            // See GitHub issue #4047 for more background information.
+            Assert.That(context.TransportTransactionAddedToContext, Is.True);
+        });
     }
 
     class Context : ScenarioContext

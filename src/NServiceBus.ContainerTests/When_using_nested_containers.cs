@@ -143,8 +143,12 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(DisposableComponent));
         }
-        Assert.That(AnotherDisposableComponent.DisposeCalled, Is.False, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
-        Assert.That(DisposableComponent.DisposeCalled, Is.True, "Dispose should be called on DisposableComponent");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(AnotherDisposableComponent.DisposeCalled, Is.False, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
+            Assert.That(DisposableComponent.DisposeCalled, Is.True, "Dispose should be called on DisposableComponent");
+        });
     }
 
     public interface IInstanceToReplaceInNested

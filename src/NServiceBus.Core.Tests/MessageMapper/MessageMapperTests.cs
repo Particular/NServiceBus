@@ -140,8 +140,11 @@ public class MessageMapperTests
         var messageInstance = mapper.CreateInstance<SampleMessageClass>();
 
         Assert.That(messageInstance, Is.Not.Null);
-        Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageClass)));
-        Assert.That(messageInstance.CtorInvoked, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageClass)));
+            Assert.That(messageInstance.CtorInvoked, Is.True);
+        });
     }
 
     [Test]

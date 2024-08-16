@@ -82,8 +82,11 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (StructMessage)serializer.Deserialize(stream.ToArray())[0];
 
-                Assert.That(result.SomeField, Is.EqualTo(message.SomeField));
-                Assert.That(result.SomeProperty, Is.EqualTo(message.SomeProperty));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.SomeField, Is.EqualTo(message.SomeField));
+                    Assert.That(result.SomeProperty, Is.EqualTo(message.SomeProperty));
+                });
             }
         }
 
@@ -232,8 +235,11 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
                 var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream.ToArray());
 
-                Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(Command1)));
-                Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(Command2)));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(Command1)));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(Command2)));
+                });
             }
         }
 
@@ -278,8 +284,11 @@ namespace NServiceBus.Serializers.XML.Test
                 });
                 var a = (IMyEventA)result[0];
                 var b = (IMyEventB)result[1];
-                Assert.That(b.IntValue, Is.EqualTo(42));
-                Assert.That(a.StringValue, Is.EqualTo("Answer"));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(b.IntValue, Is.EqualTo(42));
+                    Assert.That(a.StringValue, Is.EqualTo("Answer"));
+                });
             }
         }
 
@@ -487,8 +496,11 @@ namespace NServiceBus.Serializers.XML.Test
                         typeof(EmptyMessage)
                     });
 
-                Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
-                Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                });
             }
         }
 
@@ -509,8 +521,11 @@ namespace NServiceBus.Serializers.XML.Test
                         typeof(EmptyMessage)
                     });
 
-                Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
-                Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                });
             }
         }
 
@@ -1111,10 +1126,13 @@ namespace NServiceBus.Serializers.XML.Test
             var result = ExecuteSerializer.ForMessage<MessageWithSystemClassAsProperty>(
                 m => { m.MailMessage = message; });
             Assert.That(result.MailMessage, Is.Not.Null);
-            Assert.That(result.MailMessage.From.Address, Is.EqualTo("from@gmail.com"));
-            Assert.That(result.MailMessage.To.First(), Is.EqualTo(message.To.First()));
-            Assert.That(result.MailMessage.BodyEncoding.CodePage, Is.EqualTo(message.BodyEncoding.CodePage));
-            Assert.That(result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount, Is.EqualTo(message.BodyEncoding.EncoderFallback.MaxCharCount));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.MailMessage.From.Address, Is.EqualTo("from@gmail.com"));
+                Assert.That(result.MailMessage.To.First(), Is.EqualTo(message.To.First()));
+                Assert.That(result.MailMessage.BodyEncoding.CodePage, Is.EqualTo(message.BodyEncoding.CodePage));
+                Assert.That(result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount, Is.EqualTo(message.BodyEncoding.EncoderFallback.MaxCharCount));
+            });
         }
 
         [Test]
@@ -1132,9 +1150,12 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<PolyMessage>(message);
 
-            Assert.That(result.BaseType.BaseTypeProp, Is.EqualTo(message.BaseType.BaseTypeProp));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.BaseType.BaseTypeProp, Is.EqualTo(message.BaseType.BaseTypeProp));
 
-            Assert.That(((ChildOfBase)result.BaseType).ChildProp, Is.EqualTo(((ChildOfBase)message.BaseType).ChildProp));
+                Assert.That(((ChildOfBase)result.BaseType).ChildProp, Is.EqualTo(((ChildOfBase)message.BaseType).ChildProp));
+            });
         }
 
         [Test]
@@ -1155,8 +1176,11 @@ namespace NServiceBus.Serializers.XML.Test
             var resultXDocument = ExecuteSerializer.ForMessage<MessageWithXDocument>(messageWithXDocument);
             var resultXElement = ExecuteSerializer.ForMessage<MessageWithXElement>(messageWithXElement);
 
-            Assert.That(resultXDocument.Document.ToString(), Is.EqualTo(messageWithXDocument.Document.ToString()));
-            Assert.That(resultXElement.Document.ToString(), Is.EqualTo(messageWithXElement.Document.ToString()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultXDocument.Document.ToString(), Is.EqualTo(messageWithXDocument.Document.ToString()));
+                Assert.That(resultXElement.Document.ToString(), Is.EqualTo(messageWithXElement.Document.ToString()));
+            });
         }
 
         [Test]
@@ -1211,8 +1235,11 @@ namespace NServiceBus.Serializers.XML.Test
                 });
             }
 
-            Assert.That(((SerializedPair)messageDeserialized[0]).Key, Is.EqualTo(message.Key));
-            Assert.That(((SerializedPair)messageDeserialized[0]).Value, Is.EqualTo(message.Value));
+            Assert.Multiple(() =>
+            {
+                Assert.That(((SerializedPair)messageDeserialized[0]).Key, Is.EqualTo(message.Key));
+                Assert.That(((SerializedPair)messageDeserialized[0]).Value, Is.EqualTo(message.Value));
+            });
         }
 
         [Test]

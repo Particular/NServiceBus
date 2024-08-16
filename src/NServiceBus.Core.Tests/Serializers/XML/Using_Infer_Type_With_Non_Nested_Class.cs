@@ -26,10 +26,13 @@ public class Using_Infer_Type_With_Non_Nested_Class
     {
         var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(FirstMessage), typeof(SecondMessage));
         var messageDeserialized = serializer.Deserialize(StringToByteArray(XmlWithBaseType));
-        Assert.That(messageDeserialized[0], Is.InstanceOf<FirstMessage>());
-        Assert.That(messageDeserialized[1], Is.InstanceOf<SecondMessage>());
-        Assert.That(messageDeserialized[2], Is.InstanceOf<SecondMessage>());
-        Assert.That(messageDeserialized[3], Is.InstanceOf<SecondMessage>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageDeserialized[0], Is.InstanceOf<FirstMessage>());
+            Assert.That(messageDeserialized[1], Is.InstanceOf<SecondMessage>());
+            Assert.That(messageDeserialized[2], Is.InstanceOf<SecondMessage>());
+            Assert.That(messageDeserialized[3], Is.InstanceOf<SecondMessage>());
+        });
     }
 
     [Test]

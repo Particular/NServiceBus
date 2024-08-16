@@ -24,8 +24,11 @@ public class MoveToErrorsExecutorTests
         var addressTag = (UnicastAddressTag)((UnicastRoutingStrategy)routingContext.RoutingStrategies.Single())
             .Apply([]);
 
-        Assert.That(addressTag.Destination, Is.EqualTo(customErrorQueue));
-        Assert.That(moveToErrorAction.ErrorHandleResult, Is.EqualTo(ErrorHandleResult.Handled));
+        Assert.Multiple(() =>
+        {
+            Assert.That(addressTag.Destination, Is.EqualTo(customErrorQueue));
+            Assert.That(moveToErrorAction.ErrorHandleResult, Is.EqualTo(ErrorHandleResult.Handled));
+        });
     }
 
     [Test]
@@ -78,9 +81,12 @@ public class MoveToErrorsExecutorTests
             .Single();
         var outgoingMessageHeaders = transportOperation.Message.Headers;
 
-        Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
-        // check for leaking headers
-        Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
+            // check for leaking headers
+            Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+        });
     }
 
     static TestableRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", Dictionary<string, string> messageHeaders = default, Dictionary<string, string> metadata = default)

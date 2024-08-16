@@ -16,9 +16,12 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
             .Done(c => c.MessageProcessed)
             .Run();
 
-        Assert.That(context.TransportMutatorCalled, Is.True);
-        Assert.That(context.OtherTransportMutatorCalled, Is.True);
-        Assert.That(context.MessageMutatorCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.TransportMutatorCalled, Is.True);
+            Assert.That(context.OtherTransportMutatorCalled, Is.True);
+            Assert.That(context.MessageMutatorCalled, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

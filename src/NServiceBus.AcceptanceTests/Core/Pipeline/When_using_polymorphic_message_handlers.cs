@@ -18,8 +18,11 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
             .Done(c => c.SpecificHandlerInvoked && c.CatchAllHandlerInvoked)
             .Run();
 
-        Assert.That(context.SpecificHandlerInvoked, Is.True);
-        Assert.That(context.CatchAllHandlerInvoked, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SpecificHandlerInvoked, Is.True);
+            Assert.That(context.CatchAllHandlerInvoked, Is.True);
+        });
     }
 
     class Context : ScenarioContext

@@ -15,8 +15,11 @@ public class AssemblyPublisherSourceTests
         var source = new AssemblyPublisherSource(Assembly.GetExecutingAssembly(), PublisherAddress.CreateFromEndpointName("Destination"));
         var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
 
-        Assert.That(routes.Any(r => r.EventType == typeof(NonMessage)), Is.False);
-        Assert.That(routes.Any(r => r.EventType == typeof(NonEvent)), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(routes.Any(r => r.EventType == typeof(NonMessage)), Is.False);
+            Assert.That(routes.Any(r => r.EventType == typeof(NonEvent)), Is.False);
+        });
     }
 
 

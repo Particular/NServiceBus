@@ -22,8 +22,11 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.HostIdDefaultApplied, Is.False);
-        Assert.That(context.HostIdObserved, Is.EqualTo(context.CustomHostId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HostIdDefaultApplied, Is.False);
+            Assert.That(context.HostIdObserved, Is.EqualTo(context.CustomHostId));
+        });
     }
 
     public class MyEndpoint : EndpointConfigurationBuilder

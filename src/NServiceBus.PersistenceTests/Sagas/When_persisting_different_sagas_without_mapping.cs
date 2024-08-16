@@ -45,8 +45,11 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
 
             var saga2Result = await configuration.SagaStorage.Get<AnotherSagaWithoutCorrelationPropertyData>(saga2.Id, readSession, readContextBag);
 
-            Assert.That(saga1Result.FoundByFinderProperty, Is.EqualTo(saga1.FoundByFinderProperty));
-            Assert.That(saga2Result.FoundByFinderProperty, Is.EqualTo(saga2.FoundByFinderProperty));
+            Assert.Multiple(() =>
+            {
+                Assert.That(saga1Result.FoundByFinderProperty, Is.EqualTo(saga1.FoundByFinderProperty));
+                Assert.That(saga2Result.FoundByFinderProperty, Is.EqualTo(saga2.FoundByFinderProperty));
+            });
         }
     }
 

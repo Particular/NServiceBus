@@ -25,8 +25,11 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.That(context.HandlerInvoked, Is.False);
-        Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HandlerInvoked, Is.False);
+            Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
+        });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
         StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
@@ -42,8 +45,11 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.That(context.HandlerInvoked, Is.False);
-        Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HandlerInvoked, Is.False);
+            Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
+        });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
         StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);

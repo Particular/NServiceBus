@@ -31,8 +31,11 @@ public class ConcurrencySerializerTests
                                           result = (RequestDataMessage)msgArray[0];
                                       }
 
-                                      Assert.That(result.DataId, Is.EqualTo(expected.DataId));
-                                      Assert.That(result.String, Is.EqualTo(expected.String));
+                                      Assert.Multiple(() =>
+                                      {
+                                          Assert.That(result.DataId, Is.EqualTo(expected.DataId));
+                                          Assert.That(result.String, Is.EqualTo(expected.String));
+                                      });
                                   });
     }
 }

@@ -30,11 +30,17 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
             .Done(c => c.ConfirmedRetryId != null && c.AuditHeaders != null)
             .Run();
 
-        Assert.That(context.MessageProcessed, Is.True);
-        Assert.That(context.ConfirmedRetryId, Is.EqualTo(context.RetryId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.MessageProcessed, Is.True);
+            Assert.That(context.ConfirmedRetryId, Is.EqualTo(context.RetryId));
+        });
         var processingTime = DateTimeOffsetHelper.ToDateTimeOffset(context.RetryProcessingTimestamp);
-        Assert.That(processingTime, Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromMinutes(1)));
-        Assert.That(context.AuditHeaders.ContainsKey("ServiceControl.Retry.AcknowledgementSent"), Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(processingTime, Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromMinutes(1)));
+            Assert.That(context.AuditHeaders.ContainsKey("ServiceControl.Retry.AcknowledgementSent"), Is.True);
+        });
     }
 
     class Context : ScenarioContext

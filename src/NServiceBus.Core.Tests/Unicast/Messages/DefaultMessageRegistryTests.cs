@@ -34,8 +34,11 @@ public class MessageMetadataRegistryTests
 
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
 
-        Assert.That(messageMetadata.MessageType, Is.EqualTo(typeof(int)));
-        Assert.That(messageMetadata.MessageHierarchy.Length, Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageMetadata.MessageType, Is.EqualTo(typeof(int)));
+            Assert.That(messageMetadata.MessageHierarchy.Length, Is.EqualTo(1));
+        });
     }
 
 
@@ -49,11 +52,14 @@ public class MessageMetadataRegistryTests
 
         Assert.That(messageMetadata.MessageHierarchy.Length, Is.EqualTo(5));
 
-        Assert.That(messageMetadata.MessageHierarchy.ToList()[0], Is.EqualTo(typeof(MyEvent)));
-        Assert.That(messageMetadata.MessageHierarchy.ToList()[1], Is.EqualTo(typeof(IInterfaceParent1)));
-        Assert.That(messageMetadata.MessageHierarchy.ToList()[2], Is.EqualTo(typeof(ConcreteParent1)));
-        Assert.That(messageMetadata.MessageHierarchy.ToList()[3], Is.EqualTo(typeof(IInterfaceParent1Base)));
-        Assert.That(messageMetadata.MessageHierarchy.ToList()[4], Is.EqualTo(typeof(ConcreteParentBase)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageMetadata.MessageHierarchy.ToList()[0], Is.EqualTo(typeof(MyEvent)));
+            Assert.That(messageMetadata.MessageHierarchy.ToList()[1], Is.EqualTo(typeof(IInterfaceParent1)));
+            Assert.That(messageMetadata.MessageHierarchy.ToList()[2], Is.EqualTo(typeof(ConcreteParent1)));
+            Assert.That(messageMetadata.MessageHierarchy.ToList()[3], Is.EqualTo(typeof(IInterfaceParent1Base)));
+            Assert.That(messageMetadata.MessageHierarchy.ToList()[4], Is.EqualTo(typeof(ConcreteParentBase)));
+        });
     }
 
     [TestCase("NServiceBus.Unicast.Tests.MessageMetadataRegistryTests+MyEvent, NonExistingAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b50674d1e0c6ce54")]

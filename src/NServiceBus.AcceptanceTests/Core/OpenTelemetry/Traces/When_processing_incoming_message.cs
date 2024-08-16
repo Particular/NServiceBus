@@ -23,9 +23,12 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         Assert.That(incomingMessageActivities.Count, Is.EqualTo(1), "1 message is being processed");
 
         var incomingActivity = incomingMessageActivities.Single();
-        Assert.That(incomingActivity.Kind, Is.EqualTo(ActivityKind.Consumer), "asynchronous receivers should use 'Consumer'");
+        Assert.Multiple(() =>
+        {
+            Assert.That(incomingActivity.Kind, Is.EqualTo(ActivityKind.Consumer), "asynchronous receivers should use 'Consumer'");
 
-        Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        });
         var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
         Assert.That(incomingActivity.DisplayName, Is.EqualTo("process message"));
 

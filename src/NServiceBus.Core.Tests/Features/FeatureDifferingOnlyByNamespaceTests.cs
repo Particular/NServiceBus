@@ -33,9 +33,12 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            Assert.That(dependingFeature.IsActive, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(dependingFeature.IsActive, Is.True);
 
-            Assert.That(order.First(), Is.InstanceOf<NamespaceA.MyFeature>(), "Upstream dependencies should be activated first");
+                Assert.That(order.First(), Is.InstanceOf<NamespaceA.MyFeature>(), "Upstream dependencies should be activated first");
+            });
         }
     }
 }

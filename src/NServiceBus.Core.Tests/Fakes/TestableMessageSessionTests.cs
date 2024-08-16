@@ -15,8 +15,11 @@ public class TestableMessageSessionTests
         await session.Subscribe(typeof(MyEvent), options);
 
         Assert.That(session.Subscriptions.Length, Is.EqualTo(1));
-        Assert.That(session.Subscriptions[0].Options, Is.SameAs(options));
-        Assert.That(session.Subscriptions[0].Message, Is.EqualTo(typeof(MyEvent)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(session.Subscriptions[0].Options, Is.SameAs(options));
+            Assert.That(session.Subscriptions[0].Message, Is.EqualTo(typeof(MyEvent)));
+        });
     }
 
     [Test]
@@ -28,8 +31,11 @@ public class TestableMessageSessionTests
         await session.Unsubscribe(typeof(MyEvent), options);
 
         Assert.That(session.Unsubscription.Length, Is.EqualTo(1));
-        Assert.That(session.Unsubscription[0].Options, Is.SameAs(options));
-        Assert.That(session.Unsubscription[0].Message, Is.EqualTo(typeof(MyEvent)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(session.Unsubscription[0].Options, Is.SameAs(options));
+            Assert.That(session.Unsubscription[0].Message, Is.EqualTo(typeof(MyEvent)));
+        });
     }
 
     class MyEvent

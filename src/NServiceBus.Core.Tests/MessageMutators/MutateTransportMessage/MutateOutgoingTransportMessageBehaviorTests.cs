@@ -24,8 +24,11 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.That(mutator.MutateOutgoingCalled, Is.True);
-        Assert.That(otherMutator.MutateOutgoingCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(mutator.MutateOutgoingCalled, Is.True);
+            Assert.That(otherMutator.MutateOutgoingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -42,8 +45,11 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.That(explicitMutator.MutateOutgoingCalled, Is.True);
-        Assert.That(containerMutator.MutateOutgoingCalled, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(explicitMutator.MutateOutgoingCalled, Is.True);
+            Assert.That(containerMutator.MutateOutgoingCalled, Is.True);
+        });
     }
 
     [Test]

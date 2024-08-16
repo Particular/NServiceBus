@@ -18,8 +18,11 @@ public class TestableMessageHandlerContextTests
         await context.Send(messageInstance, sendOptions);
 
         Assert.That(context.SentMessages.Length, Is.EqualTo(1));
-        Assert.That(context.SentMessages[0].Message, Is.SameAs(messageInstance));
-        Assert.That(context.SentMessages[0].Options, Is.SameAs(sendOptions));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SentMessages[0].Message, Is.SameAs(messageInstance));
+            Assert.That(context.SentMessages[0].Options, Is.SameAs(sendOptions));
+        });
     }
 
     [Test]
@@ -42,8 +45,11 @@ public class TestableMessageHandlerContextTests
         await context.Publish(messageInstance, publishOptions);
 
         Assert.That(context.PublishedMessages.Length, Is.EqualTo(1));
-        Assert.That(context.PublishedMessages[0].Message, Is.SameAs(messageInstance));
-        Assert.That(context.PublishedMessages[0].Options, Is.SameAs(publishOptions));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.PublishedMessages[0].Message, Is.SameAs(messageInstance));
+            Assert.That(context.PublishedMessages[0].Options, Is.SameAs(publishOptions));
+        });
     }
 
     [Test]
@@ -66,8 +72,11 @@ public class TestableMessageHandlerContextTests
         await context.Reply(messageInstance, publishOptions);
 
         Assert.That(context.RepliedMessages.Length, Is.EqualTo(1));
-        Assert.That(context.RepliedMessages[0].Message, Is.SameAs(messageInstance));
-        Assert.That(context.RepliedMessages[0].Options, Is.SameAs(publishOptions));
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.RepliedMessages[0].Message, Is.SameAs(messageInstance));
+            Assert.That(context.RepliedMessages[0].Options, Is.SameAs(publishOptions));
+        });
     }
 
     [Test]

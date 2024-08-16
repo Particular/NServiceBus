@@ -97,22 +97,25 @@ public class JsonMessageSerializerTest
         Assert.That(result[0], Is.TypeOf(typeof(A)));
         var a = (A)result[0];
 
-        Assert.That(a.Data, Is.EqualTo(obj.Data));
-        Assert.That(a.I, Is.EqualTo(23));
-        Assert.That(a.S, Is.EqualTo("Foo"));
-        Assert.That(a.DateTime.Kind, Is.EqualTo(expectedDate.Kind));
-        Assert.That(a.DateTime, Is.EqualTo(expectedDate));
-        Assert.That(a.DateTimeLocal.Kind, Is.EqualTo(expectedDateLocal.Kind));
-        Assert.That(a.DateTimeLocal, Is.EqualTo(expectedDateLocal));
-        Assert.That(a.DateTimeUtc.Kind, Is.EqualTo(expectedDateUtc.Kind));
-        Assert.That(a.DateTimeUtc, Is.EqualTo(expectedDateUtc));
-        Assert.That(a.Bs[0].C, Is.TypeOf(typeof(JsonElement)));
-        Assert.That(((JsonElement)a.Bs[0].C).GetProperty("Cstr").GetString(), Is.EqualTo("ccc"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(a.Data, Is.EqualTo(obj.Data));
+            Assert.That(a.I, Is.EqualTo(23));
+            Assert.That(a.S, Is.EqualTo("Foo"));
+            Assert.That(a.DateTime.Kind, Is.EqualTo(expectedDate.Kind));
+            Assert.That(a.DateTime, Is.EqualTo(expectedDate));
+            Assert.That(a.DateTimeLocal.Kind, Is.EqualTo(expectedDateLocal.Kind));
+            Assert.That(a.DateTimeLocal, Is.EqualTo(expectedDateLocal));
+            Assert.That(a.DateTimeUtc.Kind, Is.EqualTo(expectedDateUtc.Kind));
+            Assert.That(a.DateTimeUtc, Is.EqualTo(expectedDateUtc));
+            Assert.That(a.Bs[0].C, Is.TypeOf(typeof(JsonElement)));
+            Assert.That(((JsonElement)a.Bs[0].C).GetProperty("Cstr").GetString(), Is.EqualTo("ccc"));
 
-        Assert.That(a.AGuid, Is.EqualTo(expectedGuid));
+            Assert.That(a.AGuid, Is.EqualTo(expectedGuid));
 
-        Assert.That(a.Bs[0], Is.InstanceOf<B>());
-        Assert.That(a.Bs[1], Is.Not.InstanceOf<BB>());
+            Assert.That(a.Bs[0], Is.InstanceOf<B>());
+            Assert.That(a.Bs[1], Is.Not.InstanceOf<BB>());
+        });
     }
 
     [Test]
@@ -168,13 +171,19 @@ public class JsonMessageSerializerTest
         Assert.That(result[0], Is.AssignableTo(typeof(IA)));
         var a = (IA)result[0];
 
-        Assert.That(obj.Data, Is.EqualTo(a.Data));
-        Assert.That(a.I, Is.EqualTo(42));
-        Assert.That(a.S, Is.EqualTo("kalle"));
-        Assert.That(a.B, Is.Not.Null);
-        Assert.That(a.B.BString, Is.EqualTo("BOO"));
-        Assert.That(a.B.C, Is.TypeOf(typeof(JsonElement)));
-        Assert.That(((JsonElement)a.B.C).GetProperty("Cstr").GetString(), Is.EqualTo("COO"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(obj.Data, Is.EqualTo(a.Data));
+            Assert.That(a.I, Is.EqualTo(42));
+            Assert.That(a.S, Is.EqualTo("kalle"));
+            Assert.That(a.B, Is.Not.Null);
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(a.B.BString, Is.EqualTo("BOO"));
+            Assert.That(a.B.C, Is.TypeOf(typeof(JsonElement)));
+            Assert.That(((JsonElement)a.B.C).GetProperty("Cstr").GetString(), Is.EqualTo("COO"));
+        });
 
     }
 
@@ -207,18 +216,27 @@ public class JsonMessageSerializerTest
             typeof(DateTimeMessage)
         ]).Cast<DateTimeMessage>().Single();
 
-        Assert.That(result.DateTime.Kind, Is.EqualTo(expectedDateTime.Kind));
-        Assert.That(result.DateTime, Is.EqualTo(expectedDateTime));
-        Assert.That(result.DateTimeLocal.Kind, Is.EqualTo(expectedDateTimeLocal.Kind));
-        Assert.That(result.DateTimeLocal, Is.EqualTo(expectedDateTimeLocal));
-        Assert.That(result.DateTimeUtc.Kind, Is.EqualTo(expectedDateTimeUtc.Kind));
-        Assert.That(result.DateTimeUtc, Is.EqualTo(expectedDateTimeUtc));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.DateTime.Kind, Is.EqualTo(expectedDateTime.Kind));
+            Assert.That(result.DateTime, Is.EqualTo(expectedDateTime));
+            Assert.That(result.DateTimeLocal.Kind, Is.EqualTo(expectedDateTimeLocal.Kind));
+            Assert.That(result.DateTimeLocal, Is.EqualTo(expectedDateTimeLocal));
+            Assert.That(result.DateTimeUtc.Kind, Is.EqualTo(expectedDateTimeUtc.Kind));
+            Assert.That(result.DateTimeUtc, Is.EqualTo(expectedDateTimeUtc));
 
-        Assert.That(result.DateTimeOffset, Is.EqualTo(expectedDateTimeOffset));
-        Assert.That(result.DateTimeOffset.Offset, Is.EqualTo(expectedDateTimeOffset.Offset));
-        Assert.That(result.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
-        Assert.That(result.DateTimeOffsetLocal.Offset, Is.EqualTo(expectedDateTimeOffsetLocal.Offset));
-        Assert.That(result.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
+            Assert.That(result.DateTimeOffset, Is.EqualTo(expectedDateTimeOffset));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.DateTimeOffset.Offset, Is.EqualTo(expectedDateTimeOffset.Offset));
+            Assert.That(result.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.DateTimeOffsetLocal.Offset, Is.EqualTo(expectedDateTimeOffsetLocal.Offset));
+            Assert.That(result.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
+        });
         Assert.That(result.DateTimeOffsetUtc.Offset, Is.EqualTo(expectedDateTimeOffsetUtc.Offset));
     }
 

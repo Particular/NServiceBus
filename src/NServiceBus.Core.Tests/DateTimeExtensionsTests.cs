@@ -24,15 +24,18 @@ class DateTimeExtensionsTests
         var dateString = DateTimeOffsetHelper.ToWireFormattedString(date);
         var result = DateTimeOffsetHelper.ToDateTimeOffset(dateString);
 
-        Assert.That(result.Year, Is.EqualTo(date.Year));
-        Assert.That(result.Month, Is.EqualTo(date.Month));
-        Assert.That(result.Day, Is.EqualTo(date.Day));
-        Assert.That(result.Hour, Is.EqualTo(date.Hour));
-        Assert.That(result.Minute, Is.EqualTo(date.Minute));
-        Assert.That(result.Second, Is.EqualTo(date.Second));
-        Assert.That(result.Millisecond, Is.EqualTo(date.Millisecond));
-        Assert.That(result.Microseconds(), Is.EqualTo(date.Microseconds()));
-        Assert.That(result.Offset, Is.EqualTo(date.Offset));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Year, Is.EqualTo(date.Year));
+            Assert.That(result.Month, Is.EqualTo(date.Month));
+            Assert.That(result.Day, Is.EqualTo(date.Day));
+            Assert.That(result.Hour, Is.EqualTo(date.Hour));
+            Assert.That(result.Minute, Is.EqualTo(date.Minute));
+            Assert.That(result.Second, Is.EqualTo(date.Second));
+            Assert.That(result.Millisecond, Is.EqualTo(date.Millisecond));
+            Assert.That(result.Microseconds(), Is.EqualTo(date.Microseconds()));
+            Assert.That(result.Offset, Is.EqualTo(date.Offset));
+        });
     }
 
     [Test]
@@ -42,15 +45,18 @@ class DateTimeExtensionsTests
         var date = DateTimeOffset.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss:ffffff Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
         var result = DateTimeOffsetHelper.ToDateTimeOffset(dateString);
 
-        Assert.That(result.Year, Is.EqualTo(date.Year));
-        Assert.That(result.Month, Is.EqualTo(date.Month));
-        Assert.That(result.Day, Is.EqualTo(date.Day));
-        Assert.That(result.Hour, Is.EqualTo(date.Hour));
-        Assert.That(result.Minute, Is.EqualTo(date.Minute));
-        Assert.That(result.Second, Is.EqualTo(date.Second));
-        Assert.That(result.Millisecond, Is.EqualTo(date.Millisecond));
-        Assert.That(result.Microseconds(), Is.EqualTo(date.Microseconds()));
-        Assert.That(result.Offset, Is.EqualTo(date.Offset));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Year, Is.EqualTo(date.Year));
+            Assert.That(result.Month, Is.EqualTo(date.Month));
+            Assert.That(result.Day, Is.EqualTo(date.Day));
+            Assert.That(result.Hour, Is.EqualTo(date.Hour));
+            Assert.That(result.Minute, Is.EqualTo(date.Minute));
+            Assert.That(result.Second, Is.EqualTo(date.Second));
+            Assert.That(result.Millisecond, Is.EqualTo(date.Millisecond));
+            Assert.That(result.Microseconds(), Is.EqualTo(date.Microseconds()));
+            Assert.That(result.Offset, Is.EqualTo(date.Offset));
+        });
     }
 
     [Test]

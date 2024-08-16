@@ -68,10 +68,13 @@ public class When_registering_components
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var dependency = (ComponentThatDependsOnMultiSingletons)serviceProvider.GetService(typeof(ComponentThatDependsOnMultiSingletons));
 
-        Assert.That(dependency.Singleton1, Is.Not.Null);
-        Assert.That(dependency.Singleton2, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dependency.Singleton1, Is.Not.Null);
+            Assert.That(dependency.Singleton2, Is.Not.Null);
 
-        Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton1))));
+            Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton1))));
+        });
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton2))));
     }
 
