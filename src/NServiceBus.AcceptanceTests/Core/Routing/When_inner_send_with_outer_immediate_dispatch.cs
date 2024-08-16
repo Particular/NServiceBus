@@ -23,7 +23,7 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
             .Run(TimeSpan.FromSeconds(15));
 
         Assert.IsTrue(context.MessageBReceived);
-        Assert.IsFalse(context.MessageCReceived);
+        Assert.That(context.MessageCReceived, Is.False);
     }
 
     class Context : ScenarioContext

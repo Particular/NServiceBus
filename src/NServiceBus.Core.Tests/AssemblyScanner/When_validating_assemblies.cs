@@ -16,7 +16,7 @@ public class When_validating_assemblies
         {
             AssemblyValidator.ValidateAssemblyFile(assembly.Location, out var shouldLoad, out var reason);
 
-            Assert.IsFalse(shouldLoad, $"Should not validate {assembly.FullName}");
+            Assert.That(shouldLoad, Is.False, $"Should not validate {assembly.FullName}");
             Assert.That(reason == "File is a .NET runtime assembly.");
         }
     }

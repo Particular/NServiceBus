@@ -36,8 +36,8 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
             .Run();
 
         Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")));
-        Assert.IsFalse(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")));
-        Assert.IsFalse(context.Logs.Any(m => m.Message.Contains("Going to invoke SagaNotFoundHandlers.")));
+        Assert.That(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")), Is.False);
+        Assert.That(context.Logs.Any(m => m.Message.Contains("Going to invoke SagaNotFoundHandlers.")), Is.False);
 
         Assert.AreEqual(0, context.TimesFired);
     }

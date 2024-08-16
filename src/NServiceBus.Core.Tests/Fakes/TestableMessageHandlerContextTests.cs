@@ -97,7 +97,7 @@ public class TestableMessageHandlerContextTests
     {
         var context = new TestableMessageHandlerContext();
 
-        Assert.IsFalse(context.DoNotContinueDispatchingCurrentMessageToHandlersWasCalled);
+        Assert.That(context.DoNotContinueDispatchingCurrentMessageToHandlersWasCalled, Is.False);
     }
 
     [Test]

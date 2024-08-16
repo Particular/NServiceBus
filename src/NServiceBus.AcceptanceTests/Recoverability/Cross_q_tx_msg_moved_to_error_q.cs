@@ -27,7 +27,7 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
+        Assert.That(context.OutgoingMessageSent, Is.False, "Outgoing messages should not be sent");
         Assert.IsTrue(!context.FailedMessages.IsEmpty);
     }
 

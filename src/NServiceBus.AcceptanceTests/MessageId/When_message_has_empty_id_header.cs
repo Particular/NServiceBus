@@ -19,7 +19,7 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
+        Assert.That(string.IsNullOrWhiteSpace(context.MessageId), Is.False);
         Assert.AreEqual(context.MessageId, context.Headers[Headers.MessageId], "Should populate the NServiceBus.MessageId header with the new value");
     }
 

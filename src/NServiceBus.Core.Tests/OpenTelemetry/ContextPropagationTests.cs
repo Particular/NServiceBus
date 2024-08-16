@@ -59,7 +59,7 @@ public class ContextPropagationTests
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
         ContextPropagation.PropagateContextToHeaders(null, headers, contextBag);
 
-        Assert.IsFalse(headers.ContainsKey(Headers.StartNewTrace));
+        Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.False);
     }
 
     [Test]
@@ -130,7 +130,7 @@ public class ContextPropagationTests
         }
         else
         {
-            Assert.IsFalse(baggageHeaderSet, "baggage header should not be set if there is no baggage");
+            Assert.That(baggageHeaderSet, Is.False, "baggage header should not be set if there is no baggage");
         }
     }
 

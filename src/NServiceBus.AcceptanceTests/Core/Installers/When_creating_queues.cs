@@ -25,7 +25,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsFalse(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.False);
     }
 
     [Test]

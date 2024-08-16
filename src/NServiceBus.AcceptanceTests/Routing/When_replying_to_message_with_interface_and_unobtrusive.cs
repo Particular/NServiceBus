@@ -20,7 +20,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
             .Run();
 
         Assert.IsTrue(ctx.SendingEndpointGotResponse);
-        Assert.IsFalse(ctx.OtherEndpointGotResponse);
+        Assert.That(ctx.OtherEndpointGotResponse, Is.False);
     }
 
     public class Context : ScenarioContext

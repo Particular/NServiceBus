@@ -22,7 +22,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
             .Run(TimeSpan.FromSeconds(30));
 
         Assert.IsTrue(context.Saga2ReceivedTimeout);
-        Assert.IsFalse(context.Saga1ReceivedTimeout);
+        Assert.That(context.Saga1ReceivedTimeout, Is.False);
     }
 
     public class Context : ScenarioContext

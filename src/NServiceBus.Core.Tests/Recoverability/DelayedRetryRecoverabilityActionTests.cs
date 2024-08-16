@@ -68,9 +68,9 @@ public class DelayedRetryRecoverabilityActionTests
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
         Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
-        Assert.IsFalse(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries));
+        Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
         Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp));
-        Assert.IsFalse(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
+        Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);
     }
 
     static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0)

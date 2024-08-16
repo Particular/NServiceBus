@@ -22,25 +22,25 @@ public class ConfigUnicastBusTests
     [Test]
     public void Abstract_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(AbstractHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(AbstractHandler)), Is.False);
     }
 
     [Test]
     public void Not_implementing_IHandleMessages_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(NotImplementingIHandleMessages)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(NotImplementingIHandleMessages)), Is.False);
     }
 
     [Test]
     public void Interface_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(IInterfaceHandler)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(IInterfaceHandler)), Is.False);
     }
 
     [Test]
     public void Generic_type_definition_handler_should_not_be_classified_as_a_handler()
     {
-        Assert.IsFalse(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<>)));
+        Assert.That(ReceiveComponent.IsMessageHandler(typeof(GenericTypeDefinitionHandler<>)), Is.False);
     }
 
     [Test]

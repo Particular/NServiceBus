@@ -188,7 +188,7 @@ public class SerializingArrayTests
         var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
         var result = (MessageWithNullableArray)msgArray[0];
 
-        Assert.IsFalse(result.SomeInts.Length != 0);
+        Assert.That(result.SomeInts.Length != 0, Is.False);
     }
 
     [Test]

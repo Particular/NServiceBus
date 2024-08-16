@@ -153,7 +153,7 @@ public class MessageMapperTests
         var messageInstance = mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
 
         Assert.IsNotNull(messageInstance);
-        Assert.IsFalse(messageInstance.CtorInvoked);
+        Assert.That(messageInstance.CtorInvoked, Is.False);
     }
 
     [Test]

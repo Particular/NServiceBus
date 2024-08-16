@@ -14,7 +14,7 @@ public class MessageTypeEnricherTest
         var behavior = new InferredMessageTypeEnricherBehavior();
         var context = new TestableIncomingLogicalMessageContext();
 
-        Assert.IsFalse(context.Headers.ContainsKey(Headers.EnclosedMessageTypes));
+        Assert.That(context.Headers.ContainsKey(Headers.EnclosedMessageTypes), Is.False);
 
         await behavior.Invoke(context, messageContext => Task.CompletedTask);
 

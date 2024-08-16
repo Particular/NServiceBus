@@ -19,8 +19,8 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
 
         Assert.IsTrue(context.NewMessageHandlerCalled);
         Assert.IsTrue(context.NewMessageSagaHandlerCalled);
-        Assert.IsFalse(context.OriginalMessageHandlerCalled);
-        Assert.IsFalse(context.OriginalMessageSagaHandlerCalled);
+        Assert.That(context.OriginalMessageHandlerCalled, Is.False);
+        Assert.That(context.OriginalMessageSagaHandlerCalled, Is.False);
     }
 
     public class Context : ScenarioContext

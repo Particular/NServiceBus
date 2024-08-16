@@ -19,7 +19,7 @@ public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
             .Run();
 
         Assert.IsTrue(context.WasCalled1);
-        Assert.IsFalse(context.WasCalled2);
+        Assert.That(context.WasCalled2, Is.False);
     }
 
     public class Context : ScenarioContext

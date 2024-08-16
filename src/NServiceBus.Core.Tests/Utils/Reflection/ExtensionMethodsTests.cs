@@ -26,7 +26,7 @@ public class ExtensionMethodsTests
         var systemTypeResult = typeof(string).IsSystemType();
 
         Assert.IsTrue(systemTypeResult, "Expected string to be a system type.");
-        Assert.IsFalse(customTypeResult, "Expected Target to be a custom type.");
+        Assert.That(customTypeResult, Is.False, "Expected Target to be a custom type.");
     }
 
     public class Target
@@ -37,7 +37,7 @@ public class ExtensionMethodsTests
     [Test]
     public void Should_return_false_for_SN_and_non_particular_assembly()
     {
-        Assert.IsFalse(typeof(string).IsFromParticularAssembly());
+        Assert.That(typeof(string).IsFromParticularAssembly(), Is.False);
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class ExtensionMethodsTests
     public void Should_return_false_for_non_SN_and_non_particular_assembly()
     {
         var type = GetNonSnFakeType();
-        Assert.IsFalse(type.IsFromParticularAssembly());
+        Assert.That(type.IsFromParticularAssembly(), Is.False);
     }
 
     static Type GetNonSnFakeType()
