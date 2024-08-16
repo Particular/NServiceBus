@@ -20,7 +20,7 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.True(context.WasCalled, "The message handler should be called");
+        Assert.That(context.WasCalled, Is.True, "The message handler should be called");
     }
 
     public class Context : ScenarioContext

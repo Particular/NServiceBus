@@ -17,7 +17,7 @@ public class At_least_once : NServiceBusAcceptanceTest
             .Done(c => c.MessageDispatched)
             .Run();
 
-        Assert.True(context.MessageDispatched, "Should dispatch the message immediately");
+        Assert.That(context.MessageDispatched, Is.True, "Should dispatch the message immediately");
     }
 
     public class Context : ScenarioContext

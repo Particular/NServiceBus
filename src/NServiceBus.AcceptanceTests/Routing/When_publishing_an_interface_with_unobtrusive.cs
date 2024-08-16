@@ -28,7 +28,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
             .Done(c => c.GotTheEvent)
             .Run();
 
-        Assert.True(context.GotTheEvent);
+        Assert.That(context.GotTheEvent, Is.True);
         Assert.AreEqual(typeof(IMyEvent), context.EventTypePassedToRouting);
     }
 

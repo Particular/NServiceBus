@@ -22,7 +22,7 @@ public class When_publishing_command_bestpractices_disabled_on_endpoint : NServi
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.True(context.EndpointsStarted);
+        Assert.That(context.EndpointsStarted, Is.True);
     }
 
 

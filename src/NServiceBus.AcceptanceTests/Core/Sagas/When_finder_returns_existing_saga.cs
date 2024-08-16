@@ -26,7 +26,7 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
             .Done(c => c.HandledOtherMessage)
             .Run();
 
-        Assert.True(context.FinderUsed);
+        Assert.That(context.FinderUsed, Is.True);
     }
 
     public class Context : ScenarioContext

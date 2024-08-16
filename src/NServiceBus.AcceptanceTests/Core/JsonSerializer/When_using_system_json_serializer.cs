@@ -16,7 +16,7 @@ public class When_using_system_json_serializer : NServiceBusAcceptanceTest
            .Done(c => c.GotTheMessage)
            .Run();
 
-        Assert.True(context.GotTheMessage);
+        Assert.That(context.GotTheMessage, Is.True);
     }
 
     public class Context : ScenarioContext

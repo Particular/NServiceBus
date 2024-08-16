@@ -24,7 +24,7 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
             .Done(c => c.AuditMessageReceived)
             .Run();
 
-        Assert.True(context.BodyWasEmpty);
+        Assert.That(context.BodyWasEmpty, Is.True);
     }
 
     public class Context : ScenarioContext

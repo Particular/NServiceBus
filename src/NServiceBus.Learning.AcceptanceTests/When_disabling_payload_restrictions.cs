@@ -18,7 +18,7 @@ public class When_disabling_payload_restrictions : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.True(context.MessageReceived, "Message was not received");
+        Assert.That(context.MessageReceived, Is.True, "Message was not received");
     }
 
     class Context : ScenarioContext

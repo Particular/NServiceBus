@@ -43,6 +43,6 @@ public class When_cancelling_stop_on_message : NServiceBusTransportTest
 
         await StopPump(new CancellationToken(true));
 
-        Assert.True(await wasCanceled.Task, "onMessage was not canceled.");
+        Assert.That(await wasCanceled.Task, Is.True, "onMessage was not canceled.");
     }
 }

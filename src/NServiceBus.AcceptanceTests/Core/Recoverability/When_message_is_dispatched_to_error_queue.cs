@@ -23,7 +23,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.True(context.MessageBodyWasEmpty);
+        Assert.That(context.MessageBodyWasEmpty, Is.True);
     }
 
     class Context : ScenarioContext

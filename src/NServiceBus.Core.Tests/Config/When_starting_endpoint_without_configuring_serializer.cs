@@ -16,6 +16,6 @@ class When_starting_endpoint_without_configuring_serializer
         scanner.ExcludeAssemblies("NServiceBus.Core.Tests.dll");
 
         var exception = Assert.ThrowsAsync<Exception>(async () => await Endpoint.Create(configuration).ConfigureAwait(false));
-        Assert.True(exception.Message.StartsWith("A serializer has not been configured"));
+        Assert.That(exception.Message.StartsWith("A serializer has not been configured"), Is.True);
     }
 }

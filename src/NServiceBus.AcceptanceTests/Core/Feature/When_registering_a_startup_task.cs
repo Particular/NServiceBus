@@ -19,7 +19,7 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
             .Done(c => c.SendOnlyEndpointWasStarted)
             .Run();
 
-        Assert.True(context.SendOnlyEndpointWasStarted, "The endpoint should have started without any errors");
+        Assert.That(context.SendOnlyEndpointWasStarted, Is.True, "The endpoint should have started without any errors");
     }
 
     public class Context : ScenarioContext

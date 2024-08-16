@@ -34,7 +34,7 @@ public class TransactionScopeTests
     {
         using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+            Assert.That(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()), Is.True);
 
             Assert.That(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()), Is.False);
 

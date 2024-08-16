@@ -54,7 +54,7 @@ public class When_on_error_throws : NServiceBusTransportTest
 
         await retried.Task;
 
-        Assert.True(criticalErrorCalled, "Should invoke critical error");
+        Assert.That(criticalErrorCalled, Is.True, "Should invoke critical error");
         Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`", criticalErrorMessage);
         Assert.AreEqual(exceptionFromOnError, criticalErrorException);
 

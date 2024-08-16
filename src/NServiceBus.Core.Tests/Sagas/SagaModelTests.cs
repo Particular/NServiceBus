@@ -57,7 +57,7 @@ public class SagaModelTests
         Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga));
         Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
 
-        Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
 
         Assert.AreEqual(2, metadata.Finders.Count);

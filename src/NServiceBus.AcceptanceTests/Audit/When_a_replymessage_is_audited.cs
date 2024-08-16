@@ -21,8 +21,8 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
             .Done(c => c.MessageAudited)
             .Run();
 
-        Assert.True(context.MessageProcessed);
-        Assert.True(context.MessageAudited);
+        Assert.That(context.MessageProcessed, Is.True);
+        Assert.That(context.MessageAudited, Is.True);
         Assert.AreEqual("SomeValue", context.HeaderValue);
     }
 

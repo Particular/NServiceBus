@@ -26,7 +26,7 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
             .Done(c => c.MessageDelivered)
             .Run();
 
-        Assert.True(context.MessageDelivered);
+        Assert.That(context.MessageDelivered, Is.True);
     }
 
     public class Context : ScenarioContext

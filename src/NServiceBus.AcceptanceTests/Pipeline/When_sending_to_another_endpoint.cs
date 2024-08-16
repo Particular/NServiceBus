@@ -31,7 +31,7 @@ public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.True(context.WasCalled, "The message handler should be called");
+        Assert.That(context.WasCalled, Is.True, "The message handler should be called");
         Assert.AreEqual(1, context.TimesCalled, "The message handler should only be invoked once");
         Assert.AreEqual("StaticHeaderValue", context.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
         Assert.AreEqual("MyHeaderValue", context.MyHeader, "Static headers should be attached to outgoing messages");

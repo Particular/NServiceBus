@@ -32,9 +32,9 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
             .Done(c => c.DeserializeCalled)
             .Run();
 
-        Assert.True(context.HandlerGotTheRequest);
-        Assert.True(context.SerializeCalled);
-        Assert.True(context.DeserializeCalled);
+        Assert.That(context.HandlerGotTheRequest, Is.True);
+        Assert.That(context.SerializeCalled, Is.True);
+        Assert.That(context.DeserializeCalled, Is.True);
         Assert.AreEqual(Value1, context.ValueFromSettingsForMainSerializer);
         Assert.AreEqual(Value2, context.ValueFromSettingsForDeserializer);
     }

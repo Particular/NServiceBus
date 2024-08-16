@@ -33,8 +33,8 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.True(context.MessageBodyWasEmpty);
-        Assert.True(onMessageSentToErrorQueueTriggered);
+        Assert.That(context.MessageBodyWasEmpty, Is.True);
+        Assert.That(onMessageSentToErrorQueueTriggered, Is.True);
     }
 
     class Context : ScenarioContext

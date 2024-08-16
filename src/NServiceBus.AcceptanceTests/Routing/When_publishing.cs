@@ -29,7 +29,7 @@ public class When_publishing : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber3GotTheEvent)
             .Run();
 
-        Assert.True(context.Subscriber3GotTheEvent);
+        Assert.That(context.Subscriber3GotTheEvent, Is.True);
     }
 
     [Test]
@@ -77,8 +77,8 @@ public class When_publishing : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.True(context.Subscriber1GotTheEvent);
-        Assert.True(context.Subscriber2GotTheEvent);
+        Assert.That(context.Subscriber1GotTheEvent, Is.True);
+        Assert.That(context.Subscriber2GotTheEvent, Is.True);
         Assert.AreEqual("SomeValue", context.HeaderValue);
     }
 

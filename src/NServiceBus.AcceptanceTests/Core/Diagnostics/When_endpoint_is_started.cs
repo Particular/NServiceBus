@@ -31,10 +31,10 @@ public class When_endpoint_is_started : NServiceBusAcceptanceTest
         var startupDiagnosticsFileName = $"{endpointName}-configuration.txt";
 
         var pathToFile = Path.Combine(basePath, startupDiagnosticsFileName);
-        Assert.True(File.Exists(pathToFile));
+        Assert.That(File.Exists(pathToFile), Is.True);
 
         var diagnosticContent = File.ReadAllText(pathToFile);
-        Assert.True(diagnosticContent.Contains("\"Licensing\""));
+        Assert.That(diagnosticContent.Contains("\"Licensing\""), Is.True);
     }
 
     class Context : ScenarioContext

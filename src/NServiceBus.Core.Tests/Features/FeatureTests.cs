@@ -18,7 +18,7 @@ public class FeatureTests
     {
         var feature = new MyEnabledByDefaultFeature();
 
-        Assert.True(feature.IsEnabledByDefault);
+        Assert.That(feature.IsEnabledByDefault, Is.True);
     }
 
 
