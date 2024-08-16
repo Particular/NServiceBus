@@ -22,7 +22,7 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.False(context.HostIdDefaultApplied);
+        Assert.That(context.HostIdDefaultApplied, Is.False);
         Assert.AreEqual(context.CustomHostId, context.HostIdObserved);
     }
 

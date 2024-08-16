@@ -10,7 +10,7 @@ public class FeatureTests
     {
         var feature = new MyFeature();
 
-        Assert.False(feature.IsEnabledByDefault);
+        Assert.That(feature.IsEnabledByDefault, Is.False);
     }
 
     [Test]

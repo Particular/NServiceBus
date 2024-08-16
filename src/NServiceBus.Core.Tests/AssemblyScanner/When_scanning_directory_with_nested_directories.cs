@@ -21,8 +21,8 @@ public class When_scanning_directory_with_nested_directories
         var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
         var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
 
-        Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
-        Assert.False(foundTypeFromDerivedAssembly, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
+        Assert.That(foundTypeFromNestedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
+        Assert.That(foundTypeFromDerivedAssembly, Is.False, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
     }
 
     [Test]

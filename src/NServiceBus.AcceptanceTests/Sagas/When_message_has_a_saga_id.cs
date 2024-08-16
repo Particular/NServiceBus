@@ -30,8 +30,8 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
             .Run();
 
         Assert.True(context.NotFoundHandlerCalled);
-        Assert.False(context.MessageHandlerCalled);
-        Assert.False(context.TimeoutHandlerCalled);
+        Assert.That(context.MessageHandlerCalled, Is.False);
+        Assert.That(context.TimeoutHandlerCalled, Is.False);
     }
 
     public class Context : ScenarioContext

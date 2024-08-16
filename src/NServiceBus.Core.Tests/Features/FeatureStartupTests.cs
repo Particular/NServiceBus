@@ -90,8 +90,8 @@ public class FeatureStartupTests
         Assert.True(feature1.TaskStarted, "Feature 1 should have been started.");
         Assert.True(feature2.TaskStartCalled, "An attempt should have been made to start feature 2.");
         Assert.True(feature1.TaskStopCalled, "An attempt should have been made to stop feature 1.");
-        Assert.False(feature2.TaskStopCalled, "No attempt should have been made to stop feature 2.");
-        Assert.False(feature3.TaskStartCalled, "No attempt should have been made to start feature 3.");
+        Assert.That(feature2.TaskStopCalled, Is.False, "No attempt should have been made to stop feature 2.");
+        Assert.That(feature3.TaskStartCalled, Is.False, "No attempt should have been made to start feature 3.");
     }
 
     [Test]

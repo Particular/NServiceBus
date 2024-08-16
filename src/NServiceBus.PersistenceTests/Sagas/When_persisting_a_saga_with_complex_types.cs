@@ -18,7 +18,7 @@ public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
         var retrieved = await GetById<SagaWithComplexTypeEntity>(sagaData.Id);
 
         CollectionAssert.AreEqual(sagaData.Ints, retrieved.Ints);
-        Assert.False(ReferenceEquals(sagaData.Ints, retrieved.Ints));
+        Assert.That(ReferenceEquals(sagaData.Ints, retrieved.Ints), Is.False);
     }
 
     public class SagaWithComplexType : Saga<SagaWithComplexTypeEntity>, IAmStartedByMessages<StartMessage>

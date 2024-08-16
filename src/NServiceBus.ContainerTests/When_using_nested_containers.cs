@@ -125,7 +125,7 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(ComponentThatDependsOfSingleton));
         }
-        Assert.False(SingletonComponent.DisposeCalled);
+        Assert.That(SingletonComponent.DisposeCalled, Is.False);
     }
 
     [Test]
@@ -143,7 +143,7 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(DisposableComponent));
         }
-        Assert.False(AnotherDisposableComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
+        Assert.That(AnotherDisposableComponent.DisposeCalled, Is.False, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
         Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
     }
 

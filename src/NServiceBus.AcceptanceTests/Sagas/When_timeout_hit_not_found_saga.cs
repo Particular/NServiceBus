@@ -22,7 +22,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
             .Done(c => c.NotFoundHandlerCalledForRegularMessage)
             .Run();
 
-        Assert.False(context.NotFoundHandlerCalledForTimeout);
+        Assert.That(context.NotFoundHandlerCalledForTimeout, Is.False);
     }
 
     public class Context : ScenarioContext

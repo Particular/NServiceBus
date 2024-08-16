@@ -20,7 +20,7 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             .Run();
 
         Assert.True(context.InterceptingHandlerCalled, "The intercepting handler should be called");
-        Assert.False(context.SagaStarted, "The saga should not have been started since the intercepting handler stops the pipeline");
+        Assert.That(context.SagaStarted, Is.False, "The saga should not have been started since the intercepting handler stops the pipeline");
     }
 
     public class SagaEndpointContext : ScenarioContext
