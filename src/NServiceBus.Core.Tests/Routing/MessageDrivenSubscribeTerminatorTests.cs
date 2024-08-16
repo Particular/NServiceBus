@@ -35,8 +35,8 @@ public class MessageDrivenSubscribeTerminatorTests
             var unicastTransportOperations = dispatchedTransportOperation.UnicastTransportOperations;
             var operations = new List<UnicastTransportOperation>(unicastTransportOperations);
 
-            Assert.IsTrue(operations[0].Message.Headers.ContainsKey(Headers.TimeSent));
-            Assert.IsTrue(operations[0].Message.Headers.ContainsKey(Headers.NServiceBusVersion));
+            Assert.That(operations[0].Message.Headers.ContainsKey(Headers.TimeSent), Is.True);
+            Assert.That(operations[0].Message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
         }
     }
 
@@ -142,8 +142,8 @@ public class MessageDrivenSubscribeTerminatorTests
         var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
 
         Assert.AreEqual(2, exception.InnerExceptions.Count);
-        Assert.IsTrue(exception.InnerExceptions.Any(e => e is QueueNotFoundException)); // exception from dispatcher
-        Assert.IsTrue(exception.InnerExceptions.Any(e => e.Message.Contains($"No publisher address could be found for message type '{typeof(EventB)}'"))); // exception from terminator
+        Assert.That(exception.InnerExceptions.Any(e => e is QueueNotFoundException), Is.True); // exception from dispatcher
+        Assert.That(exception.InnerExceptions.Any(e => e.Message.Contains($"No publisher address could be found for message type '{typeof(EventB)}'")), Is.True); // exception from terminator
     }
 
 

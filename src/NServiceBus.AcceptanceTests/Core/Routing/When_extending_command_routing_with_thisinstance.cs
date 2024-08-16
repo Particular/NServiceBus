@@ -31,7 +31,7 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
             .Run();
 
         Assert.AreEqual(1, ctx.MessageDelivered);
-        Assert.IsTrue(ctx.StrategyCalled);
+        Assert.That(ctx.StrategyCalled, Is.True);
     }
 
     public class Context : ScenarioContext

@@ -17,7 +17,7 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.InstallerCalled);
+        Assert.That(context.InstallerCalled, Is.True);
     }
 
     class Context : ScenarioContext

@@ -25,7 +25,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class InvokeHandlerTerminatorTest
 
         await terminator.Invoke(behaviorContext, _ => Task.CompletedTask);
 
-        Assert.IsTrue(handlerInvoked);
+        Assert.That(handlerInvoked, Is.True);
     }
 
     [Test]

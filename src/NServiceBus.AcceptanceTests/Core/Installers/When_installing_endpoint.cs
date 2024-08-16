@@ -20,8 +20,8 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             .WithComponent(new InstallationOnlyComponent<EndpointWithInstaller>())
             .Run();
 
-        Assert.IsTrue(context.InstallerCalled, "Should run installers");
-        Assert.IsTrue(context.FeatureSetupCalled, "Should initialize Features");
+        Assert.That(context.InstallerCalled, Is.True, "Should run installers");
+        Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
         Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
         CollectionAssert.AreEqual(context.TransportStartupSequence, new string[]
         {

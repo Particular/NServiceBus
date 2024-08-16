@@ -24,7 +24,7 @@ class When_routing_reply_to_specific_instance : NServiceBusAcceptanceTest
             .Done(c => c.ReplyReceived)
             .Run();
 
-        Assert.IsTrue(context.ReplyReceived);
+        Assert.That(context.ReplyReceived, Is.True);
         StringAssert.Contains(instanceDiscriminator, context.ReplyToAddress);
     }
 

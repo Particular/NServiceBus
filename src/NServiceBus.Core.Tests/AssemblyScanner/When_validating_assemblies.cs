@@ -26,7 +26,7 @@ public class When_validating_assemblies
     {
         AssemblyValidator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
 
-        Assert.IsTrue(shouldLoad);
+        Assert.That(shouldLoad, Is.True);
         Assert.That(reason == "File is a .NET assembly.");
     }
 
@@ -35,7 +35,7 @@ public class When_validating_assemblies
     {
         AssemblyValidator.ValidateAssemblyFile(GetType().Assembly.Location, out var shouldLoad, out var reason);
 
-        Assert.IsTrue(shouldLoad);
+        Assert.That(shouldLoad, Is.True);
         Assert.That(reason == "File is a .NET assembly.");
     }
 }

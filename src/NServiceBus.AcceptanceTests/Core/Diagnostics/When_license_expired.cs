@@ -20,7 +20,7 @@ public class When_license_expired : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+        Assert.That(context.HasDiagnosticLicensingHeaders, Is.True);
 
         if (Debugger.IsAttached)
         {

@@ -19,7 +19,7 @@ public class When_purging_queues : NServiceBusAcceptanceTest
             .Done(c => c.LocalMessageReceived)
             .Run();
 
-        Assert.IsTrue(context.LocalMessageReceived);
+        Assert.That(context.LocalMessageReceived, Is.True);
     }
 
     class Context : ScenarioContext

@@ -51,7 +51,7 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
 
         Assert.AreEqual(4, context.Subscriber1ReceivedMessages);
         Assert.AreEqual(1, context.Subscriber2ReceivedMessages);
-        Assert.IsTrue(context.Subscriber2Unsubscribed);
+        Assert.That(context.Subscriber2Unsubscribed, Is.True);
     }
 
     public class Context : ScenarioContext

@@ -12,6 +12,6 @@ public class EndpointInstanceTests
         var i1 = new EndpointInstance("Endpoint").SetProperty("P1", "V1").SetProperty("P2", "V2");
         var i2 = new EndpointInstance("Endpoint").SetProperty("P2", "V2").SetProperty("P1", "V1");
 
-        Assert.IsTrue(i1.Equals(i2));
+        Assert.That(i1.Equals(i2), Is.True);
     }
 }

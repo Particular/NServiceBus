@@ -47,7 +47,7 @@ public class ContextPropagationTests
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
         ContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
 
-        Assert.IsTrue(headers.ContainsKey(Headers.StartNewTrace), bool.TrueString);
+        Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.True, bool.TrueString);
         Assert.AreEqual(headers[Headers.StartNewTrace], bool.TrueString);
     }
 
@@ -124,7 +124,7 @@ public class ContextPropagationTests
 
         if (testCase.HasBaggage)
         {
-            Assert.IsTrue(baggageHeaderSet, "Should have a baggage header if there is baggage");
+            Assert.That(baggageHeaderSet, Is.True, "Should have a baggage header if there is baggage");
 
             Assert.AreEqual(testCase.BaggageHeaderValueWithoutOptionalWhitespace, baggageValue, "baggage header is set but is not correct");
         }

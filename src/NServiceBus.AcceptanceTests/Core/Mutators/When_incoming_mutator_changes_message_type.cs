@@ -17,8 +17,8 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             .Done(c => c.NewMessageHandlerCalled || c.OriginalMessageHandlerCalled)
             .Run();
 
-        Assert.IsTrue(context.NewMessageHandlerCalled);
-        Assert.IsTrue(context.NewMessageSagaHandlerCalled);
+        Assert.That(context.NewMessageHandlerCalled, Is.True);
+        Assert.That(context.NewMessageSagaHandlerCalled, Is.True);
         Assert.That(context.OriginalMessageHandlerCalled, Is.False);
         Assert.That(context.OriginalMessageSagaHandlerCalled, Is.False);
     }

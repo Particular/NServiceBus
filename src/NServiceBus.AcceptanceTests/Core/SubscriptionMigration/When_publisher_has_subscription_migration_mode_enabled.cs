@@ -18,7 +18,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .Done(c => c.EventReceived)
             .Run();
 
-        Assert.IsTrue(context.EventReceived);
+        Assert.That(context.EventReceived, Is.True);
         Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(MessageDrivenSubscriber)), context.Subscriber);
     }
 
@@ -32,7 +32,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .Done(c => c.EventReceived)
             .Run();
 
-        Assert.IsTrue(context.EventReceived);
+        Assert.That(context.EventReceived, Is.True);
     }
 
     class Context : ScenarioContext

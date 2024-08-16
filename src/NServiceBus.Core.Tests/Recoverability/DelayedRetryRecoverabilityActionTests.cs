@@ -69,7 +69,7 @@ public class DelayedRetryRecoverabilityActionTests
 
         Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
         Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
-        Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp));
+        Assert.That(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp), Is.True);
         Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);
     }
 

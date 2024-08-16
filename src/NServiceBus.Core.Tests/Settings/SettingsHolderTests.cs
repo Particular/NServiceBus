@@ -31,7 +31,7 @@ public class SettingsHolderTests
 
         settings.Clear();
 
-        Assert.IsTrue(all.All(x => x.Disposed));
+        Assert.That(all.All(x => x.Disposed), Is.True);
     }
 
     [Test]
