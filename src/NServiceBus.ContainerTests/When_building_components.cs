@@ -36,7 +36,7 @@ public class When_building_components
         var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
 
-        Assert.AreSame(instance1, instance2);
+        Assert.That(instance2, Is.SameAs(instance1));
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class When_building_components
         var instance1 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
 
-        Assert.AreSame(instance1, instance2);
+        Assert.That(instance2, Is.SameAs(instance1));
     }
 
     [Test]

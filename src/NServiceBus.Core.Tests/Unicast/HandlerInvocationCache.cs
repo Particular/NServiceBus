@@ -103,7 +103,7 @@ public class When_invoking_a_cached_message_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubMessage(), handlerContext);
 
-        Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
+        Assert.That(((StubHandler)handler.Instance).HandlerContext, Is.SameAs(handlerContext));
     }
 
     public class StubHandler : IHandleMessages<StubMessage>
@@ -166,7 +166,7 @@ public class When_invoking_a_cached_timeout_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubTimeoutState(), handlerContext);
 
-        Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
+        Assert.That(((StubHandler)handler.Instance).HandlerContext, Is.SameAs(handlerContext));
     }
 
     public class StubHandler : IHandleTimeouts<StubTimeoutState>

@@ -26,7 +26,7 @@ public class MessageDeserializerResolverTests
             {Headers.ContentType, contentType}
         };
         var serializer = resolver.Resolve(headers);
-        Assert.AreSame(expectedResolver, serializer);
+        Assert.That(serializer, Is.SameAs(expectedResolver));
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class MessageDeserializerResolverTests
         };
         var serializer = resolver.Resolve(headers);
 
-        Assert.AreSame(mainSerializer, serializer);
+        Assert.That(serializer, Is.SameAs(mainSerializer));
     }
 
     [Test]

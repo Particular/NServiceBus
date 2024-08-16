@@ -20,7 +20,7 @@ public class PublishersTests
         ]);
 
         var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent)).Single();
-        Assert.AreSame(publisher, retrievedPublisher);
+        Assert.That(retrievedPublisher, Is.SameAs(publisher));
     }
 
     [Test]
@@ -40,7 +40,7 @@ public class PublishersTests
         ]);
 
         var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent)).Single();
-        Assert.AreSame(newPublisher, retrievedPublisher);
+        Assert.That(retrievedPublisher, Is.SameAs(newPublisher));
     }
 
     [Test]

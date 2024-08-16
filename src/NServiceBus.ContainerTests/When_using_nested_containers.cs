@@ -92,7 +92,7 @@ public class When_using_nested_containers
             var instance1 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
             var instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
-            Assert.AreSame(instance1, instance2, "UoW's should be singleton in child container");
+            Assert.That(instance2, Is.SameAs(instance1), "UoW's should be singleton in child container");
         }
     }
 
@@ -109,7 +109,7 @@ public class When_using_nested_containers
         }
         var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
-        Assert.AreSame(instance1, instance2, "UoW's should be singletons in the root container");
+        Assert.That(instance2, Is.SameAs(instance1), "UoW's should be singletons in the root container");
     }
 
     [Test]

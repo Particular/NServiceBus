@@ -58,7 +58,7 @@ public class RetryAcknowledgementBehaviorTests
         var exception = new Exception("some pipeline failure");
         var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
 
-        Assert.AreSame(thrownException, exception);
+        Assert.That(exception, Is.SameAs(thrownException));
         Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
     }
 
