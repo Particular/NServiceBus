@@ -29,7 +29,7 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         .Done(c => c.MessageReceived)
         .Run();
 
-        Assert.NotNull(result.ServiceProvider, "IServiceProvider should be injectable");
+        Assert.That(result.ServiceProvider, Is.Not.Null, "IServiceProvider should be injectable");
         Assert.That(result.CustomService, Is.SameAs(myComponent), "Should inject custom services");
     }
 

@@ -14,7 +14,7 @@ public class When_mapping_interfaces
         var mapper = new MessageMapper();
         mapper.Initialize(new[] { typeof(IInterfaceWithOnlyProperties) });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)), Is.Not.Null);
     }
 
     public interface IInterfaceWithOnlyProperties : IMessage

@@ -56,7 +56,7 @@ public class SerializingArrayTests
 
         var messages = serializer.Deserialize(data);
 
-        Assert.NotNull(messages);
+        Assert.That(messages, Is.Not.Null);
         Assert.That(messages, Has.Length.EqualTo(1));
 
         Assert.That(messages[0], Is.TypeOf(typeof(MessageWithArray)));
@@ -206,7 +206,7 @@ public class SerializingArrayTests
         var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
         var result = (MessageWithNullableArray)msgArray[0];
 
-        Assert.NotNull(result.SomeInts);
+        Assert.That(result.SomeInts, Is.Not.Null);
         Assert.That(result.SomeInts.Length, Is.EqualTo(0));
     }
 

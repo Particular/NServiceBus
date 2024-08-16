@@ -45,7 +45,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
 
         var updatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
-        Assert.NotNull(updatedSagaData);
+        Assert.That(updatedSagaData, Is.Not.Null);
         Assert.That(updatedSagaData.LastUpdatedBy, Is.EqualTo("Unchanged"));
     }
 
@@ -82,7 +82,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
 
         var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
-        Assert.NotNull(notUpdatedSagaData);
+        Assert.That(notUpdatedSagaData, Is.Not.Null);
         Assert.That(notUpdatedSagaData.LastUpdatedBy, Is.EqualTo("Unchanged"));
         Assert.That(enlistmentNotifier.CommitWasCalled, Is.False);
         Assert.That(enlistmentNotifier.RollbackWasCalled, Is.True);

@@ -25,7 +25,7 @@ public class SagaModelTests
         var metadata = model.Find(typeof(MySaga));
 
 
-        Assert.NotNull(metadata);
+        Assert.That(metadata, Is.Not.Null);
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class SagaModelTests
         var metadata = model.FindByEntity(typeof(MyEntity));
 
 
-        Assert.NotNull(metadata);
+        Assert.That(metadata, Is.Not.Null);
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class SagaModelTests
 
         var metadata = model.Find(typeof(MySaga));
 
-        Assert.NotNull(metadata);
+        Assert.That(metadata, Is.Not.Null);
 
         Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(MyEntity)));
         Assert.That(metadata.EntityName, Is.EqualTo(typeof(MyEntity).FullName));

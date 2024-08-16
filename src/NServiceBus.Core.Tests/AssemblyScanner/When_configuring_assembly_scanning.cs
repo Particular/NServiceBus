@@ -13,6 +13,6 @@ public class When_configuring_assembly_scanning
         // * docs - https://github.com/Particular/docs.particular.net/blob/master/Snippets/Core/Core_7/Headers/Writers/EndpointConfigurationExtensions.cs
         // * metrics tests - https://github.com/Particular/NServiceBus.Metrics.PerformanceCounters/blob/master/src/NServiceBus.Metrics.PerformanceCounters.Tests/EndpointConfigurationExtensions.cs
         // * we also have users relying on this to prevent assembly scanning from happening
-        Assert.NotNull(typeof(EndpointConfiguration).GetMethod("TypesToScanInternal", BindingFlags.NonPublic | BindingFlags.Instance));
+        Assert.That(typeof(EndpointConfiguration).GetMethod("TypesToScanInternal", BindingFlags.NonPublic | BindingFlags.Instance), Is.Not.Null);
     }
 }
