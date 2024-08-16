@@ -27,7 +27,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
             .Done(c => c.Subscriber1GotTheEvent)
             .Run();
 
-        Assert.True(context.Subscriber1GotTheEvent);
+        Assert.That(context.Subscriber1GotTheEvent, Is.True);
     }
 
     public class Context : ScenarioContext

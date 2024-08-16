@@ -20,8 +20,8 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
             .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
             .Run();
 
-        Assert.True(context.MessageClassReceived);
-        Assert.True(context.MessageInterfaceReceived);
+        Assert.That(context.MessageClassReceived, Is.True);
+        Assert.That(context.MessageInterfaceReceived, Is.True);
     }
 
     public class Context : ScenarioContext

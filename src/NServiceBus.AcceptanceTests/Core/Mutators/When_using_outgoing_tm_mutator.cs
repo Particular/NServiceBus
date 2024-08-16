@@ -17,7 +17,7 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
             .Done(c => c.MessageProcessed)
             .Run();
 
-        Assert.True(context.CanAddHeaders);
+        Assert.That(context.CanAddHeaders, Is.True);
         Assert.AreEqual("SomeValue", context.MutatedPropertyValue, "Mutator should be able to mutate body.");
     }
 

@@ -19,7 +19,7 @@ public class When_mutating : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run(TimeSpan.FromHours(1));
 
-        Assert.True(context.WasCalled, "The message handler should be called");
+        Assert.That(context.WasCalled, Is.True, "The message handler should be called");
     }
 
     public class Context : ScenarioContext

@@ -88,7 +88,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.True);
 
         Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream dependencies should be activated first");
     }
@@ -117,7 +117,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.True);
         Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
     }
 
@@ -183,7 +183,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.True(dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.True);
 
         Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream dependencies should be activated first");
         Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream dependencies should be activated first");
@@ -220,9 +220,9 @@ public class FeatureDependencyTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
 
-        Assert.True(level1.IsActive, "Level1 wasn't activated");
-        Assert.True(level2.IsActive, "Level2 wasn't activated");
-        Assert.True(level3.IsActive, "Level3 wasn't activated");
+        Assert.That(level1.IsActive, Is.True, "Level1 wasn't activated");
+        Assert.That(level2.IsActive, Is.True, "Level2 wasn't activated");
+        Assert.That(level3.IsActive, Is.True, "Level3 wasn't activated");
 
         Assert.IsInstanceOf<Level1>(order[0], "Upstream dependencies should be activated first");
         Assert.IsInstanceOf<Level2>(order[1], "Upstream dependencies should be activated first");

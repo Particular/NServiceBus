@@ -39,7 +39,7 @@ public class Using_Infer_Type_With_Non_Nested_Class
         var serializer = SerializerFactory.Create();
         var exception = Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(XmlWithBaseType)));
 
-        Assert.True(exception.Message.StartsWith("Could not determine type for node:"));
+        Assert.That(exception.Message.StartsWith("Could not determine type for node:"), Is.True);
     }
 
     static byte[] StringToByteArray(string input)

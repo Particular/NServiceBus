@@ -17,7 +17,7 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
             .Done(c => c.GotTheReply)
             .Run();
 
-        Assert.True(context.GotTheReply);
+        Assert.That(context.GotTheReply, Is.True);
         Assert.AreEqual(typeof(IMyReply), context.MessageTypeInPipeline);
     }
 

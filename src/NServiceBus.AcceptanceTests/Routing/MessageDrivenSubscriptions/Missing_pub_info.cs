@@ -20,7 +20,7 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.True(context.EndpointsStarted, "because it should not prevent endpoint startup");
+        Assert.That(context.EndpointsStarted, Is.True, "because it should not prevent endpoint startup");
 
         var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to an event:"));
         Assert.AreEqual(LogLevel.Error, log.Level);

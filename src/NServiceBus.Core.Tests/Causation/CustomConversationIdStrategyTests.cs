@@ -32,7 +32,7 @@ public class CustomConversationIdStrategyTests
     [Test]
     public void Should_default_to_combguid_id()
     {
-        Assert.True(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _));
+        Assert.That(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _), Is.True);
     }
 
     static string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)

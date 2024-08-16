@@ -25,7 +25,7 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
             .Done(c => c.GotEvent)
             .Run().ConfigureAwait(false);
 
-        Assert.True(ctx.GotEvent);
+        Assert.That(ctx.GotEvent, Is.True);
     }
 
     public class Context : ScenarioContext

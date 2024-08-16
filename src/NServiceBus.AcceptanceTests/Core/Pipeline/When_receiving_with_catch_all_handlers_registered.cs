@@ -19,9 +19,9 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
             .Done(c => c.ObjectHandlerWasCalled && c.DynamicHandlerWasCalled && c.IMessageHandlerWasCalled)
             .Run();
 
-        Assert.True(context.ObjectHandlerWasCalled);
-        Assert.True(context.DynamicHandlerWasCalled);
-        Assert.True(context.IMessageHandlerWasCalled);
+        Assert.That(context.ObjectHandlerWasCalled, Is.True);
+        Assert.That(context.DynamicHandlerWasCalled, Is.True);
+        Assert.That(context.IMessageHandlerWasCalled, Is.True);
     }
 
     public class Context : ScenarioContext

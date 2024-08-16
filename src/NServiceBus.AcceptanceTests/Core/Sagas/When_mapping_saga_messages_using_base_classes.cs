@@ -25,7 +25,7 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
             .Done(c => c.SecondMessageFoundExistingSaga)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.True(context.SecondMessageFoundExistingSaga);
+        Assert.That(context.SecondMessageFoundExistingSaga, Is.True);
     }
 
     public class Context : ScenarioContext

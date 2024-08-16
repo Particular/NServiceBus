@@ -24,8 +24,8 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.True(mutator.MutateOutgoingCalled);
-        Assert.True(otherMutator.MutateOutgoingCalled);
+        Assert.That(mutator.MutateOutgoingCalled, Is.True);
+        Assert.That(otherMutator.MutateOutgoingCalled, Is.True);
     }
 
     [Test]
@@ -42,8 +42,8 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.True(explicitMutator.MutateOutgoingCalled);
-        Assert.True(containerMutator.MutateOutgoingCalled);
+        Assert.That(explicitMutator.MutateOutgoingCalled, Is.True);
+        Assert.That(containerMutator.MutateOutgoingCalled, Is.True);
     }
 
     [Test]
@@ -118,7 +118,7 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.True);
     }
 
     class InterceptUpdateMessageOutgoingPhysicalMessageContext : TestableOutgoingPhysicalMessageContext

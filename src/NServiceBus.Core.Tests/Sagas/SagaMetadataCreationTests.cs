@@ -38,7 +38,7 @@ public class SagaMetadataCreationTests
     public void DetectUniquePropertiesByAttribute()
     {
         var metadata = SagaMetadata.Create(typeof(MySaga));
-        Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
     }
 
@@ -80,7 +80,7 @@ public class SagaMetadataCreationTests
     public void HandleBothUniqueAttributeAndMapping()
     {
         var metadata = SagaMetadata.Create(typeof(MySagaWithMappedAndUniqueProperty));
-        Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
     }
 
@@ -89,7 +89,7 @@ public class SagaMetadataCreationTests
     public void AutomaticallyAddUniqueForMappedProperties(Type sagaType)
     {
         var metadata = SagaMetadata.Create(sagaType);
-        Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
     }
 
@@ -98,7 +98,7 @@ public class SagaMetadataCreationTests
     public void RequireFinderForMessagesStartingTheSaga()
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
-        Assert.True(ex.Message.Contains(typeof(MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga).FullName));
+        Assert.That(ex.Message.Contains(typeof(MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga).FullName), Is.True);
     }
 
     [Test]
@@ -118,9 +118,9 @@ public class SagaMetadataCreationTests
 
         Assert.AreEqual(4, messages.Count);
 
-        Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage1).FullName));
+        Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage1).FullName), Is.True);
 
-        Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage2).FullName));
+        Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage2).FullName), Is.True);
 
         Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.Message3).FullName), Is.False);
 

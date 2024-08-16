@@ -17,7 +17,7 @@ public class When_receiving_non_matching_message_with_handler : NServiceBusAccep
             .Done(c => c.GotTheMessage)
             .Run();
 
-        Assert.True(context.GotTheMessage);
+        Assert.That(context.GotTheMessage, Is.True);
     }
 
     public class Context : ScenarioContext
