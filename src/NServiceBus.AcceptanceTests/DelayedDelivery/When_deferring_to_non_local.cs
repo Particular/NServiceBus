@@ -31,7 +31,7 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
+        Assert.That(context.ReceivedAt - context.SentAt, Is.GreaterThanOrEqualTo(delay));
     }
 
     public class Context : ScenarioContext

@@ -27,7 +27,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three times");
+        Assert.That(context.NumberOfRetriesAttempted, Is.GreaterThanOrEqualTo(3), "Should retry at least three times");
         Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
     }
 
