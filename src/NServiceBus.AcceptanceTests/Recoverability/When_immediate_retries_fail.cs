@@ -24,7 +24,7 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 1, "Should retry one or more times");
+        Assert.That(context.NumberOfRetriesAttempted, Is.GreaterThanOrEqualTo(1), "Should retry one or more times");
     }
 
     static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
