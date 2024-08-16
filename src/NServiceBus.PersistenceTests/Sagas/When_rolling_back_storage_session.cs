@@ -31,7 +31,7 @@ public class When_rolling_back_storage_session : SagaPersisterTests
 
         var hopefullyNotUpdatedSaga = await GetById<TestSagaData>(sagaData.Id);
 
-        Assert.NotNull(hopefullyNotUpdatedSaga);
+        Assert.That(hopefullyNotUpdatedSaga, Is.Not.Null);
         Assert.That(hopefullyNotUpdatedSaga.SomethingWeCareAbout, Is.EqualTo("NServiceBus"));
     }
 
@@ -83,7 +83,7 @@ public class When_rolling_back_storage_session : SagaPersisterTests
 
         var nonCompletedSaga = await GetById<TestSagaData>(sagaData.Id);
 
-        Assert.NotNull(nonCompletedSaga);
+        Assert.That(nonCompletedSaga, Is.Not.Null);
         Assert.That(nonCompletedSaga.SomethingWeCareAbout, Is.EqualTo("NServiceBus"));
     }
 

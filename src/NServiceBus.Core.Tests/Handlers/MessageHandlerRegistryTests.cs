@@ -36,7 +36,7 @@ public class MessageHandlerRegistryTests
 
         var timeoutHandler = handlers.SingleOrDefault(h => h.IsTimeoutHandler);
 
-        Assert.NotNull(timeoutHandler, "Timeout handler should be marked as such");
+        Assert.That(timeoutHandler, Is.Not.Null, "Timeout handler should be marked as such");
 
         var timeoutInstance = new SagaWithTimeoutOfMessage();
 
@@ -48,7 +48,7 @@ public class MessageHandlerRegistryTests
 
         var regularHandler = handlers.SingleOrDefault(h => !h.IsTimeoutHandler);
 
-        Assert.NotNull(regularHandler, "Regular handler should be marked as timeout handler");
+        Assert.That(regularHandler, Is.Not.Null, "Regular handler should be marked as timeout handler");
 
         var regularInstance = new SagaWithTimeoutOfMessage();
 

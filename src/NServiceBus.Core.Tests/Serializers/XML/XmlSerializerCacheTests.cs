@@ -41,7 +41,7 @@ public class XmlSerializerCacheTests
             cache.InitType(typeof(SimpleType));
 
             var members = cache.typeMembers[typeof(SimpleType)];
-            Assert.NotNull(members);
+            Assert.That(members, Is.Not.Null);
             Assert.That(members.Item1.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleField)));
             Assert.That(members.Item2.Single().Name, Is.EqualTo(nameof(SimpleType.SimpleProperty)));
         });

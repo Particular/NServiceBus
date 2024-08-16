@@ -152,7 +152,7 @@ public class OutboxStorageTests
         }
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
-        Assert.NotNull(message);
+        Assert.That(message, Is.Not.Null);
     }
 
     PersistenceTestsConfiguration configuration;

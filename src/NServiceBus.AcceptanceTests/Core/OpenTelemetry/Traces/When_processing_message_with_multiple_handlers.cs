@@ -29,7 +29,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         foreach (var invokedHandlerActivity in invokedHandlerActivities)
         {
             var handlerTypeTag = invokedHandlerActivity.GetTagItem("nservicebus.handler.handler_type") as string;
-            Assert.NotNull(handlerTypeTag, "Handler type tag should be set");
+            Assert.That(handlerTypeTag, Is.Not.Null, "Handler type tag should be set");
             recordedHandlerTypes.Add(handlerTypeTag);
             Assert.That(invokedHandlerActivity.ParentId, Is.EqualTo(receivePipelineActivities[0].Id));
             Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));

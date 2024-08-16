@@ -44,15 +44,15 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations.First().Properties);
         var delayDeliveryWith = operationProperties.DelayDeliveryWith;
-        Assert.NotNull(delayDeliveryWith);
+        Assert.That(delayDeliveryWith, Is.Not.Null);
         Assert.That(delayDeliveryWith.Delay, Is.EqualTo(TimeSpan.FromSeconds(10)));
 
         var doNotDeliverBefore = operationProperties.DoNotDeliverBefore;
-        Assert.NotNull(doNotDeliverBefore);
+        Assert.That(doNotDeliverBefore, Is.Not.Null);
         Assert.That(doNotDeliverBefore.At.ToString(), Is.EqualTo(deliverTime.ToString()));
 
         var discard = operationProperties.DiscardIfNotReceivedBefore;
-        Assert.NotNull(discard);
+        Assert.That(discard, Is.Not.Null);
         Assert.That(discard.MaxTime, Is.EqualTo(maxTime));
 
         Assert.That(fakeOutbox.StoredMessage, Is.Null);
@@ -75,7 +75,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context);
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
-        Assert.NotNull(routing);
+        Assert.That(routing, Is.Not.Null);
         Assert.That(routing.Destination, Is.EqualTo("myEndpoint"));
         Assert.That(fakeOutbox.StoredMessage, Is.Null);
     }
@@ -101,7 +101,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context);
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
-        Assert.NotNull(routing);
+        Assert.That(routing, Is.Not.Null);
         Assert.That(routing.MessageType, Is.EqualTo(typeof(MyEvent)));
         Assert.That(fakeOutbox.StoredMessage, Is.Null);
     }

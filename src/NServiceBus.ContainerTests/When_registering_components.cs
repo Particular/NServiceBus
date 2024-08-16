@@ -29,7 +29,7 @@ public class When_registering_components
         serviceCollection.AddSingleton(_ => new StaticFactory());
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.NotNull(serviceProvider.GetService(typeof(ComponentCreatedByFactory)));
+        Assert.That(serviceProvider.GetService(typeof(ComponentCreatedByFactory)), Is.Not.Null);
     }
 
     [Test]
@@ -68,8 +68,8 @@ public class When_registering_components
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var dependency = (ComponentThatDependsOnMultiSingletons)serviceProvider.GetService(typeof(ComponentThatDependsOnMultiSingletons));
 
-        Assert.NotNull(dependency.Singleton1);
-        Assert.NotNull(dependency.Singleton2);
+        Assert.That(dependency.Singleton1, Is.Not.Null);
+        Assert.That(dependency.Singleton2, Is.Not.Null);
 
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton1))));
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingleton2))));

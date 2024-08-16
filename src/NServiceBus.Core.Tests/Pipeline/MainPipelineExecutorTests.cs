@@ -70,7 +70,7 @@ public class MainPipelineExecutorTests
 
             await executor.Invoke(messageContext);
 
-            Assert.NotNull(receivePipeline.PipelineAcitivty);
+            Assert.That(receivePipeline.PipelineAcitivty, Is.Not.Null);
             Assert.That(receivePipeline.PipelineAcitivty.OperationName, Is.EqualTo(ActivityNames.IncomingMessageActivityName));
             Assert.That(receivePipeline.PipelineAcitivty.DisplayName, Is.EqualTo("process message"));
             Assert.That(receivePipeline.TransportReceiveContext.Extensions.Get<Activity>(ActivityExtensions.IncomingActivityKey), Is.EqualTo(receivePipeline.PipelineAcitivty));

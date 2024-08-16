@@ -47,10 +47,10 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         }
 
         var sagaData1 = await GetById<Saga1Data>(saga1.Id);
-        Assert.NotNull(sagaData1);
+        Assert.That(sagaData1, Is.Not.Null);
         Assert.That(sagaData1.CorrelationId, Is.EqualTo(saga1.CorrelationId));
         var sagaData2 = await GetById<Saga2Data>(saga2.Id);
-        Assert.NotNull(sagaData2);
+        Assert.That(sagaData2, Is.Not.Null);
         Assert.That(sagaData2.CorrelationId, Is.EqualTo(saga2.CorrelationId));
     }
 
@@ -143,10 +143,10 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         }
 
         var saga1AfterUpdate = await GetById<Saga1Data>(saga1.Id);
-        Assert.NotNull(saga1AfterUpdate);
+        Assert.That(saga1AfterUpdate, Is.Not.Null);
         Assert.That(saga1AfterUpdate.SomeSaga1Data, Is.EqualTo("saga 1 after update"));
         var saga2AfterUpdate = await GetById<Saga2Data>(saga2.Id);
-        Assert.NotNull(saga2AfterUpdate);
+        Assert.That(saga2AfterUpdate, Is.Not.Null);
         Assert.That(saga2AfterUpdate.SomeSaga2Data, Is.EqualTo("saga 2 after update"));
     }
 
@@ -193,10 +193,10 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         }
 
         var saga1AfterUpdate = await GetById<Saga1Data>(saga1.Id);
-        Assert.NotNull(saga1AfterUpdate);
+        Assert.That(saga1AfterUpdate, Is.Not.Null);
         Assert.That(saga1AfterUpdate.SomeSaga1Data, Is.EqualTo("saga 1 before update"));
         var saga2AfterUpdate = await GetById<Saga2Data>(saga2.Id);
-        Assert.NotNull(saga2AfterUpdate);
+        Assert.That(saga2AfterUpdate, Is.Not.Null);
         Assert.That(saga2AfterUpdate.SomeSaga2Data, Is.EqualTo("saga 2 before update"));
     }
 

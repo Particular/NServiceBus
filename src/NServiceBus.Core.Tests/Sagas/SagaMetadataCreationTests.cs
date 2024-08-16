@@ -135,7 +135,7 @@ public class SagaMetadataCreationTests
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
         Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
-        Assert.NotNull(finder.Properties["property-accessor"]);
+        Assert.That(finder.Properties["property-accessor"], Is.Not.Null);
         Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
     }
 

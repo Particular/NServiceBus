@@ -340,7 +340,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msg = serializer.Deserialize(stream.ToArray()).Cast<MessageWithXDocument>().Single();
 
-                Assert.NotNull(msg.Document);
+                Assert.That(msg.Document, Is.Not.Null);
                 Assert.That(msg.Document.Root.Name.LocalName, Is.EqualTo("Document"));
             }
 
@@ -357,7 +357,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msg = serializer.Deserialize(stream.ToArray()).Cast<MessageWithXElement>().Single();
 
-                Assert.NotNull(msg.Document);
+                Assert.That(msg.Document, Is.Not.Null);
                 Assert.That(msg.Document.Name.LocalName, Is.EqualTo("Document"));
             }
         }

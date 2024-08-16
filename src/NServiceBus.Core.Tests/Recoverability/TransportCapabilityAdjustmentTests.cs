@@ -12,7 +12,7 @@ public class TransportCapabilityAdjustmentTests
         var recoverabilityAction = RecoverabilityComponent.AdjustForTransportCapabilities(ErrorQueueAddress, false, false, RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(1)));
 
         var errorAction = recoverabilityAction as MoveToError;
-        Assert.NotNull(errorAction);
+        Assert.That(errorAction, Is.Not.Null);
         Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
@@ -22,7 +22,7 @@ public class TransportCapabilityAdjustmentTests
         var recoverabilityAction = RecoverabilityComponent.AdjustForTransportCapabilities(ErrorQueueAddress, false, false, RecoverabilityAction.ImmediateRetry());
 
         var errorAction = recoverabilityAction as MoveToError;
-        Assert.NotNull(errorAction);
+        Assert.That(errorAction, Is.Not.Null);
         Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
