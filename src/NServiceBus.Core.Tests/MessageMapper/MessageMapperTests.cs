@@ -129,7 +129,7 @@ public class MessageMapperTests
         var messageInstance = mapper.CreateInstance<ISampleMessageInterface>();
 
         Assert.That(messageInstance, Is.Not.Null);
-        Assert.IsInstanceOf<ISampleMessageInterface>(messageInstance);
+        Assert.That(messageInstance, Is.InstanceOf<ISampleMessageInterface>());
     }
 
     [Test]

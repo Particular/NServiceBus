@@ -90,7 +90,7 @@ public class FeatureDependencyTests
 
         Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream dependencies should be activated first");
+        Assert.That(order.First(), Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class FeatureDependencyTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         Assert.That(dependingFeature.IsActive, Is.True);
-        Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
+        Assert.That(order.First(), Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
     }
 
     [Test]
@@ -185,9 +185,9 @@ public class FeatureDependencyTests
 
         Assert.That(dependingFeature.IsActive, Is.True);
 
-        Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream dependencies should be activated first");
+        Assert.That(order[0], Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
+        Assert.That(order[1], Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
+        Assert.That(order[2], Is.InstanceOf<MyFeature3>(), "Upstream dependencies should be activated first");
     }
 
     [Test]
@@ -224,9 +224,9 @@ public class FeatureDependencyTests
         Assert.That(level2.IsActive, Is.True, "Level2 wasn't activated");
         Assert.That(level3.IsActive, Is.True, "Level3 wasn't activated");
 
-        Assert.IsInstanceOf<Level1>(order[0], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level2>(order[1], "Upstream dependencies should be activated first");
-        Assert.IsInstanceOf<Level3>(order[2], "Upstream dependencies should be activated first");
+        Assert.That(order[0], Is.InstanceOf<Level1>(), "Upstream dependencies should be activated first");
+        Assert.That(order[1], Is.InstanceOf<Level2>(), "Upstream dependencies should be activated first");
+        Assert.That(order[2], Is.InstanceOf<Level3>(), "Upstream dependencies should be activated first");
     }
 
     [Test]

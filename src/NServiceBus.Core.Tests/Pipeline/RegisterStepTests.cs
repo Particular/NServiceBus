@@ -82,7 +82,7 @@ public class RegisterStepTests
         var behavior = registerStep.CreateBehavior(builder);
 
         Assert.That(originalBehaviorFactoryCalled, Is.False);
-        Assert.IsInstanceOf<BehaviorB>(behavior);
+        Assert.That(behavior, Is.InstanceOf<BehaviorB>());
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class RegisterStepTests
         var behavior = registerStep.CreateBehavior(builder);
 
         Assert.That(replacementBehaviorFactoryCalled, Is.True);
-        Assert.IsInstanceOf<BehaviorB>(behavior);
+        Assert.That(behavior, Is.InstanceOf<BehaviorB>());
     }
 
     class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
