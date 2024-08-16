@@ -1097,7 +1097,7 @@ namespace NServiceBus.Serializers.XML.Test
                     };
                     m.Whatever = "fdsfsdfsd";
                 });
-            Assert.That(result.GenericNullable.TheType, Is.Not.EqualTo(theTime));
+            Assert.That(result.GenericNullable.TheType, Is.EqualTo(theTime));
         }
 
         [Test]
