@@ -23,7 +23,7 @@ public static class EnsureNativeBehvaviors
 
         Console.Error.WriteLine($"Violators of {nameof(CoreBehaviorsMustNotUseAbstractClasses)}:{Environment.NewLine}{string.Join(Environment.NewLine, violators)}");
 
-        Assert.IsEmpty(violators, $"For performance reasons, built-in behaviors are not allowed to inherit from abstract behavior classes. Implement IBehavior<Tin, TOut> directly, using the same context type for both TIn and TOut.");
+        Assert.That(violators, Is.Empty, $"For performance reasons, built-in behaviors are not allowed to inherit from abstract behavior classes. Implement IBehavior<Tin, TOut> directly, using the same context type for both TIn and TOut.");
     }
 
     static bool UsesAbstractClass(Type type)

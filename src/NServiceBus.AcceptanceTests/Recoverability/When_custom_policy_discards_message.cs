@@ -16,7 +16,7 @@ public class When_custom_policy_discards_failed_message : NServiceBusAcceptanceT
             .Done(c => c.HandlerInvoked >= 1)
             .Run();
 
-        Assert.IsEmpty(context.FailedMessages, "the message should not be moved to the error queue");
+        Assert.That(context.FailedMessages, Is.Empty, "the message should not be moved to the error queue");
         Assert.That(context.HandlerInvoked, Is.EqualTo(1), "the discarded message should not be retried");
     }
 

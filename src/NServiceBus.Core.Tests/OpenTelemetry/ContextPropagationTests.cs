@@ -32,7 +32,7 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(null, headers, new ContextBag());
 
-        Assert.IsEmpty(headers);
+        Assert.That(headers, Is.Empty);
     }
 
     [Test]

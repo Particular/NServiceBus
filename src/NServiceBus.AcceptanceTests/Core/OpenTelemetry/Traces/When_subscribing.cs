@@ -61,7 +61,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
         var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true);
-        Assert.IsEmpty(subscriptionReceiveActivity, "native pubsub should not produce a message");
+        Assert.That(subscriptionReceiveActivity, Is.Empty, "native pubsub should not produce a message");
     }
 
     class Context : ScenarioContext

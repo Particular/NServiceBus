@@ -23,6 +23,6 @@ public class When_creating_send_only_transport : NServiceBusTransportTest
         var transport = await transportDefinition.Initialize(hostSettings, Array.Empty<ReceiveSettings>(), Array.Empty<string>());
 
         Assert.That(transport.Receivers, Is.Not.Null);
-        Assert.IsEmpty(transport.Receivers);
+        Assert.That(transport.Receivers, Is.Empty);
     }
 }

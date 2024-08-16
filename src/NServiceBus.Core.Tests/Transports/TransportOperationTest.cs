@@ -15,7 +15,7 @@ public class TransportOperationTest
         var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination2"));
 
         Assert.That(secondTransportOperation.Properties, Is.Not.SameAs(transportOperation.Properties));
-        Assert.IsEmpty(transportOperation.Properties);
-        Assert.IsEmpty(secondTransportOperation.Properties);
+        Assert.That(transportOperation.Properties, Is.Empty);
+        Assert.That(secondTransportOperation.Properties, Is.Empty);
     }
 }

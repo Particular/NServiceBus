@@ -49,7 +49,7 @@ public class StandardsTests
                 x.Namespace != "MicrosoftExtensionsDependencyInjection").ToList();
         if (types.Count > 0)
         {
-            Assert.IsEmpty(types, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
+            Assert.That(types, Is.Empty, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
         }
     }
 
