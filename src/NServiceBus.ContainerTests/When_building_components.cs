@@ -79,7 +79,7 @@ public class When_building_components
         InitializeServices(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.IsEmpty(serviceProvider.GetServices(typeof(UnregisteredComponent)));
+        Assert.That(serviceProvider.GetServices(typeof(UnregisteredComponent)), Is.Empty);
     }
 
     [Test]

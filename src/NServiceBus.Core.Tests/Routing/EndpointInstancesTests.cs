@@ -65,6 +65,6 @@ public class EndpointInstancesTests
 
         var singleInstance = salesInstances.Single();
         Assert.That(singleInstance.Discriminator, Is.Null);
-        Assert.IsEmpty(singleInstance.Properties);
+        Assert.That(singleInstance.Properties, Is.Empty);
     }
 }

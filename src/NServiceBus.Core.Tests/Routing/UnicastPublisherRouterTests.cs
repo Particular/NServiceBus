@@ -95,7 +95,7 @@ public class UnicastPublisherRouterTests
     {
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.IsEmpty(routes);
+        Assert.That(routes, Is.Empty);
     }
 
     [Test]

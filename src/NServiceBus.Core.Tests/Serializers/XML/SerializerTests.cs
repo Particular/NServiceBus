@@ -950,7 +950,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithList)msgArray[0];
-                Assert.IsEmpty(m.Items);
+                Assert.That(m.Items, Is.Empty);
             }
         }
 
