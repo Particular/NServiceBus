@@ -230,7 +230,7 @@ public class RollingLoggerTests
             for (var i = 0; i < 100; i++)
             {
                 logger.WriteLine("Some long text");
-                Assert.LessOrEqual(tempPath.GetFiles().Count, 11);
+                Assert.That(tempPath.GetFiles().Count, Is.LessThanOrEqualTo(11));
             }
         }
     }
