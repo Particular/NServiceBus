@@ -35,7 +35,7 @@ public class MessageOperationsTests
         await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
 
         var messageId = messageOperations.SendPipeline.LastContext.MessageId;
-        Assert.IsNotNull(messageId);
+        Assert.That(messageId, Is.Not.Null);
         Assert.That(messageOperations.SendPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
     }
 
@@ -98,7 +98,7 @@ public class MessageOperationsTests
         await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
 
         var messageId = messageOperations.ReplyPipeline.LastContext.MessageId;
-        Assert.IsNotNull(messageId);
+        Assert.That(messageId, Is.Not.Null);
         Assert.That(messageOperations.ReplyPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
     }
 
@@ -161,7 +161,7 @@ public class MessageOperationsTests
         await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
 
         var messageId = messageOperations.PublishPipeline.LastContext.MessageId;
-        Assert.IsNotNull(messageId);
+        Assert.That(messageId, Is.Not.Null);
         Assert.That(messageOperations.PublishPipeline.LastContext.Headers[Headers.MessageId], Is.EqualTo(messageId));
     }
 

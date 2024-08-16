@@ -37,7 +37,7 @@ public class When_persisting_a_saga_with_record_type : SagaPersisterTests
 
         var retrieved = await GetById<SagaWithNestedRecordTypeEntity>(sagaData.Id);
 
-        Assert.IsNotNull(retrieved);
+        Assert.That(retrieved, Is.Not.Null);
         Assert.That(retrieved.SomePerson, Is.EqualTo(person));
     }
 

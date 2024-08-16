@@ -62,7 +62,7 @@ public class SerializingArrayTests
         Assert.That(messages[0], Is.TypeOf(typeof(MessageWithArray)));
         var m = (MessageWithArray)messages[0];
 
-        Assert.IsNotNull(m.SomeInts);
+        Assert.That(m.SomeInts, Is.Not.Null);
         Assert.That(m.SomeInts, Has.Length.EqualTo(1));
     }
 
@@ -73,7 +73,7 @@ public class SerializingArrayTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 
-        Assert.IsNotNull(result.SomeInts);
+        Assert.That(result.SomeInts, Is.Not.Null);
         Assert.That(result.SomeInts, Has.Length.EqualTo(2));
         Assert.That(result.SomeInts[0], Is.EqualTo(1234));
         Assert.That(result.SomeInts[1], Is.EqualTo(5323));

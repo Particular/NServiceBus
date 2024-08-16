@@ -1065,7 +1065,7 @@ namespace NServiceBus.Serializers.XML.Test
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
             var result = ExecuteSerializer.ForMessage<MessageWithNestedObject>(m => { m.NestedObject = new MessageWithNullProperty(); });
-            Assert.IsNotNull(result.NestedObject);
+            Assert.That(result.NestedObject, Is.Not.Null);
         }
 
         [Test]
@@ -1082,7 +1082,7 @@ namespace NServiceBus.Serializers.XML.Test
                     };
                     m.Whatever = "fdsfsdfsd";
                 });
-            Assert.IsNotNull(result.GenericNullable.TheType == theTime);
+            Assert.That(result.GenericNullable.TheType == theTime, Is.Not.Null);
         }
 
         [Test]
@@ -1110,7 +1110,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<MessageWithSystemClassAsProperty>(
                 m => { m.MailMessage = message; });
-            Assert.IsNotNull(result.MailMessage);
+            Assert.That(result.MailMessage, Is.Not.Null);
             Assert.That(result.MailMessage.From.Address, Is.EqualTo("from@gmail.com"));
             Assert.That(result.MailMessage.To.First(), Is.EqualTo(message.To.First()));
             Assert.That(result.MailMessage.BodyEncoding.CodePage, Is.EqualTo(message.BodyEncoding.CodePage));

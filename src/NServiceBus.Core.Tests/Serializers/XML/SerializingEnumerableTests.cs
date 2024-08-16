@@ -30,7 +30,7 @@ public class SerializingEnumerableTests
         };
 
         var result = ExecuteSerializer.ForMessage<MessageWithEnumerableOfString>(message);
-        Assert.IsNotNull(result.SomeStrings);
+        Assert.That(result.SomeStrings, Is.Not.Null);
         Assert.That(result.SomeStrings.Count(), Is.EqualTo(4));
     }
 }

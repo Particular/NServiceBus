@@ -22,7 +22,7 @@ public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTes
             .Run();
 
         var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("stopping of feature startup task") && item.Level == LogLevel.Warn);
-        Assert.IsNotNull(logItem);
+        Assert.That(logItem, Is.Not.Null);
         StringAssert.Contains("Exception occurred during stopping of feature startup task 'CustomTask'. System.InvalidOperationException: CustomTaskThrows", logItem.Message);
     }
 

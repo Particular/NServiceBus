@@ -39,7 +39,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
         sentMessageTags.VerifyTag("nservicebus.message_id", context.PublishedMessageId);
 
-        Assert.IsNotNull(context.TraceParentHeader, "tracing header should be set on the published event");
+        Assert.That(context.TraceParentHeader, Is.Not.Null, "tracing header should be set on the published event");
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         var receiveRequest = receiveMessageActivities[0];
 
         Assert.That(receiveRequest.RootId, Is.EqualTo(publishRequest.RootId), "publish and receive operations are part the same root activity");
-        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+        Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
 
         CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
     }
@@ -112,7 +112,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.IsNotNull(link, "Receive has a link");
+        Assert.That(link, Is.Not.Null, "Receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(publishRequest.TraceId), "receive is linked to publish operation");
     }
 

@@ -30,7 +30,7 @@ public class When_mapping_interfaces
 
         var result = mapper.CreateInstance<IInterface>(null);
 
-        Assert.IsNotNull(result);
+        Assert.That(result, Is.Not.Null);
     }
 
     public interface IInterface : IMessage

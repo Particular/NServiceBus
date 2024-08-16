@@ -21,7 +21,7 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
 
         Assert.That(replyMessage.DisplayName, Is.EqualTo("reply"));
         Assert.That(replyMessage.RootId, Is.EqualTo(outgoingMessageActivities[0].RootId), "reply should belong to same trace as the triggering message");
-        Assert.IsNotNull(replyMessage.ParentId, "reply should have ambient span");
+        Assert.That(replyMessage.ParentId, Is.Not.Null, "reply should have ambient span");
 
         replyMessage.VerifyUniqueTags();
     }
