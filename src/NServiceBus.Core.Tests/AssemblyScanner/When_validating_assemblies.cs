@@ -17,7 +17,7 @@ public class When_validating_assemblies
             AssemblyValidator.ValidateAssemblyFile(assembly.Location, out var shouldLoad, out var reason);
 
             Assert.That(shouldLoad, Is.False, $"Should not validate {assembly.FullName}");
-            Assert.That(reason == "File is a .NET runtime assembly.");
+            Assert.That(reason, Is.EqualTo("File is a .NET runtime assembly."));
         }
     }
 
@@ -27,7 +27,7 @@ public class When_validating_assemblies
         AssemblyValidator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
 
         Assert.That(shouldLoad, Is.True);
-        Assert.That(reason == "File is a .NET assembly.");
+        Assert.That(reason, Is.EqualTo("File is a .NET assembly."));
     }
 
     [Test]
@@ -36,6 +36,6 @@ public class When_validating_assemblies
         AssemblyValidator.ValidateAssemblyFile(GetType().Assembly.Location, out var shouldLoad, out var reason);
 
         Assert.That(shouldLoad, Is.True);
-        Assert.That(reason == "File is a .NET assembly.");
+        Assert.That(reason, Is.EqualTo("File is a .NET assembly."));
     }
 }
