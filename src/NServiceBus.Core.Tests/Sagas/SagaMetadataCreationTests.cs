@@ -98,7 +98,7 @@ public class SagaMetadataCreationTests
     public void RequireFinderForMessagesStartingTheSaga()
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
-        Assert.That(ex.Message.Contains(typeof(MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga).FullName), Is.True);
+        Assert.That(ex.Message, Does.Contain(typeof(MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga).FullName));
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class SagaMetadataCreationTests
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
 
-        Assert.That(ex.Message.Contains("mapper.ConfigureMapping"));
+        Assert.That(ex.Message, Does.Contain("mapper.ConfigureMapping"));
     }
 
     [Test]

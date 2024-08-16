@@ -34,7 +34,7 @@ public class When_endpoint_is_started : NServiceBusAcceptanceTest
         Assert.That(File.Exists(pathToFile), Is.True);
 
         var diagnosticContent = File.ReadAllText(pathToFile);
-        Assert.That(diagnosticContent.Contains("\"Licensing\""), Is.True);
+        Assert.That(diagnosticContent, Does.Contain("\"Licensing\""));
     }
 
     class Context : ScenarioContext
