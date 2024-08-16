@@ -85,7 +85,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
-            Assert.IsNull(publishersForEvent);
+            Assert.That(publishersForEvent, Is.Null);
             Assert.IsNotNull(publishersForEventWithNamespace);
         }
 
@@ -123,8 +123,8 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 
             Assert.IsNotNull(result1);
             Assert.IsNotNull(result4);
-            Assert.IsNull(result2);
-            Assert.IsNull(result3);
+            Assert.That(result2, Is.Null);
+            Assert.That(result3, Is.Null);
         }
 
         [Theory]
@@ -143,9 +143,9 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
             Assert.IsNotNull(result3);
-            Assert.IsNull(result1);
-            Assert.IsNull(result2);
-            Assert.IsNull(result4);
+            Assert.That(result1, Is.Null);
+            Assert.That(result2, Is.Null);
+            Assert.That(result4, Is.Null);
         }
 
         static Publishers ApplyPublisherRegistrations(RoutingSettings<MessageDrivenTransportDefinition> routingSettings)

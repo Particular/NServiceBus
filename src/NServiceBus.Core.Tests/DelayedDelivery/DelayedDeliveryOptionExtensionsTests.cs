@@ -21,7 +21,7 @@ public class DelayedDeliveryOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetDeliveryDelay());
+        Assert.That(options.GetDeliveryDelay(), Is.Null);
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class DelayedDeliveryOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetDeliveryDate());
+        Assert.That(options.GetDeliveryDate(), Is.Null);
     }
 
     [Test]

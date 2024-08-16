@@ -54,9 +54,9 @@ public class When_rolling_back_storage_session : SagaPersisterTests
         }
 
         var sagaById = await GetById<TestSagaData>(sagaData.Id);
-        Assert.IsNull(sagaById);
+        Assert.That(sagaById, Is.Null);
         var sagaByCorrelationProperty = await GetByCorrelationProperty<TestSagaData>(nameof(sagaData.SomeId), sagaData.SomeId);
-        Assert.IsNull(sagaByCorrelationProperty);
+        Assert.That(sagaByCorrelationProperty, Is.Null);
     }
 
     [Test]

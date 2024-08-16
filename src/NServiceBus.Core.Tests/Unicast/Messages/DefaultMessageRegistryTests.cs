@@ -23,7 +23,7 @@ public class MessageMetadataRegistryTests
 
         var metadata = registry.GetMessageMetadata("SomeNamespace.SomeType, SomeAssemblyName, Version=81.0.0.0, Culture=neutral, PublicKeyToken=null");
 
-        Assert.IsNull(metadata);
+        Assert.That(metadata, Is.Null);
     }
 
     [Test]
@@ -79,7 +79,7 @@ public class MessageMetadataRegistryTests
         string typeIdentifier = typeof(MyEvent).AssemblyQualifiedName.Replace(typeof(MyEvent).FullName, $"SomeNamespace.{nameof(MyEvent)}");
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeIdentifier);
 
-        Assert.IsNull(messageMetadata);
+        Assert.That(messageMetadata, Is.Null);
     }
 
     [Test]
@@ -99,7 +99,7 @@ public class MessageMetadataRegistryTests
 
         var metadata = registry.GetMessageMetadata(typeof(EndpointConfiguration).AssemblyQualifiedName);
 
-        Assert.IsNull(metadata);
+        Assert.That(metadata, Is.Null);
     }
 
     class MyEvent : ConcreteParent1, IInterfaceParent1

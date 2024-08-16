@@ -24,7 +24,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.IsNull(destination);
+        Assert.That(destination, Is.Null);
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class RoutingOptionExtensionsTests
 
         var destination = options.GetDestination();
 
-        Assert.IsNull(destination);
+        Assert.That(destination, Is.Null);
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetRouteToSpecificInstance());
+        Assert.That(options.GetRouteToSpecificInstance(), Is.Null);
     }
 
     [Test]
@@ -192,7 +192,7 @@ public class RoutingOptionExtensionsTests
     {
         var options = new ReplyOptions();
 
-        Assert.IsNull(options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.Null);
     }
 
     [Test]
@@ -211,6 +211,6 @@ public class RoutingOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetReplyToRoute());
+        Assert.That(options.GetReplyToRoute(), Is.Null);
     }
 }

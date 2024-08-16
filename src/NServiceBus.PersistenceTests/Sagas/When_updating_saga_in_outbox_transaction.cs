@@ -24,7 +24,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
 
                 var readBeforeCreate = await configuration.SagaStorage.Get<TestSagaData>(nameof(TestSagaData.SomeId),
                     sagaData.SomeId, synchronizedStorageSession, contextBag);
-                Assert.IsNull(readBeforeCreate);
+                Assert.That(readBeforeCreate, Is.Null);
 
                 await SaveSagaWithSession(sagaData, synchronizedStorageSession, contextBag);
 
@@ -33,7 +33,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
 
             // outbox transaction not yet committed
             var readBeforeOutboxCommit = await GetById<TestSagaData>(sagaData.Id);
-            Assert.IsNull(readBeforeOutboxCommit);
+            Assert.That(readBeforeOutboxCommit, Is.Null);
 
             await outboxTransaction.Commit();
         }
