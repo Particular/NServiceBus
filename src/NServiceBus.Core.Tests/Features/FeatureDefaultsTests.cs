@@ -99,7 +99,7 @@ public class FeatureDefaultsTests
             Assert.That(defaultsOrder[2], Is.InstanceOf<Activate3>(), "Upstream dependencies should be activated first");
         });
 
-        CollectionAssert.AreEqual(defaultsOrder, activatedOrder);
+        Assert.That(activatedOrder, Is.EqualTo(defaultsOrder).AsCollection);
     }
 
     [Test]

@@ -85,7 +85,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
         });
 
-        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
+        Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
     }
 
     [Test]
