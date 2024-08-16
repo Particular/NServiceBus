@@ -30,7 +30,7 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         .Run();
 
         Assert.NotNull(result.ServiceProvider, "IServiceProvider should be injectable");
-        Assert.AreSame(myComponent, result.CustomService, "Should inject custom services");
+        Assert.That(result.CustomService, Is.SameAs(myComponent), "Should inject custom services");
     }
 
     class Context : ScenarioContext

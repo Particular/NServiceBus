@@ -20,7 +20,7 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
             .Done(c => c.AnotherMessageReceived)
             .Run();
 
-        Assert.AreSame(context.IncomingPipelineTransportTransaction, context.DispatchPipelineTransportTransaction, "Transport Transaction was not the same");
+        Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
     }
 
     class Context : ScenarioContext
