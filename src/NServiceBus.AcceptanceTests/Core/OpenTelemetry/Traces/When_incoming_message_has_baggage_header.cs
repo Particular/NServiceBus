@@ -24,7 +24,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
             .Run();
 
         var incomingMessageTraces = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.That(incomingMessageTraces.Count, Is.EqualTo(1), "There should be 1 message received");
+        Assert.That(incomingMessageTraces, Has.Count.EqualTo(1), "There should be 1 message received");
         var incomingMessageTrace = incomingMessageTraces.Single();
 
         VerifyBaggageItem("key1", "value1");

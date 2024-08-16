@@ -24,8 +24,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
 
         Assert.Multiple(() =>
         {
-            Assert.That(sendActivities.Count, Is.EqualTo(1));
-            Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
+            Assert.That(sendActivities, Has.Count.EqualTo(1));
+            Assert.That(receiveActivities, Has.Count.EqualTo(2), "the message should be processed twice due to one immediate retry");
         });
         Assert.Multiple(() =>
         {
@@ -54,8 +54,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
 
         Assert.Multiple(() =>
         {
-            Assert.That(sendActivities.Count, Is.EqualTo(1));
-            Assert.That(receiveActivities.Count, Is.EqualTo(2), "the message should be processed twice due to one immediate retry");
+            Assert.That(sendActivities, Has.Count.EqualTo(1));
+            Assert.That(receiveActivities, Has.Count.EqualTo(2), "the message should be processed twice due to one immediate retry");
         });
         Assert.Multiple(() =>
         {

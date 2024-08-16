@@ -41,7 +41,7 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext(exception));
 
-        Assert.That(metadata["NServiceBus.ExceptionInfo.Message"].Length, Is.EqualTo((int)Math.Pow(2, 14)));
+        Assert.That(metadata["NServiceBus.ExceptionInfo.Message"], Has.Length.EqualTo((int)Math.Pow(2, 14)));
     }
 
     [Test]

@@ -21,7 +21,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.That(outgoingMessageActivities.Count, Is.EqualTo(1), "1 message is being sent");
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is being sent");
         var sentMessage = outgoingMessageActivities.Single();
 
         Assert.Multiple(() =>
@@ -59,8 +59,8 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(sendMessageActivities.Count, Is.EqualTo(1), "1 message is sent as part of this test");
-            Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
         });
 
         var sendRequest = sendMessageActivities[0];
@@ -94,8 +94,8 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
-            Assert.That(sendMessageActivities.Count, Is.EqualTo(1), "1 message is sent as part of this test");
-            Assert.That(receiveMessageActivities.Count, Is.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
         });
 
         var sendRequest = sendMessageActivities[0];

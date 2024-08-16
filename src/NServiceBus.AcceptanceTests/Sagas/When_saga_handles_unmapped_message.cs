@@ -33,7 +33,7 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
             Assert.That(context.OutboundReceived, Is.EqualTo(true));
             Assert.That(context.MappedEchoReceived, Is.EqualTo(true));
             Assert.That(context.EchoReceived, Is.EqualTo(false));
-            Assert.That(context.FailedMessages.Count, Is.EqualTo(1));
+            Assert.That(context.FailedMessages, Has.Count.EqualTo(1));
         });
     }
 

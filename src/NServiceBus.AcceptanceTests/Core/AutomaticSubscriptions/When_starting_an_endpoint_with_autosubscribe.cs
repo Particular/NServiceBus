@@ -20,7 +20,7 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
             .Done(c => c.EndpointsStarted && c.EventsSubscribedTo.Count >= 1)
             .Run();
 
-        Assert.That(context.EventsSubscribedTo.Count, Is.EqualTo(1));
+        Assert.That(context.EventsSubscribedTo, Has.Count.EqualTo(1));
         Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEvent).AssemblyQualifiedName), "Events should be auto subscribed");
         Assert.Multiple(() =>
         {

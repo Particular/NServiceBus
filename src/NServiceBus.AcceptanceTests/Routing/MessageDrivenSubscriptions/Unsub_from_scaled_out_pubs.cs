@@ -26,7 +26,7 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
         // each instance should receive an unsubscribe message
         Assert.That(context.PublisherReceivedUnsubscribeMessage, Does.Contain("1"));
         Assert.That(context.PublisherReceivedUnsubscribeMessage, Does.Contain("2"));
-        Assert.That(context.PublisherReceivedUnsubscribeMessage.Count, Is.EqualTo(2));
+        Assert.That(context.PublisherReceivedUnsubscribeMessage, Has.Count.EqualTo(2));
     }
 
     class Context : ScenarioContext

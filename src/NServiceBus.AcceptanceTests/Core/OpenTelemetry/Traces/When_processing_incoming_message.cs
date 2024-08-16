@@ -20,7 +20,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
             .Run();
 
         var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.That(incomingMessageActivities.Count, Is.EqualTo(1), "1 message is being processed");
+        Assert.That(incomingMessageActivities, Has.Count.EqualTo(1), "1 message is being processed");
 
         var incomingActivity = incomingMessageActivities.Single();
         Assert.Multiple(() =>

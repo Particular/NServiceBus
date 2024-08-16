@@ -37,7 +37,7 @@ public class MessageMetadataRegistryTests
         Assert.Multiple(() =>
         {
             Assert.That(messageMetadata.MessageType, Is.EqualTo(typeof(int)));
-            Assert.That(messageMetadata.MessageHierarchy.Length, Is.EqualTo(1));
+            Assert.That(messageMetadata.MessageHierarchy, Has.Length.EqualTo(1));
         });
     }
 
@@ -50,7 +50,7 @@ public class MessageMetadataRegistryTests
         defaultMessageRegistry.RegisterMessageTypesFoundIn([typeof(MyEvent)]);
         var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
 
-        Assert.That(messageMetadata.MessageHierarchy.Length, Is.EqualTo(5));
+        Assert.That(messageMetadata.MessageHierarchy, Has.Length.EqualTo(5));
 
         Assert.Multiple(() =>
         {

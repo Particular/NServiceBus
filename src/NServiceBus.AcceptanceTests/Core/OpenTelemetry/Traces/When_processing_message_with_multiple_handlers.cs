@@ -23,8 +23,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
 
         Assert.Multiple(() =>
         {
-            Assert.That(invokedHandlerActivities.Count, Is.EqualTo(2), "a dedicated span for each handler should be created");
-            Assert.That(receivePipelineActivities.Count, Is.EqualTo(1), "the receive pipeline should be invoked once");
+            Assert.That(invokedHandlerActivities, Has.Count.EqualTo(2), "a dedicated span for each handler should be created");
+            Assert.That(receivePipelineActivities, Has.Count.EqualTo(1), "the receive pipeline should be invoked once");
         });
 
         var recordedHandlerTypes = new HashSet<string>();
