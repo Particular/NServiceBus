@@ -26,7 +26,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(typeof(Event), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessageForWrongEndpointName));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessageForWrongEndpointName));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedExceptionMessageForWrongEndpointName));
         }
 
         [Test]

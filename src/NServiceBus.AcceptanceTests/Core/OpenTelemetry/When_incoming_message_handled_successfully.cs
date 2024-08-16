@@ -30,11 +30,11 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         string handlingTime = "nservicebus.messaging.handler_time";
         metricsListener.AssertMetric(handlingTime, 5);
         var messageType = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.message_type");
-        Assert.AreEqual(typeof(MyMessage).FullName, messageType);
+        Assert.That(messageType, Is.EqualTo(typeof(MyMessage).FullName));
         var handlerType = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.message_handler_type");
-        Assert.AreEqual(typeof(MyMessageHandler).FullName, handlerType);
+        Assert.That(handlerType, Is.EqualTo(typeof(MyMessageHandler).FullName));
         var endpoint = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.queue");
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), endpoint);
+        Assert.That(endpoint, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics))));
     }
 
     class Context : ScenarioContext

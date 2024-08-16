@@ -22,7 +22,7 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
             .Run();
 
         Assert.That(context.TimeoutReceived, Is.True);
-        Assert.AreEqual(1, context.HandlerCalled);
+        Assert.That(context.HandlerCalled, Is.EqualTo(1));
     }
 
     public class Context : ScenarioContext

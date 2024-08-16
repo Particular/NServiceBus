@@ -17,7 +17,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Send(messageInstance, sendOptions);
 
-        Assert.AreEqual(1, context.SentMessages.Length);
+        Assert.That(context.SentMessages.Length, Is.EqualTo(1));
         Assert.AreSame(messageInstance, context.SentMessages[0].Message);
         Assert.AreSame(sendOptions, context.SentMessages[0].Options);
     }
@@ -29,7 +29,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Send<ITestMessage>(m => m.Value = "initialized value");
 
-        Assert.AreEqual("initialized value", context.SentMessages[0].Message<ITestMessage>().Value);
+        Assert.That(context.SentMessages[0].Message<ITestMessage>().Value, Is.EqualTo("initialized value"));
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Publish(messageInstance, publishOptions);
 
-        Assert.AreEqual(1, context.PublishedMessages.Length);
+        Assert.That(context.PublishedMessages.Length, Is.EqualTo(1));
         Assert.AreSame(messageInstance, context.PublishedMessages[0].Message);
         Assert.AreSame(publishOptions, context.PublishedMessages[0].Options);
     }
@@ -53,7 +53,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Publish<ITestMessage>(m => m.Value = "initialized value");
 
-        Assert.AreEqual("initialized value", context.PublishedMessages[0].Message<ITestMessage>().Value);
+        Assert.That(context.PublishedMessages[0].Message<ITestMessage>().Value, Is.EqualTo("initialized value"));
     }
 
     [Test]
@@ -65,7 +65,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Reply(messageInstance, publishOptions);
 
-        Assert.AreEqual(1, context.RepliedMessages.Length);
+        Assert.That(context.RepliedMessages.Length, Is.EqualTo(1));
         Assert.AreSame(messageInstance, context.RepliedMessages[0].Message);
         Assert.AreSame(publishOptions, context.RepliedMessages[0].Options);
     }
@@ -77,7 +77,7 @@ public class TestableMessageHandlerContextTests
 
         await context.Reply<ITestMessage>(m => m.Value = "initialized value");
 
-        Assert.AreEqual("initialized value", context.RepliedMessages[0].Message<ITestMessage>().Value);
+        Assert.That(context.RepliedMessages[0].Message<ITestMessage>().Value, Is.EqualTo("initialized value"));
     }
 
     [Test]

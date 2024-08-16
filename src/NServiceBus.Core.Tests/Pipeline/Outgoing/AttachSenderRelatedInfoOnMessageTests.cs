@@ -33,7 +33,7 @@ public class AttachSenderRelatedInfoOnMessageTests
         });
 
         Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
-        Assert.AreEqual(timeSent, message.Headers[Headers.TimeSent]);
+        Assert.That(message.Headers[Headers.TimeSent], Is.EqualTo(timeSent));
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class AttachSenderRelatedInfoOnMessageTests
         });
 
         Assert.That(message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
-        Assert.AreEqual(nsbVersion, message.Headers[Headers.NServiceBusVersion]);
+        Assert.That(message.Headers[Headers.NServiceBusVersion], Is.EqualTo(nsbVersion));
     }
 
     [Test]
@@ -78,7 +78,7 @@ public class AttachSenderRelatedInfoOnMessageTests
         });
 
         Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
-        Assert.AreEqual(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore), message.Headers[Headers.DeliverAt]);
+        Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
     }
 
     [Test]
@@ -94,7 +94,7 @@ public class AttachSenderRelatedInfoOnMessageTests
         });
 
         Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
-        Assert.AreEqual(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore), message.Headers[Headers.DeliverAt]);
+        Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
     }
 
     static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)

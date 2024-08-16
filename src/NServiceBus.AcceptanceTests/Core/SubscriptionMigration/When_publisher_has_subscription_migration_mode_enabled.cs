@@ -19,7 +19,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .Run();
 
         Assert.That(context.EventReceived, Is.True);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(MessageDrivenSubscriber)), context.Subscriber);
+        Assert.That(context.Subscriber, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(MessageDrivenSubscriber))));
     }
 
     [Test]

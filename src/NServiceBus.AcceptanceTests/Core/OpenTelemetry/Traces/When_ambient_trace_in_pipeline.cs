@@ -24,11 +24,11 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
 
         var handlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
         var sendFromHandlerActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Last();
-        Assert.AreEqual(context.AmbientActivityId, sendFromHandlerActivity.ParentId, "the outgoing message should be connected to the ambient span");
-        Assert.AreEqual(context.AmbientActivityRootId, sendFromHandlerActivity.RootId, "outgoing and ambient activity should belong to same trace");
-        Assert.AreEqual(ExpectedTraceState, sendFromHandlerActivity.TraceStateString, "outgoing activity should capture ambient trace state");
-        Assert.AreEqual(handlerActivity.Id, context.AmbientActivityParentId, "the ambient activity should be connected to the handler span");
-        Assert.AreEqual(handlerActivity.RootId, context.AmbientActivityRootId, "handler and ambient activity should belong to same trace");
+        Assert.That(sendFromHandlerActivity.ParentId, Is.EqualTo(context.AmbientActivityId), "the outgoing message should be connected to the ambient span");
+        Assert.That(sendFromHandlerActivity.RootId, Is.EqualTo(context.AmbientActivityRootId), "outgoing and ambient activity should belong to same trace");
+        Assert.That(sendFromHandlerActivity.TraceStateString, Is.EqualTo(ExpectedTraceState), "outgoing activity should capture ambient trace state");
+        Assert.That(context.AmbientActivityParentId, Is.EqualTo(handlerActivity.Id), "the ambient activity should be connected to the handler span");
+        Assert.That(context.AmbientActivityRootId, Is.EqualTo(handlerActivity.RootId), "handler and ambient activity should belong to same trace");
     }
 
     class Context : ScenarioContext

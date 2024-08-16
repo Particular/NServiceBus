@@ -20,14 +20,14 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext(exception));
 
-        Assert.AreEqual("System.AggregateException", metadata["NServiceBus.ExceptionInfo.ExceptionType"]);
-        Assert.AreEqual(exception.ToString(), metadata["NServiceBus.ExceptionInfo.StackTrace"]);
+        Assert.That(metadata["NServiceBus.ExceptionInfo.ExceptionType"], Is.EqualTo("System.AggregateException"));
+        Assert.That(metadata["NServiceBus.ExceptionInfo.StackTrace"], Is.EqualTo(exception.ToString()));
         Assert.That(metadata.ContainsKey("NServiceBus.TimeOfFailure"), Is.True);
 
-        Assert.AreEqual("System.Exception", metadata["NServiceBus.ExceptionInfo.InnerExceptionType"]);
-        Assert.AreEqual("A fake help link", metadata["NServiceBus.ExceptionInfo.HelpLink"]);
-        Assert.AreEqual("NServiceBus.Core.Tests", metadata["NServiceBus.ExceptionInfo.Source"]);
-        Assert.AreEqual("my-address", metadata[FaultsHeaderKeys.FailedQ]);
+        Assert.That(metadata["NServiceBus.ExceptionInfo.InnerExceptionType"], Is.EqualTo("System.Exception"));
+        Assert.That(metadata["NServiceBus.ExceptionInfo.HelpLink"], Is.EqualTo("A fake help link"));
+        Assert.That(metadata["NServiceBus.ExceptionInfo.Source"], Is.EqualTo("NServiceBus.Core.Tests"));
+        Assert.That(metadata[FaultsHeaderKeys.FailedQ], Is.EqualTo("my-address"));
     }
 
     [Test]
@@ -38,7 +38,7 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext(exception));
 
-        Assert.AreEqual((int)Math.Pow(2, 14), metadata["NServiceBus.ExceptionInfo.Message"].Length);
+        Assert.That(metadata["NServiceBus.ExceptionInfo.Message"].Length, Is.EqualTo((int)Math.Pow(2, 14)));
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext());
 
-        Assert.AreEqual("some value", metadata["static-key"]);
+        Assert.That(metadata["static-key"], Is.EqualTo("some value"));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext());
 
-        Assert.AreEqual("some other value", metadata["static-key"]);
+        Assert.That(metadata["static-key"], Is.EqualTo("some other value"));
     }
 
     static ErrorContext CreateErrorContext(Exception exception = null) => new(exception ?? GetAnException(), [], "some-id", Array.Empty<byte>(), new TransportTransaction(), 0, "my-address", new ContextBag());

@@ -19,7 +19,7 @@ public class When_transport_is_started_send_only : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.AreEqual("SomeAddress", context.ResolvedAddress);
+        Assert.That(context.ResolvedAddress, Is.EqualTo("SomeAddress"));
     }
 
     class Context : ScenarioContext

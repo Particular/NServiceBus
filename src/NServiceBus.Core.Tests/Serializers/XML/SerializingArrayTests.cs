@@ -75,8 +75,8 @@ public class SerializingArrayTests
 
         Assert.IsNotNull(result.SomeInts);
         Assert.That(result.SomeInts, Has.Length.EqualTo(2));
-        Assert.AreEqual(1234, result.SomeInts[0]);
-        Assert.AreEqual(5323, result.SomeInts[1]);
+        Assert.That(result.SomeInts[0], Is.EqualTo(1234));
+        Assert.That(result.SomeInts[1], Is.EqualTo(5323));
     }
 
     [Test]
@@ -102,7 +102,7 @@ public class SerializingArrayTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 
-        Assert.AreEqual(result.SomeWords, Array.Empty<string>());
+        Assert.That(Array.Empty<string>(), Is.EqualTo(result.SomeWords));
     }
 
     [Test]
@@ -131,7 +131,7 @@ public class SerializingArrayTests
 ");
             var actual = XDocument.Parse(xml);
 
-            Assert.AreEqual(expected.ToString(), actual.ToString());
+            Assert.That(actual.ToString(), Is.EqualTo(expected.ToString()));
         }
     }
 
@@ -151,7 +151,7 @@ public class SerializingArrayTests
         var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
         var result = (MessageWithNullableArray)msgArray[0];
 
-        Assert.AreEqual(null, result.SomeInts[0]);
+        Assert.That(result.SomeInts[0], Is.EqualTo(null));
     }
 
     [Test]
@@ -170,7 +170,7 @@ public class SerializingArrayTests
         var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
         var result = (MessageWithNullableArray)msgArray[0];
 
-        Assert.AreEqual(null, result.SomeInts[0]);
+        Assert.That(result.SomeInts[0], Is.EqualTo(null));
     }
 
     [Test]
@@ -207,7 +207,7 @@ public class SerializingArrayTests
         var result = (MessageWithNullableArray)msgArray[0];
 
         Assert.NotNull(result.SomeInts);
-        Assert.AreEqual(0, result.SomeInts.Length);
+        Assert.That(result.SomeInts.Length, Is.EqualTo(0));
     }
 
     [Test]
@@ -227,7 +227,7 @@ public class SerializingArrayTests
         var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(data, new[] { typeof(MessageWithNullableArray) });
         var result = (MessageWithNullableArray)msgArray[0];
 
-        Assert.AreEqual(null, result.SomeInts[0]);
+        Assert.That(result.SomeInts[0], Is.EqualTo(null));
     }
 
     [Test]
@@ -242,9 +242,9 @@ public class SerializingArrayTests
         var result = ExecuteSerializer.ForMessage<MessageWithNullableArray>(message);
 
         Assert.IsNull(result.SomeInts[0]);
-        Assert.AreEqual(1, result.SomeInts[1]);
+        Assert.That(result.SomeInts[1], Is.EqualTo(1));
         Assert.IsNull(result.SomeInts[2]);
-        Assert.AreEqual(3, result.SomeInts[3]);
+        Assert.That(result.SomeInts[3], Is.EqualTo(3));
         Assert.IsNull(result.SomeInts[4]);
     }
 }

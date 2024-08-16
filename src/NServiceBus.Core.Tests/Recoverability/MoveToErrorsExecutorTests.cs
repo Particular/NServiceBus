@@ -24,8 +24,8 @@ public class MoveToErrorsExecutorTests
         var addressTag = (UnicastAddressTag)((UnicastRoutingStrategy)routingContext.RoutingStrategies.Single())
             .Apply([]);
 
-        Assert.AreEqual(customErrorQueue, addressTag.Destination);
-        Assert.AreEqual(ErrorHandleResult.Handled, moveToErrorAction.ErrorHandleResult);
+        Assert.That(addressTag.Destination, Is.EqualTo(customErrorQueue));
+        Assert.That(moveToErrorAction.ErrorHandleResult, Is.EqualTo(ErrorHandleResult.Handled));
     }
 
     [Test]

@@ -19,19 +19,19 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
                 .When(s => s.SendLocal(new FailingMessage())))
             .Done(c => c.HandlerInvoked).Run();
 
-        Assert.AreEqual(1, context.FailedMessages.Count, "the message should have failed");
+        Assert.That(context.FailedMessages.Count, Is.EqualTo(1), "the message should have failed");
 
         Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
-        Assert.AreEqual(ActivityStatusCode.Error, failedPipelineActivity.Status);
-        Assert.AreEqual(ErrorMessage, failedPipelineActivity.StatusDescription);
+        Assert.That(failedPipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+        Assert.That(failedPipelineActivity.StatusDescription, Is.EqualTo(ErrorMessage));
 
         var pipelineActivityTags = failedPipelineActivity.Tags.ToImmutableDictionary();
         pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
         pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
 
         Activity failedHandlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
-        Assert.AreEqual(ActivityStatusCode.Error, failedHandlerActivity.Status);
-        Assert.AreEqual(ErrorMessage, failedHandlerActivity.StatusDescription);
+        Assert.That(failedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+        Assert.That(failedHandlerActivity.StatusDescription, Is.EqualTo(ErrorMessage));
 
         var handlerActivityTags = failedHandlerActivity.Tags.ToImmutableDictionary();
         handlerActivityTags.VerifyTag("otel.status_code", "ERROR");

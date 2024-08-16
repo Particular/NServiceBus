@@ -19,7 +19,7 @@ public class MessageTypeEnricherTest
         await behavior.Invoke(context, messageContext => Task.CompletedTask);
 
         Assert.That(context.Headers.ContainsKey(Headers.EnclosedMessageTypes), Is.True);
-        Assert.AreEqual(context.Headers[Headers.EnclosedMessageTypes], typeof(object).FullName);
+        Assert.That(typeof(object).FullName, Is.EqualTo(context.Headers[Headers.EnclosedMessageTypes]));
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class MessageTypeEnricherTest
         await mutator.Invoke(context, messageContext => Task.CompletedTask);
 
         Assert.That(context.Headers.ContainsKey(Headers.EnclosedMessageTypes), Is.True);
-        Assert.AreEqual(context.Headers[Headers.EnclosedMessageTypes], typeof(string).FullName);
+        Assert.That(typeof(string).FullName, Is.EqualTo(context.Headers[Headers.EnclosedMessageTypes]));
 
     }
 }

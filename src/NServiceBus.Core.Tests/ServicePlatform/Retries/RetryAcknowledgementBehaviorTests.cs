@@ -28,18 +28,18 @@ public class RetryAcknowledgementBehaviorTests
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
         var outgoingMessage = routingPipeline.ForkInvocations.Single();
-        Assert.AreEqual(
-            context.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
-            outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"]);
+        Assert.That(
+            outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
+            Is.EqualTo(context.Message.Headers["ServiceControl.Retry.UniqueMessageId"]));
 
         Assert.That(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"), Is.True);
 
-        Assert.AreEqual(0, outgoingMessage.Message.Body.Length);
+        Assert.That(outgoingMessage.Message.Body.Length, Is.EqualTo(0));
 
-        Assert.AreEqual(bool.TrueString, outgoingMessage.Message.Headers[Headers.ControlMessageHeader]);
+        Assert.That(outgoingMessage.Message.Headers[Headers.ControlMessageHeader], Is.EqualTo(bool.TrueString));
 
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
-        Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
+        Assert.That(acknowledgementQueue, Is.EqualTo(addressTag.Destination));
 
         Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.True);
     }
@@ -59,7 +59,7 @@ public class RetryAcknowledgementBehaviorTests
         var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
 
         Assert.AreSame(thrownException, exception);
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+        Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class RetryAcknowledgementBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+        Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
         Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
     }
 
@@ -89,7 +89,7 @@ public class RetryAcknowledgementBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.AreEqual(0, routingPipeline.ForkInvocations.Count);
+        Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
         Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
     }
 

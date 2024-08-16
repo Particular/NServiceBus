@@ -40,7 +40,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
             .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
             .Run();
 
-        Assert.AreEqual(1, context.SequenceNumberOfFirstMessage, "The transport should preserve the order in which the transactional messages are delivered to the queuing system");
+        Assert.That(context.SequenceNumberOfFirstMessage, Is.EqualTo(1), "The transport should preserve the order in which the transactional messages are delivered to the queuing system");
     }
 
     [Test]

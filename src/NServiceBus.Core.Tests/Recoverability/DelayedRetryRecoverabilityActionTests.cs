@@ -23,9 +23,9 @@ public class DelayedRetryRecoverabilityActionTests
 
         var routingStrategy = routingContext.RoutingStrategies.Single() as UnicastRoutingStrategy;
 
-        Assert.AreEqual(recoverabilityContext.ReceiveAddress, (routingStrategy.Apply([]) as UnicastAddressTag).Destination);
-        Assert.AreEqual(delay, routingContext.Extensions.Get<DispatchProperties>().DelayDeliveryWith.Delay);
-        Assert.AreEqual(ErrorHandleResult.Handled, delayedRetryAction.ErrorHandleResult);
+        Assert.That((routingStrategy.Apply([]) as UnicastAddressTag).Destination, Is.EqualTo(recoverabilityContext.ReceiveAddress));
+        Assert.That(routingContext.Extensions.Get<DispatchProperties>().DelayDeliveryWith.Delay, Is.EqualTo(delay));
+        Assert.That(delayedRetryAction.ErrorHandleResult, Is.EqualTo(ErrorHandleResult.Handled));
     }
 
     [Test]
@@ -47,14 +47,14 @@ public class DelayedRetryRecoverabilityActionTests
 
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
-        Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
-        Assert.AreEqual(delayedDeliveriesPerformed.ToString(), incomingMessage.Headers[Headers.DelayedRetries]);
+        Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("3"));
+        Assert.That(incomingMessage.Headers[Headers.DelayedRetries], Is.EqualTo(delayedDeliveriesPerformed.ToString()));
 
         var utcDateTime = DateTimeOffsetHelper.ToDateTimeOffset(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
         // the serialization removes precision which may lead to now being greater than the deserialized header value
         var adjustedNow = DateTimeOffsetHelper.ToDateTimeOffset(DateTimeOffsetHelper.ToWireFormattedString(now));
         Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
-        Assert.AreEqual(originalHeadersTimestamp, incomingMessage.Headers[Headers.DelayedRetriesTimestamp]);
+        Assert.That(incomingMessage.Headers[Headers.DelayedRetriesTimestamp], Is.EqualTo(originalHeadersTimestamp));
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class DelayedRetryRecoverabilityActionTests
 
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
-        Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
+        Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("1"));
         Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
         Assert.That(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp), Is.True);
         Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);

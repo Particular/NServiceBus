@@ -21,7 +21,7 @@ public class When_starting_a_new_saga : NServiceBusAcceptanceTest
             .Done(c => c.SomeId != Guid.Empty)
             .Run();
 
-        Assert.AreEqual(context.SomeId, id);
+        Assert.That(id, Is.EqualTo(context.SomeId));
     }
 
     public class Context : ScenarioContext

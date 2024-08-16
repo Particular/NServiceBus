@@ -40,7 +40,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
 
         var readAfterOutboxCommit = await GetById<TestSagaData>(sagaData.Id);
         Assert.NotNull(readAfterOutboxCommit);
-        Assert.AreEqual(sagaData.SomeId, readAfterOutboxCommit.SomeId);
+        Assert.That(readAfterOutboxCommit.SomeId, Is.EqualTo(sagaData.SomeId));
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartTestSagaMessage>

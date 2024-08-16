@@ -10,7 +10,7 @@ public static class ActivityTestingExtensions
     public static void VerifyTag(this ImmutableDictionary<string, string> tags, string tagName, string expectedValue)
     {
         Assert.That(tags.TryGetValue(tagName, out var tagValue), Is.True, $"Tags should contain key '{tagName}'");
-        Assert.AreEqual(expectedValue, tagValue, $"Tag value with key '{tagName}' is incorrect");
+        Assert.That(tagValue, Is.EqualTo(expectedValue), $"Tag value with key '{tagName}' is incorrect");
     }
 
     /// <summary>

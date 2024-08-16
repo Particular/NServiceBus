@@ -38,14 +38,14 @@ public class MessageOperationsTests
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
-        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
 
-        Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
-        Assert.AreEqual("send message", activity.DisplayName);
+        Assert.That(activity.OperationName, Is.EqualTo(ActivityNames.OutgoingMessageActivityName));
+        Assert.That(activity.DisplayName, Is.EqualTo("send message"));
 
-        Assert.AreEqual(activity, operations.SendPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        Assert.That(operations.SendPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
     }
 
     [Test]
@@ -61,14 +61,14 @@ public class MessageOperationsTests
         await operations.Publish(new FakeRootContext(), new object(), new PublishOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
-        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
 
-        Assert.AreEqual(ActivityNames.OutgoingEventActivityName, activity.OperationName);
-        Assert.AreEqual("publish event", activity.DisplayName);
+        Assert.That(activity.OperationName, Is.EqualTo(ActivityNames.OutgoingEventActivityName));
+        Assert.That(activity.DisplayName, Is.EqualTo("publish event"));
 
-        Assert.AreEqual(activity, operations.PublishPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        Assert.That(operations.PublishPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
     }
 
     [Test]
@@ -84,14 +84,14 @@ public class MessageOperationsTests
         await operations.Reply(new FakeRootContext(), new object(), new ReplyOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
-        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
 
-        Assert.AreEqual(ActivityNames.OutgoingMessageActivityName, activity.OperationName);
-        Assert.AreEqual("reply", activity.DisplayName);
+        Assert.That(activity.OperationName, Is.EqualTo(ActivityNames.OutgoingMessageActivityName));
+        Assert.That(activity.DisplayName, Is.EqualTo("reply"));
 
-        Assert.AreEqual(activity, operations.ReplyPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        Assert.That(operations.ReplyPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
     }
 
     [Test]
@@ -107,14 +107,14 @@ public class MessageOperationsTests
         await operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
-        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
 
-        Assert.AreEqual(ActivityNames.SubscribeActivityName, activity.OperationName);
-        Assert.AreEqual("subscribe event", activity.DisplayName);
+        Assert.That(activity.OperationName, Is.EqualTo(ActivityNames.SubscribeActivityName));
+        Assert.That(activity.DisplayName, Is.EqualTo("subscribe event"));
 
-        Assert.AreEqual(activity, operations.SubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        Assert.That(operations.SubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
     }
 
     [Test]
@@ -130,14 +130,14 @@ public class MessageOperationsTests
         await operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ActivityStatusCode.Ok, activity.Status);
-        Assert.AreEqual(activity.RootId, activity.TraceId.ToString());
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
+        Assert.That(activity.TraceId.ToString(), Is.EqualTo(activity.RootId));
 
-        Assert.AreEqual(ActivityNames.UnsubscribeActivityName, activity.OperationName);
-        Assert.AreEqual("unsubscribe event", activity.DisplayName);
+        Assert.That(activity.OperationName, Is.EqualTo(ActivityNames.UnsubscribeActivityName));
+        Assert.That(activity.DisplayName, Is.EqualTo("unsubscribe event"));
 
-        Assert.AreEqual(activity, operations.UnsubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+        Assert.That(operations.UnsubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
     }
 
     [Test]
@@ -153,10 +153,10 @@ public class MessageOperationsTests
 
         var ex = Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
 
-        Assert.AreEqual(ActivityStatusCode.Error, activity.Status);
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
         var tags = activity.Tags.ToImmutableDictionary();
-        Assert.AreEqual("ERROR", tags["otel.status_code"]);
-        Assert.AreEqual(ex.Message, tags["otel.status_description"]);
+        Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
+        Assert.That(tags["otel.status_description"], Is.EqualTo(ex.Message));
     }
 
     [Test]
@@ -172,13 +172,13 @@ public class MessageOperationsTests
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.SetIdFormat(ActivityIdFormat.Hierarchical);
         ambientActivity.Start();
-        Assert.AreEqual(ambientActivity.IdFormat, ActivityIdFormat.Hierarchical);
+        Assert.That(ActivityIdFormat.Hierarchical, Is.EqualTo(ambientActivity.IdFormat));
 
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
         Assert.IsNotNull(activity);
-        Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
-        Assert.AreEqual(ambientActivity.Id, activity.ParentId);
+        Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+        Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
         Assert.AreNotEqual(ambientActivity.TraceId, activity.TraceId);
     }
 }

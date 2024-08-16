@@ -192,7 +192,7 @@ public class RoutingToDispatchConnectorTests
         await behavior.Invoke(routingContext, _ => Task.CompletedTask);
 
         var contentTypeTag = pipelineActivity.GetTagItem(ActivityTags.ContentType);
-        Assert.AreEqual("test content type", contentTypeTag, "should set tags on activity from pipeline context");
+        Assert.That(contentTypeTag, Is.EqualTo("test content type"), "should set tags on activity from pipeline context");
 
         Assert.IsNull(ambientActivity.GetTagItem(ActivityTags.ContentType), "should not set tags on Activity.Current");
     }

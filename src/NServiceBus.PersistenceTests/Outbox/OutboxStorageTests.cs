@@ -49,7 +49,7 @@ public class OutboxStorageTests
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.IsNotNull(message);
-        Assert.AreEqual(messageId, message.MessageId);
+        Assert.That(message.MessageId, Is.EqualTo(messageId));
         Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
         Assert.That(message.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
     }

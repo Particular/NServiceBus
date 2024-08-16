@@ -37,7 +37,7 @@ public class When_running_saga_tests : NServiceBusAcceptanceTest
             }
         }
 
-        Assert.AreEqual(0, offenders);
+        Assert.That(offenders, Is.EqualTo(0));
     }
 
     [Test]
@@ -68,6 +68,6 @@ public class When_running_saga_tests : NServiceBusAcceptanceTest
             usedNames.Add(cls.Name);
         }
 
-        Assert.AreEqual(0, offenders);
+        Assert.That(offenders, Is.EqualTo(0));
     }
 }

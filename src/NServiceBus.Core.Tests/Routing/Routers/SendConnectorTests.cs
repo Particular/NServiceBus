@@ -24,8 +24,8 @@ public class SendConnectorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(1, context.Headers.Count);
-        Assert.AreEqual(MessageIntent.Send.ToString(), context.Headers[Headers.MessageIntent]);
+        Assert.That(context.Headers.Count, Is.EqualTo(1));
+        Assert.That(context.Headers[Headers.MessageIntent], Is.EqualTo(MessageIntent.Send.ToString()));
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class SendConnectorTests
             return Task.CompletedTask;
         });
 
-        Assert.AreEqual("LogicalAddress", addressTag.Destination);
+        Assert.That(addressTag.Destination, Is.EqualTo("LogicalAddress"));
     }
 
     static TestableOutgoingSendContext CreateContext(SendOptions options = null, object message = null)

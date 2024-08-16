@@ -24,17 +24,17 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         var subscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
             .ToArray();
 
-        Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
+        Assert.That(subscribeActivities.Length, Is.EqualTo(1), "the subscriber should subscribe to the event");
 
         var subscribeActivity = subscribeActivities.Single();
         subscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("subscribe event", subscribeActivity.DisplayName);
+        Assert.That(subscribeActivity.DisplayName, Is.EqualTo("subscribe event"));
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
         var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true).ToArray();
-        Assert.AreEqual(1, receiveActivities.Length, "the subscription message should be received by the publisher");
-        Assert.AreEqual(subscribeActivities[0].Id, receiveActivities[0].ParentId, "the received subscription message should connect to the subscribe operation");
+        Assert.That(receiveActivities.Length, Is.EqualTo(1), "the subscription message should be received by the publisher");
+        Assert.That(receiveActivities[0].ParentId, Is.EqualTo(subscribeActivities[0].Id), "the received subscription message should connect to the subscribe operation");
     }
 
     [Test]
@@ -52,11 +52,11 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         var subscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
             .ToArray();
 
-        Assert.AreEqual(1, subscribeActivities.Length, "the subscriber should subscribe to the event");
+        Assert.That(subscribeActivities.Length, Is.EqualTo(1), "the subscriber should subscribe to the event");
 
         var subscribeActivity = subscribeActivities.Single();
         subscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("subscribe event", subscribeActivity.DisplayName);
+        Assert.That(subscribeActivity.DisplayName, Is.EqualTo("subscribe event"));
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 

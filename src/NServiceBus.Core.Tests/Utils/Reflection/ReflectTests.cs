@@ -14,7 +14,7 @@ public class ReflectTests
         public void Should_return_property_name()
         {
             var propertyInfo = Reflect<Target>.GetProperty(target => target.Property);
-            Assert.AreEqual("Property", propertyInfo.Name);
+            Assert.That(propertyInfo.Name, Is.EqualTo("Property"));
         }
 
         public class Target
@@ -31,7 +31,7 @@ public class ReflectTests
         public void Should_throw()
         {
             var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target>.GetProperty(target => target.Field));
-            Assert.AreEqual("Member is not a property", argumentException.Message);
+            Assert.That(argumentException.Message, Is.EqualTo("Member is not a property"));
         }
 
         public class Target
@@ -48,7 +48,7 @@ public class ReflectTests
         public void Should_return_property_name()
         {
             var propertyInfo = Reflect<Target1>.GetProperty(target => target.Property1.Property2);
-            Assert.AreEqual("Property2", propertyInfo.Name);
+            Assert.That(propertyInfo.Name, Is.EqualTo("Property2"));
         }
 
         [Test]
@@ -56,7 +56,7 @@ public class ReflectTests
         {
             var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target1>.GetProperty(target => target.Property1.Property2, true));
             StringAssert.StartsWith("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2", argumentException.Message);
-            Assert.AreEqual("member", argumentException.ParamName);
+            Assert.That(argumentException.ParamName, Is.EqualTo("member"));
         }
 
         public class Target1

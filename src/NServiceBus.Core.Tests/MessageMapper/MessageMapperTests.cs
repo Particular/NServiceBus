@@ -140,7 +140,7 @@ public class MessageMapperTests
         var messageInstance = mapper.CreateInstance<SampleMessageClass>();
 
         Assert.IsNotNull(messageInstance);
-        Assert.AreEqual(typeof(SampleMessageClass), messageInstance.GetType());
+        Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageClass)));
         Assert.That(messageInstance.CtorInvoked, Is.True);
     }
 
@@ -164,7 +164,7 @@ public class MessageMapperTests
         var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
 
         Assert.IsNotNull(messageInstance);
-        Assert.AreEqual(typeof(SampleMessageStruct), messageInstance.GetType());
+        Assert.That(messageInstance.GetType(), Is.EqualTo(typeof(SampleMessageStruct)));
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class MessageMapperTests
 
         var mappedType = mapper.GetMappedTypeFor(typeof(SampleMessageStruct));
 
-        Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
+        Assert.That(mappedType, Is.EqualTo(typeof(SampleMessageStruct)));
     }
 
     [Test]

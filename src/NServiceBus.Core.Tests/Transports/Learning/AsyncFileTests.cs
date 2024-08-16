@@ -19,7 +19,7 @@ public class AsyncFileTests
 
             var content = await AsyncFile.ReadText(filePath);
 
-            Assert.AreEqual(originalContent, content);
+            Assert.That(content, Is.EqualTo(originalContent));
         }
         finally
         {

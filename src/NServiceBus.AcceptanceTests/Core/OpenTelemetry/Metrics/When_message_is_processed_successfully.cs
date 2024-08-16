@@ -107,10 +107,10 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
 
         var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
 
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), successEndpoint);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), fetchedEndpoint);
-        Assert.AreEqual(typeof(OutgoingWithComplexHierarchyMessage).FullName, successType);
-        Assert.AreEqual(typeof(EndpointWithMetrics.ComplexMessageHandler).FullName, successHandlerType);
+        Assert.That(successEndpoint, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics))));
+        Assert.That(fetchedEndpoint, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics))));
+        Assert.That(successType, Is.EqualTo(typeof(OutgoingWithComplexHierarchyMessage).FullName));
+        Assert.That(successHandlerType, Is.EqualTo(typeof(EndpointWithMetrics.ComplexMessageHandler).FullName));
     }
 
     class Context : ScenarioContext

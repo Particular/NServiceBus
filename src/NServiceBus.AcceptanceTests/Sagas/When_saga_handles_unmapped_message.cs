@@ -27,11 +27,11 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
             .Done(c => c.MappedEchoReceived && (c.EchoReceived || !c.FailedMessages.IsEmpty))
             .Run();
 
-        Assert.AreEqual(true, context.StartReceived);
-        Assert.AreEqual(true, context.OutboundReceived);
-        Assert.AreEqual(true, context.MappedEchoReceived);
-        Assert.AreEqual(false, context.EchoReceived);
-        Assert.AreEqual(1, context.FailedMessages.Count);
+        Assert.That(context.StartReceived, Is.EqualTo(true));
+        Assert.That(context.OutboundReceived, Is.EqualTo(true));
+        Assert.That(context.MappedEchoReceived, Is.EqualTo(true));
+        Assert.That(context.EchoReceived, Is.EqualTo(false));
+        Assert.That(context.FailedMessages.Count, Is.EqualTo(1));
     }
 
     public class Context : ScenarioContext

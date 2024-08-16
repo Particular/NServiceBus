@@ -50,8 +50,8 @@ public class SettingsHolderTests
         var result1 = settings.Get<string>("SomeDefaultSettingThatGetsMerged");
         var result2 = settings.Get<string>("SomeSettingThatGetsMerged");
 
-        Assert.AreEqual("Value1", result1);
-        Assert.AreEqual("Value1", result2);
+        Assert.That(result1, Is.EqualTo("Value1"));
+        Assert.That(result2, Is.EqualTo("Value1"));
     }
 
     [Test]

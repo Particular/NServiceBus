@@ -32,7 +32,7 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>();
 
-        Assert.AreEqual(3, model.Count);
+        Assert.That(model.Count, Is.EqualTo(3));
     }
 
     [Test]
@@ -44,9 +44,9 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual("1", model[0].StepId);
-        Assert.AreEqual("2", model[1].StepId);
-        Assert.AreEqual("3", model[2].StepId);
+        Assert.That(model[0].StepId, Is.EqualTo("1"));
+        Assert.That(model[1].StepId, Is.EqualTo("2"));
+        Assert.That(model[2].StepId, Is.EqualTo("3"));
     }
 
     [Test]
@@ -61,9 +61,9 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
-        Assert.AreEqual("new", model[0].Description);
-        Assert.AreEqual("2", model[1].Description);
+        Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
+        Assert.That(model[0].Description, Is.EqualTo("new"));
+        Assert.That(model[1].Description, Is.EqualTo("2"));
     }
 
     [Test]
@@ -73,9 +73,9 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual(1, model.Count);
-        Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
-        Assert.AreEqual("new", model[0].Description);
+        Assert.That(model.Count, Is.EqualTo(1));
+        Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
+        Assert.That(model[0].Description, Is.EqualTo("new"));
     }
 
     [Test]
@@ -87,9 +87,9 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual(1, model.Count);
-        Assert.AreEqual(typeof(ReplacedBehavior).FullName, model[0].BehaviorType.FullName);
-        Assert.AreEqual("new", model[0].Description);
+        Assert.That(model.Count, Is.EqualTo(1));
+        Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
+        Assert.That(model[0].Description, Is.EqualTo("new"));
     }
 
     [Test]
@@ -105,12 +105,12 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual("1", model[0].StepId);
-        Assert.AreEqual("1.5", model[1].StepId);
-        Assert.AreEqual("2", model[2].StepId);
-        Assert.AreEqual("2.5", model[3].StepId);
-        Assert.AreEqual("3", model[4].StepId);
-        Assert.AreEqual("3.5", model[5].StepId);
+        Assert.That(model[0].StepId, Is.EqualTo("1"));
+        Assert.That(model[1].StepId, Is.EqualTo("1.5"));
+        Assert.That(model[2].StepId, Is.EqualTo("2"));
+        Assert.That(model[3].StepId, Is.EqualTo("2.5"));
+        Assert.That(model[4].StepId, Is.EqualTo("3"));
+        Assert.That(model[5].StepId, Is.EqualTo("3.5"));
     }
 
     [Test]
@@ -125,11 +125,11 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual("1", model[0].StepId);
-        Assert.AreEqual("1.5", model[1].StepId);
-        Assert.AreEqual("2", model[2].StepId);
-        Assert.AreEqual("2.5", model[3].StepId);
-        Assert.AreEqual("3", model[4].StepId);
+        Assert.That(model[0].StepId, Is.EqualTo("1"));
+        Assert.That(model[1].StepId, Is.EqualTo("1.5"));
+        Assert.That(model[2].StepId, Is.EqualTo("2"));
+        Assert.That(model[3].StepId, Is.EqualTo("2.5"));
+        Assert.That(model[4].StepId, Is.EqualTo("3"));
     }
 
     [Test]
@@ -145,12 +145,12 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual("1", model[0].StepId);
-        Assert.AreEqual("1.5", model[1].StepId);
-        Assert.AreEqual("2", model[2].StepId);
-        Assert.AreEqual("2.5", model[3].StepId);
-        Assert.AreEqual("3", model[4].StepId);
-        Assert.AreEqual("3.5", model[5].StepId);
+        Assert.That(model[0].StepId, Is.EqualTo("1"));
+        Assert.That(model[1].StepId, Is.EqualTo("1.5"));
+        Assert.That(model[2].StepId, Is.EqualTo("2"));
+        Assert.That(model[3].StepId, Is.EqualTo("2.5"));
+        Assert.That(model[4].StepId, Is.EqualTo("3"));
+        Assert.That(model[5].StepId, Is.EqualTo("3.5"));
     }
 
     [Test]
@@ -166,12 +166,12 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.AreEqual("1", model[0].StepId);
-        Assert.AreEqual("1.1", model[1].StepId);
-        Assert.AreEqual("1.5", model[2].StepId);
-        Assert.AreEqual("1.6", model[3].StepId);
-        Assert.AreEqual("2", model[4].StepId);
-        Assert.AreEqual("3", model[5].StepId);
+        Assert.That(model[0].StepId, Is.EqualTo("1"));
+        Assert.That(model[1].StepId, Is.EqualTo("1.1"));
+        Assert.That(model[2].StepId, Is.EqualTo("1.5"));
+        Assert.That(model[3].StepId, Is.EqualTo("1.6"));
+        Assert.That(model[4].StepId, Is.EqualTo("2"));
+        Assert.That(model[5].StepId, Is.EqualTo("3"));
     }
 
     [Test]

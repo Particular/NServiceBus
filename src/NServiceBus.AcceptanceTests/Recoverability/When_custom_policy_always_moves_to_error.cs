@@ -27,8 +27,8 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.AreEqual(1, context.Count);
-        Assert.AreEqual(messageId, context.FailedMessages.Single().Value.Single().MessageId);
+        Assert.That(context.Count, Is.EqualTo(1));
+        Assert.That(context.FailedMessages.Single().Value.Single().MessageId, Is.EqualTo(messageId));
     }
 
     class Context : ScenarioContext

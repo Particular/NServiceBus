@@ -32,7 +32,7 @@ public class MessageHandlerRegistryTests
 
         var handlers = registry.GetHandlersFor(typeof(MyMessage));
 
-        Assert.AreEqual(2, handlers.Count);
+        Assert.That(handlers.Count, Is.EqualTo(2));
 
         var timeoutHandler = handlers.SingleOrDefault(h => h.IsTimeoutHandler);
 

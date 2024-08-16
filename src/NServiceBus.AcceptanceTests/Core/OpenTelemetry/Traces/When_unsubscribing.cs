@@ -23,18 +23,18 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
 
         var unsubscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
             .ToArray();
-        Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
+        Assert.That(unsubscribeActivities.Length, Is.EqualTo(1), "the subscriber should unsubscribe to the event");
 
         var unsubscribeActivity = unsubscribeActivities.Single();
         unsubscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("unsubscribe event", unsubscribeActivity.DisplayName);
+        Assert.That(unsubscribeActivity.DisplayName, Is.EqualTo("unsubscribe event"));
 
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
         var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true).ToArray();
-        Assert.AreEqual(1, receiveActivities.Length, "the unsubscribe message should be received by the publisher");
-        Assert.AreEqual(unsubscribeActivities[0].Id, receiveActivities[0].ParentId, "the received unsubscribe message should connect to the subscribe operation");
+        Assert.That(receiveActivities.Length, Is.EqualTo(1), "the unsubscribe message should be received by the publisher");
+        Assert.That(receiveActivities[0].ParentId, Is.EqualTo(unsubscribeActivities[0].Id), "the received unsubscribe message should connect to the subscribe operation");
     }
 
     [Test]
@@ -50,11 +50,11 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .Run();
 
         var unsubscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe").ToArray();
-        Assert.AreEqual(1, unsubscribeActivities.Length, "the subscriber should unsubscribe to the event");
+        Assert.That(unsubscribeActivities.Length, Is.EqualTo(1), "the subscriber should unsubscribe to the event");
 
         var unsubscribeActivity = unsubscribeActivities.Single();
         unsubscribeActivity.VerifyUniqueTags();
-        Assert.AreEqual("unsubscribe event", unsubscribeActivity.DisplayName);
+        Assert.That(unsubscribeActivity.DisplayName, Is.EqualTo("unsubscribe event"));
 
         var unsubscribeActivityTags = unsubscribeActivity.Tags.ToImmutableDictionary();
         unsubscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);

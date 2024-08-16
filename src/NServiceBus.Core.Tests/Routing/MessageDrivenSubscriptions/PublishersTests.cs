@@ -90,7 +90,7 @@ public class PublishersTests
 
         var pubs = publisherTable.GetPublisherFor(typeof(MyEvent)).ToArray();
 
-        Assert.AreEqual(3, pubs.Length);
+        Assert.That(pubs.Length, Is.EqualTo(3));
         Assert.Contains(pub1, pubs);
         Assert.Contains(pub2, pubs);
         Assert.Contains(pub3, pubs);

@@ -72,7 +72,7 @@ class TestingMetricListener : IDisposable
         else
         {
             Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
-            Assert.AreEqual(expected, ReportedMeters[metricName]);
+            Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
         }
     }
 
@@ -98,7 +98,7 @@ class TestingMetricListener : IDisposable
         foreach (var kvp in expectedTags)
         {
             var actualTagValue = AssertTagKeyExists(metricName, kvp.Key);
-            Assert.AreEqual(kvp.Value, actualTagValue);
+            Assert.That(actualTagValue, Is.EqualTo(kvp.Value));
         }
     }
 }

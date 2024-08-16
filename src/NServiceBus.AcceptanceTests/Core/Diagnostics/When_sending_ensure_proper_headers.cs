@@ -21,7 +21,7 @@ public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
-        Assert.AreEqual("SenderForEnsureProperHeadersTest", context.ReceivedHeaders[Headers.OriginatingEndpoint], "Message should contain the Originating endpoint");
+        Assert.That(context.ReceivedHeaders[Headers.OriginatingEndpoint], Is.EqualTo("SenderForEnsureProperHeadersTest"), "Message should contain the Originating endpoint");
         Assert.That(context.ReceivedHeaders[Headers.OriginatingHostId], Is.Not.Null.Or.Empty, "OriginatingHostId cannot be null or empty");
         Assert.That(context.ReceivedHeaders[Headers.OriginatingMachine], Is.Not.Null.Or.Empty, "Endpoint machine name cannot be null or empty");
     }

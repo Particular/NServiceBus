@@ -41,8 +41,8 @@ public class When_persisting_a_saga_with_the_same_unique_prop_as_another_saga : 
 
             var saga2Result = await persister.Get<AnotherSagaWithCorrelatedPropertyData>(nameof(AnotherSagaWithCorrelatedPropertyData.CorrelatedProperty), saga2.CorrelatedProperty, readSession, readContextBag);
 
-            Assert.AreEqual(saga1.CorrelatedProperty, saga1Result.CorrelatedProperty);
-            Assert.AreEqual(saga2.CorrelatedProperty, saga2Result.CorrelatedProperty);
+            Assert.That(saga1Result.CorrelatedProperty, Is.EqualTo(saga1.CorrelatedProperty));
+            Assert.That(saga2Result.CorrelatedProperty, Is.EqualTo(saga2.CorrelatedProperty));
         }
     }
 

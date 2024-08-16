@@ -13,7 +13,7 @@ public class TransportCapabilityAdjustmentTests
 
         var errorAction = recoverabilityAction as MoveToError;
         Assert.NotNull(errorAction);
-        Assert.AreEqual(ErrorQueueAddress, errorAction.ErrorQueue);
+        Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
     [Test]
@@ -23,7 +23,7 @@ public class TransportCapabilityAdjustmentTests
 
         var errorAction = recoverabilityAction as MoveToError;
         Assert.NotNull(errorAction);
-        Assert.AreEqual(ErrorQueueAddress, errorAction.ErrorQueue);
+        Assert.That(errorAction.ErrorQueue, Is.EqualTo(ErrorQueueAddress));
     }
 
     static string ErrorQueueAddress = "error-queue";

@@ -17,7 +17,7 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.AmbientTransactionPresent, Is.True, "There should be a ambient transaction present");
-        Assert.AreEqual(context.IsolationLevel, IsolationLevel.RepeatableRead, "There should be a ambient transaction present");
+        Assert.That(IsolationLevel.RepeatableRead, Is.EqualTo(context.IsolationLevel), "There should be a ambient transaction present");
     }
 
     public class Context : ScenarioContext

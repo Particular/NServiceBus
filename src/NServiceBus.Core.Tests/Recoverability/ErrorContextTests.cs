@@ -15,6 +15,6 @@ public class ErrorContextTests
         contextBag.Set("MyKey", "MyValue");
         var context = new ErrorContext(new Exception(), [], "ID", Array.Empty<byte>(), new TransportTransaction(), 0, "my-queue", contextBag);
 
-        Assert.AreEqual("MyValue", context.Extensions.Get<string>("MyKey"));
+        Assert.That(context.Extensions.Get<string>("MyKey"), Is.EqualTo("MyValue"));
     }
 }

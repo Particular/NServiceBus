@@ -30,8 +30,8 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
             .Done(c => c.CorrelationIdOnReply != null)
             .Run();
 
-        Assert.AreEqual(MessageIntent.Reply, context.Intent);
-        Assert.AreEqual(context.OriginalCorrelationId, context.CorrelationIdOnReply, "Correlation id should be preserved so that things like callbacks work properly");
+        Assert.That(context.Intent, Is.EqualTo(MessageIntent.Reply));
+        Assert.That(context.CorrelationIdOnReply, Is.EqualTo(context.OriginalCorrelationId), "Correlation id should be preserved so that things like callbacks work properly");
     }
 
     public class Context : ScenarioContext

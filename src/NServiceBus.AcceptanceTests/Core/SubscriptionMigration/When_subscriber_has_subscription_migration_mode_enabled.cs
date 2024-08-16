@@ -20,7 +20,7 @@ public class When_subscriber_has_subscription_migration_mode_enabled : NServiceB
             .Run();
 
         Assert.That(context.EventReceived, Is.True);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(MigratedSubscriber)), context.Subscriber);
+        Assert.That(context.Subscriber, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(MigratedSubscriber))));
     }
 
     [Test]

@@ -28,8 +28,8 @@ public class OutgoingLogicalMessageContextTests
 
         context.UpdateMessage(newMessage);
 
-        Assert.AreEqual(typeof(IMyMessage), context.Message.MessageType);
-        Assert.AreEqual(newMessageId, ((IMyMessage)context.Message.Instance).Id);
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+        Assert.That(((IMyMessage)context.Message.Instance).Id, Is.EqualTo(newMessageId));
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class OutgoingLogicalMessageContextTests
 
         context.UpdateMessage(differentMessage);
 
-        Assert.AreEqual(typeof(MyDifferentMessage), context.Message.MessageType);
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(MyDifferentMessage)));
     }
 
     class MyDifferentMessage

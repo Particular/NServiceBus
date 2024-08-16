@@ -21,10 +21,10 @@ public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
+        Assert.That(context.FailedMessages.Single().Value.Count, Is.EqualTo(1));
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.IsInstanceOf<MessageDeserializationException>(exception);
-        Assert.AreEqual($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.", exception.InnerException.Message);
+        Assert.That(exception.InnerException.Message, Is.EqualTo($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference."));
     }
 
     class Context : ScenarioContext

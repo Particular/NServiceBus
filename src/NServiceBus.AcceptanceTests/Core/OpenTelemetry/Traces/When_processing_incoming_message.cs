@@ -20,14 +20,14 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
             .Run();
 
         var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, incomingMessageActivities.Count, "1 message is being processed");
+        Assert.That(incomingMessageActivities.Count, Is.EqualTo(1), "1 message is being processed");
 
         var incomingActivity = incomingMessageActivities.Single();
-        Assert.AreEqual(ActivityKind.Consumer, incomingActivity.Kind, "asynchronous receivers should use 'Consumer'");
+        Assert.That(incomingActivity.Kind, Is.EqualTo(ActivityKind.Consumer), "asynchronous receivers should use 'Consumer'");
 
-        Assert.AreEqual(ActivityStatusCode.Ok, incomingActivity.Status);
+        Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
-        Assert.AreEqual("process message", incomingActivity.DisplayName);
+        Assert.That(incomingActivity.DisplayName, Is.EqualTo("process message"));
 
         var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
 

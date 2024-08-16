@@ -17,7 +17,7 @@ public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.AreEqual(TransportTransactionMode.ReceiveOnly, context.TransactionModeFromSettingsExtensions, "Transport transaction mode for the endpoint did not match the expected value.");
+        Assert.That(context.TransactionModeFromSettingsExtensions, Is.EqualTo(TransportTransactionMode.ReceiveOnly), "Transport transaction mode for the endpoint did not match the expected value.");
     }
 
     class Context : ScenarioContext

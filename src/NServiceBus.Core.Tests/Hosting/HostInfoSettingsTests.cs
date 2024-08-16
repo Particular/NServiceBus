@@ -16,7 +16,7 @@ public class HostInfoSettingsTests
         busConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(requestedId);
 
         var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
-        Assert.AreEqual(requestedId, configuredId);
+        Assert.That(configuredId, Is.EqualTo(requestedId));
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class HostInfoSettingsTests
         busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance", "Host");
 
         var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
-        Assert.AreEqual(DeterministicGuid.Create("Instance", "Host"), configuredId);
+        Assert.That(configuredId, Is.EqualTo(DeterministicGuid.Create("Instance", "Host")));
     }
 
     [Test]
@@ -38,6 +38,6 @@ public class HostInfoSettingsTests
         busConfig.UniquelyIdentifyRunningInstance().UsingHostName("overridenhostname");
 
         var hostName = RuntimeEnvironment.MachineName;
-        Assert.AreEqual("overridenhostname", hostName);
+        Assert.That(hostName, Is.EqualTo("overridenhostname"));
     }
 }

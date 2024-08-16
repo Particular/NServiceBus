@@ -28,8 +28,8 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
             .Done(c => c.OuterMessageReceived && c.InnerMessageReceived)
             .Run();
 
-        Assert.AreEqual(customReplyAddress, context.OuterMessageReplyAddress);
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(SenderEndpoint)), context.InnerMessageReplyAddress);
+        Assert.That(context.OuterMessageReplyAddress, Is.EqualTo(customReplyAddress));
+        Assert.That(context.InnerMessageReplyAddress, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(SenderEndpoint))));
     }
 
     class Context : ScenarioContext

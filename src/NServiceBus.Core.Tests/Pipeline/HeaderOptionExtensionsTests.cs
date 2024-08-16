@@ -14,7 +14,7 @@ public class HeaderOptionExtensionsTests
 
         var result = options.GetHeaders();
 
-        Assert.AreEqual(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
         CollectionAssert.Contains(result.Values, "custom header value 1");
         CollectionAssert.Contains(result.Values, "custom header value 2");
     }

@@ -58,7 +58,7 @@ public class MessageDeserializerResolverTests
 
         var serializer = resolver.Resolve([]);
 
-        Assert.AreEqual(mainSerializer, serializer);
+        Assert.That(serializer, Is.EqualTo(mainSerializer));
     }
 
     [TestCase(null)]
@@ -76,7 +76,7 @@ public class MessageDeserializerResolverTests
             { Headers.ContentType, headerValue}
         });
 
-        Assert.AreEqual(mainSerializer, serializer);
+        Assert.That(serializer, Is.EqualTo(mainSerializer));
     }
 
     [Test]

@@ -25,7 +25,7 @@ public class When_persisting_a_saga_with_no_mapping : SagaPersisterTests
 
         var result = await GetById<SagaWithoutCorrelationPropertyData>(sagaData.Id);
 
-        Assert.AreEqual(sagaData.FoundByFinderProperty, result.FoundByFinderProperty);
+        Assert.That(result.FoundByFinderProperty, Is.EqualTo(sagaData.FoundByFinderProperty));
     }
 
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,

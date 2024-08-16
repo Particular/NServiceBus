@@ -53,7 +53,7 @@ public class FeatureStartupTests
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Stop");
         expectedOrderBuilder.AppendLine("FeatureWithStartupTaskWithDependency.Stop");
 
-        Assert.AreEqual(expectedOrderBuilder.ToString(), orderBuilder.ToString());
+        Assert.That(orderBuilder.ToString(), Is.EqualTo(expectedOrderBuilder.ToString()));
     }
 
     [Test]
@@ -85,7 +85,7 @@ public class FeatureStartupTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
-        Assert.AreEqual("feature2", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo("feature2"));
 
         Assert.That(feature1.TaskStarted, Is.True, "Feature 1 should have been started.");
         Assert.That(feature2.TaskStartCalled, Is.True, "An attempt should have been made to start feature 2.");

@@ -28,8 +28,8 @@ public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
             .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
             .Run();
 
-        Assert.AreEqual(true, context.ExceptionThrown);
-        Assert.AreEqual(false, context.SecondMessageReceived);
+        Assert.That(context.ExceptionThrown, Is.EqualTo(true));
+        Assert.That(context.SecondMessageReceived, Is.EqualTo(false));
 
     }
 

@@ -26,7 +26,7 @@ public class DetermineRouteForPublishBehaviorTests
             return Task.CompletedTask;
         });
 
-        Assert.AreEqual(typeof(MyEvent), addressTag.MessageType);
+        Assert.That(addressTag.MessageType, Is.EqualTo(typeof(MyEvent)));
     }
 
     class MyEvent
