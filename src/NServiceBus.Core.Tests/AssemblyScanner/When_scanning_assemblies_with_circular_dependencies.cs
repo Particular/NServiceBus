@@ -18,7 +18,10 @@ public class When_scanning_assemblies_with_circular_dependencies
 
         var result = scanner.GetScannableAssemblies();
 
-        Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryA")), Is.False);
-        Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryB")), Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryA")), Is.False);
+            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryB")), Is.False);
+        });
     }
 }

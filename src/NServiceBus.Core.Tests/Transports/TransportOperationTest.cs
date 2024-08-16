@@ -14,8 +14,11 @@ public class TransportOperationTest
         var transportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"));
         var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination2"));
 
-        Assert.AreNotSame(transportOperation.Properties, secondTransportOperation.Properties);
-        Assert.IsEmpty(transportOperation.Properties);
-        Assert.IsEmpty(secondTransportOperation.Properties);
+        Assert.Multiple(() =>
+        {
+            Assert.That(secondTransportOperation.Properties, Is.Not.SameAs(transportOperation.Properties));
+            Assert.That(transportOperation.Properties, Is.Empty);
+        });
+        Assert.That(secondTransportOperation.Properties, Is.Empty);
     }
 }

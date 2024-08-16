@@ -25,11 +25,14 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.IsFalse(context.HandlerInvoked);
-        Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HandlerInvoked, Is.False);
+            Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
+        });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
-        Assert.IsInstanceOf<MessageDeserializationException>(exception);
-        StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+        Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
+        Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
     [Test]
@@ -42,11 +45,14 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(35));
 
-        Assert.IsFalse(context.HandlerInvoked);
-        Assert.AreEqual(1, context.FailedMessages.Single().Value.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HandlerInvoked, Is.False);
+            Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
+        });
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
-        Assert.IsInstanceOf<MessageDeserializationException>(exception);
-        StringAssert.Contains($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header", exception.InnerException.Message);
+        Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
+        Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
     class Context : ScenarioContext

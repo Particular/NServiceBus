@@ -33,7 +33,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1GotTheEvent)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.True(context.Subscriber1GotTheEvent);
+        Assert.That(context.Subscriber1GotTheEvent, Is.True);
     }
 
     public class Context : ScenarioContext

@@ -10,7 +10,7 @@ public class BestPracticesOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IgnoredBestPractices());
+        Assert.That(options.IgnoredBestPractices(), Is.False);
     }
 
     [Test]
@@ -20,6 +20,6 @@ public class BestPracticesOptionExtensionsTests
 
         options.DoNotEnforceBestPractices();
 
-        Assert.IsTrue(options.IgnoredBestPractices());
+        Assert.That(options.IgnoredBestPractices(), Is.True);
     }
 }

@@ -42,7 +42,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithInvalidCharacter)msgArray[0];
-                Assert.AreEqual(sb.ToString(), m.Special);
+                Assert.That(m.Special, Is.EqualTo(sb.ToString()));
             }
         }
 
@@ -60,7 +60,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (MessageImplementingISerializable)serializer.Deserialize(stream.ToArray())[0];
 
-                Assert.Null(result.ReadOnlyProperty);
+                Assert.That(result.ReadOnlyProperty, Is.Null);
             }
         }
 
@@ -82,8 +82,11 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (StructMessage)serializer.Deserialize(stream.ToArray())[0];
 
-                Assert.AreEqual(message.SomeField, result.SomeField);
-                Assert.AreEqual(message.SomeProperty, result.SomeProperty);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.SomeField, Is.EqualTo(message.SomeField));
+                    Assert.That(result.SomeProperty, Is.EqualTo(message.SomeProperty));
+                });
             }
         }
 
@@ -101,7 +104,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var ex = Assert.Throws<Exception>(() => serializer.Deserialize(stream.ToArray()));
 
-                StringAssert.StartsWith("Type not supported by the serializer", ex.Message);
+                Assert.That(ex.Message, Does.StartWith("Type not supported by the serializer"));
             }
         }
 
@@ -146,7 +149,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (MessageWithInterfaceProperty)serializer.Deserialize(stream.ToArray())[0];
 
-                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
+                Assert.That(result.InterfaceProperty.SomeProperty, Is.EqualTo(message.InterfaceProperty.SomeProperty));
             }
         }
 
@@ -173,7 +176,7 @@ namespace NServiceBus.Serializers.XML.Test
                     typeof(IMessageWithInterfaceProperty)
                 })[0];
 
-                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
+                Assert.That(result.InterfaceProperty.SomeProperty, Is.EqualTo(message.InterfaceProperty.SomeProperty));
             }
         }
 
@@ -189,7 +192,7 @@ namespace NServiceBus.Serializers.XML.Test
             };
             var result = ExecuteSerializer.ForMessage<MessageWithArrayList>(m3 => m3.ArrayList = expected);
 
-            CollectionAssert.AreEqual(expected, result.ArrayList);
+            Assert.That(result.ArrayList, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]
@@ -204,7 +207,7 @@ namespace NServiceBus.Serializers.XML.Test
             };
             var result = ExecuteSerializer.ForMessage<MessageWithHashtable>(m3 => m3.Hashtable = expected);
 
-            CollectionAssert.AreEqual(expected, result.Hashtable);
+            Assert.That(result.Hashtable, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]
@@ -232,8 +235,11 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
                 var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream.ToArray());
 
-                Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
-                Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(Command1)));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(Command2)));
+                });
             }
         }
 
@@ -249,7 +255,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream.ToArray());
 
-                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(MessageWithDouble)));
             }
         }
 
@@ -278,8 +284,11 @@ namespace NServiceBus.Serializers.XML.Test
                 });
                 var a = (IMyEventA)result[0];
                 var b = (IMyEventB)result[1];
-                Assert.AreEqual(42, b.IntValue);
-                Assert.AreEqual("Answer", a.StringValue);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(b.IntValue, Is.EqualTo(42));
+                    Assert.That(a.StringValue, Is.EqualTo("Answer"));
+                });
             }
         }
 
@@ -340,8 +349,8 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msg = serializer.Deserialize(stream.ToArray()).Cast<MessageWithXDocument>().Single();
 
-                Assert.NotNull(msg.Document);
-                Assert.AreEqual("Document", msg.Document.Root.Name.LocalName);
+                Assert.That(msg.Document, Is.Not.Null);
+                Assert.That(msg.Document.Root.Name.LocalName, Is.EqualTo("Document"));
             }
 
             serializer = SerializerFactory.Create<MessageWithXElement>();
@@ -357,8 +366,8 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msg = serializer.Deserialize(stream.ToArray()).Cast<MessageWithXElement>().Single();
 
-                Assert.NotNull(msg.Document);
-                Assert.AreEqual("Document", msg.Document.Name.LocalName);
+                Assert.That(msg.Document, Is.Not.Null);
+                Assert.That(msg.Document.Name.LocalName, Is.EqualTo("Document"));
             }
         }
 
@@ -375,7 +384,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream.ToArray());
 
-                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(MessageWithDouble)));
             }
         }
 
@@ -427,7 +436,7 @@ namespace NServiceBus.Serializers.XML.Test
                     result = XDocument.Load(reader).ToString();
                 }
 
-                Assert.AreEqual(expected, result);
+                Assert.That(result, Is.EqualTo(expected));
             }
         }
 
@@ -446,7 +455,7 @@ namespace NServiceBus.Serializers.XML.Test
                     typeof(MessageWithDouble)
                 });
 
-                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+                Assert.That(msgArray[0].GetType(), Is.EqualTo(typeof(MessageWithDouble)));
             }
         }
 
@@ -466,7 +475,7 @@ namespace NServiceBus.Serializers.XML.Test
                         typeof(MessageWithDouble)
                     });
 
-                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
+                Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
             }
         }
 
@@ -487,8 +496,11 @@ namespace NServiceBus.Serializers.XML.Test
                         typeof(EmptyMessage)
                     });
 
-                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
-                Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                });
             }
         }
 
@@ -509,8 +521,11 @@ namespace NServiceBus.Serializers.XML.Test
                         typeof(EmptyMessage)
                     });
 
-                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
-                Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(((MessageWithDouble)msgArray[0]).Double, Is.EqualTo(23.4));
+                    Assert.That(msgArray[1].GetType(), Is.EqualTo(typeof(EmptyMessage)));
+                });
             }
         }
 
@@ -537,7 +552,7 @@ namespace NServiceBus.Serializers.XML.Test
                     }
                 }
             }
-            Assert.AreEqual(count, 1);
+            Assert.That(count, Is.EqualTo(1));
         }
 
 
@@ -553,7 +568,7 @@ namespace NServiceBus.Serializers.XML.Test
                     };
             });
 
-            Assert.AreEqual("a property", result.GenericProperty.WhatEver);
+            Assert.That(result.GenericProperty.WhatEver, Is.EqualTo("a property"));
         }
 
 
@@ -578,7 +593,7 @@ namespace NServiceBus.Serializers.XML.Test
             var msgArray = serializer.Deserialize(stream.ToArray());
             var m = (MessageWithDouble)msgArray[0];
 
-            Assert.AreEqual(val, m.Double);
+            Assert.That(m.Double, Is.EqualTo(val));
 
             stream.Dispose();
         }
@@ -824,7 +839,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithList)msgArray[0];
-                Assert.AreEqual("Hello", m.Items.First().Data);
+                Assert.That(m.Items.First().Data, Is.EqualTo("Hello"));
             }
         }
 
@@ -850,7 +865,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
-                Assert.AreEqual("Hello", m.Items.First().Data);
+                Assert.That(m.Items.First().Data, Is.EqualTo("Hello"));
             }
         }
 
@@ -878,7 +893,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
-                Assert.AreEqual("Hello", m.Items.First<MessageWithListItemAlternate>().Data);
+                Assert.That(m.Items.First<MessageWithListItemAlternate>().Data, Is.EqualTo("Hello"));
             }
         }
 
@@ -904,7 +919,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
-                Assert.AreEqual("Hello", m.Items.First<MessageWithListItemAlternate>().Data);
+                Assert.That(m.Items.First<MessageWithListItemAlternate>().Data, Is.EqualTo("Hello"));
             }
         }
 
@@ -930,7 +945,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithClosedList)msgArray[0];
-                Assert.AreEqual("Hello", m.Items.First().Data);
+                Assert.That(m.Items.First().Data, Is.EqualTo("Hello"));
             }
         }
 
@@ -950,7 +965,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var msgArray = serializer.Deserialize(stream.ToArray());
                 var m = (MessageWithList)msgArray[0];
-                Assert.IsEmpty(m.Items);
+                Assert.That(m.Items, Is.Empty);
             }
         }
 
@@ -1065,7 +1080,7 @@ namespace NServiceBus.Serializers.XML.Test
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
             var result = ExecuteSerializer.ForMessage<MessageWithNestedObject>(m => { m.NestedObject = new MessageWithNullProperty(); });
-            Assert.IsNotNull(result.NestedObject);
+            Assert.That(result.NestedObject, Is.Not.Null);
         }
 
         [Test]
@@ -1082,7 +1097,7 @@ namespace NServiceBus.Serializers.XML.Test
                     };
                     m.Whatever = "fdsfsdfsd";
                 });
-            Assert.IsNotNull(result.GenericNullable.TheType == theTime);
+            Assert.That(result.GenericNullable.TheType, Is.EqualTo(theTime));
         }
 
         [Test]
@@ -1110,11 +1125,14 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<MessageWithSystemClassAsProperty>(
                 m => { m.MailMessage = message; });
-            Assert.IsNotNull(result.MailMessage);
-            Assert.AreEqual("from@gmail.com", result.MailMessage.From.Address);
-            Assert.AreEqual(message.To.First(), result.MailMessage.To.First());
-            Assert.AreEqual(message.BodyEncoding.CodePage, result.MailMessage.BodyEncoding.CodePage);
-            Assert.AreEqual(message.BodyEncoding.EncoderFallback.MaxCharCount, result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount);
+            Assert.That(result.MailMessage, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.MailMessage.From.Address, Is.EqualTo("from@gmail.com"));
+                Assert.That(result.MailMessage.To.First(), Is.EqualTo(message.To.First()));
+                Assert.That(result.MailMessage.BodyEncoding.CodePage, Is.EqualTo(message.BodyEncoding.CodePage));
+                Assert.That(result.MailMessage.BodyEncoding.EncoderFallback.MaxCharCount, Is.EqualTo(message.BodyEncoding.EncoderFallback.MaxCharCount));
+            });
         }
 
         [Test]
@@ -1132,9 +1150,12 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<PolyMessage>(message);
 
-            Assert.AreEqual(message.BaseType.BaseTypeProp, result.BaseType.BaseTypeProp);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.BaseType.BaseTypeProp, Is.EqualTo(message.BaseType.BaseTypeProp));
 
-            Assert.AreEqual(((ChildOfBase)message.BaseType).ChildProp, ((ChildOfBase)result.BaseType).ChildProp);
+                Assert.That(((ChildOfBase)result.BaseType).ChildProp, Is.EqualTo(((ChildOfBase)message.BaseType).ChildProp));
+            });
         }
 
         [Test]
@@ -1155,8 +1176,11 @@ namespace NServiceBus.Serializers.XML.Test
             var resultXDocument = ExecuteSerializer.ForMessage<MessageWithXDocument>(messageWithXDocument);
             var resultXElement = ExecuteSerializer.ForMessage<MessageWithXElement>(messageWithXElement);
 
-            Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());
-            Assert.AreEqual(messageWithXElement.Document.ToString(), resultXElement.Document.ToString());
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultXDocument.Document.ToString(), Is.EqualTo(messageWithXDocument.Document.ToString()));
+                Assert.That(resultXElement.Document.ToString(), Is.EqualTo(messageWithXElement.Document.ToString()));
+            });
         }
 
         [Test]
@@ -1183,7 +1207,7 @@ namespace NServiceBus.Serializers.XML.Test
                 {
                     typeof(EmptyMessage)
                 });
-                Assert.AreEqual(3, msgArray.Length);
+                Assert.That(msgArray, Has.Length.EqualTo(3));
             }
         }
 
@@ -1211,8 +1235,11 @@ namespace NServiceBus.Serializers.XML.Test
                 });
             }
 
-            Assert.AreEqual(message.Key, ((SerializedPair)messageDeserialized[0]).Key);
-            Assert.AreEqual(message.Value, ((SerializedPair)messageDeserialized[0]).Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(((SerializedPair)messageDeserialized[0]).Key, Is.EqualTo(message.Key));
+                Assert.That(((SerializedPair)messageDeserialized[0]).Value, Is.EqualTo(message.Value));
+            });
         }
 
         [Test]

@@ -29,8 +29,11 @@ public class When_on_message_throws : NServiceBusTransportTest
 
         var errorContext = await onErrorCalled.Task;
 
-        Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
-        Assert.AreEqual(1, errorContext.ImmediateProcessingFailures, "Should track the number of delivery attempts");
-        Assert.AreEqual("MyValue", errorContext.Message.Headers["MyHeader"], "Should pass the message headers");
+        Assert.Multiple(() =>
+        {
+            Assert.That(errorContext.Exception.Message, Is.EqualTo("Simulated exception"), "Should preserve the exception");
+            Assert.That(errorContext.ImmediateProcessingFailures, Is.EqualTo(1), "Should track the number of delivery attempts");
+            Assert.That(errorContext.Message.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
+        });
     }
 }

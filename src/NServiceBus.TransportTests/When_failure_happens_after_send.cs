@@ -49,6 +49,6 @@ public class When_failure_happens_after_send : NServiceBusTransportTest
 
         await StopPump();
 
-        Assert.False(messageEmitted);
+        Assert.That(messageEmitted, Is.False);
     }
 }

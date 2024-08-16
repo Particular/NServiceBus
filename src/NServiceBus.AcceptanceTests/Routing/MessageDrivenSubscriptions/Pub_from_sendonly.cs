@@ -29,7 +29,7 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
             .Done(c => c.SubscriberGotTheEvent)
             .Run();
 
-        Assert.True(context.SubscriberGotTheEvent);
+        Assert.That(context.SubscriberGotTheEvent, Is.True);
     }
 
     public class Context : ScenarioContext

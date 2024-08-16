@@ -31,7 +31,7 @@ public class When_deferring_a_message : NServiceBusAcceptanceTest
             .Run();
 
         var sendReceiveDifference = context.ReceivedAt - context.SentAt;
-        Assert.GreaterOrEqual(sendReceiveDifference, delay);
+        Assert.That(sendReceiveDifference, Is.GreaterThanOrEqualTo(delay));
     }
 
     public class Context : ScenarioContext

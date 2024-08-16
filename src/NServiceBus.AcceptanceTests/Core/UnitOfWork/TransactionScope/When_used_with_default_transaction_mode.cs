@@ -25,7 +25,7 @@ public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
              .Done(c => c.EndpointsStarted)
              .Run();
 
-        Assert.True(context.EndpointsStarted);
+        Assert.That(context.EndpointsStarted, Is.True);
     }
 
     public class ScopeEndpoint : EndpointConfigurationBuilder

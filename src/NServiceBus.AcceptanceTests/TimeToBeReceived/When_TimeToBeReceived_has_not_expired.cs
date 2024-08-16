@@ -16,8 +16,11 @@ public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.IsTrue(context.WasCalled);
-        Assert.AreEqual(TimeSpan.FromSeconds(10), context.TTBROnIncomingMessage, "TTBR should be available as a header so receiving endpoints can know what value was used when the message was originally sent");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.WasCalled, Is.True);
+            Assert.That(context.TTBROnIncomingMessage, Is.EqualTo(TimeSpan.FromSeconds(10)), "TTBR should be available as a header so receiving endpoints can know what value was used when the message was originally sent");
+        });
     }
 
     public class Context : ScenarioContext

@@ -24,8 +24,11 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
             .Done(c => c.HandlerGotTheRequest)
             .Run();
 
-        Assert.IsTrue(context.SerializeCalled);
-        Assert.IsTrue(context.DeserializeCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.SerializeCalled, Is.True);
+            Assert.That(context.DeserializeCalled, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

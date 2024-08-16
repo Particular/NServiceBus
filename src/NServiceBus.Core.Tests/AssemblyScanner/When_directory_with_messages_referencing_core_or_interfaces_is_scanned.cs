@@ -19,7 +19,7 @@ public class When_directory_with_messages_referencing_core_or_interfaces_is_scan
         var result = scanner.GetScannableAssemblies();
         var assemblyFullNames = result.Assemblies.Select(a => a.GetName().Name).ToList();
 
-        CollectionAssert.Contains(assemblyFullNames, "Messages.Referencing.Core");
-        CollectionAssert.Contains(assemblyFullNames, "Messages.Referencing.MessageInterfaces");
+        Assert.That(assemblyFullNames, Has.Member("Messages.Referencing.Core"));
+        Assert.That(assemblyFullNames, Has.Member("Messages.Referencing.MessageInterfaces"));
     }
 }

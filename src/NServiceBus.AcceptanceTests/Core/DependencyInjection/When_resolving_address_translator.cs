@@ -64,7 +64,7 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
             .Done(ctx => thrownException != null)
             .Run();
 
-        StringAssert.Contains("Transport address resolution is not supported before the NServiceBus transport has been started.", thrownException.Message);
+        Assert.That(thrownException.Message, Does.Contain("Transport address resolution is not supported before the NServiceBus transport has been started."));
     }
 
     class Context : ScenarioContext

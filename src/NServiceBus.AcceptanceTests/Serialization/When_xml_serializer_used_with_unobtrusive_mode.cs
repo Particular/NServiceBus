@@ -20,7 +20,7 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.AreEqual(expectedData, context.Data);
+        Assert.That(context.Data, Is.EqualTo(expectedData));
     }
 
     public class Context : ScenarioContext

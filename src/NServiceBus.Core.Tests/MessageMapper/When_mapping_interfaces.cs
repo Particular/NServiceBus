@@ -14,7 +14,7 @@ public class When_mapping_interfaces
         var mapper = new MessageMapper();
         mapper.Initialize(new[] { typeof(IInterfaceWithOnlyProperties) });
 
-        Assert.NotNull(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)));
+        Assert.That(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)), Is.Not.Null);
     }
 
     public interface IInterfaceWithOnlyProperties : IMessage
@@ -30,7 +30,7 @@ public class When_mapping_interfaces
 
         var result = mapper.CreateInstance<IInterface>(null);
 
-        Assert.IsNotNull(result);
+        Assert.That(result, Is.Not.Null);
     }
 
     public interface IInterface : IMessage
@@ -59,10 +59,13 @@ public class When_mapping_interfaces
     {
         var mapper = new MessageMapper();
         mapper.Initialize(new[] { typeof(IInterfaceWithPropertiesAndAttributes) });
-        Assert.IsTrue(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
+        Assert.Multiple(() =>
+        {
+            Assert.That(PropertyContainsAttribute("SomeProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))), Is.True);
 
-        // Doesn't affect properties without attributes
-        Assert.IsFalse(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))));
+            // Doesn't affect properties without attributes
+            Assert.That(PropertyContainsAttribute("SomeOtherProperty", typeof(SomeAttribute), mapper.CreateInstance(typeof(IInterfaceWithPropertiesAndAttributes))), Is.False);
+        });
     }
 
     public interface IInterfaceWithPropertiesAndAttributes
@@ -86,7 +89,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructor));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAttribute), true);
         var attr = (NoDefaultConstructorAttribute)attributes[0];
-        Assert.AreEqual(attr.Name, "Blah");
+        Assert.That(attr.Name, Is.EqualTo("Blah"));
     }
 
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructor
@@ -113,7 +116,7 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
         var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(NoDefaultConstructorAndNoMatchingParametersAttribute), true);
         var attr = (NoDefaultConstructorAndNoMatchingParametersAttribute)attributes[0];
-        Assert.AreEqual(attr.Name, "Blah");
+        Assert.That(attr.Name, Is.EqualTo("Blah"));
     }
     public interface IInterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters
     {
@@ -142,7 +145,7 @@ public class When_mapping_interfaces
         var mapper = new MessageMapper();
         mapper.Initialize(new[] { typeof(IInterfaceToGenerate) });
 
-        Assert.AreEqual(typeof(IInterfaceToGenerate).Namespace, mapper.CreateInstance(typeof(IInterfaceToGenerate)).GetType().Namespace);
+        Assert.That(mapper.CreateInstance(typeof(IInterfaceToGenerate)).GetType().Namespace, Is.EqualTo(typeof(IInterfaceToGenerate).Namespace));
     }
 
     public interface IInterfaceToGenerate : IMessage
@@ -158,10 +161,10 @@ public class When_mapping_interfaces
         var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));
         var attributes = instance.GetType().GetProperty("EventId").GetCustomAttributes(typeof(ValuePropertiesAttribute), true);
         var attr = attributes[0] as ValuePropertiesAttribute;
-        Assert.AreEqual(attr != null && attr.FlagIsSet, true);
+        Assert.That(attr != null && attr.FlagIsSet, Is.EqualTo(true));
         if (attr != null)
         {
-            Assert.AreEqual(attr.MyAge, 21);
+            Assert.That(attr.MyAge, Is.EqualTo(21));
         }
     }
 

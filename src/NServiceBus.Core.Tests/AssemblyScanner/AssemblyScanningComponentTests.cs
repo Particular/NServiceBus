@@ -23,6 +23,6 @@ class AssemblyScanningComponentTests
 
         var foundTypeFromScannedPath = component.AvailableTypes.Any(x => x.Name == "NestedClass");
 
-        Assert.True(foundTypeFromScannedPath, "Was expected to scan a custom path, but 'nested.dll' was not scanned.");
+        Assert.That(foundTypeFromScannedPath, Is.True, "Was expected to scan a custom path, but 'nested.dll' was not scanned.");
     }
 }

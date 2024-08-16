@@ -17,12 +17,15 @@ public class StandardsTests
     {
         foreach (var featureType in GetFeatures())
         {
-            Assert.AreEqual("NServiceBus.Features", featureType.Namespace, "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
-            Assert.IsFalse(featureType.Name.EndsWith("Feature"), "Features should not be suffixed with 'Feature'. " + featureType.FullName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus.Features"), "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
+                Assert.That(featureType.Name, Does.Not.EndWith("Feature"), "Features should not be suffixed with 'Feature'. " + featureType.FullName);
+            });
             if (featureType.IsPublic)
             {
                 var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Array.Empty<Type>(), null);
-                Assert.IsFalse(constructorInfo.IsPublic, "Features should have an internal constructor. " + featureType.FullName);
+                Assert.That(constructorInfo.IsPublic, Is.False, "Features should have an internal constructor. " + featureType.FullName);
             }
         }
     }
@@ -49,7 +52,7 @@ public class StandardsTests
                 x.Namespace != "MicrosoftExtensionsDependencyInjection").ToList();
         if (types.Count > 0)
         {
-            Assert.IsEmpty(types, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
+            Assert.That(types, Is.Empty, $"Non-public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
         }
     }
 
@@ -67,7 +70,7 @@ public class StandardsTests
             {
                 if (field.FieldType == typeof(ILog))
                 {
-                    Assert.IsTrue(field.IsStatic, "Logger fields should be static " + type.FullName);
+                    Assert.That(field.IsStatic, Is.True, "Logger fields should be static " + type.FullName);
                 }
             }
         }
@@ -78,9 +81,12 @@ public class StandardsTests
     {
         foreach (var featureType in GetBehaviors())
         {
-            Assert.IsFalse(featureType.IsPublic, "Behaviors should internal " + featureType.FullName);
-            Assert.AreEqual("NServiceBus", featureType.Namespace, "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
-            Assert.IsTrue(featureType.Name.EndsWith("Terminator") || featureType.Name.EndsWith("Behavior") || featureType.Name.EndsWith("Connector"), "Behaviors should be suffixed with 'Behavior' or 'Connector'. " + featureType.FullName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(featureType.IsPublic, Is.False, "Behaviors should internal " + featureType.FullName);
+                Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus"), "Behaviors should be in the NServiceBus namespace since it reduces the 'wall of text' problem when looking at pipeline stack traces. " + featureType.FullName);
+                Assert.That(featureType.Name.EndsWith("Terminator") || featureType.Name.EndsWith("Behavior") || featureType.Name.EndsWith("Connector"), Is.True, "Behaviors should be suffixed with 'Behavior' or 'Connector'. " + featureType.FullName);
+            });
         }
     }
 
@@ -89,7 +95,7 @@ public class StandardsTests
     {
         foreach (var attributeType in GetAttributeTypes())
         {
-            Assert.IsTrue(attributeType.IsSealed, attributeType.FullName + " should be sealed.");
+            Assert.That(attributeType.IsSealed, Is.True, attributeType.FullName + " should be sealed.");
         }
     }
 

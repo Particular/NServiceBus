@@ -16,7 +16,7 @@ public class RecoverabilitySettingsExtensionsTests
         var result = settings.UnrecoverableExceptions();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.IsTrue(result.Contains(typeof(Exception)));
+        Assert.That(result.Contains(typeof(Exception)), Is.True);
     }
 
     [Test]
@@ -29,7 +29,7 @@ public class RecoverabilitySettingsExtensionsTests
         var result = settings.UnrecoverableExceptions();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.IsTrue(result.Contains(typeof(InvalidOperationException)));
+        Assert.That(result.Contains(typeof(InvalidOperationException)), Is.True);
     }
 
     [Test]
@@ -42,6 +42,6 @@ public class RecoverabilitySettingsExtensionsTests
         var result = settings.UnrecoverableExceptions();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.IsTrue(result.Contains(typeof(Exception)));
+        Assert.That(result.Contains(typeof(Exception)), Is.True);
     }
 }

@@ -20,7 +20,7 @@ public class AttachCausationHeadersBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(generatedId, context.Headers[Headers.ConversationId]);
+        Assert.That(context.Headers[Headers.ConversationId], Is.EqualTo(generatedId));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class AttachCausationHeadersBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
+        Assert.That(context.Headers[Headers.ConversationId], Is.EqualTo(incomingConversationId));
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class AttachCausationHeadersBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(userConversationId, context.Headers[Headers.ConversationId]);
+        Assert.That(context.Headers[Headers.ConversationId], Is.EqualTo(userConversationId));
     }
 
     [Test]
@@ -83,7 +83,7 @@ public class AttachCausationHeadersBehaviorTests
 
         var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
 
-        Assert.AreEqual($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}'). To start a new conversation use sendOptions.StartNewConversation().", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}'). To start a new conversation use sendOptions.StartNewConversation()."));
     }
 
     [Test]
@@ -96,7 +96,7 @@ public class AttachCausationHeadersBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
+        Assert.That(context.Headers[Headers.RelatedTo], Is.EqualTo("the message id"));
     }
 
     string ReturnDefaultConversationId(IOutgoingLogicalMessageContext context)

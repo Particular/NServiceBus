@@ -26,13 +26,13 @@ public class CustomConversationIdStrategyTests
     {
         var ex = Assert.Throws<Exception>(() => Invoke(_ => throw new Exception("User invocation failed")));
 
-        StringAssert.Contains("Failed to execute the custom conversation ID strategy", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Failed to execute the custom conversation ID strategy"));
     }
 
     [Test]
     public void Should_default_to_combguid_id()
     {
-        Assert.True(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _));
+        Assert.That(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _), Is.True);
     }
 
     static string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)

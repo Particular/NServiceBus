@@ -21,7 +21,7 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
             .Done(c => c.MessageInterfaceReceived)
             .Run();
 
-        Assert.True(context.MessageInterfaceReceived);
+        Assert.That(context.MessageInterfaceReceived, Is.True);
     }
 
     public class Context : ScenarioContext

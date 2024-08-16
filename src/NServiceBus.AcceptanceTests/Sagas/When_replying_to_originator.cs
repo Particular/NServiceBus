@@ -16,7 +16,7 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
             .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run();
 
-        Assert.True(context.DidRequestingSagaGetTheResponse);
+        Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
     }
 
     public class Context : ScenarioContext

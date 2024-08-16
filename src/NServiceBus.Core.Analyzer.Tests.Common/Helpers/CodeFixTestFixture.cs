@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Framework;
 
 public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixture<TAnalyzer>
     where TAnalyzer : DiagnosticAnalyzer, new()
@@ -27,7 +28,7 @@ public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixt
             expectedCodeFiles[i] = expectedCodeFiles[i].Replace("\r\n", "\n");
         }
 
-        NUnit.Framework.Assert.AreEqual(expectedCodeFiles, actual);
+        NUnit.Framework.Assert.That(actual, Is.EqualTo(expectedCodeFiles));
     }
 
     async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
@@ -46,7 +47,7 @@ public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixt
         }
         else if (fixMustCompile)
         {
-            NUnit.Framework.CollectionAssert.AreEqual(originalCompilerDiagnostics, compilerDiagnostics, "Fix introduced new compiler diagnostics.");
+            NUnit.Framework.Assert.That(compilerDiagnostics, Is.EqualTo(originalCompilerDiagnostics).AsCollection, "Fix introduced new compiler diagnostics.");
         }
 
         var compilation = await project.GetCompilationAsync(cancellationToken);

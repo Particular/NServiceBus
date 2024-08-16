@@ -19,7 +19,7 @@ public class AttachSenderRelatedInfoOnMessageTests
     {
         var message = await InvokeBehaviorAsync();
 
-        Assert.True(message.Headers.ContainsKey(Headers.TimeSent));
+        Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
     }
 
     [Test]
@@ -32,8 +32,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             {Headers.TimeSent, timeSent}
         });
 
-        Assert.True(message.Headers.ContainsKey(Headers.TimeSent));
-        Assert.AreEqual(timeSent, message.Headers[Headers.TimeSent]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
+            Assert.That(message.Headers[Headers.TimeSent], Is.EqualTo(timeSent));
+        });
     }
 
     [Test]
@@ -41,7 +44,7 @@ public class AttachSenderRelatedInfoOnMessageTests
     {
         var message = await InvokeBehaviorAsync();
 
-        Assert.True(message.Headers.ContainsKey(Headers.NServiceBusVersion));
+        Assert.That(message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
     }
 
     [Test]
@@ -53,8 +56,11 @@ public class AttachSenderRelatedInfoOnMessageTests
              {Headers.NServiceBusVersion, nsbVersion}
         });
 
-        Assert.True(message.Headers.ContainsKey(Headers.NServiceBusVersion));
-        Assert.AreEqual(nsbVersion, message.Headers[Headers.NServiceBusVersion]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
+            Assert.That(message.Headers[Headers.NServiceBusVersion], Is.EqualTo(nsbVersion));
+        });
     }
 
     [Test]
@@ -65,7 +71,7 @@ public class AttachSenderRelatedInfoOnMessageTests
             DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(2))
         });
 
-        Assert.True(message.Headers.ContainsKey(Headers.DeliverAt));
+        Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
     }
 
     [Test]
@@ -77,8 +83,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             DoNotDeliverBefore = new DoNotDeliverBefore(doNotDeliverBefore)
         });
 
-        Assert.True(message.Headers.ContainsKey(Headers.DeliverAt));
-        Assert.AreEqual(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore), message.Headers[Headers.DeliverAt]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
+            Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
+        });
     }
 
     [Test]
@@ -93,8 +102,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(2))
         });
 
-        Assert.True(message.Headers.ContainsKey(Headers.DeliverAt));
-        Assert.AreEqual(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore), message.Headers[Headers.DeliverAt]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
+            Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
+        });
     }
 
     static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)

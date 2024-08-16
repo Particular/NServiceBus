@@ -104,21 +104,21 @@ public class DictionaryTests
 
         var result = ExecuteSerializer.ForMessage<MessageWithDictionaries>(expected);
 
-        CollectionAssert.AreEqual(expected.Bools, result.Bools);
-        CollectionAssert.AreEqual(expected.Chars, result.Chars);
-        CollectionAssert.AreEqual(expected.Bytes, result.Bytes);
-        CollectionAssert.AreEqual(expected.Ints, result.Ints);
-        CollectionAssert.AreEqual(expected.Decimals, result.Decimals);
-        CollectionAssert.AreEqual(expected.Doubles, result.Doubles);
-        CollectionAssert.AreEqual(expected.Floats, result.Floats);
-        CollectionAssert.AreEqual(expected.Enums, result.Enums);
-        CollectionAssert.AreEqual(expected.Longs, result.Longs);
-        CollectionAssert.AreEqual(expected.SBytes, result.SBytes);
-        CollectionAssert.AreEqual(expected.Shorts, result.Shorts);
-        CollectionAssert.AreEqual(expected.Strings, result.Strings);
-        CollectionAssert.AreEqual(expected.UInts, result.UInts);
-        CollectionAssert.AreEqual(expected.ULongs, result.ULongs);
-        CollectionAssert.AreEqual(expected.UShorts, result.UShorts);
+        Assert.That(result.Bools, Is.EqualTo(expected.Bools).AsCollection);
+        Assert.That(result.Chars, Is.EqualTo(expected.Chars).AsCollection);
+        Assert.That(result.Bytes, Is.EqualTo(expected.Bytes).AsCollection);
+        Assert.That(result.Ints, Is.EqualTo(expected.Ints).AsCollection);
+        Assert.That(result.Decimals, Is.EqualTo(expected.Decimals).AsCollection);
+        Assert.That(result.Doubles, Is.EqualTo(expected.Doubles).AsCollection);
+        Assert.That(result.Floats, Is.EqualTo(expected.Floats).AsCollection);
+        Assert.That(result.Enums, Is.EqualTo(expected.Enums).AsCollection);
+        Assert.That(result.Longs, Is.EqualTo(expected.Longs).AsCollection);
+        Assert.That(result.SBytes, Is.EqualTo(expected.SBytes).AsCollection);
+        Assert.That(result.Shorts, Is.EqualTo(expected.Shorts).AsCollection);
+        Assert.That(result.Strings, Is.EqualTo(expected.Strings).AsCollection);
+        Assert.That(result.UInts, Is.EqualTo(expected.UInts).AsCollection);
+        Assert.That(result.ULongs, Is.EqualTo(expected.ULongs).AsCollection);
+        Assert.That(result.UShorts, Is.EqualTo(expected.UShorts).AsCollection);
     }
 }
 

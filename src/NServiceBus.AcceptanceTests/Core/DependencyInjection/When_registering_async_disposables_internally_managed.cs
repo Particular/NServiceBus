@@ -21,8 +21,11 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             .Done(c => c.ScopedAsyncDisposableDisposed)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.That(context.ScopedAsyncDisposableDisposed, Is.True, "Scoped AsyncDisposable wasn't disposed as it should have been.");
-        Assert.That(context.SingletonAsyncDisposableDisposed, Is.True, "Singleton AsyncDisposable wasn't disposed as it should have been.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.ScopedAsyncDisposableDisposed, Is.True, "Scoped AsyncDisposable wasn't disposed as it should have been.");
+            Assert.That(context.SingletonAsyncDisposableDisposed, Is.True, "Singleton AsyncDisposable wasn't disposed as it should have been.");
+        });
     }
 
     class Context : ScenarioContext

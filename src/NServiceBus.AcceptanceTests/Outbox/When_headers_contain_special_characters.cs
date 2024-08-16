@@ -35,8 +35,8 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.IsNotEmpty(context.UnicodeHeaders);
-        CollectionAssert.IsSubsetOf(sentHeaders, context.UnicodeHeaders);
+        Assert.That(context.UnicodeHeaders, Is.Not.Empty);
+        Assert.That(sentHeaders, Is.SubsetOf(context.UnicodeHeaders));
     }
 
     class Context : ScenarioContext

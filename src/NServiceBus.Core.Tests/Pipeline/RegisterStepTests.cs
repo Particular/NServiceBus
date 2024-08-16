@@ -25,7 +25,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(typeof(BehaviorB), registerStep.BehaviorType);
+        Assert.That(registerStep.BehaviorType, Is.EqualTo(typeof(BehaviorB)));
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(originalDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(originalDescription));
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(originalDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(originalDescription));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class RegisterStepTests
 
         registerStep.Replace(replacement);
 
-        Assert.AreEqual(replacementDescription, registerStep.Description);
+        Assert.That(registerStep.Description, Is.EqualTo(replacementDescription));
     }
 
     [Test]
@@ -81,8 +81,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.IsFalse(originalBehaviorFactoryCalled);
-        Assert.IsInstanceOf<BehaviorB>(behavior);
+        Assert.Multiple(() =>
+        {
+            Assert.That(originalBehaviorFactoryCalled, Is.False);
+            Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        });
     }
 
     [Test]
@@ -102,8 +105,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.IsTrue(replacementBehaviorFactoryCalled);
-        Assert.IsInstanceOf<BehaviorB>(behavior);
+        Assert.Multiple(() =>
+        {
+            Assert.That(replacementBehaviorFactoryCalled, Is.True);
+            Assert.That(behavior, Is.InstanceOf<BehaviorB>());
+        });
     }
 
     class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>

@@ -20,11 +20,11 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
             using (var synchronizedStorageSession = configuration.CreateStorageSession())
             {
                 var sessionCreated = await synchronizedStorageSession.TryOpen(outboxTransaction, contextBag);
-                Assert.IsTrue(sessionCreated);
+                Assert.That(sessionCreated, Is.True);
 
                 var readBeforeCreate = await configuration.SagaStorage.Get<TestSagaData>(nameof(TestSagaData.SomeId),
                     sagaData.SomeId, synchronizedStorageSession, contextBag);
-                Assert.IsNull(readBeforeCreate);
+                Assert.That(readBeforeCreate, Is.Null);
 
                 await SaveSagaWithSession(sagaData, synchronizedStorageSession, contextBag);
 
@@ -33,14 +33,14 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
 
             // outbox transaction not yet committed
             var readBeforeOutboxCommit = await GetById<TestSagaData>(sagaData.Id);
-            Assert.IsNull(readBeforeOutboxCommit);
+            Assert.That(readBeforeOutboxCommit, Is.Null);
 
             await outboxTransaction.Commit();
         }
 
         var readAfterOutboxCommit = await GetById<TestSagaData>(sagaData.Id);
-        Assert.NotNull(readAfterOutboxCommit);
-        Assert.AreEqual(sagaData.SomeId, readAfterOutboxCommit.SomeId);
+        Assert.That(readAfterOutboxCommit, Is.Not.Null);
+        Assert.That(readAfterOutboxCommit.SomeId, Is.EqualTo(sagaData.SomeId));
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartTestSagaMessage>

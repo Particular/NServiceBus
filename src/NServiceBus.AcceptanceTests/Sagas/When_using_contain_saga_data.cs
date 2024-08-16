@@ -22,7 +22,7 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
             .Done(c => c.TimeoutReceived)
             .Run();
 
-        Assert.True(context.TimeoutReceived);
+        Assert.That(context.TimeoutReceived, Is.True);
     }
 
     public class Context : ScenarioContext

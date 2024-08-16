@@ -22,7 +22,7 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             .Done(c => c.CustomHeaderOnReply != null)
             .Run();
 
-        Assert.AreEqual(customHeaderValue.ToString(), context.CustomHeaderOnReply, "Header values should be forwarded");
+        Assert.That(context.CustomHeaderOnReply, Is.EqualTo(customHeaderValue.ToString()), "Header values should be forwarded");
     }
 
     public class Context : ScenarioContext

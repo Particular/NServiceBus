@@ -22,16 +22,22 @@ public class RollingLoggerTests
             };
             logger1.WriteLine("Foo");
             var files1 = tempPath.GetFiles();
-            Assert.AreEqual(1, files1.Count);
-            Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files1.First()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(files1.Count, Is.EqualTo(1));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files1.First()), Is.EqualTo($"Foo{Environment.NewLine}"));
+            });
             var logger2 = new RollingLogger(tempPath.TempDirectory)
             {
                 GetDate = () => dateTime
             };
             logger2.WriteLine("Bar");
             var files2 = tempPath.GetFiles();
-            Assert.AreEqual(1, files2.Count);
-            Assert.AreEqual($"Foo{Environment.NewLine}Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files2.First()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(files2.Count, Is.EqualTo(1));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files2.First()), Is.EqualTo($"Foo{Environment.NewLine}Bar{Environment.NewLine}"));
+            });
         }
     }
 
@@ -48,7 +54,7 @@ public class RollingLoggerTests
             var single = tempPath.GetSingle();
             File.Delete(single);
             logger.WriteLine("Bar");
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(single));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(single), Is.EqualTo($"Bar{Environment.NewLine}"));
         }
     }
 
@@ -67,7 +73,7 @@ public class RollingLoggerTests
             {
                 logger.WriteLine("Bar");
             }
-            Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(single));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(single), Is.EqualTo($"Foo{Environment.NewLine}"));
         }
     }
 
@@ -89,7 +95,7 @@ public class RollingLoggerTests
             var singleFile = tempPath.GetSingle();
             File.Delete(singleFile);
             logger.WriteLine("Bar");
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(singleFile), Is.EqualTo($"Bar{Environment.NewLine}"));
         }
     }
 
@@ -127,15 +133,21 @@ public class RollingLoggerTests
             logger2.WriteLine("Bar");
             var files = tempPath.GetFiles();
 
-            Assert.AreEqual(2, files.Count);
+            Assert.That(files.Count, Is.EqualTo(2));
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Some long text{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files.First()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files.First()), Is.EqualTo($"Some long text{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-01_1.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
+            });
         }
     }
 
@@ -156,15 +168,21 @@ public class RollingLoggerTests
             logger2.WriteLine("Bar");
             var files = tempPath.GetFiles();
 
-            Assert.AreEqual(2, files.Count);
+            Assert.That(files.Count, Is.EqualTo(2));
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files.First()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files.First()), Is.EqualTo($"Foo{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-02_0.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
+            });
         }
     }
 
@@ -176,7 +194,7 @@ public class RollingLoggerTests
             var logger = new RollingLogger(tempPath.TempDirectory);
             logger.WriteLine("Foo");
             var singleFile = tempPath.GetSingle();
-            Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(singleFile), Is.EqualTo($"Foo{Environment.NewLine}"));
         }
     }
 
@@ -189,7 +207,7 @@ public class RollingLoggerTests
             logger.WriteLine("Foo");
             logger.WriteLine("Bar");
             var singleFile = tempPath.GetSingle();
-            Assert.AreEqual($"Foo{Environment.NewLine}Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(singleFile), Is.EqualTo($"Foo{Environment.NewLine}Bar{Environment.NewLine}"));
         }
     }
 
@@ -206,15 +224,21 @@ public class RollingLoggerTests
             logger.WriteLine("Some long text");
             logger.WriteLine("Bar");
             var files = tempPath.GetFiles();
-            Assert.AreEqual(2, files.Count);
+            Assert.That(files.Count, Is.EqualTo(2));
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Some long text{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(first));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Some long text{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-01_1.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
+            });
         }
     }
 
@@ -230,7 +254,7 @@ public class RollingLoggerTests
             for (var i = 0; i < 100; i++)
             {
                 logger.WriteLine("Some long text");
-                Assert.LessOrEqual(tempPath.GetFiles().Count, 11);
+                Assert.That(tempPath.GetFiles().Count, Is.LessThanOrEqualTo(11));
             }
         }
     }
@@ -244,7 +268,7 @@ public class RollingLoggerTests
             logger.WriteLine("Foo");
             logger.WriteLine("Some long text");
             var singleFile = tempPath.GetSingle();
-            Assert.AreEqual($"Foo{Environment.NewLine}Some long text{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
+            Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(singleFile), Is.EqualTo($"Foo{Environment.NewLine}Some long text{Environment.NewLine}"));
         }
     }
 
@@ -261,15 +285,21 @@ public class RollingLoggerTests
             logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
             logger.WriteLine("Bar");
             var files = tempPath.GetFiles();
-            Assert.AreEqual(2, files.Count);
+            Assert.That(files.Count, Is.EqualTo(2));
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(first));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Foo{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-02_0.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
+            });
         }
     }
 
@@ -291,7 +321,7 @@ public class RollingLoggerTests
             },
         };
         var logFile = RollingLogger.GetTodaysNewest(logFiles, today);
-        Assert.AreEqual(2, logFile.SequenceNumber);
+        Assert.That(logFile.SequenceNumber, Is.EqualTo(2));
     }
 
     [Test]
@@ -329,7 +359,7 @@ public class RollingLoggerTests
             },
         };
         var logFile = RollingLogger.GetTodaysNewest(logFiles, today);
-        Assert.AreEqual(0, logFile.SequenceNumber);
+        Assert.That(logFile.SequenceNumber, Is.EqualTo(0));
     }
 
     [Test]
@@ -348,19 +378,28 @@ public class RollingLoggerTests
             logger.WriteLine("Long text3");
             logger.WriteLine("Long text4");
             var files = tempPath.GetFiles();
-            Assert.AreEqual(3, files.Count, "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
+            Assert.That(files.Count, Is.EqualTo(3), "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-01_2.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Long text2{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(first));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_2.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Long text2{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-01_3.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Long text3{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_3.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Long text3{Environment.NewLine}"));
+            });
 
             var third = files[2];
-            Assert.AreEqual("nsb_log_2010-10-01_4.txt", Path.GetFileName(third));
-            Assert.AreEqual($"Long text4{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(third));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(third), Is.EqualTo("nsb_log_2010-10-01_4.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(third), Is.EqualTo($"Long text4{Environment.NewLine}"));
+            });
         }
     }
 
@@ -383,19 +422,28 @@ public class RollingLoggerTests
             logger.GetDate = () => new DateTimeOffset(2010, 10, 5, 0, 0, 0, TimeSpan.Zero);
             logger.WriteLine("Foo5");
             var files = tempPath.GetFiles();
-            Assert.AreEqual(3, files.Count, "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
+            Assert.That(files.Count, Is.EqualTo(3), "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
             var first = files[0];
-            Assert.AreEqual("nsb_log_2010-10-03_0.txt", Path.GetFileName(first));
-            Assert.AreEqual($"Foo3{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(first));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-03_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Foo3{Environment.NewLine}"));
+            });
 
             var second = files[1];
-            Assert.AreEqual("nsb_log_2010-10-04_0.txt", Path.GetFileName(second));
-            Assert.AreEqual($"Foo4{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(second));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-04_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Foo4{Environment.NewLine}"));
+            });
 
             var third = files[2];
-            Assert.AreEqual("nsb_log_2010-10-05_0.txt", Path.GetFileName(third));
-            Assert.AreEqual($"Foo5{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(third));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Path.GetFileName(third), Is.EqualTo("nsb_log_2010-10-05_0.txt"));
+                Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(third), Is.EqualTo($"Foo5{Environment.NewLine}"));
+            });
         }
     }
 
@@ -410,7 +458,7 @@ public class RollingLoggerTests
             };
             logger.WriteLine("Foo");
             var singleFile = tempPath.GetSingle();
-            Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(singleFile));
+            Assert.That(Path.GetFileName(singleFile), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
         }
     }
     class TempPath : IDisposable

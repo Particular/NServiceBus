@@ -24,7 +24,7 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
             .Done(c => c.SagaId.HasValue)
             .Run();
 
-        Assert.AreEqual(new Guid("1d99288a-418d-9e4d-46e4-d49a27908fc8"), context.SagaId);
+        Assert.That(context.SagaId, Is.EqualTo(new Guid("1d99288a-418d-9e4d-46e4-d49a27908fc8")));
     }
 
     public class Context : ScenarioContext

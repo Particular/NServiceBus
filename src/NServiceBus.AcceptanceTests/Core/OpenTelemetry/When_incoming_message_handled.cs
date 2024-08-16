@@ -28,9 +28,9 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
-        Assert.AreEqual(typeof(MyMessageHandler).FullName, handlerType);
+        Assert.That(handlerType, Is.EqualTo(typeof(MyMessageHandler).FullName));
         var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
-        Assert.AreEqual("success", result);
+        Assert.That(result, Is.EqualTo("success"));
     }
 
     [Test]
@@ -40,11 +40,11 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
-        Assert.AreEqual(typeof(MyExceptionalHandler).FullName, handlerType);
+        Assert.That(handlerType, Is.EqualTo(typeof(MyExceptionalHandler).FullName));
         var error = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "error.type");
-        Assert.AreEqual(typeof(Exception).FullName, error);
+        Assert.That(error, Is.EqualTo(typeof(Exception).FullName));
         var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
-        Assert.AreEqual("failure", result);
+        Assert.That(result, Is.EqualTo("failure"));
     }
 
     [Test]
@@ -97,11 +97,11 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         Type expectedMessageType)
     {
         var messageType = metricsListener.AssertTagKeyExists(metricName, "nservicebus.message_type");
-        Assert.AreEqual(expectedMessageType.FullName, messageType);
+        Assert.That(messageType, Is.EqualTo(expectedMessageType.FullName));
         var endpoint = metricsListener.AssertTagKeyExists(metricName, "nservicebus.queue");
-        Assert.AreEqual(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)), endpoint);
+        Assert.That(endpoint, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics))));
         var discriminator = metricsListener.AssertTagKeyExists(metricName, "nservicebus.discriminator");
-        Assert.AreEqual("discriminator", discriminator);
+        Assert.That(discriminator, Is.EqualTo("discriminator"));
     }
 
     class Context : ScenarioContext

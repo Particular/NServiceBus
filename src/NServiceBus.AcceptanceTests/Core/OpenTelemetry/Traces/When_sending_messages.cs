@@ -21,11 +21,14 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.AreEqual(1, outgoingMessageActivities.Count, "1 message is being sent");
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is being sent");
         var sentMessage = outgoingMessageActivities.Single();
 
-        Assert.IsNull(sentMessage.ParentId, "sends without ambient span should start a new trace");
-        Assert.AreEqual("send message", sentMessage.DisplayName);
+        Assert.Multiple(() =>
+        {
+            Assert.That(sentMessage.ParentId, Is.Null, "sends without ambient span should start a new trace");
+            Assert.That(sentMessage.DisplayName, Is.EqualTo("send message"));
+        });
 
         var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
         sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
@@ -54,16 +57,22 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
 
         var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, sendMessageActivities.Count, "1 message is sent as part of this test");
-        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+        Assert.Multiple(() =>
+        {
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        });
 
         var sendRequest = sendMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.AreEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of the same root activity");
-        Assert.IsNotNull(receiveRequest.ParentId, "incoming message does have a parent");
+        Assert.Multiple(() =>
+        {
+            Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "send and receive operations are part of the same root activity");
+            Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
+        });
 
-        CollectionAssert.IsEmpty(receiveRequest.Links, "receive does not have links");
+        Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
     }
 
     [Test]
@@ -83,18 +92,24 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
 
         var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
         var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.AreEqual(1, sendMessageActivities.Count, "1 message is sent as part of this test");
-        Assert.AreEqual(1, receiveMessageActivities.Count, "1 message is received as part of this test");
+        Assert.Multiple(() =>
+        {
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        });
 
         var sendRequest = sendMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.AreNotEqual(sendRequest.RootId, receiveRequest.RootId, "send and receive operations are part of different root activities");
-        Assert.IsNull(receiveRequest.ParentId, "incoming message does not have a parent, it's a root");
+        Assert.Multiple(() =>
+        {
+            Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
+            Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
+        });
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.IsNotNull(link, "Receive has a link");
-        Assert.AreEqual(sendRequest.TraceId, link.Context.TraceId, "receive is linked to send operation");
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
+        Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to send operation");
     }
 
     class Context : ScenarioContext

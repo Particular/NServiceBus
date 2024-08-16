@@ -10,7 +10,7 @@ public class QueueAddressTests
     [TestCaseSource(nameof(queueAddresses))]
     public void ToStringTests((QueueAddress address, string expectedResult) test)
     {
-        Assert.AreEqual(test.expectedResult, test.address.ToString());
+        Assert.That(test.address.ToString(), Is.EqualTo(test.expectedResult));
     }
 
     static (QueueAddress, string)[] queueAddresses =

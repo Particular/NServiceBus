@@ -29,7 +29,7 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled)
             .Run();
 
-        Assert.AreEqual("I did it", context.Secret);
+        Assert.That(context.Secret, Is.EqualTo("I did it"));
     }
 
     public class Context : ScenarioContext

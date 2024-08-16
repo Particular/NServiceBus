@@ -14,7 +14,7 @@ public class MessagingBestPracticesTests
         {
             var invalidOperationException = Assert.Throws<Exception>(() =>
                     new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
-            Assert.AreEqual($"Best practice violation for message type '{typeof(MyCommand).FullName}'. Reply is not supported for commands or events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
+            Assert.That(invalidOperationException.Message, Is.EqualTo($"Best practice violation for message type '{typeof(MyCommand).FullName}'. Reply is not supported for commands or events. Commands should be sent to their logical owner. Events should be published."));
         }
 
         [Test]
@@ -22,7 +22,7 @@ public class MessagingBestPracticesTests
         {
             var invalidOperationException = Assert.Throws<Exception>(() =>
                     new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
-            Assert.AreEqual($"Best practice violation for message type '{typeof(MyEvent).FullName}'. Reply is not supported for commands or events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
+            Assert.That(invalidOperationException.Message, Is.EqualTo($"Best practice violation for message type '{typeof(MyEvent).FullName}'. Reply is not supported for commands or events. Commands should be sent to their logical owner. Events should be published."));
         }
 
         [Test]
@@ -41,7 +41,7 @@ public class MessagingBestPracticesTests
         {
             var invalidOperationException = Assert.Throws<Exception>(() =>
                     new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
-            Assert.AreEqual($"Best practice violation for message type '{typeof(MyCommand).FullName}'. Pub/sub is not supported for commands, so they should be be sent to their logical owner instead.", invalidOperationException.Message);
+            Assert.That(invalidOperationException.Message, Is.EqualTo($"Best practice violation for message type '{typeof(MyCommand).FullName}'. Pub/sub is not supported for commands, so they should be be sent to their logical owner instead."));
         }
 
         [Test]

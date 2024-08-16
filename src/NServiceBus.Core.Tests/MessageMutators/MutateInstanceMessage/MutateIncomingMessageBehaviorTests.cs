@@ -23,8 +23,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(mutator.MutateIncomingCalled);
-        Assert.True(otherMutator.MutateIncomingCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(mutator.MutateIncomingCalled, Is.True);
+            Assert.That(otherMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -40,8 +43,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(explicitMutator.MutateIncomingCalled);
-        Assert.True(containerMutator.MutateIncomingCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(explicitMutator.MutateIncomingCalled, Is.True);
+            Assert.That(containerMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -58,7 +64,7 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.IsFalse(mutator.MutateIncomingCalled);
+        Assert.That(mutator.MutateIncomingCalled, Is.False);
     }
 
     [Test]
@@ -89,7 +95,7 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.False);
     }
 
     [Test]
@@ -103,7 +109,7 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.False);
     }
 
     [Test]
@@ -117,7 +123,7 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(context.UpdateMessageCalled);
+        Assert.That(context.UpdateMessageCalled, Is.True);
     }
 
     class InterceptUpdateMessageIncomingLogicalMessageContext : TestableIncomingLogicalMessageContext

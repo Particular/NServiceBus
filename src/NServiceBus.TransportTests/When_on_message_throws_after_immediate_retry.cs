@@ -35,6 +35,6 @@ public class When_on_message_throws_after_immediate_retry : NServiceBusTransport
 
         var errorContext = await maxAttemptsReached.Task;
 
-        Assert.AreEqual(attempts, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
+        Assert.That(errorContext.ImmediateProcessingFailures, Is.EqualTo(attempts), "Should track delivery attempts between immediate retries");
     }
 }

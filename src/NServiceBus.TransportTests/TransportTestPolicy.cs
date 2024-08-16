@@ -20,7 +20,7 @@ public class TransportTestPolicy
             .Select(group => $"{Environment.NewLine}  - {group.Key.FullName}")
             .ToArray();
 
-        Assert.IsEmpty(multiTestClasses, "Each transport test method should be in its own class. The class determines the queue name and can lead to subtle bugs between tests. Offenders:" + string.Join("", multiTestClasses));
+        Assert.That(multiTestClasses, Is.Empty, "Each transport test method should be in its own class. The class determines the queue name and can lead to subtle bugs between tests. Offenders:" + string.Join("", multiTestClasses));
     }
 
     static bool IsTestMethod(MethodInfo method) => method.GetCustomAttributes<NUnitAttribute>().Any(att => att is TestAttribute or TestCaseAttribute);

@@ -17,7 +17,7 @@ public class When_transactions_off_and_delayed_retries_enabled : NServiceBusAcce
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Delayed retries are not supported when running with TransportTransactionMode.None. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))' or select a different TransportTransactionMode.", exception.ToString());
+        Assert.That(exception.ToString(), Does.Contain("Delayed retries are not supported when running with TransportTransactionMode.None. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))' or select a different TransportTransactionMode."));
     }
 
     public class StartedEndpoint : EndpointConfigurationBuilder

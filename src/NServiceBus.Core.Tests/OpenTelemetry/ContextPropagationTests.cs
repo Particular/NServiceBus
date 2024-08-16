@@ -22,7 +22,7 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
-        Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        Assert.That(activity.Id, Is.EqualTo(headers[Headers.DiagnosticsTraceParent]));
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(null, headers, new ContextBag());
 
-        Assert.IsEmpty(headers);
+        Assert.That(headers, Is.Empty);
     }
 
     [Test]
@@ -47,8 +47,11 @@ public class ContextPropagationTests
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
         ContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
 
-        Assert.IsTrue(headers.ContainsKey(Headers.StartNewTrace), bool.TrueString);
-        Assert.AreEqual(headers[Headers.StartNewTrace], bool.TrueString);
+        Assert.Multiple(() =>
+        {
+            Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.True, bool.TrueString);
+            Assert.That(bool.TrueString, Is.EqualTo(headers[Headers.StartNewTrace]));
+        });
     }
 
     [Test]
@@ -59,7 +62,7 @@ public class ContextPropagationTests
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
         ContextPropagation.PropagateContextToHeaders(null, headers, contextBag);
 
-        Assert.IsFalse(headers.ContainsKey(Headers.StartNewTrace));
+        Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.False);
     }
 
     [Test]
@@ -76,13 +79,13 @@ public class ContextPropagationTests
 
         ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
 
-        Assert.AreEqual(headers[Headers.DiagnosticsTraceParent], activity.Id);
+        Assert.That(activity.Id, Is.EqualTo(headers[Headers.DiagnosticsTraceParent]));
     }
 
     [TestCaseSource(nameof(TestCases))]
     public void Can_propagate_baggage_from_header_to_activity(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var headers = new Dictionary<string, string>();
 
@@ -99,15 +102,15 @@ public class ContextPropagationTests
         {
             var key = baggageItem.Key;
             var actualValue = activity.GetBaggageItem(key);
-            Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
-            Assert.AreEqual(baggageItem.Value, actualValue, $"Baggage item |{key}| has the wrong value");
+            Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
+            Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }
 
     [TestCaseSource(nameof(TestCases))]
     public void Can_propagate_baggage_from_activity_to_header(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var headers = new Dictionary<string, string>();
 
@@ -124,20 +127,23 @@ public class ContextPropagationTests
 
         if (testCase.HasBaggage)
         {
-            Assert.IsTrue(baggageHeaderSet, "Should have a baggage header if there is baggage");
+            Assert.Multiple(() =>
+            {
+                Assert.That(baggageHeaderSet, Is.True, "Should have a baggage header if there is baggage");
 
-            Assert.AreEqual(testCase.BaggageHeaderValueWithoutOptionalWhitespace, baggageValue, "baggage header is set but is not correct");
+                Assert.That(baggageValue, Is.EqualTo(testCase.BaggageHeaderValueWithoutOptionalWhitespace), "baggage header is set but is not correct");
+            });
         }
         else
         {
-            Assert.IsFalse(baggageHeaderSet, "baggage header should not be set if there is no baggage");
+            Assert.That(baggageHeaderSet, Is.False, "baggage header should not be set if there is no baggage");
         }
     }
 
     [TestCaseSource(nameof(TestCases))]
     public void Can_roundtrip_baggage(ContextPropagationTestCase testCase)
     {
-        TestContext.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
+        TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var outgoingHeaders = new Dictionary<string, string>();
         var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
@@ -159,8 +165,8 @@ public class ContextPropagationTests
         {
             var key = baggageItem.Key;
             var actualValue = incomingActivity.GetBaggageItem(key);
-            Assert.IsNotNull(actualValue, $"Baggage is missing item with key |{key}|");
-            Assert.AreEqual(baggageItem.Value, actualValue, $"Baggage item |{key}| has the wrong value");
+            Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
+            Assert.That(actualValue, Is.EqualTo(baggageItem.Value), $"Baggage item |{key}| has the wrong value");
         }
     }
 

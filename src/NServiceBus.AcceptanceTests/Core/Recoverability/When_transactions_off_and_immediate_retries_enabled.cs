@@ -15,7 +15,7 @@ public class When_transactions_off_and_immediate_retries_enabled : NServiceBusAc
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Immediate retries are not supported", exception.ToString());
+        Assert.That(exception.ToString(), Does.Contain("Immediate retries are not supported"));
     }
 
     public class StartedEndpoint : EndpointConfigurationBuilder

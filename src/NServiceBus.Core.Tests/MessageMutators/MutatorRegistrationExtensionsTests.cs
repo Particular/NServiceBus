@@ -14,9 +14,9 @@ public class MutatorRegistrationExtensionsTests
         var endpointConfiguration = new EndpointConfiguration("test");
 
         var exception = Assert.Throws<ArgumentException>(() => endpointConfiguration.RegisterMessageMutator(new object()));
-        StringAssert.Contains(
-            "The given instance is not a valid message mutator. Implement one of the following mutator interfaces: NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages or NServiceBus.MessageMutator.IMutateOutgoingTransportMessages",
-            exception.Message);
+        Assert.That(
+            exception.Message,
+            Does.Contain("The given instance is not a valid message mutator. Implement one of the following mutator interfaces: NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages or NServiceBus.MessageMutator.IMutateOutgoingTransportMessages"));
     }
 
     [TestCase(typeof(IncomingMessageMutator))]
@@ -47,22 +47,22 @@ public class MutatorRegistrationExtensionsTests
 
         if (mutatorType == typeof(IncomingMessageMutator))
         {
-            Assert.AreEqual(1, registry.IncomingMessage.Count);
+            Assert.That(registry.IncomingMessage.Count, Is.EqualTo(1));
         }
 
         if (mutatorType == typeof(IncomingTransportMessageMutator))
         {
-            Assert.AreEqual(1, registry.IncomingTransportMessage.Count);
+            Assert.That(registry.IncomingTransportMessage.Count, Is.EqualTo(1));
         }
 
         if (mutatorType == typeof(OutgoingMessageMutator))
         {
-            Assert.AreEqual(1, registry.OutgoingMessage.Count);
+            Assert.That(registry.OutgoingMessage.Count, Is.EqualTo(1));
         }
 
         if (mutatorType == typeof(OutgoingTransportMessageMutator))
         {
-            Assert.AreEqual(1, registry.OutgoingTransportMessage.Count);
+            Assert.That(registry.OutgoingTransportMessage.Count, Is.EqualTo(1));
         }
     }
 

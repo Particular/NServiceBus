@@ -33,8 +33,11 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
             .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
             .Run();
 
-        Assert.True(context.GotTheEventFromPublisher1);
-        Assert.True(context.GotTheEventFromPublisher2);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.GotTheEventFromPublisher1, Is.True);
+            Assert.That(context.GotTheEventFromPublisher2, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

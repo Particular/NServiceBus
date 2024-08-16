@@ -18,14 +18,14 @@ public class When_initializing_transport : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        CollectionAssert.AreEqual(new List<string>
+        Assert.That(context.StartUpSequence, Is.EqualTo(new List<string>
         {
             $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
             $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
             $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StartReceive)} for receiver Main",
             $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)} for receiver Main",
             $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Shutdown)}",
-        }, context.StartUpSequence);
+        }).AsCollection);
     }
 
     [Test]
@@ -36,11 +36,11 @@ public class When_initializing_transport : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        CollectionAssert.AreEqual(new List<string>
+        Assert.That(context.StartUpSequence, Is.EqualTo(new List<string>
         {
             $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
             $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Shutdown)}",
-        }, context.StartUpSequence);
+        }).AsCollection);
     }
 
     class Context : ScenarioContext

@@ -23,7 +23,7 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
             .Done(c => c.GaveUp)
             .Run();
 
-        Assert.AreEqual(1, context.NumberOfTimesInvoked, "No Immediate Retry should be in use if NumberOfRetries is set to 0");
+        Assert.That(context.NumberOfTimesInvoked, Is.EqualTo(1), "No Immediate Retry should be in use if NumberOfRetries is set to 0");
     }
 
     class Context : ScenarioContext

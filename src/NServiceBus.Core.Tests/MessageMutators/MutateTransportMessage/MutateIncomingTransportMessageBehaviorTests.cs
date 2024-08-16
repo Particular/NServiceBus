@@ -22,8 +22,11 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(mutator.MutateIncomingCalled);
-        Assert.True(otherMutator.MutateIncomingCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(mutator.MutateIncomingCalled, Is.True);
+            Assert.That(otherMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -39,8 +42,11 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(explicitMutator.MutateIncomingCalled);
-        Assert.True(containerMutator.MutateIncomingCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(explicitMutator.MutateIncomingCalled, Is.True);
+            Assert.That(containerMutator.MutateIncomingCalled, Is.True);
+        });
     }
 
     [Test]
@@ -57,7 +63,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.IsFalse(mutator.MutateIncomingCalled);
+        Assert.That(mutator.MutateIncomingCalled, Is.False);
     }
 
     [Test]
@@ -83,7 +89,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageBodyCalled);
+        Assert.That(context.UpdateMessageBodyCalled, Is.False);
     }
 
     [Test]
@@ -97,7 +103,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.False(context.UpdateMessageBodyCalled);
+        Assert.That(context.UpdateMessageBodyCalled, Is.False);
     }
 
     [Test]
@@ -111,7 +117,7 @@ public class MutateIncomingTransportMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.True(context.UpdateMessageBodyCalled);
+        Assert.That(context.UpdateMessageBodyCalled, Is.True);
     }
 
     class InterceptUpdateMessageIncomingPhysicalMessageContext : TestableIncomingPhysicalMessageContext

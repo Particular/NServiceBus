@@ -24,7 +24,7 @@ public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
         }
 
         var completedSaga = await GetById<TestSagaData>(saga.Id);
-        Assert.Null(completedSaga);
+        Assert.That(completedSaga, Is.Null);
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>

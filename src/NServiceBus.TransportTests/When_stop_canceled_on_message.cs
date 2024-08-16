@@ -36,6 +36,6 @@ public class When_stop_canceled_on_message : NServiceBusTransportTest
 
         await StopPump(new CancellationToken(true));
 
-        Assert.False(recoverabilityInvoked, "Recoverability should not have been invoked.");
+        Assert.That(recoverabilityInvoked, Is.False, "Recoverability should not have been invoked.");
     }
 }

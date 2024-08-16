@@ -22,8 +22,11 @@ public class When_disposing_the_builder
         serviceProvider.GetService(typeof(AnotherSingletonComponent));
         (serviceProvider as IDisposable)?.Dispose();
 
-        Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
-        Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent");
+        Assert.Multiple(() =>
+        {
+            Assert.That(DisposableComponent.DisposeCalled, Is.True, "Dispose should be called on DisposableComponent");
+            Assert.That(AnotherSingletonComponent.DisposeCalled, Is.False, "Dispose should not be called on AnotherSingletonComponent");
+        });
     }
 
     public class DisposableComponent : IDisposable

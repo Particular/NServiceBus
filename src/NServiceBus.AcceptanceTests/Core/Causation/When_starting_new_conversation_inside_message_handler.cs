@@ -23,8 +23,11 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
             .Done(ctx => ctx.MessageHandled)
             .Run();
 
-        Assert.That(context.NewConversationId, Is.EqualTo(UserDefinedConverstionId), "ConversationId should be set to the user defined value.");
-        Assert.That(context.PreviousConversationId, Is.EqualTo(context.OriginalConversationId), "PreviousConversationId header should be set to the original conversation id.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.NewConversationId, Is.EqualTo(UserDefinedConverstionId), "ConversationId should be set to the user defined value.");
+            Assert.That(context.PreviousConversationId, Is.EqualTo(context.OriginalConversationId), "PreviousConversationId header should be set to the original conversation id.");
+        });
     }
 
     [Test]
@@ -40,8 +43,11 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
             .Run();
 
         Assert.That(context.NewConversationId, Is.EqualTo(GeneratedConversationId), "ConversationId should be generated.");
-        Assert.That(context.NewConversationId, Is.Not.EqualTo(context.OriginalConversationId), "ConversationId should not be equal to the original conversation id.");
-        Assert.That(context.PreviousConversationId, Is.EqualTo(context.OriginalConversationId), "PreviousConversationId header should be set to the original conversation id.");
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.NewConversationId, Is.Not.EqualTo(context.OriginalConversationId), "ConversationId should not be equal to the original conversation id.");
+            Assert.That(context.PreviousConversationId, Is.EqualTo(context.OriginalConversationId), "PreviousConversationId header should be set to the original conversation id.");
+        });
     }
 
     class NewConversationScenario : ScenarioContext

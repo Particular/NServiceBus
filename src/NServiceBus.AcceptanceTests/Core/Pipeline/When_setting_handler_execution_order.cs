@@ -19,7 +19,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
             .Done(c => c.InterceptingHandlerCalled && c.SagaStarted)
             .Run();
 
-        Assert.True(context.InterceptingHandlerCalledFirst, "The intercepting message handler should be called first");
+        Assert.That(context.InterceptingHandlerCalledFirst, Is.True, "The intercepting message handler should be called first");
     }
 
     public class SagaEndpointContext : ScenarioContext

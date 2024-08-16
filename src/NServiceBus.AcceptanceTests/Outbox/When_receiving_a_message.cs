@@ -18,7 +18,7 @@ public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAccep
             .Done(c => c.OrderAckReceived == 1)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received");
+        Assert.That(context.OrderAckReceived, Is.EqualTo(1), "Order ack should have been received");
     }
 
     class Context : ScenarioContext

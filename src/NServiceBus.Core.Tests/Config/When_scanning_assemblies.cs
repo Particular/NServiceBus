@@ -22,22 +22,22 @@ public class When_finding_assemblies_to_scan
     [Ignore("Does not work")]
     public void Should_for_our_code_exclude_everything_but_NServiceBus_by_default()
     {
-        CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
-            foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") && !a.FullName.StartsWith("Obsolete")));
+        Assert.That(foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") && !a.FullName.StartsWith("Obsolete")),
+            Is.EquivalentTo(System.Array.Empty<string>()));
     }
 
     [Test]
     public void Should_exclude_system_assemblies()
     {
-        CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
-            foundAssemblies.Where(a => a.FullName.StartsWith("System")).ToArray());
+        Assert.That(foundAssemblies.Where(a => a.FullName.StartsWith("System")).ToArray(),
+            Is.EquivalentTo(System.Array.Empty<string>()));
     }
 
     [Test]
     public void Should_exclude_nhibernate_assemblies()
     {
-        CollectionAssert.AreEquivalent(System.Array.Empty<string>(),
-            foundAssemblies.Where(a => a.FullName.StartsWith("nhibernate", System.StringComparison.OrdinalIgnoreCase)).ToArray());
+        Assert.That(foundAssemblies.Where(a => a.FullName.StartsWith("nhibernate", System.StringComparison.OrdinalIgnoreCase)).ToArray(),
+            Is.EquivalentTo(System.Array.Empty<string>()));
     }
 
     static List<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)

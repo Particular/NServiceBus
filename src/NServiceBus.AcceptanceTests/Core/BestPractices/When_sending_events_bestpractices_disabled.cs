@@ -22,7 +22,7 @@ public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceT
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.True(context.EndpointsStarted);
+        Assert.That(context.EndpointsStarted, Is.True);
     }
 
 

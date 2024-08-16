@@ -22,7 +22,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var result = router.Route(context);
-        Assert.AreEqual("destination endpoint", ExtractDestination(result));
+        Assert.That(ExtractDestination(result), Is.EqualTo("destination endpoint"));
     }
 
 
@@ -38,7 +38,7 @@ public class UnicastSendRouterTests
 
         var result = router.Route(context);
 
-        Assert.AreEqual("MyInstance", ExtractDestination(result));
+        Assert.That(ExtractDestination(result), Is.EqualTo("MyInstance"));
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
-        Assert.AreEqual(exception.Message, "Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
+        Assert.That(exception.Message, Is.EqualTo("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)."));
     }
 
 
@@ -70,7 +70,7 @@ public class UnicastSendRouterTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-        StringAssert.Contains("send-only mode", exception.Message);
+        Assert.That(exception.Message, Does.Contain("send-only mode"));
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class UnicastSendRouterTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-        StringAssert.Contains("send-only mode", exception.Message);
+        Assert.That(exception.Message, Does.Contain("send-only mode"));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("No destination specified for message", exception.Message);
+        Assert.That(exception.Message, Does.Contain("No destination specified for message"));
     }
 
     [Test]
@@ -120,7 +120,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
+        Assert.That(exception.Message, Does.Contain("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance."));
     }
 
     [Test]
@@ -146,7 +146,7 @@ public class UnicastSendRouterTests
         var context = CreateContext(options);
 
         var route = router.Route(context);
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Endpoint-2"));
     }
 
 
@@ -165,7 +165,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(routingTable: routingTable);
         var route = router.Route(context);
 
-        Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo(logicalEndpointName));
     }
 
     [Test]
@@ -190,7 +190,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
         var route = router.Route(context);
 
-        Assert.AreEqual("Sales-1", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Sales-1"));
     }
 
     [Test]
@@ -217,9 +217,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.AreEqual("Sales-1", ExtractDestination(route1));
-        Assert.AreEqual("Sales-2", ExtractDestination(route2));
-        Assert.AreEqual("Sales-1", ExtractDestination(route3));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ExtractDestination(route1), Is.EqualTo("Sales-1"));
+            Assert.That(ExtractDestination(route2), Is.EqualTo("Sales-2"));
+            Assert.That(ExtractDestination(route3), Is.EqualTo("Sales-1"));
+        });
     }
 
     [Test]
@@ -230,7 +233,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter();
 
         var exception = Assert.Throws<Exception>(() => router.Route(context));
-        StringAssert.Contains("No destination specified for message", exception.Message);
+        Assert.That(exception.Message, Does.Contain("No destination specified for message"));
     }
 
     [Test]
@@ -245,7 +248,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter();
         var route = router.Route(context);
 
-        Assert.AreEqual("Endpoint", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Endpoint"));
     }
 
     [Test]
@@ -267,7 +270,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(instances: endpointInstances);
         var route = router.Route(context);
 
-        Assert.AreEqual("Endpoint-1", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Endpoint-1"));
     }
 
     [Test]
@@ -295,7 +298,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
         var route = router.Route(context);
 
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Endpoint-2"));
     }
 
     [Test]
@@ -325,9 +328,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route1));
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route3));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ExtractDestination(route1), Is.EqualTo("Endpoint-2"));
+            Assert.That(ExtractDestination(route2), Is.EqualTo("Endpoint-2"));
+            Assert.That(ExtractDestination(route3), Is.EqualTo("Endpoint-2"));
+        });
     }
 
     [Test]
@@ -352,9 +358,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.AreEqual("Endpoint-1", ExtractDestination(route1));
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route2));
-        Assert.AreEqual("Endpoint-1", ExtractDestination(route3));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ExtractDestination(route1), Is.EqualTo("Endpoint-1"));
+            Assert.That(ExtractDestination(route2), Is.EqualTo("Endpoint-2"));
+            Assert.That(ExtractDestination(route3), Is.EqualTo("Endpoint-1"));
+        });
     }
 
     [Test]
@@ -371,7 +380,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(routingTable: routingTable);
         var route = router.Route(context);
 
-        Assert.AreEqual("Physical", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Physical"));
     }
 
     [Test]
@@ -388,7 +397,7 @@ public class UnicastSendRouterTests
         var router = CreateRouter(routingTable: routingTable);
         var route = router.Route(context);
 
-        Assert.AreEqual("Endpoint-2", ExtractDestination(route));
+        Assert.That(ExtractDestination(route), Is.EqualTo("Endpoint-2"));
     }
 
     static string ExtractDestination(UnicastRoutingStrategy route)

@@ -35,8 +35,11 @@ public class MessageDrivenSubscribeTerminatorTests
             var unicastTransportOperations = dispatchedTransportOperation.UnicastTransportOperations;
             var operations = new List<UnicastTransportOperation>(unicastTransportOperations);
 
-            Assert.IsTrue(operations[0].Message.Headers.ContainsKey(Headers.TimeSent));
-            Assert.IsTrue(operations[0].Message.Headers.ContainsKey(Headers.NServiceBusVersion));
+            Assert.Multiple(() =>
+            {
+                Assert.That(operations[0].Message.Headers.ContainsKey(Headers.TimeSent), Is.True);
+                Assert.That(operations[0].Message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
+            });
         }
     }
 
@@ -50,7 +53,7 @@ public class MessageDrivenSubscribeTerminatorTests
 
         await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask);
 
-        Assert.AreEqual(2, dispatcher.DispatchedTransportOperations.Count);
+        Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -64,8 +67,11 @@ public class MessageDrivenSubscribeTerminatorTests
 
         await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
 
-        Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
-        Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(1));
+            Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(10));
+        });
     }
 
     [Test]
@@ -82,8 +88,11 @@ public class MessageDrivenSubscribeTerminatorTests
             await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
         }, Throws.InstanceOf<QueueNotFoundException>());
 
-        Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
-        Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
+        Assert.Multiple(() =>
+        {
+            Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(0));
+            Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(11));
+        });
     }
 
     [Test]
@@ -95,7 +104,7 @@ public class MessageDrivenSubscribeTerminatorTests
         var exception = Assert.ThrowsAsync<Exception>(() =>
             subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask));
 
-        StringAssert.Contains($"No publisher address could be found for message type '{typeof(object)}'.", exception.Message);
+        Assert.That(exception.Message, Does.Contain($"No publisher address could be found for message type '{typeof(object)}'."));
     }
 
     [Test]
@@ -116,7 +125,7 @@ public class MessageDrivenSubscribeTerminatorTests
 
         await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
 
-        Assert.AreEqual(4, dispatcher.DispatchedTransportOperations.Count);
+        Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(4));
     }
 
     [Test]
@@ -141,9 +150,12 @@ public class MessageDrivenSubscribeTerminatorTests
 
         var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
 
-        Assert.AreEqual(2, exception.InnerExceptions.Count);
-        Assert.IsTrue(exception.InnerExceptions.Any(e => e is QueueNotFoundException)); // exception from dispatcher
-        Assert.IsTrue(exception.InnerExceptions.Any(e => e.Message.Contains($"No publisher address could be found for message type '{typeof(EventB)}'"))); // exception from terminator
+        Assert.That(exception.InnerExceptions.Count, Is.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(exception.InnerExceptions.Any(e => e is QueueNotFoundException), Is.True); // exception from dispatcher
+            Assert.That(exception.InnerExceptions.Any(e => e.Message.Contains($"No publisher address could be found for message type '{typeof(EventB)}'")), Is.True); // exception from terminator
+        });
     }
 
 

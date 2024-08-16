@@ -25,7 +25,7 @@ public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
             .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
             .Run();
 
-        Assert.AreEqual(customConversationId, context.ReceivedConversationId);
+        Assert.That(context.ReceivedConversationId, Is.EqualTo(customConversationId));
     }
 
     class Context : ScenarioContext

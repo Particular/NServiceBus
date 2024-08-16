@@ -28,7 +28,7 @@ public class When_retrying_control_message_from_error_queue : NServiceBusAccepta
             .Done(c => c.ConfirmedRetryId != null)
             .Run();
 
-        Assert.AreEqual(RetryId, context.ConfirmedRetryId);
+        Assert.That(context.ConfirmedRetryId, Is.EqualTo(RetryId));
         var processingTime = DateTimeOffsetHelper.ToDateTimeOffset(context.RetryProcessingTimestamp);
         Assert.That(processingTime, Is.EqualTo(DateTimeOffset.UtcNow).Within(TimeSpan.FromMinutes(1)));
     }

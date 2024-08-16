@@ -10,7 +10,7 @@ public class MessageIdExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNotEmpty(options.GetMessageId());
+        Assert.That(options.GetMessageId(), Is.Not.Empty);
     }
 
     [Test]
@@ -20,6 +20,6 @@ public class MessageIdExtensionsTests
         var options = new PublishOptions();
         options.SetMessageId(expectedMessageID);
 
-        Assert.AreEqual(expectedMessageID, options.GetMessageId());
+        Assert.That(options.GetMessageId(), Is.EqualTo(expectedMessageID));
     }
 }

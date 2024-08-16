@@ -30,7 +30,7 @@ public class When_using_custom_IDataBus : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedPayload != null)
             .Run();
 
-        Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
+        Assert.That(context.ReceivedPayload, Is.EqualTo(PayloadToSend), "The large payload should be marshalled correctly using the databus");
     }
 
     static byte[] PayloadToSend = new byte[1024 * 10];

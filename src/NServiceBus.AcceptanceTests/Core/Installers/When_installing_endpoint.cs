@@ -20,14 +20,17 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             .WithComponent(new InstallationOnlyComponent<EndpointWithInstaller>())
             .Run();
 
-        Assert.IsTrue(context.InstallerCalled, "Should run installers");
-        Assert.IsTrue(context.FeatureSetupCalled, "Should initialize Features");
-        Assert.IsFalse(context.FeatureStartupTaskCalled, "Should not start FeatureStartupTasks");
-        CollectionAssert.AreEqual(context.TransportStartupSequence, new string[]
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.InstallerCalled, Is.True, "Should run installers");
+            Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
+            Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
+        });
+        Assert.That(new string[]
         {
             $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
             $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
-        }, "Should not start the receivers");
+        }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
     }
 
     class Context : ScenarioContext

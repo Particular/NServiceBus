@@ -76,7 +76,7 @@ public class When_invoking_a_cached_message_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubMessage(), handlerContext);
 
-        Assert.IsTrue(((StubHandler)handler.Instance).HandleCalled);
+        Assert.That(((StubHandler)handler.Instance).HandleCalled, Is.True);
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class When_invoking_a_cached_message_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(stubMessage, handlerContext);
 
-        Assert.AreEqual(stubMessage, ((StubHandler)handler.Instance).HandledMessage);
+        Assert.That(((StubHandler)handler.Instance).HandledMessage, Is.EqualTo(stubMessage));
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class When_invoking_a_cached_message_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubMessage(), handlerContext);
 
-        Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
+        Assert.That(((StubHandler)handler.Instance).HandlerContext, Is.SameAs(handlerContext));
     }
 
     public class StubHandler : IHandleMessages<StubMessage>
@@ -139,7 +139,7 @@ public class When_invoking_a_cached_timeout_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubTimeoutState(), handlerContext);
 
-        Assert.IsTrue(((StubHandler)handler.Instance).TimeoutCalled);
+        Assert.That(((StubHandler)handler.Instance).TimeoutCalled, Is.True);
     }
 
     [Test]
@@ -153,7 +153,7 @@ public class When_invoking_a_cached_timeout_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(stubState, handlerContext);
 
-        Assert.AreEqual(stubState, ((StubHandler)handler.Instance).HandledState);
+        Assert.That(((StubHandler)handler.Instance).HandledState, Is.EqualTo(stubState));
     }
 
     [Test]
@@ -166,7 +166,7 @@ public class When_invoking_a_cached_timeout_handler
         var handlerContext = new TestableMessageHandlerContext();
         await handler.Invoke(new StubTimeoutState(), handlerContext);
 
-        Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
+        Assert.That(((StubHandler)handler.Instance).HandlerContext, Is.SameAs(handlerContext));
     }
 
     public class StubHandler : IHandleTimeouts<StubTimeoutState>

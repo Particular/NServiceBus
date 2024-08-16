@@ -13,7 +13,7 @@ public class DelayedDeliveryOptionExtensionsTests
         var delay = TimeSpan.FromMinutes(42);
         options.DelayDeliveryWith(delay);
 
-        Assert.AreEqual(delay, options.GetDeliveryDelay());
+        Assert.That(options.GetDeliveryDelay(), Is.EqualTo(delay));
     }
 
     [Test]
@@ -21,7 +21,7 @@ public class DelayedDeliveryOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetDeliveryDelay());
+        Assert.That(options.GetDeliveryDelay(), Is.Null);
     }
 
     [Test]
@@ -31,7 +31,7 @@ public class DelayedDeliveryOptionExtensionsTests
         var deliveryDate = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.Zero);
         options.DoNotDeliverBefore(deliveryDate);
 
-        Assert.AreEqual(deliveryDate, options.GetDeliveryDate());
+        Assert.That(options.GetDeliveryDate(), Is.EqualTo(deliveryDate));
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class DelayedDeliveryOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsNull(options.GetDeliveryDate());
+        Assert.That(options.GetDeliveryDate(), Is.Null);
     }
 
     [Test]

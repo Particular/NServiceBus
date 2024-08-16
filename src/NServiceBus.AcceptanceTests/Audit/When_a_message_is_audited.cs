@@ -23,7 +23,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
+        Assert.That(context.AuditChecksum, Is.EqualTo(context.OriginalBodyChecksum), "The body of the message sent to audit should be the same as the original message coming off the queue");
     }
 
     public static byte Checksum(byte[] data)
