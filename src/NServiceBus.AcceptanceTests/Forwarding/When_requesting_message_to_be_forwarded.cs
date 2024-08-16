@@ -18,7 +18,7 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
             .Done(c => c.GotForwardedMessage)
             .Run();
 
-        Assert.IsTrue(context.GotForwardedMessage);
+        Assert.That(context.GotForwardedMessage, Is.True);
         CollectionAssert.AreEqual(context.ForwardedHeaders, context.ReceivedHeaders, "Headers should be preserved on the forwarded message");
     }
 

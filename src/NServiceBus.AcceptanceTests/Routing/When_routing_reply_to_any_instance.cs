@@ -24,7 +24,7 @@ public class When_routing_reply_to_any_instance : NServiceBusAcceptanceTest
             .Done(c => c.ReplyReceived)
             .Run();
 
-        Assert.IsTrue(context.ReplyReceived);
+        Assert.That(context.ReplyReceived, Is.True);
         StringAssert.DoesNotContain(instanceDiscriminator, context.ReplyToAddress);
     }
 

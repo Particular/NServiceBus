@@ -22,7 +22,7 @@ public class FaultMetadataExtractorTests
 
         Assert.AreEqual("System.AggregateException", metadata["NServiceBus.ExceptionInfo.ExceptionType"]);
         Assert.AreEqual(exception.ToString(), metadata["NServiceBus.ExceptionInfo.StackTrace"]);
-        Assert.IsTrue(metadata.ContainsKey("NServiceBus.TimeOfFailure"));
+        Assert.That(metadata.ContainsKey("NServiceBus.TimeOfFailure"), Is.True);
 
         Assert.AreEqual("System.Exception", metadata["NServiceBus.ExceptionInfo.InnerExceptionType"]);
         Assert.AreEqual("A fake help link", metadata["NServiceBus.ExceptionInfo.HelpLink"]);

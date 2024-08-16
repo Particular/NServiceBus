@@ -20,7 +20,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
             using (var synchronizedStorageSession = configuration.CreateStorageSession())
             {
                 var sessionCreated = await synchronizedStorageSession.TryOpen(outboxTransaction, contextBag);
-                Assert.IsTrue(sessionCreated);
+                Assert.That(sessionCreated, Is.True);
 
                 var readBeforeCreate = await configuration.SagaStorage.Get<TestSagaData>(nameof(TestSagaData.SomeId),
                     sagaData.SomeId, synchronizedStorageSession, contextBag);

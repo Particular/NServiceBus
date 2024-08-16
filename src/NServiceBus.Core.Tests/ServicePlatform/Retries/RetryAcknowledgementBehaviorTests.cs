@@ -32,7 +32,7 @@ public class RetryAcknowledgementBehaviorTests
             context.Message.Headers["ServiceControl.Retry.UniqueMessageId"],
             outgoingMessage.Message.Headers["ServiceControl.Retry.UniqueMessageId"]);
 
-        Assert.IsTrue(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"));
+        Assert.That(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"), Is.True);
 
         Assert.AreEqual(0, outgoingMessage.Message.Body.Length);
 
@@ -41,7 +41,7 @@ public class RetryAcknowledgementBehaviorTests
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
         Assert.AreEqual(addressTag.Destination, acknowledgementQueue);
 
-        Assert.IsTrue(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _));
+        Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.True);
     }
 
     [Test]

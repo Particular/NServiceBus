@@ -31,7 +31,7 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
         Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSent));
         Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded), nameof(processingStarted));
         Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded), nameof(timeSent));
-        Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint, nameof(context.IsMessageHandledByTheAuditEndpoint));
+        Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.True, nameof(context.IsMessageHandledByTheAuditEndpoint));
     }
 
     public class Context : ScenarioContext

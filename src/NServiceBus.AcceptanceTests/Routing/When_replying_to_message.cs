@@ -20,7 +20,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.SendingEndpointGotResponse);
+        Assert.That(ctx.SendingEndpointGotResponse, Is.True);
         Assert.That(ctx.OtherEndpointGotResponse, Is.False);
     }
 
@@ -37,7 +37,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.SendingEndpointGotResponse);
+        Assert.That(ctx.SendingEndpointGotResponse, Is.True);
         StringAssert.DoesNotContain(instanceDiscriminator, ctx.ReplyToAddress);
     }
 
@@ -53,7 +53,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.OtherEndpointGotResponse)
             .Run();
 
-        Assert.IsTrue(ctx.OtherEndpointGotResponse);
+        Assert.That(ctx.OtherEndpointGotResponse, Is.True);
         Assert.That(ctx.SendingEndpointGotResponse, Is.False);
     }
 

@@ -15,8 +15,8 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.IsTrue(context.Done);
-        Assert.IsTrue(context.InputQueue.StartsWith("OverriddenInputQueue"));
+        Assert.That(context.Done, Is.True);
+        Assert.That(context.InputQueue.StartsWith("OverriddenInputQueue"), Is.True);
     }
 
     public class MyEndpoint : EndpointConfigurationBuilder

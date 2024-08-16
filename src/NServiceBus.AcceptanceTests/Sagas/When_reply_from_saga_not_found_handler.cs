@@ -21,10 +21,10 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
             .Done(c => c.ReplyReceived)
             .Run();
 
-        Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")));
-        Assert.IsTrue(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")));
-        Assert.IsTrue(context.Logs.Count(m => m.Message.Equals("Could not find any started sagas for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'. Going to invoke SagaNotFoundHandlers.")) == 1);
-        Assert.IsTrue(context.ReplyReceived);
+        Assert.That(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")), Is.True);
+        Assert.That(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+ReceiverWithSaga+NotFoundHandlerSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'.")), Is.True);
+        Assert.That(context.Logs.Count(m => m.Message.Equals("Could not find any started sagas for message type 'NServiceBus.AcceptanceTests.Sagas.When_reply_from_saga_not_found_handler+MessageToSaga'. Going to invoke SagaNotFoundHandlers.")) == 1, Is.True);
+        Assert.That(context.ReplyReceived, Is.True);
     }
 
     public class Context : ScenarioContext

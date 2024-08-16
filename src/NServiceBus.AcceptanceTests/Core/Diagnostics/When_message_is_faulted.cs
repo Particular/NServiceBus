@@ -37,7 +37,7 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
 
         Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(context.TimeSentOnTheFailingMessageWhenItWasHandled), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
         Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded), nameof(processingStarted));
-        Assert.IsTrue(context.IsMessageHandledByTheFaultEndpoint, nameof(context.IsMessageHandledByTheFaultEndpoint));
+        Assert.That(context.IsMessageHandledByTheFaultEndpoint, Is.True, nameof(context.IsMessageHandledByTheFaultEndpoint));
     }
 
     public class Context : ScenarioContext

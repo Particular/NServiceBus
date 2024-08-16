@@ -141,7 +141,7 @@ public class MessageMapperTests
 
         Assert.IsNotNull(messageInstance);
         Assert.AreEqual(typeof(SampleMessageClass), messageInstance.GetType());
-        Assert.IsTrue(messageInstance.CtorInvoked);
+        Assert.That(messageInstance.CtorInvoked, Is.True);
     }
 
     [Test]

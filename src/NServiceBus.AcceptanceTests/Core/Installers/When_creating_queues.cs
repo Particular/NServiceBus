@@ -39,7 +39,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
     }
 
     [Test]
@@ -62,7 +62,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
 
         CollectionAssert.DoesNotContain(context.SendingAddresses, errorQueueName);
         CollectionAssert.DoesNotContain(context.SendingAddresses, auditQueueName);
@@ -84,7 +84,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
 
         CollectionAssert.AreEqual(new List<string>
         {

@@ -22,7 +22,7 @@ public class ConventionsTests
     public void IsMessageType_should_return_true_for_IMessage()
     {
         var conventions = new Conventions();
-        Assert.IsTrue(conventions.IsMessageType(typeof(MyMessage)));
+        Assert.That(conventions.IsMessageType(typeof(MyMessage)), Is.True);
     }
 
     public class MyMessage : IMessage
@@ -34,7 +34,7 @@ public class ConventionsTests
     public void IsMessageType_should_return_true_for_ICommand()
     {
         var conventions = new Conventions();
-        Assert.IsTrue(conventions.IsMessageType(typeof(MyCommand)));
+        Assert.That(conventions.IsMessageType(typeof(MyCommand)), Is.True);
     }
 
     public class MyCommand : ICommand
@@ -46,7 +46,7 @@ public class ConventionsTests
     public void IsMessageType_should_return_true_for_IEvent()
     {
         var conventions = new Conventions();
-        Assert.IsTrue(conventions.IsMessageType(typeof(MyEvent)));
+        Assert.That(conventions.IsMessageType(typeof(MyEvent)), Is.True);
     }
 
     public class MyEvent : IEvent
@@ -59,7 +59,7 @@ public class ConventionsTests
     {
         var conventions = new Conventions();
         conventions.AddSystemMessagesConventions(type => type == typeof(MySystemMessage));
-        Assert.IsTrue(conventions.IsMessageType(typeof(MySystemMessage)));
+        Assert.That(conventions.IsMessageType(typeof(MySystemMessage)), Is.True);
     }
 
     public class MySystemMessage
@@ -105,7 +105,7 @@ public class ConventionsTests
             var conventions = new Conventions();
             conventions.DefineCommandTypeConventions(t => t.Assembly == typeof(Conventions).Assembly ||
                                            t == typeof(MyConventionCommand));
-            Assert.IsTrue(conventions.IsCommandType(typeof(MyConventionCommand)));
+            Assert.That(conventions.IsCommandType(typeof(MyConventionCommand)), Is.True);
         }
 
         public class MyConventionCommand
@@ -118,7 +118,7 @@ public class ConventionsTests
             var conventions = new Conventions();
 
             conventions.DefineMessageTypeConvention(t => t.Assembly == typeof(Conventions).Assembly || t == typeof(MyConventionMessage));
-            Assert.IsTrue(conventions.IsMessageType(typeof(MyConventionMessage)));
+            Assert.That(conventions.IsMessageType(typeof(MyConventionMessage)), Is.True);
         }
 
         public class MyConventionMessage
@@ -131,7 +131,7 @@ public class ConventionsTests
             var conventions = new Conventions();
             conventions.DefineEventTypeConventions(t => t.Assembly == typeof(Conventions).Assembly ||
                                            t == typeof(MyConventionEvent));
-            Assert.IsTrue(conventions.IsEventType(typeof(MyConventionEvent)));
+            Assert.That(conventions.IsEventType(typeof(MyConventionEvent)), Is.True);
         }
 
         public class MyConventionEvent
@@ -147,7 +147,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsCommandType(typeof(MyConventionCommand)));
+            Assert.That(conventions.IsCommandType(typeof(MyConventionCommand)), Is.True);
         }
 
         [Test]
@@ -155,7 +155,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsEventType(typeof(MyConventionEvent)));
+            Assert.That(conventions.IsEventType(typeof(MyConventionEvent)), Is.True);
         }
 
         [Test]
@@ -163,7 +163,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsMessageType(typeof(MyConventionMessage)));
+            Assert.That(conventions.IsMessageType(typeof(MyConventionMessage)), Is.True);
         }
 
         [Test]
@@ -171,7 +171,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsCommandType(typeof(DefaultConventionCommand)));
+            Assert.That(conventions.IsCommandType(typeof(DefaultConventionCommand)), Is.True);
         }
 
         [Test]
@@ -179,7 +179,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsEventType(typeof(DefaultConventionEvent)));
+            Assert.That(conventions.IsEventType(typeof(DefaultConventionEvent)), Is.True);
         }
 
         [Test]
@@ -187,7 +187,7 @@ public class ConventionsTests
         {
             var conventions = new Conventions();
             conventions.Add(new MyConvention());
-            Assert.IsTrue(conventions.IsMessageType(typeof(DefaultConventionMessage)));
+            Assert.That(conventions.IsMessageType(typeof(DefaultConventionMessage)), Is.True);
         }
 
         class DefaultConventionCommand : ICommand { }

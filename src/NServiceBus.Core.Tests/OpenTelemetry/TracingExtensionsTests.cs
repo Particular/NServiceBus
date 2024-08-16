@@ -23,7 +23,7 @@ public class TracingExtensionsTests
 
         await pipeline.Invoke(new FakeRootContext(), null);
 
-        Assert.IsTrue(invokedPipeline);
+        Assert.That(invokedPipeline, Is.True);
     }
 
     [Test]

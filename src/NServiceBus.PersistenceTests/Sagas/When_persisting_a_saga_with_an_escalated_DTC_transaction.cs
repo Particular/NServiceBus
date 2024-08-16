@@ -85,7 +85,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
         Assert.NotNull(notUpdatedSagaData);
         Assert.AreEqual("Unchanged", notUpdatedSagaData.LastUpdatedBy);
         Assert.That(enlistmentNotifier.CommitWasCalled, Is.False);
-        Assert.IsTrue(enlistmentNotifier.RollbackWasCalled);
+        Assert.That(enlistmentNotifier.RollbackWasCalled, Is.True);
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>

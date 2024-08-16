@@ -20,7 +20,7 @@ public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanc
             .Done(c => c.NestedMessageReceived)
             .Run(TimeSpan.FromSeconds(15));
 
-        Assert.IsTrue(context.NestedMessageReceived, "the serialization should the nested message should not be skipped");
+        Assert.That(context.NestedMessageReceived, Is.True, "the serialization should the nested message should not be skipped");
         Assert.AreEqual("Some property value for NestedMessage", context.NestedMessagePropertyValue, "the message sould be correctly serialized");
         Assert.That(context.MessageWithSkippedSerializationReceived, Is.False, "NServiceBus should discard messages without a body");
     }

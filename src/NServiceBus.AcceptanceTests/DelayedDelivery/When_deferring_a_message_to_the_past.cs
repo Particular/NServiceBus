@@ -26,7 +26,7 @@ public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.IsTrue(context.MessageReceived);
+        Assert.That(context.MessageReceived, Is.True);
     }
 
     public class Context : ScenarioContext

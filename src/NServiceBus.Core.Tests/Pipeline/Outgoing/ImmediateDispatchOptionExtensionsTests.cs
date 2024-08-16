@@ -19,6 +19,6 @@ public class ImmediateDispatchOptionExtensionsTests
         var options = new SendOptions();
         options.RequireImmediateDispatch();
 
-        Assert.IsTrue(options.IsImmediateDispatchSet());
+        Assert.That(options.IsImmediateDispatchSet(), Is.True);
     }
 }

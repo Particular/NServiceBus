@@ -120,7 +120,7 @@ public class RoutingToDispatchConnectorTests
                 return Task.CompletedTask;
             });
 
-        Assert.IsTrue(headers.ContainsKey("CustomHeader"));
+        Assert.That(headers.ContainsKey("CustomHeader"), Is.True);
     }
 
     [Test]
@@ -140,7 +140,7 @@ public class RoutingToDispatchConnectorTests
                 return Task.CompletedTask;
             });
 
-        Assert.IsTrue(dispatched);
+        Assert.That(dispatched, Is.True);
     }
 
     [Test]
@@ -157,7 +157,7 @@ public class RoutingToDispatchConnectorTests
                 return Task.CompletedTask;
             });
 
-        Assert.IsTrue(dispatched);
+        Assert.That(dispatched, Is.True);
     }
 
     [Test]

@@ -25,7 +25,7 @@ public class ExtensionMethodsTests
         var customTypeResult = typeof(Target).IsSystemType();
         var systemTypeResult = typeof(string).IsSystemType();
 
-        Assert.IsTrue(systemTypeResult, "Expected string to be a system type.");
+        Assert.That(systemTypeResult, Is.True, "Expected string to be a system type.");
         Assert.That(customTypeResult, Is.False, "Expected Target to be a custom type.");
     }
 
@@ -43,7 +43,7 @@ public class ExtensionMethodsTests
     [Test]
     public void Should_return_true_for_particular_assembly()
     {
-        Assert.IsTrue(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly());
+        Assert.That(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly(), Is.True);
     }
 
     [Test]
