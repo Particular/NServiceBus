@@ -17,9 +17,9 @@
             var routes = source.GenerateWithBestPracticeEnforcement(new Conventions());
             var routedTypes = routes.Select(r => r.EventType).ToArray();
 
-            CollectionAssert.Contains(routedTypes, typeof(Event));
-            CollectionAssert.DoesNotContain(routedTypes, typeof(NonMessage));
-            CollectionAssert.DoesNotContain(routedTypes, typeof(NonEvent));
+            Assert.That(routedTypes, Has.Member(typeof(Event)));
+            Assert.That(routedTypes, Has.No.Member(typeof(NonMessage)));
+            Assert.That(routedTypes, Has.No.Member(typeof(NonEvent)));
         }
 
         [Test]
@@ -29,8 +29,8 @@
             var routes = source.GenerateWithBestPracticeEnforcement(new Conventions());
             var routedTypes = routes.Select(r => r.EventType).ToArray();
 
-            CollectionAssert.Contains(routedTypes, typeof(Event));
-            CollectionAssert.DoesNotContain(routedTypes, typeof(ExcludedEvent));
+            Assert.That(routedTypes, Has.Member(typeof(Event)));
+            Assert.That(routedTypes, Has.No.Member(typeof(ExcludedEvent)));
         }
 
         [Test]
@@ -40,7 +40,7 @@
             var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
             var routedTypes = routes.Select(r => r.EventType);
 
-            CollectionAssert.Contains(routedTypes, typeof(Event));
+            Assert.That(routedTypes, Has.Member(typeof(Event)));
         }
 
         [Test]

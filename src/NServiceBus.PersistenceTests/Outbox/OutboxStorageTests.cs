@@ -81,7 +81,7 @@ public class OutboxStorageTests
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.That(message, Is.Not.Null);
-        CollectionAssert.IsEmpty(message.TransportOperations);
+        Assert.That(message.TransportOperations, Is.Empty);
     }
 
     [Test]

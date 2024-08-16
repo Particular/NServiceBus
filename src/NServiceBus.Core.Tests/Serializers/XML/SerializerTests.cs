@@ -192,7 +192,7 @@ namespace NServiceBus.Serializers.XML.Test
             };
             var result = ExecuteSerializer.ForMessage<MessageWithArrayList>(m3 => m3.ArrayList = expected);
 
-            CollectionAssert.AreEqual(expected, result.ArrayList);
+            Assert.That(result.ArrayList, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace NServiceBus.Serializers.XML.Test
             };
             var result = ExecuteSerializer.ForMessage<MessageWithHashtable>(m3 => m3.Hashtable = expected);
 
-            CollectionAssert.AreEqual(expected, result.Hashtable);
+            Assert.That(result.Hashtable, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]

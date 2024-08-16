@@ -33,6 +33,6 @@ public class When_using_unicode_characters_in_headers : NServiceBusTransportTest
         var messageContext = await messageProcessed.Task;
 
         Assert.That(messageContext.Headers, Is.Not.Empty);
-        CollectionAssert.IsSupersetOf(messageContext.Headers, headers);
+        Assert.That(messageContext.Headers, Is.SupersetOf(headers));
     }
 }

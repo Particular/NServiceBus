@@ -17,7 +17,7 @@ public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
 
         var retrieved = await GetById<SagaWithComplexTypeEntity>(sagaData.Id);
 
-        CollectionAssert.AreEqual(sagaData.Ints, retrieved.Ints);
+        Assert.That(retrieved.Ints, Is.EqualTo(sagaData.Ints).AsCollection);
         Assert.That(ReferenceEquals(sagaData.Ints, retrieved.Ints), Is.False);
     }
 

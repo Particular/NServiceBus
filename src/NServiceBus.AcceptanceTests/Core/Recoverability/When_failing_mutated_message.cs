@@ -24,7 +24,7 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
 
         var errorBody = context.FailedMessages.Single().Value.Single().Body;
 
-        CollectionAssert.AreEqual(context.OriginalBody, errorBody.ToArray(), "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
+        Assert.That(errorBody.ToArray(), Is.EqualTo(context.OriginalBody).AsCollection, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
     }
 
     class Context : ScenarioContext
