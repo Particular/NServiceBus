@@ -67,7 +67,7 @@ class TestingMetricListener : IDisposable
     {
         if (expected == 0)
         {
-            Assert.False(ReportedMeters.ContainsKey(metricName), $"Should not have '{metricName}' metric reported.");
+            Assert.That(ReportedMeters.ContainsKey(metricName), Is.False, $"Should not have '{metricName}' metric reported.");
         }
         else
         {

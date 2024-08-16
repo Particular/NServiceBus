@@ -20,7 +20,7 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
             .Run();
 
         Assert.True(context.HandlerInvoked, "Regular handler should be invoked");
-        Assert.False(context.TimeoutHandlerInvoked, "Timeout handler should not be invoked");
+        Assert.That(context.TimeoutHandlerInvoked, Is.False, "Timeout handler should not be invoked");
     }
 
     public class Context : ScenarioContext

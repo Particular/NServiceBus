@@ -31,7 +31,7 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
             .Run();
 
         Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
-        Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
+        Assert.That(context.SagaReceivedAnotherMessage, Is.False, "AnotherMessage should not be delivered to the saga after completion");
     }
 
     public class Context : ScenarioContext

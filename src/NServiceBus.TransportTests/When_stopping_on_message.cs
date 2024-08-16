@@ -38,6 +38,6 @@ public class When_stopping_on_message : NServiceBusTransportTest
 
         await pumpTask;
 
-        Assert.False(onMessageToken.IsCancellationRequested);
+        Assert.That(onMessageToken.IsCancellationRequested, Is.False);
     }
 }

@@ -44,7 +44,7 @@ public class MessageHandlerRegistryTests
         await timeoutHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
 
         Assert.True(timeoutInstance.TimeoutCalled);
-        Assert.False(timeoutInstance.HandlerCalled);
+        Assert.That(timeoutInstance.HandlerCalled, Is.False);
 
         var regularHandler = handlers.SingleOrDefault(h => !h.IsTimeoutHandler);
 
@@ -55,7 +55,7 @@ public class MessageHandlerRegistryTests
         regularHandler.Instance = regularInstance;
         await regularHandler.Invoke(new MyMessage(), new TestableInvokeHandlerContext());
 
-        Assert.False(regularInstance.TimeoutCalled);
+        Assert.That(regularInstance.TimeoutCalled, Is.False);
         Assert.True(regularInstance.HandlerCalled);
     }
 

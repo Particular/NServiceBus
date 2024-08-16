@@ -143,7 +143,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.False(dependingFeature.IsActive);
+        Assert.That(dependingFeature.IsActive, Is.False);
         Assert.IsEmpty(order);
     }
 

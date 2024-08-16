@@ -62,7 +62,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
             .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
             .Run();
 
-        Assert.False(context.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called");
+        Assert.That(context.MessageThatIsEnlistedHandlerWasCalled, Is.False, "The transactional handler should not be called");
     }
 
     public class Context : ScenarioContext
