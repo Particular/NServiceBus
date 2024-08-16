@@ -14,7 +14,7 @@ public class When_mapping_usinggenerics
         var mapper = new MessageMapper();
         var genericClassType = typeof(GenericAbstractCommand<>);
         mapper.Initialize(new[] { genericClassType });
-        Assert.Null(mapper.GetMappedTypeFor(genericClassType));
+        Assert.That(mapper.GetMappedTypeFor(genericClassType), Is.Null);
     }
     public abstract class GenericAbstractCommand<T> : IMessage where T : Data
     {
@@ -27,7 +27,7 @@ public class When_mapping_usinggenerics
         var mapper = new MessageMapper();
         var abstractClassType = typeof(GenericCommand<>);
         mapper.Initialize(new[] { abstractClassType });
-        Assert.Null(mapper.GetMappedTypeFor(abstractClassType));
+        Assert.That(mapper.GetMappedTypeFor(abstractClassType), Is.Null);
     }
 
     public class GenericCommand<T> : IMessage where T : Data
@@ -84,7 +84,7 @@ public class When_mapping_usinggenerics
         var mapper = new MessageMapper();
         var abstractClassType = typeof(SimpleAbstractClassWithMethods);
         mapper.Initialize(new[] { abstractClassType });
-        Assert.Null(mapper.GetMappedTypeFor(abstractClassType));
+        Assert.That(mapper.GetMappedTypeFor(abstractClassType), Is.Null);
     }
     public abstract class SimpleAbstractClassWithMethods : IMessage
     {
@@ -100,7 +100,7 @@ public class When_mapping_usinggenerics
         var mapper = new MessageMapper();
         var genericInterfaceType = typeof(IInterfaceGenericWithProperties<>);
         mapper.Initialize(new[] { genericInterfaceType });
-        Assert.Null(mapper.GetMappedTypeFor(genericInterfaceType));
+        Assert.That(mapper.GetMappedTypeFor(genericInterfaceType), Is.Null);
     }
 
     public interface IInterfaceGenericWithProperties<T> : IMessage where T : Data
@@ -115,7 +115,7 @@ public class When_mapping_usinggenerics
         var mapper = new MessageMapper();
         var genericInterfaceType = typeof(IInterfaceGenericWithMethods<>);
         mapper.Initialize(new[] { genericInterfaceType });
-        Assert.Null(mapper.GetMappedTypeFor(genericInterfaceType));
+        Assert.That(mapper.GetMappedTypeFor(genericInterfaceType), Is.Null);
     }
     public interface IInterfaceGenericWithMethods<in T> : IMessage where T : Data
     {

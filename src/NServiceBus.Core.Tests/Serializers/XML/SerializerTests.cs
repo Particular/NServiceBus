@@ -60,7 +60,7 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (MessageImplementingISerializable)serializer.Deserialize(stream.ToArray())[0];
 
-                Assert.Null(result.ReadOnlyProperty);
+                Assert.That(result.ReadOnlyProperty, Is.Null);
             }
         }
 
