@@ -25,8 +25,11 @@ public class When_configuring_transport_twice
 
         await endpoint.Stop();
 
-        Assert.That(transport1.Initialized, Is.False, "First transport should not be initialized");
-        Assert.That(transport2.Initialized, Is.True, "Second transport should be initialized");
+        Assert.Multiple(() =>
+        {
+            Assert.That(transport1.Initialized, Is.False, "First transport should not be initialized");
+            Assert.That(transport2.Initialized, Is.True, "Second transport should be initialized");
+        });
     }
 
     class FakeTransportDefinition : TransportDefinition, IMessageDrivenSubscriptionTransport

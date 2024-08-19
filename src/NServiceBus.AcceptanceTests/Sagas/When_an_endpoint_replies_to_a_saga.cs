@@ -23,7 +23,7 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.AreEqual(context.RunId, context.ResponseRunId);
+        Assert.That(context.ResponseRunId, Is.EqualTo(context.RunId));
     }
 
     public class Context : ScenarioContext

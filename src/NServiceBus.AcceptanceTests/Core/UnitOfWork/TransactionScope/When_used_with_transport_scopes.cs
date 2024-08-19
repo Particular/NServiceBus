@@ -27,7 +27,7 @@ public class When_used_with_transport_scopes : NServiceBusAcceptanceTest
                 .Run();
         });
 
-        Assert.True(exception.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));
+        Assert.That(exception.Message, Does.Contain("A Transaction scope unit of work can't be used when the transport already uses a scope"));
     }
 
     public class ScopeEndpoint : EndpointConfigurationBuilder

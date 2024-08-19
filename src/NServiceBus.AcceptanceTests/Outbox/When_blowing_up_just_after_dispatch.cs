@@ -21,7 +21,7 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
             .Done(c => c.OrderAckReceived)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.IsTrue(context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
+        Assert.That(context.OrderAckReceived, Is.True, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
     }
 
     public class Context : ScenarioContext

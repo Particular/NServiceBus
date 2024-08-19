@@ -21,7 +21,7 @@ class When_correlating_special_chars : NServiceBusAcceptanceTest
             .Done(c => c.RehydratedValueForCorrelatedHandler != null)
             .Run();
 
-        Assert.AreEqual(propertyValue, context.RehydratedValueForCorrelatedHandler);
+        Assert.That(context.RehydratedValueForCorrelatedHandler, Is.EqualTo(propertyValue));
     }
 
     public class Context : ScenarioContext

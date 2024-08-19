@@ -21,7 +21,7 @@ public class ReplyConnectorTests
 
         await router.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.AreEqual(1, context.Headers.Count);
-        Assert.AreEqual(MessageIntent.Reply.ToString(), context.Headers[Headers.MessageIntent]);
+        Assert.That(context.Headers.Count, Is.EqualTo(1));
+        Assert.That(context.Headers[Headers.MessageIntent], Is.EqualTo(MessageIntent.Reply.ToString()));
     }
 }

@@ -18,7 +18,7 @@ public class When_message_has_no_id_header : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
+        Assert.That(string.IsNullOrWhiteSpace(context.MessageId), Is.False);
     }
 
     class CorruptionBehavior : IBehavior<IDispatchContext, IDispatchContext>

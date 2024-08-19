@@ -20,6 +20,6 @@ static class Types
 
         Console.Error.WriteViolators(violators);
 
-        Assert.IsEmpty(violators);
+        Assert.That(violators, Is.Empty);
     }
 }

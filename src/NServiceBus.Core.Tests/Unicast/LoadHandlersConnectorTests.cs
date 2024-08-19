@@ -41,7 +41,7 @@ public class LoadHandlersConnectorTests
             {
                 var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
-                StringAssert.Contains("A TransactionScope has been created that is overriding the one created by the transport", ex.Message);
+                Assert.That(ex.Message, Does.Contain("A TransactionScope has been created that is overriding the one created by the transport"));
             }
         }
     }
@@ -61,7 +61,7 @@ public class LoadHandlersConnectorTests
             {
                 var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
-                StringAssert.Contains("The TransactionScope created by the transport has been suppressed", ex.Message);
+                Assert.That(ex.Message, Does.Contain("The TransactionScope created by the transport has been suppressed"));
             }
         }
     }

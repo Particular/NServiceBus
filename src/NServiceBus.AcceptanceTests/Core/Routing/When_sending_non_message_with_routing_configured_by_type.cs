@@ -17,7 +17,7 @@ public class When_sending_non_message_with_routing_configured_by_type : NService
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Cannot configure routing for type", exception.ToString());
+        Assert.That(exception.ToString(), Does.Contain("Cannot configure routing for type"));
     }
 
     public class Context : ScenarioContext

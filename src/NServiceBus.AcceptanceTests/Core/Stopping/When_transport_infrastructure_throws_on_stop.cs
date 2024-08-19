@@ -20,8 +20,8 @@ public class When_transport_infrastructure_throws_on_stop : NServiceBusAcceptanc
             .Run();
 
         var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("Shutdown of the transport") && item.Level == LogLevel.Error);
-        Assert.IsNotNull(logItem);
-        StringAssert.Contains("Shutdown of the transport infrastructure failed. System.InvalidOperationException: ExceptionInInfrastructureStop", logItem.Message);
+        Assert.That(logItem, Is.Not.Null);
+        Assert.That(logItem.Message, Does.Contain("Shutdown of the transport infrastructure failed. System.InvalidOperationException: ExceptionInInfrastructureStop"));
     }
 
     public class EndpointThatThrowsOnInfrastructureStop : EndpointConfigurationBuilder

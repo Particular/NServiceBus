@@ -18,7 +18,7 @@ class UnicastRoutingTableTests
         ]);
 
         var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
-        Assert.AreSame(route, retrievedRoute);
+        Assert.That(retrievedRoute, Is.SameAs(route));
     }
 
     [Test]
@@ -38,7 +38,7 @@ class UnicastRoutingTableTests
         ]);
 
         var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
-        Assert.AreSame(newRoute, retrievedRoute);
+        Assert.That(retrievedRoute, Is.SameAs(newRoute));
     }
 
     [Test]

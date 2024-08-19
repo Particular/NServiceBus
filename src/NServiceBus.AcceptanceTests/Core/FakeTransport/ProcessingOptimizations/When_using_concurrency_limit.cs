@@ -54,7 +54,7 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
 
         public Task StartReceive(CancellationToken cancellationToken = default)
         {
-            Assert.AreEqual(10, pushSettings.MaxConcurrency);
+            Assert.That(pushSettings.MaxConcurrency, Is.EqualTo(10));
 
             return Task.CompletedTask;
         }

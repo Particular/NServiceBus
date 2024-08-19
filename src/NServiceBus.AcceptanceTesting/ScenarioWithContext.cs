@@ -45,7 +45,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
-        TestContext.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
+        TestContext.Out.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
 
         if (runSummary.Result.Failed)
         {

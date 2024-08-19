@@ -18,7 +18,7 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.True(context.MessageReceived);
+        Assert.That(context.MessageReceived, Is.True);
     }
 
     public class UserEndpoint : EndpointConfigurationBuilder

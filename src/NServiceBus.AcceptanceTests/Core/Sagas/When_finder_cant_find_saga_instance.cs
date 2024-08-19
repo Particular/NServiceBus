@@ -21,8 +21,11 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
             .Done(c => c.SagaStarted)
             .Run();
 
-        Assert.True(context.FinderUsed);
-        Assert.True(context.SagaStarted);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.FinderUsed, Is.True);
+            Assert.That(context.SagaStarted, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

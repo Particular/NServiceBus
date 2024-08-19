@@ -34,11 +34,14 @@ public class When_scope_complete_throws : NServiceBusTransportTest
 
         var errorContext = await onErrorCalled.Task;
 
-        Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
+        Assert.Multiple(() =>
+        {
+            Assert.That(errorContext.Exception, Is.InstanceOf<TransactionAbortedException>());
 
-        // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
-        // dispose throws the message might be picked up before the counter is incremented
-        Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
+            // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
+            // dispose throws the message might be picked up before the counter is incremented
+            Assert.That(errorContext.ImmediateProcessingFailures, Is.LessThanOrEqualTo(1));
+        });
     }
 
     class EnlistmentWhichFailsDuringPrepare : IEnlistmentNotification

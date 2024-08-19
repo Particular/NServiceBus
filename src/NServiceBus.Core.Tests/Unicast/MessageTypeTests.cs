@@ -11,8 +11,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType(typeof(TestMessage));
 
-        Assert.AreEqual(messageType.TypeName, typeof(TestMessage).FullName);
-        Assert.AreEqual(messageType.Version, typeof(TestMessage).Assembly.GetName().Version);
+        Assert.Multiple(() =>
+        {
+            Assert.That(typeof(TestMessage).FullName, Is.EqualTo(messageType.TypeName));
+            Assert.That(typeof(TestMessage).Assembly.GetName().Version, Is.EqualTo(messageType.Version));
+        });
     }
 
     [Test]
@@ -20,8 +23,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType(typeof(TestMessage).AssemblyQualifiedName);
 
-        Assert.AreEqual(messageType.TypeName, typeof(TestMessage).FullName);
-        Assert.AreEqual(messageType.Version, typeof(TestMessage).Assembly.GetName().Version);
+        Assert.Multiple(() =>
+        {
+            Assert.That(typeof(TestMessage).FullName, Is.EqualTo(messageType.TypeName));
+            Assert.That(typeof(TestMessage).Assembly.GetName().Version, Is.EqualTo(messageType.Version));
+        });
     }
 
     [Test]
@@ -29,8 +35,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType("TestMessage", "1.2.3.4");
 
-        Assert.AreEqual(messageType.TypeName, "TestMessage");
-        Assert.AreEqual(messageType.Version, new Version(1, 2, 3, 4));
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageType.TypeName, Is.EqualTo("TestMessage"));
+            Assert.That(new Version(1, 2, 3, 4), Is.EqualTo(messageType.Version));
+        });
     }
 
 

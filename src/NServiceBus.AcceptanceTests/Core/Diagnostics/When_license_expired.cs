@@ -20,11 +20,11 @@ public class When_license_expired : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+        Assert.That(context.HasDiagnosticLicensingHeaders, Is.True);
 
         if (Debugger.IsAttached)
         {
-            Assert.True(context.Logs.Any(m => m.Level == LogLevel.Error && m.Message.StartsWith("Your license has expired")), "Error should be logged");
+            Assert.That(context.Logs.Any(m => m.Level == LogLevel.Error && m.Message.StartsWith("Your license has expired")), Is.True, "Error should be logged");
         }
     }
 

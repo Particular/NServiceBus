@@ -23,7 +23,7 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
             .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
             .Run();
 
-        Assert.IsTrue(context.IsMessageHandlingComplete);
+        Assert.That(context.IsMessageHandlingComplete, Is.True);
     }
 
     class Context : ScenarioContext

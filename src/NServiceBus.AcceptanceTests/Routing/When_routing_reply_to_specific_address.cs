@@ -27,8 +27,8 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
             .Done(c => c.ReplyReceived)
             .Run();
 
-        Assert.IsTrue(context.ReplyReceived);
-        StringAssert.Contains(replyHandlerAddress, context.ReplyToAddress);
+        Assert.That(context.ReplyReceived, Is.True);
+        Assert.That(context.ReplyToAddress, Does.Contain(replyHandlerAddress));
     }
 
     class Context : ScenarioContext

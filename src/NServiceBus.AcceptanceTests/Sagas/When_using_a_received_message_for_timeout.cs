@@ -21,8 +21,11 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
             .Done(c => c.TimeoutReceived)
             .Run();
 
-        Assert.True(context.TimeoutReceived);
-        Assert.AreEqual(1, context.HandlerCalled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.TimeoutReceived, Is.True);
+            Assert.That(context.HandlerCalled, Is.EqualTo(1));
+        });
     }
 
     public class Context : ScenarioContext

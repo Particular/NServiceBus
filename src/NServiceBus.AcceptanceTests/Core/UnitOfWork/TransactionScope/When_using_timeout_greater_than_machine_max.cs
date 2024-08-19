@@ -17,7 +17,7 @@ public class When_using_timeout_greater_than_machine_max : NServiceBusAcceptance
                 .Run();
         });
 
-        Assert.True(exception.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
+        Assert.That(exception.Message, Does.Contain("Timeout requested is longer than the maximum value for this machine"));
     }
 
     public class ScopeEndpoint : EndpointConfigurationBuilder

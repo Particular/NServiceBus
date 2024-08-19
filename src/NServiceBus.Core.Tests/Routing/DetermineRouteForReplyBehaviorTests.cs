@@ -35,7 +35,7 @@ public class DetermineRouteForReplyBehaviorTests
             return Task.CompletedTask;
         });
 
-        Assert.AreEqual("ReplyAddressOfIncomingMessage", addressTag.Destination);
+        Assert.That(addressTag.Destination, Is.EqualTo("ReplyAddressOfIncomingMessage"));
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class DetermineRouteForReplyBehaviorTests
             return Task.CompletedTask;
         });
 
-        Assert.AreEqual("CustomReplyToAddress", addressTag.Destination);
+        Assert.That(addressTag.Destination, Is.EqualTo("CustomReplyToAddress"));
     }
 
     static TestableOutgoingReplyContext CreateContext(OutgoingLogicalMessage message)

@@ -16,7 +16,7 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
             .Done(c => c.MessageAudited)
             .Run();
 
-        Assert.True(context.MessageAudited);
+        Assert.That(context.MessageAudited, Is.True);
     }
 
     public class UserEndpoint : EndpointConfigurationBuilder

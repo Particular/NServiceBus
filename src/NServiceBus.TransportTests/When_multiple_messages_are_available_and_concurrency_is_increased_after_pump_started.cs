@@ -58,7 +58,10 @@ public class When_multiple_messages_are_available_and_concurrency_is_increased_a
             TestTimeoutCancellationToken.ThrowIfCancellationRequested();
         }
 
-        Assert.AreEqual(newConcurrencyLevel, maximumConcurrentMessages, "should not process more messages than configured at once");
-        Assert.AreEqual(startConcurrencyLevel * 2, messagesProcessed, "should process all enqueued messages");
+        Assert.Multiple(() =>
+        {
+            Assert.That(maximumConcurrentMessages, Is.EqualTo(newConcurrencyLevel), "should not process more messages than configured at once");
+            Assert.That(messagesProcessed, Is.EqualTo(startConcurrencyLevel * 2), "should process all enqueued messages");
+        });
     }
 }

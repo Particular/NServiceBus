@@ -22,19 +22,25 @@ public class TransportOperationsTests
 
         var result = new TransportOperations(operations);
 
-        Assert.AreEqual(1, result.MulticastTransportOperations.Count);
+        Assert.That(result.MulticastTransportOperations.Count, Is.EqualTo(1));
         var multicastOp = result.MulticastTransportOperations.Single();
-        Assert.AreEqual(multicastOperation.Message, multicastOp.Message);
-        Assert.AreEqual((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType, multicastOp.MessageType);
-        Assert.AreEqual(multicastOperation.Properties, multicastOp.Properties);
-        Assert.AreEqual(multicastOperation.RequiredDispatchConsistency, multicastOp.RequiredDispatchConsistency);
+        Assert.Multiple(() =>
+        {
+            Assert.That(multicastOp.Message, Is.EqualTo(multicastOperation.Message));
+            Assert.That(multicastOp.MessageType, Is.EqualTo((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType));
+            Assert.That(multicastOp.Properties, Is.EqualTo(multicastOperation.Properties));
+            Assert.That(multicastOp.RequiredDispatchConsistency, Is.EqualTo(multicastOperation.RequiredDispatchConsistency));
 
-        Assert.AreEqual(1, result.UnicastTransportOperations.Count);
+            Assert.That(result.UnicastTransportOperations.Count, Is.EqualTo(1));
+        });
         var unicastOp = result.UnicastTransportOperations.Single();
-        Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
-        Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
-        Assert.AreEqual(unicastOperation.Properties, unicastOp.Properties);
-        Assert.AreEqual(unicastOperation.RequiredDispatchConsistency, unicastOp.RequiredDispatchConsistency);
+        Assert.Multiple(() =>
+        {
+            Assert.That(unicastOp.Message, Is.EqualTo(unicastOperation.Message));
+            Assert.That(unicastOp.Destination, Is.EqualTo((unicastOperation.AddressTag as UnicastAddressTag)?.Destination));
+            Assert.That(unicastOp.Properties, Is.EqualTo(unicastOperation.Properties));
+            Assert.That(unicastOp.RequiredDispatchConsistency, Is.EqualTo(unicastOperation.RequiredDispatchConsistency));
+        });
     }
 
     [Test]
@@ -42,8 +48,11 @@ public class TransportOperationsTests
     {
         var result = new TransportOperations();
 
-        Assert.AreEqual(0, result.MulticastTransportOperations.Count);
-        Assert.AreEqual(0, result.UnicastTransportOperations.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.MulticastTransportOperations.Count, Is.EqualTo(0));
+            Assert.That(result.UnicastTransportOperations.Count, Is.EqualTo(0));
+        });
     }
 
     [Test]

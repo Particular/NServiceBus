@@ -22,7 +22,7 @@ class TestingMetricListener : IDisposable
             {
                 if (instrument.Meter.Name == sourceName)
                 {
-                    TestContext.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
+                    TestContext.Out.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
                     listener.EnableMeasurementEvents(instrument);
                     metrics.Add(instrument);
                     version = instrument.Meter.Version;
@@ -36,7 +36,7 @@ class TestingMetricListener : IDisposable
             ReadOnlySpan<KeyValuePair<string, object>> t,
             object _) =>
         {
-            TestContext.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+            TestContext.Out.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
 
             var tags = t.ToArray();
             ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);
@@ -63,12 +63,15 @@ class TestingMetricListener : IDisposable
     {
         if (expected == 0)
         {
-            Assert.False(ReportedMeters.ContainsKey(metricName), $"Should not have '{metricName}' metric reported.");
+            Assert.That(ReportedMeters.ContainsKey(metricName), Is.False, $"Should not have '{metricName}' metric reported.");
         }
         else
         {
-            Assert.True(ReportedMeters.ContainsKey(metricName), $"'{metricName}' metric was not reported.");
-            Assert.AreEqual(expected, ReportedMeters[metricName]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
+                Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
+            });
         }
     }
 

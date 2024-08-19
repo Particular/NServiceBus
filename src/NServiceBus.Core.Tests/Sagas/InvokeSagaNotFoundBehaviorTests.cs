@@ -28,7 +28,7 @@ public class InvokeSagaNotFoundBehaviorTests
 
         Assert.That(async () => await behavior.Invoke(incomingContext, ctx => Task.CompletedTask), Throws.Nothing);
 
-        Assert.False(validSagaHandler.Handled);
+        Assert.That(validSagaHandler.Handled, Is.False);
     }
 
     [Test]

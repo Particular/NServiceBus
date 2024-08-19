@@ -17,7 +17,7 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(ScopedComponent));
         }
-        Assert.True(ScopedComponent.DisposeCalled);
+        Assert.That(ScopedComponent.DisposeCalled, Is.True);
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class When_using_nested_containers
         {
             var childInstance = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
-            Assert.AreNotSame(parentInstance, childInstance);
+            Assert.That(childInstance, Is.Not.SameAs(parentInstance));
         }
     }
 
@@ -55,7 +55,7 @@ public class When_using_nested_containers
             instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
         }
 
-        Assert.AreNotSame(instance1, instance2);
+        Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class When_using_nested_containers
             instance2 = scope.ServiceProvider.GetService(typeof(TransientComponent));
         }
 
-        Assert.AreNotSame(instance1, instance2);
+        Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
     [Test]
@@ -92,7 +92,7 @@ public class When_using_nested_containers
             var instance1 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
             var instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
 
-            Assert.AreSame(instance1, instance2, "UoW's should be singleton in child container");
+            Assert.That(instance2, Is.SameAs(instance1), "UoW's should be singleton in child container");
         }
     }
 
@@ -109,7 +109,7 @@ public class When_using_nested_containers
         }
         var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
-        Assert.AreSame(instance1, instance2, "UoW's should be singletons in the root container");
+        Assert.That(instance2, Is.SameAs(instance1), "UoW's should be singletons in the root container");
     }
 
     [Test]
@@ -125,7 +125,7 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(ComponentThatDependsOfSingleton));
         }
-        Assert.False(SingletonComponent.DisposeCalled);
+        Assert.That(SingletonComponent.DisposeCalled, Is.False);
     }
 
     [Test]
@@ -143,8 +143,12 @@ public class When_using_nested_containers
         {
             scope.ServiceProvider.GetService(typeof(DisposableComponent));
         }
-        Assert.False(AnotherDisposableComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
-        Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(AnotherDisposableComponent.DisposeCalled, Is.False, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
+            Assert.That(DisposableComponent.DisposeCalled, Is.True, "Dispose should be called on DisposableComponent");
+        });
     }
 
     public interface IInstanceToReplaceInNested

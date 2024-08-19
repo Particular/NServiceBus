@@ -25,7 +25,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsFalse(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.False);
     }
 
     [Test]
@@ -39,7 +39,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
     }
 
     [Test]
@@ -62,10 +62,10 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
 
-        CollectionAssert.DoesNotContain(context.SendingAddresses, errorQueueName);
-        CollectionAssert.DoesNotContain(context.SendingAddresses, auditQueueName);
+        Assert.That(context.SendingAddresses, Has.No.Member(errorQueueName));
+        Assert.That(context.SendingAddresses, Has.No.Member(auditQueueName));
     }
 
     [Test]
@@ -84,22 +84,22 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsTrue(context.SetupInfrastructure);
+        Assert.That(context.SetupInfrastructure, Is.True);
 
-        CollectionAssert.AreEqual(new List<string>
+        Assert.That(context.SendingAddresses, Is.EqualTo(new List<string>
         {
            "myAudit",
            "error"
-        }, context.SendingAddresses);
+        }).AsCollection);
 
         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 
-        CollectionAssert.AreEquivalent(new List<(string basename, string discriminator)>
+        Assert.That(context.ReceivingAddresses.Select(a => (a.BaseAddress, a.Discriminator)), Is.EquivalentTo(new List<(string basename, string discriminator)>
         {
             (endpointName, null), //main input queue
             (endpointName, instanceDiscriminator), // instance-specific queue
             ("MySatelliteAddress", null)
-        }, context.ReceivingAddresses.Select(a => (a.BaseAddress, a.Discriminator)));
+        }));
     }
 
     class Context : ScenarioContext

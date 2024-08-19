@@ -17,8 +17,11 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
             .Done(c => c.MessageHandled)
             .Run();
 
-        Assert.IsFalse(context.HasFailed);
-        Assert.IsTrue(context.MessageHandled);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.HasFailed, Is.False);
+            Assert.That(context.MessageHandled, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

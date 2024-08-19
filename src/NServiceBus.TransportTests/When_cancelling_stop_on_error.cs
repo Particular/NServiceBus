@@ -45,6 +45,6 @@ public class When_cancelling_stop_on_error : NServiceBusTransportTest
 
         await StopPump(new CancellationToken(true));
 
-        Assert.True(await wasCanceled.Task, "onError was not canceled.");
+        Assert.That(await wasCanceled.Task, Is.True, "onError was not canceled.");
     }
 }

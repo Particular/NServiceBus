@@ -19,7 +19,7 @@ public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTes
             .Done(c => c.HandlerInvoked)
             .Run();
 
-        Assert.True(context.DtcTransactionPresent, "There should exists a DTC tx");
+        Assert.That(context.DtcTransactionPresent, Is.True, "There should exists a DTC tx");
     }
 
 

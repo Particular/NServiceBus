@@ -30,9 +30,9 @@ public class When_endpoint_starts : NServiceBusAcceptanceTest
         var startupDiagnoticsFileName = $"{endpointName}-configuration.txt";
 
         var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
-        Assert.True(File.Exists(pathToFile));
+        Assert.That(File.Exists(pathToFile), Is.True);
 
-        TestContext.WriteLine(File.ReadAllText(pathToFile));
+        await TestContext.Out.WriteLineAsync(await File.ReadAllTextAsync(pathToFile));
     }
 
     class Context : ScenarioContext

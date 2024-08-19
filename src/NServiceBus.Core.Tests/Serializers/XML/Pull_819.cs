@@ -19,7 +19,7 @@ public class Pull_819
             m3.GenericList = [];
         });
 
-        Assert.AreEqual("John", result.FirstName);
+        Assert.That(result.FirstName, Is.EqualTo("John"));
     }
 
     public class MessageWithXmlIgnore : MessageWithXmlIgnoreBase

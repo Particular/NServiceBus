@@ -17,7 +17,7 @@ public class When_configuring_transport : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.IsNotNull(context.TransportDefinition);
+        Assert.That(context.TransportDefinition, Is.Not.Null);
     }
 
     class Context : ScenarioContext

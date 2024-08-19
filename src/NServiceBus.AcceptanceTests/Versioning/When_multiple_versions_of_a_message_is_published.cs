@@ -41,8 +41,11 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
             .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
             .Run();
 
-        Assert.True(context.V1SubscriberGotTheMessage);
-        Assert.True(context.V2SubscriberGotTheMessage);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.V1SubscriberGotTheMessage, Is.True);
+            Assert.That(context.V2SubscriberGotTheMessage, Is.True);
+        });
     }
 
     public class Context : ScenarioContext

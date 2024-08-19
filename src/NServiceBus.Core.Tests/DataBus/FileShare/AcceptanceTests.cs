@@ -37,7 +37,7 @@ public class AcceptanceTests
         using (var stream = await dataBus.Get(key))
         using (var streamReader = new StreamReader(stream))
         {
-            Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
+            Assert.That(await streamReader.ReadToEndAsync(), Is.EqualTo(content));
         }
     }
 
@@ -53,7 +53,7 @@ public class AcceptanceTests
             using (var stream = await dataBus.Get(key))
             using (var streamReader = new StreamReader(stream))
             {
-                Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
+                Assert.That(await streamReader.ReadToEndAsync(), Is.EqualTo(content));
             }
         });
     }
@@ -68,7 +68,7 @@ public class AcceptanceTests
         using (var stream = await dataBus.Get(key.Replace(Path.DirectorySeparatorChar, pathSeparator)))
         using (var streamReader = new StreamReader(stream))
         {
-            Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
+            Assert.That(await streamReader.ReadToEndAsync(), Is.EqualTo(content));
         }
     }
 
@@ -76,7 +76,7 @@ public class AcceptanceTests
     public async Task Should_handle_max_ttl()
     {
         await Put("Test", TimeSpan.MaxValue);
-        Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_HH"))));
+        Assert.That(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_HH"))), Is.True);
     }
 
     [Test]
@@ -85,6 +85,6 @@ public class AcceptanceTests
         dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
 
         await Put("Test", TimeSpan.MaxValue);
-        Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd_HH"))));
+        Assert.That(Directory.Exists(Path.Combine(basePath, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd_HH"))), Is.True);
     }
 }

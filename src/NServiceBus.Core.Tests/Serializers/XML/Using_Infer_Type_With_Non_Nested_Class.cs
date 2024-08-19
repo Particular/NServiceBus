@@ -26,10 +26,13 @@ public class Using_Infer_Type_With_Non_Nested_Class
     {
         var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(FirstMessage), typeof(SecondMessage));
         var messageDeserialized = serializer.Deserialize(StringToByteArray(XmlWithBaseType));
-        Assert.IsInstanceOf<FirstMessage>(messageDeserialized[0]);
-        Assert.IsInstanceOf<SecondMessage>(messageDeserialized[1]);
-        Assert.IsInstanceOf<SecondMessage>(messageDeserialized[2]);
-        Assert.IsInstanceOf<SecondMessage>(messageDeserialized[3]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(messageDeserialized[0], Is.InstanceOf<FirstMessage>());
+            Assert.That(messageDeserialized[1], Is.InstanceOf<SecondMessage>());
+            Assert.That(messageDeserialized[2], Is.InstanceOf<SecondMessage>());
+            Assert.That(messageDeserialized[3], Is.InstanceOf<SecondMessage>());
+        });
     }
 
     [Test]
@@ -39,7 +42,7 @@ public class Using_Infer_Type_With_Non_Nested_Class
         var serializer = SerializerFactory.Create();
         var exception = Assert.Throws<Exception>(() => serializer.Deserialize(StringToByteArray(XmlWithBaseType)));
 
-        Assert.True(exception.Message.StartsWith("Could not determine type for node:"));
+        Assert.That(exception.Message, Does.StartWith("Could not determine type for node:"));
     }
 
     static byte[] StringToByteArray(string input)

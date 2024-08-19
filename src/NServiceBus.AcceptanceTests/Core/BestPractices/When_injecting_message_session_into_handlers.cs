@@ -16,7 +16,7 @@ public class When_injecting_message_session_into_handlers : NServiceBusAcceptanc
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("IMessageSession", exception.ToString());
+        Assert.That(exception.ToString(), Does.Contain("IMessageSession"));
     }
 
     public class StartedEndpoint : EndpointConfigurationBuilder

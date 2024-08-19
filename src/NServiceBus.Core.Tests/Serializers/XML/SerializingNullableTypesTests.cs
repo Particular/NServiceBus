@@ -48,7 +48,7 @@ public class SerializingNullableTypesTests
 ");
             var actual = XDocument.Parse(xml);
 
-            Assert.AreEqual(expected.ToString(), actual.ToString());
+            Assert.That(actual.ToString(), Is.EqualTo(expected.ToString()));
         }
     }
 
@@ -80,7 +80,7 @@ public class SerializingNullableTypesTests
 ");
             var actual = XDocument.Parse(xml);
 
-            Assert.AreEqual(expected.ToString(), actual.ToString());
+            Assert.That(actual.ToString(), Is.EqualTo(expected.ToString()));
         }
     }
 
@@ -101,7 +101,7 @@ public class SerializingNullableTypesTests
         var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(data, new[] { typeof(MessageWithNullable) });
         var result = (MessageWithNullable)msgArray[0];
 
-        Assert.AreEqual(null, result.BirthDate);
+        Assert.That(result.BirthDate, Is.EqualTo(null));
     }
 
     [Test]
@@ -121,6 +121,6 @@ public class SerializingNullableTypesTests
         var msgArray = SerializerFactory.Create<MessageWithNullable>().Deserialize(data, new[] { typeof(MessageWithNullable) });
         var result = (MessageWithNullable)msgArray[0];
 
-        Assert.AreEqual(null, result.BirthDate);
+        Assert.That(result.BirthDate, Is.EqualTo(null));
     }
 }

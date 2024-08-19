@@ -10,12 +10,12 @@ public class PushRuntimeSettingsTests
     [Test]
     public void Should_default_concurrency_to_num_processors()
     {
-        Assert.AreEqual(Math.Max(2, Environment.ProcessorCount), new PushRuntimeSettings().MaxConcurrency);
+        Assert.That(new PushRuntimeSettings().MaxConcurrency, Is.EqualTo(Math.Max(2, Environment.ProcessorCount)));
     }
 
     [Test]
     public void Should_honor_explicit_concurrency_settings()
     {
-        Assert.AreEqual(10, new PushRuntimeSettings(10).MaxConcurrency);
+        Assert.That(new PushRuntimeSettings(10).MaxConcurrency, Is.EqualTo(10));
     }
 }

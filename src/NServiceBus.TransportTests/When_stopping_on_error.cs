@@ -40,6 +40,6 @@ public class When_stopping_on_error : NServiceBusTransportTest
 
         await pumpTask;
 
-        Assert.False(onErrorToken.IsCancellationRequested);
+        Assert.That(onErrorToken.IsCancellationRequested, Is.False);
     }
 }

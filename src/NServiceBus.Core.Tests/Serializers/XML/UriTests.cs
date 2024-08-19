@@ -16,7 +16,7 @@ public class UriTests
             m3.Href = expected;
         });
 
-        Assert.AreEqual(expected, result.Href);
+        Assert.That(result.Href, Is.EqualTo(expected));
     }
 
     public class MessageWithUri : ICommand

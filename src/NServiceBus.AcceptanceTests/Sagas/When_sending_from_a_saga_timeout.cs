@@ -21,7 +21,7 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
             .Done(c => c.DidSaga2ReceiveMessage)
             .Run();
 
-        Assert.True(context.DidSaga2ReceiveMessage);
+        Assert.That(context.DidSaga2ReceiveMessage, Is.True);
     }
 
     public class Context : ScenarioContext

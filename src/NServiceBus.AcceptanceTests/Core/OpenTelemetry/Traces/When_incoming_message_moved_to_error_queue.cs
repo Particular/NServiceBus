@@ -19,8 +19,11 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
             .Run();
 
         var failedMessage = context.FailedMessages.First().Value.First();
-        Assert.IsTrue(failedMessage.Headers.ContainsKey(Headers.StartNewTrace));
-        Assert.AreEqual(bool.TrueString, failedMessage.Headers[Headers.StartNewTrace]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(failedMessage.Headers.ContainsKey(Headers.StartNewTrace), Is.True);
+            Assert.That(failedMessage.Headers[Headers.StartNewTrace], Is.EqualTo(bool.TrueString));
+        });
     }
 
     class Context : ScenarioContext

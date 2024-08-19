@@ -10,7 +10,7 @@ public class ImmediateDispatchOptionExtensionsTests
     {
         var options = new SendOptions();
 
-        Assert.IsFalse(options.IsImmediateDispatchSet());
+        Assert.That(options.IsImmediateDispatchSet(), Is.False);
     }
 
     [Test]
@@ -19,6 +19,6 @@ public class ImmediateDispatchOptionExtensionsTests
         var options = new SendOptions();
         options.RequireImmediateDispatch();
 
-        Assert.IsTrue(options.IsImmediateDispatchSet());
+        Assert.That(options.IsImmediateDispatchSet(), Is.True);
     }
 }

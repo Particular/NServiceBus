@@ -44,9 +44,12 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
-            Assert.AreEqual(0, activity.Links.Count(), "should not link to logical send span");
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [Test]
@@ -62,11 +65,14 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
-            Assert.AreEqual(1, activity.Links.Count(), "should link to logical send span");
-            Assert.AreEqual(sendActivity.TraceId, activity.Links.Single().Context.TraceId);
-            Assert.AreEqual(sendActivity.SpanId, activity.Links.Single().Context.SpanId);
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            });
         }
 
         [Test]
@@ -77,28 +83,31 @@ public class ActivityFactoryTests
             contextBag.Set(contextActivity);
 
             using var ambientActivity = ActivitySources.Main.StartActivity("ambient activity");
-            Assert.AreEqual(ambientActivity, Activity.Current);
+            Assert.That(Activity.Current, Is.EqualTo(ambientActivity));
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.AreEqual(contextActivity.Id, activity.ParentId, "should use context activity as parent");
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
         }
 
         [Test]
         public void Should_start_new_trace_when_activity_on_context_uses_legacy_id_format()
         {
             using var contextActivity = CreateCompletedActivity("transport receive activity", ActivityIdFormat.Hierarchical);
-            Assert.AreEqual(ActivityIdFormat.Hierarchical, contextActivity.IdFormat);
+            Assert.That(contextActivity.IdFormat, Is.EqualTo(ActivityIdFormat.Hierarchical));
 
             var contextBag = new ContextBag();
             contextBag.Set(contextActivity);
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.IsNull(activity.ParentId, "should create a new trace");
-            Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should create a new trace");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -110,9 +119,12 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.AreEqual(sendActivity.Id, activity.ParentId);
-            Assert.AreEqual(0, activity.Links.Count(), "should not link to logical send span");
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id));
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [TestCase(ActivityIdFormat.W3C)]
@@ -125,9 +137,12 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.AreEqual(ambientActivity.Id, activity.ParentId, "should attach to ambient activity");
-            Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should attach to ambient activity");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -135,9 +150,12 @@ public class ActivityFactoryTests
         {
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.IsNull(activity.ParentId, "should start a new trace");
-            Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start a new trace");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -147,9 +165,12 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
-            Assert.NotNull(activity, "should create activity for receive pipeline");
-            Assert.IsNull(activity.ParentId, "should start new trace");
-            Assert.AreEqual(0, activity.Links.Count(), "should not link to logical send span");
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start new trace");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            });
         }
 
         [Test]
@@ -159,7 +180,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-            Assert.AreEqual(messageContext.NativeMessageId, activity.Tags.ToImmutableDictionary()["nservicebus.native_message_id"]);
+            Assert.That(activity.Tags.ToImmutableDictionary()["nservicebus.native_message_id"], Is.EqualTo(messageContext.NativeMessageId));
         }
 
         static Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
@@ -193,7 +214,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
 
-            Assert.AreEqual(ambientActivity.Id, activity.ParentId);
+            Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
         }
 
         [Test]
@@ -205,8 +226,11 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
 
-            Assert.AreEqual(ambientActivity.Id, activity.ParentId);
-            Assert.AreEqual(ActivityIdFormat.W3C, activity.IdFormat);
+            Assert.Multiple(() =>
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+            });
         }
 
         [Test]
@@ -215,7 +239,7 @@ public class ActivityFactoryTests
             var context = new FakeRootContext();
             activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
 
-            Assert.IsNotNull(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey));
+            Assert.That(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.Not.Null);
         }
     }
 
@@ -227,7 +251,7 @@ public class ActivityFactoryTests
             Type handlerType = typeof(StartHandlerActivity);
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
 
-            Assert.IsNull(activity, "should not start handler activity when no parent activity exists");
+            Assert.That(activity, Is.Null, "should not start handler activity when no parent activity exists");
         }
 
         [Test]
@@ -240,9 +264,9 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType), null);
 
-            Assert.IsNotNull(activity);
+            Assert.That(activity, Is.Not.Null);
             var tags = activity.Tags.ToImmutableDictionary();
-            Assert.AreEqual(handlerType.FullName, tags[ActivityTags.HandlerType]);
+            Assert.That(tags[ActivityTags.HandlerType], Is.EqualTo(handlerType.FullName));
         }
 
         [Test]
@@ -255,10 +279,10 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, typeof(StartHandlerActivity)), sagaInstance);
 
-            Assert.IsNotNull(activity);
+            Assert.That(activity, Is.Not.Null);
             var tags = activity.Tags.ToImmutableDictionary();
 
-            Assert.AreEqual(sagaInstance.SagaId, tags[ActivityTags.HandlerSagaId]);
+            Assert.That(tags[ActivityTags.HandlerSagaId], Is.EqualTo(sagaInstance.SagaId));
         }
     }
 }

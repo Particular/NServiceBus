@@ -28,8 +28,11 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
             .Done(c => c.GotTheEvent)
             .Run();
 
-        Assert.True(context.GotTheEvent);
-        Assert.AreEqual(typeof(IMyEvent), context.EventTypePassedToRouting);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.GotTheEvent, Is.True);
+            Assert.That(context.EventTypePassedToRouting, Is.EqualTo(typeof(IMyEvent)));
+        });
     }
 
     public class Context : ScenarioContext

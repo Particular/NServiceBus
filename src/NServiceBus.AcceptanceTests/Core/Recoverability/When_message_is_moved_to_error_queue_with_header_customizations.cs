@@ -26,9 +26,12 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
             .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
-        Assert.IsFalse(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"));
-        Assert.AreEqual("this is a large message", context.Headers["NServiceBus.ExceptionInfo.Message"]);
-        Assert.AreEqual("NotInventedHere", context.Headers["NServiceBus.ExceptionInfo.NotInventedHere"]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"), Is.False);
+            Assert.That(context.Headers["NServiceBus.ExceptionInfo.Message"], Is.EqualTo("this is a large message"));
+            Assert.That(context.Headers["NServiceBus.ExceptionInfo.NotInventedHere"], Is.EqualTo("NotInventedHere"));
+        });
     }
 
     class Context : ScenarioContext

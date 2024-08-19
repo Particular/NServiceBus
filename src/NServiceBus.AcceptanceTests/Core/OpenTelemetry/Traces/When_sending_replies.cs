@@ -16,12 +16,15 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
             .Run();
 
         var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.AreEqual(2, outgoingMessageActivities.Count, "2 messages are being sent");
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
         var replyMessage = outgoingMessageActivities[1];
 
-        Assert.AreEqual("reply", replyMessage.DisplayName);
-        Assert.AreEqual(outgoingMessageActivities[0].RootId, replyMessage.RootId, "reply should belong to same trace as the triggering message");
-        Assert.IsNotNull(replyMessage.ParentId, "reply should have ambient span");
+        Assert.Multiple(() =>
+        {
+            Assert.That(replyMessage.DisplayName, Is.EqualTo("reply"));
+            Assert.That(replyMessage.RootId, Is.EqualTo(outgoingMessageActivities[0].RootId), "reply should belong to same trace as the triggering message");
+            Assert.That(replyMessage.ParentId, Is.Not.Null, "reply should have ambient span");
+        });
 
         replyMessage.VerifyUniqueTags();
     }

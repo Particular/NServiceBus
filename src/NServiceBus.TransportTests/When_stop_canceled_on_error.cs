@@ -37,6 +37,6 @@ public class When_stop_canceled_on_error : NServiceBusTransportTest
 
         await StopPump(new CancellationToken(true));
 
-        Assert.False(criticalErrorInvoked, "Critical error should not be invoked");
+        Assert.That(criticalErrorInvoked, Is.False, "Critical error should not be invoked");
     }
 }

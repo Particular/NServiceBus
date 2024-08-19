@@ -34,7 +34,7 @@ public class RecoverabilityExecutorTests
 
         await executor.Invoke(errorContext);
 
-        Assert.AreEqual(existingValue, pipelineExtensions.Get<Guid>("existing value"));
+        Assert.That(pipelineExtensions.Get<Guid>("existing value"), Is.EqualTo(existingValue));
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class RecoverabilityExecutorTests
 
         await executor.Invoke(errorContext);
 
-        Assert.AreEqual(newValue, errorContext.Extensions.Get<Guid>("new value"));
+        Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
     static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)

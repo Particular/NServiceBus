@@ -20,7 +20,7 @@ public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanc
             .Done(c => c.EndpointsStarted)
             .Run());
 
-        StringAssert.Contains("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.", exception.ToString());
+        Assert.That(exception.ToString(), Does.Contain("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'."));
     }
 
     public class StartedEndpoint : EndpointConfigurationBuilder

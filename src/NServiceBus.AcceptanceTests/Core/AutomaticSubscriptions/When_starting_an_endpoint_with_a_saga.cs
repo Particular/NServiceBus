@@ -19,8 +19,8 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
             .Done(c => c.EventsSubscribedTo.Count >= 2)
             .Run();
 
-        Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
-        Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
+        Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
+        Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
     }
 
     class Context : ScenarioContext

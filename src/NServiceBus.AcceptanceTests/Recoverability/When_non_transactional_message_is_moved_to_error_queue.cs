@@ -27,7 +27,7 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
             .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
             .Run();
 
-        Assert.IsTrue(!context.FailedMessages.IsEmpty, "Messages should have failed");
+        Assert.That(!context.FailedMessages.IsEmpty, Is.True, "Messages should have failed");
     }
 
     class Context : ScenarioContext

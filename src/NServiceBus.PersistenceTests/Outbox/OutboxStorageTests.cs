@@ -48,9 +48,12 @@ public class OutboxStorageTests
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
-        Assert.IsNotNull(message);
-        Assert.AreEqual(messageId, message.MessageId);
-        Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
+        Assert.That(message, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(message.MessageId, Is.EqualTo(messageId));
+            Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
+        });
         Assert.That(message.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
     }
 
@@ -78,7 +81,7 @@ public class OutboxStorageTests
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.That(message, Is.Not.Null);
-        CollectionAssert.IsEmpty(message.TransportOperations);
+        Assert.That(message.TransportOperations, Is.Empty);
     }
 
     [Test]
@@ -129,7 +132,7 @@ public class OutboxStorageTests
         }
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
-        Assert.Null(message);
+        Assert.That(message, Is.Null);
     }
 
     [Test]
@@ -152,7 +155,7 @@ public class OutboxStorageTests
         }
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
-        Assert.NotNull(message);
+        Assert.That(message, Is.Not.Null);
     }
 
     PersistenceTestsConfiguration configuration;

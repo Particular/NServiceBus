@@ -109,7 +109,7 @@ class ContextAppender : ILog
         if (context == null)
         {
             // avoid NRE in case something logs outside of a test scenario
-            TestContext.WriteLine(message);
+            TestContext.Out.WriteLine(message);
             return;
         }
 
