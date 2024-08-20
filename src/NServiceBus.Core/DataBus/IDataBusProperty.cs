@@ -6,7 +6,7 @@ using System;
 /// The contract to implement a <see cref="IDataBusProperty" />.
 /// </summary>
 [ObsoleteEx(
-    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
     RemoveInVersion = "11",
     TreatAsErrorFromVersion = "10")]
 public interface IDataBusProperty
@@ -15,7 +15,7 @@ public interface IDataBusProperty
     /// The <see cref="IDataBusProperty" /> key.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     string Key { get; set; }
@@ -24,7 +24,7 @@ public interface IDataBusProperty
     /// <code>true</code> if <see cref="IDataBusProperty" /> has a value.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     bool HasValue { get; set; }
@@ -33,7 +33,7 @@ public interface IDataBusProperty
     /// Gets the value of the <see cref="IDataBusProperty" />.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     object GetValue();
@@ -42,7 +42,7 @@ public interface IDataBusProperty
     /// Sets the value for <see cref="IDataBusProperty" />.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     void SetValue(object value);
@@ -51,7 +51,7 @@ public interface IDataBusProperty
     /// The property <see cref="Type" />.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     Type Type { get; }
