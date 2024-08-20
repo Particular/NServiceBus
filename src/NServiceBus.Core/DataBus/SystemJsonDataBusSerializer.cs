@@ -9,7 +9,7 @@ using DataBus;
 /// Data bus serialization using the <see cref="JsonSerializer"/> serializer.
 /// </summary>
 [ObsoleteEx(
-    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
     RemoveInVersion = "11",
     TreatAsErrorFromVersion = "10")]
 public class SystemJsonDataBusSerializer : IDataBusSerializer
@@ -18,7 +18,7 @@ public class SystemJsonDataBusSerializer : IDataBusSerializer
     /// Serializes the property.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public void Serialize(object dataBusProperty, Stream stream)
@@ -30,7 +30,7 @@ public class SystemJsonDataBusSerializer : IDataBusSerializer
     /// Deserializes the property.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public object Deserialize(Type propertyType, Stream stream)
@@ -42,7 +42,7 @@ public class SystemJsonDataBusSerializer : IDataBusSerializer
     /// The content type this serializer handles. Used to populate the <see cref="Headers.DataBusConfigContentType"/> header.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public string ContentType { get; } = "application/json";
