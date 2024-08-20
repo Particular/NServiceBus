@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 /// </summary>
 /// <typeparam name="T">Type of data to store in <see cref="IDataBusProperty" />.</typeparam>
 [ObsoleteEx(
-    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+    Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
     RemoveInVersion = "11",
     TreatAsErrorFromVersion = "10")]
 public class DataBusProperty<T> : IDataBusProperty where T : class
@@ -18,7 +18,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// Initializes a <see cref="DataBusProperty{T}" /> with no value set.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public DataBusProperty() { }
@@ -28,7 +28,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// </summary>
     /// <param name="value">The value to initialize with.</param>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public DataBusProperty(T value) => SetValue(value);
@@ -39,7 +39,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     [JsonIgnore]
     [XmlIgnore]
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public T Value { get; private set; }
@@ -49,7 +49,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// </summary>
     [JsonIgnore]
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public Type Type { get; } = typeof(T);
@@ -58,7 +58,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// The <see cref="IDataBusProperty" /> key.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public string Key { get; set; }
@@ -67,7 +67,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// <code>true</code> if <see cref="IDataBusProperty" /> has a value.
     /// </summary>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public bool HasValue { get; set; }
@@ -77,7 +77,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// </summary>
     /// <param name="valueToSet">The value to set.</param>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public void SetValue(object valueToSet)
@@ -91,7 +91,7 @@ public class DataBusProperty<T> : IDataBusProperty where T : class
     /// </summary>
     /// <returns>The value.</returns>
     [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck.DataBus'",
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     public object GetValue() => Value;
