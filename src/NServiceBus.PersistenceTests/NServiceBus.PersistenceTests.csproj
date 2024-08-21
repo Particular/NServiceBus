@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[4.1.0, 5.0.0)" />
     <PackageReference Include="NUnit.Analyzers" Version="4.3.0" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" PrivateAssets="All" />
