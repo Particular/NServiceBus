@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +16,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.1.0" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0-rc.1.24431.7" />
   </ItemGroup>
 
   <PropertyGroup>
