@@ -4,3 +4,10 @@ dotnet_analyzer_diagnostic.severity = none
 
 # Workaround for https://github.com/dotnet/roslyn/issues/41640
 dotnet_diagnostic.EnableGenerateDocumentationFile.severity = none
+
+#.NET 9 rules
+dotnet_diagnostic.IDE0008.severity = none
+dotnet_diagnostic.IDE0040.severity = none
+dotnet_diagnostic.IDE0160.severity = none
+dotnet_diagnostic.IDE0044.severity = none
+dotnet_diagnostic.CA2264.severity = none
