@@ -154,7 +154,7 @@ public abstract class NServiceBusTransportTest
         receiver = null;
     }
 
-    void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
+    static void IgnoreUnsupportedTransactionModes(TransportDefinition transportDefinition, TransportTransactionMode requestedTransactionMode)
     {
         if (!transportDefinition.GetSupportedTransactionModes().Contains(requestedTransactionMode))
         {
