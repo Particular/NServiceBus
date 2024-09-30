@@ -300,8 +300,8 @@ public abstract class NServiceBusTransportTest
 
     protected string InputQueueName;
     protected string ErrorQueueName;
-    protected static TransportTestLoggerFactory LogFactory;
-    protected static TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
+    protected static readonly TransportTestLoggerFactory LogFactory;
+    protected static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
     protected Action<TransportDefinition> CustomizeTransportDefinition;
     protected IMessageReceiver receiver;
 
