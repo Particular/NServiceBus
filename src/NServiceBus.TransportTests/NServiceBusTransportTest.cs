@@ -172,25 +172,11 @@ public abstract class NServiceBusTransportTest
         DispatchProperties dispatchProperties = null,
         DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
         byte[] body = null,
-        CancellationToken cancellationToken = default)
-    {
-        var messageId = Guid.NewGuid().ToString();
-        var message = new OutgoingMessage(messageId, headers ?? [], body ?? Array.Empty<byte>());
+        CancellationToken cancellationToken = default) =>
+        SendMessage(new UnicastAddressTag(address), headers, transportTransaction, dispatchProperties, dispatchConsistency, body, cancellationToken);
 
-        if (message.Headers.ContainsKey(TestIdHeaderName) == false)
-        {
-            message.Headers.Add(TestIdHeaderName, testId);
-        }
-
-        transportTransaction ??= new TransportTransaction();
-
-        var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
-
-        return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken);
-    }
-
-    protected Task PublishMessage(
-        Type eventType,
+    protected Task SendMessage(
+        AddressTag addressTag,
         Dictionary<string, string> headers = null,
         TransportTransaction transportTransaction = null,
         DispatchProperties dispatchProperties = null,
@@ -199,20 +185,16 @@ public abstract class NServiceBusTransportTest
         CancellationToken cancellationToken = default)
     {
         var messageId = Guid.NewGuid().ToString();
-        var message = new OutgoingMessage(messageId, headers ?? [], body ?? Array.Empty<byte>());
+        var message = new OutgoingMessage(messageId, headers ?? [], body ?? []);
 
-        if (message.Headers.ContainsKey(TestIdHeaderName) == false)
-        {
-            message.Headers.Add(TestIdHeaderName, testId);
-        }
+        message.Headers.TryAdd(TestIdHeaderName, testId);
 
         transportTransaction ??= new TransportTransaction();
 
-        var transportOperation = new TransportOperation(message, new MulticastAddressTag(eventType), dispatchProperties, dispatchConsistency);
+        var transportOperation = new TransportOperation(message, addressTag, dispatchProperties, dispatchConsistency);
 
         return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken);
     }
-
     protected void OnTestTimeout(Action onTimeoutAction)
         => registrations.Add(testCancellationTokenSource.Token.Register(onTimeoutAction));
 
