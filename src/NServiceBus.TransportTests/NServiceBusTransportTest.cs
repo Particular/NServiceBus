@@ -97,9 +97,12 @@ public abstract class NServiceBusTransportTest
         onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
         onError = onError ?? throw new ArgumentNullException(nameof(onError));
 
-        GetQueueNames(transactionMode, out InputQueueName, out ErrorQueueName);
-
         configurer = CreateConfigurer();
+
+        var testName = GetTestName();
+
+        InputQueueName = configurer.GetInputQueueName(testName, transactionMode);
+        ErrorQueueName = configurer.GetErrorQueueName(testName, transactionMode);
 
         var hostSettings = new HostSettings(
             InputQueueName,
