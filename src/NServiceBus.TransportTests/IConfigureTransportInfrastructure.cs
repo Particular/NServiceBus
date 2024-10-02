@@ -11,6 +11,16 @@ using Transport;
 public interface IConfigureTransportInfrastructure
 {
     /// <summary>
+    /// Gets the transport specific queue name to use as the input queue for the test. 
+    /// </summary>
+    string GetInputQueueName(string testName, TransportTransactionMode transactionMode) => $"{testName}{transactionMode}";
+
+    /// <summary>
+    /// Gets the transport specific error queue name to use as the input queue for the test. 
+    /// </summary>
+    string GetErrorQueueName(string testName, TransportTransactionMode transactionMode) => $"{testName}{transactionMode}.error";
+
+    /// <summary>
     /// Creates a <see cref="TransportDefinition"/> instance used for running a test case.
     /// </summary>
     TransportDefinition CreateTransportDefinition();

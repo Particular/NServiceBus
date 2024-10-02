@@ -33,7 +33,9 @@ public abstract class NServiceBusTransportTest
         testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TestTimeout);
         receiver = null;
         registrations = [];
+        CustomizeTransportDefinition = _ => { };
     }
+
     protected static IConfigureTransportInfrastructure CreateConfigurer()
     {
         var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport_UseSpecific");
@@ -42,7 +44,7 @@ public abstract class NServiceBusTransportTest
         {
             var coreAssembly = typeof(IEndpointInstance).Assembly;
 
-            var nonCoreTransport = transportDefinitions.Value.FirstOrDefault(t => t.Assembly != coreAssembly);
+            var nonCoreTransport = TransportDefinitions.Value.FirstOrDefault(t => t.Assembly != coreAssembly);
 
             transportToUse = nonCoreTransport?.Name ?? DefaultTransportDescriptorKey;
         }
@@ -70,6 +72,7 @@ public abstract class NServiceBusTransportTest
         {
             registration.Dispose();
         }
+
         testCancellationTokenSource.Dispose();
     }
 
@@ -78,13 +81,26 @@ public abstract class NServiceBusTransportTest
         PushRuntimeSettings pushRuntimeSettings = null,
         CancellationToken cancellationToken = default)
     {
+        await Initialize(onMessage, onError, transactionMode, onCriticalError, pushRuntimeSettings,
+            cancellationToken);
+
+        await receiver.StartReceive(cancellationToken);
+    }
+
+    protected async Task Initialize(OnMessage onMessage, OnError onError, TransportTransactionMode transactionMode,
+        Action<string, Exception, CancellationToken> onCriticalError = null,
+        PushRuntimeSettings pushRuntimeSettings = null,
+        CancellationToken cancellationToken = default)
+    {
         onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
         onError = onError ?? throw new ArgumentNullException(nameof(onError));
 
-        InputQueueName = GetTestName() + transactionMode;
-        ErrorQueueName = $"{InputQueueName}.error";
-
         configurer = CreateConfigurer();
+
+        var testName = GetTestName();
+
+        InputQueueName = configurer.GetInputQueueName(testName, transactionMode);
+        ErrorQueueName = configurer.GetErrorQueueName(testName, transactionMode);
 
         var hostSettings = new HostSettings(
             InputQueueName,
@@ -102,18 +118,19 @@ public abstract class NServiceBusTransportTest
             },
             true);
 
-        var transport = configurer.CreateTransportDefinition();
+        var transportDefinition = configurer.CreateTransportDefinition();
 
-        IgnoreUnsupportedTransactionModes(transport, transactionMode);
+        CustomizeTransportDefinition(transportDefinition);
+        IgnoreUnsupportedTransactionModes(transportDefinition, transactionMode);
 
         if (OperatingSystem.IsWindows() && transactionMode == TransportTransactionMode.TransactionScope)
         {
             TransactionManager.ImplicitDistributedTransactions = true;
         }
 
-        transport.TransportTransactionMode = transactionMode;
+        transportDefinition.TransportTransactionMode = transactionMode;
 
-        transportInfrastructure = await configurer.Configure(transport, hostSettings, new QueueAddress(InputQueueName), ErrorQueueName, cancellationToken);
+        transportInfrastructure = await configurer.Configure(transportDefinition, hostSettings, new QueueAddress(InputQueueName), ErrorQueueName, cancellationToken);
 
         receiver = transportInfrastructure.Receivers.Single().Value;
 
@@ -124,8 +141,6 @@ public abstract class NServiceBusTransportTest
             (context, token) =>
                 context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, token) : Task.FromResult(ErrorHandleResult.Handled),
             cancellationToken);
-
-        await receiver.StartReceive(cancellationToken);
     }
 
     protected async Task StopPump(CancellationToken cancellationToken = default)
@@ -155,23 +170,29 @@ public abstract class NServiceBusTransportTest
         DispatchProperties dispatchProperties = null,
         DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
         byte[] body = null,
+        CancellationToken cancellationToken = default) =>
+        SendMessage(new UnicastAddressTag(address), headers, transportTransaction, dispatchProperties, dispatchConsistency, body, cancellationToken);
+
+    protected Task SendMessage(
+        AddressTag addressTag,
+        Dictionary<string, string> headers = null,
+        TransportTransaction transportTransaction = null,
+        DispatchProperties dispatchProperties = null,
+        DispatchConsistency dispatchConsistency = DispatchConsistency.Default,
+        byte[] body = null,
         CancellationToken cancellationToken = default)
     {
         var messageId = Guid.NewGuid().ToString();
-        var message = new OutgoingMessage(messageId, headers ?? [], body ?? Array.Empty<byte>());
+        var message = new OutgoingMessage(messageId, headers ?? [], body ?? []);
 
-        if (message.Headers.ContainsKey(TestIdHeaderName) == false)
-        {
-            message.Headers.Add(TestIdHeaderName, testId);
-        }
+        message.Headers.TryAdd(TestIdHeaderName, testId);
 
         transportTransaction ??= new TransportTransaction();
 
-        var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchProperties, dispatchConsistency);
+        var transportOperation = new TransportOperation(message, addressTag, dispatchProperties, dispatchConsistency);
 
         return transportInfrastructure.Dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, cancellationToken);
     }
-
     protected void OnTestTimeout(Action onTimeoutAction)
         => registrations.Add(testCancellationTokenSource.Token.Register(onTimeoutAction));
 
@@ -240,32 +261,28 @@ public abstract class NServiceBusTransportTest
     protected string ErrorQueueName;
     protected static readonly TransportTestLoggerFactory LogFactory;
     protected static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(30);
+    protected Action<TransportDefinition> CustomizeTransportDefinition;
+    protected IMessageReceiver receiver;
 
     string testId;
 
-    TransportInfrastructure transportInfrastructure;
     CancellationTokenSource testCancellationTokenSource;
     IConfigureTransportInfrastructure configurer;
     List<CancellationTokenRegistration> registrations;
-    protected IMessageReceiver receiver;
+    TransportInfrastructure transportInfrastructure;
 
     const string DefaultTransportDescriptorKey = "LearningTransport";
     const string TestIdHeaderName = "TransportTest.TestId";
 
-    static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
+    static readonly Lazy<List<Type>> TransportDefinitions = new(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
 
-    class EnvironmentHelper
+    static class EnvironmentHelper
     {
         public static string GetEnvironmentVariable(string variable)
         {
             var candidate = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
 
-            if (string.IsNullOrWhiteSpace(candidate))
-            {
-                return Environment.GetEnvironmentVariable(variable);
-            }
-
-            return candidate;
+            return string.IsNullOrWhiteSpace(candidate) ? Environment.GetEnvironmentVariable(variable) : candidate;
         }
     }
 }
