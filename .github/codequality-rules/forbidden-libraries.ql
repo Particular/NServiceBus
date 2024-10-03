@@ -1,10 +1,8 @@
 /**
  * @name Forbidden test mocking libraries
- * @description Prevents the use of FakeItEasy and Moq libraries in the project
+ * @description This query identifies any usage of the forbidden NuGet packages Moq and FakeItEasy by checking imports.
  * @kind problem
  * @problem.severity error
- * @precision high
- * @id cs/forbidden-mocking-libraries
  */
 
 import csharp
@@ -13,9 +11,6 @@ predicate isForbiddenLibrary(string name) {
   name = "FakeItEasy" or name = "Moq"
 }
 
-from PackageReference package
-where isForbiddenLibrary(package.getPackageName())
-select package,
-  "The use of " + package.getPackageName() +
-  " is not allowed. Please use an approved mocking library instead."
-
+from ImportDirective import
+where isForbiddenLibrary(import.getImportName())
+select import, "This project imports a forbidden library: " + import.getImportName()
