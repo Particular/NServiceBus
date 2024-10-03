@@ -1,6 +1,4 @@
 name: "CodeQL Analysis for C# with Custom Rules"
-# CodeQL Action v2 will be deprecated on December 5th, 2024.
-# This workflow has been updated to use CodeQL Action v3.
 
 on:
   push:
