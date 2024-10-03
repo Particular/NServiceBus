@@ -4,9 +4,11 @@ name: "CodeQL Analysis for C# with Custom Rules"
 
 on:
   push:
-    branches: [ "*" ]
+    branches:
+      - master
+      - release-*
   pull_request:
-    branches: [ "*" ]
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -17,14 +19,19 @@ jobs:
       contents: read
       security-events: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'csharp' ]
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: csharp
+        languages: ${{ matrix.language }}
         queries: ./.github/codequality-rules
 
     - name: Autobuild
@@ -33,4 +40,4 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:csharp"
+        category: "/language:${{ matrix.language }}"
