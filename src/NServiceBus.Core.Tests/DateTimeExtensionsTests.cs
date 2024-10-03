@@ -2,11 +2,20 @@
 
 using System;
 using System.Globalization;
+using Moq;
 using NUnit.Framework;
 
 [TestFixture]
 class DateTimeExtensionsTests
 {
+    [Test]
+    public void Faking()
+    {
+        var myMock = new Mock<IDataBusProperty>();
+
+        Assert.That(myMock, Is.Not.Null);
+    }
+
     [Test]
     public void When_roundtripping_constructed_date_should_be_equal()
     {
