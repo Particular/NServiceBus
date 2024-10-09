@@ -24,10 +24,6 @@
     <PackageReference Include="Particular.Packaging" Version="4.1.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup Label="Direct references to transitive dependencies to avoid versions with CVE">
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
-  </ItemGroup>
-
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
