@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="NUnit" Version="[4.1.0, 5.0.0)" />
     <PackageReference Include="NUnit.Analyzers" Version="4.3.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="4.1.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="4.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
