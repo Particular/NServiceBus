@@ -21,7 +21,7 @@
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="[1.0.0, 2.0.0)" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
