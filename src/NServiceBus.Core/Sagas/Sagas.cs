@@ -100,11 +100,12 @@
         {
             // MakeGenericType() throws an exception if passed a ref struct type
             // Messages cannot be ref struct types
+#if NET
             if (type.IsByRefLike)
             {
                 return false;
             }
-            
+#endif
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
             var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
@@ -113,36 +114,4 @@
 
         Conventions conventions;
     }
-
-    static bool IsSagaType(Type t)
-    {
-        return IsCompatible(t, typeof(Saga));
-    }
-
-    static bool IsSagaNotFoundHandler(Type t)
-    {
-        return IsCompatible(t, typeof(IHandleSagaNotFound));
-    }
-
-    static bool IsCompatible(Type t, Type source)
-    {
-        return source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
-    }
-
-    static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
-    {
-        // MakeGenericType() throws an exception if passed a ref struct type
-        // Messages cannot be ref struct types
-        if (type.IsByRefLike)
-        {
-            return false;
-        }
-
-        var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-        var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
-
-        return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
-    }
-
-    Conventions conventions;
 }
