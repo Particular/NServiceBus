@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
     using Microsoft.Extensions.DependencyInjection;
     using NServiceBus.Sagas;
 
@@ -106,12 +108,11 @@
         {
             // MakeGenericType() throws an exception if passed a ref struct type
             // Messages cannot be ref struct types
-#if NET
-            if (type.IsByRefLike)
+            if (type.GetCustomAttribute<IsByRefLikeAttribute>() != null)
             {
                 return false;
             }
-#endif
+
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
             var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
