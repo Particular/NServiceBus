@@ -100,12 +100,11 @@
         {
             // MakeGenericType() throws an exception if passed a ref struct type
             // Messages cannot be ref struct types
-#if NET
-            if (type.IsByRefLike)
+            if (type.CustomAttributes.Any(a => a.AttributeType.Name == "IsByRefLikeAttribute"))
             {
                 return false;
             }
-#endif
+
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
             var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
