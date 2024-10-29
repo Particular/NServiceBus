@@ -98,6 +98,13 @@
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
+            // MakeGenericType() throws an exception if passed a ref struct type
+            // Messages cannot be ref struct types
+            if (type.CustomAttributes.Any(a => string.Equals(a.AttributeType.FullName, "System.Runtime.CompilerServices.IsByRefLikeAttribute")))
+            {
+                return false;
+            }
+
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
             var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
