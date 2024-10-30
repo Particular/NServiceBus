@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" AutomaticVersionRange="false" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="8.0.0" AutomaticVersionRange="false"  />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.1" AutomaticVersionRange="false" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
@@ -22,10 +22,6 @@
     <PackageReference Include="Obsolete.Fody" Version="5.3.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="6.0.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.1.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup Label="Direct references to transitive dependencies to avoid versions with CVE">
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
