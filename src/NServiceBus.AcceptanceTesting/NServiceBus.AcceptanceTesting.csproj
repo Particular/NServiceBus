@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="[3.13.3, 4.0.0)" />
-    <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="Particular.Packaging" Version="4.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
