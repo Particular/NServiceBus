@@ -1,7 +1,5 @@
 <Project>
 
-  <PropertyGroup>
-    <NuGetAuditMode Condition="'$(PackAsTool)' == 'true'">all</NuGetAuditMode>
-  </PropertyGroup>
+  <Import Project="msbuild\AutomaticVersionRanges.targets" Condition="Exists('msbuild\AutomaticVersionRanges.targets')" />
 
 </Project>
