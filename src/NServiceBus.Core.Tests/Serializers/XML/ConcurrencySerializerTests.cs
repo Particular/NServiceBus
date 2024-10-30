@@ -20,28 +20,24 @@ public class ConcurrencySerializerTests
         var serializer = SerializerFactory.Create<RequestDataMessage>();
 
         Parallel.For(1, 1000, i =>
-                                  {
-                                      RequestDataMessage result;
-                                      using (var stream = new MemoryStream())
-                                      {
-                                          serializer.Serialize(expected, stream);
-                                          stream.Position = 0;
+        {
+            using var stream = new MemoryStream();
 
-                                          var msgArray = serializer.Deserialize(stream.ToArray());
-                                          result = (RequestDataMessage)msgArray[0];
-                                      }
+            serializer.Serialize(expected, stream);
+            stream.Position = 0;
 
-                                      Assert.Multiple(() =>
-                                      {
-                                          Assert.That(result.DataId, Is.EqualTo(expected.DataId));
-                                          Assert.That(result.String, Is.EqualTo(expected.String));
-                                      });
-                                  });
+            var msgArray = serializer.Deserialize(stream.ToArray());
+            var result = (RequestDataMessage)msgArray[0];
+
+            Assert.That(result.DataId, Is.EqualTo(expected.DataId));
+            Assert.That(result.String, Is.EqualTo(expected.String));
+        });
     }
 }
 
 public class RequestDataMessage : IMessage
 {
     public Guid DataId { get; set; }
+
     public string String { get; set; }
 }
