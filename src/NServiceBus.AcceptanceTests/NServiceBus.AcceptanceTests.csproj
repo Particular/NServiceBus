@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Approvals" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="3.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="4.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
