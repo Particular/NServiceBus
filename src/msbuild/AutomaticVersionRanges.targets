@@ -1,0 +1,42 @@
+<Project>
+
+  <PropertyGroup>
+    <AutomaticVersionRangesEnabled Condition="'$(AutomaticVersionRangesEnabled)' == '' And '$(Configuration)' == 'Debug'">false</AutomaticVersionRangesEnabled>
+    <AutomaticVersionRangesEnabled Condition="'$(AutomaticVersionRangesEnabled)' == '' And '$(IsPackable)' == 'false'">false</AutomaticVersionRangesEnabled>
+    <AutomaticVersionRangesEnabled Condition="'$(AutomaticVersionRangesEnabled)' == '' And '$(ManagePackageVersionsCentrally)' == 'true'">false</AutomaticVersionRangesEnabled>
+    <AutomaticVersionRangesEnabled Condition="'$(AutomaticVersionRangesEnabled)' == ''">true</AutomaticVersionRangesEnabled>
+  </PropertyGroup>
+
+  <UsingTask TaskName="ConvertToVersionRange" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Source="$(MSBuildThisFileDirectory)ConvertToVersionRange.cs" />
+    </Task>
+  </UsingTask>
+
+  <Target Name="ConvertProjectReferenceVersionsToVersionRanges" AfterTargets="_GetProjectReferenceVersions" Condition="'$(AutomaticVersionRangesEnabled)' == 'true'">
+    <PropertyGroup>
+      <NumberOfProjectReferences>@(_ProjectReferencesWithVersions->Count())</NumberOfProjectReferences>
+    </PropertyGroup>
+    <ConvertToVersionRange Condition="$(NumberOfProjectReferences) &gt; 0" References="@(_ProjectReferencesWithVersions)" VersionProperty="ProjectVersion">
+      <Output TaskParameter="ReferencesWithVersionRanges" ItemName="_ProjectReferencesWithVersionRanges" />
+    </ConvertToVersionRange>
+    <ItemGroup Condition="$(NumberOfProjectReferences) &gt; 0">
+      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)" />
+      <_ProjectReferencesWithVersions Include="@(_ProjectReferencesWithVersionRanges)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ConvertPackageReferenceVersionsToVersionRanges" BeforeTargets="CollectPackageReferences" Condition="'$(AutomaticVersionRangesEnabled)' == 'true'">
+    <PropertyGroup>
+      <NumberOfPackageReferences>@(PackageReference->Count())</NumberOfPackageReferences>
+    </PropertyGroup>
+    <ConvertToVersionRange Condition="$(NumberOfPackageReferences) &gt; 0" References="@(PackageReference)" VersionProperty="Version">
+      <Output TaskParameter="ReferencesWithVersionRanges" ItemName="_PackageReferencesWithVersionRanges" />
+    </ConvertToVersionRange>
+    <ItemGroup Condition="$(NumberOfPackageReferences) &gt; 0">
+      <PackageReference Remove="@(PackageReference)" />
+      <PackageReference Include="@(_PackageReferencesWithVersionRanges)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
