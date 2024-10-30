@@ -4,6 +4,7 @@
     <ParticularAnalyzersVersion>0.9.0</ParticularAnalyzersVersion>
     <AnalyzerTargetFramework>netstandard2.0</AnalyzerTargetFramework>
     <AutomaticVersionRangesEnabled>false</AutomaticVersionRangesEnabled>
+    <NuGetAuditMode>direct</NuGetAuditMode>
   </PropertyGroup>
 
   <PropertyGroup>
