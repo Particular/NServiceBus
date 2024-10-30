@@ -13,15 +13,15 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Memory" Version="4.5.5" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="NServiceBus.MessageInterfaces" Version="[1.0.0, 2.0.0)" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" AutomaticVersionRange="false" />
+    <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" AutomaticVersionRange="false" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" AutomaticVersionRange="false" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
@@ -36,8 +36,8 @@
   </ItemGroup>
 
   <ItemGroup Label="Direct references to transitive dependencies to avoid versions with CVE">
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" AutomaticVersionRange="false" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.3" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <PropertyGroup>
