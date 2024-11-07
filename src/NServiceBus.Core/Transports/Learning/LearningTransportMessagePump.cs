@@ -88,7 +88,7 @@ class LearningTransportMessagePump : IMessageReceiver
             return;
         }
 
-        messagePumpCancellationTokenSource?.Cancel();
+        await messagePumpCancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
         delayedMessagePoller.Stop();
 
