@@ -19,7 +19,11 @@ class LearningTransportInfrastructure : TransportInfrastructure
             storagePath = FindStoragePath();
         }
 
-        this.receiverSettings = receiverSettings;
+        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
+        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
+
+        Receivers = receiverSettings
+            .ToDictionary<ReceiveSettings, string, IMessageReceiver>(receiverSetting => receiverSetting.Id, CreateReceiver);
     }
 
     static string FindStoragePath()
@@ -47,16 +51,6 @@ class LearningTransportInfrastructure : TransportInfrastructure
         }
     }
 
-    public void Initialize()
-    {
-        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
-
-        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
-
-        Receivers = receiverSettings
-            .ToDictionary<ReceiveSettings, string, IMessageReceiver>(receiverSetting => receiverSetting.Id, CreateReceiver);
-    }
-
     LearningTransportMessagePump CreateReceiver(ReceiveSettings receiveSettings)
     {
         var errorQueueAddress = receiveSettings.ErrorQueue;
@@ -77,7 +71,6 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
     readonly string storagePath;
     readonly HostSettings settings;
-    readonly ReceiveSettings[] receiverSettings;
     readonly LearningTransport transport;
 
     const string DefaultLearningTransportDirectory = ".learningtransport";

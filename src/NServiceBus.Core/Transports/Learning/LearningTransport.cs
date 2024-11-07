@@ -28,10 +28,7 @@ public class LearningTransport : TransportDefinition
     public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(hostSettings);
-        var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
-        learningTransportInfrastructure.Initialize();
-
-        return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
+        return Task.FromResult<TransportInfrastructure>(new LearningTransportInfrastructure(hostSettings, this, receivers));
     }
 
     /// <inheritdoc />
