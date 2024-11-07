@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -48,19 +47,17 @@ class LearningTransportInfrastructure : TransportInfrastructure
         }
     }
 
-    public void ConfigureReceiveInfrastructure()
+    public void Initialize()
     {
-        var receivers = new Dictionary<string, IMessageReceiver>();
+        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
 
-        foreach (var receiverSetting in receiverSettings)
-        {
-            receivers.Add(receiverSetting.Id, CreateReceiver(receiverSetting));
-        }
+        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
 
-        Receivers = receivers;
+        Receivers = receiverSettings
+            .ToDictionary<ReceiveSettings, string, IMessageReceiver>(receiverSetting => receiverSetting.Id, CreateReceiver);
     }
 
-    public IMessageReceiver CreateReceiver(ReceiveSettings receiveSettings)
+    LearningTransportMessagePump CreateReceiver(ReceiveSettings receiveSettings)
     {
         var errorQueueAddress = receiveSettings.ErrorQueue;
         PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -75,15 +72,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
-        return pump;
-    }
-
-    public void ConfigureSendInfrastructure()
-    {
-        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
-
-        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
+        return new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
     }
 
     readonly string storagePath;
@@ -92,8 +81,6 @@ class LearningTransportInfrastructure : TransportInfrastructure
     readonly LearningTransport transport;
 
     const string DefaultLearningTransportDirectory = ".learningtransport";
-    public const string StorageLocationKey = "LearningTransport.StoragePath";
-    public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
 
     public override async Task Shutdown(CancellationToken cancellationToken = default) =>
         await Task.WhenAll(Receivers.Values.Select(r => r.StopReceive(cancellationToken)))
@@ -110,7 +97,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         {
             PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
 
-            address += "-" + discriminator;
+            address += $"-{discriminator}";
         }
 
         var qualifier = queueAddress.Qualifier;
@@ -119,7 +106,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         {
             PathChecker.ThrowForBadPath(qualifier, "address qualifier");
 
-            address += "-" + qualifier;
+            address += $"-{qualifier}";
         }
 
         return address;

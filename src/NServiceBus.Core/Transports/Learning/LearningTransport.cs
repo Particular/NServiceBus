@@ -29,9 +29,7 @@ public class LearningTransport : TransportDefinition
     {
         ArgumentNullException.ThrowIfNull(hostSettings);
         var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
-        learningTransportInfrastructure.ConfigureSendInfrastructure();
-
-        learningTransportInfrastructure.ConfigureReceiveInfrastructure();
+        learningTransportInfrastructure.Initialize();
 
         return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
     }
