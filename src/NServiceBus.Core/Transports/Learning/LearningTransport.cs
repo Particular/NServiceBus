@@ -37,15 +37,12 @@ public class LearningTransport : TransportDefinition
     }
 
     /// <inheritdoc />
-    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
-    {
-        return new[]
-        {
-            TransportTransactionMode.None,
-            TransportTransactionMode.ReceiveOnly,
-            TransportTransactionMode.SendsAtomicWithReceive
-        };
-    }
+    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() =>
+    [
+        TransportTransactionMode.None,
+        TransportTransactionMode.ReceiveOnly,
+        TransportTransactionMode.SendsAtomicWithReceive
+    ];
 
     /// <summary>
     /// Configures the storage directory to store files created by the transport.
