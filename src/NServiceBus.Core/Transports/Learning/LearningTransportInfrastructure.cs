@@ -95,10 +95,9 @@ class LearningTransportInfrastructure : TransportInfrastructure
     public const string StorageLocationKey = "LearningTransport.StoragePath";
     public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
 
-    public override Task Shutdown(CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
+    public override async Task Shutdown(CancellationToken cancellationToken = default) =>
+        await Task.WhenAll(Receivers.Values.Select(r => r.StopReceive(cancellationToken)))
+            .ConfigureAwait(false);
 
     public override string ToTransportAddress(QueueAddress queueAddress)
     {
