@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.IO;
@@ -60,7 +62,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
         var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
 
-        ISubscriptionManager subscriptionManager = null;
+        ISubscriptionManager? subscriptionManager = null;
         if (receiveSettings.UsePublishSubscribe)
         {
 
