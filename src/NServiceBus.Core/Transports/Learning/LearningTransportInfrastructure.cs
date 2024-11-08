@@ -1,7 +1,8 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,7 +21,11 @@ class LearningTransportInfrastructure : TransportInfrastructure
             storagePath = FindStoragePath();
         }
 
-        this.receiverSettings = receiverSettings;
+        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
+        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
+
+        Receivers = receiverSettings
+            .ToDictionary<ReceiveSettings, string, IMessageReceiver>(receiverSetting => receiverSetting.Id, CreateReceiver);
     }
 
     static string FindStoragePath()
@@ -48,19 +53,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         }
     }
 
-    public void ConfigureReceiveInfrastructure()
-    {
-        var receivers = new Dictionary<string, IMessageReceiver>();
-
-        foreach (var receiverSetting in receiverSettings)
-        {
-            receivers.Add(receiverSetting.Id, CreateReceiver(receiverSetting));
-        }
-
-        Receivers = receivers;
-    }
-
-    public IMessageReceiver CreateReceiver(ReceiveSettings receiveSettings)
+    LearningTransportMessagePump CreateReceiver(ReceiveSettings receiveSettings)
     {
         var errorQueueAddress = receiveSettings.ErrorQueue;
         PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
@@ -69,36 +62,24 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
         var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
 
-        ISubscriptionManager subscriptionManager = null;
+        ISubscriptionManager? subscriptionManager = null;
         if (receiveSettings.UsePublishSubscribe)
         {
 
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
-        return pump;
-    }
-
-    public void ConfigureSendInfrastructure()
-    {
-        var maxPayloadSize = transport.RestrictPayloadSize ? 64 : int.MaxValue / 1024; //64 kB is the max size of the ASQ transport
-
-        Dispatcher = new LearningTransportDispatcher(storagePath, maxPayloadSize);
+        return new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
     }
 
     readonly string storagePath;
     readonly HostSettings settings;
-    readonly ReceiveSettings[] receiverSettings;
     readonly LearningTransport transport;
 
     const string DefaultLearningTransportDirectory = ".learningtransport";
-    public const string StorageLocationKey = "LearningTransport.StoragePath";
-    public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
 
-    public override Task Shutdown(CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
+    public override async Task Shutdown(CancellationToken cancellationToken = default) =>
+        await Task.WhenAll(Receivers.Values.Select(r => r.StopReceive(cancellationToken)))
+            .ConfigureAwait(false);
 
     public override string ToTransportAddress(QueueAddress queueAddress)
     {
@@ -111,7 +92,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         {
             PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
 
-            address += "-" + discriminator;
+            address += $"-{discriminator}";
         }
 
         var qualifier = queueAddress.Qualifier;
@@ -120,7 +101,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         {
             PathChecker.ThrowForBadPath(qualifier, "address qualifier");
 
-            address += "-" + qualifier;
+            address += $"-{qualifier}";
         }
 
         return address;

@@ -82,7 +82,13 @@ class LearningTransportMessagePump : IMessageReceiver
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {
-        messagePumpCancellationTokenSource?.Cancel();
+        if (messagePumpCancellationTokenSource is null)
+        {
+            // Receiver hasn't been started or is already stopped
+            return;
+        }
+
+        await messagePumpCancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
         delayedMessagePoller.Stop();
 
@@ -111,6 +117,7 @@ class LearningTransportMessagePump : IMessageReceiver
 
         concurrencyLimiter?.Dispose();
         messagePumpCancellationTokenSource?.Dispose();
+        messagePumpCancellationTokenSource = null;
         messageProcessingCancellationTokenSource.Dispose();
     }
 

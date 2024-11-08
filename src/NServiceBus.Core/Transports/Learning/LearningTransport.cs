@@ -28,24 +28,16 @@ public class LearningTransport : TransportDefinition
     public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(hostSettings);
-        var learningTransportInfrastructure = new LearningTransportInfrastructure(hostSettings, this, receivers);
-        learningTransportInfrastructure.ConfigureSendInfrastructure();
-
-        learningTransportInfrastructure.ConfigureReceiveInfrastructure();
-
-        return Task.FromResult<TransportInfrastructure>(learningTransportInfrastructure);
+        return Task.FromResult<TransportInfrastructure>(new LearningTransportInfrastructure(hostSettings, this, receivers));
     }
 
     /// <inheritdoc />
-    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
-    {
-        return new[]
-        {
-            TransportTransactionMode.None,
-            TransportTransactionMode.ReceiveOnly,
-            TransportTransactionMode.SendsAtomicWithReceive
-        };
-    }
+    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() =>
+    [
+        TransportTransactionMode.None,
+        TransportTransactionMode.ReceiveOnly,
+        TransportTransactionMode.SendsAtomicWithReceive
+    ];
 
     /// <summary>
     /// Configures the storage directory to store files created by the transport.
