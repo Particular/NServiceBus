@@ -1,0 +1,23 @@
+name: Integrity
+on:
+  push:
+    branches:
+      - master
+      - main
+      - release-*
+  pull_request:
+  workflow_dispatch:
+env:
+  DOTNET_NOLOGO: true
+defaults:
+  run:
+    shell: pwsh
+jobs:
+  repo-integrity:
+    name: Repo integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Repo integrity tests
+        uses: Particular/repo-integrity-action@main
