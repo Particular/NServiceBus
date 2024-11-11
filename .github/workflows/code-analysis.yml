@@ -1,4 +1,4 @@
-name: Integrity
+name: Code Analysis
 on:
   push:
     branches:
@@ -13,8 +13,8 @@ defaults:
   run:
     shell: pwsh
 jobs:
-  repo-integrity:
-    name: Repo integrity
+  code-analysis:
+    name: Code Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
