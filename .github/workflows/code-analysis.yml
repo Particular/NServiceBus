@@ -1,0 +1,23 @@
+name: Code Analysis
+on:
+  push:
+    branches:
+      - main
+      - master
+      - release-*
+  pull_request:
+  workflow_dispatch:
+env:
+  DOTNET_NOLOGO: true
+defaults:
+  run:
+    shell: pwsh
+jobs:
+  code-analysis:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Repo integrity tests
+        uses: Particular/repo-integrity-action@main
