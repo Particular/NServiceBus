@@ -117,7 +117,7 @@ class LearningTransportDispatcher : IMessageDispatcher
 
         if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
         {
-            throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Use 'EndpointConfiguration.UseTransport<LearningTransport>().NoPayloadSizeRestriction()' to disable this check and proceed with the current message size.");
+            throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Set 'transport.RestrictPayloadSize = true;' to disable this check and proceed with the current message size.");
         }
 
         if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
