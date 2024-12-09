@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -117,7 +116,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         public bool OutgoingMessageReceived { get; set; }
         public string SentMessageId { get; set; }
         public string MessageConversationId { get; set; }
-        public IReadOnlyDictionary<string, string> SentMessageHeaders { get; set; }
+        public Dictionary<string, string> SentMessageHeaders { get; set; }
     }
 
 
@@ -136,7 +135,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
                 testContext.SentMessageId = context.MessageId;
                 testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                 testContext.OutgoingMessageReceived = true;
-                testContext.SentMessageHeaders = new ReadOnlyDictionary<string, string>((IDictionary<string, string>)context.MessageHeaders);
+                testContext.SentMessageHeaders = new Dictionary<string, string>((IDictionary<string, string>)context.MessageHeaders);
                 return Task.CompletedTask;
             }
         }
