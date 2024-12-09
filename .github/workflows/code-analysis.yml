@@ -22,6 +22,8 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4.1.0
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            9.0.x
+            8.0.x
       - name: Repo integrity tests
         uses: Particular/repo-integrity-action@main
