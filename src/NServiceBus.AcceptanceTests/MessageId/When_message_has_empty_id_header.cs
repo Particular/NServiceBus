@@ -40,7 +40,7 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
     {
         public bool MessageReceived { get; set; }
         public string MessageId { get; set; }
-        public IReadOnlyDictionary<string, string> Headers { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
     }
 
     class Endpoint : EndpointConfigurationBuilder

@@ -156,7 +156,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_handle_interface_message_with_interface_property()
         {
-            IMessageWithInterfaceProperty message = new InterfaceMessageWithInterfacePropertyImplementation
+            var message = new InterfaceMessageWithInterfacePropertyImplementation
             {
                 InterfaceProperty = new InterfacePropertyImplementation
                 {
