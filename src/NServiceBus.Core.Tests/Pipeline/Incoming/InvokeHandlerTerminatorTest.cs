@@ -109,7 +109,7 @@ public class InvokeHandlerTerminatorTest
         Assert.That(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
     }
 
-    static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, IInvokeHandlerContext behaviorContext)
+    static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, TestableInvokeHandlerContext behaviorContext)//
     {
         var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), [], new Conventions()), () => DateTime.UtcNow);
         behaviorContext.Extensions.Set(sagaInstance);

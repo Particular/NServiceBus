@@ -653,7 +653,7 @@ class XmlDeserialization
     string defaultNamespace;
     readonly IMessageMapper mapper;
     readonly List<Type> messageBaseTypes = [];
-    readonly IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
+    readonly Dictionary<string, string> prefixesToNamespaces = [];
     readonly bool sanitizeInput;
     readonly bool skipWrappingRawXml;
 
