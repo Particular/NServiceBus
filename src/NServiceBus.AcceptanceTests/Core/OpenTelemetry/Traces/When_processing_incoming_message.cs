@@ -55,7 +55,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         public string IncomingMessageId { get; set; }
         public string IncomingMessageConversationId { get; set; }
         public bool IncomingMessageReceived { get; set; }
-        public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
+        public Dictionary<string, string> ReceivedHeaders { get; set; }
         public string IncomingNativeMessageId { get; set; }
     }
 
