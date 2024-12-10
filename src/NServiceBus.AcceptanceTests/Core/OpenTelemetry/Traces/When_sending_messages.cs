@@ -102,7 +102,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         public bool OutgoingMessageReceived { get; set; }
         public string SentMessageId { get; set; }
         public string MessageConversationId { get; set; }
-        public IReadOnlyDictionary<string, string> SentMessageHeaders { get; set; }
+        public Dictionary<string, string> SentMessageHeaders { get; set; }
     }
 
 
