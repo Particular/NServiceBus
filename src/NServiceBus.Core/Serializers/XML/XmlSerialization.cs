@@ -279,7 +279,7 @@ class XmlSerialization : IDisposable
         return propertyInfo?.GetIndexParameters().Length > 0;
     }
 
-    static void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
+    static void WriteElementNamespaces(XElement elem, List<string> baseTypes)
     {
         elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", xsiNamespace),
             new XAttribute(XNamespace.Xmlns + "xsd", xsdNamespace));
