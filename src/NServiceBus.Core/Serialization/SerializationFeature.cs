@@ -95,13 +95,13 @@ class SerializationFeature : Feature
         return serializer;
     }
 
-    static void LogFoundMessages(IReadOnlyCollection<MessageMetadata> messageDefinitions)
+    static void LogFoundMessages(MessageMetadata[] messageDefinitions)
     {
         if (!Logger.IsInfoEnabled)
         {
             return;
         }
-        Logger.DebugFormat("Number of messages found: {0}", messageDefinitions.Count);
+        Logger.DebugFormat("Number of messages found: {0}", messageDefinitions.Length);
         if (!Logger.IsDebugEnabled)
         {
             return;
