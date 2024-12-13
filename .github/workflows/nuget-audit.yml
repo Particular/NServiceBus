@@ -1,0 +1,19 @@
+name: NuGet Audit
+on:
+  workflow_dispatch:
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  build:
+    name: Linux
+    runs-on: ubuntu-22.04    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4.1.0
+        with:
+          global-json-file: global.json
+      - name: Restore
+        id: restore
+        run: dotnet restore src
