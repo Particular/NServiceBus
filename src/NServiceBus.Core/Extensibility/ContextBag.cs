@@ -30,7 +30,7 @@ public class ContextBag : IReadOnlyContextBag
     }
 
     /// <summary>
-    /// Tries to retrieves the specified type from the context.
+    /// Tries to retrieve the specified type from the context.
     /// </summary>
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <param name="result">The type instance.</param>
@@ -41,7 +41,7 @@ public class ContextBag : IReadOnlyContextBag
     }
 
     /// <summary>
-    /// Tries to retrieves the specified type from the context.
+    /// Tries to retrieve the specified type from the context.
     /// </summary>
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <param name="key">The key of the value being looked up.</param>
