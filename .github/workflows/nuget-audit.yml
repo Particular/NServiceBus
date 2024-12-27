@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4.1.0
+        uses: actions/setup-dotnet@v4.2.0
         with:
           global-json-file: global.json
       - name: Restore
