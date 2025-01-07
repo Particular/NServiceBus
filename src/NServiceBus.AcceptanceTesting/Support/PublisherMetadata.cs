@@ -23,23 +23,17 @@ public class PublisherMetadata
         publisher.RegisterOwnedEvent<T>();
     }
 
-    public void RegisterPublisherFor<T>(Type endpointType)
+    public void RegisterSelfAsPublisherFor<TEventType>(object self) => RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(self.GetType()));
+
+    public void RegisterPublisherFor<TEventType>(Type endpointType) => RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(endpointType));
+
+    readonly Dictionary<string, PublisherDetails> publisherDetails = [];
+
+    public class PublisherDetails(string publisherName)
     {
-        RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
-    }
-
-    Dictionary<string, PublisherDetails> publisherDetails = [];
-
-    public class PublisherDetails
-    {
-        public PublisherDetails(string publisherName)
-        {
-            PublisherName = publisherName;
-        }
-
         public List<Type> Events { get; } = [];
 
-        public string PublisherName { get; }
+        public string PublisherName { get; } = publisherName;
 
         public void RegisterOwnedEvent<T>()
         {
