@@ -27,6 +27,8 @@ public class PublisherMetadata
 
     public void RegisterPublisherFor<TEventType>(Type endpointType) => RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(endpointType));
 
+    public PublisherDetails this[string publisherName] => publisherDetails.TryGetValue(publisherName, out var publisherDetail) ? publisherDetail : new PublisherDetails(publisherName);
+
     readonly Dictionary<string, PublisherDetails> publisherDetails = [];
 
     public class PublisherDetails(string publisherName)
