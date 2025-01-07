@@ -7,15 +7,13 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NUnit.Framework;
 
-public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTestExecution
+public class ConfigureEndpointAcceptanceTestingTransport(
+    bool useNativePubSub,
+    bool useNativeDelayedDelivery,
+    TransportTransactionMode? transactionMode = null,
+    bool? enforcePublisherMetadata = null)
+    : IConfigureEndpointTestExecution
 {
-    public ConfigureEndpointAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery, TransportTransactionMode? transactionMode = null)
-    {
-        this.useNativePubSub = useNativePubSub;
-        this.useNativeDelayedDelivery = useNativeDelayedDelivery;
-        this.transactionMode = transactionMode;
-    }
-
     public Task Cleanup()
     {
         try
@@ -25,26 +23,22 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
                 Directory.Delete(storageDir, true);
             }
         }
-        catch { }
+        catch
+        {
+            // ignored
+        }
 
         return Task.CompletedTask;
     }
 
-    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
+    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings,
+        PublisherMetadata publisherMetadata)
     {
         var testRunId = TestContext.CurrentContext.Test.ID;
 
-        string tempDir;
-
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-        {
+        string tempDir =
             //can't use bin dir since that will be too long on the build agents
-            tempDir = @"c:\temp";
-        }
-        else
-        {
-            tempDir = Path.GetTempPath();
-        }
+            Environment.OSVersion.Platform == PlatformID.Win32NT ? @"c:\temp" : Path.GetTempPath();
 
         storageDir = Path.Combine(tempDir, "acc", testRunId);
 
@@ -58,6 +52,12 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
         if (transactionMode.HasValue)
         {
             acceptanceTestingTransport.TransportTransactionMode = transactionMode.Value;
+        }
+
+        if (enforcePublisherMetadata.GetValueOrDefault(false))
+        {
+            configuration.Pipeline.Register(new EnforcePublisherMetadataBehavior(endpointName, publisherMetadata),
+                "Enforces all published events have corresponding mappings in the PublisherMetadata");
         }
 
         var routing = configuration.UseTransport(acceptanceTestingTransport);
@@ -76,10 +76,6 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
 
         return Task.CompletedTask;
     }
-
-    readonly bool useNativePubSub;
-    readonly bool useNativeDelayedDelivery;
-    readonly TransportTransactionMode? transactionMode;
 
     string storageDir;
 }
