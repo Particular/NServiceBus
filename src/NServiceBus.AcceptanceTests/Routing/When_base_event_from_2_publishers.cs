@@ -50,8 +50,7 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
 
     public class Publisher1 : EndpointConfigurationBuilder
     {
-        public Publisher1()
-        {
+        public Publisher1() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 context.AddTrace($"{Conventions.EndpointNamingConvention(typeof(Publisher1))} SubscriberEndpoint={s.SubscriberEndpoint}");
@@ -59,14 +58,12 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
                 {
                     context.SubscribedToPublisher1 = true;
                 }
-            }));
-        }
+            }), metadata => metadata.RegisterSelfAsPublisherFor<DerivedEvent1>(this));
     }
 
     public class Publisher2 : EndpointConfigurationBuilder
     {
-        public Publisher2()
-        {
+        public Publisher2() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 context.AddTrace($"{Conventions.EndpointNamingConvention(typeof(Publisher2))} SubscriberEndpoint={s.SubscriberEndpoint}");
@@ -75,29 +72,21 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
                 {
                     context.SubscribedToPublisher2 = true;
                 }
-            }));
-        }
+            }), metadata => metadata.RegisterSelfAsPublisherFor<DerivedEvent2>(this));
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
     {
-        public Subscriber1()
-        {
+        public Subscriber1() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata =>
                 {
                     metadata.RegisterPublisherFor<DerivedEvent1>(typeof(Publisher1));
                     metadata.RegisterPublisherFor<DerivedEvent2>(typeof(Publisher2));
                 });
-        }
 
-        public class Handler : IHandleMessages<BaseEvent>
+        public class Handler(Context testContext) : IHandleMessages<BaseEvent>
         {
-            public Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(BaseEvent message, IMessageHandlerContext context)
             {
                 if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
@@ -111,23 +100,12 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
+    public class BaseEvent : IEvent;
 
-    public class BaseEvent : IEvent
-    {
-    }
+    public class DerivedEvent1 : BaseEvent;
 
-
-    public class DerivedEvent1 : BaseEvent
-    {
-    }
-
-
-    public class DerivedEvent2 : BaseEvent
-    {
-    }
+    public class DerivedEvent2 : BaseEvent;
 }
