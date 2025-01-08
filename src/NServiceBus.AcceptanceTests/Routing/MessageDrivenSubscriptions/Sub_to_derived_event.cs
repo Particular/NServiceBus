@@ -60,7 +60,7 @@ public class Sub_to_derived_event : NServiceBusAcceptanceTest
                 c.DisableFeature<AutoSubscribe>();
                 c.LimitMessageProcessingConcurrencyTo(1); //To ensure Done is processed after the event.
             },
-            metadata => metadata.RegisterPublisherFor<SpecificEvent>(typeof(Publisher)));
+            metadata => metadata.RegisterPublisherFor<SpecificEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<SpecificEvent>

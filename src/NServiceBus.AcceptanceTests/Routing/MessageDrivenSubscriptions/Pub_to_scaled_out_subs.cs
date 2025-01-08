@@ -70,7 +70,7 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         public SubscriberA()
         {
-            EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+            EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>
@@ -94,7 +94,7 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         public SubscriberB()
         {
-            EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+            EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

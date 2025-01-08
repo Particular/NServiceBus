@@ -88,7 +88,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher));
+                    metadata.RegisterPublisherFor<SomeEvent, Publisher>();
                 });
 
         public class ThisHandlesSomethingHandler : IHandleMessages<SomeEvent>

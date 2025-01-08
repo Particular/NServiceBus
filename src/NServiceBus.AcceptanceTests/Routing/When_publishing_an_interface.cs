@@ -84,7 +84,7 @@ public class When_publishing_an_interface : NServiceBusAcceptanceTest
                 {
                     c.DisableFeature<AutoSubscribe>();
                 },
-                metadata => metadata.RegisterPublisherFor<IMyEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<IMyEvent>

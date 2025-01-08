@@ -60,7 +60,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
     {
         public Subscriber1()
         {
-            EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage>(typeof(Publisher)));
+            EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<EventMessage>

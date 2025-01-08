@@ -109,7 +109,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             {
                 c.DisableFeature<AutoSubscribe>();
             },
-            metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent)));
+            metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent, SagaThatPublishesAnEvent>());
         }
 
         public class EventFromOtherSaga2 : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,

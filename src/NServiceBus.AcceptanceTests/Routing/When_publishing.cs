@@ -144,7 +144,7 @@ public class When_publishing : NServiceBusAcceptanceTest
         public Subscriber3()
         {
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                metadata => metadata.RegisterPublisherFor<IFoo>(typeof(Publisher3)));
+                metadata => metadata.RegisterPublisherFor<IFoo, Publisher3>());
         }
 
         public class MyHandler : IHandleMessages<IFoo>
@@ -169,7 +169,7 @@ public class When_publishing : NServiceBusAcceptanceTest
         public Subscriber1()
         {
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                 metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>
@@ -195,7 +195,7 @@ public class When_publishing : NServiceBusAcceptanceTest
         public Subscriber2()
         {
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

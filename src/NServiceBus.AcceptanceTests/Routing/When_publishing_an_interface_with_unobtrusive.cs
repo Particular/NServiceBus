@@ -86,7 +86,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                 c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
                 c.DisableFeature<AutoSubscribe>();
             },
-            metadata => metadata.RegisterPublisherFor<IMyEvent>(typeof(Publisher)));
+            metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<IMyEvent>

@@ -81,8 +81,8 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<DerivedEvent1>(typeof(Publisher1));
-                    metadata.RegisterPublisherFor<DerivedEvent2>(typeof(Publisher2));
+                    metadata.RegisterPublisherFor<DerivedEvent1, Publisher1>();
+                    metadata.RegisterPublisherFor<DerivedEvent2, Publisher2>();
                 });
 
         public class Handler(Context testContext) : IHandleMessages<BaseEvent>

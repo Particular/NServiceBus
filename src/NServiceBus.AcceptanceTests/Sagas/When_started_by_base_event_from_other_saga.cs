@@ -60,7 +60,7 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
             {
                 c.DisableFeature<AutoSubscribe>();
             },
-            metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
+            metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
         }
 
         public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>

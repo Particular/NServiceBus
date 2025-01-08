@@ -93,7 +93,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                    c.DisableFeature<AutoSubscribe>();
                    c.LimitMessageProcessingConcurrencyTo(1);
                },
-               metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
+               metadata => metadata.RegisterPublisherFor<Event, Publisher>());
         }
 
         public class Handler : IHandleMessages<Event>
@@ -122,7 +122,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                     c.DisableFeature<AutoSubscribe>();
                     c.LimitMessageProcessingConcurrencyTo(1);
                 },
-                metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<Event, Publisher>());
         }
 
         public class Handler : IHandleMessages<Event>

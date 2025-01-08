@@ -50,7 +50,7 @@ public class Sub_to_base_event : NServiceBusAcceptanceTest
         public GeneralSubscriber()
         {
             EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
-                metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<IBaseEvent>

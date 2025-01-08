@@ -98,8 +98,8 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                     metadata =>
                     {
-                        metadata.RegisterPublisherFor<IMyEvent>(typeof(Publisher1));
-                        metadata.RegisterPublisherFor<MyEvent2>(typeof(Publisher2));
+                        metadata.RegisterPublisherFor<IMyEvent, Publisher1>();
+                        metadata.RegisterPublisherFor<MyEvent2, Publisher2>();
                     });
         }
 

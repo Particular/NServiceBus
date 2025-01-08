@@ -165,7 +165,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<ThisIsAnEvent>(typeof(Publisher));
+                    metadata.RegisterPublisherFor<ThisIsAnEvent, Publisher>();
                 });
 
         public class ThisHandlesSomethingHandler : IHandleMessages<ThisIsAnEvent>

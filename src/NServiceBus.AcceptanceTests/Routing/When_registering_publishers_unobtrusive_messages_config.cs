@@ -49,7 +49,7 @@ public class When_registering_publishers_unobtrusive_messages_config : NServiceB
         public Subscriber()
         {
             EndpointSetup<DefaultServer>(c => c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)),
-            metadata => metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher)));
+            metadata => metadata.RegisterPublisherFor<SomeEvent, Publisher>());
         }
 
         public class Handler : IHandleMessages<SomeEvent>

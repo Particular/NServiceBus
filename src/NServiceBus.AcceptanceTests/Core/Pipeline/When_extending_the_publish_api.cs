@@ -88,7 +88,7 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {
         public Subscriber1()
         {
-            EndpointSetup<DefaultServer>(builder => builder.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+            EndpointSetup<DefaultServer>(builder => builder.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

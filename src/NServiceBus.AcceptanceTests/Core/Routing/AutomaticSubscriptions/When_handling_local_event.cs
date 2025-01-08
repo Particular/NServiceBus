@@ -50,7 +50,7 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                         context.EventSubscribed = true;
                     }
                 });
-            }, metadata => metadata.RegisterPublisherFor<Event>(typeof(PublisherAndSubscriber)));
+            }, metadata => metadata.RegisterPublisherFor<Event, PublisherAndSubscriber>());
         }
 
         public class Handler : IHandleMessages<Event>

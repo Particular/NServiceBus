@@ -87,8 +87,8 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<IEventA>(typeof(Publisher));
-                    metadata.RegisterPublisherFor<IEventB>(typeof(Publisher));
+                    metadata.RegisterPublisherFor<IEventA, Publisher>();
+                    metadata.RegisterPublisherFor<IEventB, Publisher>();
                 });
         }
 
