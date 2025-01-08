@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AcceptanceTesting.Customization;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NUnit.Framework;
@@ -56,10 +57,7 @@ public class ConfigureEndpointAcceptanceTestingTransport(
 
         if (enforcePublisherMetadata.GetValueOrDefault(false))
         {
-            configuration.Pipeline.Register(new EnforcePublisherMetadataBehavior(endpointName, publisherMetadata),
-                "Enforces all published events have corresponding mappings in the PublisherMetadata");
-            configuration.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
-                "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
+            configuration.EnforcePublisherMetadataRegistration(endpointName, publisherMetadata);
         }
 
         var routing = configuration.UseTransport(acceptanceTestingTransport);
