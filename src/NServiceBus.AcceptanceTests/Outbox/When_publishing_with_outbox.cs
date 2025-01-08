@@ -96,7 +96,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
                     }
                 });
                 b.DisableFeature<AutoSubscribe>();
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
 
         public class TriggerHandler : IHandleMessages<TriggerMessage>
         {

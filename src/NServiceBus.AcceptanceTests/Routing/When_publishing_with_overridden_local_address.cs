@@ -46,7 +46,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                 {
                     context.Subscriber1Subscribed = true;
                 }
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 

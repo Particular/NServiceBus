@@ -62,7 +62,10 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         public Publisher()
         {
-            EndpointSetup<DefaultServer>(c => { c.OnEndpointSubscribed<Context>((s, context) => { context.IncrementSubscribersCounter(); }); });
+            EndpointSetup<DefaultServer>(c =>
+            {
+                c.OnEndpointSubscribed<Context>((s, context) => { context.IncrementSubscribersCounter(); });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 

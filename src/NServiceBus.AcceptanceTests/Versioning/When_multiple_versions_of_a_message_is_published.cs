@@ -74,7 +74,7 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
                 {
                     context.V2Subscribed = true;
                 }
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<V2Event>(this));
         }
     }
 

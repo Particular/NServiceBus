@@ -80,7 +80,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                         ctx.Subscriber2Unsubscribed = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<Event>(this));
         }
     }
 

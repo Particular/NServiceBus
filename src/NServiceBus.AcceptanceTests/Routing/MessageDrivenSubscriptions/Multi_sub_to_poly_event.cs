@@ -65,7 +65,7 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
                         context.Publisher1HasASubscriberForIMyEvent = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent1>(this));
         }
     }
 
@@ -87,7 +87,7 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
                         context.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent2>(this));
         }
     }
 

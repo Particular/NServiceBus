@@ -56,7 +56,7 @@ public class When_publishing_an_interface : NServiceBusAcceptanceTest
                         context.Subscribed = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
         }
 
         class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>

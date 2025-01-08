@@ -119,7 +119,7 @@ public class When_publishing : NServiceBusAcceptanceTest
                     }
                 });
                 b.DisableFeature<AutoSubscribe>();
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 
@@ -135,7 +135,7 @@ public class When_publishing : NServiceBusAcceptanceTest
                     context.AddTrace($"{subscriber3} is now subscribed");
                     context.Subscriber3Subscribed = true;
                 }
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<IFoo>(this));
         }
     }
 

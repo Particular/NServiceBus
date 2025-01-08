@@ -52,7 +52,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                 {
                     context.Subscriber1Subscribed = true;
                 }
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<EventMessage>(this));
         }
     }
 

@@ -56,7 +56,7 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
                         context.Subscribed = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
         }
 
         public class StartMessageHandler : IHandleMessages<StartMessage>

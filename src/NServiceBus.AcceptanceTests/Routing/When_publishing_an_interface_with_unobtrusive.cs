@@ -57,7 +57,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                         context.Subscribed = true;
                     }
                 });
-            }).ExcludeType<IMyEvent>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this)).ExcludeType<IMyEvent>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
         }
 
         class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>

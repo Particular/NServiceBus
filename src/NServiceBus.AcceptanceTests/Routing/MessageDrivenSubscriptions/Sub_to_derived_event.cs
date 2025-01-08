@@ -47,7 +47,7 @@ public class Sub_to_derived_event : NServiceBusAcceptanceTest
                     context.SubscriberSubscribed = true;
                 });
                 b.ConfigureRouting().RouteToEndpoint(typeof(Done), typeof(Subscriber));
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IBaseEvent>(this));
         }
     }
 

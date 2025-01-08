@@ -48,7 +48,7 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
             {
                 context.AddTrace($"Subscription received for {s.SubscriberEndpoint}");
                 context.IsEventSubscriptionReceived = true;
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<ISomethingHappenedEvent>(this));
         }
     }
 

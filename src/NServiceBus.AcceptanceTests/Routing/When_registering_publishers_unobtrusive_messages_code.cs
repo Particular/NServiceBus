@@ -40,7 +40,7 @@ public class When_registering_publishers_unobtrusive_messages_code : NServiceBus
             {
                 c.OnEndpointSubscribed<Context>((e, ctx) => ctx.Subscribed = true);
                 c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
-            }).ExcludeType<SomeEvent>();
+            }, metadata => metadata.RegisterSelfAsPublisherFor<SomeEvent>(this)).ExcludeType<SomeEvent>();
         }
     }
 
