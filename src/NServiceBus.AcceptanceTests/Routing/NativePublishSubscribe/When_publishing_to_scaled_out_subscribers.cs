@@ -54,7 +54,7 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
     {
         public Publisher()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 
@@ -62,7 +62,7 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
     {
         public SubscriberA()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>
@@ -86,7 +86,7 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
     {
         public SubscriberB()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

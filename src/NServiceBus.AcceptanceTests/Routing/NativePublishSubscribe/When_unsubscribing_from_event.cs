@@ -70,7 +70,7 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         public Publisher()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<Event>(this));
         }
     }
 
@@ -78,7 +78,8 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         public Subscriber1()
         {
-            EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
+            EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
+                metadata => metadata.RegisterPublisherFor<Event, Publisher>());
         }
 
         public class Handler : IHandleMessages<Event>
@@ -103,7 +104,7 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         public Subscriber2()
         {
-            EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
+            EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); }, metadata => metadata.RegisterPublisherFor<Event, Publisher>());
         }
 
         public class Handler : IHandleMessages<Event>

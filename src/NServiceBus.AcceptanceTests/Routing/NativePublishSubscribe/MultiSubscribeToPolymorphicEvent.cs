@@ -44,7 +44,7 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
     {
         public Publisher1()
         {
-            EndpointSetup<DefaultPublisher>();
+            EndpointSetup<DefaultPublisher>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent1>(this));
         }
     }
 
@@ -52,7 +52,7 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
     {
         public Publisher2()
         {
-            EndpointSetup<DefaultPublisher>();
+            EndpointSetup<DefaultPublisher>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent2>(this));
         }
     }
 
@@ -60,7 +60,11 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
     {
         public Subscriber()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata =>
+            {
+                metadata.RegisterPublisherFor<IMyEvent, Publisher1>();
+                metadata.RegisterPublisherFor<IMyEvent, Publisher2>();
+            });
         }
 
         public class MyHandler : IHandleMessages<IMyEvent>
