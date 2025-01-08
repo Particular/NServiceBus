@@ -11,7 +11,7 @@ public class EnforcePublisherMetadataBehavior(string endpointName, PublisherMeta
         var publisherDetails = publisherMetadata[endpointName];
         if (!publisherDetails.Events.Contains(context.Message.MessageType))
         {
-            throw new Exception("The event being published does not have a corresponding mapping in the PublisherMetadata. Please ensure that the event is being published by the correct publisher endpoint.");
+            throw new Exception("The event being published does not have a corresponding mapping in the PublisherMetadata.");
         }
         return next(context);
     }

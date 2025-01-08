@@ -58,6 +58,8 @@ public class ConfigureEndpointAcceptanceTestingTransport(
         {
             configuration.Pipeline.Register(new EnforcePublisherMetadataBehavior(endpointName, publisherMetadata),
                 "Enforces all published events have corresponding mappings in the PublisherMetadata");
+            configuration.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
+                "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
         }
 
         var routing = configuration.UseTransport(acceptanceTestingTransport);
