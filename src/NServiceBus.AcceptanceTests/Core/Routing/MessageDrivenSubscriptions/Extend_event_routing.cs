@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions;
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing.MessageDrivenSubscriptions;
 
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using AcceptanceTesting.Customization;
-using Configuration.AdvancedExtensibility;
-using EndpointTemplates;
-using Features;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTesting.Customization;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
+using NServiceBus.Configuration.AdvancedExtensibility;
+using NServiceBus.Features;
 using NServiceBus.Routing.MessageDrivenSubscriptions;
 using NUnit.Framework;
 

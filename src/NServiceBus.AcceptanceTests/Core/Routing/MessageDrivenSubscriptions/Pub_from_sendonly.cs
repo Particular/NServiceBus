@@ -1,19 +1,19 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions;
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing.MessageDrivenSubscriptions;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
-using Extensibility;
-using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
+using NServiceBus.Extensibility;
+using NServiceBus.Features;
+using NServiceBus.Persistence;
+using NServiceBus.Unicast.Subscriptions;
+using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 using NUnit.Framework;
-using Persistence;
-using Unicast.Subscriptions;
-using Unicast.Subscriptions.MessageDrivenSubscriptions;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class Pub_from_sendonly : NServiceBusAcceptanceTest
@@ -46,7 +46,7 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
                 b.SendOnly();
                 b.UsePersistence(typeof(HardCodedPersistence));
                 b.DisableFeature<AutoSubscribe>();
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 
