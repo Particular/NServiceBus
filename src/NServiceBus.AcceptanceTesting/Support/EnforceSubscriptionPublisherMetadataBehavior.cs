@@ -9,11 +9,11 @@ using Pipeline;
 
 public class EnforceSubscriptionPublisherMetadataBehavior(string endpointName, PublisherMetadata publisherMetadata) : IBehavior<ISubscribeContext, ISubscribeContext>
 {
-    readonly Dictionary<Type, bool> eventTypeMap = publisherMetadata.Publishers.SelectMany(publisher => publisher.Events).ToDictionary(eventType => eventType, _ => true);
+    readonly HashSet<Type> eventTypeMap = publisherMetadata.Publishers.SelectMany(publisher => publisher.Events).ToHashSet();
 
     public Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
     {
-        var unmappedEventTypes = new List<Type>(context.EventTypes.Where(eventType => !eventTypeMap.ContainsKey(eventType)));
+        var unmappedEventTypes = new List<Type>(context.EventTypes.Where(eventType => !eventTypeMap.Contains(eventType)));
         if (unmappedEventTypes.Count == 0)
         {
             return next(context);
