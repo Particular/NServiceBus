@@ -41,19 +41,13 @@ public class PublisherMetadata
 
     public class PublisherDetails(string publisherName)
     {
-        public List<Type> Events { get; } = [];
+        public HashSet<Type> Events { get; } = [];
 
         public string PublisherName { get; } = publisherName;
 
         public void RegisterOwnedEvent<T>()
         {
             var eventType = typeof(T);
-
-            if (Events.Contains(eventType))
-            {
-                return;
-            }
-
             Events.Add(eventType);
         }
     }
