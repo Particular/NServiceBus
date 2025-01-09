@@ -43,8 +43,8 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<MyEventWithParent>(typeof(Subscriber));
-                    metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<MyEventWithParent, Subscriber>();
+                    metadata.RegisterPublisherFor<MyEvent, Subscriber>();
                 });
         }
 

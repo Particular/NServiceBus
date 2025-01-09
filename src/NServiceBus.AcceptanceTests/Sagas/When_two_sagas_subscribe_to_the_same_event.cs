@@ -44,7 +44,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<GroupPendingEvent>(this));
         }
 
         class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
@@ -67,7 +67,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                 {
                     c.ConfigureRouting().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
                 },
-                metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<GroupPendingEvent, Publisher>());
         }
 
         public class Saga1 : Saga<Saga1.MySaga1Data>,

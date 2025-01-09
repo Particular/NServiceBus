@@ -72,7 +72,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
     {
         public SubscriberEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(
             c => c.DisableFeature<AutoSubscribe>(),
-            p => p.RegisterPublisherFor<DemoEvent>(typeof(PublishingEndpoint)));
+            p => p.RegisterPublisherFor<DemoEvent, PublishingEndpoint>());
     }
 
     class PublishingEndpoint : EndpointConfigurationBuilder

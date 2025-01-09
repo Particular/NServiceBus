@@ -46,7 +46,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                 {
                     context.Subscriber1Subscribed = true;
                 }
-            }));
+            }), metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 
@@ -59,7 +59,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                 builder.DisableFeature<AutoSubscribe>();
                 builder.OverrideLocalAddress("myinputqueue");
             },
-            metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+            metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

@@ -2,12 +2,13 @@ namespace NServiceBus.AcceptanceTests;
 
 using System.IO;
 using System.Threading.Tasks;
+using AcceptanceTesting.Customization;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
-public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecution
+public class ConfigureEndpointLearningTransport(bool enforcePublisherMetadata = true) : IConfigureEndpointTestExecution
 {
     public Task Cleanup()
     {
@@ -28,6 +29,11 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         var testRunId = TestContext.CurrentContext.Test.ID;
 
         storageDir = Path.Combine(Path.GetTempPath(), "learn", testRunId);
+
+        if (enforcePublisherMetadata)
+        {
+            configuration.EnforcePublisherMetadataRegistration(endpointName, publisherMetadata);
+        }
 
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);

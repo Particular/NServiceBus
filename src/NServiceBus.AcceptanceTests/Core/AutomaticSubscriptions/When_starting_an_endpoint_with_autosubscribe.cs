@@ -56,8 +56,8 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
-                    metadata.RegisterPublisherFor<MyEventWithNoHandler>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<MyEvent, Subscriber>();
+                    metadata.RegisterPublisherFor<MyEventWithNoHandler, Subscriber>();
                 });
         }
 

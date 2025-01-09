@@ -61,7 +61,7 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
                         new EndpointInstance(publisherName, "2")
                     ]);
                 },
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
+                metadata => metadata.RegisterPublisherFor<MyEvent, ScaledOutPublisher>());
         }
     }
 
