@@ -62,7 +62,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
                     var routingSettings = new RoutingSettings<AcceptanceTestingTransport>(c.GetSettings());
                     routingSettings.DisablePublishing();
                 },
-                pm => pm.RegisterPublisherFor<TestEvent>(typeof(MessageDrivenPublisher)));
+                pm => pm.RegisterPublisherFor<TestEvent, MessageDrivenPublisher>());
         }
 
         class EventHandler : IHandleMessages<TestEvent>

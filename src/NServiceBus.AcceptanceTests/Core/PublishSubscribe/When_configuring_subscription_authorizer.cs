@@ -58,8 +58,8 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
                 routingSettings.DisablePublishing();
             }, p =>
             {
-                p.RegisterPublisherFor<ForbiddenEvent>(typeof(PublisherWithAuthorizer));
-                p.RegisterPublisherFor<AllowedEvent>(typeof(PublisherWithAuthorizer));
+                p.RegisterPublisherFor<ForbiddenEvent, PublisherWithAuthorizer>();
+                p.RegisterPublisherFor<AllowedEvent, PublisherWithAuthorizer>();
             });
         }
     }

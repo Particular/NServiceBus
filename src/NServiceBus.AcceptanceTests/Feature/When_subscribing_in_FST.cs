@@ -62,7 +62,7 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
                         }
                     });
                 },
-                p => p.RegisterPublisherFor<LocalEvent>(typeof(EndpointWithStartupTask)));
+                p => p.RegisterPublisherFor<LocalEvent, EndpointWithStartupTask>());
         }
 
         class MessageHandler : IHandleMessages<LocalEvent>

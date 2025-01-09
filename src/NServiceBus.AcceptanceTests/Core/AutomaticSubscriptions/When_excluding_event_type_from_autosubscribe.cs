@@ -50,8 +50,8 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
                 },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<EventToSubscribeTo>(typeof(Subscriber));
-                    metadata.RegisterPublisherFor<EventToExclude>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<EventToSubscribeTo, Subscriber>();
+                    metadata.RegisterPublisherFor<EventToExclude, Subscriber>();
                 });
         }
 

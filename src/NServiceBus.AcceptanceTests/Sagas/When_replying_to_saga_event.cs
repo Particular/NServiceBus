@@ -44,7 +44,7 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
     {
         public ReplyEndpoint()
         {
-            EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething>(typeof(SagaEndpoint)));
+            EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething, SagaEndpoint>());
         }
 
         class DidSomethingHandler : IHandleMessages<DidSomething>
@@ -66,7 +66,7 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<DidSomething>(this));
         }
 
         public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
