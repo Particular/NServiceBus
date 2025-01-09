@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions;
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing.MessageDrivenSubscriptions;
 
 using System.Linq;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
-using Features;
-using Logging;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
+using NServiceBus.Features;
+using NServiceBus.Logging;
 using NUnit.Framework;
 
 public class Missing_pub_info : NServiceBusAcceptanceTest

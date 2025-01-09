@@ -96,7 +96,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
                     }
                 });
                 b.DisableFeature<AutoSubscribe>();
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
 
         public class TriggerHandler : IHandleMessages<TriggerMessage>
         {
@@ -124,7 +124,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
     {
         public Subscriber1() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
@@ -140,7 +140,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
     {
         public Subscriber2() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {

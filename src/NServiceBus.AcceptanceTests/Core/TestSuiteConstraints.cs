@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests;
 
 using AcceptanceTesting.Support;
+using NUnit.Framework;
 
 public partial class TestSuiteConstraints
 {
@@ -19,7 +20,14 @@ public partial class TestSuiteConstraints
 
     public bool SupportsPurgeOnStartup => true;
 
-    public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointAcceptanceTestingTransport(SupportsNativePubSub, SupportsDelayedDelivery);
+    public IConfigureEndpointTestExecution CreateTransportConfiguration()
+        => new ConfigureEndpointAcceptanceTestingTransport(SupportsNativePubSub, SupportsDelayedDelivery, enforcePublisherMetadata: EnforcePublisherMetadata);
+
+    // Making sure all tests shipped to down streams have the necessary publisher metadata available but exclude
+    // the ones in the Core folder since they are not shipped to down streams.
+    static bool EnforcePublisherMetadata =>
+        TestContext.CurrentContext.Test.Namespace != null &&
+        !TestContext.CurrentContext.Test.Namespace.StartsWith("NServiceBus.AcceptanceTests.Core.");
 
     public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointAcceptanceTestingPersistence();
 }

@@ -34,7 +34,7 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.SendOnly();
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
         }
     }
 
@@ -42,7 +42,7 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
         public Subscriber()
         {
-            EndpointSetup<DefaultServer>();
+            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, SendOnlyPublisher>());
         }
 
         public class MyHandler : IHandleMessages<MyEvent>

@@ -23,33 +23,31 @@ public class PublisherMetadata
         publisher.RegisterOwnedEvent<T>();
     }
 
-    public void RegisterPublisherFor<T>(Type endpointType)
+    public void RegisterSelfAsPublisherFor<TEventType>(EndpointConfigurationBuilder self) =>
+        RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(self.GetType()));
+
+    public void RegisterPublisherFor<TEventType, TPublisher>() where TPublisher : EndpointConfigurationBuilder =>
+        RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(typeof(TPublisher)));
+
+    public void RegisterPublisherFor<TEventType>(Type endpointType) =>
+        RegisterPublisherFor<TEventType>(Conventions.EndpointNamingConvention(endpointType));
+
+    public PublisherDetails this[string publisherName] =>
+        publisherDetails.TryGetValue(publisherName, out var publisherDetail)
+            ? publisherDetail
+            : new PublisherDetails(publisherName);
+
+    readonly Dictionary<string, PublisherDetails> publisherDetails = [];
+
+    public class PublisherDetails(string publisherName)
     {
-        RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
-    }
+        public HashSet<Type> Events { get; } = [];
 
-    Dictionary<string, PublisherDetails> publisherDetails = [];
-
-    public class PublisherDetails
-    {
-        public PublisherDetails(string publisherName)
-        {
-            PublisherName = publisherName;
-        }
-
-        public List<Type> Events { get; } = [];
-
-        public string PublisherName { get; }
+        public string PublisherName { get; } = publisherName;
 
         public void RegisterOwnedEvent<T>()
         {
             var eventType = typeof(T);
-
-            if (Events.Contains(eventType))
-            {
-                return;
-            }
-
             Events.Add(eventType);
         }
     }

@@ -40,8 +40,8 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made"),
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<MyEventBase>(typeof(Subscriber));
-                    metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
+                    metadata.RegisterPublisherFor<MyEventBase, Subscriber>();
+                    metadata.RegisterPublisherFor<MyEvent, Subscriber>();
                 });
         }
 

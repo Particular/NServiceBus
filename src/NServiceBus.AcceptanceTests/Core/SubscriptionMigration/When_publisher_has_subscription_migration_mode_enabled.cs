@@ -48,7 +48,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
     {
         public MessageDrivenSubscriber()
         {
-            EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent>(typeof(MigratedPublisher)));
+            EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent, MigratedPublisher>());
         }
 
         class SomeEventHandler : IHandleMessages<SomeEvent>

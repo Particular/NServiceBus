@@ -76,4 +76,12 @@ public static class EndpointConfigurationExtensions
         var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);
         routingSettings.RouteToEndpoint(messageType, destinationEndpointAddress);
     }
+
+    public static void EnforcePublisherMetadataRegistration(this EndpointConfiguration config, string endpointName, PublisherMetadata publisherMetadata)
+    {
+        config.Pipeline.Register(new EnforcePublisherMetadataBehavior(endpointName, publisherMetadata),
+            "Enforces all published events have corresponding mappings in the PublisherMetadata");
+        config.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
+            "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
+    }
 }

@@ -56,7 +56,7 @@ public class When_publishing_an_interface : NServiceBusAcceptanceTest
                         context.Subscribed = true;
                     }
                 });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
         }
 
         class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
@@ -84,7 +84,7 @@ public class When_publishing_an_interface : NServiceBusAcceptanceTest
                 {
                     c.DisableFeature<AutoSubscribe>();
                 },
-                metadata => metadata.RegisterPublisherFor<IMyEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<IMyEvent>
