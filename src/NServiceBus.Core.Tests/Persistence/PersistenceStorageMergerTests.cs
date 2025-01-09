@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus.Persistence;
@@ -48,10 +47,8 @@ public class When_storage_overrides_are_provided
 
         Assert.Multiple(() =>
         {
-            Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(
-                    new List<Type> { typeof(StorageType.Subscriptions) }));
-            Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo(
-                new List<Type> { typeof(StorageType.Sagas) }));
+            Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Subscriptions)]));
+            Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Sagas)]));
         });
     }
 
