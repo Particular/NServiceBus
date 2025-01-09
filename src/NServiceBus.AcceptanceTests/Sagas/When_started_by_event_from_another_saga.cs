@@ -53,7 +53,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.IsEventSubscriptionReceived = true; });
-            });
+            }, metadata => metadata.RegisterSelfAsPublisherFor<ISomethingHappenedEvent>(this));
         }
 
         public class EventFromOtherSaga1 : Saga<EventFromOtherSaga1.EventFromOtherSaga1Data>,
