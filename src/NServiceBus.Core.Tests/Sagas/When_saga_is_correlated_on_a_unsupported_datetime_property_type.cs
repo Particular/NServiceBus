@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus.Sagas;
 using NUnit.Framework;
