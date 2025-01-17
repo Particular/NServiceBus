@@ -161,25 +161,7 @@ public class SagaModelTests
         public int UniqueProperty { get; set; }
     }
 
-    public partial class MyPartialEntity : ContainSagaData
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0032:Use auto property", Justification = "<Pending>")]
-        int _uniqueProperty;
 
-        public partial int UniqueProperty { get; set; }
-
-        public partial int UniqueProperty
-        {
-            get
-            {
-                return _uniqueProperty;
-            }
-            set
-            {
-                _uniqueProperty = value;
-            }
-        }
-    }
 
     public class MyEntity2 : MyEntity
     {
