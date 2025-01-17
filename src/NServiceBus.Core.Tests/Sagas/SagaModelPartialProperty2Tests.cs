@@ -1,7 +1,9 @@
-namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas;
+namespace NServiceBus.Core.Tests.Sagas;
 
 public partial class MyPartialEntity : ContainSagaData
 {
+#pragma warning disable IDE0032
+    int _uniqueProperty;
 
     public partial int UniqueProperty
     {
@@ -14,6 +16,7 @@ public partial class MyPartialEntity : ContainSagaData
             _uniqueProperty = value;
         }
     }
+#pragma warning restore IDE0032
 }
 
 
