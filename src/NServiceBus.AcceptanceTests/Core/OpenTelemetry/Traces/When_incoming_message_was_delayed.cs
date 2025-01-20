@@ -1,4 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
+#nullable enable
 
 using System;
 using System.Diagnostics;
@@ -11,6 +12,24 @@ using NUnit.Framework;
 
 public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // assuming W3C trace!
 {
+    [Test]
+    public async Task By_sendoptions_Should_create_new_trace_and_set_current_activity()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpoint>(b => b
+                .When(s =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.DelayDeliveryWith(TimeSpan.FromMilliseconds(100));
+                    sendOptions.RouteToThisEndpoint();
+                    return s.Send(new DelayedMessage(), sendOptions);
+                }))
+            .Done(c => c.DelayedMessageReceived)
+            .Run();
+
+        Assert.That(context.DelayedMessageCurrentActivityId, Is.Not.Null, "delayed message current activityId is not null");
+    }
+
     [Test]
     public async Task By_sendoptions_Should_create_new_trace_and_link_to_send()
     {
@@ -141,6 +160,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         public string IncomingMessageId { get; set; }
         public string ReplyMessageId { get; set; }
         public bool IncomingMessageReceived { get; set; }
+        public bool DelayedMessageReceived { get; set; }
+        public string? DelayedMessageCurrentActivityId { get; set; }
     }
     class SagaContext : ScenarioContext
     {
@@ -162,6 +183,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             {
                 testContext.IncomingMessageId = context.MessageId;
                 testContext.IncomingMessageReceived = true;
+                //testContext.IncomingMessageCurrentActivityId = Activity.Current?.Id;
                 return context.Reply(new ReplyMessage());
             }
         }
@@ -195,6 +217,20 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             {
                 testContext.ReplyMessageId = context.MessageId;
                 testContext.ReplyMessageReceived = true;
+                return Task.CompletedTask;
+            }
+        }
+
+        class DelayedMessageHandler : IHandleMessages<DelayedMessage>
+        {
+            Context testContext;
+
+            public DelayedMessageHandler(Context testContext) => this.testContext = testContext;
+
+            public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+            {
+                testContext.DelayedMessageReceived = true;
+                testContext.DelayedMessageCurrentActivityId = Activity.Current?.Id;
                 return Task.CompletedTask;
             }
         }
@@ -283,6 +319,10 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     }
 
     public class MessageToBeRetried : IMessage
+    {
+    }
+
+    public class DelayedMessage : IMessage
     {
     }
 
