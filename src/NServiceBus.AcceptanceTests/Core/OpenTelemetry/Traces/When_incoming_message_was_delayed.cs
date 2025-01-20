@@ -1,5 +1,4 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
-#nullable enable
 
 using System;
 using System.Diagnostics;
@@ -161,7 +160,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         public string ReplyMessageId { get; set; }
         public bool IncomingMessageReceived { get; set; }
         public bool DelayedMessageReceived { get; set; }
+#nullable enable
         public string? DelayedMessageCurrentActivityId { get; set; }
+#nullable disable
     }
     class SagaContext : ScenarioContext
     {
