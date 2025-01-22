@@ -40,6 +40,17 @@ public class SagaModelTests
     }
 
     [Test]
+    public void FindSagasByPartialEntityName()
+    {
+        var model = GetModel(typeof(MySaga3));
+
+        var metadata = model.FindByEntity(typeof(MyPartialEntity));
+
+
+        Assert.That(metadata, Is.Not.Null);
+    }
+
+    [Test]
     public void ValidateAssumptionsAboutSagaMappings()
     {
         var model = GetModel(typeof(MySaga));
@@ -150,6 +161,8 @@ public class SagaModelTests
         public int UniqueProperty { get; set; }
     }
 
+
+
     public class MyEntity2 : MyEntity
     {
 
@@ -174,6 +187,26 @@ public class SagaModelTests
         }
     }
 
+
+    class MySaga3 : Saga<MyPartialEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
+    {
+        public Task Handle(Message1 message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(Message2 message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyPartialEntity> mapper)
+        {
+            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+        }
+    }
+
     abstract class AbstractSaga : Saga<MyEntity>, IAmStartedByMessages<Message1>
     {
         public abstract Task Handle(Message1 message, IMessageHandlerContext context);
@@ -192,4 +225,5 @@ public class SagaModelTests
     {
         public int UniqueProperty { get; set; }
     }
+
 }
