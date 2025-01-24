@@ -1,0 +1,11 @@
+name: Code Analysis
+on:
+  push:
+    branches:
+      - main
+      - master
+      - release-*
+  workflow_dispatch:
+jobs:
+  code-analysis:
+    uses: particular/shared-workflows/.github/workflows/code-analysis.yml@main
