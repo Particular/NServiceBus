@@ -60,10 +60,9 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
     public class MyMessage
     {
 #nullable enable
-
-#pragma warning disable IDE0051 // Remove unused private members
-        public string RequiredNullable { get; set; } //RequiredNullable
-#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        public string RequiredNullable { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     }
 }
 #endif
