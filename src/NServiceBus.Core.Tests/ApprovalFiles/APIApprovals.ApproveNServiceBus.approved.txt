@@ -2379,8 +2379,8 @@ namespace NServiceBus.Transport
     public abstract class TransportInfrastructure
     {
         protected TransportInfrastructure() { }
-        public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; set; }
-        public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; set; }
+        public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; protected set; }
+        public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; protected set; }
         public abstract System.Threading.Tasks.Task Shutdown(System.Threading.CancellationToken cancellationToken = default);
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }
