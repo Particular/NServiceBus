@@ -75,6 +75,7 @@ public class HostInfoSettings
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
         RuntimeEnvironment.SetMachineName(hostName);
+        config.Settings.Get<HostingComponent.Settings>().Properties["Machine"] = hostName;
         return this;
     }
 
