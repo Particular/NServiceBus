@@ -35,7 +35,9 @@ class ActivityFactory : IActivityFactory
             {
                 // create a new trace or root activity
                 ActivityLink[] links = [new ActivityLink(sendSpanContext)];
-                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, CreateNewRootActivityContext(), tags: null, links: links);
+                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
+                Activity.Current = null;
+                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
             }
             else
             {
@@ -65,11 +67,6 @@ class ActivityFactory : IActivityFactory
 
         return activity;
     }
-
-    /// <summary>
-    /// This could be cleaned up once a dedicated API is created, see https://github.com/dotnet/runtime/issues/65528
-    /// </summary>
-    static ActivityContext CreateNewRootActivityContext() => new(Activity.TraceIdGenerator is null ? ActivityTraceId.CreateRandom() : Activity.TraceIdGenerator(), default, default, default);
 
     public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
