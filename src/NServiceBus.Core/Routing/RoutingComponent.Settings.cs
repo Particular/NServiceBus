@@ -29,6 +29,8 @@ partial class RoutingComponent
 
         public Publishers Publishers => settings.GetOrCreate<Publishers>();
 
+        internal MessageAssemblies MessageAssemblies => settings.GetOrCreate<MessageAssemblies>();
+
         public bool EnforceBestPractices
         {
             get => settings.Get<bool>("NServiceBus.Routing.EnforceBestPractices");

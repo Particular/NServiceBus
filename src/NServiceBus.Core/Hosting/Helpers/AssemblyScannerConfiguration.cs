@@ -70,4 +70,5 @@ public class AssemblyScannerConfiguration
 
     internal List<string> ExcludedAssemblies { get; } = [];
     internal List<Type> ExcludedTypes { get; } = [];
+    internal HashSet<Assembly> AdditionalAssemblies = [];
 }
