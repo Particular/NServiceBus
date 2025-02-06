@@ -72,6 +72,9 @@ public class AssemblyScanner
 
     internal string AdditionalAssemblyScanningPath { get; set; }
 
+    internal void ScanAdditionalAssembly(Assembly assembly)
+        => additionalAssemblies.Add(assembly);
+
     /// <summary>
     /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
     /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
@@ -143,6 +146,14 @@ public class AssemblyScanner
                 {
                     AddTypesToResult(assembly, results);
                 }
+            }
+        }
+
+        foreach (var additionalAssembly in additionalAssemblies)
+        {
+            if (ScanAssembly(additionalAssembly, processed))
+            {
+                AddTypesToResult(additionalAssembly, results);
             }
         }
 
@@ -404,6 +415,7 @@ public class AssemblyScanner
     readonly string baseDirectoryToScan;
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
+    HashSet<Assembly> additionalAssemblies = [];
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
     const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 

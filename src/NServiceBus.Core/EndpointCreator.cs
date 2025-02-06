@@ -24,6 +24,8 @@ class EndpointCreator
         var settings = endpointConfiguration.Settings;
         CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
+        IncludeMessageAssembliesInScan(settings);
+
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
         endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
@@ -43,6 +45,17 @@ class EndpointCreator
             }
 
             settings.Set("UsedToCreateEndpoint", true);
+        }
+    }
+
+    static void IncludeMessageAssembliesInScan(SettingsHolder settings)
+    {
+        var routingComponentSettings = settings.Get<RoutingComponent.Settings>();
+        var scanningComponentSettings = settings.Get<AssemblyScanningComponent.Configuration>();
+
+        foreach (var messageAssembly in routingComponentSettings.MessageAssemblies.GetAll())
+        {
+            scanningComponentSettings.AssemblyScannerConfiguration.AdditionalAssemblies.Add(messageAssembly);
         }
     }
 

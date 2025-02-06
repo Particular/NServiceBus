@@ -32,6 +32,7 @@ public class RoutingSettings : ExposeSettings
         ThrowOnAddress(destination);
 
         Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
+        Settings.Get<RoutingComponent.Settings>().MessageAssemblies.Add(messageType.Assembly);
     }
 
     /// <summary>
@@ -47,6 +48,7 @@ public class RoutingSettings : ExposeSettings
         ThrowOnAddress(destination);
 
         Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new AssemblyRouteSource(assembly, UnicastRoute.CreateFromEndpointName(destination)));
+        Settings.Get<RoutingComponent.Settings>().MessageAssemblies.Add(assembly);
     }
 
     /// <summary>
@@ -66,6 +68,7 @@ public class RoutingSettings : ExposeSettings
         @namespace = @namespace == string.Empty ? null : @namespace;
 
         Settings.Get<RoutingComponent.Settings>().ConfiguredUnicastRoutes.Add(new NamespaceRouteSource(assembly, @namespace, UnicastRoute.CreateFromEndpointName(destination)));
+        Settings.Get<RoutingComponent.Settings>().MessageAssemblies.Add(assembly);
     }
 
     /// <summary>
