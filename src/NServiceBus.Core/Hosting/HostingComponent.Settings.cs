@@ -104,6 +104,14 @@ partial class HostingComponent
             settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
         }
 
+        internal void UpdateHost(string hostName)
+        {
+            RuntimeEnvironment.SetMachineName(hostName);
+            settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, hostName));
+            Properties["Machine"] = hostName;
+            settings.SetDefault(DisplayNameSettingsKey, hostName);
+        }
+
         readonly SettingsHolder settings;
         readonly string fullPathToStartingExe;
 
