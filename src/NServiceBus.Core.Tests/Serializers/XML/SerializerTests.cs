@@ -621,19 +621,19 @@ namespace NServiceBus.Serializers.XML.Test
             };
             o.Foos = new Dictionary<string, List<Foo>>
             {
-                ["foo1"] = new List<Foo>(new[]
-            {
-                new Foo
-                {
-                    Name = "1",
-                    Title = "1"
-                },
-                new Foo
-                {
-                    Name = "2",
-                    Title = "2"
-                }
-            })
+                ["foo1"] = new List<Foo>(
+                [
+                    new Foo
+                    {
+                        Name = "1",
+                        Title = "1"
+                    },
+                    new Foo
+                    {
+                        Name = "2",
+                        Title = "2"
+                    }
+                ])
             };
             o.Data =
             [

@@ -67,7 +67,7 @@ public class AssemblyScanner
 
     internal IReadOnlyCollection<Type> TypesToSkip
     {
-        set => typesToSkip = new HashSet<Type>(value);
+        set => typesToSkip = [.. value];
     }
 
     internal string AdditionalAssemblyScanningPath { get; set; }
