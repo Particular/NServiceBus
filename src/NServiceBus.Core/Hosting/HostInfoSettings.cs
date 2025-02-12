@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using Hosting;
-    using NServiceBus.Support;
 
     /// <summary>
     /// Configuration class for <see cref="HostInformation" /> settings.
@@ -74,7 +73,7 @@ namespace NServiceBus
         public HostInfoSettings UsingHostName(string hostName)
         {
             Guard.ThrowIfNullOrEmpty(hostName);
-            RuntimeEnvironment.SetMachineName(hostName);
+            config.Settings.Get<HostingComponent.Settings>().UpdateHost(hostName);
             return this;
         }
 
