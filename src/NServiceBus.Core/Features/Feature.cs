@@ -125,7 +125,7 @@ public abstract class Feature
             }
         }
 
-        Dependencies.Add(new List<string>(features.Select(GetFeatureName)));
+        Dependencies.Add(features.Select(GetFeatureName).ToList());
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ public abstract class Feature
     {
         ArgumentNullException.ThrowIfNull(featureNames);
 
-        Dependencies.Add(new List<string>(featureNames));
+        Dependencies.Add([.. featureNames]);
     }
 
     /// <summary>
