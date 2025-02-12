@@ -1,0 +1,4 @@
+ignore:
+  # Dependency packages already updated to v7 and v8 versions past the net6 build target
+  - test: ComponentShouldTargetDotNetLtsVersion
+    path: src/NServiceBus.Core/NServiceBus.Core.csproj
