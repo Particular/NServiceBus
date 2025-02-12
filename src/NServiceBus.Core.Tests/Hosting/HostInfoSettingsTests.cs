@@ -37,7 +37,10 @@ public class HostInfoSettingsTests
 
         busConfig.UniquelyIdentifyRunningInstance().UsingHostName("overridenhostname");
 
-        var hostName = RuntimeEnvironment.MachineName;
-        Assert.That(hostName, Is.EqualTo("overridenhostname"));
+        var runtimeMachineName = RuntimeEnvironment.MachineName;
+        Assert.That(runtimeMachineName, Is.EqualTo("overridenhostname"));
+
+        var settingsMachineName = busConfig.Settings.Get<HostingComponent.Settings>().Properties["Machine"];
+        Assert.That(settingsMachineName, Is.EqualTo("overridenhostname"));
     }
 }
