@@ -80,7 +80,7 @@ class RecoverabilityComponent
         if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
         {
             policy = (config, context) => DefaultRecoverabilityPolicy.Invoke(config, context);
-        };
+        }
 
         return new RecoverabilityPipelineExecutor<(RecoverabilityComponent,
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
