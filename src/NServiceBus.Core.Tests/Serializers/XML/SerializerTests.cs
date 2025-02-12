@@ -636,7 +636,7 @@ namespace NServiceBus.Serializers.XML.Test
             };
             o.Foos = new Dictionary<string, List<Foo>>
             {
-                ["foo1"] = new List<Foo>(new[]
+                ["foo1"] = [.. new[]
             {
                 new Foo
                 {
@@ -648,7 +648,7 @@ namespace NServiceBus.Serializers.XML.Test
                     Name = "2",
                     Title = "2"
                 }
-            })
+            }]
             };
             o.Data =
             [
