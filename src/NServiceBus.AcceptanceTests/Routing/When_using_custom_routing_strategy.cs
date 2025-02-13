@@ -20,7 +20,7 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
     {
         var ctx = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(b =>
-                b.When(c => c.EndpointsStarted, async session =>
+                b.When(async session =>
                 {
                     await session.Send(new MyCommand { Instance = Discriminator1 });
                     await session.Send(new MyCommand { Instance = Discriminator2 });

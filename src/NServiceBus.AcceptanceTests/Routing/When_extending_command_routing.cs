@@ -20,7 +20,7 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
     {
         var ctx = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(b =>
-                b.When(c => c.EndpointsStarted, async session =>
+                b.When(async session =>
                 {
                     await session.Send(new MyCommand());
                     await session.Send(new MyCommand());
