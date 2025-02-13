@@ -38,6 +38,7 @@ class AssemblyScanningComponent
         assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
         assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
         assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
+        assemblyScanner.AdditionalAssemblies = assemblyScannerSettings.AdditionalAssemblies;
 
         if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
         {

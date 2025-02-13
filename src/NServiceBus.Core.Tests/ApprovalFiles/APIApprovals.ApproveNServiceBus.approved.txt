@@ -21,6 +21,7 @@ namespace NServiceBus
         public bool ThrowExceptions { get; set; }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
+        public void IncludeAssembly(System.Reflection.Assembly assembly) { }
     }
     public static class AssemblyScannerConfigurationExtensions
     {

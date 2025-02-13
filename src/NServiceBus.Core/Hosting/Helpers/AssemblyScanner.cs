@@ -72,6 +72,8 @@ public class AssemblyScanner
 
     internal string AdditionalAssemblyScanningPath { get; set; }
 
+    internal List<Assembly> AdditionalAssemblies { get; set; }
+
     /// <summary>
     /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
     /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
@@ -143,6 +145,14 @@ public class AssemblyScanner
                 {
                     AddTypesToResult(assembly, results);
                 }
+            }
+        }
+
+        if (AdditionalAssemblies is not null)
+        {
+            foreach (var assembly in AdditionalAssemblies)
+            {
+                AddTypesToResult(assembly, results);
             }
         }
 
