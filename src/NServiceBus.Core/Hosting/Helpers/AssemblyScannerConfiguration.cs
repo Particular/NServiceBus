@@ -55,6 +55,17 @@ public class AssemblyScannerConfiguration
     }
 
     /// <summary>
+    /// Additional <see cref="Assembly"/> to include in assembly scanning.
+    /// Allows scanning assemblies that do not reference NServiceBus assemblies.
+    /// </summary>
+    public void IncludeAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        AdditionalAssemblies.Add(assembly);
+    }
+
+    /// <summary>
     /// A list of <see cref="Type" />s to ignore in the assembly scanning.
     /// </summary>
     public void ExcludeTypes(params Type[] types)
@@ -70,4 +81,5 @@ public class AssemblyScannerConfiguration
 
     internal List<string> ExcludedAssemblies { get; } = [];
     internal List<Type> ExcludedTypes { get; } = [];
+    internal List<Assembly> AdditionalAssemblies { get; } = [];
 }

@@ -114,11 +114,12 @@ public class MessageMetadataRegistry
         {
             try
             {
+                Logger.Warn($"Message type identifier '{messageTypeIdentifier}' was dynamically loaded. Consider including the assembly containing this type to the assembly scanner to prevent problems when the assembly version changes.");
                 return Type.GetType(messageTypeIdentifier);
             }
             catch (Exception ex)
             {
-                Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
+                Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded. Consider including the assembly containing this type to the assembly scanner.", ex);
             }
         }
         else
