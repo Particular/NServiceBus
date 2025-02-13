@@ -19,7 +19,7 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
             .WithEndpoint<Publisher2>(b =>
                 b.When(c => c.SubscribedToPublisher2, session => session.Publish(new DerivedEvent2()))
             )
-            .WithEndpoint<Subscriber1>(b => b.When(c => c.EndpointsStarted, async (session, c) =>
+            .WithEndpoint<Subscriber1>(b => b.When(async (session, c) =>
             {
                 await session.Subscribe<DerivedEvent1>();
                 await session.Subscribe<DerivedEvent2>();
