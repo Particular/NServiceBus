@@ -15,7 +15,7 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
-                .When(c => c.EndpointsStarted, (session, c) => session.Publish(new MyEvent())))
+                .When(session => session.Publish(new MyEvent())))
             .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
             .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
             .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))

@@ -20,7 +20,7 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
     public async Task Should_route_according_to_distribution_strategy()
     {
         var ctx = await Scenario.Define<Context>()
-            .WithEndpoint<Endpoint>(b => b.When(c => c.EndpointsStarted, session =>
+            .WithEndpoint<Endpoint>(b => b.When(session =>
             {
                 var sendOptions = new SendOptions();
                 sendOptions.RouteToThisEndpoint();
