@@ -7,6 +7,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_message_is_moved_to_error_queue_with_header_customizations : NServiceBusAcceptanceTest
@@ -17,10 +18,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFailingHandler>(b => b
                     .DoNotFailOnErrorMessages()
-                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                    {
-                        Id = ctx.TestRunId
-                    }))
+                    .When((session, ctx) => session.SendLocal(new InitiatingMessage { Id = ctx.TestRunId }))
                 )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
@@ -29,6 +27,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             Assert.IsFalse(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"));
             Assert.AreEqual("this is a large message", context.Headers["NServiceBus.ExceptionInfo.Message"]);
             Assert.AreEqual("NotInventedHere", context.Headers["NServiceBus.ExceptionInfo.NotInventedHere"]);
+            Assert.True(context.Headers.ContainsKey("mutator-header-present"), "Header set by outgoing message mutator should be available to header customizations");
+            Assert.AreEqual("set-by-mutator", context.Headers["header-set-by-outgoing-mutator"]);
         }
 
         class Context : ScenarioContext
@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         {
             public EndpointWithFailingHandler()
             {
-                EndpointSetup<DefaultServer>((config, context) =>
+                EndpointSetup<DefaultServer>((config, _) =>
                 {
                     config.Recoverability()
                         .Failed(failed => failed.HeaderCustomization(headers =>
@@ -49,8 +49,13 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                             headers.Remove("NServiceBus.ExceptionInfo.ExceptionType");
                             headers["NServiceBus.ExceptionInfo.Message"] = headers["NServiceBus.ExceptionInfo.Message"].ToLower();
                             headers["NServiceBus.ExceptionInfo.NotInventedHere"] = "NotInventedHere";
+                            if (headers.ContainsKey("header-set-by-outgoing-mutator"))
+                            {
+                                headers["mutator-header-present"] = "true";
+                            }
                         }));
 
+                    config.RegisterMessageMutator(new OutgoingMessageMutator());
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });
             }
@@ -60,6 +65,16 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     throw new SimulatedException("THIS IS A LARGE MESSAGE");
+                }
+            }
+
+            class OutgoingMessageMutator : IMutateOutgoingTransportMessages
+            {
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                {
+                    context.OutgoingHeaders["header-set-by-outgoing-mutator"] = "set-by-mutator";
+
+                    return Task.FromResult(0);
                 }
             }
         }
