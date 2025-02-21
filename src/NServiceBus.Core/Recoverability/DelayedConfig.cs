@@ -15,7 +15,7 @@ public class DelayedConfig
     public DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(maxNumberOfRetries);
-        Guard.ThrowIfNegative(timeIncrease);
+        ArgumentOutOfRangeException.ThrowIfLessThan(timeIncrease, TimeSpan.Zero);
 
         MaxNumberOfRetries = maxNumberOfRetries;
         TimeIncrease = timeIncrease;

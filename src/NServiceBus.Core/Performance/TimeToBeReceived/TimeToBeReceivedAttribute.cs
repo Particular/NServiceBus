@@ -11,16 +11,19 @@ public sealed class TimeToBeReceivedAttribute : Attribute
     /// <summary>
     /// Sets the time to be received.
     /// </summary>
-    /// <param name="timeSpan">A timeSpan that can be interpreted by <see cref="TimeSpan.Parse(string)" />.</param>
+    /// <param name="timeSpan">A string that can be interpreted by <see cref="TimeSpan.Parse(string)" />.</param>
     public TimeToBeReceivedAttribute(string timeSpan)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(timeSpan);
+
         if (!TimeSpan.TryParse(timeSpan, out var parsed))
         {
-            var error = $"Could not parse '{timeSpan}' as a timespan.";
-            throw new ArgumentException(error);
+            var error = $"Could not parse '{timeSpan}' as a TimeSpan.";
+            throw new ArgumentException(error, timeSpan);
         }
-        Guard.ThrowIfNegativeOrZero(parsed);
+
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(parsed, TimeSpan.Zero);
+
         TimeToBeReceived = parsed;
     }
 

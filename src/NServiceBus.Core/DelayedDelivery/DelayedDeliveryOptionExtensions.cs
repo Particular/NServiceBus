@@ -16,7 +16,7 @@ public static class DelayedDeliveryOptionExtensions
     public static void DelayDeliveryWith(this SendOptions options, TimeSpan delay)
     {
         ArgumentNullException.ThrowIfNull(options);
-        Guard.ThrowIfNegative(delay);
+        ArgumentOutOfRangeException.ThrowIfLessThan(delay, TimeSpan.Zero);
 
         if (options.DispatchProperties.DoNotDeliverBefore != null)
         {

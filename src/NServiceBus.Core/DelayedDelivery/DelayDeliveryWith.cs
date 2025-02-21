@@ -13,7 +13,7 @@ public class DelayDeliveryWith
     /// <param name="delay">How long to delay the delivery of the message.</param>
     public DelayDeliveryWith(TimeSpan delay)
     {
-        Guard.ThrowIfNegative(delay);
+        ArgumentOutOfRangeException.ThrowIfLessThan(delay, TimeSpan.Zero);
 
         Delay = delay;
     }

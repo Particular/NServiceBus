@@ -34,7 +34,7 @@ public partial class DelayedRetriesSettings : ExposeSettings
     /// </summary>
     public DelayedRetriesSettings TimeIncrease(TimeSpan timeIncrease)
     {
-        Guard.ThrowIfNegative(timeIncrease);
+        ArgumentOutOfRangeException.ThrowIfLessThan(timeIncrease, TimeSpan.Zero);
 
         Settings.Set(RecoverabilityComponent.DelayedRetriesTimeIncrease, timeIncrease);
 
