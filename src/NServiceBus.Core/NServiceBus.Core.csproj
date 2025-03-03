@@ -21,7 +21,7 @@
 
   <ItemGroup Label="Private dependencies">
     <PackageReference Include="FastExpressionCompiler.Internal.src" Version="4.2.2" PrivateAssets="All" />
-    <PackageReference Include="Fody" Version="6.9.1" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="6.9.2" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="6.0.0" PrivateAssets="All" />
