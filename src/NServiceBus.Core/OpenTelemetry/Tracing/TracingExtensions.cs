@@ -9,9 +9,9 @@ static class TracingExtensions
 {
     public static Task Invoke<TContext>(this IPipeline<TContext> pipeline, TContext context, Activity activity) where TContext : IBehaviorContext
     {
-        return activity == null ? pipeline.Invoke(context) : TracePipelineStatus();
+        return activity == null ? pipeline.Invoke(context) : TracePipelineStatus(pipeline, context, activity);
 
-        async Task TracePipelineStatus()
+        static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity)
         {
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
             try
