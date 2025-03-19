@@ -21,7 +21,12 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
     {
         ValidateTransactionMode(context);
 
-        using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
+        using var scope = context.Builder.CreateScope();
+        
+        var storageSession = 
+            scope.ServiceProvider.GetService<ICompletableSynchronizedStorageSession>() 
+            ?? NoOpCompletableSynchronizedStorageSession.Instance;
+        
         await storageSession.Open(context).ConfigureAwait(false);
 
         var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
