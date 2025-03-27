@@ -56,7 +56,7 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
 
         class CustomHandlerSpanBehavior : Behavior<IInvokeHandlerContext>
         {
-            static ActivitySource source = new ActivitySource("NServiceBus.Core", "0.1.0");
+            static ActivitySource source = new("NServiceBus.Core", "0.1.0");
 
             public override async Task Invoke(IInvokeHandlerContext context, Func<Task> next)
             {
@@ -64,14 +64,14 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
 
                 using var activity = source.StartActivity("NServiceBus.Diagnostics.InvokeHandler");
 
-                // clear ambient activity to prevent the default nservicebus span to be created
-                Activity.Current = null;
-
                 activity!.DisplayName = context.MessageHandler.HandlerType.Name;
                 activity.AddTag("nservicebus.handler.handler_type", context.MessageHandler.HandlerType.FullName);
 
                 try
                 {
+                    // clear ambient activity to prevent the default nservicebus span to be created
+                    Activity.Current = null;
+
                     await next();
 
                     activity.SetStatus(ActivityStatusCode.Ok);
