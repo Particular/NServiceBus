@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 
@@ -16,6 +16,8 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_be_able_to_use_custom_span()
     {
+        using var listener = TestingActivityListener.SetupDiagnosticListener("MyActivitySource");
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
@@ -24,7 +26,8 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
 
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
-        Activity failedHandlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+        var failedHandlerActivity = listener.CompletedActivities.First(a => a.OperationName == "MyActivitySource.InvokeHandler");
+
         Assert.Multiple(() =>
         {
             Assert.That(failedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
@@ -56,13 +59,11 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
 
         class CustomHandlerSpanBehavior : Behavior<IInvokeHandlerContext>
         {
-            static ActivitySource source = new("NServiceBus.Core", "0.1.0");
-
             public override async Task Invoke(IInvokeHandlerContext context, Func<Task> next)
             {
                 var captured = Activity.Current;
 
-                using var activity = source.StartActivity("NServiceBus.Diagnostics.InvokeHandler");
+                using var activity = activitySource.StartActivity("MyActivitySource.InvokeHandler");
 
                 activity!.DisplayName = context.MessageHandler.HandlerType.Name;
                 activity.AddTag("nservicebus.handler.handler_type", context.MessageHandler.HandlerType.FullName);
@@ -88,6 +89,8 @@ public class When_handler_fails : OpenTelemetryAcceptanceTest
                     Activity.Current = captured;
                 }
             }
+
+            static readonly ActivitySource activitySource = new("MyActivitySource");
         }
     }
 
