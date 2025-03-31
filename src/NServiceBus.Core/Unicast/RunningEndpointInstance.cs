@@ -9,19 +9,14 @@ using Logging;
 using Settings;
 using Transport;
 
-class RunningEndpointInstance : IEndpointInstance
+class RunningEndpointInstance(SettingsHolder settings,
+    ReceiveComponent receiveComponent,
+    FeatureComponent featureComponent,
+    IMessageSession messageSession,
+    TransportInfrastructure transportInfrastructure,
+    CancellationTokenSource stoppingTokenSource,
+    IServiceProvider? serviceProvider) : IEndpointInstance
 {
-    public RunningEndpointInstance(SettingsHolder settings, ReceiveComponent receiveComponent, FeatureComponent featureComponent, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, CancellationTokenSource stoppingTokenSource, IServiceProvider? serviceProvider)
-    {
-        this.settings = settings;
-        this.receiveComponent = receiveComponent;
-        this.featureComponent = featureComponent;
-        this.messageSession = messageSession;
-        this.transportInfrastructure = transportInfrastructure;
-        this.stoppingTokenSource = stoppingTokenSource;
-        this.serviceProvider = serviceProvider;
-    }
-
     public async Task Stop(CancellationToken cancellationToken = default)
     {
         if (status == Status.Stopped)
@@ -70,6 +65,7 @@ class RunningEndpointInstance : IEndpointInstance
                 {
                     await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
                 }
+
                 status = Status.Stopped;
                 Log.Info("Shutdown complete.");
             }
@@ -146,16 +142,8 @@ class RunningEndpointInstance : IEndpointInstance
         }
     }
 
-    readonly ReceiveComponent receiveComponent;
-    readonly FeatureComponent featureComponent;
-    readonly IMessageSession messageSession;
-    readonly TransportInfrastructure transportInfrastructure;
-    readonly CancellationTokenSource stoppingTokenSource;
-    readonly IServiceProvider? serviceProvider;
-    readonly SettingsHolder settings;
-
     volatile Status status = Status.Running;
-    readonly SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
+    readonly SemaphoreSlim stopSemaphore = new(1);
 
     static readonly ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
 
