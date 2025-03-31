@@ -44,6 +44,6 @@ public static partial class SettingsExtensions
             throw new InvalidOperationException("EndpointQueueName isn't available for send only endpoints.");
         }
 
-        return receiveConfiguration.QueueNameBase;
+        return receiveConfiguration.LocalQueueAddress.BaseAddress;
     }
 }

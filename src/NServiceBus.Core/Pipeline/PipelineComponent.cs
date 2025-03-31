@@ -32,7 +32,7 @@ class PipelineComponent
         {
             var meterFactory = sp.GetService<IMeterFactory>();
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.QueueNameBase, discriminator);
+            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
         });
 
         return new PipelineComponent(modifications);
