@@ -14,28 +14,19 @@ partial class ReceiveComponent
         {
             this.settings = settings;
             ExecuteTheseHandlersFirst = [];
-            ShouldCreateQueues = true;
         }
 
         public List<Type> ExecuteTheseHandlersFirst
         {
             get => settings.Get<List<Type>>("NServiceBus.ExecuteTheseHandlersFirst");
-            set => settings.Set("NServiceBus.ExecuteTheseHandlersFirst", value);
+            private init => settings.Set("NServiceBus.ExecuteTheseHandlersFirst", value);
         }
 
         public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
 
-        public bool ShouldCreateQueues
-        {
-            get => settings.Get<bool>("Transport.CreateQueues");
-            set => settings.Set("Transport.CreateQueues", value);
-        }
-
         public bool CustomQueueNameBaseProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
         public string CustomQueueNameBase => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
-
-        public Conventions Conventions => settings.Get<Conventions>();
 
         public string EndpointName => settings.EndpointName();
 
@@ -49,15 +40,7 @@ partial class ReceiveComponent
 
         public PushRuntimeSettings PushRuntimeSettings
         {
-            get
-            {
-                if (settings.TryGet(out PushRuntimeSettings value))
-                {
-                    return value;
-                }
-
-                return PushRuntimeSettings.Default;
-            }
+            get => settings.TryGet(out PushRuntimeSettings value) ? value : PushRuntimeSettings.Default;
             set => settings.Set(value);
         }
 
@@ -65,16 +48,9 @@ partial class ReceiveComponent
 
         public bool IsSendOnlyEndpoint => settings.Get<bool>(EndpointSendOnlySettingKey);
 
-        public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration)
-        {
+        public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration) =>
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set(configuration);
-        }
-
-        public void SetDefaultPushRuntimeSettings(PushRuntimeSettings pushRuntimeSettings)
-        {
-            settings.SetDefault(pushRuntimeSettings);
-        }
 
         readonly SettingsHolder settings;
 

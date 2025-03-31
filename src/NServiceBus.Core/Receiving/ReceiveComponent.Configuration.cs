@@ -70,18 +70,18 @@ partial class ReceiveComponent
 
         public List<Type> ExecuteTheseHandlersFirst { get; } = executeTheseHandlersFirst;
 
+        public MessageHandlerRegistry MessageHandlerRegistry { get; } = messageHandlerRegistry;
+
+        public TransportSeam TransportSeam { get; } = transportSeam;
+
+        public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers { get; } = pipelineCompletedSubscribers;
+
         public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
             var satelliteDefinition = new SatelliteDefinition(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
 
             satelliteDefinitions.Add(satelliteDefinition);
         }
-
-        public readonly Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers = pipelineCompletedSubscribers;
-
-        //This should only be used by the receive component itself
-        internal readonly MessageHandlerRegistry MessageHandlerRegistry = messageHandlerRegistry;
-        internal readonly TransportSeam TransportSeam = transportSeam;
 
         readonly List<SatelliteDefinition> satelliteDefinitions = [];
     }
