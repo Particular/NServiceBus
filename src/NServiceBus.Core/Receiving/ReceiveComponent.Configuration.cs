@@ -21,8 +21,6 @@ partial class ReceiveComponent
         var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
         var purgeOnStartup = settings.PurgeOnStartup;
 
-        var transportDefinition = transportSeam.TransportDefinition;
-
         QueueAddress instanceSpecificQueueAddress = null;
 
         if (discriminator != null)
@@ -33,7 +31,7 @@ partial class ReceiveComponent
         var pushRuntimeSettings = settings.PushRuntimeSettings;
 
         var receiveConfiguration = new Configuration(
-            queueNameBase,
+            new QueueAddress(queueNameBase),
             instanceSpecificQueueAddress,
             pushRuntimeSettings,
             purgeOnStartup,
@@ -41,64 +39,42 @@ partial class ReceiveComponent
             isSendOnlyEndpoint,
             settings.ExecuteTheseHandlersFirst,
             settings.MessageHandlerRegistry,
-            settings.ShouldCreateQueues,
-            transportSeam,
-            settings.Conventions);
+            transportSeam);
 
         settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
 
         return receiveConfiguration;
     }
 
-
-    public class Configuration
+    public class Configuration(QueueAddress localQueueAddress,
+        QueueAddress instanceSpecificQueueAddress,
+        PushRuntimeSettings pushRuntimeSettings,
+        bool purgeOnStartup,
+        Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
+        bool isSendOnlyEndpoint,
+        List<Type> executeTheseHandlersFirst,
+        MessageHandlerRegistry messageHandlerRegistry,
+        TransportSeam transportSeam)
     {
-        public Configuration(string queueNameBase,
-            QueueAddress instanceSpecificQueueAddress,
-            PushRuntimeSettings pushRuntimeSettings,
-            bool purgeOnStartup,
-            Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
-            bool isSendOnlyEndpoint,
-            List<Type> executeTheseHandlersFirst,
-            MessageHandlerRegistry messageHandlerRegistry,
-            bool createQueues,
-            TransportSeam transportSeam,
-            Conventions conventions)
-        {
-            QueueNameBase = queueNameBase;
-            LocalQueueAddress = new QueueAddress(QueueNameBase);
-            InstanceSpecificQueueAddress = instanceSpecificQueueAddress;
-            PushRuntimeSettings = pushRuntimeSettings;
-            PurgeOnStartup = purgeOnStartup;
-            IsSendOnlyEndpoint = isSendOnlyEndpoint;
-            PipelineCompletedSubscribers = pipelineCompletedSubscribers;
-            ExecuteTheseHandlersFirst = executeTheseHandlersFirst;
-            satelliteDefinitions = [];
-            this.messageHandlerRegistry = messageHandlerRegistry;
-            CreateQueues = createQueues;
-            Conventions = conventions;
-            this.transportSeam = transportSeam;
-        }
+        public QueueAddress LocalQueueAddress { get; } = localQueueAddress;
 
-        public QueueAddress LocalQueueAddress { get; }
+        public QueueAddress InstanceSpecificQueueAddress { get; } = instanceSpecificQueueAddress;
 
-        public QueueAddress InstanceSpecificQueueAddress { get; }
-
-        public PushRuntimeSettings PushRuntimeSettings { get; }
-
-        public string QueueNameBase { get; }
+        public PushRuntimeSettings PushRuntimeSettings { get; } = pushRuntimeSettings;
 
         public IReadOnlyList<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 
-        public bool PurgeOnStartup { get; }
+        public bool PurgeOnStartup { get; } = purgeOnStartup;
 
-        public bool IsSendOnlyEndpoint { get; }
+        public bool IsSendOnlyEndpoint { get; } = isSendOnlyEndpoint;
 
-        public List<Type> ExecuteTheseHandlersFirst { get; }
+        public List<Type> ExecuteTheseHandlersFirst { get; } = executeTheseHandlersFirst;
 
-        public bool CreateQueues { get; }
+        public MessageHandlerRegistry MessageHandlerRegistry { get; } = messageHandlerRegistry;
 
-        public Conventions Conventions { get; }
+        public TransportSeam TransportSeam { get; } = transportSeam;
+
+        public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers { get; } = pipelineCompletedSubscribers;
 
         public void AddSatelliteReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
         {
@@ -107,12 +83,6 @@ partial class ReceiveComponent
             satelliteDefinitions.Add(satelliteDefinition);
         }
 
-        public Notification<ReceivePipelineCompleted> PipelineCompletedSubscribers;
-
-        //This should only be used by the receive component it self
-        internal readonly MessageHandlerRegistry messageHandlerRegistry;
-        internal readonly TransportSeam transportSeam;
-
-        readonly List<SatelliteDefinition> satelliteDefinitions;
+        readonly List<SatelliteDefinition> satelliteDefinitions = [];
     }
 }

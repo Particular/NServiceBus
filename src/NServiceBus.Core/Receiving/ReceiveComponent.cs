@@ -28,7 +28,7 @@ partial class ReceiveComponent
     {
         if (configuration.IsSendOnlyEndpoint)
         {
-            configuration.transportSeam.Configure([]);
+            configuration.TransportSeam.Configure([]);
             return new ReceiveComponent(configuration, hostingConfiguration.ActivityFactory);
         }
 
@@ -36,7 +36,7 @@ partial class ReceiveComponent
 
         hostingConfiguration.Services.AddSingleton(sp =>
         {
-            var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+            var transport = configuration.TransportSeam.GetTransportInfrastructure(sp);
 
             var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
 
@@ -56,7 +56,7 @@ partial class ReceiveComponent
 
         hostingConfiguration.Services.AddSingleton(sp =>
         {
-            var transport = configuration.transportSeam.GetTransportInfrastructure(sp);
+            var transport = configuration.TransportSeam.GetTransportInfrastructure(sp);
             return transport.Receivers[MainReceiverId].Subscriptions;
         });
 
@@ -66,17 +66,13 @@ partial class ReceiveComponent
             return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>());
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", b =>
-        {
-            return new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>());
-        }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
         pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(hostingConfiguration.ActivityFactory, sp.GetService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
-
-        var messageHandlerRegistry = configuration.messageHandlerRegistry;
+        var messageHandlerRegistry = configuration.MessageHandlerRegistry;
         RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
 
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
@@ -88,10 +84,10 @@ partial class ReceiveComponent
 
         var receiveSettings = new List<ReceiveSettings>
         {
-            new ReceiveSettings(
+            new(
                 MainReceiverId,
                 configuration.LocalQueueAddress,
-                configuration.transportSeam.TransportDefinition.SupportsPublishSubscribe,
+                configuration.TransportSeam.TransportDefinition.SupportsPublishSubscribe,
                 configuration.PurgeOnStartup,
                 errorQueue)
         };
@@ -113,15 +109,14 @@ partial class ReceiveComponent
             configuration.PurgeOnStartup,
             errorQueue)));
 
-
-        configuration.transportSeam.Configure(receiveSettings.ToArray());
+        configuration.TransportSeam.Configure([.. receiveSettings]);
 
         hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
         {
             configuration.LocalQueueAddress,
             configuration.InstanceSpecificQueueAddress,
             configuration.PurgeOnStartup,
-            TransactionMode = configuration.transportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
+            TransactionMode = configuration.TransportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
             configuration.PushRuntimeSettings.MaxConcurrency,
             Satellites = configuration.SatelliteDefinitions.Select(s => new
             {
@@ -193,10 +188,10 @@ partial class ReceiveComponent
                 var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
 
                 await satellitePump.Initialize(
-                    satellite.RuntimeSettings,
-                    satellitePipeline.Invoke,
-                    satelliteRecoverabilityExecutor.Invoke,
-                    cancellationToken)
+                        satellite.RuntimeSettings,
+                        satellitePipeline.Invoke,
+                        satelliteRecoverabilityExecutor.Invoke,
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 receivers.Add(satellitePump);
@@ -293,8 +288,8 @@ partial class ReceiveComponent
     readonly IActivityFactory activityFactory;
     readonly List<IMessageReceiver> receivers = [];
 
-    public const string MainReceiverId = "Main";
-    public const string InstanceSpecificReceiverId = "InstanceSpecific";
+    const string MainReceiverId = "Main";
+    const string InstanceSpecificReceiverId = "InstanceSpecific";
 
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();

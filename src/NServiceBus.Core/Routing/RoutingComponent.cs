@@ -3,16 +3,10 @@ namespace NServiceBus;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
+using Transport;
 
 partial class RoutingComponent
 {
-    RoutingComponent(bool enforceBestPractices)
-    {
-        EnforceBestPractices = enforceBestPractices;
-    }
-
-    public bool EnforceBestPractices { get; }
-
 #pragma warning disable CA1822 // Mark members as static
     public UnicastSendRouter UnicastSendRouterBuilder(IServiceProvider serviceProvider) =>
         serviceProvider.GetRequiredService<UnicastSendRouter>();
@@ -22,7 +16,7 @@ partial class RoutingComponent
         ReceiveComponent.Configuration receiveConfiguration,
         Conventions conventions,
         PipelineSettings pipelineSettings,
-        HostingComponent.Configuration hostingConfiguration, TransportSeam transportSeam)
+        HostingComponent.Configuration hostingConfiguration)
     {
         var distributionPolicy = configuration.DistributionPolicy;
         var unicastRoutingTable = configuration.UnicastRoutingTable;
@@ -48,19 +42,19 @@ partial class RoutingComponent
         hostingConfiguration.Services.AddSingleton(sp =>
             new UnicastSendRouter(
                 isSendOnlyEndpoint,
-                receiveConfiguration.QueueNameBase,
+                receiveConfiguration.LocalQueueAddress.BaseAddress,
                 receiveConfiguration.InstanceSpecificQueueAddress,
                 distributionPolicy,
                 unicastRoutingTable,
                 endpointInstances,
-                transportSeam.TransportAddressResolverBuilder(sp)));
+                sp.GetRequiredService<ITransportAddressResolver>()));
 
         if (configuration.EnforceBestPractices)
         {
             EnableBestPracticeEnforcement(pipelineSettings, new Validations(conventions));
         }
 
-        return new RoutingComponent(configuration.EnforceBestPractices);
+        return new RoutingComponent();
     }
 
     static void EnableBestPracticeEnforcement(PipelineSettings pipeline, Validations validations)

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -9,30 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Transport;
 
-class TransportSeam
+class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings, QueueBindings queueBindings)
 {
-    readonly HostSettings hostSettings;
-    ReceiveSettings[] receivers;
-
-    protected TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings,
-        QueueBindings queueBindings)
-    {
-        TransportDefinition = transportDefinition;
-        QueueBindings = queueBindings;
-        this.hostSettings = hostSettings;
-    }
-
-    public void Configure(ReceiveSettings[] receivers)
-    {
-        this.receivers = receivers;
-    }
+    public void Configure(ReceiveSettings[] receivers) => receiverSettings = receivers;
 
     // The dependency in IServiceProvider ensures that the TransportInfrastructure can't be resolved too early.
-    public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => TransportInfrastructure;
-
-#pragma warning disable CA1822 // Mark members as static
-    public ITransportAddressResolver TransportAddressResolverBuilder(IServiceProvider sp) => sp.GetRequiredService<ITransportAddressResolver>();
-#pragma warning restore CA1822 // Mark members as static
+    public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => transportInfrastructure;
 
     public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
     {
@@ -41,10 +22,10 @@ class TransportSeam
             TransactionManager.ImplicitDistributedTransactions = true;
         }
 
-        TransportInfrastructure = await TransportDefinition.Initialize(hostSettings, receivers, QueueBindings.SendingAddresses.ToArray(), cancellationToken)
+        transportInfrastructure = await TransportDefinition.Initialize(hostSettings, receiverSettings, [.. QueueBindings.SendingAddresses], cancellationToken)
             .ConfigureAwait(false);
 
-        return TransportInfrastructure;
+        return transportInfrastructure;
     }
 
     public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
@@ -59,7 +40,7 @@ class TransportSeam
 
         var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
-        hostingConfiguration.Services.AddSingleton(_ => transportSeam.TransportInfrastructure.Dispatcher);
+        hostingConfiguration.Services.AddSingleton(_ => transportSeam.transportInfrastructure.Dispatcher);
 
         hostingConfiguration.Services.AddSingleton<ITransportAddressResolver>(serviceProvider =>
             new TransportAddressResolver(transportSeam, serviceProvider));
@@ -67,11 +48,12 @@ class TransportSeam
         return transportSeam;
     }
 
-    TransportInfrastructure TransportInfrastructure { get; set; }
+    public TransportDefinition TransportDefinition { get; } = transportDefinition;
 
-    public TransportDefinition TransportDefinition { get; }
+    public QueueBindings QueueBindings { get; } = queueBindings;
 
-    public QueueBindings QueueBindings { get; }
+    ReceiveSettings[] receiverSettings;
+    TransportInfrastructure transportInfrastructure;
 
     public class Settings
     {

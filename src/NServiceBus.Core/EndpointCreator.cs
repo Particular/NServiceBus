@@ -88,8 +88,7 @@ class EndpointCreator
             receiveConfiguration,
             settings.Get<Conventions>(),
             pipelineSettings,
-            hostingConfiguration,
-            transportSeam);
+            hostingConfiguration);
 
         sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
