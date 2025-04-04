@@ -16,7 +16,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_when_there_are_no_registered_message_handlers()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new NoOpActivityFactory());
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -29,7 +29,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_if_ambient_transaction_is_different_from_scope_used_by_transport()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new NoOpActivityFactory());
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -49,7 +49,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_if_ambient_transaction_suppressed_when_transport_uses_a_scope()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry());
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new NoOpActivityFactory());
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -77,7 +77,7 @@ public class LoadHandlersConnectorTests
         context.Services.AddSingleton<FakeHandler>();
         context.Extensions.Set<IOutboxTransaction>(new NoOpOutboxTransaction());
 
-        var behavior = new LoadHandlersConnector(messageHandlerRegistry);
+        var behavior = new LoadHandlersConnector(messageHandlerRegistry, new NoOpActivityFactory());
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {

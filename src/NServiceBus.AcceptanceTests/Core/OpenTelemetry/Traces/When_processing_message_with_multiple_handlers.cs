@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 public class When_processing_message_with_multiple_handlers : OpenTelemetryAcceptanceTest
@@ -11,7 +13,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
     [Test]
     public async Task Should_create_message_handler_spans()
     {
-        var context = await Scenario.Define<Context>()
+        await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(b =>
                 b.When(session => session.SendLocal(new SomeMessage()))
             )
@@ -39,6 +41,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
                 Assert.That(invokedHandlerActivity.ParentId, Is.EqualTo(receivePipelineActivities[0].Id));
                 Assert.That(invokedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
             });
+
+            Assert.That(invokedHandlerActivity.GetTagItem("custom_handler_tag"), Is.Not.Null, "Custom tag should be set");
         }
 
         Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerOne).FullName), "invocation of handler one should be traced");
@@ -53,14 +57,19 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(c => c.Pipeline.Register(typeof(AddTagToHandlerSpanBehavior), "Adds a custom tag to the handler span"));
 
-        public class HandlerOne : IHandleMessages<SomeMessage>
+        class AddTagToHandlerSpanBehavior : Behavior<IInvokeHandlerContext>
         {
-            Context testContext;
+            public override async Task Invoke(IInvokeHandlerContext context, Func<Task> next)
+            {
+                Activity.Current?.AddTag("custom_handler_tag", "some value");
+                await next();
+            }
+        }
 
-            public HandlerOne(Context context) => testContext = context;
-
+        public class HandlerOne(Context testContext) : IHandleMessages<SomeMessage>
+        {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.FirstHandlerRun = true;
@@ -68,12 +77,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             }
         }
 
-        public class HandlerTwo : IHandleMessages<SomeMessage>
+        public class HandlerTwo(Context testContext) : IHandleMessages<SomeMessage>
         {
-            Context testContext;
-
-            public HandlerTwo(Context context) => testContext = context;
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondHandlerRun = true;

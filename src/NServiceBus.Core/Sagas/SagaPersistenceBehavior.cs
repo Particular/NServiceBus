@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Logging;
@@ -110,6 +111,8 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
             context.Extensions.Get<SagaInvocationResult>().SagaFound();
             sagaInstanceState.AttachExistingEntity(loadedEntity);
         }
+
+        Activity.Current?.AddTag(ActivityTags.HandlerSagaId, sagaInstanceState.SagaId);
 
         await next(context).ConfigureAwait(false);
 
@@ -265,6 +268,7 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
                 return finderDefinition;
             }
         }
+
         return null;
     }
 

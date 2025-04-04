@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator(IActivityFactory activityFactory, IncomingPipelineMetrics messagingMetricsMeters) : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : PipelineTerminator<IInvokeHandlerContext>
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
@@ -14,8 +13,6 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IncomingPipeline
         {
             return;
         }
-
-        using var activity = activityFactory.StartHandlerActivity(context.MessageHandler, saga);
 
         var messageHandler = context.MessageHandler;
 
@@ -29,7 +26,6 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IncomingPipeline
                 .ThrowIfNull()
                 .ConfigureAwait(false);
 
-            activity?.SetStatus(ActivityStatusCode.Ok);
             messagingMetricsMeters.RecordSuccessfulMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime);
         }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
@@ -42,10 +38,8 @@ class InvokeHandlerTerminator(IActivityFactory activityFactory, IncomingPipeline
             ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
             ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
-            activity?.SetErrorStatus(ex);
             messagingMetricsMeters.RecordFailedMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime, ex);
             throw;
         }
     }
-
 }
