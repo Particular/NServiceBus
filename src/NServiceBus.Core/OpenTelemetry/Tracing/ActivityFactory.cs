@@ -2,7 +2,6 @@
 
 using System.Diagnostics;
 using Pipeline;
-using Sagas;
 using Transport;
 
 class ActivityFactory : IActivityFactory
@@ -84,7 +83,7 @@ class ActivityFactory : IActivityFactory
         return activity;
     }
 
-    public Activity StartHandlerActivity(MessageHandler messageHandler, ActiveSagaInstance saga)
+    public Activity StartHandlerActivity(MessageHandler messageHandler)
     {
         if (Activity.Current == null)
         {
@@ -98,11 +97,6 @@ class ActivityFactory : IActivityFactory
         {
             activity.DisplayName = messageHandler.HandlerType.Name;
             activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
-
-            if (saga != null)
-            {
-                activity.AddTag(ActivityTags.HandlerSagaId, saga.SagaId);
-            }
         }
 
         return activity;

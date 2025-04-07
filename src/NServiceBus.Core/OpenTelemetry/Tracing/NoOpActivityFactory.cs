@@ -2,7 +2,6 @@
 
 using System.Diagnostics;
 using Pipeline;
-using Sagas;
 using Transport;
 
 class NoOpActivityFactory : IActivityFactory
@@ -11,5 +10,5 @@ class NoOpActivityFactory : IActivityFactory
 
     public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;
 
-    public Activity StartHandlerActivity(MessageHandler messageHandler, ActiveSagaInstance saga) => null;
+    public Activity StartHandlerActivity(MessageHandler messageHandler) => null;
 }
