@@ -2,21 +2,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Transport;
+using Transport;
 using Persistence;
 using Pipeline;
 using Unicast;
 
-class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
+class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
 {
-    public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry) => this.messageHandlerRegistry = messageHandlerRegistry;
-
     public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
     {
         ValidateTransactionMode(context);
@@ -46,7 +45,23 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
             messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
 
             var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-            await stage(handlingContext).ConfigureAwait(false);
+
+            using (var activity = activityFactory.StartHandlerActivity(messageHandler))
+            {
+                try
+                {
+                    await stage(handlingContext).ConfigureAwait(false);
+
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+#pragma warning disable PS0019
+                catch (Exception ex)
+#pragma warning restore PS0019
+                {
+                    activity?.SetErrorStatus(ex);
+                    throw;
+                }
+            }
 
             if (handlingContext.HandlerInvocationAborted)
             {
@@ -54,6 +69,7 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
                 break;
             }
         }
+
         context.MessageHandled = true;
         await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
     }
@@ -94,8 +110,6 @@ class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IIn
 
         logger.Debug(builder.ToString());
     }
-
-    readonly MessageHandlerRegistry messageHandlerRegistry;
 
     static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
     static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
