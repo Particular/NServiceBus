@@ -32,7 +32,6 @@ class DirectoryBasedTransaction : ILearningTransportTransaction
 
         Directory.Delete(transactionDir, true);
         return false;
-
     }
 
     public async Task Commit(CancellationToken cancellationToken = default)
