@@ -19,12 +19,19 @@ class DirectoryBasedTransaction : ILearningTransportTransaction
 
     public string FileToProcess { get; private set; }
 
-    public Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default)
+    public async Task<bool> BeginTransaction(string incomingFilePath, CancellationToken cancellationToken = default)
     {
         Directory.CreateDirectory(transactionDir);
         FileToProcess = Path.Combine(transactionDir, Path.GetFileName(incomingFilePath));
 
-        return AsyncFile.Move(incomingFilePath, FileToProcess, cancellationToken);
+        var succeeded = await AsyncFile.Move(incomingFilePath, FileToProcess, cancellationToken).ConfigureAwait(false);
+        if (succeeded)
+        {
+            return true;
+        }
+
+        Directory.Delete(transactionDir, true);
+        return false;
     }
 
     public async Task Commit(CancellationToken cancellationToken = default)
