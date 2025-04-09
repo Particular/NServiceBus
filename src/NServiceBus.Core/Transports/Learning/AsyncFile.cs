@@ -121,7 +121,7 @@ static class AsyncFile
 
             if (!IsFileLocked(targetPath))
             {
-                break;
+                return true;
             }
 
             await Task.Delay(100, cancellationToken).ConfigureAwait(false);
@@ -129,7 +129,7 @@ static class AsyncFile
             count++;
         }
 
-        return true;
+        return false;
     }
 
     static bool IsFileLocked(string filePath)
