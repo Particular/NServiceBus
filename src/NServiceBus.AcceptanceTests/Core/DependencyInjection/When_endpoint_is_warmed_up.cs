@@ -139,16 +139,16 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
 
         public IServiceScope CreateScope()
         {
-            var scope = ServiceProvider.CreateScope();
+            AsyncServiceScope scope = ServiceProvider.CreateAsyncScope();
             return new SpyScope(scope, RegisteredServices);
         }
 
-        class SpyScope : IServiceScope, IServiceProvider
+        class SpyScope : IServiceScope, IServiceProvider, IAsyncDisposable
         {
-            readonly IServiceScope decorated;
+            readonly AsyncServiceScope decorated;
             readonly Dictionary<Type, RegisteredService> registeredServices;
 
-            public SpyScope(IServiceScope decorated, Dictionary<Type, RegisteredService> registeredServices)
+            public SpyScope(AsyncServiceScope decorated, Dictionary<Type, RegisteredService> registeredServices)
             {
                 this.registeredServices = registeredServices;
                 this.decorated = decorated;
@@ -166,6 +166,8 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
             }
 
             public void Dispose() => decorated.Dispose();
+
+            public async ValueTask DisposeAsync() => await decorated.DisposeAsync();
         }
 
         public class RegisteredService
