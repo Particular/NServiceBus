@@ -85,7 +85,7 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                 protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     using (var scope = provider.CreateScope())
-                    using (var completableSynchronizedStorageSession =
+                    await using (var completableSynchronizedStorageSession =
                            scope.ServiceProvider.GetRequiredService<ICompletableSynchronizedStorageSession>())
                     {
                         await completableSynchronizedStorageSession.Open(new ContextBag(), cancellationToken);
