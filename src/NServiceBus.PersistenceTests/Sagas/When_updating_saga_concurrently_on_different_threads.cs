@@ -23,7 +23,7 @@ public class When_updating_saga_concurrently_on_different_threads : SagaPersiste
         var firstTask = Task.Run(async () =>
         {
             var winningContext = configuration.GetContextBagForSagaStorage();
-            using var winningSaveSession = configuration.CreateStorageSession();
+            await using var winningSaveSession = configuration.CreateStorageSession();
             await winningSaveSession.Open(winningContext);
 
             var record = await persister.Get<TestSagaData>(generatedSagaId, winningSaveSession, winningContext);
@@ -41,7 +41,7 @@ public class When_updating_saga_concurrently_on_different_threads : SagaPersiste
             await startSecondTaskSync.Task;
 
             var losingSaveContext = configuration.GetContextBagForSagaStorage();
-            using var losingSaveSession = configuration.CreateStorageSession();
+            await using var losingSaveSession = configuration.CreateStorageSession();
             await losingSaveSession.Open(losingSaveContext);
 
             var staleRecord = await persister.Get<TestSagaData>("SomeId", correlationPropertyData, losingSaveSession, losingSaveContext);

@@ -42,7 +42,7 @@ public class When_updating_saga_concurrently_twice_on_the_same_thread : SagaPers
         }
         finally
         {
-            winningSaveSession1.Dispose();
+            await winningSaveSession1.DisposeAsync();
         }
 
         try
@@ -56,7 +56,7 @@ public class When_updating_saga_concurrently_twice_on_the_same_thread : SagaPers
         }
         finally
         {
-            losingSaveSession1.Dispose();
+            await losingSaveSession1.DisposeAsync();
         }
 
         ContextBag losingContext2;
@@ -82,7 +82,7 @@ public class When_updating_saga_concurrently_twice_on_the_same_thread : SagaPers
         }
         finally
         {
-            winningSaveSession2.Dispose();
+            await winningSaveSession2.DisposeAsync();
         }
 
         try
@@ -96,7 +96,7 @@ public class When_updating_saga_concurrently_twice_on_the_same_thread : SagaPers
         }
         finally
         {
-            losingSaveSession2.Dispose();
+            await losingSaveSession2.DisposeAsync();
         }
     }
 

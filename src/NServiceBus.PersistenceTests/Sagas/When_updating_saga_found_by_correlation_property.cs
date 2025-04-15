@@ -22,7 +22,7 @@ public class When_updating_saga_found_by_correlation_property : SagaPersisterTes
         var context = configuration.GetContextBagForSagaStorage();
         var correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
         var persister = configuration.SagaStorage;
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context);
 

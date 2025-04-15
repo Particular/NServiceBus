@@ -22,7 +22,7 @@ public class When_concurrently_persisting_sagas_with_same_correlation_prop : Sag
         };
 
         var winningContextBag = configuration.GetContextBagForSagaStorage();
-        using (var winningSession = configuration.CreateStorageSession())
+        await using (var winningSession = configuration.CreateStorageSession())
         {
             await winningSession.Open(winningContextBag);
 
@@ -31,7 +31,7 @@ public class When_concurrently_persisting_sagas_with_same_correlation_prop : Sag
         }
 
         var losingContextBag = configuration.GetContextBagForSagaStorage();
-        using (var losingSession = configuration.CreateStorageSession())
+        await using (var losingSession = configuration.CreateStorageSession())
         {
             await losingSession.Open(losingContextBag);
 

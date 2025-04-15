@@ -42,7 +42,7 @@ public class When_worker_tries_to_complete_saga_update_by_another_optimistic : S
         }
         finally
         {
-            winningSaveSession.Dispose();
+            await winningSaveSession.DisposeAsync();
         }
 
         try
@@ -55,7 +55,7 @@ public class When_worker_tries_to_complete_saga_update_by_another_optimistic : S
         }
         finally
         {
-            losingSaveSession.Dispose();
+            await losingSaveSession.DisposeAsync();
         }
     }
 

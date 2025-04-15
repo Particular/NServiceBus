@@ -10,7 +10,7 @@ using Transport;
 /// <summary>
 /// Represents a storage session from point of view of the infrastructure.
 /// </summary>
-public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSession, IDisposable
+public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSession, IAsyncDisposable
 {
     /// <summary>
     /// Tries to open the storage session with the provided outbox transaction.

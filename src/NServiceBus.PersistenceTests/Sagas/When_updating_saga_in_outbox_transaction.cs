@@ -17,7 +17,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
         var sagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString() };
         using (var outboxTransaction = await configuration.OutboxStorage.BeginTransaction(contextBag))
         {
-            using (var synchronizedStorageSession = configuration.CreateStorageSession())
+            await using (var synchronizedStorageSession = configuration.CreateStorageSession())
             {
                 var sessionCreated = await synchronizedStorageSession.TryOpen(outboxTransaction, contextBag);
                 Assert.That(sessionCreated, Is.True);

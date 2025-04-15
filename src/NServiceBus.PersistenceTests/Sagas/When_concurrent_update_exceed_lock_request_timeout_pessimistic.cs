@@ -32,7 +32,7 @@ public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : Sa
         async Task FirstSession()
         {
             var firstSessionContext = configuration.GetContextBagForSagaStorage();
-            using var firstSaveSession = configuration.CreateStorageSession();
+            await using var firstSaveSession = configuration.CreateStorageSession();
             await firstSaveSession.Open(firstSessionContext);
 
             var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstSessionContext);
@@ -50,7 +50,7 @@ public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : Sa
         async Task SecondSession()
         {
             var secondContext = configuration.GetContextBagForSagaStorage();
-            using var secondSession = configuration.CreateStorageSession();
+            await using var secondSession = configuration.CreateStorageSession();
             await secondSession.Open(secondContext);
 
             await firstSessionGetDone.Task.ConfigureAwait(false);

@@ -21,7 +21,7 @@ public class When_updating_saga_found_by_id : SagaPersisterTests
         var updatedValue = "bar";
         var context = configuration.GetContextBagForSagaStorage();
         var persister = configuration.SagaStorage;
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context);
 

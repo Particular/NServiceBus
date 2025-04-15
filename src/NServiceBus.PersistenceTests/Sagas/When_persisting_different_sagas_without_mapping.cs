@@ -27,7 +27,7 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
         };
 
         var savingContextBag = configuration.GetContextBagForSagaStorage();
-        using (var session = configuration.CreateStorageSession())
+        await using (var session = configuration.CreateStorageSession())
         {
             await session.Open(savingContextBag);
 
@@ -37,7 +37,7 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
         }
 
         var readContextBag = configuration.GetContextBagForSagaStorage();
-        using (var readSession = configuration.CreateStorageSession())
+        await using (var readSession = configuration.CreateStorageSession())
         {
             await readSession.Open(readContextBag);
 

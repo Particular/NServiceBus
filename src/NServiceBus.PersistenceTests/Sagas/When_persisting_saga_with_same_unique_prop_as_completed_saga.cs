@@ -17,7 +17,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
 
         await SaveSaga(saga1);
         var context1 = configuration.GetContextBagForSagaStorage();
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context1);
 
@@ -32,7 +32,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
 
         await SaveSaga(saga2);
         var context2 = configuration.GetContextBagForSagaStorage();
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context2);
 

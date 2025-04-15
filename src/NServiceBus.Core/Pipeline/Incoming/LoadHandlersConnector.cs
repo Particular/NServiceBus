@@ -20,7 +20,10 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
     {
         ValidateTransactionMode(context);
 
-        using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>() ?? NoOpCompletableSynchronizedStorageSession.Instance;
+#pragma warning disable CA2007
+        await using var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>()
+                                         ?? NoOpCompletableSynchronizedStorageSession.Instance;
+#pragma warning restore CA2007
         await storageSession.Open(context).ConfigureAwait(false);
 
         var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
@@ -113,6 +116,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
     static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
     static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
+
     static readonly string scopeInconsistencyMessage =
         "This can result in inconsistent data because other enlisting operations won't be committed atomically with the receive transaction. " +
         $"The transport transaction mode must be changed to something other than '{nameof(TransportTransactionMode.TransactionScope)}' before attempting to manually control the TransactionScope in the pipeline.";

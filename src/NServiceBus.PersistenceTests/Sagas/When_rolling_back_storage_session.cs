@@ -17,7 +17,7 @@ public class When_rolling_back_storage_session : SagaPersisterTests
         await SaveSaga(sagaData);
 
         var contextBag = configuration.GetContextBagForSagaStorage();
-        using (var session = configuration.CreateStorageSession())
+        await using (var session = configuration.CreateStorageSession())
         {
             await session.Open(contextBag);
 
@@ -45,7 +45,7 @@ public class When_rolling_back_storage_session : SagaPersisterTests
         };
 
         var contextBag = configuration.GetContextBagForSagaStorage();
-        using (var session = configuration.CreateStorageSession())
+        await using (var session = configuration.CreateStorageSession())
         {
             await session.Open(contextBag);
 
@@ -70,7 +70,7 @@ public class When_rolling_back_storage_session : SagaPersisterTests
         await SaveSaga(sagaData);
 
         var contextBag = configuration.GetContextBagForSagaStorage();
-        using (var session = configuration.CreateStorageSession())
+        await using (var session = configuration.CreateStorageSession())
         {
             await session.Open(contextBag);
 

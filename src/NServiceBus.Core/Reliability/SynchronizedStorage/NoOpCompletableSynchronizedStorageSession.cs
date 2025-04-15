@@ -26,9 +26,7 @@ sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronize
 
     public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public void Dispose()
-    {
-    }
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     public static readonly ICompletableSynchronizedStorageSession Instance = new NoOpCompletableSynchronizedStorageSession();
 }

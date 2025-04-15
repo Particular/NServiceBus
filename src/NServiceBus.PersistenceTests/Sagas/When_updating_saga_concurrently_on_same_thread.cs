@@ -24,7 +24,7 @@ public class When_updating_saga_concurrently_on_same_thread : SagaPersisterTests
         var persister = configuration.SagaStorage;
 
         var winningContext = configuration.GetContextBagForSagaStorage();
-        using (var winningSaveSession = configuration.CreateStorageSession())
+        await using (var winningSaveSession = configuration.CreateStorageSession())
         {
             await winningSaveSession.Open(winningContext);
 
@@ -51,7 +51,7 @@ public class When_updating_saga_concurrently_on_same_thread : SagaPersisterTests
         }
         finally
         {
-            losingSaveSession.Dispose();
+            await losingSaveSession.DisposeAsync();
         }
     }
 

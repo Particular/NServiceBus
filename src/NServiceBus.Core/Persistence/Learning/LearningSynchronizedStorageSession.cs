@@ -13,11 +13,11 @@ using Transport;
 [SkipWeaving]
 class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         foreach (var sagaFile in sagaFiles.Values)
         {
-            sagaFile.Dispose();
+            await sagaFile.DisposeAsync().ConfigureAwait(false);
         }
 
         sagaFiles.Clear();
