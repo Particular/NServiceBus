@@ -25,7 +25,7 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
 
         while (true)
         {
-            if (Directory.EnumerateFiles(directory).Any(file => file.EndsWith(".sln")))
+            if (Directory.EnumerateFiles(directory).Any(file => Path.GetExtension(file) is ".sln" or ".slnx"))
             {
                 return directory;
             }

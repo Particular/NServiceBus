@@ -35,7 +35,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
         while (true)
         {
             // Finding a solution file takes precedence
-            if (Directory.EnumerateFiles(directory).Any(file => file.EndsWith(".sln")))
+            if (Directory.EnumerateFiles(directory).Any(file => Path.GetExtension(file) is ".sln" or ".slnx"))
             {
                 return Path.Combine(directory, DefaultLearningTransportDirectory);
             }
