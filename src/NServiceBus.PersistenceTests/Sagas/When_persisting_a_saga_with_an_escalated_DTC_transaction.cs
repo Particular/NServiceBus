@@ -28,7 +28,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
             var transportTransaction = new TransportTransaction();
             transportTransaction.Set(Transaction.Current);
 
-            using var session = configuration.CreateStorageSession();
+            await using var session = configuration.CreateStorageSession();
             var contextBag = configuration.GetContextBagForSagaStorage();
 
             await session.TryOpen(transportTransaction, contextBag);
@@ -66,7 +66,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
             var transportTransaction = new TransportTransaction();
             transportTransaction.Set(Transaction.Current);
 
-            using var session = configuration.CreateStorageSession();
+            await using var session = configuration.CreateStorageSession();
             var contextBag = configuration.GetContextBagForSagaStorage();
 
             await session.TryOpen(transportTransaction, contextBag);

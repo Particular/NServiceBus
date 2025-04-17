@@ -15,7 +15,7 @@ public class When_completing_a_saga_with_correlation_property : SagaPersisterTes
 
         const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
         var context = configuration.GetContextBagForSagaStorage();
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context);
 

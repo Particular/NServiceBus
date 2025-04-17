@@ -24,7 +24,7 @@ public class When_updating_saga_with_no_mapping_found_by_id : SagaPersisterTests
 
         var updateValue = Guid.NewGuid().ToString();
         var context = configuration.GetContextBagForSagaStorage();
-        using (var completeSession = configuration.CreateStorageSession())
+        await using (var completeSession = configuration.CreateStorageSession())
         {
             await completeSession.Open(context);
 

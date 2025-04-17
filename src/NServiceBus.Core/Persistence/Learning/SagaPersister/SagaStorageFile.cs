@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Janitor;
 
 [SkipWeaving]
-class SagaStorageFile : IDisposable
+class SagaStorageFile : IDisposable, IAsyncDisposable
 {
     SagaStorageFile(FileStream fileStream)
     {
@@ -25,6 +25,20 @@ class SagaStorageFile : IDisposable
             File.Delete(fileStream.Name);
         }
 
+        fileStream.Dispose(); // Already closed, but for completeness
+        fileStream = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        fileStream.Close();
+
+        if (isCompleted)
+        {
+            File.Delete(fileStream.Name);
+        }
+
+        await fileStream.DisposeAsync().ConfigureAwait(false); // Already closed, but for completeness
         fileStream = null;
     }
 

@@ -10,7 +10,7 @@ using Transport;
 /// <summary>
 /// Represents a storage session from point of view of the infrastructure.
 /// </summary>
-public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSession, IDisposable
+public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSession, IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Tries to open the storage session with the provided outbox transaction.
@@ -41,4 +41,12 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     /// Completes the session by saving the changes.
     /// </summary>
     Task CompleteAsync(CancellationToken cancellationToken = default);
+
+#pragma warning disable CA1816
+    ValueTask IAsyncDisposable.DisposeAsync()
+#pragma warning restore CA1816
+    {
+        Dispose();
+        return default;
+    }
 }

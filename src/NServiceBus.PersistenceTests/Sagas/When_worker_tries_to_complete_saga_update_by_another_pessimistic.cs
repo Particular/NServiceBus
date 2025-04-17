@@ -25,7 +25,7 @@ public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : 
         async Task FirstSession()
         {
             var firstContent = configuration.GetContextBagForSagaStorage();
-            using var firstSaveSession = configuration.CreateStorageSession();
+            await using var firstSaveSession = configuration.CreateStorageSession();
             await firstSaveSession.Open(firstContent);
 
             var record = await persister.Get<TestSagaData>(saga.Id, firstSaveSession, firstContent);
@@ -40,7 +40,7 @@ public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : 
         async Task SecondSession()
         {
             var secondContext = configuration.GetContextBagForSagaStorage();
-            using var secondSession = configuration.CreateStorageSession();
+            await using var secondSession = configuration.CreateStorageSession();
             await secondSession.Open(secondContext);
 
             await firstSessionGetDone.Task.ConfigureAwait(false);

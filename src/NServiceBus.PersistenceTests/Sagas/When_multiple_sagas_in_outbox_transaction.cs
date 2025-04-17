@@ -19,7 +19,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         Assert.That(outboxMessage, Is.Null);
         using (var outboxTransaction = await configuration.OutboxStorage.BeginTransaction(context))
         {
-            using (var saga1Session = configuration.CreateStorageSession())
+            await using (var saga1Session = configuration.CreateStorageSession())
             {
                 await saga1Session.TryOpen(outboxTransaction, context);
                 var saga1Data = await configuration.SagaStorage.Get<Saga1Data>(nameof(Saga1Data.CorrelationId),
@@ -31,7 +31,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
                 await saga1Session.CompleteAsync();
             }
 
-            using (var saga2Session = configuration.CreateStorageSession())
+            await using (var saga2Session = configuration.CreateStorageSession())
             {
                 await saga2Session.TryOpen(outboxTransaction, context);
                 var saga2Data = await configuration.SagaStorage.Get<Saga2Data>(nameof(Saga2Data.CorrelationId),
@@ -67,7 +67,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         Assert.That(outboxMessage, Is.Null);
         using (var outboxTransaction = await configuration.OutboxStorage.BeginTransaction(context))
         {
-            using (var saga1Session = configuration.CreateStorageSession())
+            await using (var saga1Session = configuration.CreateStorageSession())
             {
                 await saga1Session.TryOpen(outboxTransaction, context);
                 var saga1Data = await configuration.SagaStorage.Get<Saga1Data>(nameof(Saga1Data.CorrelationId),
@@ -79,7 +79,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
                 await saga1Session.CompleteAsync();
             }
 
-            using (var saga2Session = configuration.CreateStorageSession())
+            await using (var saga2Session = configuration.CreateStorageSession())
             {
                 await saga2Session.TryOpen(outboxTransaction, context);
                 var saga2Data = await configuration.SagaStorage.Get<Saga2Data>(nameof(Saga2Data.CorrelationId),
@@ -115,7 +115,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         Assert.That(outboxMessage, Is.Null);
         using (var outboxTransaction = await configuration.OutboxStorage.BeginTransaction(context))
         {
-            using (var saga1Session = configuration.CreateStorageSession())
+            await using (var saga1Session = configuration.CreateStorageSession())
             {
                 await saga1Session.TryOpen(outboxTransaction, context);
 
@@ -127,7 +127,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
                 await saga1Session.CompleteAsync();
             }
 
-            using (var saga2Session = configuration.CreateStorageSession())
+            await using (var saga2Session = configuration.CreateStorageSession())
             {
                 await saga2Session.TryOpen(outboxTransaction, context);
 
@@ -165,7 +165,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
         Assert.That(outboxMessage, Is.Null);
         using (var outboxTransaction = await configuration.OutboxStorage.BeginTransaction(context))
         {
-            using (var saga1Session = configuration.CreateStorageSession())
+            await using (var saga1Session = configuration.CreateStorageSession())
             {
                 await saga1Session.TryOpen(outboxTransaction, context);
 
@@ -177,7 +177,7 @@ public class When_multiple_sagas_in_outbox_transaction : SagaPersisterTests
                 await saga1Session.CompleteAsync();
             }
 
-            using (var saga2Session = configuration.CreateStorageSession())
+            await using (var saga2Session = configuration.CreateStorageSession())
             {
                 await saga2Session.TryOpen(outboxTransaction, context);
 

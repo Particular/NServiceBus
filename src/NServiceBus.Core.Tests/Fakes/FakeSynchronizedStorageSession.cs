@@ -9,7 +9,7 @@ using NServiceBus.Persistence;
 using Outbox;
 using Transport;
 
-public class FakeSynchronizedStorageSession : ICompletableSynchronizedStorageSession
+public sealed class FakeSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
     public FakeSynchronizedStorageSession(FakeTransaction transaction)
     {
@@ -61,7 +61,12 @@ public class FakeSynchronizedStorageSession : ICompletableSynchronizedStorageSes
     public void Dispose()
     {
         Transaction = null;
-        GC.SuppressFinalize(this);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Transaction = null;
+        return default;
     }
 
     public Task CompleteAsync(CancellationToken cancellationToken = default)

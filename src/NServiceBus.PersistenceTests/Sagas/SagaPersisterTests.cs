@@ -27,7 +27,7 @@ public class SagaPersisterTests(TestVariant param)
     protected async Task SaveSaga<TSagaData>(TSagaData saga, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
     {
         var insertContextBag = configuration.GetContextBagForSagaStorage();
-        using var insertSession = configuration.CreateStorageSession();
+        await using var insertSession = configuration.CreateStorageSession();
         await insertSession.Open(insertContextBag, cancellationToken);
 
         await SaveSagaWithSession(saga, insertSession, insertContextBag, cancellationToken);
@@ -47,7 +47,7 @@ public class SagaPersisterTests(TestVariant param)
         var context = configuration.GetContextBagForSagaStorage();
         var persister = configuration.SagaStorage;
 
-        using var completeSession = configuration.CreateStorageSession();
+        await using var completeSession = configuration.CreateStorageSession();
         await completeSession.Open(context, cancellationToken);
 
         var sagaData = await persister.Get<TSagaData>(correlatedPropertyName, correlationPropertyData, completeSession, context, cancellationToken);
@@ -60,7 +60,7 @@ public class SagaPersisterTests(TestVariant param)
     protected async Task<TSagaData> GetById<TSagaData>(Guid sagaId, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
     {
         var readContextBag = configuration.GetContextBagForSagaStorage();
-        using var readSession = configuration.CreateStorageSession();
+        await using var readSession = configuration.CreateStorageSession();
         await readSession.Open(readContextBag, cancellationToken);
 
         var sagaData = await configuration.SagaStorage.Get<TSagaData>(sagaId, readSession, readContextBag, cancellationToken);

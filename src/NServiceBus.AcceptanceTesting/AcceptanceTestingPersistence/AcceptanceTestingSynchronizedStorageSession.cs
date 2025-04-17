@@ -15,6 +15,12 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
 
     public void Dispose() => Transaction = null;
 
+    public ValueTask DisposeAsync()
+    {
+        Transaction = null;
+        return default;
+    }
+
     public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
         CancellationToken cancellationToken = default)
     {

@@ -23,6 +23,16 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
         sagaFiles.Clear();
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var sagaFile in sagaFiles.Values)
+        {
+            await sagaFile.DisposeAsync().ConfigureAwait(false);
+        }
+
+        sagaFiles.Clear();
+    }
+
     public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
         CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
 
