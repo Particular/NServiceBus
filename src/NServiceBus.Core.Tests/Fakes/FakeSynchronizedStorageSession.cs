@@ -66,7 +66,7 @@ public sealed class FakeSynchronizedStorageSession : ICompletableSynchronizedSto
     public ValueTask DisposeAsync()
     {
         Transaction = null;
-        return ValueTask.CompletedTask;
+        return default;
     }
 
     public Task CompleteAsync(CancellationToken cancellationToken = default)

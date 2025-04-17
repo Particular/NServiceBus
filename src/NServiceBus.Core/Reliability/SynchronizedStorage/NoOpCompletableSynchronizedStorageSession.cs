@@ -30,7 +30,7 @@ sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronize
     {
     }
 
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync() => default;
 
     public static readonly ICompletableSynchronizedStorageSession Instance = new NoOpCompletableSynchronizedStorageSession();
 }

@@ -139,7 +139,7 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
 
         public IServiceScope CreateScope()
         {
-            AsyncServiceScope scope = ServiceProvider.CreateAsyncScope();
+            var scope = ServiceProvider.CreateAsyncScope();
             return new SpyScope(scope, RegisteredServices);
         }
 

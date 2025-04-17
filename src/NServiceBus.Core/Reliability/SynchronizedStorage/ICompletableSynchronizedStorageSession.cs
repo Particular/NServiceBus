@@ -47,6 +47,6 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
 #pragma warning restore CA1816
     {
         Dispose();
-        return ValueTask.CompletedTask;
+        return default;
     }
 }

@@ -116,7 +116,6 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
     static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
     static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
-
     static readonly string scopeInconsistencyMessage =
         "This can result in inconsistent data because other enlisting operations won't be committed atomically with the receive transaction. " +
         $"The transport transaction mode must be changed to something other than '{nameof(TransportTransactionMode.TransactionScope)}' before attempting to manually control the TransactionScope in the pipeline.";
