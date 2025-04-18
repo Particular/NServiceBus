@@ -45,9 +45,9 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     ValueTask IAsyncDisposable.DisposeAsync()
     {
         Dispose();
-        
+
         GC.SuppressFinalize(this);
-        
+
         return default;
     }
 }
