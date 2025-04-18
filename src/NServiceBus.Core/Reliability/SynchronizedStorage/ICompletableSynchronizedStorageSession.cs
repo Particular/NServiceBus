@@ -42,11 +42,12 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     /// </summary>
     Task CompleteAsync(CancellationToken cancellationToken = default);
 
-#pragma warning disable CA1816
     ValueTask IAsyncDisposable.DisposeAsync()
-#pragma warning restore CA1816
     {
         Dispose();
+        
+        GC.SuppressFinalize(this);
+        
         return default;
     }
 }
