@@ -23,60 +23,57 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
         var storageSession = context.Builder.GetService<ICompletableSynchronizedStorageSession>()
                              ?? NoOpCompletableSynchronizedStorageSession.Instance;
 
-        await using (storageSession.ConfigureAwait(false))
+        await storageSession.Open(context).ConfigureAwait(false);
+
+        var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
+
+        if (!context.MessageHandled && handlersToInvoke.Count == 0)
         {
-            await storageSession.Open(context).ConfigureAwait(false);
-
-            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
-
-            if (!context.MessageHandled && handlersToInvoke.Count == 0)
-            {
-                var error = $"No handlers could be found for message type: {context.Message.MessageType}";
-                throw new InvalidOperationException(error);
-            }
-
-            if (isDebugIsEnabled)
-            {
-                LogHandlersInvocation(context, handlersToInvoke);
-            }
-
-            // capture the message handler types to add them as tags to applicable metrics
-            var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
-            availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
-
-            foreach (var messageHandler in handlersToInvoke)
-            {
-                messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
-
-                var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
-
-                using (var activity = activityFactory.StartHandlerActivity(messageHandler))
-                {
-                    try
-                    {
-                        await stage(handlingContext).ConfigureAwait(false);
-
-                        activity?.SetStatus(ActivityStatusCode.Ok);
-                    }
-#pragma warning disable PS0019
-                    catch (Exception ex)
-#pragma warning restore PS0019
-                    {
-                        activity?.SetErrorStatus(ex);
-                        throw;
-                    }
-                }
-
-                if (handlingContext.HandlerInvocationAborted)
-                {
-                    //if the chain was aborted skip the other handlers
-                    break;
-                }
-            }
-
-            context.MessageHandled = true;
-            await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+            var error = $"No handlers could be found for message type: {context.Message.MessageType}";
+            throw new InvalidOperationException(error);
         }
+
+        if (isDebugIsEnabled)
+        {
+            LogHandlersInvocation(context, handlersToInvoke);
+        }
+
+        // capture the message handler types to add them as tags to applicable metrics
+        var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
+
+        foreach (var messageHandler in handlersToInvoke)
+        {
+            messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
+
+            var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
+
+            using (var activity = activityFactory.StartHandlerActivity(messageHandler))
+            {
+                try
+                {
+                    await stage(handlingContext).ConfigureAwait(false);
+
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+#pragma warning disable PS0019
+                catch (Exception ex)
+#pragma warning restore PS0019
+                {
+                    activity?.SetErrorStatus(ex);
+                    throw;
+                }
+            }
+
+            if (handlingContext.HandlerInvocationAborted)
+            {
+                //if the chain was aborted skip the other handlers
+                break;
+            }
+        }
+
+        context.MessageHandled = true;
+        await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
     }
 
     static void ValidateTransactionMode(IIncomingLogicalMessageContext context)
