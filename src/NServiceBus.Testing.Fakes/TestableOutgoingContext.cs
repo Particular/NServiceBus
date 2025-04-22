@@ -26,7 +26,7 @@ public partial class TestableOutgoingContext : TestablePipelineContext, IOutgoin
     /// </summary>
     protected virtual IServiceProvider GetBuilder()
     {
-        builder ??= Services.BuildServiceProvider();
+        builder ??= Services.BuildServiceProvider(); // TODO: When will this be disposed?
         return builder;
     }
 

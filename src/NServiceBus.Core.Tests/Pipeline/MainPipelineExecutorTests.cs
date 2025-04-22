@@ -115,7 +115,7 @@ public class MainPipelineExecutorTests
     static MainPipelineExecutor CreateMainPipelineExecutor(IPipeline<ITransportReceiveContext> receivePipeline)
     {
         var serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var serviceProvider = serviceCollection.BuildServiceProvider(); // TODO: Does not get disposed
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
