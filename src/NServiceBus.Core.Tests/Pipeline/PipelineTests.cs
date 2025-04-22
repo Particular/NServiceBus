@@ -30,7 +30,7 @@ public class PipelineTests
         pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
         pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-        await using var serviceProvider = new ServiceCollection().BuildServiceProvider()
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
         var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
 
         var context = new TestableTransportReceiveContext();
@@ -54,7 +54,7 @@ public class PipelineTests
         pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
         pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-        await using var serviceProvider = new ServiceCollection().BuildServiceProvider()
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
         var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
 
         stringWriter.WriteLine("Run 1");
@@ -108,7 +108,7 @@ public class PipelineTests
         pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
         pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
 
-        await using var serviceProvider = new ServiceCollection().BuildServiceProvider()
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
         var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
 
         var context = new TestableTransportReceiveContext();

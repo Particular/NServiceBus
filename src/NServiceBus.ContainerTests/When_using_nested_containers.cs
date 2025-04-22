@@ -13,11 +13,14 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
-        await using var serviceProvider = serviceCollection.BuildServiceProvider();
-        var scope = serviceProvider.CreateAsyncScope();
-        await using (scope.ConfigureAwait(false))
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        await using (serviceProvider.ConfigureAwait(false))
         {
-            scope.ServiceProvider.GetService(typeof(ScopedComponent));
+            var scope = serviceProvider.CreateAsyncScope();
+            await using (scope.ConfigureAwait(false))
+            {
+                scope.ServiceProvider.GetService(typeof(ScopedComponent));
+            }
         }
 
         Assert.That(ScopedComponent.DisposeCalled, Is.True);
