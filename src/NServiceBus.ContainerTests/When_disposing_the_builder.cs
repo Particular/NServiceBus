@@ -17,7 +17,7 @@ public class When_disposing_the_builder
         serviceCollection.AddSingleton(typeof(DisposableComponent));
         serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         serviceProvider.GetService(typeof(DisposableComponent));
         serviceProvider.GetService(typeof(AnotherSingletonComponent));
         (serviceProvider as IDisposable)?.Dispose();

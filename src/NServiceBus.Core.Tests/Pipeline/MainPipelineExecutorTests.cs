@@ -20,7 +20,9 @@ public class MainPipelineExecutorTests
         var existingValue = Guid.NewGuid();
 
         var receivePipeline = new TestableMessageOperations.Pipeline<ITransportReceiveContext>();
-        var executor = CreateMainPipelineExecutor(receivePipeline);
+        var serviceCollection = new ServiceCollection();
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
+        var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
         var messageContext = CreateMessageContext();
         messageContext.Extensions.Set("existing value", existingValue);
         await executor.Invoke(messageContext);
@@ -37,7 +39,9 @@ public class MainPipelineExecutorTests
         {
             OnInvoke = ctx => ctx.Extensions.SetOnRoot("new value", newValue)
         };
-        var executor = CreateMainPipelineExecutor(receivePipeline);
+        var serviceCollection = new ServiceCollection();
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
+        var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
         var messageContext = CreateMessageContext();
 
         await executor.Invoke(messageContext);
@@ -65,7 +69,9 @@ public class MainPipelineExecutorTests
         public async Task Should_start_Activity_when_invoking_pipeline()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
-            var executor = CreateMainPipelineExecutor(receivePipeline);
+            var serviceCollection = new ServiceCollection();
+            await using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             var messageContext = CreateMessageContext();
 
             await executor.Invoke(messageContext);
@@ -83,8 +89,9 @@ public class MainPipelineExecutorTests
         public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
-            var executor = CreateMainPipelineExecutor(receivePipeline);
-
+            var serviceCollection = new ServiceCollection();
+            await using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             await executor.Invoke(CreateMessageContext());
 
             Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -94,7 +101,9 @@ public class MainPipelineExecutorTests
         public void Should_set_error_status_on_activity_when_pipeline_throws_exception()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
-            var executor = CreateMainPipelineExecutor(receivePipeline);
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             receivePipeline.ThrowsException = true;
 
             Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
@@ -112,10 +121,8 @@ public class MainPipelineExecutorTests
             "receiver",
             new ContextBag());
 
-    static MainPipelineExecutor CreateMainPipelineExecutor(IPipeline<ITransportReceiveContext> receivePipeline)
+    static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
-        var serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),

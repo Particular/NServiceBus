@@ -11,7 +11,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService(typeof(SingletonComponent));
         var instance2 = serviceProvider.GetService(typeof(SingletonComponent));
@@ -24,7 +24,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService<TransientComponent>();
         var instance2 = serviceProvider.GetService<TransientComponent>();
@@ -37,7 +37,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
@@ -50,7 +50,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedLambdaComponent));
@@ -63,7 +63,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService(typeof(TransientLambdaComponent));
         var instance2 = serviceProvider.GetService(typeof(TransientLambdaComponent));
@@ -76,7 +76,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var instance1 = serviceProvider.GetService(typeof(SingletonLambdaComponent));
         var instance2 = serviceProvider.GetService(typeof(SingletonLambdaComponent));
@@ -89,7 +89,7 @@ public class When_building_components
     {
         var serviceCollection = new ServiceCollection();
         InitializeServices(serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         Assert.That(serviceProvider.GetServices(typeof(UnregisteredComponent)), Is.Empty);
     }
@@ -101,7 +101,7 @@ public class When_building_components
         {
             var serviceCollection = new ServiceCollection();
             InitializeServices(serviceCollection);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
             serviceProvider.GetService(typeof(RecursiveComponent));
         }
         catch (Exception)

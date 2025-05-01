@@ -64,7 +64,7 @@ public class RecoverabilityExecutorTests
     static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
-            new ServiceCollection().BuildServiceProvider(),
+            new ServiceCollection().BuildServiceProvider(), // TODO: Does not get disposed
             null,
             new TestableMessageOperations(),
             null, (_, _) => RecoverabilityAction.Discard("test"),

@@ -1,22 +1,28 @@
 namespace NServiceBus.ContainerTests;
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 public class When_using_nested_containers
 {
     [Test]
-    public void Scoped__components_should_be_disposed_when_the_child_container_is_disposed()
+    public async Task Scoped__components_should_be_disposed_when_the_child_container_is_disposed()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        using (var scope = serviceProvider.CreateScope())
+        await using (serviceProvider.ConfigureAwait(false))
         {
-            scope.ServiceProvider.GetService(typeof(ScopedComponent));
+            var scope = serviceProvider.CreateAsyncScope();
+            await using (scope.ConfigureAwait(false))
+            {
+                scope.ServiceProvider.GetService(typeof(ScopedComponent));
+            }
         }
+
         Assert.That(ScopedComponent.DisposeCalled, Is.True);
     }
 
@@ -26,7 +32,8 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
+
         var parentInstance = serviceProvider.GetService(typeof(ScopedComponent));
         using (var scope = serviceProvider.CreateScope())
         {
@@ -42,7 +49,8 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
+
         object instance1;
         using (var scope = serviceProvider.CreateScope())
         {
@@ -54,7 +62,6 @@ public class When_using_nested_containers
         {
             instance2 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
         }
-
         Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
@@ -64,7 +71,8 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient(typeof(TransientComponent));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
+
         object instance1;
         using (var scope = serviceProvider.CreateScope())
         {
@@ -86,7 +94,8 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
+
         using (var scope = serviceProvider.CreateScope())
         {
             var instance1 = scope.ServiceProvider.GetService(typeof(ScopedComponent));
@@ -102,13 +111,15 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped(typeof(ScopedComponent));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
 
         using (serviceProvider.CreateScope())
         {
         }
+
         var instance1 = serviceProvider.GetService(typeof(ScopedComponent));
         var instance2 = serviceProvider.GetService(typeof(ScopedComponent));
+
         Assert.That(instance2, Is.SameAs(instance1), "UoW's should be singletons in the root container");
     }
 
@@ -120,7 +131,8 @@ public class When_using_nested_containers
         serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
         serviceCollection.AddScoped(typeof(ComponentThatDependsOfSingleton));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
+
         using (var scope = serviceProvider.CreateScope())
         {
             scope.ServiceProvider.GetService(typeof(ComponentThatDependsOfSingleton));
@@ -138,7 +150,7 @@ public class When_using_nested_containers
         serviceCollection.AddScoped(typeof(DisposableComponent));
 
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using (var serviceProvider = serviceCollection.BuildServiceProvider())
         using (var scope = serviceProvider.CreateScope())
         {
             scope.ServiceProvider.GetService(typeof(DisposableComponent));

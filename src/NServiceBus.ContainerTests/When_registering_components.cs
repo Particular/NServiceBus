@@ -17,7 +17,7 @@ public class When_registering_components
         serviceCollection.AddTransient(typeof(DuplicateClass));
         serviceCollection.AddTransient(typeof(DuplicateClass));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetServices(typeof(DuplicateClass)).Count(), Is.EqualTo(2));
     }
 
@@ -28,7 +28,7 @@ public class When_registering_components
         serviceCollection.AddTransient(s => ((StaticFactory)s.GetService(typeof(StaticFactory))).Create());
         serviceCollection.AddSingleton(_ => new StaticFactory());
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetService(typeof(ComponentCreatedByFactory)), Is.Not.Null);
     }
 
@@ -39,7 +39,7 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(ISingletonComponent), new SingletonComponent());
         serviceCollection.AddSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetService(typeof(ISingletonComponent)), Is.InstanceOf<AnotherSingletonComponent>());
     }
 
@@ -51,7 +51,7 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(ISingletonComponent), singleton);
         serviceCollection.AddSingleton(typeof(SingletonComponent), singleton);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(SingletonComponent))));
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(ISingletonComponent))));
     }
@@ -65,7 +65,7 @@ public class When_registering_components
         serviceCollection.AddSingleton(typeof(ISingleton2), singleton);
         serviceCollection.AddTransient(typeof(ComponentThatDependsOnMultiSingletons));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         var dependency = (ComponentThatDependsOnMultiSingletons)serviceProvider.GetService(typeof(ComponentThatDependsOnMultiSingletons));
 
         Assert.Multiple(() =>
@@ -85,7 +85,7 @@ public class When_registering_components
         var expected = new InheritedFromSomeClass();
         serviceCollection.AddSingleton(typeof(SomeClass), expected);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetService(typeof(SomeClass)), Is.EqualTo(expected));
 
         using (var scope = serviceProvider.CreateScope())
