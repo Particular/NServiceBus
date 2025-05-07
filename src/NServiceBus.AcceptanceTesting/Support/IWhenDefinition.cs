@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 public interface IWhenDefinition
 {
-    Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session);
+    Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session, IServiceProvider serviceProvider);
 
     Guid Id { get; }
 }
