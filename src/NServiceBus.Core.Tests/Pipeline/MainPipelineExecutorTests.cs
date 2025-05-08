@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
@@ -130,7 +132,8 @@ public class MainPipelineExecutorTests
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
             new ActivityFactory(),
-            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"),
+            new EnvelopeTranslatorRouter(Enumerable.Empty<IEnvelopeTranslator>()));
 
         return executor;
     }
