@@ -61,11 +61,13 @@ namespace NServiceBus
     {
         public static void SendFailedMessagesTo(this NServiceBus.EndpointConfiguration config, string errorQueue) { }
     }
+    [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public static class ConfigureFileShareDataBus
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
     public static class ConfigureLicenseExtensions
@@ -79,8 +81,6 @@ namespace NServiceBus
     }
     public static class ConnectorContextExtensions
     {
-        [System.Obsolete(@"Use `CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, TimeSpan? timeToBeReceived, IIncomingPhysicalMessageContext sourceContext)` instead. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, System.TimeSpan? timeToBeReceived, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
@@ -115,8 +115,8 @@ namespace NServiceBus
         public void AddSystemMessagesConventions(System.Func<System.Type, bool> definesMessageType) { }
         public bool IsCommandType(System.Type t) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
@@ -129,8 +129,8 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder Add(NServiceBus.IMessageConvention messageConvention) { }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
@@ -169,45 +169,44 @@ namespace NServiceBus
         public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty
         where T :  class
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public DataBusProperty() { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public DataBusProperty(T value) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public bool HasValue { get; set; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public string Key { get; set; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         [System.Text.Json.Serialization.JsonIgnore]
         public System.Type Type { get; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         [System.Text.Json.Serialization.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         public T Value { get; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public object GetValue() { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public void SetValue(object valueToSet) { }
     }
     public static class DateTimeOffsetHelper
@@ -282,9 +281,6 @@ namespace NServiceBus
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public EndpointConfiguration(string endpointName) { }
-        [System.Obsolete("Error notification events have been replaced with a Task-based API available on t" +
-            "he recoverability settings. Will be removed in version 10.0.0.", true)]
-        public NServiceBus.Notifications Notifications { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
@@ -322,14 +318,13 @@ namespace NServiceBus
         public System.Collections.Generic.HashSet<System.Type> UnrecoverableExceptionTypes { get; }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
         public FileShareDataBus() { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         protected override System.Type ProvidedByFeature() { }
     }
     public static class HeaderOptionExtensions
@@ -344,8 +339,7 @@ namespace NServiceBus
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
@@ -432,29 +426,23 @@ namespace NServiceBus
         System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> Stop { get; }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public interface IDataBusProperty
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         bool HasValue { get; set; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         string Key { get; set; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         System.Type Type { get; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         object GetValue();
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         void SetValue(object value);
     }
     public interface IDistributionPolicy
@@ -547,9 +535,6 @@ namespace NServiceBus
     {
         public static bool IsImmediateDispatchSet(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
-        [System.Obsolete("Use `IsImmediateDispatchSet` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 10.0.0.", true)]
-        public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
     public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
@@ -672,12 +657,6 @@ namespace NServiceBus
         public bool IsCommandType(System.Type type) { }
         public bool IsEventType(System.Type type) { }
         public bool IsMessageType(System.Type type) { }
-    }
-    [System.Obsolete("Error notification events have been replaced with a Task-based API available on t" +
-        "he recoverability settings. Will be removed in version 10.0.0.", true)]
-    public class Notifications
-    {
-        public Notifications() { }
     }
     public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
     public static class OpenTelemetryConfigurationExtensions
@@ -925,43 +904,11 @@ namespace NServiceBus
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
     }
-    [System.Obsolete("Use methods on IServiceCollection instead. Note that interfaces are not registere" +
-        "d implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. Wil" +
-        "l be removed in version 10.0.0.", true)]
-    public static class ServiceCollectionExtensions
-    {
-        [System.Obsolete("Use `IServiceCollection.Add` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 10.0.0.", true)]
-        public static void ConfigureComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete(@"Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollection.AddTransient` or `IServiceCollection.AddScoped` instead. Note that interfaces are not registered implicitly. See the NServiceBus 7 to 8 upgrade guide for more information. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static void ConfigureComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Func<System.IServiceProvider, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle) { }
-        [System.Obsolete("Use `IServiceCollection.GetEnumerator` instead. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 10.0.0.", true)]
-        public static bool HasComponent(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type componentType) { }
-        [System.Obsolete("Use `IServiceCollection.GetEnumerator` instead. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 10.0.0.", true)]
-        public static bool HasComponent<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
-        [System.Obsolete("Use `IServiceCollection.Add`, `IServiceCollection.AddSingleton`, `IServiceCollect" +
-            "ion.AddTransient` or `IServiceCollection.AddScoped` instead. The member currentl" +
-            "y throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static void RegisterSingleton(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Type lookupType, object instance) { }
-        [System.Obsolete("Use `IServiceCollection.AddSingleton` instead. The member currently throws a NotI" +
-            "mplementedException. Will be removed in version 10.0.0.", true)]
-        public static void RegisterSingleton<T>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, T instance) { }
-    }
     public static class SettingsExtensions
     {
         public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        [System.Obsolete(@"Use FeatureConfigurationContext.InstanceSpecificQueueAddress() to access the endpoint instance specific queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static string InstanceSpecificQueue(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        [System.Obsolete(@"Use FeatureConfigurationContext.LocalQueueAddress() to access the endpoint queue address. Inject the ReceiveAddresses class to access the endpoint's receiving transport addresses at runtime. See the NServiceBus version 8 upgrade guide for further details. The member currently throws a NotImplementedException. Will be removed in version 10.0.0.", true)]
-        public static string LocalAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
     }
     public class StartupDiagnosticEntries
     {
@@ -1003,22 +950,21 @@ namespace NServiceBus
         public static void Options(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.SystemJsonSerializer> config, System.Text.Json.JsonSerializerOptions options) { }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class SystemJsonDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer
     {
         public SystemJsonDataBusSerializer() { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public string ContentType { get; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public object Deserialize(System.Type propertyType, System.IO.Stream stream) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public void Serialize(object dataBusProperty, System.IO.Stream stream) { }
     }
     public class SystemJsonSerializer : NServiceBus.Serialization.SerializationDefinition
@@ -1069,20 +1015,22 @@ namespace NServiceBus
     {
         public UnsubscribeOptions() { }
     }
+    [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public static class UseDataBusExtensions
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Func<System.IServiceProvider, NServiceBus.DataBus.IDataBus> dataBusFactory, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this NServiceBus.EndpointConfiguration config, NServiceBus.DataBus.IDataBusSerializer dataBusSerializer)
             where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new () { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this NServiceBus.EndpointConfiguration config)
             where TDataBusDefinition : NServiceBus.DataBus.DataBusDefinition, new ()
             where TDataBusSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
@@ -1142,81 +1090,69 @@ namespace NServiceBus.ConsistencyGuarantees
 namespace NServiceBus.DataBus
 {
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public abstract class DataBusDefinition
     {
         protected DataBusDefinition() { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         protected abstract System.Type ProvidedByFeature();
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class DataBusExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>()
             where TSerializer : NServiceBus.DataBus.IDataBusSerializer, new () { }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public NServiceBus.DataBus.DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer)
             where TSerializer : NServiceBus.DataBus.IDataBusSerializer { }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class DataBusExtensions<T> : NServiceBus.DataBus.DataBusExtensions
         where T : NServiceBus.DataBus.DataBusDefinition
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public interface IDataBus
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         System.Threading.Tasks.Task<System.IO.Stream> Get(string key, System.Threading.CancellationToken cancellationToken = default);
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         System.Threading.Tasks.Task<string> Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived, System.Threading.CancellationToken cancellationToken = default);
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         System.Threading.Tasks.Task Start(System.Threading.CancellationToken cancellationToken = default);
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public interface IDataBusSerializer
     {
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         string ContentType { get; }
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         object Deserialize(System.Type propertyType, System.IO.Stream stream);
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-            "on 11.0.0.", false)]
+            "heck\'. Will be removed in version 11.0.0.", true)]
         void Serialize(object databusProperty, System.IO.Stream stream);
     }
 }
@@ -1326,10 +1262,13 @@ namespace NServiceBus.Features
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-        "heck\'. Will be treated as an error from version 10.0.0. Will be removed in versi" +
-        "on 11.0.0.", false)]
+        "heck\'. Will be removed in version 11.0.0.", true)]
     public class DataBus : NServiceBus.Features.Feature
     {
+        public DataBus() { }
+        [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
+            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
+            " version 11.0.0.", true)]
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public abstract class Feature
@@ -1343,10 +1282,10 @@ namespace NServiceBus.Features
         protected void DependsOn(string featureTypeName) { }
         protected void DependsOn<T>()
             where T : NServiceBus.Features.Feature { }
-        protected void DependsOnAtLeastOne(params string[] featureNames) { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
-        protected void DependsOnOptionally(string featureName) { }
+        protected void DependsOnAtLeastOne(params string[] featureNames) { }
         protected void DependsOnOptionally(System.Type featureType) { }
+        protected void DependsOnOptionally(string featureName) { }
         protected void DependsOnOptionally<T>()
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
@@ -1356,9 +1295,6 @@ namespace NServiceBus.Features
     }
     public class FeatureConfigurationContext
     {
-        [System.Obsolete("Use `Services` instead. The member currently throws a NotImplementedException. Wi" +
-            "ll be removed in version 10.0.0.", true)]
-        public Microsoft.Extensions.DependencyInjection.IServiceCollection Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.IReadOnlySettings Settings { get; }
@@ -1382,11 +1318,6 @@ namespace NServiceBus.Features
         Enabled = 1,
         Active = 2,
         Deactivated = 3,
-    }
-    [System.Obsolete(@"It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events. Will be removed in version 10.0.0.", true)]
-    public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
-    {
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
@@ -1499,8 +1430,8 @@ namespace NServiceBus.Logging
     }
     public interface ILoggerFactory
     {
-        NServiceBus.Logging.ILog GetLogger(string name);
         NServiceBus.Logging.ILog GetLogger(System.Type type);
+        NServiceBus.Logging.ILog GetLogger(string name);
     }
     public enum LogLevel
     {
@@ -1512,8 +1443,8 @@ namespace NServiceBus.Logging
     }
     public static class LogManager
     {
-        public static NServiceBus.Logging.ILog GetLogger(string name) { }
         public static NServiceBus.Logging.ILog GetLogger(System.Type type) { }
+        public static NServiceBus.Logging.ILog GetLogger(string name) { }
         public static NServiceBus.Logging.ILog GetLogger<T>() { }
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
@@ -1529,8 +1460,8 @@ namespace NServiceBus.MessageInterfaces
 {
     public interface IMessageMapper : NServiceBus.IMessageCreator
     {
-        System.Type GetMappedTypeFor(string typeName);
         System.Type GetMappedTypeFor(System.Type t);
+        System.Type GetMappedTypeFor(string typeName);
         void Initialize(System.Collections.Generic.IEnumerable<System.Type> types);
     }
 }
@@ -1542,8 +1473,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public object CreateInstance(System.Type t) { }
         public T CreateInstance<T>() { }
         public T CreateInstance<T>(System.Action<T> action) { }
-        public System.Type GetMappedTypeFor(string typeName) { }
         public System.Type GetMappedTypeFor(System.Type t) { }
+        public System.Type GetMappedTypeFor(string typeName) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> types) { }
     }
 }
@@ -1601,28 +1532,6 @@ namespace NServiceBus.MessageMutator
     public static class MutatorRegistrationExtensions
     {
         public static void RegisterMessageMutator(this NServiceBus.EndpointConfiguration endpointConfiguration, object messageMutator) { }
-    }
-}
-namespace NServiceBus.ObjectBuilder
-{
-    [System.Obsolete("Will be removed in version 10.0.0.", true)]
-    public static class ServiceProviderExtensions
-    {
-        [System.Obsolete("Use `IServiceProvider.GetService` instead. The member currently throws a NotImple" +
-            "mentedException. Will be removed in version 10.0.0.", true)]
-        public static object Build(this System.IServiceProvider serviceProvider, System.Type typeToBuild) { }
-        [System.Obsolete("Use `IServiceProvider.GetService` instead. The member currently throws a NotImple" +
-            "mentedException. Will be removed in version 10.0.0.", true)]
-        public static T Build<T>(this System.IServiceProvider serviceProvider) { }
-        [System.Obsolete("Use `IServiceProvider.GetServices` instead. The member currently throws a NotImpl" +
-            "ementedException. Will be removed in version 10.0.0.", true)]
-        public static System.Collections.Generic.IEnumerable<object> BuildAll(this System.IServiceProvider serviceProvider, System.Type typeToBuild) { }
-        [System.Obsolete("Use `IServiceProvider.GetServices` instead. The member currently throws a NotImpl" +
-            "ementedException. Will be removed in version 10.0.0.", true)]
-        public static System.Collections.Generic.IEnumerable<T> BuildAll<T>(this System.IServiceProvider serviceProvider) { }
-        [System.Obsolete("Use `IServiceProvider.CreateScope` instead. The member currently throws a NotImpl" +
-            "ementedException. Will be removed in version 10.0.0.", true)]
-        public static Microsoft.Extensions.DependencyInjection.IServiceScope CreateChildBuilder(this System.IServiceProvider serviceProvider) { }
     }
 }
 namespace NServiceBus.Outbox
@@ -1719,9 +1628,6 @@ namespace NServiceBus.Pipeline
         System.Collections.Generic.Dictionary<string, string> AuditMetadata { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
         System.TimeSpan? TimeToBeReceived { get; }
-        [System.Obsolete("Use `AuditMetadata` instead. The member currently throws a NotImplementedExceptio" +
-            "n. Will be removed in version 10.0.0.", true)]
-        void AddAuditData(string key, string value);
         NServiceBus.Pipeline.IAuditActionContext PreventChanges();
     }
     public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
@@ -2215,8 +2121,6 @@ namespace NServiceBus.Support
     public static class RuntimeEnvironment
     {
         public static string MachineName { get; }
-        [System.Obsolete("Use `HostInfoSettings.UsingHostName` instead. Will be removed in version 10.0.0.", true)]
-        public static System.Func<string> MachineNameAction { get; set; }
     }
 }
 namespace NServiceBus.Transport
@@ -2370,11 +2274,6 @@ namespace NServiceBus.Transport
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
-        [System.Obsolete("Inject the ITransportAddressResolver type to access the address translation mecha" +
-            "nism at runtime. See the NServiceBus version 8 upgrade guide for further details" +
-            ". The member currently throws a NotImplementedException. Will be removed in vers" +
-            "ion 10.0.0.", true)]
-        public virtual string ToTransportAddress(NServiceBus.Transport.QueueAddress address) { }
     }
     public abstract class TransportInfrastructure
     {
@@ -2446,8 +2345,8 @@ namespace NServiceBus.Unicast.Messages
     {
         public MessageMetadataRegistry(System.Func<System.Type, bool> isMessageType, bool allowDynamicTypeLoading) { }
         public NServiceBus.Unicast.Messages.MessageMetadata[] GetAllMessages() { }
-        public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(string messageTypeIdentifier) { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(System.Type messageType) { }
+        public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(string messageTypeIdentifier) { }
     }
 }
 namespace NServiceBus.Unicast.Queuing
@@ -2478,10 +2377,10 @@ namespace NServiceBus.Unicast.Subscriptions
 {
     public class MessageType
     {
-        public MessageType(string messageTypeString) { }
         public MessageType(System.Type type) { }
-        public MessageType(string typeName, string versionString) { }
+        public MessageType(string messageTypeString) { }
         public MessageType(string typeName, System.Version version) { }
+        public MessageType(string typeName, string versionString) { }
         public string TypeName { get; }
         public System.Version Version { get; }
         public bool Equals(NServiceBus.Unicast.Subscriptions.MessageType other) { }
@@ -2497,16 +2396,5 @@ namespace NServiceBus.Unicast.Transport
     public static class ControlMessageFactory
     {
         public static NServiceBus.Transport.OutgoingMessage Create(NServiceBus.MessageIntent intent) { }
-    }
-}
-namespace NServiceBus.UnitOfWork
-{
-    [System.Obsolete("The unit of work pattern is more straightforward to implement in a pipeline behav" +
-        "ior, where the using keyword and try/catch blocks can be used. Use `NServiceBus." +
-        "Pipeline.Behavior<TContext>` instead. Will be removed in version 10.0.0.", true)]
-    public interface IManageUnitsOfWork
-    {
-        System.Threading.Tasks.Task Begin();
-        System.Threading.Tasks.Task End(System.Exception ex = null);
     }
 }
