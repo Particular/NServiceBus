@@ -1,14 +1,13 @@
 namespace NServiceBus;
 
 using System;
-using System.Reflection;
 using Configuration.AdvancedExtensibility;
 using Settings;
 
 /// <summary>
 /// Defines custom message conventions instead of using the <see cref="IMessage"/>, <see cref="IEvent"/> or <see cref="ICommand"/> interfaces, and other conventions.
 /// </summary>
-public class ConventionsBuilder : ExposeSettings
+public partial class ConventionsBuilder : ExposeSettings
 {
     /// <summary>
     /// Creates a new instance of ConventionsBuilder class.
@@ -49,20 +48,6 @@ public class ConventionsBuilder : ExposeSettings
     }
 
     /// <summary>
-    /// Sets the function to be used to evaluate whether a property should be sent via the DataBus or not.
-    /// </summary>
-    [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-        RemoveInVersion = "11",
-        TreatAsErrorFromVersion = "10")]
-    public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty)
-    {
-        ArgumentNullException.ThrowIfNull(definesDataBusProperty);
-        Conventions.IsDataBusPropertyAction = definesDataBusProperty;
-        return this;
-    }
-
-    /// <summary>
     /// Adds a message convention that will be used to evaluate whether a type is a message, command, or event.
     /// </summary>
     public ConventionsBuilder Add(IMessageConvention messageConvention)
@@ -71,7 +56,6 @@ public class ConventionsBuilder : ExposeSettings
         Conventions.Add(messageConvention);
         return this;
     }
-
 
     /// <summary>
     /// The defined <see cref="Conventions"/>.
