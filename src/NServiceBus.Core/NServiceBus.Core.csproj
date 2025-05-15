@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.8/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddPropsFileToPackage">
