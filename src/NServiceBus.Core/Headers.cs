@@ -232,7 +232,7 @@ public static partial class Headers
     /// <summary>
     /// Traceparent header according to the W3C spec:
     /// https://www.w3.org/TR/trace-context/#traceparent-header
-    /// 23 November 2021. 
+    /// 23 November 2021.
     /// </summary>
     public const string DiagnosticsTraceParent = "traceparent";
 
@@ -253,10 +253,7 @@ public static partial class Headers
     /// <summary>
     /// The content type used to serialize the data bus properties in the message.
     /// </summary>
-    [ObsoleteEx(
-        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-        RemoveInVersion = "11",
-        TreatAsErrorFromVersion = "10")]
+    // This is now defined in the ClaimCheck package, but is being kept here because it's referenced by ActivityDecorator to be able to promote the header to an activity tag
     public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
 
     /// <summary>

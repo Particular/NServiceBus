@@ -338,8 +338,6 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
-        [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. Will be removed in version 11.0.0.", true)]
         public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType";
         public const string DelayedRetries = "NServiceBus.Retries";
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
