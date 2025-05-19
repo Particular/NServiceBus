@@ -3,14 +3,10 @@ namespace NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
-using Janitor;
 using Outbox;
 using Persistence;
 using Transport;
 
-// Do not allow Fody to weave the IDisposable for us so that other threads can still access the instance of this class
-// even after it has been disposed.
-[SkipWeaving]
 sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
     public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,

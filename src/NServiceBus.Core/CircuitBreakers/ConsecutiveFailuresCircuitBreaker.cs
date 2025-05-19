@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class ConsecutiveFailuresCircuitBreaker : IDisposable
+class ConsecutiveFailuresCircuitBreaker
 {
     public ConsecutiveFailuresCircuitBreaker(string name, int consecutiveFailuresBeforeTriggering, Func<long, CancellationToken, Task> triggerAction, Func<long, CancellationToken, Task> disarmAction, TimeSpan armedFailureDelayDuration)
     {
@@ -47,11 +47,6 @@ class ConsecutiveFailuresCircuitBreaker : IDisposable
                 await Task.Delay(armedFailureDelayDuration, cancellationToken).ConfigureAwait(false);
             }
         }
-    }
-
-    public void Dispose()
-    {
-        //Injected
     }
 
     int failureCount;

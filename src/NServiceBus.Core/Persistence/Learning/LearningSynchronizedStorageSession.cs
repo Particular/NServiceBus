@@ -5,12 +5,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
-using Janitor;
 using Outbox;
 using Persistence;
 using Transport;
 
-[SkipWeaving]
 class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
     public void Dispose()
