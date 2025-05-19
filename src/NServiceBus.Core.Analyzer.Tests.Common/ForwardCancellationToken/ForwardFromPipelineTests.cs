@@ -107,7 +107,7 @@ public class TestTimeout {}";
             code = code.Replace("public Task", "public override Task");
         }
 
-        return Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, code);
+        return Assert(DiagnosticIds.ForwardCancellationToken, code);
     }
 
     static bool HasTaskReturningMethodWithContextParameter(Type type)

@@ -80,7 +80,7 @@ class Foo
     }}
 }}";
 
-        return Assert(AwaitOrCaptureTasksAnalyzer.DiagnosticId, source);
+        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
     }
 
     [TestCase("session.Send(new object())")]
@@ -109,7 +109,7 @@ class Foo
     }}
 }}";
 
-        return Assert(AwaitOrCaptureTasksAnalyzer.DiagnosticId, source);
+        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
     }
 
     [TestCase("RequestTimeout<object>(context, DateTime.Now)")]
@@ -134,7 +134,7 @@ class TestSaga : Saga<Data>
 
 class Data : ContainSagaData {{}}";
 
-        return Assert(AwaitOrCaptureTasksAnalyzer.DiagnosticId, source);
+        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
     }
 
     [Test]
@@ -151,7 +151,7 @@ class Foo
     }
 }";
 
-        return Assert(AwaitOrCaptureTasksAnalyzer.DiagnosticId, source);
+        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
     }
 
     [TestCase(

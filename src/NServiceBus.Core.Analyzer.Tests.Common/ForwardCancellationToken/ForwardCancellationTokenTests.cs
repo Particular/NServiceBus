@@ -28,7 +28,7 @@ public class ForwardCancellationTokenTests : AnalyzerTestFixture<ForwardCancella
     [TestCase("MutateIncomingTransportMessageContext context")]
     [TestCase("MutateOutgoingTransportMessageContext context")]
     public Task NormalUsage(string arguments) => Assert(
-        ForwardCancellationTokenAnalyzer.DiagnosticId,
+        DiagnosticIds.ForwardCancellationToken,
 @"using NServiceBus;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
@@ -111,7 +111,7 @@ public class Foo
 
     [Test]
     public Task DelegateBody() => Assert(
-        ForwardCancellationTokenAnalyzer.DiagnosticId,
+        DiagnosticIds.ForwardCancellationToken,
 @"using System;
 using System.Threading;
 using NServiceBus;
@@ -134,7 +134,7 @@ public class MyClass
 
     [Test]
     public Task NoBaseType() => Assert(
-        ForwardCancellationTokenAnalyzer.DiagnosticId,
+        DiagnosticIds.ForwardCancellationToken,
 @"using NServiceBus;
 using System;
 using System.Threading;
@@ -485,7 +485,7 @@ public class ForwardCancellationTokenTestsCSharp8 : ForwardCancellationTokenTest
     [TestCase("CancellationToken.None")]
     [TestCase("new CancellationToken(true)")]
     [TestCase("context.CancellationToken")]
-    public Task DefaultTokenParameters(string parameterValue) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+    public Task DefaultTokenParameters(string parameterValue) => Assert(DiagnosticIds.ForwardCancellationToken, @"
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -521,7 +521,7 @@ public class TestMessage : ICommand {}
     [TestCase("[|AsyncEnumerator()|].WithCancellation(CancellationToken.None)")]
     [TestCase("[|AsyncEnumerator()|].WithCancellation(default(CancellationToken))")]
     [TestCase("[|AsyncEnumerator()|].WithCancellation(default)")]
-    public Task AwaitForeach(string asyncCall) => Assert(ForwardCancellationTokenAnalyzer.DiagnosticId, @"
+    public Task AwaitForeach(string asyncCall) => Assert(DiagnosticIds.ForwardCancellationToken, @"
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

@@ -12,8 +12,6 @@
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NSB0002";
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnosticDescriptor);
 
         public override void Initialize(AnalysisContext context)
@@ -396,7 +394,7 @@
         }
 
         static readonly DiagnosticDescriptor diagnosticDescriptor = new DiagnosticDescriptor(
-            id: DiagnosticId,
+            id: DiagnosticIds.ForwardCancellationToken,
             title: "Forward the 'CancellationToken' property of the context parameter to methods",
             messageFormat: "Forward '{0}.CancellationToken' to the '{1}' method or pass in 'CancellationToken.None' explicitly to indicate intentionally not propagating the token",
             category: "NServiceBus.Code",

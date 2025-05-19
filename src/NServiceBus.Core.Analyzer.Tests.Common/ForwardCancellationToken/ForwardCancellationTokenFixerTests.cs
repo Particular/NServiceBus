@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using Helpers;
 using Microsoft.CodeAnalysis.CSharp;
+using NServiceBus.Core.Analyzer.Fixes;
 using NUnit.Framework;
 
 [TestFixture]

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Analyzer
+﻿namespace NServiceBus.Core.Analyzer.Fixes
 {
     using System.Collections.Immutable;
     using System.Composition;
@@ -20,9 +20,9 @@
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(
-                SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId,
-                SagaDiagnostics.MessageStartsSagaButNoMappingId,
-                SagaDiagnostics.SagaMappingExpressionCanBeRewrittenId);
+                DiagnosticIds.SagaMappingExpressionCanBeSimplified,
+                DiagnosticIds.MessageStartsSagaButNoMapping,
+                DiagnosticIds.SagaMappingExpressionCanBeRewritten);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
