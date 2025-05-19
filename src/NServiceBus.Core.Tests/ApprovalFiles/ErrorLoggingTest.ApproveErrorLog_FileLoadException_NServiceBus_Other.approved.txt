@@ -2,4 +2,4 @@ Could not enumerate all types for 'MyFile'.
 
 FileLoadExceptions:
 NServiceBus.Core.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b50674d1e0c6ce54
-NServiceBus.Core, Version=9.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c
+NServiceBus.Core, Version=10.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c
