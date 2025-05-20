@@ -1261,13 +1261,9 @@ namespace NServiceBus.Features
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
         "heck\'. Will be removed in version 11.0.0.", true)]
-    public class DataBus : NServiceBus.Features.Feature
+    public class DataBus
     {
         public DataBus() { }
-        [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
-            "heck\'. The member currently throws a NotImplementedException. Will be removed in" +
-            " version 11.0.0.", true)]
-        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public abstract class Feature
     {

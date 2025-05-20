@@ -315,21 +315,12 @@ namespace NServiceBus.DataBus
 
 namespace NServiceBus.Features
 {
-    using System;
-
     [ObsoleteEx(
-            Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-            RemoveInVersion = "11",
-            TreatAsErrorFromVersion = "10")]
-    public class DataBus : Feature
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
+    public class DataBus
     {
-        internal DataBus() => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-            RemoveInVersion = "11",
-            TreatAsErrorFromVersion = "10")]
-        protected internal override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
     }
 }
 
