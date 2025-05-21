@@ -181,11 +181,11 @@ public class Timeout3
     }
 
     [Test]
-    [TestCase("id", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("ID", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("Id", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("iD", DiagnosticIds.CannotMapToSagasIdProperty)]
-    public Task CannotMapToSagasIdPropertyNewSyntax(string propertyName, string diagnosticId)
+    [TestCase("id")]
+    [TestCase("ID")]
+    [TestCase("Id")]
+    [TestCase("iD")]
+    public Task CannotMapToSagasIdPropertyNewSyntax(string propertyName)
     {
         var source =
 @"using System;
@@ -215,15 +215,15 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(diagnosticId, source);
+        return Assert(DiagnosticIds.CannotMapToSagasIdProperty, source);
     }
 
     [Test]
-    [TestCase("id", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("ID", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("Id", DiagnosticIds.CannotMapToSagasIdProperty)]
-    [TestCase("iD", DiagnosticIds.CannotMapToSagasIdProperty)]
-    public Task CannotMapToSagasIdPropertyOldSyntax(string propertyName, string diagnosticId)
+    [TestCase("id")]
+    [TestCase("ID")]
+    [TestCase("Id")]
+    [TestCase("iD")]
+    public Task CannotMapToSagasIdPropertyOldSyntax(string propertyName)
     {
         var source =
 @"using System;
@@ -252,9 +252,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        var diagnostics = new[] { diagnosticId };
-        var ignoreDiagnostics = new[] { DiagnosticIds.SagaMappingExpressionCanBeSimplified };
-        return Assert(diagnostics, source, ignoreDiagnostics);
+        return Assert([DiagnosticIds.CannotMapToSagasIdProperty], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified]);
     }
 
     [Test]
