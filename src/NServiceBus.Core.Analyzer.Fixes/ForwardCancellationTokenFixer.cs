@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Analyzer
+﻿namespace NServiceBus.Core.Analyzer.Fixes
 {
     using System.Collections.Immutable;
     using System.Composition;
@@ -16,7 +16,7 @@
     public class ForwardCancellationTokenFixer : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
-            ImmutableArray.Create(ForwardCancellationTokenAnalyzer.DiagnosticId);
+            ImmutableArray.Create(DiagnosticIds.ForwardCancellationToken);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

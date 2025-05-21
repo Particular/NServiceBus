@@ -12,12 +12,8 @@ using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
 // The goal is to remove feature classes that implement functionality far beyond what features are "supposed" to be.
 // Many of those features have been moved into components instead.
-// The ObsoleteEx attribute is here so that when it's time to 'RemoveInVersion', the class should not be deleted, but made internal. Once it's internal, refactoring can occur.
-[ObsoleteEx(
-    Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'TransportExtensions<T>.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
-    RemoveInVersion = "10",
-    TreatAsErrorFromVersion = "9")]
-public class MessageDrivenSubscriptions : Feature
+// Now that NSB 10 has made the class internal, refactoring can occur.
+class MessageDrivenSubscriptions : Feature
 {
     internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 

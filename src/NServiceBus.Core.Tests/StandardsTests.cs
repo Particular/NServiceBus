@@ -24,7 +24,7 @@ public class StandardsTests
             });
             if (featureType.IsPublic)
             {
-                var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Array.Empty<Type>(), null);
+                var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, [], null);
                 Assert.That(constructorInfo.IsPublic, Is.False, "Features should have an internal constructor. " + featureType.FullName);
             }
         }

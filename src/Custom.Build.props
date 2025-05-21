@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <MinVerMinimumMajorMinor>9.0</MinVerMinimumMajorMinor>
+    <MinVerMinimumMajorMinor>10.0</MinVerMinimumMajorMinor>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
   </PropertyGroup>
 

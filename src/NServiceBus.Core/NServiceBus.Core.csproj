@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>NServiceBus</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
@@ -13,19 +13,18 @@
   </ItemGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" AutomaticVersionRange="false" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="8.0.1" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.4.25258.110" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.0.0-preview.4.25258.110" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" AutomaticVersionRange="false" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.0-preview.4.25258.110" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
-    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="4.2.2" PrivateAssets="All" />
-    <PackageReference Include="Fody" Version="6.9.1" PrivateAssets="All" />
-    <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
+    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="5.2.0" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="6.9.2" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="6.0.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="4.2.2" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="6.1.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="4.3.1" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -35,7 +34,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.8/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddPropsFileToPackage">

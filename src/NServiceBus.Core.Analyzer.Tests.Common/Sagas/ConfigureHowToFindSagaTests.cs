@@ -44,7 +44,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
     }";
 
-        return RunTest(code, SagaDiagnostics.SagaMappingExpressionCanBeSimplifiedId);
+        return RunTest(code, DiagnosticIds.SagaMappingExpressionCanBeSimplified);
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga([|saga => saga.OtherId|]);
     }";
 
-        return RunTest(code, SagaDiagnostics.MultipleCorrelationIdValuesId);
+        return RunTest(code, DiagnosticIds.MultipleCorrelationIdValues);
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
     }
     void OtherMethod(int i) {}";
 
-        return RunTest(code, SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSagaId);
+        return RunTest(code, DiagnosticIds.NonMappingExpressionUsedInConfigureHowToFindSaga);
     }
 
     protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)

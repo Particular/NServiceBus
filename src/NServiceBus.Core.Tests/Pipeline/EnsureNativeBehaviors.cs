@@ -6,13 +6,13 @@ using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 [TestFixture]
-public static class EnsureNativeBehvaviors
+public static class EnsureNativeBehaviors
 {
-    static readonly Type[] abstractTypesForExternalUseOnly = new[]
-    {
+    static readonly Type[] abstractTypesForExternalUseOnly =
+    [
         typeof(Behavior<>),
         typeof(ForkConnector<,>),
-    };
+    ];
 
     [Test]
     public static void CoreBehaviorsMustNotUseAbstractClasses()

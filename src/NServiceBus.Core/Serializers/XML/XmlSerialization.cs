@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
-class XmlSerialization : IDisposable
+sealed class XmlSerialization : IDisposable
 {
     public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
     {
@@ -23,11 +23,6 @@ class XmlSerialization : IDisposable
         {
             CloseOutput = false
         });
-    }
-
-    public void Dispose()
-    {
-        //Injected at compile time
     }
 
     public void Serialize()
@@ -295,6 +290,28 @@ class XmlSerialization : IDisposable
             elem.Add(new XAttribute(XNamespace.Xmlns + prefix, baseTypes[i]));
         }
     }
+
+    void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                writer.Dispose();
+            }
+
+            disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    bool disposed;
 
     readonly XmlSerializerCache cache;
     readonly Conventions conventions;

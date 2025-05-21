@@ -5,13 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Janitor;
 using Logging;
 using Pipeline;
 
-[SkipWeaving]
-class Pipeline<TContext> : IPipeline<TContext>
-    where TContext : IBehaviorContext
+class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
 {
     public Pipeline(IServiceProvider builder, PipelineModifications pipelineModifications)
     {

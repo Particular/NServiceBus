@@ -11,8 +11,6 @@ namespace NServiceBus.Core.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AwaitOrCaptureTasksAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NSB0001";
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
         public override void Initialize(AnalysisContext context)
@@ -58,7 +56,7 @@ namespace NServiceBus.Core.Analyzer
             methods.Contains(methodSymbol.GetFullName());
 
         static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
-            DiagnosticId,
+            DiagnosticIds.AwaitOrCaptureTasks,
             "Await Task",
             "A Task returned by an async NServiceBus method is not awaited.",
             "NServiceBus.Code",
