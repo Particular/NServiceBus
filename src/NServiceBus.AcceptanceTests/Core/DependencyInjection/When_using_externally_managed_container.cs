@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
-using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -9,70 +8,37 @@ using NUnit.Framework;
 
 public class When_using_externally_managed_container : NServiceBusAcceptanceTest
 {
-    static MyComponent myComponent = new MyComponent();
-
     [Test]
     public async Task Should_use_it_for_component_resolution()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(typeof(MyComponent), myComponent);
+        var myComponent = new MyComponent();
 
-        var result = await Scenario.Define<Context>()
-        .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-        {
-            b.ToCreateInstance(
-                    config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                    (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
-                )
-                .When((session, c) => session.SendLocal(new SomeMessage()));
-        })
-        .Done(c => c.MessageReceived)
-        .Run();
+        serviceCollection.AddSingleton(myComponent);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.ServiceProvider, Is.Not.Null, "IServiceProvider should be injectable");
-            Assert.That(result.CustomService, Is.SameAs(myComponent), "Should inject custom services");
-        });
-    }
-
-    class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; set; }
-        public IServiceProvider ServiceProvider { get; set; }
-        public MyComponent CustomService { get; set; }
+        await Scenario.Define<ScenarioContext>()
+            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
+            {
+                b.ToCreateInstance(
+                        config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
+                        (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
+                    )
+                    .When((serviceProvider, _, _) =>
+                    {
+                        Assert.That(serviceProvider.GetRequiredService<MyComponent>(), Is.SameAs(myComponent), "Should be able to resolve components from the external container");
+                        return Task.CompletedTask;
+                    });
+            })
+            .Done(c => c.EndpointsStarted)
+            .Run();
     }
 
     public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
     {
         public ExternallyManagedContainerEndpoint() => EndpointSetup<DefaultServer>();
-
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
-        {
-            public SomeMessageHandler(Context context, MyComponent component, IServiceProvider serviceProvider)
-            {
-                testContext = context;
-                myComponent = component;
-
-                testContext.CustomService = component;
-                testContext.ServiceProvider = serviceProvider;
-            }
-
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
-            {
-                testContext.MessageReceived = true;
-                return Task.CompletedTask;
-            }
-
-            readonly Context testContext;
-        }
     }
 
     public class MyComponent
-    {
-    }
-
-    public class SomeMessage : IMessage
     {
     }
 }

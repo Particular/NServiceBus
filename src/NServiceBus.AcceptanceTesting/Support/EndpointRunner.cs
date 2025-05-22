@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
+using Features;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
@@ -54,6 +55,12 @@ public class EndpointRunner : ComponentRunner
                 endpointConfiguration.UniquelyIdentifyRunningInstance().UsingHostName(configuration.CustomMachineName);
             }
 
+            endpointConfiguration.RegisterStartupTask(sp =>
+            {
+                serviceProvider = sp;
+
+                return new TbdTask();
+            });
             endpointConfiguration.EnableFeature<FeatureStartupTaskRunner>();
 
             endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
@@ -70,6 +77,14 @@ public class EndpointRunner : ComponentRunner
         }
     }
 
+    public class TbdTask : FeatureStartupTask
+    {
+        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    IServiceProvider serviceProvider;
     void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
     {
         endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
@@ -143,7 +158,7 @@ public class EndpointRunner : ComponentRunner
                     continue;
                 }
 
-                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
+                if (await when.ExecuteAction(scenarioContext, endpointInstance, serviceProvider).ConfigureAwait(false))
                 {
                     executedWhens.Add(when.Id);
                 }

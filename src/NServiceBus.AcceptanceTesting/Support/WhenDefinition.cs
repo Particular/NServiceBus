@@ -19,9 +19,16 @@ public class WhenDefinition<TContext> : IWhenDefinition where TContext : Scenari
         messageAndContextAction = actionWithContext;
     }
 
+    public WhenDefinition(Func<TContext, Task<bool>> condition, Func<IServiceProvider, IMessageSession, TContext, Task> actionWithContext)
+    {
+        Id = Guid.NewGuid();
+        this.condition = condition;
+        endpointAndContextAction = actionWithContext;
+    }
+
     public Guid Id { get; }
 
-    public async Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session)
+    public async Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session, IServiceProvider serviceProvider)
     {
         var c = (TContext)context;
 
@@ -34,9 +41,13 @@ public class WhenDefinition<TContext> : IWhenDefinition where TContext : Scenari
         {
             await messageAction(session).ConfigureAwait(false);
         }
-        else
+        else if (messageAndContextAction != null)
         {
             await messageAndContextAction(session, c).ConfigureAwait(false);
+        }
+        else
+        {
+            await endpointAndContextAction(serviceProvider, session, c).ConfigureAwait(false);
         }
 
         return true;
@@ -45,4 +56,5 @@ public class WhenDefinition<TContext> : IWhenDefinition where TContext : Scenari
     Func<TContext, Task<bool>> condition;
     Func<IMessageSession, Task> messageAction;
     Func<IMessageSession, TContext, Task> messageAndContextAction;
+    Func<IServiceProvider, IMessageSession, TContext, Task> endpointAndContextAction;
 }

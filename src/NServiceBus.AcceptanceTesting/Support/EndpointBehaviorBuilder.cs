@@ -8,10 +8,12 @@ public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
 {
     public EndpointBehaviorBuilder(IEndpointConfigurationFactory endpointConfigurationFactory)
     {
-        behavior = new EndpointBehavior(endpointConfigurationFactory)
-        {
-            Whens = []
-        };
+        behavior = new EndpointBehavior(endpointConfigurationFactory) { Whens = [] };
+    }
+
+    public EndpointBehaviorBuilder<TContext> When(Func<IServiceProvider, IMessageSession, TContext, Task> action)
+    {
+        return When(c => true, action);
     }
 
     public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action)
@@ -41,6 +43,13 @@ public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
     public EndpointBehaviorBuilder<TContext> When(Func<TContext, Task<bool>> condition, Func<IMessageSession, TContext, Task> action)
     {
         behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
+
+        return this;
+    }
+
+    public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IServiceProvider, IMessageSession, TContext, Task> action)
+    {
+        behavior.Whens.Add(new WhenDefinition<TContext>(ctx => Task.FromResult(condition(ctx)), action));
 
         return this;
     }
