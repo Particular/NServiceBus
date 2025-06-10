@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using Features;
-using MessageMutator;
+using NServiceBus.Pipeline;
 using NServiceBus.Routing;
 using NServiceBus.Transport;
 using NUnit.Framework;
@@ -39,7 +40,7 @@ public class When_processing_a_control_message : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer, Context>((config, context) =>
             {
                 config.RegisterStartupTask<ControlMessageSender>();
-                config.RegisterMessageMutator(new ControlMessageDetector(context));
+                config.Pipeline.Register(new ControlMessageDetector(context), "Detects the processing of the control message");
                 config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
             });
 
@@ -55,26 +56,27 @@ public class When_processing_a_control_message : NServiceBusAcceptanceTest
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
 
-        class ControlMessageDetector(Context context) : IMutateIncomingTransportMessages
+        class ControlMessageDetector(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
-                context.ControlMessageProcessed = true;
-                return Task.CompletedTask;
+                testContext.ControlMessageProcessed = true;
+                return next();
             }
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new ControlMessageDetector(context)));
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) =>
+            config.Pipeline.Register(new ControlMessageDetector(context), "Detects the auditing of the control message"));
 
-        class ControlMessageDetector(Context context) : IMutateIncomingTransportMessages
+        class ControlMessageDetector(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
-                context.ControlMessageAudited = true;
-                return Task.CompletedTask;
+                testContext.ControlMessageAudited = true;
+                return next();
             }
         }
     }

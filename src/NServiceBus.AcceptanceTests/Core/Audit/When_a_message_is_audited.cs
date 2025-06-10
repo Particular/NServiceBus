@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using EndpointTemplates;
-using MessageMutator;
 using NServiceBus.Audit;
 using NServiceBus.Pipeline;
 using NServiceBus.Routing;
@@ -35,16 +34,14 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
 
     public class EndpointWithSeparateBodyStorage : EndpointConfigurationBuilder
     {
-        public EndpointWithSeparateBodyStorage()
-        {
-            EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                 config.Pipeline.Register(typeof(AuditBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
-             });
-        }
+        public EndpointWithSeparateBodyStorage() =>
+            EndpointSetup<DefaultServer>(config =>
+            {
+                config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                config.Pipeline.Register(typeof(AuditBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
+            });
 
-        public class AuditBodyStorageBehavior : Behavior<IAuditContext>
+        class AuditBodyStorageBehavior : Behavior<IAuditContext>
         {
             public override Task Invoke(IAuditContext context, Func<Task> next)
             {
@@ -63,42 +60,29 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
                     //simulate the body being stored in eg. blobstorage already
                     var auditMessage = new OutgoingMessage(processedMessage.MessageId, processedMessage.Headers, ReadOnlyMemory<byte>.Empty);
 
-                    return new[] { context.CreateRoutingContext(auditMessage, new UnicastRoutingStrategy(context.AuditAddress)) };
+                    return [context.CreateRoutingContext(auditMessage, new UnicastRoutingStrategy(context.AuditAddress))];
                 }
             }
         }
 
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.Pipeline.Register(new BodySpy(context), "Detects the message being audited"));
+
+        class BodySpy(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
-        }
-
-        class BodySpy : IMutateIncomingTransportMessages
-        {
-            public BodySpy(Context context)
+            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
-                this.context = context;
+                testContext.BodyWasEmpty = context.Message.Body.Length == 0;
+                testContext.AuditMessageReceived = true;
+                return next();
             }
-
-            public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
-            {
-                context.BodyWasEmpty = transportMessage.Body.Length == 0;
-                context.AuditMessageReceived = true;
-                return Task.CompletedTask;
-            }
-
-            Context context;
         }
     }
 
