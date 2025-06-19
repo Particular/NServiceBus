@@ -32,7 +32,7 @@ public partial class PersistenceTestsConfiguration
         SagaIdGenerator = new LearningSagaIdGenerator();
 
         var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
+            Path.Combine(Path.GetTempPath(), AppDomain.CurrentDomain.FriendlyName, ".sagas"),
             name => DeterministicGuid.Create(name).ToString());
 
         SagaStorage = new LearningSagaPersister(sagaManifests);

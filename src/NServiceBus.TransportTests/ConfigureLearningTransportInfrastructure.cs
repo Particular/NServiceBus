@@ -10,7 +10,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
 {
     public TransportDefinition CreateTransportDefinition()
     {
-        storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
+        storageDir = Path.Combine(Path.GetTempPath(), AppDomain.CurrentDomain.FriendlyName, ".transporttests");
         return new LearningTransport
         {
             StorageDirectory = storageDir,
