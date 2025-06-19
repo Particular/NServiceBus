@@ -66,7 +66,10 @@ class LearningTransportDispatcher : IMessageDispatcher
         var destinationPath = Path.Combine(basePath, destination);
         var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
 
-        Directory.CreateDirectory(bodyDir);
+        if (!Directory.Exists(bodyDir))
+        {
+            throw new DirectoryNotFoundException("Destination folder does not exist. Ensure receiving endpoint has created the folder and check casing if storage is case-sensitive.");
+        }
 
         var bodyPath = Path.Combine(bodyDir, nativeMessageId) + LearningTransportMessagePump.BodyFileSuffix;
 
