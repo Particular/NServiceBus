@@ -210,7 +210,16 @@ class LearningTransportDispatcher : IMessageDispatcher
                 throw new DirectoryNotFoundException($"Directory '{path}' not found, but exists as '{actualPath}'");
             }
 
-            await Task.Delay(100, cts.Token).ConfigureAwait(false);
+            try
+            {
+                await Task.Delay(100, cts.Token).ConfigureAwait(false);
+            }
+#pragma warning disable PS0020
+            catch (OperationCanceledException e) when (!cancellationToken.IsCancellationRequested)
+#pragma warning restore PS0020
+            {
+                throw new DirectoryNotFoundException($"Directory '{path}' not found within timeout", e);
+            }
         }
 
         return false;
