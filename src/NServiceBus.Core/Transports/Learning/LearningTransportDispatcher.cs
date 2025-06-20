@@ -66,6 +66,11 @@ class LearningTransportDispatcher : IMessageDispatcher
         var destinationPath = Path.Combine(basePath, destination);
         var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
 
+        if (destination == "error")
+        {
+            Directory.CreateDirectory(bodyDir);
+        }
+
         await WaitForDirectory(bodyDir, TimeSpan.FromSeconds(5), cancellationToken)
             .ConfigureAwait(false);
 
