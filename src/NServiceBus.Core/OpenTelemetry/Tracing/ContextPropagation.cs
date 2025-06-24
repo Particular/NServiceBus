@@ -54,13 +54,13 @@ static class ContextPropagation
             // HINT: Iterate in reverse order because Activity baggage is LIFO
             for (var i = baggageItems.Length - 1; i >= 0; i--)
             {
-                var baggageItem = baggageItems[i];
+                var baggageItem = baggageItems[i].AsSpan();
                 var firstEquals = baggageItem.IndexOf('=');
                 if (firstEquals >= 0 && firstEquals < baggageItem.Length)
                 {
-                    var key = baggageItem.Substring(0, firstEquals).Trim();
-                    var value = baggageItem.Substring(firstEquals + 1);
-                    activity.AddBaggage(key, Uri.UnescapeDataString(value));
+                    var key = baggageItem[..firstEquals].Trim();
+                    var value = baggageItem[(firstEquals + 1)..];
+                    activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
                 }
             }
         }
