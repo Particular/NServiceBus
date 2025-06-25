@@ -65,22 +65,18 @@ public class MessageType
     static Version ParseVersion(string versionString)
     {
         const string version = "Version=";
-        var versionIndex = versionString.IndexOf(version);
 
-        if (versionIndex == -1)
+        var versionSpan = versionString.AsSpan();
+        var versionIndex = versionSpan.IndexOf(version);
+
+        if (versionIndex >= 0)
         {
-            return Version.Parse(versionString);
+            versionSpan = versionSpan[(versionIndex + version.Length)..];
+            var firstComma = versionSpan.IndexOf(',');
+            versionSpan = versionSpan[..firstComma];
         }
 
-        var versionRemoved = versionString.AsSpan(versionIndex + version.Length);
-        int commaIndex = versionRemoved.IndexOf(',');
-        if (commaIndex == -1)
-        {
-            return Version.Parse(versionRemoved);
-        }
-
-        var versionNumber = versionRemoved[..commaIndex];
-        return Version.Parse(versionNumber);
+        return Version.Parse(versionSpan);
     }
 
     /// <summary>
