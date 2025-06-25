@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast.Subscriptions;
 
 using System;
-using System.Linq;
 
 /// <summary>
 /// Representation of a message type that clients can be subscribed to.
@@ -24,9 +23,18 @@ public class MessageType
     public MessageType(string messageTypeString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeString);
-        var parts = messageTypeString.Split(',');
+
         Version = ParseVersion(messageTypeString);
-        TypeName = parts.First();
+
+        var messageTypeSpan = messageTypeString.AsSpan();
+        var index = messageTypeSpan.IndexOf(',');
+
+        if (index >= 0)
+        {
+            messageTypeSpan = messageTypeSpan[..index];
+        }
+
+        TypeName = messageTypeSpan.ToString();
     }
 
     /// <summary>
