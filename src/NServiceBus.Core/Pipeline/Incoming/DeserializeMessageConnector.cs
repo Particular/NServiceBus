@@ -106,7 +106,7 @@ class DeserializeMessageConnector(
             }
         }
 
-        if (messageTypes is { Count: 0 } && !allowContentTypeInference)
+        if (messageTypes is null or { Count: 0 } && !allowContentTypeInference)
         {
             throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
         }
