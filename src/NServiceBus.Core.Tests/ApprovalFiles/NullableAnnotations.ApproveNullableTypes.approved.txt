@@ -1,14 +1,10 @@
 The following types do not have annotations for nullable reference types.
 Changes that make this list longer should not be approved.
 -----
-NServiceBus.Audit.AuditAction
-NServiceBus.Audit.RouteToAudit
-NServiceBus.AuditContextExtensions
 NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings
 NServiceBus.AutoSubscribeSettingsExtensions
 NServiceBus.BestPracticesOptionExtensions
 NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions
-NServiceBus.ConfigureAudit
 NServiceBus.ConfigureCriticalErrorAction
 NServiceBus.ConfigureError
 NServiceBus.ConfigureLicenseExtensions
