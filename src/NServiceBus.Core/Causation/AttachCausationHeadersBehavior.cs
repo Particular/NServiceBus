@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -23,7 +25,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         return next(context);
     }
 
-    static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
+    static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage? incomingMessage)
     {
         if (incomingMessage == null)
         {
@@ -33,7 +35,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
     }
 
-    void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
+    void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage? incomingMessage)
     {
         var conversationIdFromCurrentMessageContext = default(string);
         var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
