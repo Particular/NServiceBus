@@ -66,7 +66,13 @@ class LearningTransportDispatcher : IMessageDispatcher
         var destinationPath = Path.Combine(basePath, destination);
         var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
 
-        Directory.CreateDirectory(bodyDir);
+        if (destination == "error")
+        {
+            Directory.CreateDirectory(bodyDir);
+        }
+
+        await WaitForDirectory(bodyDir, TimeSpan.FromSeconds(5), cancellationToken)
+            .ConfigureAwait(false);
 
         var bodyPath = Path.Combine(bodyDir, nativeMessageId) + LearningTransportMessagePump.BodyFileSuffix;
 
@@ -185,6 +191,78 @@ class LearningTransportDispatcher : IMessageDispatcher
         }
 
         return allEventTypes;
+    }
+
+    static async Task<bool> WaitForDirectory(string path, TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(timeout);
+
+        while (!cts.Token.IsCancellationRequested)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            if (ExistsWithDifferentCase(path, out var actualPath))
+            {
+                throw new DirectoryNotFoundException($"Directory '{path}' not found, but exists as '{actualPath}'");
+            }
+
+            try
+            {
+                await Task.Delay(100, cts.Token).ConfigureAwait(false);
+            }
+#pragma warning disable PS0020
+            catch (OperationCanceledException e) when (!cancellationToken.IsCancellationRequested)
+#pragma warning restore PS0020
+            {
+                throw new DirectoryNotFoundException($"Directory '{path}' not found within timeout", e);
+            }
+        }
+
+        return false;
+    }
+
+    static bool ExistsWithDifferentCase(string path, out string actualPath)
+    {
+        actualPath = null;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        var parentDir = Path.GetDirectoryName(path);
+        var targetName = Path.GetFileName(path);
+
+        if (string.IsNullOrEmpty(parentDir) || string.IsNullOrEmpty(targetName))
+        {
+            return false;
+        }
+
+        if (!Directory.Exists(parentDir))
+        {
+            return false;
+        }
+
+        try
+        {
+            var actualName = Directory.EnumerateDirectories(parentDir)
+                .Select(Path.GetFileName)
+                .FirstOrDefault(name => string.Equals(name, targetName, StringComparison.OrdinalIgnoreCase));
+
+            if (actualName != null && !string.Equals(actualName, targetName, StringComparison.Ordinal))
+            {
+                actualPath = Path.Combine(parentDir, actualName);
+                return true;
+            }
+        }
+        catch (UnauthorizedAccessException) { }
+        catch (IOException) { }
+
+        return false;
     }
 
     static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
