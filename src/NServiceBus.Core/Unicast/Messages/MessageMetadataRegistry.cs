@@ -23,6 +23,7 @@ public class MessageMetadataRegistry
     {
         this.isMessageType = isMessageType;
         this.allowDynamicTypeLoading = allowDynamicTypeLoading;
+        cachedTypesLookup = cachedTypes.GetAlternateLookup<ReadOnlySpan<char>>();
     }
 
     /// <summary>
@@ -57,11 +58,27 @@ public class MessageMetadataRegistry
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
 
-        var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
+        return GetMessageMetadata(messageTypeIdentifier.AsSpan());
+    }
+
+    /// <summary>
+    /// Retrieves the <see cref="MessageMetadata" /> for the message identifier.
+    /// </summary>
+    /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
+    /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
+    public MessageMetadata GetMessageMetadata(ReadOnlySpan<char> messageTypeIdentifier)
+    {
+        if (messageTypeIdentifier.IsEmpty || messageTypeIdentifier.IsWhiteSpace())
+        {
+            throw new ArgumentException("Value cannot be null, empty, or whitespace.", nameof(messageTypeIdentifier));
+        }
+
+        var cacheHit = cachedTypesLookup.TryGetValue(messageTypeIdentifier, out var messageType);
 
         if (!cacheHit)
         {
-            messageType = GetType(messageTypeIdentifier);
+            var messageTypeIdentifierString = messageTypeIdentifier.ToString();
+            messageType = GetType(messageTypeIdentifierString);
 
             if (messageType == null)
             {
@@ -71,16 +88,23 @@ public class MessageMetadataRegistry
                     if (item.MessageType.FullName == messageTypeIdentifier ||
                         item.MessageType.FullName == messageTypeFullName)
                     {
-                        Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+                        if (Logger.IsDebugEnabled)
+                        {
+                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifierString, item.MessageType.AssemblyQualifiedName);
+                        }
 
-                        cachedTypes[messageTypeIdentifier] = item.MessageType;
+                        cachedTypesLookup[messageTypeIdentifier] = item.MessageType;
                         return item;
                     }
                 }
-                Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifier);
+
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifierString);
+                }
             }
 
-            cachedTypes[messageTypeIdentifier] = messageType;
+            cachedTypesLookup[messageTypeIdentifier] = messageType;
         }
 
         if (messageType == null)
@@ -106,7 +130,7 @@ public class MessageMetadataRegistry
     /// Retrieves all known messages <see cref="MessageMetadata" />.
     /// </summary>
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
-    public MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
+    public MessageMetadata[] GetAllMessages() => [.. messages.Values];
 
     Type GetType(string messageTypeIdentifier)
     {
@@ -223,6 +247,7 @@ public class MessageMetadataRegistry
     readonly bool allowDynamicTypeLoading;
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
     readonly ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
+    readonly ConcurrentDictionary<string, Type>.AlternateLookup<ReadOnlySpan<char>> cachedTypesLookup;
 
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
