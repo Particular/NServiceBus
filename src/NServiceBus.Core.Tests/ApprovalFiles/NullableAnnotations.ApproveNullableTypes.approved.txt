@@ -20,7 +20,6 @@ NServiceBus.Conventions
 NServiceBus.ConventionsBuilder
 NServiceBus.ConversationId
 NServiceBus.ConversationIdStrategyContext
-NServiceBus.ConversationRoutingExtensions
 NServiceBus.CriticalError
 NServiceBus.CriticalErrorContext
 NServiceBus.DateTimeOffsetHelper
@@ -87,7 +86,6 @@ NServiceBus.Logging.DefaultFactory
 NServiceBus.Logging.ILog
 NServiceBus.Logging.ILoggerFactory
 NServiceBus.Logging.LogManager
-NServiceBus.MessageCausationConfigurationExtensions
 NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions
