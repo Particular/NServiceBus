@@ -148,7 +148,7 @@ namespace NServiceBus
     }
     public static class ConversationRoutingExtensions
     {
-        public static void StartNewConversation(this NServiceBus.SendOptions sendOptions, string conversationId = null) { }
+        public static void StartNewConversation(this NServiceBus.SendOptions sendOptions, string? conversationId = null) { }
     }
     public class CorrelatedSagaPropertyMapper<TSagaData>
         where TSagaData :  class, NServiceBus.IContainSagaData
