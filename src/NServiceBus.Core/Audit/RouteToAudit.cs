@@ -46,8 +46,8 @@ public class RouteToAudit : AuditAction
 
         routingContext.Extensions.Set(dispatchProperties);
 
-        return new[] { routingContext };
+        return [routingContext];
     }
 
-    internal static RouteToAudit Instance { get; } = new RouteToAudit();
+    internal static RouteToAudit Instance { get; } = new();
 }
