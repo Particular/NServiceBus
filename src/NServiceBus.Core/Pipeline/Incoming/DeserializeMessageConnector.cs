@@ -10,17 +10,14 @@ using Pipeline;
 using Transport;
 using Unicast.Messages;
 
-class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
+class DeserializeMessageConnector(
+    MessageDeserializerResolver deserializerResolver,
+    LogicalMessageFactory logicalMessageFactory,
+    MessageMetadataRegistry messageMetadataRegistry,
+    IMessageMapper mapper,
+    bool allowContentTypeInference)
+    : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
-    public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper, bool allowContentTypeInference)
-    {
-        this.deserializerResolver = deserializerResolver;
-        this.logicalMessageFactory = logicalMessageFactory;
-        this.messageMetadataRegistry = messageMetadataRegistry;
-        this.mapper = mapper;
-        this.allowContentTypeInference = allowContentTypeInference;
-    }
-
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
     {
         var incomingMessage = context.Message;
@@ -133,12 +130,6 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
     }
 
     static bool DoesTypeHaveImplAddedByVersion3(ReadOnlySpan<char> existingTypeString) => existingTypeString.IndexOf(ImplSuffix) != -1;
-
-    readonly MessageDeserializerResolver deserializerResolver;
-    readonly LogicalMessageFactory logicalMessageFactory;
-    readonly MessageMetadataRegistry messageMetadataRegistry;
-    readonly IMessageMapper mapper;
-    readonly bool allowContentTypeInference;
 
     readonly ConcurrentDictionary<string, Type[]> enclosedMessageTypesStringToMessageTypes = new();
 
