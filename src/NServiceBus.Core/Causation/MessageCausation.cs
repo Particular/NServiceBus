@@ -8,10 +8,7 @@ using Settings;
 
 class MessageCausation : Feature
 {
-    public MessageCausation()
-    {
-        EnableByDefault();
-    }
+    public MessageCausation() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {
@@ -30,9 +27,8 @@ class MessageCausation : Feature
         return _ => CombGuid.Generate().ToString();
     }
 
-    internal static Func<IOutgoingLogicalMessageContext, string> WrapUserDefinedInvocation(Func<ConversationIdStrategyContext, ConversationId> userDefinedIdGenerator)
-    {
-        return context =>
+    internal static Func<IOutgoingLogicalMessageContext, string> WrapUserDefinedInvocation(Func<ConversationIdStrategyContext, ConversationId> userDefinedIdGenerator) =>
+        context =>
         {
             ConversationId customConversationId;
 
@@ -52,7 +48,4 @@ class MessageCausation : Feature
 
             return customConversationId.Value;
         };
-    }
-
-
 }

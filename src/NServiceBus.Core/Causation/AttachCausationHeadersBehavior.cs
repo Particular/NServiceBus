@@ -8,13 +8,9 @@ using Extensibility;
 using Pipeline;
 using Transport;
 
-class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
+    : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
-    {
-        this.conversationIdStrategy = conversationIdStrategy;
-    }
-
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         context.TryGetIncomingPhysicalMessage(out var incomingMessage);
@@ -74,6 +70,5 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
     }
 
-    readonly Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
     public const string NewConversationId = "NewConversationId";
 }

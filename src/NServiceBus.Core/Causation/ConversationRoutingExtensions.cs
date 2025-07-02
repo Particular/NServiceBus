@@ -13,7 +13,5 @@ public static class ConversationRoutingExtensions
     /// <param name="sendOptions">The option being extended.</param>
     /// <param name="conversationId">The id for the new conversation. If not provided, an id will be generated.</param>
     public static void StartNewConversation(this SendOptions sendOptions, string? conversationId = null)
-    {
-        sendOptions.Context.Set(AttachCausationHeadersBehavior.NewConversationId, conversationId);
-    }
+        => sendOptions.Context.Set(AttachCausationHeadersBehavior.NewConversationId, conversationId);
 }
