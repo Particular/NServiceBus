@@ -89,7 +89,7 @@ class DeserializeMessageConnector(
                             continue;
                         }
 
-                        var metadata = registry.GetMessageMetadata(messageTypeSpan);
+                        var metadata = registry.GetMessageMetadata(messageTypeSpan.ToString());
 
                         if (metadata != null)
                         {

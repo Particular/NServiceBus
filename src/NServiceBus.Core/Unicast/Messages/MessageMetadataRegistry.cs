@@ -10,21 +10,15 @@ using NServiceBus;
 /// <summary>
 /// Cache of message metadata.
 /// </summary>
-public class MessageMetadataRegistry
+/// <remarks>
+/// Create a new <see cref="MessageMetadataRegistry"/> instance.
+/// </remarks>
+/// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
+/// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
+/// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
+/// at runtime and all types must be explicitly loaded beforehand.</param>
+public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
 {
-    /// <summary>
-    /// Create a new <see cref="MessageMetadataRegistry"/> instance.
-    /// </summary>
-    /// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
-    /// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
-    /// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
-    /// at runtime and all types must be explicitly loaded beforehand.</param>
-    public MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
-    {
-        this.isMessageType = isMessageType;
-        this.allowDynamicTypeLoading = allowDynamicTypeLoading;
-        cachedTypesLookup = cachedTypes.GetAlternateLookup<ReadOnlySpan<char>>();
-    }
 
     /// <summary>
     /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
@@ -58,27 +52,11 @@ public class MessageMetadataRegistry
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
 
-        return GetMessageMetadata(messageTypeIdentifier.AsSpan());
-    }
-
-    /// <summary>
-    /// Retrieves the <see cref="MessageMetadata" /> for the message identifier.
-    /// </summary>
-    /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
-    /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
-    public MessageMetadata GetMessageMetadata(ReadOnlySpan<char> messageTypeIdentifier)
-    {
-        if (messageTypeIdentifier.IsEmpty || messageTypeIdentifier.IsWhiteSpace())
-        {
-            throw new ArgumentException("Value cannot be null, empty, or whitespace.", nameof(messageTypeIdentifier));
-        }
-
-        var cacheHit = cachedTypesLookup.TryGetValue(messageTypeIdentifier, out var messageType);
+        var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
 
         if (!cacheHit)
         {
-            var messageTypeIdentifierString = messageTypeIdentifier.ToString();
-            messageType = GetType(messageTypeIdentifierString);
+            messageType = GetType(messageTypeIdentifier);
 
             if (messageType == null)
             {
@@ -90,21 +68,21 @@ public class MessageMetadataRegistry
                     {
                         if (Logger.IsDebugEnabled)
                         {
-                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifierString, item.MessageType.AssemblyQualifiedName);
+                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
                         }
 
-                        cachedTypesLookup[messageTypeIdentifier] = item.MessageType;
+                        cachedTypes[messageTypeIdentifier] = item.MessageType;
                         return item;
                     }
                 }
 
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifierString);
+                    Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifier);
                 }
             }
 
-            cachedTypesLookup[messageTypeIdentifier] = messageType;
+            cachedTypes[messageTypeIdentifier] = messageType;
         }
 
         if (messageType == null)
@@ -243,11 +221,8 @@ public class MessageMetadataRegistry
         }
     }
 
-    readonly Func<Type, bool> isMessageType;
-    readonly bool allowDynamicTypeLoading;
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
     readonly ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
-    readonly ConcurrentDictionary<string, Type>.AlternateLookup<ReadOnlySpan<char>> cachedTypesLookup;
 
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
