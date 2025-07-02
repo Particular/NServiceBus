@@ -70,7 +70,7 @@ class DeserializeMessageConnector(
             return [];
         }
 
-        Type[] messageTypes = [];
+        List<Type> messageTypes = null;
         if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
         {
             messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
@@ -95,17 +95,16 @@ class DeserializeMessageConnector(
                         }
                     }
 
-                    // using an array in order to be able to assign array empty as the default value
-                    return [.. types];
+                    return types;
                 }, messageMetadataRegistry);
 
-            if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
+            if (messageTypes is { Count: 0 } && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
             {
                 log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", enclosedMessageTypesValue, physicalMessage.MessageId);
             }
         }
 
-        if (messageTypes.Length == 0 && !allowContentTypeInference)
+        if (messageTypes is { Count: 0 } && !allowContentTypeInference)
         {
             throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
         }
@@ -131,7 +130,7 @@ class DeserializeMessageConnector(
 
     static bool DoesTypeHaveImplAddedByVersion3(ReadOnlySpan<char> existingTypeString) => existingTypeString.IndexOf(ImplSuffix) != -1;
 
-    readonly ConcurrentDictionary<string, Type[]> enclosedMessageTypesStringToMessageTypes = new();
+    readonly ConcurrentDictionary<string, List<Type>> enclosedMessageTypesStringToMessageTypes = new();
 
     static readonly ILog log = LogManager.GetLogger<DeserializeMessageConnector>();
     static ReadOnlySpan<char> ImplSuffix => "__impl".AsSpan();
