@@ -85,8 +85,8 @@ public class MessageMetadataRegistry
                 var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
                 foreach (var item in messages.Values)
                 {
-                    if (item.MessageType.FullName == messageTypeIdentifier ||
-                        item.MessageType.FullName == messageTypeFullName)
+                    var typeFullName = item.MessageType.FullName.AsSpan();
+                    if (typeFullName.SequenceEqual(messageTypeIdentifier) || typeFullName.SequenceEqual(messageTypeFullName))
                     {
                         if (Logger.IsDebugEnabled)
                         {
