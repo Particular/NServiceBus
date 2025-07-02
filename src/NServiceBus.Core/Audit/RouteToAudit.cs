@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.Audit;
+﻿#nullable enable
+
+namespace NServiceBus.Audit;
 
 using System.Collections.Generic;
-using NServiceBus.Performance.TimeToBeReceived;
-using NServiceBus.Routing;
+using Performance.TimeToBeReceived;
+using Routing;
 using Pipeline;
 using Transport;
 
@@ -44,8 +46,8 @@ public class RouteToAudit : AuditAction
 
         routingContext.Extensions.Set(dispatchProperties);
 
-        return new[] { routingContext };
+        return [routingContext];
     }
 
-    internal static RouteToAudit Instance { get; } = new RouteToAudit();
+    internal static RouteToAudit Instance { get; } = new();
 }

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Audit;
+﻿#nullable enable
+
+namespace NServiceBus.Audit;
 
 using System.Collections.Generic;
 using Pipeline;
