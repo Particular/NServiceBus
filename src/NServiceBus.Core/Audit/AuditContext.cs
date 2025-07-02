@@ -1,8 +1,10 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using NServiceBus.Audit;
+using Audit;
 using Pipeline;
 using Transport;
 
@@ -17,7 +19,6 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
         AuditAddress = auditAddress;
         TimeToBeReceived = timeToBeReceived;
         AuditMetadata = [];
-        AuditAction = RouteToAudit.Instance;
     }
 
     public OutgoingMessage Message { get; }
@@ -39,6 +40,8 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
             {
                 throw new InvalidOperationException("The AuditAction has already been executed and can't be changed");
             }
+
+            ArgumentNullException.ThrowIfNull(value);
             auditAction = value;
         }
     }
@@ -49,6 +52,6 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
         return this;
     }
 
-    AuditAction auditAction;
+    AuditAction auditAction = RouteToAudit.Instance;
     bool locked;
 }
