@@ -221,8 +221,8 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         }
     }
 
-    readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
-    readonly ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();
+    readonly ConcurrentDictionary<string, Type> cachedTypes = new();
 
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
