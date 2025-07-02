@@ -64,16 +64,16 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         if (IsControlMessage(physicalMessage))
         {
             log.Debug("Received a control message. Skipping deserialization as control message data is contained in the header.");
-            return Array.Empty<LogicalMessage>();
+            return [];
         }
 
         if (physicalMessage.Body.Length == 0)
         {
             log.Debug("Received a message without body. Skipping deserialization.");
-            return Array.Empty<LogicalMessage>();
+            return [];
         }
 
-        Type[] messageTypes = Array.Empty<Type>();
+        Type[] messageTypes = [];
         if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
         {
             messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
@@ -100,7 +100,7 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
                     }
 
                     // using an array in order to be able to assign array empty as the default value
-                    return types.ToArray();
+                    return [.. types];
                 }, messageMetadataRegistry);
 
             if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
