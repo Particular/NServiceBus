@@ -2,11 +2,13 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Outbox;
 using NServiceBus.Sagas;
+using NUnit.Framework;
 using Persistence;
 
 public partial class PersistenceTestsConfiguration
@@ -32,7 +34,7 @@ public partial class PersistenceTestsConfiguration
         SagaIdGenerator = new LearningSagaIdGenerator();
 
         var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"),
+            Path.Combine(Path.GetTempPath(), ".sagas", TestContext.CurrentContext.Test.ID),
             name => DeterministicGuid.Create(name).ToString());
 
         SagaStorage = new LearningSagaPersister(sagaManifests);

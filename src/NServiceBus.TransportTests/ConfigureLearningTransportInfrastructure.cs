@@ -1,16 +1,19 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Transport;
 using NServiceBus.TransportTests;
+using NUnit.Framework;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
     public TransportDefinition CreateTransportDefinition()
     {
-        storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
+        storageDir = Path.Combine(Path.GetTempPath(), ".transporttests", TestContext.CurrentContext.Test.ID);
+
         return new LearningTransport
         {
             StorageDirectory = storageDir,
