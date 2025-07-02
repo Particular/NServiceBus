@@ -15,7 +15,7 @@ public class AssemblyQualifiedNameParserTests
 
         var typeNameWithoutAssembly = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(assemblyQualifiedName);
 
-        Assert.That(typeNameWithoutAssembly, Is.EqualTo(expectedFullName));
+        Assert.That(typeNameWithoutAssembly.ToString(), Is.EqualTo(expectedFullName));
     }
 
     static IEnumerable<object[]> AssemblyQualifiedNames =>
@@ -46,7 +46,7 @@ public class AssemblyQualifiedNameParserTests
 
         var messageType = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(assemblyQualifiedName);
 
-        Assert.That(messageType, Is.EqualTo(expectedFullName));
+        Assert.That(messageType.ToString(), Is.EqualTo(expectedFullName));
     }
 
     static IEnumerable<object[]> FullNames =>

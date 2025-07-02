@@ -4,20 +4,18 @@ using System;
 
 static class AssemblyQualifiedNameParser
 {
-    public static string GetMessageTypeNameWithoutAssembly(string messageTypeIdentifier)
+    public static ReadOnlySpan<char> GetMessageTypeNameWithoutAssembly(ReadOnlySpan<char> messageTypeIdentifier)
     {
         int lastIndexOf = messageTypeIdentifier.LastIndexOf(']');
         if (lastIndexOf > 0)
         {
-            var messageType = messageTypeIdentifier.AsSpan()[..++lastIndexOf].ToString();
-            return messageType;
+            return messageTypeIdentifier[..++lastIndexOf];
         }
 
         int firstIndexOfComma = messageTypeIdentifier.IndexOf(',');
         if (firstIndexOfComma > 0)
         {
-            var messageType = messageTypeIdentifier.AsSpan()[..firstIndexOfComma].ToString();
-            return messageType;
+            return messageTypeIdentifier[..firstIndexOfComma];
         }
 
         return messageTypeIdentifier;
