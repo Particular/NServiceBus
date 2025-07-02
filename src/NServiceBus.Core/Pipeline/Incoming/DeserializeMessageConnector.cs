@@ -100,7 +100,7 @@ class DeserializeMessageConnector(
                     return types;
                 }, messageMetadataRegistry);
 
-            if (messageTypes is { Count: 0 } && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
+            if (messageTypes.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
             {
                 log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", enclosedMessageTypesValue, physicalMessage.MessageId);
             }
