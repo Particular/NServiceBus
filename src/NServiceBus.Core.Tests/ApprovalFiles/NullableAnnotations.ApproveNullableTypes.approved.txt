@@ -20,7 +20,6 @@ NServiceBus.CriticalError
 NServiceBus.CriticalErrorContext
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
-NServiceBus.DelayedDeliveryOptionExtensions
 NServiceBus.DelayedRetriesSettings
 NServiceBus.DelayedRetry
 NServiceBus.DiagnosticSettingsExtensions
