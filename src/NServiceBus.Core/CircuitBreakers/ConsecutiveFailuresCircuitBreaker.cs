@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -5,28 +7,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class ConsecutiveFailuresCircuitBreaker
+class ConsecutiveFailuresCircuitBreaker(
+    string name,
+    int consecutiveFailuresBeforeTriggering,
+    Func<long, CancellationToken, Task> triggerAction,
+    Func<long, CancellationToken, Task> disarmAction,
+    TimeSpan armedFailureDelayDuration)
 {
-    public ConsecutiveFailuresCircuitBreaker(string name, int consecutiveFailuresBeforeTriggering, Func<long, CancellationToken, Task> triggerAction, Func<long, CancellationToken, Task> disarmAction, TimeSpan armedFailureDelayDuration)
-    {
-        this.name = name;
-        this.triggerAction = triggerAction;
-        this.consecutiveFailuresBeforeTriggering = consecutiveFailuresBeforeTriggering;
-        this.disarmAction = disarmAction;
-        this.armedFailureDelayDuration = armedFailureDelayDuration;
-    }
-
     public Task Success(CancellationToken cancellationToken = default)
     {
         var oldValue = Interlocked.Exchange(ref failureCount, 0);
 
-        if (oldValue >= consecutiveFailuresBeforeTriggering)
+        if (oldValue < consecutiveFailuresBeforeTriggering)
         {
-            Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
-            return disarmAction(DateTime.UtcNow.Ticks, cancellationToken);
+            return Task.CompletedTask;
         }
 
-        return Task.CompletedTask;
+        Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
+        return disarmAction(DateTime.UtcNow.Ticks, cancellationToken);
     }
 
     public async Task Failure(CancellationToken cancellationToken = default)
@@ -50,11 +48,6 @@ class ConsecutiveFailuresCircuitBreaker
     }
 
     int failureCount;
-    readonly string name;
-    readonly int consecutiveFailuresBeforeTriggering;
-    readonly Func<long, CancellationToken, Task> triggerAction;
-    readonly Func<long, CancellationToken, Task> disarmAction;
-    readonly TimeSpan armedFailureDelayDuration;
 
     static readonly ILog Logger = LogManager.GetLogger<ConsecutiveFailuresCircuitBreaker>();
 }
