@@ -4,7 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
-using NServiceBus.Extensibility;
+using Extensibility;
 using Pipeline;
 
 class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
