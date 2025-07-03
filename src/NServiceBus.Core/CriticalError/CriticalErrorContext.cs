@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// See <see cref="ICriticalErrorContext" />.
 /// </summary>
-public partial class CriticalErrorContext : ICriticalErrorContext
+public class CriticalErrorContext : ICriticalErrorContext
 {
     /// <summary>
     /// Initializes a new instance of <see cref="CriticalErrorContext" />.
@@ -20,6 +22,7 @@ public partial class CriticalErrorContext : ICriticalErrorContext
         ArgumentNullException.ThrowIfNull(stop);
         ArgumentException.ThrowIfNullOrWhiteSpace(error);
         ArgumentNullException.ThrowIfNull(exception);
+
         Stop = stop;
         Error = error;
         Exception = exception;

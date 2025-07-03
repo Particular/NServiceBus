@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Allow override critical error action.
 /// </summary>
-public static partial class ConfigureCriticalErrorAction
+public static class ConfigureCriticalErrorAction
 {
     /// <summary>
     /// Defines the action that the endpoint performs if a critical error occurs.
