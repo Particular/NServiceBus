@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.DelayedDelivery;
+﻿#nullable enable
+
+namespace NServiceBus.DelayedDelivery;
 
 using System;
 
