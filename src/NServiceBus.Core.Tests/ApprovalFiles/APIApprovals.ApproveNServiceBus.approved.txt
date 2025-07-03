@@ -158,7 +158,7 @@ namespace NServiceBus
     }
     public class CriticalError
     {
-        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> onCriticalErrorAction) { }
+        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task>? onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
