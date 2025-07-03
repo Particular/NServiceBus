@@ -10,20 +10,15 @@ using NServiceBus;
 /// <summary>
 /// Cache of message metadata.
 /// </summary>
-public class MessageMetadataRegistry
+/// <remarks>
+/// Create a new <see cref="MessageMetadataRegistry"/> instance.
+/// </remarks>
+/// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
+/// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
+/// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
+/// at runtime and all types must be explicitly loaded beforehand.</param>
+public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
 {
-    /// <summary>
-    /// Create a new <see cref="MessageMetadataRegistry"/> instance.
-    /// </summary>
-    /// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
-    /// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
-    /// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
-    /// at runtime and all types must be explicitly loaded beforehand.</param>
-    public MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
-    {
-        this.isMessageType = isMessageType;
-        this.allowDynamicTypeLoading = allowDynamicTypeLoading;
-    }
 
     /// <summary>
     /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
@@ -68,16 +63,23 @@ public class MessageMetadataRegistry
                 var messageTypeFullName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(messageTypeIdentifier);
                 foreach (var item in messages.Values)
                 {
-                    if (item.MessageType.FullName == messageTypeIdentifier ||
-                        item.MessageType.FullName == messageTypeFullName)
+                    var typeFullName = item.MessageType.FullName.AsSpan();
+                    if (typeFullName.SequenceEqual(messageTypeIdentifier) || typeFullName.SequenceEqual(messageTypeFullName))
                     {
-                        Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+                        if (Logger.IsDebugEnabled)
+                        {
+                            Logger.DebugFormat("Message type: '{0}' was mapped to '{1}'", messageTypeIdentifier, item.MessageType.AssemblyQualifiedName);
+                        }
 
                         cachedTypes[messageTypeIdentifier] = item.MessageType;
                         return item;
                     }
                 }
-                Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifier);
+
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.DebugFormat("Message type: '{0}' No match on known messages", messageTypeIdentifier);
+                }
             }
 
             cachedTypes[messageTypeIdentifier] = messageType;
@@ -106,7 +108,7 @@ public class MessageMetadataRegistry
     /// Retrieves all known messages <see cref="MessageMetadata" />.
     /// </summary>
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
-    public MessageMetadata[] GetAllMessages() => messages.Values.ToArray();
+    public MessageMetadata[] GetAllMessages() => [.. messages.Values];
 
     Type GetType(string messageTypeIdentifier)
     {
@@ -219,10 +221,8 @@ public class MessageMetadataRegistry
         }
     }
 
-    readonly Func<Type, bool> isMessageType;
-    readonly bool allowDynamicTypeLoading;
-    readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
-    readonly ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();
+    readonly ConcurrentDictionary<string, Type> cachedTypes = new();
 
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();

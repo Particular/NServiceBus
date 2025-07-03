@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
@@ -10,17 +12,14 @@ using Pipeline;
 using Transport;
 using Unicast.Messages;
 
-class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
+class DeserializeMessageConnector(
+    MessageDeserializerResolver deserializerResolver,
+    LogicalMessageFactory logicalMessageFactory,
+    MessageMetadataRegistry messageMetadataRegistry,
+    IMessageMapper mapper,
+    bool allowContentTypeInference)
+    : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
-    public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper, bool allowContentTypeInference)
-    {
-        this.deserializerResolver = deserializerResolver;
-        this.logicalMessageFactory = logicalMessageFactory;
-        this.messageMetadataRegistry = messageMetadataRegistry;
-        this.mapper = mapper;
-        this.allowContentTypeInference = allowContentTypeInference;
-    }
-
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
     {
         var incomingMessage = context.Message;
@@ -33,7 +32,7 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
             if (first) // ignore the legacy case in which a single message payload contained multiple messages
             {
                 var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
-                availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName);
+                availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
                 first = false;
             }
             await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
@@ -64,52 +63,50 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         if (IsControlMessage(physicalMessage))
         {
             log.Debug("Received a control message. Skipping deserialization as control message data is contained in the header.");
-            return Array.Empty<LogicalMessage>();
+            return [];
         }
 
         if (physicalMessage.Body.Length == 0)
         {
             log.Debug("Received a message without body. Skipping deserialization.");
-            return Array.Empty<LogicalMessage>();
+            return [];
         }
 
-        Type[] messageTypes = Array.Empty<Type>();
+        List<Type>? messageTypes = null;
         if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
         {
             messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
                 static (key, registry) =>
                 {
-                    string[] messageTypeStrings = key.Split(EnclosedMessageTypeSeparator);
-                    var types = new List<Type>(messageTypeStrings.Length);
-                    for (var index = 0; index < messageTypeStrings.Length; index++)
+                    var keySpan = key.AsSpan();
+                    var types = new List<Type>();
+
+                    foreach (var messageTypeRange in keySpan.Split(EnclosedMessageTypeSeparator))
                     {
-                        string messageTypeString = messageTypeStrings[index];
-                        if (DoesTypeHaveImplAddedByVersion3(messageTypeString))
+                        ReadOnlySpan<char> messageTypeSpan = keySpan[messageTypeRange].Trim();
+                        if (DoesTypeHaveImplAddedByVersion3(messageTypeSpan))
                         {
                             continue;
                         }
 
-                        var metadata = registry.GetMessageMetadata(messageTypeString);
+                        var metadata = registry.GetMessageMetadata(messageTypeSpan.ToString());
 
-                        if (metadata == null)
+                        if (metadata != null)
                         {
-                            continue;
+                            types.Add(metadata.MessageType);
                         }
-
-                        types.Add(metadata.MessageType);
                     }
 
-                    // using an array in order to be able to assign array empty as the default value
-                    return types.ToArray();
+                    return types;
                 }, messageMetadataRegistry);
 
-            if (messageTypes.Length == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
+            if (messageTypes.Count == 0 && allowContentTypeInference && physicalMessage.GetMessageIntent() != MessageIntent.Publish)
             {
                 log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", enclosedMessageTypesValue, physicalMessage.MessageId);
             }
         }
 
-        if (messageTypes.Length == 0 && !allowContentTypeInference)
+        if (messageTypes is null or { Count: 0 } && !allowContentTypeInference)
         {
             throw new Exception($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header and message type inference from the message body has been disabled. Ensure the header is set or enable message type inference.");
         }
@@ -133,21 +130,11 @@ class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageConte
         return logicalMessages;
     }
 
-    static bool DoesTypeHaveImplAddedByVersion3(string existingTypeString) => existingTypeString.AsSpan().IndexOf("__impl".AsSpan()) != -1;
+    static bool DoesTypeHaveImplAddedByVersion3(ReadOnlySpan<char> existingTypeString) => existingTypeString.IndexOf(ImplSuffix) != -1;
 
-    readonly MessageDeserializerResolver deserializerResolver;
-    readonly LogicalMessageFactory logicalMessageFactory;
-    readonly MessageMetadataRegistry messageMetadataRegistry;
-    readonly IMessageMapper mapper;
-    readonly bool allowContentTypeInference;
-
-    readonly ConcurrentDictionary<string, Type[]> enclosedMessageTypesStringToMessageTypes =
-        new ConcurrentDictionary<string, Type[]>();
-
-    static readonly char[] EnclosedMessageTypeSeparator =
-    {
-        ';'
-    };
+    readonly ConcurrentDictionary<string, List<Type>> enclosedMessageTypesStringToMessageTypes = new();
 
     static readonly ILog log = LogManager.GetLogger<DeserializeMessageConnector>();
+    static ReadOnlySpan<char> ImplSuffix => "__impl".AsSpan();
+    static ReadOnlySpan<char> EnclosedMessageTypeSeparator => ";".AsSpan();
 }
