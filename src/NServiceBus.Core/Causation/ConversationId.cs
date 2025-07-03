@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 
@@ -9,10 +11,7 @@ public class ConversationId
 {
     internal string Value { get; }
 
-    ConversationId(string value)
-    {
-        Value = value;
-    }
+    ConversationId(string value) => Value = value;
 
     /// <summary>
     /// Uses the provided value as the conversation ID.
@@ -27,5 +26,5 @@ public class ConversationId
     /// <summary>
     /// Uses a default COMB Guid conversation ID.
     /// </summary>
-    public static ConversationId Default => new ConversationId(CombGuid.Generate().ToString());
+    public static ConversationId Default => new(CombGuid.Generate().ToString());
 }

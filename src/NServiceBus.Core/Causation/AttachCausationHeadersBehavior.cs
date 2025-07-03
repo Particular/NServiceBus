@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -6,13 +8,9 @@ using Extensibility;
 using Pipeline;
 using Transport;
 
-class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
+    : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
-    {
-        this.conversationIdStrategy = conversationIdStrategy;
-    }
-
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         context.TryGetIncomingPhysicalMessage(out var incomingMessage);
@@ -23,7 +21,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         return next(context);
     }
 
-    static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
+    static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage? incomingMessage)
     {
         if (incomingMessage == null)
         {
@@ -33,7 +31,7 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
     }
 
-    void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
+    void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage? incomingMessage)
     {
         var conversationIdFromCurrentMessageContext = default(string);
         var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
@@ -72,6 +70,5 @@ class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext,
         context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
     }
 
-    readonly Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
     public const string NewConversationId = "NewConversationId";
 }
