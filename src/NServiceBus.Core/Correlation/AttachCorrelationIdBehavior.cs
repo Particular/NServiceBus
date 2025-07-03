@@ -1,15 +1,17 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
-using NServiceBus.Extensibility;
+using Extensibility;
 using Pipeline;
 
 class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
-        string correlationId = null;
+        string? correlationId = null;
         if (context.GetOperationProperties().TryGet(out State state))
         {
             correlationId = state.CustomCorrelationId;
@@ -43,8 +45,5 @@ class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         return next(context);
     }
 
-    public class State
-    {
-        public string CustomCorrelationId { get; set; }
-    }
+    public record State(string? CustomCorrelationId);
 }
