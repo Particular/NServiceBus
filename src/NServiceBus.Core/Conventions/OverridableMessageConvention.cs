@@ -4,17 +4,11 @@ namespace NServiceBus;
 
 using System;
 
-class OverridableMessageConvention : IMessageConvention
+sealed class OverridableMessageConvention(IMessageConvention inner) : IMessageConvention
 {
-    readonly IMessageConvention inner;
     Func<Type, bool>? isCommandType;
     Func<Type, bool>? isEventType;
     Func<Type, bool>? isMessageType;
-
-    public OverridableMessageConvention(IMessageConvention inner)
-    {
-        this.inner = inner;
-    }
 
     public string Name => ConventionModified ? $"Modified {inner.Name}" : inner.Name;
 
