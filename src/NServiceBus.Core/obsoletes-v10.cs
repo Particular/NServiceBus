@@ -8,196 +8,226 @@ namespace NServiceBus
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
     using NServiceBus.DataBus;
+    using Particular.Obsoletes;
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public static class ConfigureFileShareDataBus
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath) => throw new NotImplementedException();
     }
 
     public partial class Conventions
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public bool IsDataBusProperty(PropertyInfo property) => throw new NotImplementedException();
     }
 
     public partial class ConventionsBuilder
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public ConventionsBuilder DefiningDataBusPropertiesAs(Func<PropertyInfo, bool> definesDataBusProperty) => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
        RemoveInVersion = "11",
        TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBusProperty<T> : IDataBusProperty where T : class
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusProperty() => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusProperty(T value) => throw new NotImplementedException();
 
         [JsonIgnore]
         [XmlIgnore]
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public T Value => throw new NotImplementedException();
 
         [JsonIgnore]
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public Type Type => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public string Key { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public bool HasValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public void SetValue(object valueToSet) => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public object GetValue() => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
        RemoveInVersion = "11",
        TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class FileShareDataBus : DataBusDefinition
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         protected internal override Type ProvidedByFeature() => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public interface IDataBusProperty
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         string Key { get; set; }
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         bool HasValue { get; set; }
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         object GetValue();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         void SetValue(object value);
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         Type Type { get; }
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class SystemJsonDataBusSerializer : IDataBusSerializer
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public void Serialize(object dataBusProperty, Stream stream) => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public object Deserialize(Type propertyType, Stream stream) => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public string ContentType => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public static class UseDataBusExtensions
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition, TDataBusSerializer>(this EndpointConfiguration config)
             where TDataBusDefinition : DataBusDefinition, new()
             where TDataBusSerializer : IDataBusSerializer, new() => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public static DataBusExtensions<TDataBusDefinition> UseDataBus<TDataBusDefinition>(this EndpointConfiguration config, IDataBusSerializer dataBusSerializer)
             where TDataBusDefinition : DataBusDefinition, new() => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer) => throw new NotImplementedException();
     }
 }
@@ -210,115 +240,136 @@ namespace NServiceBus.DataBus
     using System.Threading.Tasks;
     using NServiceBus.Configuration.AdvancedExtensibility;
     using NServiceBus.Settings;
+    using Particular.Obsoletes;
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public abstract class DataBusDefinition
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         protected internal abstract Type ProvidedByFeature();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBusExtensions<T> : DataBusExtensions where T : DataBusDefinition
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusExtensions(SettingsHolder settings) : base(settings) => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBusExtensions : ExposeSettings
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusExtensions(SettingsHolder settings) : base(settings) => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusExtensions AddDeserializer<TSerializer>() where TSerializer : IDataBusSerializer, new() => throw new NotImplementedException();
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public DataBusExtensions AddDeserializer<TSerializer>(TSerializer serializer) where TSerializer : IDataBusSerializer => throw new NotImplementedException();
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public interface IDataBus
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         Task<Stream> Get(string key, CancellationToken cancellationToken = default);
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         Task<string> Put(Stream stream, TimeSpan timeToBeReceived, CancellationToken cancellationToken = default);
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         Task Start(CancellationToken cancellationToken = default);
     }
 
-    [ObsoleteEx(
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public interface IDataBusSerializer
     {
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         void Serialize(object databusProperty, Stream stream);
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         object Deserialize(Type propertyType, Stream stream);
 
-        [ObsoleteEx(
+        [ObsoleteMetadata(
             Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
+        [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         string ContentType { get; }
     }
 }
 
 namespace NServiceBus.Features
 {
-    [ObsoleteEx(
+    using System;
+    using Particular.Obsoletes;
+
+    [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
+    [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBus
     {
     }
