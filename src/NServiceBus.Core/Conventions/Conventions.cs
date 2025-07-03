@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
@@ -32,6 +34,11 @@ public partial class Conventions
                 typeHandle =>
                 {
                     var type = Type.GetTypeFromHandle(typeHandle);
+
+                    if (type is null)
+                    {
+                        return false;
+                    }
 
                     if (IsInSystemConventionList(type))
                     {
@@ -96,11 +103,13 @@ public partial class Conventions
     public void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
     {
         ArgumentNullException.ThrowIfNull(definesMessageType);
-        if (!IsSystemMessageActions.Contains(definesMessageType))
+        if (IsSystemMessageActions.Contains(definesMessageType))
         {
-            IsSystemMessageActions.Add(definesMessageType);
-            MessagesConventionCache.Reset();
+            return;
         }
+
+        IsSystemMessageActions.Add(definesMessageType);
+        MessagesConventionCache.Reset();
     }
 
     /// <summary>
@@ -114,6 +123,12 @@ public partial class Conventions
             return CommandsConventionCache.ApplyConvention(t, typeHandle =>
             {
                 var type = Type.GetTypeFromHandle(typeHandle);
+
+                if (type is null)
+                {
+                    return false;
+                }
+
                 if (type.IsFromParticularAssembly())
                 {
                     return false;
@@ -125,7 +140,7 @@ public partial class Conventions
                     {
                         if (logger.IsDebugEnabled)
                         {
-                            logger.Debug($"{type.FullName} identified as command type by {convention.Name} convention.");
+                            logger.Debug($"{type.FullName ?? type.Name} identified as command type by {convention.Name} convention.");
                         }
                         return true;
                     }
@@ -151,6 +166,12 @@ public partial class Conventions
             return EventsConventionCache.ApplyConvention(t, typeHandle =>
             {
                 var type = Type.GetTypeFromHandle(typeHandle);
+
+                if (type is null)
+                {
+                    return false;
+                }
+
                 if (type.IsFromParticularAssembly())
                 {
                     return false;
@@ -162,7 +183,7 @@ public partial class Conventions
                     {
                         if (logger.IsDebugEnabled)
                         {
-                            logger.Debug($"{type.FullName} identified as event type by {convention.Name} convention.");
+                            logger.Debug($"{type.FullName ?? type.Name} identified as event type by {convention.Name} convention.");
                         }
                         return true;
                     }
@@ -181,49 +202,31 @@ public partial class Conventions
 
     internal string[] RegisteredConventions => conventions.Select(x => x.Name).ToArray();
 
-    internal void DefineMessageTypeConvention(Func<Type, bool> definesMessageType)
-    {
-        defaultMessageConvention.DefiningMessagesAs(definesMessageType);
-    }
+    internal void DefineMessageTypeConvention(Func<Type, bool> definesMessageType) => defaultMessageConvention.DefiningMessagesAs(definesMessageType);
 
-    internal void DefineCommandTypeConventions(Func<Type, bool> definesCommandType)
-    {
-        defaultMessageConvention.DefiningCommandsAs(definesCommandType);
-    }
+    internal void DefineCommandTypeConventions(Func<Type, bool> definesCommandType) => defaultMessageConvention.DefiningCommandsAs(definesCommandType);
 
-    internal void DefineEventTypeConventions(Func<Type, bool> definesEventType)
-    {
-        defaultMessageConvention.DefiningEventsAs(definesEventType);
-    }
+    internal void DefineEventTypeConventions(Func<Type, bool> definesEventType) => defaultMessageConvention.DefiningEventsAs(definesEventType);
 
-    internal void Add(IMessageConvention messageConvention)
-    {
-        conventions.Add(messageConvention);
-    }
+    internal void Add(IMessageConvention messageConvention) => conventions.Add(messageConvention);
 
-    readonly ConventionCache CommandsConventionCache = new ConventionCache();
-    readonly ConventionCache EventsConventionCache = new ConventionCache();
+    readonly ConventionCache CommandsConventionCache = new();
+    readonly ConventionCache EventsConventionCache = new();
 
     readonly List<Func<Type, bool>> IsSystemMessageActions = [];
-    readonly ConventionCache MessagesConventionCache = new ConventionCache();
+    readonly ConventionCache MessagesConventionCache = new();
 
     readonly List<IMessageConvention> conventions = [];
     readonly OverridableMessageConvention defaultMessageConvention;
 
     static readonly ILog logger = LogManager.GetLogger<Conventions>();
 
-    class ConventionCache
+    sealed class ConventionCache
     {
-        public bool ApplyConvention(Type type, Func<RuntimeTypeHandle, bool> action)
-        {
-            return cache.GetOrAdd(type.TypeHandle, action);
-        }
+        public bool ApplyConvention(Type type, Func<RuntimeTypeHandle, bool> action) => cache.GetOrAdd(type.TypeHandle, action);
 
-        public void Reset()
-        {
-            cache.Clear();
-        }
+        public void Reset() => cache.Clear();
 
-        readonly ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
+        readonly ConcurrentDictionary<RuntimeTypeHandle, bool> cache = new();
     }
 }

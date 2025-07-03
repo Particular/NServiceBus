@@ -12,7 +12,6 @@ NServiceBus.ConfigurePurging
 NServiceBus.ConnectorContextExtensions
 NServiceBus.ConsistencyGuarantees.TransactionModeSettingsExtensions
 NServiceBus.ContentTypes
-NServiceBus.Conventions
 NServiceBus.ConventionsBuilder
 NServiceBus.ConversationId
 NServiceBus.ConversationIdStrategyContext

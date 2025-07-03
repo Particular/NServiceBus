@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -7,15 +9,12 @@ using Settings;
 /// <summary>
 /// Defines custom message conventions instead of using the <see cref="IMessage"/>, <see cref="IEvent"/> or <see cref="ICommand"/> interfaces, and other conventions.
 /// </summary>
-public partial class ConventionsBuilder : ExposeSettings
+/// <remarks>
+/// Creates a new instance of ConventionsBuilder class.
+/// </remarks>
+/// <param name="settings">An instance of the current settings.</param>
+public partial class ConventionsBuilder(SettingsHolder settings) : ExposeSettings(settings)
 {
-    /// <summary>
-    /// Creates a new instance of ConventionsBuilder class.
-    /// </summary>
-    /// <param name="settings">An instance of the current settings.</param>
-    public ConventionsBuilder(SettingsHolder settings) : base(settings)
-    {
-    }
 
     /// <summary>
     /// Sets the function to be used to evaluate whether a type is a message.
@@ -60,5 +59,5 @@ public partial class ConventionsBuilder : ExposeSettings
     /// <summary>
     /// The defined <see cref="Conventions"/>.
     /// </summary>
-    public Conventions Conventions { get; } = new Conventions();
+    public Conventions Conventions { get; } = new();
 }
