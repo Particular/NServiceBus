@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
@@ -32,6 +34,11 @@ public partial class Conventions
                 typeHandle =>
                 {
                     var type = Type.GetTypeFromHandle(typeHandle);
+
+                    if (type is null)
+                    {
+                        return false;
+                    }
 
                     if (IsInSystemConventionList(type))
                     {
@@ -114,6 +121,12 @@ public partial class Conventions
             return CommandsConventionCache.ApplyConvention(t, typeHandle =>
             {
                 var type = Type.GetTypeFromHandle(typeHandle);
+
+                if (type is null)
+                {
+                    return false;
+                }
+
                 if (type.IsFromParticularAssembly())
                 {
                     return false;
@@ -125,7 +138,7 @@ public partial class Conventions
                     {
                         if (logger.IsDebugEnabled)
                         {
-                            logger.Debug($"{type.FullName} identified as command type by {convention.Name} convention.");
+                            logger.Debug($"{type.FullName ?? type.Name} identified as command type by {convention.Name} convention.");
                         }
                         return true;
                     }
@@ -151,6 +164,12 @@ public partial class Conventions
             return EventsConventionCache.ApplyConvention(t, typeHandle =>
             {
                 var type = Type.GetTypeFromHandle(typeHandle);
+
+                if (type is null)
+                {
+                    return false;
+                }
+
                 if (type.IsFromParticularAssembly())
                 {
                     return false;
@@ -162,7 +181,7 @@ public partial class Conventions
                     {
                         if (logger.IsDebugEnabled)
                         {
-                            logger.Debug($"{type.FullName} identified as event type by {convention.Name} convention.");
+                            logger.Debug($"{type.FullName ?? type.Name} identified as event type by {convention.Name} convention.");
                         }
                         return true;
                     }

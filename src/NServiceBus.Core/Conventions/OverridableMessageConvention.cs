@@ -1,13 +1,15 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 
 class OverridableMessageConvention : IMessageConvention
 {
     readonly IMessageConvention inner;
-    Func<Type, bool> isCommandType;
-    Func<Type, bool> isEventType;
-    Func<Type, bool> isMessageType;
+    Func<Type, bool>? isCommandType;
+    Func<Type, bool>? isEventType;
+    Func<Type, bool>? isMessageType;
 
     public OverridableMessageConvention(IMessageConvention inner)
     {
