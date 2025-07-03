@@ -5,7 +5,6 @@ NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings
 NServiceBus.AutoSubscribeSettingsExtensions
 NServiceBus.BestPracticesOptionExtensions
 NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions
-NServiceBus.ConfigureCriticalErrorAction
 NServiceBus.ConfigureError
 NServiceBus.ConfigureLicenseExtensions
 NServiceBus.ConfigurePurging
@@ -16,7 +15,6 @@ NServiceBus.Conventions
 NServiceBus.ConventionsBuilder
 NServiceBus.ConversationId
 NServiceBus.ConversationIdStrategyContext
-NServiceBus.CriticalError
 NServiceBus.CriticalErrorContext
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
