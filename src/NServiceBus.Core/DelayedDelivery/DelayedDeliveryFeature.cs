@@ -4,12 +4,9 @@ namespace NServiceBus.Features;
 
 using Transport;
 
-class DelayedDeliveryFeature : Feature
+sealed class DelayedDeliveryFeature : Feature
 {
-    public DelayedDeliveryFeature()
-    {
-        EnableByDefault();
-    }
+    public DelayedDeliveryFeature() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {
