@@ -90,7 +90,7 @@ public class CriticalError
 
     readonly List<LatentCritical> criticalErrors = [];
     IEndpointInstance? endpoint;
-    readonly object endpointCriticalLock = new object();
+    readonly Lock endpointCriticalLock = new();
 
     record LatentCritical(string Message, Exception Exception);
 }
