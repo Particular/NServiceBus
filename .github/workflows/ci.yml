@@ -18,9 +18,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-2022
+          - os: windows-latest
             name: Windows
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             name: Linux
       fail-fast: false
     steps:
