@@ -1,0 +1,24 @@
+name: Update Dependencies
+on:
+  schedule:
+    # At 14 minutes past the hour, every 6 hours, starting at 3AM UTC
+    - cron: '14 3/6 * * *'
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        type: boolean
+        required: false
+        default: false
+        description: Dry run (don't create PRs)
+      debugMode:
+        type: boolean
+        required: false
+        default: false
+        description: Run Renovate with debug logging
+jobs:
+  renovate:
+    uses: particular/shared-workflows/.github/workflows/dependency-updates.yml@main
+    with:
+      dryRun: ${{ inputs.dryRun || false }}
+      debugMode: ${{ inputs.debugMode || false }}
+    secrets: inherit
