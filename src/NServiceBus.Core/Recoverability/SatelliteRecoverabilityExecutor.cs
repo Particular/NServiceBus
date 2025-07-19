@@ -95,11 +95,9 @@ class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
 
         public CancellationToken CancellationToken { get; }
 
-        public ContextBag Extensions => contextBag ??= new ContextBag();
+        public ContextBag Extensions => field ??= new ContextBag();
         public IServiceProvider Builder { get; }
         public IReadOnlyDictionary<string, string> Metadata { get; }
-
-        ContextBag contextBag;
     }
 
     readonly IServiceProvider serviceProvider;

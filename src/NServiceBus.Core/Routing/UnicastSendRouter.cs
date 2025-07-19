@@ -135,17 +135,16 @@ class UnicastSendRouter
 
         public RouteOption Option
         {
-            get => option;
+            get;
             set
             {
-                if (option != RouteOption.None)
+                if (field != RouteOption.None)
                 {
-                    throw new Exception("Already specified routing option for this message: " + option);
+                    throw new Exception("Already specified routing option for this message: " + field);
                 }
-                option = value;
+
+                field = value;
             }
         }
-
-        RouteOption option;
     }
 }
