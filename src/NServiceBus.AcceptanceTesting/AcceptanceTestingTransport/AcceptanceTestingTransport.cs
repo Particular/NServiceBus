@@ -36,16 +36,14 @@ public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSub
         };
     }
 
-    string storageLocation;
-
     public string StorageLocation
     {
-        get => storageLocation;
+        get;
         set
         {
             ArgumentNullException.ThrowIfNull(value);
             PathChecker.ThrowForBadPath(value, nameof(StorageLocation));
-            storageLocation = value;
+            field = value;
         }
     }
 }

@@ -23,8 +23,8 @@ public class EndpointCustomizationConfiguration
 
     public string EndpointName
     {
-        get => !string.IsNullOrEmpty(CustomEndpointName) ? CustomEndpointName : endpointName;
-        set => endpointName = value;
+        get => !string.IsNullOrEmpty(CustomEndpointName) ? CustomEndpointName : field;
+        set;
     }
 
     public Type BuilderType { get; set; }
@@ -34,6 +34,4 @@ public class EndpointCustomizationConfiguration
     public string CustomEndpointName { get; set; }
 
     public bool DisableStartupDiagnostics { get; set; } = true;
-
-    string endpointName;
 }
