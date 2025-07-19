@@ -66,18 +66,18 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
     {
         public RouteOption Option
         {
-            get => option;
+            get;
             set
             {
-                if (option != RouteOption.None)
+                if (field != RouteOption.None)
                 {
-                    throw new Exception("Already specified reply routing option for this message: " + option);
+                    throw new Exception("Already specified reply routing option for this message: " + field);
                 }
-                option = value;
+
+                field = value;
             }
         }
 
         public string ExplicitDestination { get; set; }
-        RouteOption option;
     }
 }

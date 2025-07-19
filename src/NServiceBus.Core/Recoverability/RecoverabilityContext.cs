@@ -52,14 +52,16 @@ class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IReco
 
     public RecoverabilityAction RecoverabilityAction
     {
-        get => recoverabilityAction;
+        get;
         set
         {
             if (locked)
             {
-                throw new InvalidOperationException("The RecoverabilityAction has already been executed and can't be changed");
+                throw new InvalidOperationException(
+                    "The RecoverabilityAction has already been executed and can't be changed");
             }
-            recoverabilityAction = value;
+
+            field = value;
         }
     }
 
@@ -78,7 +80,6 @@ class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IReco
     public IEnumerator<object> GetEnumerator() => notifications?.GetEnumerator() ?? Enumerable.Empty<object>().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    RecoverabilityAction recoverabilityAction;
     bool locked;
     List<object> notifications;
 }

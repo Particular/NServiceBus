@@ -46,12 +46,12 @@
                 return false;
             }
 
-            if (!(method.ReducedFrom is IMethodSymbol extensionMethod))
+            if (method.ReducedFrom is not IMethodSymbol extensionMethod)
             {
                 return false;
             }
 
-            if (!(extensionMethod.Parameters.FirstOrDefault() is IParameterSymbol thisParam))
+            if (extensionMethod.Parameters.FirstOrDefault() is not IParameterSymbol thisParam)
             {
                 return false;
             }
@@ -59,34 +59,20 @@
             return thisParam.Type.Equals(nonGenericType, SymbolEqualityComparer.IncludeNullability);
         }
 
-        public static ITypeSymbol GetTypeSymbolOrDefault(this ISymbol symbol)
+        public static ITypeSymbol GetTypeSymbolOrDefault(this ISymbol symbol) => symbol switch
         {
-            switch (symbol)
-            {
-                case IDiscardSymbol symbolWithType:
-                    return symbolWithType.Type;
-                case IEventSymbol symbolWithType:
-                    return symbolWithType.Type;
-                case IFieldSymbol symbolWithType:
-                    return symbolWithType.Type;
-                case ILocalSymbol symbolWithType:
-                    return symbolWithType.Type;
-                case IMethodSymbol symbolWithType:
-                    return symbolWithType.ReturnType;
-                case INamedTypeSymbol symbolWithType:
-                    return symbolWithType;
-                case IParameterSymbol symbolWithType:
-                    return symbolWithType.Type;
-                case IPointerTypeSymbol symbolWithType:
-                    return symbolWithType.PointedAtType;
-                case IPropertySymbol symbolWithType:
-                    return symbolWithType.Type;
-                case ITypeSymbol symbolWithType:
-                    return symbolWithType;
-                default:
-                    return null;
-            }
-        }
+            IDiscardSymbol symbolWithType => symbolWithType.Type,
+            IEventSymbol symbolWithType => symbolWithType.Type,
+            IFieldSymbol symbolWithType => symbolWithType.Type,
+            ILocalSymbol symbolWithType => symbolWithType.Type,
+            IMethodSymbol symbolWithType => symbolWithType.ReturnType,
+            INamedTypeSymbol symbolWithType => symbolWithType,
+            IParameterSymbol symbolWithType => symbolWithType.Type,
+            IPointerTypeSymbol symbolWithType => symbolWithType.PointedAtType,
+            IPropertySymbol symbolWithType => symbolWithType.Type,
+            ITypeSymbol symbolWithType => symbolWithType,
+            _ => null,
+        };
 
         public static IEnumerable<ITypeSymbol> BaseTypesAndSelf(this ITypeSymbol type, bool includeInterfaces = false)
         {
@@ -127,20 +113,14 @@
                 return false;
             }
 
-            switch (type.NullableAnnotation)
+            return type.NullableAnnotation switch
             {
                 // Type is a non-nullable and can therefore not accept a nullable
-                case NullableAnnotation.NotAnnotated:
-                    return possiblyNullableTypeToAcceptValueFrom.NullableAnnotation == NullableAnnotation.NotAnnotated;
-
+                NullableAnnotation.NotAnnotated => possiblyNullableTypeToAcceptValueFrom.NullableAnnotation == NullableAnnotation.NotAnnotated,
                 // Target is a nullable (or not from code that knows about nullable types, so it's nullable) it can accept either nullable or non-nullable
-                case NullableAnnotation.Annotated:
-                case NullableAnnotation.None:
-                    return true;
-
-                default:
-                    throw new ArgumentException("Not expecting a non-annotated type expression.");
-            }
+                NullableAnnotation.Annotated or NullableAnnotation.None => true,
+                _ => throw new ArgumentException("Not expecting a non-annotated type expression."),
+            };
         }
     }
 }

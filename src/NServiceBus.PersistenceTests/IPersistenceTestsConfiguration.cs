@@ -69,16 +69,18 @@ public partial class PersistenceTestsConfiguration : IPersistenceTestsConfigurat
     {
         get
         {
-            if (sagaMetadataCollection == null)
+            if (field == null)
             {
-                var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => typeof(Saga).IsAssignableFrom(t) || typeof(ISagaFinder<,>).IsAssignableFrom(t) || typeof(IFinder).IsAssignableFrom(t)).ToArray();
-                sagaMetadataCollection = new SagaMetadataCollection();
-                sagaMetadataCollection.Initialize(sagaTypes);
+                var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t =>
+                    typeof(Saga).IsAssignableFrom(t) || typeof(ISagaFinder<,>).IsAssignableFrom(t) ||
+                    typeof(IFinder).IsAssignableFrom(t)).ToArray();
+                field = new SagaMetadataCollection();
+                field.Initialize(sagaTypes);
             }
 
-            return sagaMetadataCollection;
+            return field;
         }
-        set => sagaMetadataCollection = value;
+        set;
     }
 
     // Used by the SagaPersisterTests TestFixtureSource attribute
@@ -94,6 +96,4 @@ public partial class PersistenceTestsConfiguration : IPersistenceTestsConfigurat
     {
         new TestFixtureData(new TestVariant("default"))
     };
-
-    SagaMetadataCollection sagaMetadataCollection;
 }

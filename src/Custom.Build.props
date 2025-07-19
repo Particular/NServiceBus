@@ -8,6 +8,7 @@
   <PropertyGroup>
     <MinVerMinimumMajorMinor>10.0</MinVerMinimumMajorMinor>
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
 </Project>

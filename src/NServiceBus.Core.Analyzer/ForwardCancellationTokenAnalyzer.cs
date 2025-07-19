@@ -23,13 +23,12 @@
 
         static void Analyze(CompilationStartAnalysisContext startContext)
         {
-            // "Feature 'not pattern' is not available in C# 7.3. Please use language version 9.0 or greater." (╯°□°）╯︵ ┻━┻
-            if (!(startContext.Compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext") is INamedTypeSymbol cancellableContextInterface))
+            if (startContext.Compilation.GetTypeByMetadataName("NServiceBus.ICancellableContext") is not INamedTypeSymbol cancellableContextInterface)
             {
                 return;
             }
 
-            if (!(startContext.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken") is INamedTypeSymbol cancellationTokenType))
+            if (startContext.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken") is not INamedTypeSymbol cancellationTokenType)
             {
                 return;
             }
@@ -76,15 +75,13 @@
             }
 
             // if method has no cancellable context param
-            if (!(method.Parameters.FirstOrDefault(param => param.Type.Implements(cancellableContextInterface)) is IParameterSymbol cancellableContextParam))
+            if (method.Parameters.FirstOrDefault(param => param.Type.Implements(cancellableContextInterface)) is not IParameterSymbol cancellableContextParam)
             {
                 return;
             }
 
             foreach (var call in body
-                .DescendantNodesAndSelf(descendant =>
-                    !(descendant is BaseMethodDeclarationSyntax) &&
-                    !(descendant is AnonymousFunctionExpressionSyntax))
+                .DescendantNodesAndSelf(descendant => descendant is not BaseMethodDeclarationSyntax and not AnonymousFunctionExpressionSyntax)
                 .OfType<InvocationExpressionSyntax>())
             {
                 context.CancellationToken.ThrowIfCancellationRequested();
@@ -111,7 +108,7 @@
                 return;
             }
 
-            if (!(context.SemanticModel.GetSymbolInfo(call, context.CancellationToken).Symbol is IMethodSymbol calledMethod))
+            if (context.SemanticModel.GetSymbolInfo(call, context.CancellationToken).Symbol is not IMethodSymbol calledMethod)
             {
                 return;
             }
@@ -122,7 +119,7 @@
                 return;
             }
 
-            if (!(GetRecommendedMethod(calledMethod, cancellationTokenType, genericTaskType, genericValueTaskType, call, context, out var requiredArgName) is IMethodSymbol recommendedMethod))
+            if (GetRecommendedMethod(calledMethod, cancellationTokenType, genericTaskType, genericValueTaskType, call, context, out var requiredArgName) is not IMethodSymbol recommendedMethod)
             {
                 return;
             }
@@ -140,18 +137,12 @@
         }
 
         // may return false positives
-        static bool CouldBeCancellationToken(ExpressionSyntax expression)
+        static bool CouldBeCancellationToken(ExpressionSyntax expression) => expression switch
         {
-            switch (expression)
-            {
-                // 3, 'x', default, etc....
-                case LiteralExpressionSyntax literal:
-                    // only the default literal can be a cancellation token
-                    return literal.Kind() == SyntaxKind.DefaultLiteralExpression;
-                default:
-                    return true;
-            }
-        }
+            // 3, 'x', default, etc....
+            LiteralExpressionSyntax literal => literal.Kind() == SyntaxKind.DefaultLiteralExpression,// only the default literal can be a cancellation token
+            _ => true,
+        };
 
         static bool LooksLikeCancellationToken(ExpressionSyntax expression, string callerCancellableContextParam)
         {
@@ -281,12 +272,12 @@
                 return calledMethod.ContainingType;
             }
 
-            if (!(call.Expression is MemberAccessExpressionSyntax memberAccess))
+            if (call.Expression is not MemberAccessExpressionSyntax memberAccess)
             {
                 return calledMethod.ContainingType;
             }
 
-            if (!(memberAccess.Expression is IdentifierNameSyntax refSyntax))
+            if (memberAccess.Expression is not IdentifierNameSyntax refSyntax)
             {
                 return calledMethod.ContainingType;
             }

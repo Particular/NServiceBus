@@ -28,9 +28,9 @@ class XmlMessageSerializer : IMessageSerializer
     /// </summary>
     public string Namespace
     {
-        get { return nameSpace; }
-        set { nameSpace = TrimPotentialTrailingForwardSlashes(value); }
-    }
+        get { return field; }
+        set { field = TrimPotentialTrailingForwardSlashes(value); }
+    } = "http://tempuri.net";
 
     /// <summary>
     /// If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing.
@@ -109,6 +109,4 @@ class XmlMessageSerializer : IMessageSerializer
 
     readonly Conventions conventions;
     readonly IMessageMapper mapper;
-
-    string nameSpace = "http://tempuri.net";
 }

@@ -22,12 +22,12 @@ namespace NServiceBus.Core.Analyzer
 
         static void Analyze(SyntaxNodeAnalysisContext context)
         {
-            if (!(context.Node is InvocationExpressionSyntax call))
+            if (context.Node is not InvocationExpressionSyntax call)
             {
                 return;
             }
 
-            if (!(call.Parent is ExpressionStatementSyntax))
+            if (call.Parent is not ExpressionStatementSyntax)
             {
                 return;
             }

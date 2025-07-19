@@ -25,7 +25,7 @@
             Handles = handles;
             StartedBy = startedBy;
             Timeouts = timeouts;
-            MessageMappings = new List<SagaMessageMapping>();
+            MessageMappings = [];
 
             MessageTypesHandled = StartedBy.Concat(Handles).Concat(Timeouts)
                 .Select(declaration => declaration.MessageType as ITypeSymbol)

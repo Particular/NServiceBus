@@ -53,7 +53,7 @@
         static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
         {
             // Casting what should be guaranteed by the analyzer anyway
-            if (!(context.Node is ClassDeclarationSyntax classDeclaration) || !(context.ContainingSymbol is INamedTypeSymbol classType))
+            if (context.Node is not ClassDeclarationSyntax classDeclaration || context.ContainingSymbol is not INamedTypeSymbol classType)
             {
                 return;
             }
@@ -162,7 +162,7 @@
                 else
                 {
                     var mappingMethodNames = saga.MessageMappings.Select(m => (m.MessageTypeSyntax?.Parent?.Parent as GenericNameSyntax)?.Identifier.ValueText);
-                    if (mappingMethodNames.Any(name => name == "ConfigureMapping" || name == "ConfigureHeaderMapping"))
+                    if (mappingMethodNames.Any(name => name is "ConfigureMapping" or "ConfigureHeaderMapping"))
                     {
                         Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
                             fixerTitle: "Rewrite saga mapping expression",
@@ -374,25 +374,15 @@
         /// <summary>
         /// The list of supported types is defined in NServiceBus.Sagas.SagaMetadata.AllowedCorrelationPropertyTypes
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "Don't want to add the other 30-something cases")]
-        static bool IsSupportedCorrelationPropertyType(ITypeSymbol type)
-        {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0072:Add missing cases", Justification = "Don't want to add the other 30-something cases")]
+        static bool IsSupportedCorrelationPropertyType(ITypeSymbol type) =>
             // Strings and numbers are covered by SpecialType
-            switch (type.SpecialType)
+            type.SpecialType switch
             {
-                case SpecialType.System_String:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                    return true;
-            }
-
-            // Only case left is Guid
-            return type.ContainingNamespace.Name == "System" && type.Name == "Guid";
-        }
+                SpecialType.System_String or SpecialType.System_Int64 or SpecialType.System_UInt64 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int16 or SpecialType.System_UInt16 => true,
+                // Only case left is Guid
+                _ => type.ContainingNamespace.Name == "System" && type.Name == "Guid",
+            };
 
         static bool TypeContainsMessageType(ITypeSymbol type, SagaDetails saga, KnownTypes knownTypes)
         {
@@ -576,7 +566,7 @@
             var correctSemanticModel = semanticModels.GetFor(saga.ConfigureHowToFindMethod);
 
             // Get the type for the mapper parameter of the ConfigureHowToFindSaga method
-            if (!(correctSemanticModel.GetTypeInfo(saga.MapperParameterSyntax.Type, context.CancellationToken).Type is INamedTypeSymbol mapperType))
+            if (correctSemanticModel.GetTypeInfo(saga.MapperParameterSyntax.Type, context.CancellationToken).Type is not INamedTypeSymbol mapperType)
             {
                 return;
             }
@@ -627,14 +617,14 @@
             }
 
             // All mapping expressions will be an invocation, either mapper.MapSaga() or mapper.ConfigureMapping(), etc.
-            if (!(statement is InvocationExpressionSyntax invocation))
+            if (statement is not InvocationExpressionSyntax invocation)
             {
                 return false;
             }
 
             // Chained statements (mapper.MapSaga().ToMessage().ToMessage() etc) are represented backwards or inside-out in the expression tree
             // BUT don't descend into LambdaExpressionSyntax because those are the mapping expressions themselves and COULD (but shouldn't?) have invocations as well
-            var invokeChain = invocation.DescendantNodesAndSelf(currentNode => !(currentNode is LambdaExpressionSyntax))
+            var invokeChain = invocation.DescendantNodesAndSelf(currentNode => currentNode is not LambdaExpressionSyntax)
                 .OfType<InvocationExpressionSyntax>()
                 .Reverse()
                 .ToImmutableArray();
@@ -643,13 +633,13 @@
             var firstInvoke = invokeChain.FirstOrDefault();
 
             // Expression needs to be a member access to be mapper.Something()
-            if (firstInvoke == null || !(firstInvoke.Expression is MemberAccessExpressionSyntax memberAccess))
+            if (firstInvoke == null || firstInvoke.Expression is not MemberAccessExpressionSyntax memberAccess)
             {
                 return false;
             }
 
             // Make sure the left side of the expression is the mapper variable name
-            if (!(memberAccess.Expression is IdentifierNameSyntax identifierName) || identifierName.Identifier.ValueText != saga.MapperParameterSyntax.Identifier.ValueText)
+            if (memberAccess.Expression is not IdentifierNameSyntax identifierName || identifierName.Identifier.ValueText != saga.MapperParameterSyntax.Identifier.ValueText)
             {
                 return false;
             }
@@ -657,10 +647,10 @@
             // either old syntax ConfigureMapping/ConfigureHeaderMapping, or newer MapSaga
             var firstInvocationMethodName = memberAccess.Name.Identifier.ValueText;
 
-            if (firstInvocationMethodName == "ConfigureMapping" || firstInvocationMethodName == "ConfigureHeaderMapping") // if old syntax
+            if (firstInvocationMethodName is "ConfigureMapping" or "ConfigureHeaderMapping") // if old syntax
             {
                 // Method has to be generic so we can get the generic type, which is the message type
-                if (!(memberAccess.Name is GenericNameSyntax genericTypeName))
+                if (memberAccess.Name is not GenericNameSyntax genericTypeName)
                 {
                     return false;
                 }
@@ -674,7 +664,7 @@
 
                 // Get the named type for the message type
                 var messageTypeInfo = semanticModel.GetTypeInfo(messageTypeSyntax, cancellationToken);
-                if (!(messageTypeInfo.Type is INamedTypeSymbol messageType))
+                if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
                 {
                     return false;
                 }
@@ -694,7 +684,7 @@
                 }
 
                 // The argument of the ToSaga() method is the ToSaga mapping expression `saga => saga.OrderId`
-                if (!(toSagaInvocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is LambdaExpressionSyntax toSagaSyntax))
+                if (toSagaInvocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is not LambdaExpressionSyntax toSagaSyntax)
                 {
                     return false;
                 }
@@ -706,7 +696,7 @@
             else if (firstInvocationMethodName == "MapSaga") // New syntax
             {
                 // Looking for the lambda expression `saga => saga.OrderId` inside the argument of MapSaga()
-                if (!(firstInvoke.ArgumentList.Arguments.FirstOrDefault()?.Expression is SimpleLambdaExpressionSyntax toSagaSyntax))
+                if (firstInvoke.ArgumentList.Arguments.FirstOrDefault()?.Expression is not SimpleLambdaExpressionSyntax toSagaSyntax)
                 {
                     return false;
                 }
@@ -715,13 +705,13 @@
                 foreach (var fluentInvocation in invokeChain.Skip(1))
                 {
                     // Either way it needs to be a MemberAccess: PreviousSomething.SomethingElse
-                    if (!(fluentInvocation.Expression is MemberAccessExpressionSyntax toSomethingMemberAccess))
+                    if (fluentInvocation.Expression is not MemberAccessExpressionSyntax toSomethingMemberAccess)
                     {
                         return false;
                     }
 
                     // Method has to be generic so we can get the generic type, which is the message type
-                    if (!(toSomethingMemberAccess.Name is GenericNameSyntax genericTypeName))
+                    if (toSomethingMemberAccess.Name is not GenericNameSyntax genericTypeName)
                     {
                         return false;
                     }
@@ -735,7 +725,7 @@
 
                     // And translate the message type syntax to the Type it represents
                     var messageTypeInfo = semanticModel.GetTypeInfo(messageTypeSyntax, cancellationToken);
-                    if (!(messageTypeInfo.Type is INamedTypeSymbol messageType))
+                    if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
                     {
                         return false;
                     }
@@ -757,20 +747,13 @@
             return true;
         }
 
-        static bool IsMessageHeaderMapping(string methodName)
-        {
-            switch (methodName)
+        static bool IsMessageHeaderMapping(string methodName) =>
+            methodName switch
             {
-                case "ToMessage":
-                case "ConfigureMapping":
-                    return false;
-                case "ToMessageHeader":
-                case "ConfigureHeaderMapping":
-                    return true;
-                default:
-                    throw new Exception($"Unknown if method name {methodName} denotes a message header mapping.");
-            }
-        }
+                "ToMessage" or "ConfigureMapping" => false,
+                "ToMessageHeader" or "ConfigureHeaderMapping" => true,
+                _ => throw new Exception($"Unknown if method name {methodName} denotes a message header mapping."),
+            };
 
         static INamedTypeSymbol GetSagaDataType(INamedTypeSymbol sagaType, KnownTypes knownTypes)
         {
@@ -781,18 +764,12 @@
             return genericSagaBaseType?.TypeArguments.FirstOrDefault() as INamedTypeSymbol;
         }
 
-        static bool IsHandlerInterfaceName(string interfaceName)
-        {
-            switch (interfaceName)
+        static bool IsHandlerInterfaceName(string interfaceName) =>
+            interfaceName switch
             {
-                case "IHandleMessages":
-                case "IAmStartedByMessages":
-                case "IHandleTimeouts":
-                    return true;
-                default:
-                    return false;
-            }
-        }
+                "IHandleMessages" or "IAmStartedByMessages" or "IHandleTimeouts" => true,
+                _ => false,
+            };
 
         class KnownTypes
         {
