@@ -33,7 +33,7 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
 
     public AuditAction AuditAction
     {
-        get => auditAction;
+        get;
         set
         {
             if (locked)
@@ -42,9 +42,9 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
             }
 
             ArgumentNullException.ThrowIfNull(value);
-            auditAction = value;
+            field = value;
         }
-    }
+    } = RouteToAudit.Instance;
 
     public IAuditActionContext PreventChanges()
     {
@@ -52,6 +52,5 @@ class AuditContext : BehaviorContext, IAuditContext, IAuditActionContext
         return this;
     }
 
-    AuditAction auditAction = RouteToAudit.Instance;
     bool locked;
 }
