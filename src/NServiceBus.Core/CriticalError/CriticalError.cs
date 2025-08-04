@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -12,13 +14,13 @@ using Logging;
 /// <returns>
 /// Call <see cref="Raise"/> to trigger the action.
 /// </returns>
-public partial class CriticalError
+public class CriticalError
 {
     /// <summary>
     /// Initializes a new instance of <see cref="CriticalError" />.
     /// </summary>
     /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-    public CriticalError(Func<ICriticalErrorContext, CancellationToken, Task> onCriticalErrorAction)
+    public CriticalError(Func<ICriticalErrorContext, CancellationToken, Task>? onCriticalErrorAction)
     {
         if (onCriticalErrorAction == null)
         {
@@ -46,22 +48,18 @@ public partial class CriticalError
         {
             if (endpoint == null)
             {
-                criticalErrors.Add(new LatentCritical
-                {
-                    Message = errorMessage,
-                    Exception = exception
-                });
+                criticalErrors.Add(new LatentCritical(errorMessage, exception));
                 return;
             }
         }
 
-        // don't await the criticalErrorAction in order to avoid deadlocks
+        // don't await the criticalErrorAction to avoid deadlocks
         RaiseForEndpoint(errorMessage, exception, cancellationToken);
     }
 
     void RaiseForEndpoint(string errorMessage, Exception exception, CancellationToken cancellationToken)
     {
-        var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
+        var context = new CriticalErrorContext(endpoint!.Stop, errorMessage, exception);
 
         _ = RaiseCriticalError(context, criticalErrorAction, cancellationToken);
         return;
@@ -91,12 +89,8 @@ public partial class CriticalError
     readonly Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
 
     readonly List<LatentCritical> criticalErrors = [];
-    IEndpointInstance endpoint;
-    readonly object endpointCriticalLock = new object();
+    IEndpointInstance? endpoint;
+    readonly Lock endpointCriticalLock = new();
 
-    class LatentCritical
-    {
-        public string Message { get; set; }
-        public Exception Exception { get; set; }
-    }
+    record LatentCritical(string Message, Exception Exception);
 }
