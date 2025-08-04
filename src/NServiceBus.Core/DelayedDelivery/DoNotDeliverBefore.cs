@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.DelayedDelivery;
+﻿#nullable enable
+
+namespace NServiceBus.DelayedDelivery;
 
 using System;
 
@@ -11,10 +13,7 @@ public class DoNotDeliverBefore
     /// Initializes a new instance of <see cref="DoNotDeliverBefore" />.
     /// </summary>
     /// <param name="at">The earliest time this message should be made available to its consumers.</param>
-    public DoNotDeliverBefore(DateTimeOffset at)
-    {
-        At = at;
-    }
+    public DoNotDeliverBefore(DateTimeOffset at) => At = at;
 
     /// <summary>
     /// The actual time when the message can be available to the recipient.

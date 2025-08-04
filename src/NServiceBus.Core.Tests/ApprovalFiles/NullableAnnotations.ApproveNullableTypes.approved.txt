@@ -17,7 +17,6 @@ NServiceBus.ConversationIdStrategyContext
 NServiceBus.CriticalErrorContext
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
-NServiceBus.DelayedDeliveryOptionExtensions
 NServiceBus.DelayedRetriesSettings
 NServiceBus.DelayedRetry
 NServiceBus.DiagnosticSettingsExtensions

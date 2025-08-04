@@ -1,22 +1,19 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using Transport;
 using System;
 using System.Threading.Tasks;
 using Pipeline;
 
-class ThrowIfCannotDeferMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
+sealed class ThrowIfCannotDeferMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
 {
     public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
     {
-        if (context.Extensions.TryGet<DispatchProperties>(out var properties))
+        if (context.Extensions.TryGet<DispatchProperties>(out var properties) && (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null))
         {
-
-            if (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null)
-            {
-                throw new InvalidOperationException(
-                    "Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
-            }
+            throw new InvalidOperationException("Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
         }
 
         return next(context);
