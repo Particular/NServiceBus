@@ -78,9 +78,9 @@ public class MessageType
         if (versionPrefixIndex >= 0)
         {
             input = input[(versionPrefixIndex + versionPrefix.Length)..];
-
             var firstComma = input.IndexOf(',');
-            if (firstComma > 0)
+
+            if (firstComma >= 0)
             {
                 input = input[..firstComma];
             }
