@@ -42,6 +42,22 @@ public class MessageTypeTests
         });
     }
 
+    [Test]
+    public void Should_parse_partial_assembly_strings()
+    {
+        var expectedTypeName = typeof(TestMessage).FullName;
+        var expectedVersion = typeof(TestMessage).Assembly.GetName().Version;
+
+        var input = $"{expectedTypeName},Version={expectedVersion}";
+
+        var messageType = new Subscriptions.MessageType(input);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(expectedTypeName, Is.EqualTo(messageType.TypeName));
+            Assert.That(expectedVersion, Is.EqualTo(messageType.Version));
+        });
+    }
 
     class TestMessage
     {
