@@ -59,7 +59,6 @@ public class MessageTypeTests
         });
     }
 
-
     class TestMessage
     {
 
