@@ -10,7 +10,7 @@ public sealed class TransportTransaction : ContextBag
     /// <summary>
     /// Create an instance of <see cref="TransportTransaction" />.
     /// </summary>
-    public TransportTransaction() : base(null)
+    public TransportTransaction()
     {
     }
 }
