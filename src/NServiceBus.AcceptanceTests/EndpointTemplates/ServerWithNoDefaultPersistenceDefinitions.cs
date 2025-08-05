@@ -55,9 +55,9 @@ public class AvroSerializer : SerializationDefinition
 
         foreach (var messageType in messageTypes)
         {
-            var builder = new SchemaBuilder();
+            var builder = new SchemaBuilder(
+            nullableReferenceTypeBehavior: NullableReferenceTypeBehavior.All);
             var chrSchema = builder.BuildSchema(messageType); // a RecordSchema instance
-
 
             var writer = new JsonSchemaWriter();
             var schemaJson = writer.Write(chrSchema);
@@ -76,16 +76,26 @@ public class AvroMessageSerializer(SchemaCache schemaCache, ClassCache classCach
 
     public void Serialize(object message, Stream stream)
     {
+        // TODO: serializing records fails
         var schema = schemaCache.GetSchema(message.GetType());
-        var writer = new ReflectWriter<object>(schema, classCache);
+        var writer = new ReflectDefaultWriter(message.GetType(), schema, classCache);
 
-        using var messageStream = new MemoryStream();
-        writer.Write(message, new BinaryEncoder(messageStream));
+        writer.Write(message, new BinaryEncoder(stream));
     }
 
     public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
     {
-        throw new NotImplementedException();
+        var messages = new List<object>();
+        foreach (var messageType in messageTypes)
+        {
+            var schema = schemaCache.GetSchema(messageType);
+            var reader = new ReflectDefaultReader(messageType, schema, schema, classCache);
+            using var stream = new ReadOnlyStream(body);
+            var message = reader.Read(null, schema, schema, new BinaryDecoder(stream));
+            messages.Add(message);
+        }
+
+        return messages.ToArray();
     }
 }
 
