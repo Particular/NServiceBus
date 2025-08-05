@@ -35,10 +35,7 @@ public class ContextBag : IReadOnlyContextBag
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <param name="result">The type instance.</param>
     /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-    public bool TryGet<T>(out T? result)
-    {
-        return TryGet(typeof(T).FullName!, out result);
-    }
+    public bool TryGet<T>(out T? result) => TryGet(typeof(T).FullName!, out result);
 
     /// <summary>
     /// Tries to retrieve the specified type from the context.
