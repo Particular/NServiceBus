@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
@@ -216,7 +218,7 @@ public abstract class Feature
 
     static string GetFeatureName(Type featureType)
     {
-        return featureType.FullName;
+        return featureType.FullName!;
     }
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
@@ -226,7 +228,7 @@ public abstract class Feature
 
     class SetupPrerequisite
     {
-        public Func<FeatureConfigurationContext, bool> Condition;
-        public string Description;
+        public required Func<FeatureConfigurationContext, bool> Condition;
+        public required string Description;
     }
 }

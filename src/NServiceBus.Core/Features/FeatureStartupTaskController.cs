@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 using System;
 using System.Threading;
@@ -28,6 +30,11 @@ class FeatureStartupTaskController
 
     public async Task Stop(CancellationToken cancellationToken = default)
     {
+        if (instance == null)
+        {
+            return;
+        }
+
         try
         {
             await instance.PerformStop(cancellationToken).ConfigureAwait(false);
@@ -49,7 +56,7 @@ class FeatureStartupTaskController
     }
 
     readonly Func<IServiceProvider, FeatureStartupTask> factory;
-    FeatureStartupTask instance;
+    FeatureStartupTask? instance;
 
     static readonly ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
 }

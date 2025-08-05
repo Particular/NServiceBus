@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,8 +30,8 @@ public abstract class FeatureStartupTask
 
     internal Task PerformStop(CancellationToken cancellationToken = default)
     {
-        return OnStop(messageSession, cancellationToken);
+        return OnStop(messageSession!, cancellationToken);
     }
 
-    IMessageSession messageSession;
+    IMessageSession? messageSession;
 }

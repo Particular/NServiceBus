@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Linq;
@@ -26,19 +28,19 @@ class FeatureComponent
 
     public void Initalize(FeatureConfigurationContext featureConfigurationContext)
     {
-        var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
+        var featureStats = featureActivator!.SetupFeatures(featureConfigurationContext);
 
         settings.AddStartupDiagnosticsSection("Features", featureStats);
     }
 
     public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
-        return featureActivator.StartFeatures(builder, messageSession, cancellationToken);
+        return featureActivator!.StartFeatures(builder, messageSession, cancellationToken);
     }
 
     public Task Stop(CancellationToken cancellationToken = default)
     {
-        return featureActivator.StopFeatures(cancellationToken);
+        return featureActivator!.StopFeatures(cancellationToken);
     }
 
     static bool IsFeature(Type type)
@@ -47,5 +49,5 @@ class FeatureComponent
     }
 
     readonly SettingsHolder settings;
-    FeatureActivator featureActivator;
+    FeatureActivator? featureActivator;
 }

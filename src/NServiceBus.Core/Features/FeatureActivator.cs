@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Features;
 
 using System;
@@ -28,7 +30,9 @@ class FeatureActivator
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
             Version = feature.Version,
-            Dependencies = feature.Dependencies.AsReadOnly()
+            Dependencies = feature.Dependencies.AsReadOnly(),
+            PrerequisiteStatus = new PrerequisiteStatus(),
+            StartupTasks = []
         }));
     }
 
@@ -179,7 +183,7 @@ class FeatureActivator
                 .SingleOrDefault(f => f.Feature.Name == dependencyName))
                 .Where(dependency => dependency != null))
             {
-                dependentFeaturesToActivate.Add(dependency);
+                dependentFeaturesToActivate.Add(dependency!);
             }
             return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
         };
@@ -267,7 +271,7 @@ class FeatureActivator
             output.Add(FeatureState);
         }
 
-        internal FeatureInfo FeatureState;
+        internal required FeatureInfo FeatureState;
         internal readonly List<Node> previous = [];
         bool visited;
     }

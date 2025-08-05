@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Features;
 
 using System.Collections.Generic;
