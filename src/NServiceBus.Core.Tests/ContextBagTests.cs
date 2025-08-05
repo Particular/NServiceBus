@@ -7,6 +7,21 @@ using NUnit.Framework;
 public class ContextBagTests
 {
     [Test]
+    public void Should_allow_storing_null_values()
+    {
+        var contextBag = new ContextBag();
+
+        contextBag.Set<string>("NullValue", null);
+
+        var result = ((IReadOnlyContextBag)contextBag).TryGet("NullValue", out object theValue);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True, "Should be able to retrieve a null value");
+            Assert.That(theValue, Is.Null);
+        });
+    }
+
+    [Test]
     public void ShouldAllowMonkeyPatching()
     {
         var contextBag = new ContextBag();
