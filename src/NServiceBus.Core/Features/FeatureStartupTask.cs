@@ -22,16 +22,7 @@ public abstract class FeatureStartupTask
     /// </summary>
     protected abstract Task OnStop(IMessageSession session, CancellationToken cancellationToken = default);
 
-    internal Task PerformStartup(IMessageSession session, CancellationToken cancellationToken = default)
-    {
-        messageSession = session;
-        return OnStart(session, cancellationToken);
-    }
+    internal Task PerformStartup(IMessageSession session, CancellationToken cancellationToken = default) => OnStart(session, cancellationToken);
 
-    internal Task PerformStop(CancellationToken cancellationToken = default)
-    {
-        return OnStop(messageSession!, cancellationToken);
-    }
-
-    IMessageSession? messageSession;
+    internal Task PerformStop(IMessageSession session, CancellationToken cancellationToken = default) => OnStop(session, cancellationToken);
 }

@@ -7,10 +7,7 @@ namespace NServiceBus.Features;
 /// </summary>
 class RootFeature : Feature
 {
-    public RootFeature()
-    {
-        EnableByDefault();
-    }
+    public RootFeature() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {

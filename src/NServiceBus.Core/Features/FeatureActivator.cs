@@ -9,14 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureActivator
+class FeatureActivator(SettingsHolder settings)
 {
-    public FeatureActivator(SettingsHolder settings)
-    {
-        this.settings = settings;
-    }
-
-    internal List<FeatureDiagnosticData> Status => features.Select(f => f.Diagnostics).ToList();
+    internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
 
     public void Add(Feature feature)
     {
@@ -78,7 +73,7 @@ class FeatureActivator
                 catch (Exception)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
                 {
-                    await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken))).ConfigureAwait(false);
+                    await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(session, cancellationToken))).ConfigureAwait(false);
 
                     throw;
                 }
@@ -88,11 +83,11 @@ class FeatureActivator
         }
     }
 
-    public Task StopFeatures(CancellationToken cancellationToken = default)
+    public Task StopFeatures(IMessageSession session, CancellationToken cancellationToken = default)
     {
         var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
             .SelectMany(f => f.TaskControllers)
-            .Select(task => task.Stop(cancellationToken));
+            .Select(task => task.Stop(session, cancellationToken));
 
         return Task.WhenAll(featureStopTasks);
     }
@@ -220,7 +215,6 @@ class FeatureActivator
 
     readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
-    readonly SettingsHolder settings;
 
     class FeatureInfo
     {

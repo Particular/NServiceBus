@@ -75,7 +75,7 @@ class EndpointCreator
 
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
 
-        featureComponent.Initalize(featureConfigurationContext);
+        featureComponent.Initialize(featureConfigurationContext);
 
         recoverabilityComponent.Initialize(
             receiveConfiguration,

@@ -28,7 +28,7 @@ class FeatureStartupTaskController
         return instance.PerformStartup(messageSession, cancellationToken);
     }
 
-    public async Task Stop(CancellationToken cancellationToken = default)
+    public async Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
         if (instance == null)
         {
@@ -37,7 +37,7 @@ class FeatureStartupTaskController
 
         try
         {
-            await instance.PerformStop(cancellationToken).ConfigureAwait(false);
+            await instance.PerformStop(messageSession, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {

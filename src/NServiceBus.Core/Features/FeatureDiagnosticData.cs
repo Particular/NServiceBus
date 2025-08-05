@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 class FeatureDiagnosticData
 {
-    public required string Name { get; internal set; }
+    public required string Name { get; internal init; }
 
     public bool EnabledByDefault { get; internal set; }
 
@@ -20,5 +20,5 @@ class FeatureDiagnosticData
 
     public required IReadOnlyList<string> StartupTasks { get; internal set; }
 
-    public bool DependenciesAreMet { get; set; }
+    public bool DependenciesAreMet { get; internal set; }
 }

@@ -50,10 +50,7 @@ public abstract class Feature
     /// Registers default settings.
     /// </summary>
     /// <param name="settings">The settings holder.</param>
-    protected void Defaults(Action<SettingsHolder> settings)
-    {
-        registeredDefaults.Add(settings);
-    }
+    protected void Defaults(Action<SettingsHolder> settings) => registeredDefaults.Add(settings);
 
     /// <summary>
     /// Called when the features is activated.
@@ -80,10 +77,7 @@ public abstract class Feature
     /// <summary>
     /// Marks this feature as enabled by default.
     /// </summary>
-    protected void EnableByDefault()
-    {
-        IsEnabledByDefault = true;
-    }
+    protected void EnableByDefault() => IsEnabledByDefault = true;
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -91,23 +85,18 @@ public abstract class Feature
     /// This also causes this feature to be activated after the other feature.
     /// </summary>
     /// <typeparam name="T">Feature that this feature depends on.</typeparam>
-    protected void DependsOn<T>() where T : Feature
-    {
-        DependsOn(GetFeatureName(typeof(T)));
-    }
+    protected void DependsOn<T>() where T : Feature => DependsOn(GetFeatureName(typeof(T)));
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
     /// the dependent feature is active. This also causes this feature to be activated after the other feature.
     /// </summary>
     /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
-    protected void DependsOn(string featureTypeName)
-    {
+    protected void DependsOn(string featureTypeName) =>
         Dependencies.Add(
         [
             featureTypeName
         ]);
-    }
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -136,10 +125,7 @@ public abstract class Feature
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
     /// <param name="featureName">The name of the feature that this feature depends on.</param>
-    protected void DependsOnOptionally(string featureName)
-    {
-        DependsOnAtLeastOne(GetFeatureName(typeof(RootFeature)), featureName);
-    }
+    protected void DependsOnOptionally(string featureName) => DependsOnAtLeastOne(GetFeatureName(typeof(RootFeature)), featureName);
 
     /// <summary>
     /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
@@ -160,10 +146,7 @@ public abstract class Feature
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
     /// <typeparam name="T">The type of the feature that this feature depends on.</typeparam>
-    protected void DependsOnOptionally<T>() where T : Feature
-    {
-        DependsOnOptionally(typeof(T));
-    }
+    protected void DependsOnOptionally<T>() where T : Feature => DependsOnOptionally(typeof(T));
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -181,10 +164,7 @@ public abstract class Feature
     /// <summary>
     /// Returns a string that represents the current object.
     /// </summary>
-    public override string ToString()
-    {
-        return $"{Name} [{Version}]";
-    }
+    public override string ToString() => $"{Name} [{Version}]";
 
     internal PrerequisiteStatus CheckPrerequisites(FeatureConfigurationContext context)
     {
@@ -216,10 +196,7 @@ public abstract class Feature
         }
     }
 
-    static string GetFeatureName(Type featureType)
-    {
-        return featureType.FullName!;
-    }
+    static string GetFeatureName(Type featureType) => featureType.FullName!;
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];

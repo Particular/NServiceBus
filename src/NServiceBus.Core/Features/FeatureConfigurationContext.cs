@@ -12,7 +12,7 @@ using Transport;
 /// <summary>
 /// The context available to features when they are activated.
 /// </summary>
-public partial class FeatureConfigurationContext
+public class FeatureConfigurationContext
 {
     internal FeatureConfigurationContext(
         IReadOnlySettings settings,
