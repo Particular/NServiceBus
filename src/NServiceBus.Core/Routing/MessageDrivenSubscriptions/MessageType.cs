@@ -78,8 +78,12 @@ public class MessageType
         if (versionPrefixIndex >= 0)
         {
             input = input[(versionPrefixIndex + versionPrefix.Length)..];
+
             var firstComma = input.IndexOf(',');
-            input = input[..firstComma];
+            if (firstComma > 0)
+            {
+                input = input[..firstComma];
+            }
         }
 
         return Version.Parse(input);
