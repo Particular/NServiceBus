@@ -16,13 +16,13 @@ static class CombGuid
         // Internal use, no need for DateTimeOffset
         Generate(Guid.NewGuid(), DateTime.UtcNow);
 
-    internal static Guid Generate(Guid @base, DateTime now)
+    internal static Guid Generate(Guid original, DateTime now)
     {
         Span<byte> guidArray = stackalloc byte[16];
 
-        if (!@base.TryWriteBytes(guidArray))
+        if (!original.TryWriteBytes(guidArray))
         {
-            guidArray = @base.ToByteArray();
+            guidArray = original.ToByteArray();
         }
 
         // Get the days and milliseconds which will be used to build the byte string
