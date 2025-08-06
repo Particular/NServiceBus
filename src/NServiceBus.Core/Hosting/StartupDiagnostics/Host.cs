@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Reflection;
@@ -8,7 +9,7 @@ static class Host
 {
     public static string GetOutputDirectory()
     {
-        Assembly systemWebAssembly = null;
+        Assembly? systemWebAssembly = null;
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
@@ -28,7 +29,7 @@ static class Host
             return AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        return DeriveAppDataPath(systemWebAssembly);
+        return DeriveAppDataPath(systemWebAssembly!);
     }
 
     static string DeriveAppDataPath(Assembly systemWebAssembly)
@@ -45,7 +46,7 @@ static class Host
 
     internal static readonly string[] parameters = ["~/App_Data/"];
 
-    static string TryMapPath(Assembly systemWebAssembly)
+    static string? TryMapPath(Assembly systemWebAssembly)
     {
         try
         {

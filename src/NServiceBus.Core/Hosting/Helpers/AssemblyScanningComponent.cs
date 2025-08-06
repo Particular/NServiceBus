@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ class AssemblyScanningComponent
         else
         {
             assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly());
-            availableTypes = configuration.UserProvidedTypes;
+            availableTypes = configuration.UserProvidedTypes ?? [];
         }
 
         var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
@@ -75,7 +76,7 @@ class AssemblyScanningComponent
     {
         public Configuration(SettingsHolder settings) => this.settings = settings;
 
-        public List<Type> UserProvidedTypes { get; set; }
+        public List<Type>? UserProvidedTypes { get; set; }
 
         public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
 

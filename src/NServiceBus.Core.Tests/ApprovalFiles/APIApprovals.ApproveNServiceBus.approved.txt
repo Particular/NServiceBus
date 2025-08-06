@@ -903,8 +903,8 @@ namespace NServiceBus
         public class StartupDiagnosticEntry
         {
             public StartupDiagnosticEntry() { }
-            public object Data { get; set; }
-            public string Name { get; set; }
+            public required object Data { get; set; }
+            public required string Name { get; set; }
         }
     }
     public static class StaticHeadersConfigExtensions

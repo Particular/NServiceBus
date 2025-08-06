@@ -18,7 +18,6 @@ NServiceBus.DateTimeOffsetHelper
 NServiceBus.DefaultRecoverabilityPolicy
 NServiceBus.DelayedRetriesSettings
 NServiceBus.DelayedRetry
-NServiceBus.DiagnosticSettingsExtensions
 NServiceBus.Discard
 NServiceBus.DistributionPolicy
 NServiceBus.EndpointConfiguration
@@ -43,9 +42,6 @@ NServiceBus.Features.Sagas
 NServiceBus.Features.SynchronizedStorage
 NServiceBus.HeaderOptionExtensions
 NServiceBus.Headers
-NServiceBus.HostInfoConfigurationExtensions
-NServiceBus.HostInfoSettings
-NServiceBus.Hosting.Helpers.AssemblyScanner
 NServiceBus.Hosting.Helpers.AssemblyScannerResults
 NServiceBus.Hosting.Helpers.SkippedFile
 NServiceBus.Hosting.HostInformation
@@ -185,7 +181,6 @@ NServiceBus.SerializationExtensionsExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
 NServiceBus.SettingsExtensions
-NServiceBus.StartupDiagnosticEntries
 NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Support.RuntimeEnvironment

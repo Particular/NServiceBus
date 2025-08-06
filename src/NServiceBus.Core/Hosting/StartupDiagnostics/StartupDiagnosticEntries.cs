@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System.Collections.Generic;
 
@@ -29,11 +30,11 @@ public class StartupDiagnosticEntries
         /// <summary>
         /// The section name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// The actual diagnostics data.
         /// </summary>
-        public object Data { get; set; }
+        public required object Data { get; set; }
     }
 }

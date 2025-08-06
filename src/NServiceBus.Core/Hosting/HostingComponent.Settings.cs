@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -58,19 +59,19 @@ partial class HostingComponent
             set { settings.Set(value); }
         }
 
-        public string DiagnosticsPath
+        public string? DiagnosticsPath
         {
             get { return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey); }
             set { settings.Set(DiagnosticsPathSettingsKey, value); }
         }
 
-        public Func<string, CancellationToken, Task> HostDiagnosticsWriter
+        public Func<string, CancellationToken, Task>? HostDiagnosticsWriter
         {
             get { return settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey); }
             set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
         }
 
-        public Func<ICriticalErrorContext, CancellationToken, Task> CustomCriticalErrorAction
+        public Func<ICriticalErrorContext, CancellationToken, Task>? CustomCriticalErrorAction
         {
             get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
             set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
@@ -78,7 +79,7 @@ partial class HostingComponent
 
         public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
 
-        public string InstallationUserName
+        public string? InstallationUserName
         {
             get => settings.GetOrDefault<string>("Installers.UserName");
             set => settings.Set("Installers.UserName", value);

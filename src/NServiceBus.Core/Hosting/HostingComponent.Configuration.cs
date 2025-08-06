@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -39,11 +40,11 @@ partial class HostingComponent
             List<Type> availableTypes,
             CriticalError criticalError,
             StartupDiagnosticEntries startupDiagnostics,
-            string diagnosticsPath,
-            Func<string, CancellationToken, Task> hostDiagnosticsWriter,
+            string? diagnosticsPath,
+            Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
             string endpointName,
             IServiceCollection services,
-            string installationUserName,
+            string? installationUserName,
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory)
@@ -70,13 +71,13 @@ partial class HostingComponent
 
         public StartupDiagnosticEntries StartupDiagnostics { get; }
 
-        public Func<string, CancellationToken, Task> HostDiagnosticsWriter { get; }
+        public Func<string, CancellationToken, Task>? HostDiagnosticsWriter { get; }
 
         public string EndpointName { get; }
 
         public IServiceCollection Services { get; }
 
-        public string DiagnosticsPath { get; }
+        public string? DiagnosticsPath { get; }
 
         public void AddStartupDiagnosticsSection(string sectionName, object section)
         {
@@ -87,7 +88,7 @@ partial class HostingComponent
 
         public bool ShouldRunInstallers { get; }
 
-        public string InstallationUserName { get; }
+        public string? InstallationUserName { get; }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 

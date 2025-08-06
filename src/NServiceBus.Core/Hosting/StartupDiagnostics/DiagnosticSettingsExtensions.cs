@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Threading;
@@ -9,7 +10,7 @@ using Settings;
 /// <summary>
 /// Provides an API to add startup diagnostics.
 /// </summary>
-public static partial class DiagnosticSettingsExtensions
+public static class DiagnosticSettingsExtensions
 {
     /// <summary>
     /// Adds a section to the startup diagnostics.
