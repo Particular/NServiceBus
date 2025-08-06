@@ -27,7 +27,6 @@ NServiceBus.EndpointConfigurationExtensions
 NServiceBus.EndpointInstanceExtensions
 NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.ErrorQueueSettings
-NServiceBus.Extensibility.ContextBag
 NServiceBus.Extensibility.ExtendableOptionsExtensions
 NServiceBus.Extensibility.IExtendable
 NServiceBus.Extensibility.IReadOnlyContextBag
@@ -218,7 +217,6 @@ NServiceBus.Transport.TransportDefinition
 NServiceBus.Transport.TransportInfrastructure
 NServiceBus.Transport.TransportOperation
 NServiceBus.Transport.TransportOperations
-NServiceBus.Transport.TransportTransaction
 NServiceBus.Transport.UnicastTransportOperation
 NServiceBus.TransportExtensions`1
 NServiceBus.Unicast.MessageEventArgs

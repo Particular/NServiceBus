@@ -1149,17 +1149,17 @@ namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.IReadOnlyContextBag
     {
-        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
-        public T Get<T>() { }
-        public T Get<T>(string key) { }
-        public T GetOrCreate<T>()
+        public ContextBag(NServiceBus.Extensibility.ContextBag? parentBag = null) { }
+        public T? Get<T>() { }
+        public T? Get<T>(string key) { }
+        public T? GetOrCreate<T>()
             where T :  class, new () { }
         public void Remove(string key) { }
         public void Remove<T>() { }
         public void Set<T>(T t) { }
         public void Set<T>(string key, T t) { }
-        public bool TryGet<T>(out T result) { }
-        public bool TryGet<T>(string key, out T result) { }
+        public bool TryGet<T>(out T? result) { }
+        public bool TryGet<T>(string key, out T? result) { }
     }
     public abstract class ExtendableOptions
     {
