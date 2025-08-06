@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Analyzer/">
+    <Project Path="NServiceBus.Core.Analyzer.Fixes/NServiceBus.Core.Analyzer.Fixes.csproj" />
+    <Project Path="NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Custom.Build.props" />
+  </Folder>
+  <Folder Name="/Testing/">
+    <Project Path="NServiceBus.AcceptanceTesting/NServiceBus.AcceptanceTesting.csproj" />
+    <Project Path="NServiceBus.Testing.Fakes/NServiceBus.Testing.Fakes.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="NServiceBus.AcceptanceTests/NServiceBus.AcceptanceTests.csproj" />
+    <Project Path="NServiceBus.ContainerTests/NServiceBus.ContainerTests.csproj" />
+    <Project Path="NServiceBus.Core.Analyzer.Tests.Roslyn4/NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj" />
+    <Project Path="NServiceBus.Core.Tests/NServiceBus.Core.Tests.csproj" />
+    <Project Path="NServiceBus.Learning.AcceptanceTests/NServiceBus.Learning.AcceptanceTests.csproj" />
+    <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />
+    <Project Path="NServiceBus.TransportTests/NServiceBus.TransportTests.csproj" />
+  </Folder>
+  <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
+</Solution>
