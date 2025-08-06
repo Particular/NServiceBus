@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.4.25258.110" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.6.25358.103" AutomaticVersionRange="false" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.0.0-preview.6.25358.103" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.0-preview.6.25358.103" AutomaticVersionRange="false" />
