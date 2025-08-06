@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -15,17 +16,14 @@ static class CombGuid
         // Internal use, no need for DateTimeOffset
         Generate(Guid.NewGuid(), DateTime.UtcNow);
 
-    internal static Guid Generate(Guid inputGuid, DateTime inputNow)
+    internal static Guid Generate(Guid original, DateTime now)
     {
-        var newGuid = inputGuid;
         Span<byte> guidArray = stackalloc byte[16];
 
-        if (!newGuid.TryWriteBytes(guidArray))
+        if (!original.TryWriteBytes(guidArray))
         {
-            guidArray = newGuid.ToByteArray();
+            guidArray = original.ToByteArray();
         }
-
-        var now = inputNow;
 
         // Get the days and milliseconds which will be used to build the byte string
         var days = new TimeSpan(now.Ticks - BaseDateTicks);
@@ -55,8 +53,8 @@ static class CombGuid
         }
 
         // // Copy the bytes into the guid
-        daysArray.Slice(daysArray.Length - 2).CopyTo(guidArray.Slice(10, 2));
-        milliSecondsArray.Slice(milliSecondsArray.Length - 4).CopyTo(guidArray.Slice(12, 4));
+        daysArray[^2..].CopyTo(guidArray[10..12]);
+        milliSecondsArray[^4..].CopyTo(guidArray[12..16]);
 
         return new Guid(guidArray);
     }

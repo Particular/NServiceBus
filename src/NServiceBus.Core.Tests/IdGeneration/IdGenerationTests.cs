@@ -16,19 +16,17 @@ public class IdGenerationTests
         Assert.That(improvedCombGuid, Is.EqualTo(oldCombGuid));
     }
 
-    static readonly Random Random = new Random();
-
     static IEnumerable<object[]> RandomizedInput
     {
         get
         {
             for (int i = 0; i < 20; i++)
             {
-                yield return new object[]
-                {
+                yield return
+                [
                     Guid.NewGuid(),
-                    DateTime.UtcNow.AddDays(Random.Next(0, 30)).AddHours(Random.Next(0, 24)).AddMinutes(Random.Next(0, 60)).AddSeconds(Random.Next(0, 60))
-                };
+                    DateTime.UtcNow.AddDays(Random.Shared.Next(0, 30)).AddHours(Random.Shared.Next(0, 24)).AddMinutes(Random.Shared.Next(0, 60)).AddSeconds(Random.Shared.Next(0, 60))
+                ];
             }
         }
     }
