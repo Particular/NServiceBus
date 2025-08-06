@@ -21,7 +21,7 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
             .Done(ctx => ctx.MessageHandled)
             .Run();
 
-        var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
+        var invokedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
 
         Assert.That(invokedHandlerActivities, Has.Count.EqualTo(1), "One handlers should be invoked");
 

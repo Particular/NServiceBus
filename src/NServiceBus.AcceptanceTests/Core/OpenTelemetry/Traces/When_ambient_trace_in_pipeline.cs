@@ -22,8 +22,8 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        var handlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
-        var sendFromHandlerActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Last();
+        var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
+        var sendFromHandlerActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Last();
         Assert.Multiple(() =>
         {
             Assert.That(sendFromHandlerActivity.ParentId, Is.EqualTo(context.AmbientActivityId), "the outgoing message should be connected to the ambient span");

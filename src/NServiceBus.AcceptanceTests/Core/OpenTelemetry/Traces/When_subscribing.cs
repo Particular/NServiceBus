@@ -21,7 +21,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
             .Done(c => c.Subscribed)
             .Run();
 
-        var subscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
+        var subscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
             .ToArray();
 
         Assert.That(subscribeActivities.Length, Is.EqualTo(1), "the subscriber should subscribe to the event");
@@ -32,7 +32,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true).ToArray();
+        var receiveActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true).ToArray();
         Assert.That(receiveActivities.Length, Is.EqualTo(1), "the subscription message should be received by the publisher");
         Assert.That(receiveActivities[0].ParentId, Is.EqualTo(subscribeActivities[0].Id), "the received subscription message should connect to the subscribe operation");
     }
@@ -49,7 +49,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        var subscribeActivities = NServicebusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
+        var subscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
             .ToArray();
 
         Assert.That(subscribeActivities.Length, Is.EqualTo(1), "the subscriber should subscribe to the event");
@@ -60,7 +60,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         var subscribeActivityTags = subscribeActivity.Tags.ToImmutableDictionary();
         subscribeActivityTags.VerifyTag("nservicebus.event_types", typeof(DemoEvent).FullName);
 
-        var subscriptionReceiveActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true);
+        var subscriptionReceiveActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities(includeControlMessages: true);
         Assert.That(subscriptionReceiveActivity, Is.Empty, "native pubsub should not produce a message");
     }
 

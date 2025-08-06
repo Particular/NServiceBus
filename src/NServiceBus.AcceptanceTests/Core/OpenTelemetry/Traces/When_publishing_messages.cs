@@ -28,7 +28,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingEventReceived)
             .Run();
 
-        var outgoingEventActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var outgoingEventActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
         Assert.That(outgoingEventActivities, Has.Count.EqualTo(1), "1 event is being published");
 
         var publishedMessage = outgoingEventActivities.Single();
@@ -68,8 +68,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingEventReceived)
             .Run();
 
-        var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
-        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
@@ -109,8 +109,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingEventReceived)
             .Run();
 
-        var publishMessageActivities = NServicebusActivityListener.CompletedActivities.GetPublishEventActivities();
-        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");

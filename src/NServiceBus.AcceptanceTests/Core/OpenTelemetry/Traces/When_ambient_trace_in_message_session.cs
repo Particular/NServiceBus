@@ -34,8 +34,8 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        var outgoingMessageActivity = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
-        var incomingMessageActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
+        var outgoingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
+        var incomingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
 
         Assert.Multiple(() =>
         {

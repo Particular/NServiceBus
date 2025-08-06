@@ -21,7 +21,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
 
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
-        Activity failedPipelineActivity = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
+        Activity failedPipelineActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
         Assert.Multiple(() =>
         {
             Assert.That(failedPipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
@@ -32,7 +32,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
         pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
         pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
 
-        Activity failedHandlerActivity = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+        Activity failedHandlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
         Assert.Multiple(() =>
         {
             Assert.That(failedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Error));

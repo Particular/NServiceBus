@@ -19,8 +19,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
 
         Assert.Multiple(() =>
         {
@@ -49,8 +49,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.InvocationCounter == 2)
             .Run();
 
-        var receiveActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var sendActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
 
         Assert.Multiple(() =>
         {

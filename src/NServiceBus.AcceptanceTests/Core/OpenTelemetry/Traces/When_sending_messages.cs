@@ -19,7 +19,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is being sent");
         var sentMessage = outgoingMessageActivities.Single();
 
@@ -54,8 +54,8 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
@@ -89,8 +89,8 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        var sendMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
-        var receiveMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
