@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Configuration.AdvancedExtensibility;
+﻿#nullable enable
+
+namespace NServiceBus.Configuration.AdvancedExtensibility;
 
 using System;
 using Settings;

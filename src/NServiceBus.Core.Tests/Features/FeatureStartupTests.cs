@@ -28,7 +28,7 @@ public class FeatureStartupTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures();
+        await featureSettings.StopFeatures(null);
 
         Assert.Multiple(() =>
         {
@@ -48,7 +48,7 @@ public class FeatureStartupTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures();
+        await featureSettings.StopFeatures(null);
 
         var expectedOrderBuilder = new StringBuilder();
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
@@ -69,7 +69,7 @@ public class FeatureStartupTests
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
         await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures();
+        await featureSettings.StopFeatures(null);
 
         Assert.That(feature.TaskDisposed, Is.True);
     }
@@ -113,7 +113,7 @@ public class FeatureStartupTests
 
         await featureSettings.StartFeatures(null, null);
 
-        Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
+        Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(null));
 
         Assert.Multiple(() =>
         {
@@ -132,7 +132,7 @@ public class FeatureStartupTests
 
         await featureSettings.StartFeatures(null, null);
 
-        await featureSettings.StopFeatures();
+        await featureSettings.StopFeatures(null);
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
@@ -154,13 +154,8 @@ public class FeatureStartupTests
             context.RegisterStartupTask(new Runner(orderBuilder));
         }
 
-        class Runner : FeatureStartupTask
+        class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
-            public Runner(StringBuilder orderBuilder)
-            {
-                this.orderBuilder = orderBuilder;
-            }
-
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Start");
@@ -172,8 +167,6 @@ public class FeatureStartupTests
                 orderBuilder.AppendLine($"{nameof(FeatureWithStartupTaskWithDependency)}.Stop");
                 return Task.CompletedTask;
             }
-
-            StringBuilder orderBuilder;
         }
 
         readonly StringBuilder orderBuilder;
@@ -188,18 +181,10 @@ public class FeatureStartupTests
             this.orderBuilder = orderBuilder;
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.RegisterStartupTask(new Runner(orderBuilder));
-        }
+        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
-        class Runner : FeatureStartupTask
+        class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
-            public Runner(StringBuilder orderBuilder)
-            {
-                this.orderBuilder = orderBuilder;
-            }
-
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Start");
@@ -211,8 +196,6 @@ public class FeatureStartupTests
                 orderBuilder.AppendLine($"{nameof(FeatureWithStartupThatAnotherFeatureDependsOn)}.Stop");
                 return Task.CompletedTask;
             }
-
-            StringBuilder orderBuilder;
         }
 
         readonly StringBuilder orderBuilder;
@@ -220,26 +203,15 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTask : TestFeature
     {
-        public FeatureWithStartupTask()
-        {
-            EnableByDefault();
-        }
+        public FeatureWithStartupTask() => EnableByDefault();
 
         public bool TaskStarted { get; private set; }
         public bool TaskStopped { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.RegisterStartupTask(new Runner(this));
-        }
+        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
-        public class Runner : FeatureStartupTask
+        public class Runner(FeatureWithStartupTask parentFeature) : FeatureStartupTask
         {
-            public Runner(FeatureWithStartupTask parentFeature)
-            {
-                this.parentFeature = parentFeature;
-            }
-
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 parentFeature.TaskStarted = true;
@@ -251,8 +223,6 @@ public class FeatureStartupTests
                 parentFeature.TaskStopped = true;
                 return Task.CompletedTask;
             }
-
-            FeatureWithStartupTask parentFeature;
         }
     }
 
@@ -282,13 +252,8 @@ public class FeatureStartupTests
         bool throwOnStop;
         Func<Exception> createException;
 
-        public class Runner : FeatureStartupTask, IDisposable
+        public class Runner(FeatureWithStartupTaskThatThrows parentFeature) : FeatureStartupTask, IDisposable
         {
-            public Runner(FeatureWithStartupTaskThatThrows parentFeature)
-            {
-                this.parentFeature = parentFeature;
-            }
-
             public void Dispose()
             {
                 parentFeature.TaskDisposed = true;
@@ -322,60 +287,34 @@ public class FeatureStartupTests
 
                 parentFeature.TaskStopped = true;
             }
-
-            FeatureWithStartupTaskThatThrows parentFeature;
         }
     }
 
     class FeatureWithStartupTaskWhichIsDisposable : TestFeature
     {
-        public FeatureWithStartupTaskWhichIsDisposable()
-        {
-            EnableByDefault();
-        }
+        public FeatureWithStartupTaskWhichIsDisposable() => EnableByDefault();
 
         public bool TaskDisposed { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.RegisterStartupTask(new Runner(this));
-        }
+        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
-        public class Runner : FeatureStartupTask, IDisposable
+        public class Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature) : FeatureStartupTask, IDisposable
         {
-            public Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature)
-            {
-                this.parentFeature = parentFeature;
-            }
-
             public void Dispose()
             {
                 parentFeature.TaskDisposed = true;
                 GC.SuppressFinalize(this);
             }
 
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
-
-            FeatureWithStartupTaskWhichIsDisposable parentFeature;
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }
 
-public class FakeBuilder : IServiceProvider
+public class FakeBuilder(Type type) : IServiceProvider
 {
-    public FakeBuilder(Type type)
-    {
-        this.type = type;
-    }
-
     public object GetService(Type serviceType)
     {
         if (serviceType != type)
@@ -384,6 +323,4 @@ public class FakeBuilder : IServiceProvider
         }
         return Activator.CreateInstance(serviceType);
     }
-
-    Type type;
 }

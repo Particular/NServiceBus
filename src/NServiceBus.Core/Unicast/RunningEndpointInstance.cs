@@ -26,7 +26,7 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
 
-        stoppingTokenSource.Cancel();
+        await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
         try
         {
@@ -46,7 +46,7 @@ class RunningEndpointInstance(SettingsHolder settings,
 
                 // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.Stop(cancellationToken).ConfigureAwait(false);
+                await featureComponent.Stop(messageSession, cancellationToken).ConfigureAwait(false);
 
                 // Can throw
                 await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);

@@ -1,22 +1,24 @@
+#nullable enable
+
 namespace NServiceBus.Features;
 
 using System.Collections.Generic;
 
 class FeatureDiagnosticData
 {
-    public string Name { get; internal set; }
+    public required string Name { get; set; }
 
-    public bool EnabledByDefault { get; internal set; }
+    public bool EnabledByDefault { get; set; }
 
-    public bool Active { get; internal set; }
+    public bool Active { get; set; }
 
-    public PrerequisiteStatus PrerequisiteStatus { get; internal set; }
+    public required PrerequisiteStatus PrerequisiteStatus { get; set; }
 
-    public IReadOnlyList<IReadOnlyList<string>> Dependencies { get; internal set; }
+    public required IReadOnlyList<IReadOnlyList<string>> Dependencies { get; set; }
 
-    public string Version { get; internal set; }
+    public required string Version { get; set; }
 
-    public IReadOnlyList<string> StartupTasks { get; internal set; }
+    public required IReadOnlyList<string> StartupTasks { get; set; }
 
     public bool DependenciesAreMet { get; set; }
 }

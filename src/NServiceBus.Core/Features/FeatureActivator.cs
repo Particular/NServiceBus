@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Features;
 
 using System;
@@ -7,14 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureActivator
+class FeatureActivator(SettingsHolder settings)
 {
-    public FeatureActivator(SettingsHolder settings)
-    {
-        this.settings = settings;
-    }
-
-    internal List<FeatureDiagnosticData> Status => features.Select(f => f.Diagnostics).ToList();
+    internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
 
     public void Add(Feature feature)
     {
@@ -28,7 +25,9 @@ class FeatureActivator
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
             Version = feature.Version,
-            Dependencies = feature.Dependencies.AsReadOnly()
+            Dependencies = feature.Dependencies.AsReadOnly(),
+            PrerequisiteStatus = new PrerequisiteStatus(),
+            StartupTasks = []
         }));
     }
 
@@ -54,7 +53,7 @@ class FeatureActivator
             ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
-        return features.Select(t => t.Diagnostics).ToArray();
+        return [.. features.Select(t => t.Diagnostics)];
     }
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
@@ -74,7 +73,7 @@ class FeatureActivator
                 catch (Exception)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
                 {
-                    await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(cancellationToken))).ConfigureAwait(false);
+                    await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(session, cancellationToken))).ConfigureAwait(false);
 
                     throw;
                 }
@@ -84,11 +83,11 @@ class FeatureActivator
         }
     }
 
-    public Task StopFeatures(CancellationToken cancellationToken = default)
+    public Task StopFeatures(IMessageSession session, CancellationToken cancellationToken = default)
     {
         var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
             .SelectMany(f => f.TaskControllers)
-            .Select(task => task.Stop(cancellationToken));
+            .Select(task => task.Stop(session, cancellationToken));
 
         return Task.WhenAll(featureStopTasks);
     }
@@ -179,7 +178,7 @@ class FeatureActivator
                 .SingleOrDefault(f => f.Feature.Name == dependencyName))
                 .Where(dependency => dependency != null))
             {
-                dependentFeaturesToActivate.Add(dependency);
+                dependentFeaturesToActivate.Add(dependency!);
             }
             return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
         };
@@ -216,18 +215,11 @@ class FeatureActivator
 
     readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
-    readonly SettingsHolder settings;
 
-    class FeatureInfo
+    class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
     {
-        public FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
-        {
-            Diagnostics = diagnostics;
-            Feature = feature;
-        }
-
-        public FeatureDiagnosticData Diagnostics { get; }
-        public Feature Feature { get; }
+        public FeatureDiagnosticData Diagnostics { get; } = diagnostics;
+        public Feature Feature { get; } = feature;
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
@@ -243,10 +235,7 @@ class FeatureActivator
             Diagnostics.Active = true;
         }
 
-        public override string ToString()
-        {
-            return $"{Feature.Name} [{Feature.Version}]";
-        }
+        public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
@@ -267,7 +256,7 @@ class FeatureActivator
             output.Add(FeatureState);
         }
 
-        internal FeatureInfo FeatureState;
+        internal required FeatureInfo FeatureState;
         internal readonly List<Node> previous = [];
         bool visited;
     }
