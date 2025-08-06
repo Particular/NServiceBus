@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Hosting.Helpers;
+﻿#nullable enable
+namespace NServiceBus.Hosting.Helpers;
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ public class AssemblyScannerResults
 
     internal void RemoveDuplicates()
     {
-        Assemblies = Assemblies.Distinct().ToList();
-        Types = Types.Distinct().ToList();
+        Assemblies = [.. Assemblies.Distinct()];
+        Types = [.. Types.Distinct()];
     }
 }

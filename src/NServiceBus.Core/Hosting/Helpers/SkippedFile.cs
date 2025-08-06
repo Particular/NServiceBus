@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Hosting.Helpers;
+﻿#nullable enable
+namespace NServiceBus.Hosting.Helpers;
 
 /// <summary>
 /// Contains information about a file that was skipped during scanning along with a text describing

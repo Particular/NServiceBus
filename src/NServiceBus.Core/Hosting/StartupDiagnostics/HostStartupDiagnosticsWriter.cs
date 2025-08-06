@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class HostStartupDiagnosticsWriter
+class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter)
 {
-    public HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter)
-    {
-        this.diagnosticsWriter = diagnosticsWriter;
-        this.isCustomWriter = isCustomWriter;
-    }
-
     public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken = default)
     {
         var deduplicatedEntries = DeduplicateEntries(entries);
@@ -32,7 +27,7 @@ class HostStartupDiagnosticsWriter
         }
         catch (Exception exception)
         {
-            logger.Error("Failed to serialize startup diagnostics", exception);
+            Logger.Error("Failed to serialize startup diagnostics", exception);
             return;
         }
         try
@@ -44,10 +39,10 @@ class HostStartupDiagnosticsWriter
         {
             if (isCustomWriter)
             {
-                logger.Error($"Failed to write startup diagnostics using the custom delegate defined by {nameof(DiagnosticSettingsExtensions.CustomDiagnosticsWriter)}", ex);
+                Logger.Error($"Failed to write startup diagnostics using the custom delegate defined by {nameof(DiagnosticSettingsExtensions.CustomDiagnosticsWriter)}", ex);
                 return;
             }
-            logger.Error("Failed to write startup diagnostics", ex);
+            Logger.Error("Failed to write startup diagnostics", ex);
         }
     }
 
@@ -66,7 +61,7 @@ class HostStartupDiagnosticsWriter
                 countMap[entry.Name] += 1;
                 var entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
 
-                logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
+                Logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
 
                 yield return new StartupDiagnosticEntries.StartupDiagnosticEntry
                 {
@@ -76,9 +71,6 @@ class HostStartupDiagnosticsWriter
             }
         }
     }
-
-    readonly Func<string, CancellationToken, Task> diagnosticsWriter;
-    readonly bool isCustomWriter;
 
     static readonly JsonSerializerOptions diagnosticsOptions = new()
     {
@@ -100,5 +92,5 @@ class HostStartupDiagnosticsWriter
     }
 
 
-    static readonly ILog logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
+    static readonly ILog Logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
 }

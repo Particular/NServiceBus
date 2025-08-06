@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -29,7 +30,7 @@ class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedCo
         });
     }
 
-    public Lazy<IMessageSession> MessageSession { get; private set; }
+    public Lazy<IMessageSession> MessageSession { get; }
 
     internal Lazy<IServiceProvider> Builder { get; private set; }
 
@@ -45,6 +46,6 @@ class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedCo
     }
 
     readonly EndpointCreator endpointCreator;
-    IMessageSession messageSession;
-    IServiceProvider objectBuilder;
+    IMessageSession? messageSession;
+    IServiceProvider? objectBuilder;
 }

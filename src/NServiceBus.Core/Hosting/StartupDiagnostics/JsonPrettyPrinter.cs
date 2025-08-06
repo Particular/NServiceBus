@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System.Text;

@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 using System;
 using System.Reflection;
@@ -8,27 +9,24 @@ static class Host
 {
     public static string GetOutputDirectory()
     {
-        Assembly systemWebAssembly = null;
+        Assembly? systemWebAssembly = null;
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            if (assembly.GetName().Name == "System.Web")
+            if (assembly.GetName().Name != "System.Web")
             {
-                systemWebAssembly = assembly;
-                break;
+                continue;
             }
+
+            systemWebAssembly = assembly;
+            break;
         }
 
         var httpRuntime = systemWebAssembly?.GetType("System.Web.HttpRuntime");
         var appDomainAppId = httpRuntime?.GetProperty("AppDomainAppId", BindingFlags.Public | BindingFlags.Static);
         var result = appDomainAppId?.GetValue(null);
 
-        if (result == null)
-        {
-            return AppDomain.CurrentDomain.BaseDirectory;
-        }
-
-        return DeriveAppDataPath(systemWebAssembly);
+        return result == null ? AppDomain.CurrentDomain.BaseDirectory : DeriveAppDataPath(systemWebAssembly!);
     }
 
     static string DeriveAppDataPath(Assembly systemWebAssembly)
@@ -43,13 +41,13 @@ static class Host
         throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
     }
 
-    internal static readonly string[] parameters = ["~/App_Data/"];
+    static readonly object[] parameters = ["~/App_Data/"];
 
-    static string TryMapPath(Assembly systemWebAssembly)
+    static string? TryMapPath(Assembly systemWebAssembly)
     {
         try
         {
-            var hostingEnvironment = systemWebAssembly?.GetType("System.Web.Hosting.HostingEnvironment");
+            var hostingEnvironment = systemWebAssembly.GetType("System.Web.Hosting.HostingEnvironment");
             var mapPath = hostingEnvironment?.GetMethod("MapPath", BindingFlags.Static | BindingFlags.Public);
             var result = mapPath?.Invoke(null, parameters) as string;
 
@@ -61,8 +59,5 @@ static class Host
         }
     }
 
-    static string GetMapPathError(string reason)
-    {
-        return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}";
-    }
+    static string GetMapPathError(string reason) => $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}";
 }
