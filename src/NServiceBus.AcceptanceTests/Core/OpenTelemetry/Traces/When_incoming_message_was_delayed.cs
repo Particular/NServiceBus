@@ -45,8 +45,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             .Done(c => c.ReplyMessageReceived)
             .Run();
 
-        var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test");
@@ -83,8 +83,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run(TimeSpan.FromSeconds(120));
 
-        var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test (2 attempts)");
@@ -117,8 +117,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             .Done(c => c.SagaMarkedComplete)
             .Run();
 
-        var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(3), "3 messages are received as part of this test");

@@ -20,8 +20,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             .Done(c => c.FirstHandlerRun && c.SecondHandlerRun)
             .Run();
 
-        var invokedHandlerActivities = NServicebusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
-        var receivePipelineActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var invokedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
+        var receivePipelineActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
 
         Assert.Multiple(() =>
         {

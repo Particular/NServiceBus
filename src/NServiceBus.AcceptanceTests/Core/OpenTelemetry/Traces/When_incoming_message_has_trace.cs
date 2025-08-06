@@ -20,8 +20,8 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
             .Done(c => c.ReplyMessageReceived)
             .Run();
 
-        var incomingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         Assert.Multiple(() =>
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test");

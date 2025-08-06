@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests;
+﻿#pragma warning disable NUnit1034 // Base TestFixtures should be abstract
+
+namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Helpers;

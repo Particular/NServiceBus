@@ -17,7 +17,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessageReceived)
             .Run();
 
-        var outgoingMessageActivities = NServicebusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var sentMessage = outgoingMessageActivities.First();
 
         Assert.That(sentMessage.Events, Is.Not.Empty);

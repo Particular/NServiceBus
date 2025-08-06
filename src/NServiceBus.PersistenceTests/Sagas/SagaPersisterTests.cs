@@ -9,7 +9,7 @@ using NServiceBus.Sagas;
 using NUnit.Framework;
 
 [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.SagaVariants))]
-public class SagaPersisterTests(TestVariant param)
+public abstract class SagaPersisterTests(TestVariant param)
 {
     [OneTimeSetUp]
     public virtual async Task OneTimeSetUp()
