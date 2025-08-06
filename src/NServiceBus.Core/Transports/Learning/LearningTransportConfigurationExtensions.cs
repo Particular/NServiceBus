@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus;
 
+using Particular.Obsoletes;
+
 /// <summary>
 /// Configuration options for the learning transport.
 /// </summary>

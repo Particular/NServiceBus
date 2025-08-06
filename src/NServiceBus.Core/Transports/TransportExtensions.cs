@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus;
 
+using Particular.Obsoletes;
 using Transport;
 
 /// <summary>
