@@ -3,6 +3,7 @@ namespace NServiceBus.Hosting.Helpers;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -76,7 +77,7 @@ public class AssemblyScanner
         var results = new AssemblyScannerResults();
         var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
-        if (assemblyToScan != null)
+        if (assemblyToScan is not null)
         {
             if (ScanAssembly(assemblyToScan, processed))
             {
@@ -110,7 +111,7 @@ public class AssemblyScanner
         {
             var assemblies = new List<Assembly>();
 
-            if (baseDirectoryToScan != null)
+            if (baseDirectoryToScan is not null)
             {
                 ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
             }
@@ -128,7 +129,7 @@ public class AssemblyScanner
 
                 foreach (var platformAssembly in platformAssemblies)
                 {
-                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly) && assembly != null)
+                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
                     {
                         assemblies.Add(assembly);
                     }
@@ -152,14 +153,14 @@ public class AssemblyScanner
     {
         foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
         {
-            if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly) && assembly != null)
+            if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
             {
                 assemblies.Add(assembly);
             }
         }
     }
 
-    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly? assembly)
+    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, [NotNullWhen(true)] out Assembly? assembly)
     {
         assembly = null;
 
@@ -186,7 +187,7 @@ public class AssemblyScanner
             var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
             assembly = context?.LoadFromAssemblyPath(assemblyPath);
 
-            return assembly != null;
+            return assembly is not null;
         }
         catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
         {
@@ -207,7 +208,7 @@ public class AssemblyScanner
 
     bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
     {
-        if (assembly.FullName == null)
+        if (assembly.FullName is null)
         {
             return false;
         }
@@ -230,7 +231,7 @@ public class AssemblyScanner
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
                 var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                if (referencedAssembly != null)
+                if (referencedAssembly is not null)
                 {
                     var referencesCore = ScanAssembly(referencedAssembly, processed);
                     if (referencesCore)
@@ -255,10 +256,7 @@ public class AssemblyScanner
         }
         catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
-        if (referencedAssembly == null)
-        {
-            referencedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
-        }
+        referencedAssembly ??= AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
 
         return referencedAssembly;
     }
@@ -341,7 +339,7 @@ public class AssemblyScanner
 
     bool IsAllowedType(Type type) =>
         type is { IsValueType: false } &&
-        Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) == null &&
+        Attribute.GetCustomAttribute(type, typeof(CompilerGeneratedAttribute), false) is null &&
         !typesToSkip.Contains(type);
 
     void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
@@ -363,7 +361,7 @@ public class AssemblyScanner
             }
 
             LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t != null).ToArray()!));
+            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!));
         }
         results.Assemblies.Add(assembly);
     }
