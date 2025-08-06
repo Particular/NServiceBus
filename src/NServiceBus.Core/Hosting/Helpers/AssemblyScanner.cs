@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus.Hosting.Helpers;
 
 using System;
@@ -70,7 +71,7 @@ public class AssemblyScanner
         set => typesToSkip = [.. value];
     }
 
-    internal string AdditionalAssemblyScanningPath { get; set; }
+    internal string? AdditionalAssemblyScanningPath { get; set; }
 
     /// <summary>
     /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
@@ -115,14 +116,17 @@ public class AssemblyScanner
         {
             var assemblies = new List<Assembly>();
 
-            ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
+            if (baseDirectoryToScan != null)
+            {
+                ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
+            }
 
             if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
             {
                 ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
             }
 
-            var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+            var platformAssembliesString = (string?)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
 
             if (!string.IsNullOrEmpty(platformAssembliesString))
             {
@@ -130,7 +134,7 @@ public class AssemblyScanner
 
                 foreach (var platformAssembly in platformAssemblies)
                 {
-                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly) && assembly != null)
                     {
                         assemblies.Add(assembly);
                     }
@@ -154,14 +158,14 @@ public class AssemblyScanner
     {
         foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
         {
-            if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
+            if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly) && assembly != null)
             {
                 assemblies.Add(assembly);
             }
         }
     }
 
-    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
+    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly? assembly)
     {
         assembly = null;
 
@@ -186,9 +190,9 @@ public class AssemblyScanner
         try
         {
             var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
-            assembly = context.LoadFromAssemblyPath(assemblyPath);
+            assembly = context?.LoadFromAssemblyPath(assemblyPath);
 
-            return true;
+            return assembly != null;
         }
         catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
         {
@@ -209,7 +213,7 @@ public class AssemblyScanner
 
     bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
     {
-        if (assembly == null)
+        if (assembly.FullName == null)
         {
             return false;
         }
@@ -232,11 +236,14 @@ public class AssemblyScanner
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
                 var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                var referencesCore = ScanAssembly(referencedAssembly, processed);
-                if (referencesCore)
+                if (referencedAssembly != null)
                 {
-                    processed[assembly.FullName] = true;
-                    break;
+                    var referencesCore = ScanAssembly(referencedAssembly, processed);
+                    if (referencesCore)
+                    {
+                        processed[assembly.FullName] = true;
+                        break;
+                    }
                 }
             }
         }
@@ -244,9 +251,9 @@ public class AssemblyScanner
         return processed[assembly.FullName];
     }
 
-    static Assembly GetReferencedAssembly(AssemblyName assemblyName)
+    static Assembly? GetReferencedAssembly(AssemblyName assemblyName)
     {
-        Assembly referencedAssembly = null;
+        Assembly? referencedAssembly = null;
 
         try
         {
@@ -288,7 +295,7 @@ public class AssemblyScanner
             }
             else
             {
-                sbGenericException.NewLine(ex.ToString());
+                sbGenericException.NewLine(ex?.ToString() ?? "Unknown exception");
             }
         }
 
@@ -355,14 +362,14 @@ public class AssemblyScanner
         {
             results.ErrorsThrownDuringScanning = true;
 
-            var errorMessage = FormatReflectionTypeLoadException(assembly.FullName, e);
+            var errorMessage = FormatReflectionTypeLoadException(assembly.FullName ?? "Unknown assembly", e);
             if (ThrowExceptions)
             {
                 throw new Exception(errorMessage);
             }
 
             LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-            results.Types.AddRange(FilterAllowedTypes(e.Types));
+            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t != null).ToArray()!));
         }
         results.Assemblies.Add(assembly);
     }
@@ -387,7 +394,7 @@ public class AssemblyScanner
         }
 
         // AssemblyName.Name is without the file extension
-        return !IsExcluded(assemblyName.Name);
+        return !IsExcluded(assemblyName.Name ?? string.Empty);
     }
 
     // We are deliberately checking here against the MessageInterfaces assembly name because
@@ -400,8 +407,8 @@ public class AssemblyScanner
     bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => string.Equals(assemblyName.Name, CoreAssemblyName, StringComparison.Ordinal) || string.Equals(assemblyName.Name, MessageInterfacesAssemblyName, StringComparison.Ordinal);
 
     internal bool ScanNestedDirectories;
-    readonly Assembly assemblyToScan;
-    readonly string baseDirectoryToScan;
+    readonly Assembly? assemblyToScan;
+    readonly string? baseDirectoryToScan;
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
