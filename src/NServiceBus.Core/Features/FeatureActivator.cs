@@ -53,7 +53,7 @@ class FeatureActivator(SettingsHolder settings)
             ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
-        return features.Select(t => t.Diagnostics).ToArray();
+        return [.. features.Select(t => t.Diagnostics)];
     }
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
@@ -216,16 +216,10 @@ class FeatureActivator(SettingsHolder settings)
     readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
 
-    class FeatureInfo
+    class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
     {
-        public FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
-        {
-            Diagnostics = diagnostics;
-            Feature = feature;
-        }
-
-        public FeatureDiagnosticData Diagnostics { get; }
-        public Feature Feature { get; }
+        public FeatureDiagnosticData Diagnostics { get; } = diagnostics;
+        public Feature Feature { get; } = feature;
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
@@ -241,10 +235,7 @@ class FeatureActivator(SettingsHolder settings)
             Diagnostics.Active = true;
         }
 
-        public override string ToString()
-        {
-            return $"{Feature.Name} [{Feature.Version}]";
-        }
+        public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
