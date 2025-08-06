@@ -11,16 +11,14 @@ public class StartupDiagnosticEntries
     /// <summary>
     /// Adds a new section to the diagnostics.
     /// </summary>
-    public void Add(string sectionName, object section)
-    {
+    public void Add(string sectionName, object section) =>
         entries.Add(new StartupDiagnosticEntry
         {
             Name = sectionName,
             Data = section
         });
-    }
 
-    internal List<StartupDiagnosticEntry> entries = [];
+    internal readonly List<StartupDiagnosticEntry> entries = [];
 
     /// <summary>
     /// A diagnostics section.

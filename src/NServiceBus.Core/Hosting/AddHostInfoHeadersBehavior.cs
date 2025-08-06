@@ -7,14 +7,9 @@ using Hosting;
 using Pipeline;
 using Support;
 
-class AddHostInfoHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+class AddHostInfoHeadersBehavior(HostInformation hostInformation, string endpoint)
+    : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public AddHostInfoHeadersBehavior(HostInformation hostInformation, string endpoint)
-    {
-        this.hostInformation = hostInformation;
-        this.endpoint = endpoint;
-    }
-
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
@@ -23,7 +18,4 @@ class AddHostInfoHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOu
 
         return next(context);
     }
-
-    readonly string endpoint;
-    readonly HostInformation hostInformation;
 }

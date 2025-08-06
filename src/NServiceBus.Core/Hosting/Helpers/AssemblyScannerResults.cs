@@ -46,7 +46,7 @@ public class AssemblyScannerResults
 
     internal void RemoveDuplicates()
     {
-        Assemblies = Assemblies.Distinct().ToList();
-        Types = Types.Distinct().ToList();
+        Assemblies = [.. Assemblies.Distinct()];
+        Types = [.. Types.Distinct()];
     }
 }

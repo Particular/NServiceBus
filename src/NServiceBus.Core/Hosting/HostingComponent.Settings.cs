@@ -33,14 +33,14 @@ partial class HostingComponent
 
         public Guid HostId
         {
-            get { return settings.Get<Guid>(HostIdSettingsKey); }
-            set { settings.Set(HostIdSettingsKey, value); }
+            get => settings.Get<Guid>(HostIdSettingsKey);
+            set => settings.Set(HostIdSettingsKey, value);
         }
 
         public string DisplayName
         {
-            get { return settings.Get<string>(DisplayNameSettingsKey); }
-            set { settings.Set(DisplayNameSettingsKey, value); }
+            get => settings.Get<string>(DisplayNameSettingsKey);
+            set => settings.Set(DisplayNameSettingsKey, value);
         }
 
         public string EndpointName => settings.EndpointName();
@@ -49,32 +49,32 @@ partial class HostingComponent
 
         public Dictionary<string, string> Properties
         {
-            get { return settings.Get<Dictionary<string, string>>(PropertiesSettingsKey); }
-            set { settings.Set(PropertiesSettingsKey, value); }
+            get => settings.Get<Dictionary<string, string>>(PropertiesSettingsKey);
+            set => settings.Set(PropertiesSettingsKey, value);
         }
 
         public StartupDiagnosticEntries StartupDiagnostics
         {
-            get { return settings.Get<StartupDiagnosticEntries>(); }
-            set { settings.Set(value); }
+            get => settings.Get<StartupDiagnosticEntries>();
+            set => settings.Set(value);
         }
 
         public string? DiagnosticsPath
         {
-            get { return settings.GetOrDefault<string>(DiagnosticsPathSettingsKey); }
-            set { settings.Set(DiagnosticsPathSettingsKey, value); }
+            get => settings.GetOrDefault<string>(DiagnosticsPathSettingsKey);
+            set => settings.Set(DiagnosticsPathSettingsKey, value);
         }
 
         public Func<string, CancellationToken, Task>? HostDiagnosticsWriter
         {
-            get { return settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey); }
-            set { settings.Set(HostDiagnosticsWriterSettingsKey, value); }
+            get => settings.GetOrDefault<Func<string, CancellationToken, Task>>(HostDiagnosticsWriterSettingsKey);
+            set => settings.Set(HostDiagnosticsWriterSettingsKey, value);
         }
 
         public Func<ICriticalErrorContext, CancellationToken, Task>? CustomCriticalErrorAction
         {
-            get { return settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey); }
-            set { settings.Set(CustomCriticalErrorActionSettingsKey, value); }
+            get => settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey);
+            set => settings.Set(CustomCriticalErrorActionSettingsKey, value);
         }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; } = [];

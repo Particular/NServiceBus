@@ -79,10 +79,7 @@ partial class HostingComponent
 
         public string? DiagnosticsPath { get; }
 
-        public void AddStartupDiagnosticsSection(string sectionName, object section)
-        {
-            StartupDiagnostics.Add(sectionName, section);
-        }
+        public void AddStartupDiagnosticsSection(string sectionName, object section) => StartupDiagnostics.Add(sectionName, section);
 
         public HostInformation HostInformation { get; }
 

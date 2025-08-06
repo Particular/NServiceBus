@@ -72,10 +72,8 @@ class AssemblyScanningComponent
 
     public List<Type> AvailableTypes { get; }
 
-    public class Configuration
+    public class Configuration(SettingsHolder settings)
     {
-        public Configuration(SettingsHolder settings) => this.settings = settings;
-
         public List<Type>? UserProvidedTypes { get; set; }
 
         public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
@@ -83,8 +81,6 @@ class AssemblyScanningComponent
         public IList<Type> AvailableTypes => settings.Get<IList<Type>>(TypesToScanSettingsKey);
 
         public void SetDefaultAvailableTypes(IList<Type> scannedTypes) => settings.SetDefault(TypesToScanSettingsKey, scannedTypes);
-
-        readonly SettingsHolder settings;
 
         static readonly string TypesToScanSettingsKey = "TypesToScan";
     }

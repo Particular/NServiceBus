@@ -30,7 +30,7 @@ class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedCo
         });
     }
 
-    public Lazy<IMessageSession> MessageSession { get; private set; }
+    public Lazy<IMessageSession> MessageSession { get; }
 
     internal Lazy<IServiceProvider> Builder { get; private set; }
 

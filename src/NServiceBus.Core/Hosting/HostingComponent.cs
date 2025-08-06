@@ -11,17 +11,15 @@ using Installation;
 using Microsoft.Extensions.DependencyInjection;
 using Support;
 
-partial class HostingComponent
+partial class HostingComponent(HostingComponent.Configuration configuration)
 {
-    public HostingComponent(Configuration configuration) => this.configuration = configuration;
-
     public static HostingComponent Initialize(Configuration configuration)
     {
         var serviceCollection = configuration.Services;
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
         serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
-        foreach (var installerType in configuration.AvailableTypes.Where(t => IsINeedToInstallSomething(t)))
+        foreach (var installerType in configuration.AvailableTypes.Where(IsINeedToInstallSomething))
         {
             serviceCollection.AddTransient(installerType);
             serviceCollection.AddTransient(sp => (INeedToInstallSomething)sp.GetRequiredService(installerType));
@@ -87,13 +85,6 @@ partial class HostingComponent
             return configuration.InstallationUserName;
         }
 
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-        {
-            return $"{Environment.UserDomainName}\\{Environment.UserName}";
-        }
-
-        return Environment.UserName;
+        return Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
     }
-
-    readonly Configuration configuration;
 }

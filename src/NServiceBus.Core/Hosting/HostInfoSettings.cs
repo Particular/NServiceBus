@@ -23,11 +23,9 @@ public class HostInfoSettings
     /// When using <a href="https://octopusdeploy.com/">Octopus Deploy</a> do not use this mode, instead use
     /// <see cref="UsingNames" />.
     /// </remarks>
-    public HostInfoSettings UsingInstalledFilePath()
-    {
+    public HostInfoSettings UsingInstalledFilePath() =>
         // This is the default, we don't need to do anything
-        return this;
-    }
+        this;
 
     /// <summary>
     /// In this mode, the host id is fully managed by the user.

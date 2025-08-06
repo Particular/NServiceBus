@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class HostStartupDiagnosticsWriterFactory
+static class HostStartupDiagnosticsWriterFactory
 {
     public static HostStartupDiagnosticsWriter GetDiagnosticsWriter(HostingComponent.Configuration configuration)
     {
@@ -45,7 +45,7 @@ class HostStartupDiagnosticsWriterFactory
             {
                 Logger.Warn("Unable to create the diagnostics output directory. Check the attached exception for further information, or change the diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
 
-                return (_, __) => Task.CompletedTask;
+                return (_, _) => Task.CompletedTask;
             }
         }
 
@@ -53,7 +53,6 @@ class HostStartupDiagnosticsWriterFactory
         // know how to handle multi hosting but for now we do this so that multi-hosting users will get a file per endpoint
         var startupDiagnosticsFileName = $"{configuration.EndpointName}-configuration.txt";
         var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
-
 
         return (data, cancellationToken) =>
         {

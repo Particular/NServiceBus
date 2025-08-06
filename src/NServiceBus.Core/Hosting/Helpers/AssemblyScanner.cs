@@ -27,15 +27,9 @@ public class AssemblyScanner
     /// <summary>
     /// Creates a scanner for the given directory.
     /// </summary>
-    public AssemblyScanner(string baseDirectoryToScan)
-    {
-        this.baseDirectoryToScan = baseDirectoryToScan;
-    }
+    public AssemblyScanner(string baseDirectoryToScan) => this.baseDirectoryToScan = baseDirectoryToScan;
 
-    internal AssemblyScanner(Assembly assemblyToScan)
-    {
-        this.assemblyToScan = assemblyToScan;
-    }
+    internal AssemblyScanner(Assembly assemblyToScan) => this.assemblyToScan = assemblyToScan;
 
     /// <summary>
     /// Determines if the scanner should throw exceptions or not.
