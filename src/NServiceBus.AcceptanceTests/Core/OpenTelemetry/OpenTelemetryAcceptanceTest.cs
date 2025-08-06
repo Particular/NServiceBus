@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Traces;
 
 [NonParallelizable] // Ensure only activities for the current test are captured
-public class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
+public abstract class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
 {
     protected TestingActivityListener NServicebusActivityListener { get; private set; }
 
