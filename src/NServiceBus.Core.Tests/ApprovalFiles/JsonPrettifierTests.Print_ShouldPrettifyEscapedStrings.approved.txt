@@ -1,7 +1,7 @@
 {
-  "PrerequisiteStatus":  {
-    "IsSatisfied":  false,
-     "Reasons":  [
+  "PrerequisiteStatus": {
+    "IsSatisfied": false,
+    "Reasons": [
       "Because some \"escaped\" json content"
     ]
   }

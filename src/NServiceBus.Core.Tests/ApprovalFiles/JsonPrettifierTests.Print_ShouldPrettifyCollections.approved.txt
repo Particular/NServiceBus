@@ -3,7 +3,5 @@
     "RootFeature",
     "DelayedDeliveryFeature"
   ],
-  "StartupTasks": [
-    
-  ]
+  "StartupTasks": []
 }
