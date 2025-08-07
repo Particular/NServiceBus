@@ -6,29 +6,15 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using Logging;
 
-class DefaultLoggerFactory : ILoggerFactory
+class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILoggerFactory
 {
-    public DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory)
-    {
-        this.filterLevel = filterLevel;
-        rollingLogger = new RollingLogger(loggingDirectory);
-        isDebugEnabled = filterLevel <= LogLevel.Debug;
-        isInfoEnabled = filterLevel <= LogLevel.Info;
-        isWarnEnabled = filterLevel <= LogLevel.Warn;
-        isErrorEnabled = filterLevel <= LogLevel.Error;
-        isFatalEnabled = filterLevel <= LogLevel.Fatal;
-    }
+    public ILog GetLogger(Type type) => GetLogger(type.FullName!);
 
-    public ILog GetLogger(Type type)
-    {
-        return GetLogger(type.FullName!);
-    }
-
-    public ILog GetLogger(string name)
-    {
-        return new NamedLogger(name, this)
+    public ILog GetLogger(string name) =>
+        new NamedLogger(name, this)
         {
             IsDebugEnabled = isDebugEnabled,
             IsInfoEnabled = isInfoEnabled,
@@ -36,7 +22,6 @@ class DefaultLoggerFactory : ILoggerFactory
             IsErrorEnabled = isErrorEnabled,
             IsFatalEnabled = isFatalEnabled
         };
-    }
 
 #pragma warning disable IDE0060 // Remove unused parameter
     public void Write(string name, LogLevel messageLevel, string message, Exception? exception = null)
@@ -81,13 +66,12 @@ class DefaultLoggerFactory : ILoggerFactory
         }
     }
 
-    readonly LogLevel filterLevel;
-    readonly bool isDebugEnabled;
-    readonly bool isErrorEnabled;
-    readonly bool isFatalEnabled;
-    readonly bool isInfoEnabled;
-    readonly bool isWarnEnabled;
+    readonly bool isDebugEnabled = filterLevel <= LogLevel.Debug;
+    readonly bool isErrorEnabled = filterLevel <= LogLevel.Error;
+    readonly bool isFatalEnabled = filterLevel <= LogLevel.Fatal;
+    readonly bool isInfoEnabled = filterLevel <= LogLevel.Info;
+    readonly bool isWarnEnabled = filterLevel <= LogLevel.Warn;
 
-    readonly object locker = new object();
-    readonly RollingLogger rollingLogger;
+    readonly Lock locker = new();
+    readonly RollingLogger rollingLogger = new(loggingDirectory);
 }

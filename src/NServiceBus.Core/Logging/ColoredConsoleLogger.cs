@@ -10,10 +10,8 @@ static class ColoredConsoleLogger
 {
     static ColoredConsoleLogger()
     {
-        using (var stream = Console.OpenStandardOutput())
-        {
-            logToConsole = stream != Stream.Null;
-        }
+        using var stream = Console.OpenStandardOutput();
+        logToConsole = stream != Stream.Null;
     }
 
     public static void WriteLine(string message, LogLevel logLevel)
