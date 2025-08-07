@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-sealed class ReadOnlyStream : Stream
+public class ReadOnlyStream : Stream
 {
     readonly ReadOnlyMemory<byte> memory;
     int position;
