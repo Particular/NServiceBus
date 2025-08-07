@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -6,20 +8,17 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Logging;
 using Particular.Licensing;
 
-class LicenseManager
+static partial class LicenseManager
 {
-    public bool HasLicenseExpired => result?.License.HasExpired() ?? true;
-
-    public void InitializeLicense(string licenseText, string licenseFilePath)
+    public static ActiveLicenseFindResult InitializeLicense(string? licenseText, string? licenseFilePath)
     {
         var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
-        result = ActiveLicense.Find("NServiceBus", licenseSources);
-        var developerLicenseUrl = CreateDeveloperLicenseUrl();
+        var result = ActiveLicense.Find("NServiceBus", licenseSources);
+        var developerLicenseUrl = CreateDeveloperLicenseUrl(result);
 
         LogFindResults(result);
 
@@ -30,6 +29,8 @@ class LicenseManager
         {
             OpenDeveloperLicensePage(developerLicenseUrl);
         }
+
+        return result;
     }
 
     public static void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
@@ -45,14 +46,9 @@ class LicenseManager
                 logger.Warn("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
                 break;
             case LicenseStatus.ValidWithExpiringTrial:
-                if (license.IsExtendedTrial)
-                {
-                    logger.Warn($"Development license expiring {whenLicenseExpiresPhrase}. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
-                }
-                else
-                {
-                    logger.Warn($"Trial license expiring {whenLicenseExpiresPhrase}. Get your free development license at {developerLicenseUrl}");
-                }
+                logger.Warn(license.IsExtendedTrial
+                    ? $"Development license expiring {whenLicenseExpiresPhrase}. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net"
+                    : $"Trial license expiring {whenLicenseExpiresPhrase}. Get your free development license at {developerLicenseUrl}");
                 break;
             case LicenseStatus.ValidWithExpiringSubscription:
                 logger.Warn($"License expiring {whenLicenseExpiresPhrase}. Contact us to renew your license: contact@particular.net");
@@ -61,14 +57,9 @@ class LicenseManager
                 logger.Warn($"Upgrade protection expiring {whenUpgradeProtectedExpiresPhrase}. Contact us to renew your license: contact@particular.net");
                 break;
             case LicenseStatus.InvalidDueToExpiredTrial:
-                if (license.IsExtendedTrial)
-                {
-                    logger.Error($"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net");
-                }
-                else
-                {
-                    logger.Error($"Trial license expired. Get your free development license at {developerLicenseUrl}");
-                }
+                logger.Error(license.IsExtendedTrial
+                    ? $"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net"
+                    : $"Trial license expired. Get your free development license at {developerLicenseUrl}");
                 break;
             case LicenseStatus.InvalidDueToExpiredSubscription:
                 logger.Error("License expired. Contact us to renew your license: contact@particular.net");
@@ -115,36 +106,35 @@ class LicenseManager
             return;
         }
 
-        using (var mutex = new Mutex(true, @"Global\NServiceBusLicensing", out var acquired))
+        using var mutex = new Mutex(true, @"Global\NServiceBusLicensing", out var acquired);
+
+        if (acquired)
         {
-            if (acquired)
+            try
             {
-                try
+                Logger.WarnFormat("Opening browser to: {0}", developerLicenseUrl);
+
+                var opened = Browser.TryOpen(developerLicenseUrl);
+
+                if (!opened)
                 {
-                    Logger.WarnFormat("Opening browser to: {0}", developerLicenseUrl);
-
-                    var opened = Browser.TryOpen(developerLicenseUrl);
-
-                    if (!opened)
-                    {
-                        Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", developerLicenseUrl);
-                    }
-
-                    Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+                    Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", developerLicenseUrl);
                 }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(5));
             }
-            else
+            finally
             {
-                Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+                mutex.ReleaseMutex();
             }
+        }
+        else
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
         }
     }
 
-    string CreateDeveloperLicenseUrl()
+    static string CreateDeveloperLicenseUrl(ActiveLicenseFindResult result)
     {
         var version = VersionInformation.MajorMinorPatch;
         var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
@@ -175,11 +165,12 @@ class LicenseManager
 
     static string GetFrameworkVersion()
     {
-        var match = Regex.Match(RuntimeInformation.FrameworkDescription, @"\d+");
+        var match = FrameworkVersionRegex().Match(RuntimeInformation.FrameworkDescription);
         return match.Success ? match.Value : "0";
     }
 
-    internal ActiveLicenseFindResult result;
+    [GeneratedRegex(@"\d+")]
+    private static partial Regex FrameworkVersionRegex();
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
 }

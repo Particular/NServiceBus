@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System.Collections.Generic;
@@ -5,7 +7,7 @@ using Particular.Licensing;
 
 static class LicenseSources
 {
-    public static LicenseSource[] GetLicenseSources(string licenseText, string licenseFilePath)
+    public static LicenseSource[] GetLicenseSources(string? licenseText, string? licenseFilePath)
     {
         var sources = new List<LicenseSource>();
 
@@ -26,6 +28,6 @@ static class LicenseSources
             sources.AddRange(standardSources);
         }
 
-        return sources.ToArray();
+        return [.. sources];
     }
 }

@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -14,5 +16,5 @@ class LogErrorOnInvalidLicenseBehavior : IBehavior<IIncomingPhysicalMessageConte
         return next(context);
     }
 
-    static readonly ILog Log = LogManager.GetLogger<LicenseManager>();
+    static readonly ILog Log = LogManager.GetLogger(typeof(LicenseManager));
 }

@@ -5,7 +5,6 @@ NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings
 NServiceBus.AutoSubscribeSettingsExtensions
 NServiceBus.BestPracticesOptionExtensions
 NServiceBus.ConfigureError
-NServiceBus.ConfigureLicenseExtensions
 NServiceBus.ConfigurePurging
 NServiceBus.ConnectorContextExtensions
 NServiceBus.ConsistencyGuarantees.TransactionModeSettingsExtensions

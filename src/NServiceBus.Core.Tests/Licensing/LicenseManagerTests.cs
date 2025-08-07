@@ -16,7 +16,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.Valid, logger, new License(), "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(0));
+        Assert.That(logger.Logs, Is.Empty);
     }
 
     [Test]
@@ -26,7 +26,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredSubscription, logger, new License(), "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
@@ -41,7 +41,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License(), "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
@@ -58,7 +58,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredTrial, logger, license, "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
@@ -75,7 +75,6 @@ class LicenseManagerTests
     public void WhenTrialLicenseAboutToExpire(int daysRemaining, bool isDevLicenseRenewal, string expectedMessage)
     {
         var logger = new TestableLogger();
-        var licenseManager = new LicenseManager();
         var today = new DateTime(2012, 12, 12);
         var license = new License
         {
@@ -86,7 +85,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringTrial, logger, license, "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
@@ -100,7 +99,6 @@ class LicenseManagerTests
     public void WhenSubscriptionAboutToExpire(int daysRemaining, string expectedMessage)
     {
         var logger = new TestableLogger();
-        var licenseManager = new LicenseManager();
         var today = new DateTime(2012, 12, 12);
         var license = new License
         {
@@ -110,7 +108,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringSubscription, logger, license, "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
@@ -124,7 +122,6 @@ class LicenseManagerTests
     public void WhenUpgradeProtectionAboutToExpire(int daysRemaining, string expectedMessage)
     {
         var logger = new TestableLogger();
-        var licenseManager = new LicenseManager();
         var today = new DateTime(2012, 12, 12);
         var license = new License
         {
@@ -134,7 +131,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license, "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
@@ -146,7 +143,6 @@ class LicenseManagerTests
     public void WhenUpgradeProtectionExpiredForFutureVersions()
     {
         var logger = new TestableLogger();
-        var licenseManager = new LicenseManager();
         var today = new DateTime(2012, 12, 12);
         var license = new License
         {
@@ -157,7 +153,7 @@ class LicenseManagerTests
 
         LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license, "fake-url");
 
-        Assert.That(logger.Logs.Count, Is.EqualTo(1));
+        Assert.That(logger.Logs, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
@@ -173,85 +169,37 @@ class LicenseManagerTests
         public bool IsErrorEnabled => true;
         public bool IsFatalEnabled => true;
 
-        public void Debug(string message)
-        {
-            throw new NotImplementedException();
-        }
+        public void Debug(string message) => throw new NotImplementedException();
 
-        public void Debug(string message, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
+        public void Debug(string message, Exception exception) => throw new NotImplementedException();
 
-        public void DebugFormat(string format, params object[] args)
-        {
-            throw new NotImplementedException();
-        }
+        public void DebugFormat(string format, params object[] args) => throw new NotImplementedException();
 
-        public void Info(string message)
-        {
-            throw new NotImplementedException();
-        }
+        public void Info(string message) => throw new NotImplementedException();
 
-        public void Info(string message, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
+        public void Info(string message, Exception exception) => throw new NotImplementedException();
 
-        public void InfoFormat(string format, params object[] args)
-        {
-            throw new NotImplementedException();
-        }
+        public void InfoFormat(string format, params object[] args) => throw new NotImplementedException();
 
-        public void Warn(string message)
-        {
-            Log(message, LogLevel.Warn);
-        }
+        public void Warn(string message) => Log(message, LogLevel.Warn);
 
-        public void Warn(string message, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
+        public void Warn(string message, Exception exception) => throw new NotImplementedException();
 
-        public void WarnFormat(string format, params object[] args)
-        {
-            Log(string.Format(format, args), LogLevel.Warn);
-        }
+        public void WarnFormat(string format, params object[] args) => Log(string.Format(format, args), LogLevel.Warn);
 
-        public void Error(string message)
-        {
-            Log(message, LogLevel.Error);
-        }
+        public void Error(string message) => Log(message, LogLevel.Error);
 
-        public void Error(string message, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
+        public void Error(string message, Exception exception) => throw new NotImplementedException();
 
-        public void ErrorFormat(string format, params object[] args)
-        {
-            throw new NotImplementedException();
-        }
+        public void ErrorFormat(string format, params object[] args) => throw new NotImplementedException();
 
-        public void Fatal(string message)
-        {
-            Log(message, LogLevel.Fatal);
-        }
+        public void Fatal(string message) => Log(message, LogLevel.Fatal);
 
-        public void Fatal(string message, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
+        public void Fatal(string message, Exception exception) => throw new NotImplementedException();
 
-        public void FatalFormat(string format, params object[] args)
-        {
-            throw new NotImplementedException();
-        }
+        public void FatalFormat(string format, params object[] args) => throw new NotImplementedException();
 
-        void Log(string message, LogLevel level)
-        {
-            Logs.Add((message, level));
-        }
+        void Log(string message, LogLevel level) => Logs.Add((message, level));
 
         public List<(string message, LogLevel level)> Logs { get; } = [];
     }
