@@ -5,6 +5,7 @@ namespace NServiceBus.Features;
 using System;
 using System.Diagnostics;
 using Logging;
+using Particular.Licensing;
 
 class LicenseReminder : Feature
 {
@@ -20,12 +21,11 @@ class LicenseReminder : Feature
     {
         try
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.InitializeLicense(context.Settings.Get<string?>(LicenseTextSettingsKey), context.Settings.Get<string?>(LicenseFilePathSettingsKey));
+            var result = LicenseManager.InitializeLicense(context.Settings.Get<string?>(LicenseTextSettingsKey), context.Settings.Get<string?>(LicenseFilePathSettingsKey));
 
-            context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
+            context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(result));
 
-            if (!licenseManager.HasLicenseExpired)
+            if (!result.HasLicenseExpired())
             {
                 return;
             }
@@ -44,23 +44,21 @@ class LicenseReminder : Feature
         }
     }
 
-    static object GenerateLicenseDiagnostics(LicenseManager licenseManager)
-    {
-        return new
+    static object GenerateLicenseDiagnostics(ActiveLicenseFindResult result) =>
+        new
         {
-            licenseManager.result!.License.RegisteredTo,
-            licenseManager.result.License.LicenseType,
-            licenseManager.result.License.Edition,
-            Tier = licenseManager.result.License.Edition,
-            LicenseStatus = licenseManager.result.License.GetLicenseStatus(),
-            LicenseLocation = licenseManager.result.Location,
-            ValidApplications = string.Join(",", licenseManager.result.License.ValidApplications),
-            CommercialLicense = licenseManager.result.License.IsCommercialLicense,
-            IsExpired = licenseManager.HasLicenseExpired,
-            licenseManager.result.License.ExpirationDate,
-            UpgradeProtectionExpirationDate = licenseManager.result.License.UpgradeProtectionExpiration
+            result.License.RegisteredTo,
+            result.License.LicenseType,
+            result.License.Edition,
+            Tier = result.License.Edition,
+            LicenseStatus = result.License.GetLicenseStatus(),
+            LicenseLocation = result.Location,
+            ValidApplications = string.Join(",", result.License.ValidApplications),
+            CommercialLicense = result.License.IsCommercialLicense,
+            IsExpired = result.HasLicenseExpired(),
+            result.License.ExpirationDate,
+            UpgradeProtectionExpirationDate = result.License.UpgradeProtectionExpiration
         };
-    }
 
     public const string LicenseTextSettingsKey = "LicenseText";
     public const string LicenseFilePathSettingsKey = "LicenseFilePath";

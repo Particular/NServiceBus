@@ -28,6 +28,6 @@ static class LicenseSources
             sources.AddRange(standardSources);
         }
 
-        return sources.ToArray();
+        return [.. sources];
     }
 }
