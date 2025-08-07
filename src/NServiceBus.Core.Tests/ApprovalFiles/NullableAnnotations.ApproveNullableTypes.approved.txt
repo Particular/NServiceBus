@@ -61,10 +61,6 @@ NServiceBus.LearningSagaPersisterConfigurationExtensions
 NServiceBus.LearningTransport
 NServiceBus.LearningTransportConfigurationExtensions
 NServiceBus.LoadMessageHandlersExtensions
-NServiceBus.Logging.DefaultFactory
-NServiceBus.Logging.ILog
-NServiceBus.Logging.ILoggerFactory
-NServiceBus.Logging.LogManager
 NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions

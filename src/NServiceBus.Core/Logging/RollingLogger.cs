@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -91,7 +93,7 @@ class RollingLogger
             .Skip(numberOfArchiveFilesToKeep);
     }
 
-    internal static LogFile GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today)
+    internal static LogFile? GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today)
     {
         return logFiles.Where(x => x.DatePart.Date == today.Date)
             .OrderByDescending(x => x.SequenceNumber)
@@ -102,14 +104,14 @@ class RollingLogger
     {
         foreach (var file in Directory.EnumerateFiles(targetDirectory, "nsb_log_*.txt"))
         {
-            if (TryDeriveLogInformationFromPath(file, out var logFile))
+            if (TryDeriveLogInformationFromPath(file, out var logFile) && logFile != null)
             {
                 yield return logFile;
             }
         }
     }
 
-    static bool TryDeriveLogInformationFromPath(string file, out LogFile logFile)
+    static bool TryDeriveLogInformationFromPath(string file, out LogFile? logFile)
     {
         logFile = null;
         var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(file);
@@ -173,7 +175,7 @@ class RollingLogger
         currentfilePath = Path.Combine(targetDirectory, fileName);
     }
 
-    protected string currentfilePath;
+    protected string currentfilePath = null!;
     long currentFileSize;
 #pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For rollover of log files, want to use local time
     internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;
@@ -187,7 +189,7 @@ class RollingLogger
     internal class LogFile
     {
         public DateTimeOffset DatePart;
-        public string Path;
+        public required string Path;
         public int SequenceNumber;
     }
 }

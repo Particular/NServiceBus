@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Logging;
 
 using System;
@@ -67,5 +69,5 @@ public static class LogManager
         return loggerFactory.Value.GetLogger(name);
     }
 
-    static Lazy<ILoggerFactory> loggerFactory;
+    static Lazy<ILoggerFactory> loggerFactory = null!;
 }

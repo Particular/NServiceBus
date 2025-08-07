@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -21,7 +23,7 @@ class DefaultLoggerFactory : ILoggerFactory
 
     public ILog GetLogger(Type type)
     {
-        return GetLogger(type.FullName);
+        return GetLogger(type.FullName!);
     }
 
     public ILog GetLogger(string name)
@@ -37,7 +39,7 @@ class DefaultLoggerFactory : ILoggerFactory
     }
 
 #pragma warning disable IDE0060 // Remove unused parameter
-    public void Write(string name, LogLevel messageLevel, string message, Exception exception = null)
+    public void Write(string name, LogLevel messageLevel, string message, Exception? exception = null)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         if (messageLevel < filterLevel)
