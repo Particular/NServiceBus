@@ -71,8 +71,6 @@ static partial class LicenseManager
                 break;
         }
 
-        return;
-
         static string GetRemainingDaysString(int? remainingDays) => remainingDays switch
         {
             null => "soon",
@@ -109,6 +107,7 @@ static partial class LicenseManager
         }
 
         using var mutex = new Mutex(true, @"Global\NServiceBusLicensing", out var acquired);
+
         if (acquired)
         {
             try
@@ -166,12 +165,12 @@ static partial class LicenseManager
 
     static string GetFrameworkVersion()
     {
-        var match = MyRegex().Match(RuntimeInformation.FrameworkDescription);
+        var match = FrameworkVersionRegex().Match(RuntimeInformation.FrameworkDescription);
         return match.Success ? match.Value : "0";
     }
 
     [GeneratedRegex(@"\d+")]
-    private static partial Regex MyRegex();
+    private static partial Regex FrameworkVersionRegex();
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
 }
