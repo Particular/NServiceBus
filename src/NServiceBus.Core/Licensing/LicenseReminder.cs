@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Features;
 
 using System;
@@ -19,7 +21,7 @@ class LicenseReminder : Feature
         try
         {
             var licenseManager = new LicenseManager();
-            licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
+            licenseManager.InitializeLicense(context.Settings.Get<string?>(LicenseTextSettingsKey), context.Settings.Get<string?>(LicenseFilePathSettingsKey));
 
             context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(licenseManager));
 
@@ -46,7 +48,7 @@ class LicenseReminder : Feature
     {
         return new
         {
-            licenseManager.result.License.RegisteredTo,
+            licenseManager.result!.License.RegisteredTo,
             licenseManager.result.License.LicenseType,
             licenseManager.result.License.Edition,
             Tier = licenseManager.result.License.Edition,

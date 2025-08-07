@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -14,7 +16,7 @@ class LicenseManager
 {
     public bool HasLicenseExpired => result?.License.HasExpired() ?? true;
 
-    public void InitializeLicense(string licenseText, string licenseFilePath)
+    public void InitializeLicense(string? licenseText, string? licenseFilePath)
     {
         var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
@@ -147,7 +149,7 @@ class LicenseManager
     string CreateDeveloperLicenseUrl()
     {
         var version = VersionInformation.MajorMinorPatch;
-        var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
+        var isRenewal = result!.License.IsExtendedTrial ? "1" : "0";
         var platform = GetPlatformCode();
         var frameworkVersion = GetFrameworkVersion();
         return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}&f={frameworkVersion}";
@@ -179,7 +181,7 @@ class LicenseManager
         return match.Success ? match.Value : "0";
     }
 
-    internal ActiveLicenseFindResult result;
+    internal ActiveLicenseFindResult? result;
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
 }
