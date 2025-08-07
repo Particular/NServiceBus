@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Installation;
+﻿#nullable enable
+
+namespace NServiceBus.Installation;
 
 using System;
 using System.Threading;
@@ -11,10 +13,7 @@ public class InstallerWithExternallyManagedContainer
 {
     readonly EndpointCreator endpointCreator;
 
-    internal InstallerWithExternallyManagedContainer(EndpointCreator endpointCreator)
-    {
-        this.endpointCreator = endpointCreator;
-    }
+    internal InstallerWithExternallyManagedContainer(EndpointCreator endpointCreator) => this.endpointCreator = endpointCreator;
 
     /// <summary>
     /// Executes all the installers and transport configuration without starting the endpoint.
