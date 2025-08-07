@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -13,7 +15,7 @@ public static class InstallConfigExtensions
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="username">The username to pass to <see cref="INeedToInstallSomething.Install" />.</param>
-    public static void EnableInstallers(this EndpointConfiguration config, string username = null)
+    public static void EnableInstallers(this EndpointConfiguration config, string? username = null)
     {
         ArgumentNullException.ThrowIfNull(config);
         if (username != null)

@@ -542,7 +542,7 @@ namespace NServiceBus
     }
     public static class InstallConfigExtensions
     {
-        public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
+        public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public static class LearningSagaPersisterConfigurationExtensions

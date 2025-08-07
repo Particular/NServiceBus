@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Installation;
+﻿#nullable enable
+
+namespace NServiceBus.Installation;
 
 using System;
 using Microsoft.Extensions.DependencyInjection;

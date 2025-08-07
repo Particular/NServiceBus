@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Installation;
 
 using System.Threading;
