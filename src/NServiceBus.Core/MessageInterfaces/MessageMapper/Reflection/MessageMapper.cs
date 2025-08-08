@@ -1,9 +1,11 @@
+#nullable enable
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -24,7 +26,7 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Scans the given types generating concrete classes for interfaces.
     /// </summary>
-    public void Initialize(IEnumerable<Type> types)
+    public void Initialize(IEnumerable<Type>? types)
     {
         if (types == null)
         {
@@ -41,7 +43,7 @@ public class MessageMapper : IMessageMapper
     /// If the given type is concrete, returns the interface it was generated to support.
     /// If the given type is an interface, returns the concrete class generated to implement it.
     /// </summary>
-    public Type GetMappedTypeFor(Type t)
+    public Type? GetMappedTypeFor(Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
 
@@ -73,7 +75,7 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Returns the type mapped to the given name.
     /// </summary>
-    public Type GetMappedTypeFor(string typeName)
+    public Type? GetMappedTypeFor(string typeName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
         var name = typeName;
@@ -93,7 +95,7 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Calls the generic CreateInstance and performs the given action on the result.
     /// </summary>
-    public T CreateInstance<T>(Action<T> action)
+    public T CreateInstance<T>(Action<T>? action)
     {
         var result = CreateInstance<T>();
 
@@ -122,7 +124,7 @@ public class MessageMapper : IMessageMapper
 
         if (t.IsInterface || t.IsAbstract)
         {
-            var mapped = GetMappedTypeFor(t);
+            var mapped = GetMappedTypeFor(t)!; // should never be null after InitType
             return RuntimeHelpers.GetUninitializedObject(mapped);
         }
 
@@ -134,7 +136,7 @@ public class MessageMapper : IMessageMapper
         return RuntimeHelpers.GetUninitializedObject(t);
     }
 
-    void InitType(Type t)
+    void InitType(Type? t)
     {
         if (t == null || initializedTypes.ContainsKey(t))
         {
@@ -248,7 +250,7 @@ public class MessageMapper : IMessageMapper
             }
         }
 
-        return t.FullName;
+        return t.FullName!;
     }
 
     readonly object messageInitializationLock = new object();

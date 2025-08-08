@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -89,7 +90,7 @@ class ConcreteProxyCreator
 
         typeBuilder.AddInterfaceImplementation(type);
 
-        return typeBuilder.CreateTypeInfo().AsType();
+        return typeBuilder.CreateTypeInfo()!.AsType();
     }
 
     /// <summary>
@@ -100,31 +101,31 @@ class ConcreteProxyCreator
     {
         var namedArguments = attributeData.NamedArguments;
 
-        object[] constructorArgs = attributeData.ConstructorArguments.Select(ExtractValue).ToArray();
+        object?[] constructorArgs = attributeData.ConstructorArguments.Select(ExtractValue).ToArray();
         if (namedArguments == null)
         {
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs);
+                constructorArgs!);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
         else
         {
             PropertyInfo[] namedProperties = namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray();
-            object[] propertyValues = namedArguments.Select(x => x.TypedValue.Value).ToArray();
+            object?[] propertyValues = namedArguments.Select(x => x.TypedValue.Value).ToArray();
 
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs,
+                constructorArgs!,
                 namedProperties,
-                propertyValues);
+                propertyValues!);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
     }
 
-    static object ExtractValue(CustomAttributeTypedArgument arg)
+    static object? ExtractValue(CustomAttributeTypedArgument arg)
     {
         if (arg.Value is ReadOnlyCollection<CustomAttributeTypedArgument> nestedValue)
         {
