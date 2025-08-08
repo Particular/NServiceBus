@@ -24,7 +24,7 @@ class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILog
         };
 
 #pragma warning disable IDE0060 // Remove unused parameter
-    public void Write(string name, LogLevel messageLevel, string message, Exception? exception = null)
+    public void Write(string name, LogLevel messageLevel, string? message, Exception? exception = null)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         if (messageLevel < filterLevel)

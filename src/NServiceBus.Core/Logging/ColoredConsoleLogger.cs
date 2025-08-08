@@ -14,7 +14,7 @@ static class ColoredConsoleLogger
         logToConsole = stream != Stream.Null;
     }
 
-    public static void WriteLine(string message, LogLevel logLevel)
+    public static void WriteLine(string? message, LogLevel logLevel)
     {
         if (!logToConsole)
         {
