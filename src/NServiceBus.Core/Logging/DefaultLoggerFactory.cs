@@ -36,7 +36,7 @@ class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILog
 #pragma warning disable PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
         var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 #pragma warning restore PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
-        var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
+        var paddedLevel = LogLevelName(messageLevel);
 
         stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
 
@@ -65,6 +65,18 @@ class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILog
             Trace.WriteLine(fullMessage);
         }
     }
+
+    // Precomputed uppercase and padded representations of the LogLevel names
+    static string LogLevelName(LogLevel level) =>
+        level switch
+        {
+            LogLevel.Debug => "DEBUG",
+            LogLevel.Info => "INFO ",
+            LogLevel.Warn => "WARN ",
+            LogLevel.Error => "ERROR",
+            LogLevel.Fatal => "FATAL",
+            _ => level.ToString().ToUpper().PadRight(5) // fallback preserves original behavior
+        };
 
     readonly bool isDebugEnabled = filterLevel <= LogLevel.Debug;
     readonly bool isErrorEnabled = filterLevel <= LogLevel.Error;
