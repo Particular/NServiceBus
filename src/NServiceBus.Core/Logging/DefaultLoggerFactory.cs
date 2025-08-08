@@ -33,9 +33,9 @@ class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILog
         }
 
         var stringBuilder = new StringBuilder();
-#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For logging
+#pragma warning disable PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
         var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
+#pragma warning restore PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
         var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
 
         stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
