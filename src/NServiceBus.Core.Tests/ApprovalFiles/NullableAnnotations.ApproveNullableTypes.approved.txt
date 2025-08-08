@@ -47,7 +47,6 @@ NServiceBus.Hosting.HostInformation
 NServiceBus.ICriticalErrorContext
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageConvention
-NServiceBus.IMessageCreator
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
 NServiceBus.ImmediateDispatchOptionExtensions
