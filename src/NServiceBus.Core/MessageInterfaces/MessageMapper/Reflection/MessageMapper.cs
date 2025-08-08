@@ -5,10 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 /// <summary>
 /// Uses reflection to map between interfaces and their generated concrete implementations.
@@ -18,10 +18,7 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Initializes a new instance of <see cref="MessageMapper" />.
     /// </summary>
-    public MessageMapper()
-    {
-        concreteProxyCreator = new ConcreteProxyCreator();
-    }
+    public MessageMapper() => concreteProxyCreator = new ConcreteProxyCreator();
 
     /// <summary>
     /// Scans the given types generating concrete classes for interfaces.
@@ -51,12 +48,7 @@ public class MessageMapper : IMessageMapper
 
         if (t.IsInterface)
         {
-            if (interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-            {
-                return Type.GetTypeFromHandle(typeHandle);
-            }
-
-            return null;
+            return interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle) ? Type.GetTypeFromHandle(typeHandle) : null;
         }
 
         if (t.IsGenericTypeDefinition)
@@ -64,12 +56,7 @@ public class MessageMapper : IMessageMapper
             return null;
         }
 
-        if (concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-        {
-            return Type.GetTypeFromHandle(typeHandle);
-        }
-
-        return t;
+        return concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle) ? Type.GetTypeFromHandle(typeHandle) : t;
     }
 
     /// <summary>
@@ -81,15 +68,10 @@ public class MessageMapper : IMessageMapper
         var name = typeName;
         if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
         {
-            name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
+            name = typeName[..^ConcreteProxyCreator.SUFFIX.Length];
         }
 
-        if (nameToType.TryGetValue(name, out var typeHandle))
-        {
-            return Type.GetTypeFromHandle(typeHandle);
-        }
-
-        return null;
+        return nameToType.TryGetValue(name, out var typeHandle) ? Type.GetTypeFromHandle(typeHandle) : null;
     }
 
     /// <summary>
@@ -107,10 +89,7 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Calls the <see cref="CreateInstance(Type)" /> and returns its result cast to <typeparamref name="T" />.
     /// </summary>
-    public T CreateInstance<T>()
-    {
-        return (T)CreateInstance(typeof(T));
-    }
+    public T CreateInstance<T>() => (T)CreateInstance(typeof(T));
 
     /// <summary>
     /// If the given type is an interface, finds its generated concrete implementation, instantiates it, and returns the
@@ -130,7 +109,7 @@ public class MessageMapper : IMessageMapper
 
         if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
         {
-            return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
+            return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)!).Invoke(null);
         }
 
         return RuntimeHelpers.GetUninitializedObject(t);
@@ -145,7 +124,7 @@ public class MessageMapper : IMessageMapper
 
         InnerInitialize(t);
 
-        initializedTypes.TryAdd(t, true);
+        _ = initializedTypes.TryAdd(t, true);
     }
 
     void InnerInitialize(Type t)
@@ -242,24 +221,21 @@ public class MessageMapper : IMessageMapper
     static string GetTypeName(Type t)
     {
         var args = t.GetGenericArguments();
-        if (args.Length == 2)
+        if (args.Length != 2)
         {
-            if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
-            {
-                return t.SerializationFriendlyName();
-            }
+            return t.FullName!;
         }
 
-        return t.FullName!;
+        return typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t ? t.SerializationFriendlyName() : t.FullName!;
     }
 
-    readonly object messageInitializationLock = new object();
+    readonly Lock messageInitializationLock = new();
 
-    readonly ConcurrentDictionary<Type, bool> initializedTypes = new ConcurrentDictionary<Type, bool>();
+    readonly ConcurrentDictionary<Type, bool> initializedTypes = new();
 
     readonly ConcreteProxyCreator concreteProxyCreator;
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new ConcurrentDictionary<string, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new();
+    readonly ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new();
 }
