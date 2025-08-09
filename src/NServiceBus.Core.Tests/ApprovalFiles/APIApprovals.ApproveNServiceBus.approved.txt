@@ -457,8 +457,7 @@ namespace NServiceBus
     public interface IMessageCreator
     {
         object CreateInstance(System.Type messageType);
-        T CreateInstance<T>();
-        T CreateInstance<T>(System.Action<T> action);
+        T CreateInstance<T>(System.Action<T>? action = null);
     }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
@@ -1432,9 +1431,9 @@ namespace NServiceBus.MessageInterfaces
 {
     public interface IMessageMapper : NServiceBus.IMessageCreator
     {
-        System.Type GetMappedTypeFor(System.Type t);
-        System.Type GetMappedTypeFor(string typeName);
-        void Initialize(System.Collections.Generic.IEnumerable<System.Type> types);
+        System.Type? GetMappedTypeFor(System.Type t);
+        System.Type? GetMappedTypeFor(string typeName);
+        void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types);
     }
 }
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
@@ -1443,11 +1442,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     {
         public MessageMapper() { }
         public object CreateInstance(System.Type t) { }
-        public T CreateInstance<T>() { }
-        public T CreateInstance<T>(System.Action<T> action) { }
-        public System.Type GetMappedTypeFor(System.Type t) { }
-        public System.Type GetMappedTypeFor(string typeName) { }
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> types) { }
+        public T CreateInstance<T>(System.Action<T>? action = null) { }
+        public System.Type? GetMappedTypeFor(System.Type t) { }
+        public System.Type? GetMappedTypeFor(string typeName) { }
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types) { }
     }
 }
 namespace NServiceBus.MessageMutator

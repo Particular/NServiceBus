@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -21,7 +22,7 @@ class ConcreteProxyCreator
     /// </summary>
     public Type CreateTypeFrom(Type type)
     {
-        var typeBuilder = moduleBuilder.DefineType(type.FullName + SUFFIX,
+        var typeBuilder = moduleBuilder.DefineType($"{type.FullName}{SUFFIX}",
             TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
             typeof(object)
             );
@@ -33,7 +34,7 @@ class ConcreteProxyCreator
             var propertyType = prop.PropertyType;
 
             var fieldBuilder = typeBuilder.DefineField(
-                "field_" + prop.Name,
+                $"field_{prop.Name}",
                 propertyType,
                 FieldAttributes.Private);
 
@@ -49,7 +50,7 @@ class ConcreteProxyCreator
             }
 
             var getMethodBuilder = typeBuilder.DefineMethod(
-                "get_" + prop.Name,
+                $"get_{prop.Name}",
                 MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.VtableLayoutMask,
                 propertyType,
                 Type.EmptyTypes);
@@ -65,13 +66,12 @@ class ConcreteProxyCreator
             // Define the "set" accessor method for Number, which has no return
             // type and takes one argument of type int (Int32).
             var setMethodBuilder = typeBuilder.DefineMethod(
-                "set_" + prop.Name,
+                $"set_{prop.Name}",
                 getMethodBuilder.Attributes,
                 null,
-                new[]
-                {
+                [
                     propertyType
-                });
+                ]);
 
             var setIL = setMethodBuilder.GetILGenerator();
             // Load the instance and then the numeric argument, then store the
@@ -89,7 +89,7 @@ class ConcreteProxyCreator
 
         typeBuilder.AddInterfaceImplementation(type);
 
-        return typeBuilder.CreateTypeInfo().AsType();
+        return typeBuilder.CreateTypeInfo()!.AsType();
     }
 
     /// <summary>
@@ -100,31 +100,31 @@ class ConcreteProxyCreator
     {
         var namedArguments = attributeData.NamedArguments;
 
-        object[] constructorArgs = attributeData.ConstructorArguments.Select(ExtractValue).ToArray();
+        object?[] constructorArgs = [.. attributeData.ConstructorArguments.Select(ExtractValue)];
         if (namedArguments == null)
         {
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs);
+                constructorArgs!);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
         else
         {
-            PropertyInfo[] namedProperties = namedArguments.Select(x => (PropertyInfo)x.MemberInfo).ToArray();
-            object[] propertyValues = namedArguments.Select(x => x.TypedValue.Value).ToArray();
+            PropertyInfo[] namedProperties = [.. namedArguments.Select(x => (PropertyInfo)x.MemberInfo)];
+            object?[] propertyValues = [.. namedArguments.Select(x => x.TypedValue.Value)];
 
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs,
+                constructorArgs!,
                 namedProperties,
-                propertyValues);
+                propertyValues!);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
     }
 
-    static object ExtractValue(CustomAttributeTypedArgument arg)
+    static object? ExtractValue(CustomAttributeTypedArgument arg)
     {
         if (arg.Value is ReadOnlyCollection<CustomAttributeTypedArgument> nestedValue)
         {
