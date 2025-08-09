@@ -1,32 +1,20 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using Logging;
 
-class DefaultLoggerFactory : ILoggerFactory
+class DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory) : ILoggerFactory
 {
-    public DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory)
-    {
-        this.filterLevel = filterLevel;
-        rollingLogger = new RollingLogger(loggingDirectory);
-        isDebugEnabled = filterLevel <= LogLevel.Debug;
-        isInfoEnabled = filterLevel <= LogLevel.Info;
-        isWarnEnabled = filterLevel <= LogLevel.Warn;
-        isErrorEnabled = filterLevel <= LogLevel.Error;
-        isFatalEnabled = filterLevel <= LogLevel.Fatal;
-    }
+    public ILog GetLogger(Type type) => GetLogger(type.FullName!);
 
-    public ILog GetLogger(Type type)
-    {
-        return GetLogger(type.FullName);
-    }
-
-    public ILog GetLogger(string name)
-    {
-        return new NamedLogger(name, this)
+    public ILog GetLogger(string name) =>
+        new NamedLogger(name, this)
         {
             IsDebugEnabled = isDebugEnabled,
             IsInfoEnabled = isInfoEnabled,
@@ -34,10 +22,9 @@ class DefaultLoggerFactory : ILoggerFactory
             IsErrorEnabled = isErrorEnabled,
             IsFatalEnabled = isFatalEnabled
         };
-    }
 
 #pragma warning disable IDE0060 // Remove unused parameter
-    public void Write(string name, LogLevel messageLevel, string message, Exception exception = null)
+    public void Write(string name, LogLevel messageLevel, string? message, Exception? exception = null)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         if (messageLevel < filterLevel)
@@ -46,10 +33,10 @@ class DefaultLoggerFactory : ILoggerFactory
         }
 
         var stringBuilder = new StringBuilder();
-#pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For logging
+#pragma warning disable PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
         var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-#pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
-        var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
+#pragma warning restore PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
+        var paddedLevel = LogLevelName(messageLevel);
 
         stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
 
@@ -79,13 +66,24 @@ class DefaultLoggerFactory : ILoggerFactory
         }
     }
 
-    readonly LogLevel filterLevel;
-    readonly bool isDebugEnabled;
-    readonly bool isErrorEnabled;
-    readonly bool isFatalEnabled;
-    readonly bool isInfoEnabled;
-    readonly bool isWarnEnabled;
+    // Precomputed uppercase and padded representations of the LogLevel names
+    static string LogLevelName(LogLevel level) =>
+        level switch
+        {
+            LogLevel.Debug => "DEBUG",
+            LogLevel.Info => "INFO ",
+            LogLevel.Warn => "WARN ",
+            LogLevel.Error => "ERROR",
+            LogLevel.Fatal => "FATAL",
+            _ => level.ToString().ToUpper().PadRight(5) // fallback preserves original behavior
+        };
 
-    readonly object locker = new object();
-    readonly RollingLogger rollingLogger;
+    readonly bool isDebugEnabled = filterLevel <= LogLevel.Debug;
+    readonly bool isErrorEnabled = filterLevel <= LogLevel.Error;
+    readonly bool isFatalEnabled = filterLevel <= LogLevel.Fatal;
+    readonly bool isInfoEnabled = filterLevel <= LogLevel.Info;
+    readonly bool isWarnEnabled = filterLevel <= LogLevel.Warn;
+
+    readonly Lock locker = new();
+    readonly RollingLogger rollingLogger = new(loggingDirectory);
 }
