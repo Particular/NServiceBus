@@ -1,4 +1,8 @@
+#nullable enable
+
 namespace NServiceBus.Extensibility;
+
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Context bag which is readonly.
@@ -26,7 +30,7 @@ public interface IReadOnlyContextBag
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <param name="result">The type instance.</param>
     /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-    bool TryGet<T>(out T result);
+    bool TryGet<T>([NotNullWhen(true)] out T? result);
 
     /// <summary>
     /// Tries to retrieves the specified type from the context.
@@ -35,5 +39,5 @@ public interface IReadOnlyContextBag
     /// <param name="key">The key of the value being looked up.</param>
     /// <param name="result">The type instance.</param>
     /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-    bool TryGet<T>(string key, out T result);
+    bool TryGet<T>(string key, [NotNullWhen(true)] out T? result);
 }

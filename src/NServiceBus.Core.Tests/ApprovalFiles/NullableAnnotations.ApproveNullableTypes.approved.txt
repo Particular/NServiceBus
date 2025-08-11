@@ -25,7 +25,6 @@ NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.ErrorQueueSettings
 NServiceBus.Extensibility.ExtendableOptionsExtensions
 NServiceBus.Extensibility.IExtendable
-NServiceBus.Extensibility.IReadOnlyContextBag
 NServiceBus.FailedConfig
 NServiceBus.Faults.DelayedRetryMessage
 NServiceBus.Faults.FailedMessage

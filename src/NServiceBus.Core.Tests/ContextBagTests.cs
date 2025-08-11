@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests;
 
 using Extensibility;
 using NUnit.Framework;
@@ -7,17 +9,14 @@ using NUnit.Framework;
 public class ContextBagTests
 {
     [Test]
-    public void Should_allow_storing_null_values()
+    public void Should_not_allow_storing_null_value()
     {
         var contextBag = new ContextBag();
 
-        contextBag.Set<string>("NullValue", null);
-
-        var result = ((IReadOnlyContextBag)contextBag).TryGet("NullValue", out object theValue);
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True, "Should be able to retrieve a null value");
-            Assert.That(theValue, Is.Null);
+            Assert.That(() => contextBag.Set<string>("NullValue", null!), Throws.ArgumentNullException);
+            Assert.That(() => contextBag.SetOnRoot<string>("NullValue", null!), Throws.ArgumentNullException);
         });
     }
 
@@ -28,7 +27,7 @@ public class ContextBagTests
 
         contextBag.Set("MonkeyPatch", "some string");
 
-        ((IReadOnlyContextBag)contextBag).TryGet("MonkeyPatch", out string theValue);
+        _ = ((IReadOnlyContextBag)contextBag).TryGet("MonkeyPatch", out string? theValue);
         Assert.That(theValue, Is.EqualTo("some string"));
     }
 

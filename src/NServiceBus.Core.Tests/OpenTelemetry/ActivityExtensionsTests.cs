@@ -28,7 +28,6 @@ public class ActivityExtensionsTests
         ambientActivity.Start();
 
         var contextBag = new ContextBag();
-        contextBag.SetOutgoingPipelineActitvity(null);
 
         Assert.Multiple(() =>
         {

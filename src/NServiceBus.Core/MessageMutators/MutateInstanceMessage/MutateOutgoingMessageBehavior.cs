@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -9,27 +11,16 @@ using Pipeline;
 using Transport;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
-class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+class MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators)
+    : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators)
-    {
-        this.mutators = mutators;
-    }
-
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
-    {
-        if (hasOutgoingMessageMutators)
-        {
-            return InvokeOutgoingMessageMutators(context, next);
-        }
-
-        return next(context);
-    }
+        => hasOutgoingMessageMutators ? InvokeOutgoingMessageMutators(context, next) : next(context);
 
     async Task InvokeOutgoingMessageMutators(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
-        context.Extensions.TryGet(out LogicalMessage incomingLogicalMessage);
-        context.Extensions.TryGet(out IncomingMessage incomingPhysicalMessage);
+        _ = context.Extensions.TryGet(out LogicalMessage? incomingLogicalMessage);
+        _ = context.Extensions.TryGet(out IncomingMessage? incomingPhysicalMessage);
 
         var mutatorContext = new MutateOutgoingMessageContext(
             context.Message.Instance,
@@ -69,5 +60,4 @@ class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, 
     }
 
     volatile bool hasOutgoingMessageMutators = true;
-    readonly HashSet<IMutateOutgoingMessages> mutators;
 }
