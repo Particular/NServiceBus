@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using Extensibility;
@@ -25,7 +27,7 @@ public static class BestPracticesOptionExtensions
     public static bool IgnoredBestPractices(this ExtendableOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        options.Context.TryGet(out EnforceBestPracticesOptions bestPracticesOptions);
+        _ = options.Context.TryGet<EnforceBestPracticesOptions>(out var bestPracticesOptions);
         return !(bestPracticesOptions?.Enabled ?? true);
     }
 

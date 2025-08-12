@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Generic;
@@ -16,21 +18,15 @@ using NUnit.Framework;
 [TestFixture]
 public class ActivityFactoryTests
 {
-    ActivityFactory activityFactory = new();
+    readonly ActivityFactory activityFactory = new();
 
     TestingActivityListener nsbActivityListener;
 
     [OneTimeSetUp]
-    public void Setup()
-    {
-        nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-    }
+    public void Setup() => nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
     [OneTimeTearDown]
-    public void TearDown()
-    {
-        nsbActivityListener.Dispose();
-    }
+    public void TearDown() => nsbActivityListener.Dispose();
 
     class StartIncomingActivity : ActivityFactoryTests
     {
@@ -192,16 +188,14 @@ public class ActivityFactoryTests
             return activity;
         }
 
-        static MessageContext CreateMessageContext(Dictionary<string, string> messageHeaders = null, ContextBag contextBag = null)
-        {
-            return new MessageContext(
+        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null, ContextBag? contextBag = null) =>
+            new(
                 Guid.NewGuid().ToString(),
                 messageHeaders ?? [],
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",
                 contextBag ?? new ContextBag());
-        }
     }
 
     class StartOutgoingPipelineActivity : ActivityFactoryTests
@@ -214,7 +208,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
 
-            Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
+            Assert.That(activity?.ParentId, Is.EqualTo(ambientActivity.Id));
         }
 
         [Test]
@@ -228,8 +222,8 @@ public class ActivityFactoryTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
-                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+                Assert.That(activity?.ParentId, Is.EqualTo(ambientActivity.Id));
+                Assert.That(activity?.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             });
         }
 
@@ -237,7 +231,7 @@ public class ActivityFactoryTests
         public void Should_set_activity_in_context()
         {
             var context = new FakeRootContext();
-            activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
+            _ = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
 
             Assert.That(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.Not.Null);
         }

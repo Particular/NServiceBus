@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -83,7 +85,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
     {
         var transportTransaction = context.Extensions.Get<TransportTransaction>();
 
-        if (!transportTransaction.TryGet(out Transaction scopeOpenedByTransport))
+        if (!transportTransaction.TryGet<Transaction>(out var scopeOpenedByTransport))
         {
             return;
         }

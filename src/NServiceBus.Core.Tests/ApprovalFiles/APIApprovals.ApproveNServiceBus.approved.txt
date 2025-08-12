@@ -793,11 +793,11 @@ namespace NServiceBus
     }
     public static class RoutingOptionExtensions
     {
-        public static string GetDestination(this NServiceBus.ReplyOptions options) { }
-        public static string GetDestination(this NServiceBus.SendOptions options) { }
-        public static string GetReplyToRoute(this NServiceBus.ReplyOptions options) { }
-        public static string GetReplyToRoute(this NServiceBus.SendOptions options) { }
-        public static string GetRouteToSpecificInstance(this NServiceBus.SendOptions options) { }
+        public static string? GetDestination(this NServiceBus.ReplyOptions options) { }
+        public static string? GetDestination(this NServiceBus.SendOptions options) { }
+        public static string? GetReplyToRoute(this NServiceBus.ReplyOptions options) { }
+        public static string? GetReplyToRoute(this NServiceBus.SendOptions options) { }
+        public static string? GetRouteToSpecificInstance(this NServiceBus.SendOptions options) { }
         public static bool IsRoutingReplyToAnyInstance(this NServiceBus.ReplyOptions options) { }
         public static bool IsRoutingReplyToAnyInstance(this NServiceBus.SendOptions options) { }
         public static bool IsRoutingReplyToThisInstance(this NServiceBus.ReplyOptions options) { }
@@ -1799,9 +1799,9 @@ namespace NServiceBus.Pipeline
     }
     public static class TransportMessageContextExtensions
     {
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingReplyContext context, out NServiceBus.Transport.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Transport.IncomingMessage? message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Transport.IncomingMessage? message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingReplyContext context, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Transport.IncomingMessage? message) { }
     }
 }
 namespace NServiceBus.Recoverability

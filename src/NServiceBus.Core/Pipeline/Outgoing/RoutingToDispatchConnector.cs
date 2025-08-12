@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
@@ -15,7 +17,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
         var dispatchConsistency = DispatchConsistency.Default;
-        if (context.GetOperationProperties().TryGet(out State state) && state.ImmediateDispatch)
+        if (context.GetOperationProperties().TryGet<State>(out var state) && state.ImmediateDispatch)
         {
             dispatchConsistency = DispatchConsistency.Isolated;
         }
@@ -45,7 +47,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
             ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
         }
 
-        if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
+        if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
         {
             pendingOperations.AddRange(operations);
             return Task.CompletedTask;
