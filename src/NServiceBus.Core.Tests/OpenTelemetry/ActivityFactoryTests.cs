@@ -57,7 +57,7 @@ public class ActivityFactoryTests
             var contextBag = new ContextBag();
             contextBag.Set(contextActivity);
 
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
 
@@ -111,7 +111,7 @@ public class ActivityFactoryTests
         {
             using var sendActivity = CreateCompletedActivity("send activity");
 
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id } };
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
@@ -176,7 +176,7 @@ public class ActivityFactoryTests
 
             var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-            Assert.That(activity.Tags.ToImmutableDictionary()["nservicebus.native_message_id"], Is.EqualTo(messageContext.NativeMessageId));
+            Assert.That(activity!.Tags.ToImmutableDictionary()["nservicebus.native_message_id"], Is.EqualTo(messageContext.NativeMessageId));
         }
 
         static Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)
