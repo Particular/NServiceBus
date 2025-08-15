@@ -21,6 +21,18 @@ public class ContextBagTests
     }
 
     [Test]
+    public void Should_not_allow_storing_null_value_even_with_nullable_generic_type()
+    {
+        var contextBag = new ContextBag();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(() => contextBag.Set<string?>("NullValue", null), Throws.ArgumentNullException);
+            Assert.That(() => contextBag.SetOnRoot<string?>("NullValue", null), Throws.ArgumentNullException);
+        });
+    }
+
+    [Test]
     public void ShouldAllowMonkeyPatching()
     {
         var contextBag = new ContextBag();
