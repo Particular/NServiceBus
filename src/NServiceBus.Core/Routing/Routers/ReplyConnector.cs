@@ -14,6 +14,7 @@ class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMes
     public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
     {
         string? replyToAddress = null;
+
         if (context.GetOperationProperties().TryGet<State>(out var state))
         {
             replyToAddress = state.ExplicitDestination;
@@ -56,6 +57,6 @@ class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMes
 
     public class State
     {
-        public string ExplicitDestination { get; set; } = null!;
+        public string? ExplicitDestination { get; set; }
     }
 }
