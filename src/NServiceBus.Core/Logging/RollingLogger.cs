@@ -154,7 +154,7 @@ class RollingLogger(
         currentFilePath = Path.Combine(targetDirectory, fileName);
     }
 
-    protected string currentFilePath = null!;
+    protected string currentFilePath = string.Empty;
     long currentFileSize;
 #pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For rollover of log files, want to use local time
     internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;

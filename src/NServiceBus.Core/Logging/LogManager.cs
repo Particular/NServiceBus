@@ -13,8 +13,6 @@ using System;
 /// </remarks>
 public static class LogManager
 {
-    static LogManager() => Use<DefaultFactory>();
-
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
@@ -63,5 +61,5 @@ public static class LogManager
         return loggerFactory.Value.GetLogger(name);
     }
 
-    static Lazy<ILoggerFactory> loggerFactory = null!;
+    static Lazy<ILoggerFactory> loggerFactory = new(new DefaultFactory().GetLoggingFactory);
 }
