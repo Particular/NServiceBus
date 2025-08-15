@@ -89,7 +89,7 @@ class ConcreteProxyCreator
 
         typeBuilder.AddInterfaceImplementation(type);
 
-        return typeBuilder.CreateTypeInfo()!.AsType();
+        return typeBuilder.CreateTypeInfo().AsType();
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ class ConcreteProxyCreator
         {
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs!);
+                constructorArgs);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
@@ -116,9 +116,9 @@ class ConcreteProxyCreator
 
             var attributeBuilder = new CustomAttributeBuilder(
                 attributeData.Constructor,
-                constructorArgs!,
+                constructorArgs,
                 namedProperties,
-                propertyValues!);
+                propertyValues);
 
             propBuilder.SetCustomAttribute(attributeBuilder);
         }
