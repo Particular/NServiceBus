@@ -6,8 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Pipeline;
 
-class EnforcePublishBestPracticesBehavior(Validations validations)
-    : IBehavior<IOutgoingPublishContext, IOutgoingPublishContext>
+class EnforcePublishBestPracticesBehavior(Validations validations) : IBehavior<IOutgoingPublishContext, IOutgoingPublishContext>
 {
     public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
     {

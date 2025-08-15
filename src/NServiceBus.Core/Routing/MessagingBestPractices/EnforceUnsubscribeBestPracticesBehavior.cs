@@ -6,8 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Pipeline;
 
-class EnforceUnsubscribeBestPracticesBehavior(Validations validations)
-    : IBehavior<IUnsubscribeContext, IUnsubscribeContext>
+class EnforceUnsubscribeBestPracticesBehavior(Validations validations) : IBehavior<IUnsubscribeContext, IUnsubscribeContext>
 {
     public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next)
     {

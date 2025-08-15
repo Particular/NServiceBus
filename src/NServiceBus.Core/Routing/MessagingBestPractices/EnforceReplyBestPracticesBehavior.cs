@@ -6,8 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Pipeline;
 
-class EnforceReplyBestPracticesBehavior(Validations validations)
-    : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
+class EnforceReplyBestPracticesBehavior(Validations validations) : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
 {
     public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
     {

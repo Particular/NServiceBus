@@ -11,8 +11,7 @@ using Pipeline;
 using Transport;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
-class MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMessages> mutators)
-    : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
+class MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMessages> mutators) : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
 {
     public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
         => hasOutgoingTransportMessageMutators ? InvokeOutgoingTransportMessageMutators(context, next) : next(context);
