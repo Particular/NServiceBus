@@ -14,7 +14,7 @@ class ActivityFactory : IActivityFactory
         var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
 
-        if (context.Extensions.TryGet(out Activity? transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
+        if (context.Extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
         {
             ActivityLink[]? links = null;
             if (incomingTraceParentExists && sendSpanId != transportActivity.Id)

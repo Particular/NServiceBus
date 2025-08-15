@@ -20,8 +20,8 @@ class MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMes
     {
         var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
-        _ = context.Extensions.TryGet(out LogicalMessage? incomingLogicalMessage);
-        _ = context.Extensions.TryGet(out IncomingMessage? incomingPhysicalMessage);
+        _ = context.Extensions.TryGet<LogicalMessage>(out var incomingLogicalMessage);
+        _ = context.Extensions.TryGet<IncomingMessage>(out var incomingPhysicalMessage);
 
         var mutatorContext = new MutateOutgoingTransportMessageContext(
             context.Body,

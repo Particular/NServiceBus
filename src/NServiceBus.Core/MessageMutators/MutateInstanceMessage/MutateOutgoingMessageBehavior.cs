@@ -18,8 +18,8 @@ class MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators) :
 
     async Task InvokeOutgoingMessageMutators(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
-        _ = context.Extensions.TryGet(out LogicalMessage? incomingLogicalMessage);
-        _ = context.Extensions.TryGet(out IncomingMessage? incomingPhysicalMessage);
+        _ = context.Extensions.TryGet<LogicalMessage>(out var incomingLogicalMessage);
+        _ = context.Extensions.TryGet<IncomingMessage>(out var incomingPhysicalMessage);
 
         var mutatorContext = new MutateOutgoingMessageContext(
             context.Message.Instance,

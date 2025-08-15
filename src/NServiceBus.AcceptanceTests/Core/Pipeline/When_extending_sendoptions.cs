@@ -66,7 +66,7 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
         {
             public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
             {
-                if (context.Extensions.TryGet(out Context data))
+                if (context.Extensions.TryGet<Context>(out var data))
                 {
                     context.UpdateMessage(new SendMessage
                     {
