@@ -40,7 +40,7 @@ public sealed class FakeSynchronizedStorageSession : ICompletableSynchronizedSto
     public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default)
     {
-        if (!transportTransaction.TryGet(out Transaction ambientTransaction))
+        if (!transportTransaction.TryGet<Transaction>(out var ambientTransaction))
         {
             return new ValueTask<bool>(false);
         }

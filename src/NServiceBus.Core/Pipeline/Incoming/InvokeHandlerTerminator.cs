@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -9,7 +11,7 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : 
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
-        if (context.Extensions.TryGet(out ActiveSagaInstance saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
+        if (context.Extensions.TryGet<ActiveSagaInstance>(out var saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
         {
             return;
         }

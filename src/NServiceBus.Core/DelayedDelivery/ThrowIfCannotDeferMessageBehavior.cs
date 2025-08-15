@@ -11,7 +11,7 @@ sealed class ThrowIfCannotDeferMessageBehavior : IBehavior<IRoutingContext, IRou
 {
     public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
     {
-        if (context.Extensions.TryGet<DispatchProperties>(out var properties) && (properties?.DelayDeliveryWith != null || properties?.DoNotDeliverBefore != null))
+        if (context.Extensions.TryGet<DispatchProperties>(out var properties) && (properties.DelayDeliveryWith != null || properties.DoNotDeliverBefore != null))
         {
             throw new InvalidOperationException("Cannot delay delivery of messages when there is no infrastructure support for delayed messages.");
         }

@@ -41,7 +41,7 @@ class UnicastSendRouter
 
     public virtual UnicastRoutingStrategy Route(IOutgoingSendContext context)
     {
-        if (!context.GetOperationProperties().TryGet(out State state))
+        if (!context.GetOperationProperties().TryGet<State>(out var state))
         {
             state = new State();
         }

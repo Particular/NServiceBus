@@ -1,6 +1,9 @@
+#nullable enable
+
 namespace NServiceBus.Pipeline;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Transport;
 
 /// <summary>
@@ -11,7 +14,7 @@ public static class TransportMessageContextExtensions
     /// <summary>
     /// Returns the incoming physical message if there is one currently processed.
     /// </summary>
-    public static bool TryGetIncomingPhysicalMessage(this IOutgoingReplyContext context, out IncomingMessage message)
+    public static bool TryGetIncomingPhysicalMessage(this IOutgoingReplyContext context, [NotNullWhen(true)] out IncomingMessage? message)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -21,7 +24,7 @@ public static class TransportMessageContextExtensions
     /// <summary>
     /// Returns the incoming physical message if there is one currently processed.
     /// </summary>
-    public static bool TryGetIncomingPhysicalMessage(this IOutgoingLogicalMessageContext context, out IncomingMessage message)
+    public static bool TryGetIncomingPhysicalMessage(this IOutgoingLogicalMessageContext context, [NotNullWhen(true)] out IncomingMessage? message)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -31,7 +34,7 @@ public static class TransportMessageContextExtensions
     /// <summary>
     /// Returns the incoming physical message if there is one currently processed.
     /// </summary>
-    public static bool TryGetIncomingPhysicalMessage(this IOutgoingPhysicalMessageContext context, out IncomingMessage message)
+    public static bool TryGetIncomingPhysicalMessage(this IOutgoingPhysicalMessageContext context, [NotNullWhen(true)] out IncomingMessage? message)
     {
         ArgumentNullException.ThrowIfNull(context);
 

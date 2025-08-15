@@ -4,16 +4,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-class MessageSession : IMessageSession
+class MessageSession(
+    IServiceProvider builder,
+    MessageOperations messageOperations,
+    IPipelineCache pipelineCache,
+    CancellationToken endpointStoppingToken)
+    : IMessageSession
 {
-    public MessageSession(IServiceProvider builder, MessageOperations messageOperations, PipelineCache pipelineCache, CancellationToken cancellationToken)
-    {
-        this.builder = builder;
-        this.messageOperations = messageOperations;
-        this.pipelineCache = pipelineCache;
-        endpointStoppingToken = cancellationToken;
-    }
-
     PipelineRootContext CreateContext(CancellationToken cancellationToken) => new(builder, messageOperations, pipelineCache, cancellationToken);
 
     public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
@@ -71,11 +68,6 @@ class MessageSession : IMessageSession
         using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
         await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
     }
-
-    readonly IServiceProvider builder;
-    readonly MessageOperations messageOperations;
-    readonly PipelineCache pipelineCache;
-    readonly CancellationToken endpointStoppingToken;
 
     internal const string SubscribeAllFlagKey = "NServiceBus.SubscribeAllFlag";
 }

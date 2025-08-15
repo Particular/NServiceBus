@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -21,7 +23,7 @@ class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingRepl
             incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out var sagaId);
             incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out var sagaType);
 
-            if (context.GetOperationProperties().TryGet(out State state))
+            if (context.GetOperationProperties().TryGet<State>(out var state))
             {
                 sagaId = state.SagaIdToUse;
                 sagaType = state.SagaTypeToUse;
@@ -41,8 +43,8 @@ class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingRepl
 
     public class State
     {
-        public string SagaIdToUse { get; set; }
+        public string? SagaIdToUse { get; init; }
 
-        public string SagaTypeToUse { get; set; }
+        public string? SagaTypeToUse { get; init; }
     }
 }

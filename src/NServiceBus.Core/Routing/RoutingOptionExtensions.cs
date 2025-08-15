@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 
@@ -42,11 +44,11 @@ public static class RoutingOptionExtensions
     /// </summary>
     /// <param name="options">Option being extended.</param>
     /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
-    public static string GetDestination(this ReplyOptions options)
+    public static string? GetDestination(this ReplyOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        options.Context.TryGet(out ReplyConnector.State state);
+        _ = options.Context.TryGet<ReplyConnector.State>(out var state);
         return state?.ExplicitDestination;
     }
 
@@ -55,11 +57,11 @@ public static class RoutingOptionExtensions
     /// </summary>
     /// <param name="options">Option being extended.</param>
     /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
-    public static string GetDestination(this SendOptions options)
+    public static string? GetDestination(this SendOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        options.Context.TryGet(out UnicastSendRouter.State state);
+        _ = options.Context.TryGet<UnicastSendRouter.State>(out var state);
         return state?.ExplicitDestination;
     }
 
@@ -84,7 +86,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out UnicastSendRouter.State state))
+        if (options.Context.TryGet<UnicastSendRouter.State>(out var state))
         {
             return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
         }
@@ -113,7 +115,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out UnicastSendRouter.State state))
+        if (options.Context.TryGet<UnicastSendRouter.State>(out var state))
         {
             return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
         }
@@ -141,11 +143,11 @@ public static class RoutingOptionExtensions
     /// </summary>
     /// <param name="options">Option being extended.</param>
     /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
-    public static string GetRouteToSpecificInstance(this SendOptions options)
+    public static string? GetRouteToSpecificInstance(this SendOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
+        if (options.Context.TryGet<UnicastSendRouter.State>(out var state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
         {
             return state.SpecificInstance;
         }
@@ -173,7 +175,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state))
         {
             return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
@@ -201,7 +203,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state))
         {
             return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
@@ -229,7 +231,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state))
         {
             return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
         }
@@ -257,7 +259,7 @@ public static class RoutingOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state))
         {
             return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
         }
@@ -285,11 +287,11 @@ public static class RoutingOptionExtensions
     /// </summary>
     /// <param name="options">Option being extended.</param>
     /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
-    public static string GetReplyToRoute(this ReplyOptions options)
+    public static string? GetReplyToRoute(this ReplyOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
         {
             return state.ExplicitDestination;
         }
@@ -317,11 +319,11 @@ public static class RoutingOptionExtensions
     /// </summary>
     /// <param name="options">Option being extended.</param>
     /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
-    public static string GetReplyToRoute(this SendOptions options)
+    public static string? GetReplyToRoute(this SendOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+        if (options.Context.TryGet<ApplyReplyToAddressBehavior.State>(out var state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
         {
             return state.ExplicitDestination;
         }

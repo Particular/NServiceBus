@@ -1,10 +1,7 @@
 ﻿namespace NServiceBus;
 
 using System.Threading;
+using Core.Tests.Pipeline;
 
-class FakeRootContext : PipelineRootContext
-{
-    public FakeRootContext() : base(null, null, null, CancellationToken.None)
-    {
-    }
-}
+sealed class FakeRootContext() : PipelineRootContext(new ThrowingServiceProvider(), new TestableMessageOperations(),
+    new ThrowingPipelineCache(), CancellationToken.None);

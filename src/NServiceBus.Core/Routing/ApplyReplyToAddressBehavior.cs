@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -15,7 +17,7 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         RouteReplyToAnyInstanceOfThisEndpoint
     }
 
-    public ApplyReplyToAddressBehavior(ReceiveAddresses receiveAddresses, string publicReturnAddress)
+    public ApplyReplyToAddressBehavior(ReceiveAddresses receiveAddresses, string? publicReturnAddress)
     {
         sharedQueue = receiveAddresses.MainReceiveAddress;
         instanceSpecificQueue = receiveAddresses.InstanceReceiveAddress;
@@ -24,7 +26,7 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
 
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
-        if (!context.GetOperationProperties().TryGet(out State state))
+        if (!context.GetOperationProperties().TryGet<State>(out var state))
         {
             state = new State();
         }
@@ -53,7 +55,7 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         }
         else if (state.Option == RouteOption.ExplicitReplyDestination)
         {
-            replyTo = state.ExplicitDestination;
+            replyTo = state.ExplicitDestination!;
         }
         return replyTo;
     }
@@ -78,6 +80,6 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
             }
         }
 
-        public string ExplicitDestination { get; set; }
+        public string? ExplicitDestination { get; set; }
     }
 }

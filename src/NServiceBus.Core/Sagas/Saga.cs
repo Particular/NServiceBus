@@ -129,10 +129,7 @@ public abstract class Saga
     /// Marks the saga as complete.
     /// This may result in the sagas state being deleted by the persister.
     /// </summary>
-    protected void MarkAsComplete()
-    {
-        Completed = true;
-    }
+    protected void MarkAsComplete() => Completed = true;
 
     void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
     {
