@@ -96,7 +96,7 @@ public class MessageMapper : IMessageMapper
 
         InitType(t);
 
-        if ((t.IsInterface || t.IsAbstract) && GetMappedTypeFor(t) is { } mapped)
+        if ((t.IsInterface || t.IsAbstract) && GetMappedTypeFor(t) is Type mapped)
         {
             return RuntimeHelpers.GetUninitializedObject(mapped);
         }
