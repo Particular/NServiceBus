@@ -1,22 +1,21 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-class RollingLogger
+class RollingLogger(
+    string targetDirectory,
+    int numberOfArchiveFilesToKeep = 10,
+    long maxFileSize = RollingLogger.fileLimitInBytes)
 {
-    public RollingLogger(string targetDirectory, int numberOfArchiveFilesToKeep = 10, long maxFileSize = fileLimitInBytes)
-    {
-        this.targetDirectory = targetDirectory;
-        this.numberOfArchiveFilesToKeep = numberOfArchiveFilesToKeep;
-        this.maxFileSize = maxFileSize;
-    }
-
     public void WriteLine(string message)
     {
         SyncFileSystem();
@@ -31,7 +30,7 @@ class RollingLogger
         }
         catch (Exception exception)
         {
-            var errorMessage = $"NServiceBus.RollingLogger Could not write to log file '{currentfilePath}'. Exception: {exception}";
+            var errorMessage = $"NServiceBus.RollingLogger Could not write to log file '{currentFilePath}'. Exception: {exception}";
             Trace.WriteLine(errorMessage);
         }
     }
@@ -39,7 +38,7 @@ class RollingLogger
     protected virtual void AppendLine(string message)
     {
         var messageWithNewline = message + Environment.NewLine;
-        File.AppendAllText(currentfilePath, messageWithNewline, Encoding.UTF8);
+        File.AppendAllText(currentFilePath, messageWithNewline, Encoding.UTF8);
         currentFileSize += messageWithNewline.Length;
     }
 
@@ -56,15 +55,9 @@ class RollingLogger
         PurgeOldFiles(nsbLogFiles);
     }
 
-    bool HasCurrentDateChanged()
-    {
-        return GetDate() != lastWriteDate;
-    }
+    bool HasCurrentDateChanged() => GetDate() != lastWriteDate;
 
-    bool IsCurrentFileTooLarge()
-    {
-        return currentFileSize > maxFileSize;
-    }
+    bool IsCurrentFileTooLarge() => currentFileSize > maxFileSize;
 
     void PurgeOldFiles(List<LogFile> logFiles)
     {
@@ -82,21 +75,17 @@ class RollingLogger
         }
     }
 
-    IEnumerable<string> GetFilesToDelete(IEnumerable<LogFile> logFiles)
-    {
-        return logFiles
+    IEnumerable<string> GetFilesToDelete(IEnumerable<LogFile> logFiles) =>
+        logFiles
             .OrderByDescending(x => x.DatePart)
             .ThenByDescending(x => x.SequenceNumber)
             .Select(x => x.Path)
             .Skip(numberOfArchiveFilesToKeep);
-    }
 
-    internal static LogFile GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today)
-    {
-        return logFiles.Where(x => x.DatePart.Date == today.Date)
+    internal static LogFile? GetTodaysNewest(IEnumerable<LogFile> logFiles, DateTimeOffset today) =>
+        logFiles.Where(x => x.DatePart.Date == today.Date)
             .OrderByDescending(x => x.SequenceNumber)
             .FirstOrDefault();
-    }
 
     static IEnumerable<LogFile> GetNsbLogFiles(string targetDirectory)
     {
@@ -109,7 +98,7 @@ class RollingLogger
         }
     }
 
-    static bool TryDeriveLogInformationFromPath(string file, out LogFile logFile)
+    static bool TryDeriveLogInformationFromPath(string file, [NotNullWhen(true)] out LogFile? logFile)
     {
         logFile = null;
         var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(file);
@@ -131,19 +120,11 @@ class RollingLogger
             return false;
         }
 
-        logFile = new LogFile
-        {
-            DatePart = dateTime,
-            SequenceNumber = sequenceNumber,
-            Path = file
-        };
+        logFile = new LogFile(DatePart: dateTime, SequenceNumber: sequenceNumber, Path: file);
         return true;
     }
 
-    static bool TryParseDate(string datePart, out DateTimeOffset dateTime)
-    {
-        return DateTimeOffset.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
-    }
+    static bool TryParseDate(string datePart, out DateTimeOffset dateTime) => DateTimeOffset.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
 
     void CalculateNewFileName(List<LogFile> logFiles, DateTimeOffset today)
     {
@@ -170,24 +151,16 @@ class RollingLogger
         }
 
         var fileName = $"nsb_log_{today:yyyy-MM-dd}_{sequenceNumber}.txt";
-        currentfilePath = Path.Combine(targetDirectory, fileName);
+        currentFilePath = Path.Combine(targetDirectory, fileName);
     }
 
-    protected string currentfilePath;
+    protected string currentFilePath = string.Empty;
     long currentFileSize;
 #pragma warning disable PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow - For rollover of log files, want to use local time
     internal Func<DateTimeOffset> GetDate = () => DateTimeOffset.Now.Date;
 #pragma warning restore PS0023 // Use DateTime.UtcNow or DateTimeOffset.UtcNow
     DateTimeOffset lastWriteDate;
-    readonly long maxFileSize;
-    readonly int numberOfArchiveFilesToKeep;
-    readonly string targetDirectory;
     const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
 
-    internal class LogFile
-    {
-        public DateTimeOffset DatePart;
-        public string Path;
-        public int SequenceNumber;
-    }
+    internal record LogFile(DateTimeOffset DatePart, string Path, int SequenceNumber);
 }

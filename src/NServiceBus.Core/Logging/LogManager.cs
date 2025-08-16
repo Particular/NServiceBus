@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Logging;
 
 using System;
@@ -11,11 +13,6 @@ using System;
 /// </remarks>
 public static class LogManager
 {
-    static LogManager()
-    {
-        Use<DefaultFactory>();
-    }
-
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
@@ -44,10 +41,7 @@ public static class LogManager
     /// <summary>
     /// Construct a <see cref="ILog" /> using <typeparamref name="T" /> as the name.
     /// </summary>
-    public static ILog GetLogger<T>()
-    {
-        return GetLogger(typeof(T));
-    }
+    public static ILog GetLogger<T>() => GetLogger(typeof(T));
 
     /// <summary>
     /// Construct a <see cref="ILog" /> using <paramref name="type" /> as the name.
@@ -67,5 +61,5 @@ public static class LogManager
         return loggerFactory.Value.GetLogger(name);
     }
 
-    static Lazy<ILoggerFactory> loggerFactory;
+    static Lazy<ILoggerFactory> loggerFactory = new(new DefaultFactory().GetLoggingFactory);
 }

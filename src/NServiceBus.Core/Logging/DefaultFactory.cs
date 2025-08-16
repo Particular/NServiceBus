@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Logging;
 
 using System;
@@ -43,10 +45,7 @@ public class DefaultFactory : LoggingFactoryDefinition
     /// <summary>
     /// Controls the <see cref="LogLevel" />.
     /// </summary>
-    public void Level(LogLevel level)
-    {
-        this.level = new Lazy<LogLevel>(() => level);
-    }
+    public void Level(LogLevel level) => this.level = new Lazy<LogLevel>(() => level);
 
     /// <summary>
     /// The directory to log files to.

@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Logging;
 
 using System;
@@ -36,14 +38,14 @@ public interface ILog
     /// Writes the message at the <see cref="LogLevel.Debug" /> level.
     /// </summary>
     /// <param name="message">Log message.</param>
-    void Debug(string message);
+    void Debug(string? message);
 
     /// <summary>
     /// Writes the message and exception at the <see cref="LogLevel.Debug" /> level.
     /// </summary>
     /// <param name="message">A string to be written.</param>
     /// <param name="exception">An exception to be logged.</param>
-    void Debug(string message, Exception exception);
+    void Debug(string? message, Exception? exception);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Debug" /> level using the specified <paramref name="format" /> provider
@@ -51,20 +53,20 @@ public interface ILog
     /// </summary>
     /// <param name="format">A string containing format items.</param>
     /// <param name="args">Arguments to format.</param>
-    void DebugFormat(string format, params object[] args);
+    void DebugFormat(string format, params object?[] args);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Info" /> level.
     /// </summary>
     /// <param name="message">Log message.</param>
-    void Info(string message);
+    void Info(string? message);
 
     /// <summary>
     /// Writes the message and exception at the <see cref="LogLevel.Info" /> level.
     /// </summary>
     /// <param name="message">A string to be written.</param>
     /// <param name="exception">An exception to be logged.</param>
-    void Info(string message, Exception exception);
+    void Info(string? message, Exception? exception);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Info" /> level using the specified <paramref name="format" /> provider
@@ -72,20 +74,20 @@ public interface ILog
     /// </summary>
     /// <param name="format">A string containing format items.</param>
     /// <param name="args">Arguments to format.</param>
-    void InfoFormat(string format, params object[] args);
+    void InfoFormat(string format, params object?[] args);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Warn" /> level.
     /// </summary>
     /// <param name="message">Log message.</param>
-    void Warn(string message);
+    void Warn(string? message);
 
     /// <summary>
     /// Writes the message and exception at the <see cref="LogLevel.Warn" /> level.
     /// </summary>
     /// <param name="message">A string to be written.</param>
     /// <param name="exception">An exception to be logged.</param>
-    void Warn(string message, Exception exception);
+    void Warn(string? message, Exception? exception);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Warn" /> level using the specified <paramref name="format" /> provider
@@ -93,20 +95,20 @@ public interface ILog
     /// </summary>
     /// <param name="format">A string containing format items.</param>
     /// <param name="args">Arguments to format.</param>
-    void WarnFormat(string format, params object[] args);
+    void WarnFormat(string format, params object?[] args);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Error" /> level.
     /// </summary>
     /// <param name="message">Log message.</param>
-    void Error(string message);
+    void Error(string? message);
 
     /// <summary>
     /// Writes the message and exception at the <see cref="LogLevel.Error" /> level.
     /// </summary>
     /// <param name="message">A string to be written.</param>
     /// <param name="exception">An exception to be logged.</param>
-    void Error(string message, Exception exception);
+    void Error(string? message, Exception? exception);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Error" /> level using the specified <paramref name="format" /> provider
@@ -114,20 +116,20 @@ public interface ILog
     /// </summary>
     /// <param name="format">A string containing format items.</param>
     /// <param name="args">Arguments to format.</param>
-    void ErrorFormat(string format, params object[] args);
+    void ErrorFormat(string format, params object?[] args);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Fatal" /> level.
     /// </summary>
     /// <param name="message">Log message.</param>
-    void Fatal(string message);
+    void Fatal(string? message);
 
     /// <summary>
     /// Writes the message and exception at the <see cref="LogLevel.Fatal" /> level.
     /// </summary>
     /// <param name="message">A string to be written.</param>
     /// <param name="exception">An exception to be logged.</param>
-    void Fatal(string message, Exception exception);
+    void Fatal(string? message, Exception? exception);
 
     /// <summary>
     /// Writes the message at the <see cref="LogLevel.Fatal" /> level using the specified <paramref name="format" /> provider
@@ -135,5 +137,5 @@ public interface ILog
     /// </summary>
     /// <param name="format">A string containing format items.</param>
     /// <param name="args">Arguments to format.</param>
-    void FatalFormat(string format, params object[] args);
+    void FatalFormat(string format, params object?[] args);
 }

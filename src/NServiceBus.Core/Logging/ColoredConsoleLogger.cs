@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.IO;
@@ -8,13 +10,11 @@ static class ColoredConsoleLogger
 {
     static ColoredConsoleLogger()
     {
-        using (var stream = Console.OpenStandardOutput())
-        {
-            logToConsole = stream != Stream.Null;
-        }
+        using var stream = Console.OpenStandardOutput();
+        logToConsole = stream != Stream.Null;
     }
 
-    public static void WriteLine(string message, LogLevel logLevel)
+    public static void WriteLine(string? message, LogLevel logLevel)
     {
         if (!logToConsole)
         {
