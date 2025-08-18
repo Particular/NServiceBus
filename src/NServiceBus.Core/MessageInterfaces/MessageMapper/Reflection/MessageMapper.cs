@@ -101,9 +101,9 @@ public class MessageMapper : IMessageMapper
             return RuntimeHelpers.GetUninitializedObject(mapped);
         }
 
-        if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
+        if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor) && MethodBase.GetMethodFromHandle(ctor, t.TypeHandle) is ConstructorInfo constructorInfo && constructorInfo.Invoke(null) is { } instance)
         {
-            return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)!).Invoke(null);
+            return instance;
         }
 
         return RuntimeHelpers.GetUninitializedObject(t);
