@@ -215,12 +215,14 @@ public class MessageMapper : IMessageMapper
     static string GetTypeName(Type t)
     {
         var args = t.GetGenericArguments();
-        if (args.Length != 2)
+        if (args.Length == 2)
         {
-            return t.FullName!;
+            if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
+            {
+                return t.SerializationFriendlyName();
+            }
         }
-
-        return typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t ? t.SerializationFriendlyName() : t.FullName!;
+        return t.FullName!;
     }
 
     readonly Lock messageInitializationLock = new();
