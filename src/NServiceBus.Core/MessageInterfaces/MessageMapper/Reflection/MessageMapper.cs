@@ -75,13 +75,18 @@ public class MessageMapper : IMessageMapper
     }
 
     /// <summary>
+    /// Calls the <see cref="CreateInstance(Type)" /> and returns its result cast to <typeparamref name="T" />.
+    /// </summary>
+    public T CreateInstance<T>() => (T)CreateInstance(typeof(T));
+
+    /// <summary>
     /// Calls the generic CreateInstance and performs the given action on the result.
     /// </summary>
-    public T CreateInstance<T>(Action<T>? action = null)
+    public T CreateInstance<T>(Action<T> action)
     {
         var result = (T)CreateInstance(typeof(T));
 
-        action?.Invoke(result);
+        action(result);
 
         return result;
     }

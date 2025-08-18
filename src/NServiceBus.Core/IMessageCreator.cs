@@ -10,12 +10,19 @@ using System;
 public interface IMessageCreator
 {
     /// <summary>
+    /// Creates an instance of the message type T.
+    /// </summary>
+    /// <typeparam name="T">The type of message interface to instantiate.</typeparam>
+    /// <returns>A message object that implements the interface T.</returns>
+    T CreateInstance<T>();
+
+    /// <summary>
     /// Creates an instance of the message type T and fills it with data.
     /// </summary>
     /// <typeparam name="T">The type of message interface to instantiate.</typeparam>
     /// <param name="action">An action to set various properties of the instantiated object.</param>
     /// <returns>A message object that implements the interface T.</returns>
-    T CreateInstance<T>(Action<T>? action = null);
+    T CreateInstance<T>(Action<T> action);
 
     /// <summary>
     /// Creates an instance of the given message type.
