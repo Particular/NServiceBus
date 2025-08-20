@@ -70,5 +70,8 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
         context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
     }
 
-    public record State(string? ConversationId = null);
+    public class State
+    {
+        public string? ConversationId { get; set; }
+    }
 }

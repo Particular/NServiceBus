@@ -45,5 +45,8 @@ class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         return next(context);
     }
 
-    public record State(string? CustomCorrelationId);
+    public class State
+    {
+        public string? CustomCorrelationId { get; set; }
+    }
 }
