@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 using System;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 /// <summary>
 /// Uses reflection to map between interfaces and their generated concrete implementations.
@@ -16,15 +18,12 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Initializes a new instance of <see cref="MessageMapper" />.
     /// </summary>
-    public MessageMapper()
-    {
-        concreteProxyCreator = new ConcreteProxyCreator();
-    }
+    public MessageMapper() => concreteProxyCreator = new ConcreteProxyCreator();
 
     /// <summary>
     /// Scans the given types generating concrete classes for interfaces.
     /// </summary>
-    public void Initialize(IEnumerable<Type> types)
+    public void Initialize(IEnumerable<Type>? types)
     {
         if (types == null)
         {
@@ -41,7 +40,7 @@ public class MessageMapper : IMessageMapper
     /// If the given type is concrete, returns the interface it was generated to support.
     /// If the given type is an interface, returns the concrete class generated to implement it.
     /// </summary>
-    public Type GetMappedTypeFor(Type t)
+    public Type? GetMappedTypeFor(Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
 
@@ -49,12 +48,7 @@ public class MessageMapper : IMessageMapper
 
         if (t.IsInterface)
         {
-            if (interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-            {
-                return Type.GetTypeFromHandle(typeHandle);
-            }
-
-            return null;
+            return interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle) ? Type.GetTypeFromHandle(typeHandle) : null;
         }
 
         if (t.IsGenericTypeDefinition)
@@ -62,52 +56,39 @@ public class MessageMapper : IMessageMapper
             return null;
         }
 
-        if (concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-        {
-            return Type.GetTypeFromHandle(typeHandle);
-        }
-
-        return t;
+        return concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle) ? Type.GetTypeFromHandle(typeHandle) : t;
     }
 
     /// <summary>
     /// Returns the type mapped to the given name.
     /// </summary>
-    public Type GetMappedTypeFor(string typeName)
+    public Type? GetMappedTypeFor(string typeName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
         var name = typeName;
         if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
         {
-            name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
+            name = typeName[..^ConcreteProxyCreator.SUFFIX.Length];
         }
 
-        if (nameToType.TryGetValue(name, out var typeHandle))
-        {
-            return Type.GetTypeFromHandle(typeHandle);
-        }
-
-        return null;
+        return nameToType.TryGetValue(name, out var typeHandle) ? Type.GetTypeFromHandle(typeHandle) : null;
     }
+
+    /// <summary>
+    /// Calls the <see cref="CreateInstance(Type)" /> and returns its result cast to <typeparamref name="T" />.
+    /// </summary>
+    public T CreateInstance<T>() => (T)CreateInstance(typeof(T));
 
     /// <summary>
     /// Calls the generic CreateInstance and performs the given action on the result.
     /// </summary>
     public T CreateInstance<T>(Action<T> action)
     {
-        var result = CreateInstance<T>();
+        var result = (T)CreateInstance(typeof(T));
 
-        action?.Invoke(result);
+        action(result);
 
         return result;
-    }
-
-    /// <summary>
-    /// Calls the <see cref="CreateInstance(Type)" /> and returns its result cast to <typeparamref name="T" />.
-    /// </summary>
-    public T CreateInstance<T>()
-    {
-        return (T)CreateInstance(typeof(T));
     }
 
     /// <summary>
@@ -120,21 +101,20 @@ public class MessageMapper : IMessageMapper
 
         InitType(t);
 
-        if (t.IsInterface || t.IsAbstract)
+        if ((t.IsInterface || t.IsAbstract) && GetMappedTypeFor(t) is Type mapped)
         {
-            var mapped = GetMappedTypeFor(t);
             return RuntimeHelpers.GetUninitializedObject(mapped);
         }
 
-        if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
+        if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor) && MethodBase.GetMethodFromHandle(ctor, t.TypeHandle) is ConstructorInfo constructorInfo && constructorInfo.Invoke(null) is { } instance)
         {
-            return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
+            return instance;
         }
 
         return RuntimeHelpers.GetUninitializedObject(t);
     }
 
-    void InitType(Type t)
+    void InitType(Type? t)
     {
         if (t == null || initializedTypes.ContainsKey(t))
         {
@@ -143,7 +123,7 @@ public class MessageMapper : IMessageMapper
 
         InnerInitialize(t);
 
-        initializedTypes.TryAdd(t, true);
+        _ = initializedTypes.TryAdd(t, true);
     }
 
     void InnerInitialize(Type t)
@@ -247,17 +227,16 @@ public class MessageMapper : IMessageMapper
                 return t.SerializationFriendlyName();
             }
         }
-
-        return t.FullName;
+        return t.FullName!;
     }
 
-    readonly object messageInitializationLock = new object();
+    readonly Lock messageInitializationLock = new();
 
-    readonly ConcurrentDictionary<Type, bool> initializedTypes = new ConcurrentDictionary<Type, bool>();
+    readonly ConcurrentDictionary<Type, bool> initializedTypes = new();
 
     readonly ConcreteProxyCreator concreteProxyCreator;
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new ConcurrentDictionary<string, RuntimeTypeHandle>();
-    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new();
+    readonly ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new();
+    readonly ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new();
 }

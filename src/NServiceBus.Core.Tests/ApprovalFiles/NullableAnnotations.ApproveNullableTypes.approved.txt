@@ -47,7 +47,6 @@ NServiceBus.Hosting.HostInformation
 NServiceBus.ICriticalErrorContext
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageConvention
-NServiceBus.IMessageCreator
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
 NServiceBus.ImmediateDispatchOptionExtensions
@@ -64,8 +63,6 @@ NServiceBus.LoadMessageHandlersExtensions
 NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions
-NServiceBus.MessageInterfaces.IMessageMapper
-NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper
 NServiceBus.MessageMutator.MutateIncomingMessageContext
 NServiceBus.MessageMutator.MutateIncomingTransportMessageContext
 NServiceBus.MessageMutator.MutateOutgoingMessageContext

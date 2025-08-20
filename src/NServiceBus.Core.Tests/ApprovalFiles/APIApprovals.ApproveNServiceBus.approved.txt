@@ -1432,9 +1432,9 @@ namespace NServiceBus.MessageInterfaces
 {
     public interface IMessageMapper : NServiceBus.IMessageCreator
     {
-        System.Type GetMappedTypeFor(System.Type t);
-        System.Type GetMappedTypeFor(string typeName);
-        void Initialize(System.Collections.Generic.IEnumerable<System.Type> types);
+        System.Type? GetMappedTypeFor(System.Type t);
+        System.Type? GetMappedTypeFor(string typeName);
+        void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types);
     }
 }
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
@@ -1445,9 +1445,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public object CreateInstance(System.Type t) { }
         public T CreateInstance<T>() { }
         public T CreateInstance<T>(System.Action<T> action) { }
-        public System.Type GetMappedTypeFor(System.Type t) { }
-        public System.Type GetMappedTypeFor(string typeName) { }
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> types) { }
+        public System.Type? GetMappedTypeFor(System.Type t) { }
+        public System.Type? GetMappedTypeFor(string typeName) { }
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types) { }
     }
 }
 namespace NServiceBus.MessageMutator
