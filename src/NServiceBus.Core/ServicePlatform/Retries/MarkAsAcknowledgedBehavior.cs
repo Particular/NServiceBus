@@ -18,7 +18,7 @@ class MarkAsAcknowledgedBehavior : IBehavior<IAuditContext, IAuditContext>
         return next(context);
     }
 
-    public sealed class State
+    public class State
     {
         public static readonly State Instance = new();
 
