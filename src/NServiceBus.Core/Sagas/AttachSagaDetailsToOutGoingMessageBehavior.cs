@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -10,7 +12,7 @@ class AttachSagaDetailsToOutGoingMessageBehavior : IBehavior<IOutgoingLogicalMes
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         //attach the current saga details to the outgoing headers for correlation
-        if (context.Extensions.TryGet(out ActiveSagaInstance saga) && HasBeenFound(saga) && !string.IsNullOrEmpty(saga.SagaId))
+        if (context.Extensions.TryGet<ActiveSagaInstance>(out var saga) && HasBeenFound(saga) && !string.IsNullOrEmpty(saga.SagaId))
         {
             context.Headers[Headers.OriginatingSagaId] = saga.SagaId;
             context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
@@ -19,8 +21,5 @@ class AttachSagaDetailsToOutGoingMessageBehavior : IBehavior<IOutgoingLogicalMes
         return next(context);
     }
 
-    static bool HasBeenFound(ActiveSagaInstance saga)
-    {
-        return !saga.NotFound;
-    }
+    static bool HasBeenFound(ActiveSagaInstance saga) => !saga.NotFound;
 }

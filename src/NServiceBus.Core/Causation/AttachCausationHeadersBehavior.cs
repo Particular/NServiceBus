@@ -37,7 +37,7 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
         var hasIncomingMessageConversationId = incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext);
         var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-        if (context.GetOperationProperties().TryGet<string>(NewConversationId, out var newConversationId))
+        if (context.GetOperationProperties().TryGet<State>(out var state))
         {
             if (hasUserDefinedConversationId)
             {
@@ -47,7 +47,7 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
             {
                 context.Headers[Headers.PreviousConversationId] = conversationIdFromCurrentMessageContext;
             }
-            context.Headers[Headers.ConversationId] = newConversationId ?? conversationIdStrategy(context);
+            context.Headers[Headers.ConversationId] = state.ConversationId ?? conversationIdStrategy(context);
             return;
         }
 
@@ -70,5 +70,8 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
         context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
     }
 
-    public const string NewConversationId = "NewConversationId";
+    public class State
+    {
+        public string? ConversationId { get; set; }
+    }
 }

@@ -14,19 +14,26 @@ public class MessageSessionTests
     public async Task Should_not_share_root_context_across_operations()
     {
         var readValues = new List<int>();
-        var messageOperations = new TestableMessageOperations();
-        messageOperations.SendPipeline.OnInvoke = context =>
+        var messageOperations = new TestableMessageOperations
         {
-            // read existing value
-            if (context.Extensions.TryGet<int>("test", out var i))
+            SendPipeline =
             {
-                readValues.Add(i);
+                OnInvoke = context =>
+                {
+                    // read existing value
+                    if (context.Extensions.TryGet<int>("test", out var i))
+                    {
+                        readValues.Add(i);
+                    }
+
+                    // set value on root
+                    context.Extensions.SetOnRoot("test", 42);
+                }
             }
-            // set value on root
-            context.Extensions.SetOnRoot("test", 42);
         };
 
-        var session = new MessageSession(null, messageOperations, null, CancellationToken.None);
+        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(),
+            CancellationToken.None);
 
         await session.Send(new object());
         await session.Send(new object());
@@ -38,28 +45,40 @@ public class MessageSessionTests
     [Test]
     public void Should_propagate_endpoint_cancellation_status_to_context()
     {
-        var messageOperations = new TestableMessageOperations();
-        messageOperations.SendPipeline.OnInvoke = context =>
+        var messageOperations = new TestableMessageOperations
         {
-            context.CancellationToken.ThrowIfCancellationRequested();
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    context.CancellationToken.ThrowIfCancellationRequested();
+                }
+            }
         };
 
-        var session = new MessageSession(null, messageOperations, null, new CancellationToken(true));
+        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
-        Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken()));
+        Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await session.Send(new object(), CancellationToken.None));
     }
 
     [Test]
     public void Should_propagate_request_cancellation_status_to_context()
     {
-        var messageOperations = new TestableMessageOperations();
-        messageOperations.SendPipeline.OnInvoke = context =>
+        var messageOperations = new TestableMessageOperations
         {
-            context.CancellationToken.ThrowIfCancellationRequested();
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    context.CancellationToken.ThrowIfCancellationRequested();
+                }
+            }
         };
 
-        var session = new MessageSession(null, messageOperations, null, new CancellationToken());
+        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
-        Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
+        Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await session.Send(new object(), new CancellationToken(true)));
     }
 }

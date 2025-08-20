@@ -65,7 +65,7 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
         {
             public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
             {
-                if (context.Extensions.TryGet(out Context data))
+                if (context.Extensions.TryGet<Context>(out var data))
                 {
                     Assert.That(data.SomeProperty, Is.EqualTo("ItWorks"));
                 }

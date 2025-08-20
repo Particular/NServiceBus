@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -9,29 +11,17 @@ using Pipeline;
 using Transport;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
-class MutateOutgoingTransportMessageBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
+class MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMessages> mutators) : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
 {
-    public MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMessages> mutators)
-    {
-        this.mutators = mutators;
-    }
-
     public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
-    {
-        if (hasOutgoingTransportMessageMutators)
-        {
-            return InvokeOutgoingTransportMessageMutators(context, next);
-        }
-
-        return next(context);
-    }
+        => hasOutgoingTransportMessageMutators ? InvokeOutgoingTransportMessageMutators(context, next) : next(context);
 
     async Task InvokeOutgoingTransportMessageMutators(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
     {
         var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
-        context.Extensions.TryGet(out LogicalMessage incomingLogicalMessage);
-        context.Extensions.TryGet(out IncomingMessage incomingPhysicalMessage);
+        _ = context.Extensions.TryGet<LogicalMessage>(out var incomingLogicalMessage);
+        _ = context.Extensions.TryGet<IncomingMessage>(out var incomingPhysicalMessage);
 
         var mutatorContext = new MutateOutgoingTransportMessageContext(
             context.Body,
@@ -72,5 +62,4 @@ class MutateOutgoingTransportMessageBehavior : IBehavior<IOutgoingPhysicalMessag
     }
 
     volatile bool hasOutgoingTransportMessageMutators = true;
-    readonly HashSet<IMutateOutgoingTransportMessages> mutators;
 }

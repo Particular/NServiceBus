@@ -3,7 +3,6 @@ Changes that make this list longer should not be approved.
 -----
 NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings
 NServiceBus.AutoSubscribeSettingsExtensions
-NServiceBus.BestPracticesOptionExtensions
 NServiceBus.ConfigureError
 NServiceBus.ConfigurePurging
 NServiceBus.ConnectorContextExtensions
@@ -25,7 +24,6 @@ NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.ErrorQueueSettings
 NServiceBus.Extensibility.ExtendableOptionsExtensions
 NServiceBus.Extensibility.IExtendable
-NServiceBus.Extensibility.IReadOnlyContextBag
 NServiceBus.FailedConfig
 NServiceBus.Faults.DelayedRetryMessage
 NServiceBus.Faults.FailedMessage
@@ -49,7 +47,6 @@ NServiceBus.IDistributionPolicy
 NServiceBus.IMessageConvention
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
-NServiceBus.ImmediateDispatchOptionExtensions
 NServiceBus.ImmediateRetriesSettings
 NServiceBus.ImmediateRetry
 NServiceBus.IPipelineContext
@@ -117,7 +114,6 @@ NServiceBus.Pipeline.PipelineTerminator`1
 NServiceBus.Pipeline.RegisterStep
 NServiceBus.Pipeline.StageConnector`2
 NServiceBus.Pipeline.StageForkConnector`3
-NServiceBus.Pipeline.TransportMessageContextExtensions
 NServiceBus.RateLimitSettings
 NServiceBus.ReceiveAddresses
 NServiceBus.ReceiveFeatureConfigurationContextExtensions
@@ -148,7 +144,6 @@ NServiceBus.Routing.UnicastRoute
 NServiceBus.Routing.UnicastRoutingStrategy
 NServiceBus.Routing.UnicastRoutingTable
 NServiceBus.RoutingFeatureSettingsExtensions
-NServiceBus.RoutingOptionExtensions
 NServiceBus.RoutingSettings
 NServiceBus.RoutingSettings`1
 NServiceBus.Sagas.ActiveSagaInstance

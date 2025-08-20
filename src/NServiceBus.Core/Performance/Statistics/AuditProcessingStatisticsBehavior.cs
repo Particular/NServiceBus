@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -8,7 +10,7 @@ class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext
 {
     public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
     {
-        if (context.Extensions.TryGet(out ProcessingStatisticsBehavior.State state))
+        if (context.Extensions.TryGet<ProcessingStatisticsBehavior.State>(out var state))
         {
             context.AuditMetadata[Headers.ProcessingStarted] = DateTimeOffsetHelper.ToWireFormattedString(state.ProcessingStarted);
             // We can't take the processing time from the state since we don't know it yet.

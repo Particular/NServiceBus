@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -6,7 +8,7 @@ using Extensibility;
 /// <summary>
 /// Provides ways to request immediate dispatch of messages.
 /// </summary>
-public static partial class ImmediateDispatchOptionExtensions
+public static class ImmediateDispatchOptionExtensions
 {
     /// <summary>
     /// Requests that the message be dispatched to the transport immediately.
@@ -33,7 +35,7 @@ public static partial class ImmediateDispatchOptionExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        options.GetExtensions().TryGet(out RoutingToDispatchConnector.State state);
+        options.GetExtensions().TryGet<RoutingToDispatchConnector.State>(out var state);
 
         return state?.ImmediateDispatch ?? false;
     }

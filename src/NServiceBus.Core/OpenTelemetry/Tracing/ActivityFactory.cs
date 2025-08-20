@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System.Diagnostics;
 using Pipeline;
@@ -6,15 +8,15 @@ using Transport;
 
 class ActivityFactory : IActivityFactory
 {
-    public Activity StartIncomingPipelineActivity(MessageContext context)
+    public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
-        Activity activity;
+        Activity? activity;
         var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
 
-        if (context.Extensions.TryGet(out Activity transportActivity) && transportActivity != null) // attach to transport span but link receive pipeline span to send pipeline span
+        if (context.Extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
         {
-            ActivityLink[] links = null;
+            ActivityLink[]? links = null;
             if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
             {
                 if (activityContextCreatedFromIncomingTraceParent)
@@ -30,7 +32,7 @@ class ActivityFactory : IActivityFactory
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
             var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace.Equals(bool.TrueString))
+            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
             {
                 // create a new trace or root activity
                 ActivityLink[] links = [new ActivityLink(sendSpanContext)];
@@ -67,7 +69,7 @@ class ActivityFactory : IActivityFactory
         return activity;
     }
 
-    public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
+    public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
 
@@ -83,7 +85,7 @@ class ActivityFactory : IActivityFactory
         return activity;
     }
 
-    public Activity StartHandlerActivity(MessageHandler messageHandler)
+    public Activity? StartHandlerActivity(MessageHandler messageHandler)
     {
         if (Activity.Current == null)
         {

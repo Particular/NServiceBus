@@ -46,7 +46,7 @@ public class RetryAcknowledgementBehaviorTests
         {
             Assert.That(addressTag.Destination, Is.EqualTo(acknowledgementQueue));
 
-            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.True);
+            Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.True);
         });
     }
 
@@ -86,7 +86,7 @@ public class RetryAcknowledgementBehaviorTests
         Assert.Multiple(() =>
         {
             Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
-            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
+            Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.False);
         });
     }
 
@@ -104,7 +104,7 @@ public class RetryAcknowledgementBehaviorTests
         Assert.Multiple(() =>
         {
             Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
-            Assert.That(context.Extensions.TryGet(out MarkAsAcknowledgedBehavior.State _), Is.False);
+            Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.False);
         });
     }
 

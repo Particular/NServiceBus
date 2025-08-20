@@ -27,7 +27,7 @@ public class ContextBag : IReadOnlyContextBag
     /// </summary>
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <returns>The type instance.</returns>
-    public T? Get<T>() => Get<T>(typeof(T).FullName!);
+    public T Get<T>() => Get<T>(typeof(T).FullName!);
 
     /// <summary>
     /// Tries to retrieve the specified type from the context.
@@ -35,7 +35,7 @@ public class ContextBag : IReadOnlyContextBag
     /// <typeparam name="T">The type to retrieve.</typeparam>
     /// <param name="result">The type instance.</param>
     /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-    public bool TryGet<T>(out T? result) => TryGet(typeof(T).FullName!, out result);
+    public bool TryGet<T>([NotNullWhen(true)] out T? result) => TryGet(typeof(T).FullName!, out result);
 
     /// <summary>
     /// Tries to retrieve the specified type from the context.
@@ -44,12 +44,12 @@ public class ContextBag : IReadOnlyContextBag
     /// <param name="key">The key of the value being looked up.</param>
     /// <param name="result">The type instance.</param>
     /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-    public bool TryGet<T>(string key, out T? result)
+    public bool TryGet<T>(string key, [NotNullWhen(true)] out T? result)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         if (stash?.TryGetValue(key, out var value) == true)
         {
-            result = (T?)value;
+            result = (T)value;
             return true;
         }
 
@@ -63,7 +63,7 @@ public class ContextBag : IReadOnlyContextBag
     }
 
     /// <inheritdoc />
-    public T? Get<T>(string key)
+    public T Get<T>(string key)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
@@ -81,7 +81,7 @@ public class ContextBag : IReadOnlyContextBag
     /// <summary>
     /// Gets the requested extension, a new one will be created if needed.
     /// </summary>
-    public T? GetOrCreate<T>() where T : class, new()
+    public T GetOrCreate<T>() where T : class, new()
     {
         if (TryGet(out T? value))
         {
@@ -89,9 +89,7 @@ public class ContextBag : IReadOnlyContextBag
         }
 
         var newInstance = new T();
-
         Set(newInstance);
-
         return newInstance;
     }
 
@@ -126,6 +124,8 @@ public class ContextBag : IReadOnlyContextBag
     public void Set<T>(string key, T t)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        ArgumentNullException.ThrowIfNull(t);
+
         GetOrCreateStash()[key] = t;
     }
 
@@ -136,7 +136,13 @@ public class ContextBag : IReadOnlyContextBag
     /// Be careful, values set on the root are available to all pipeline forks that are created off the root context! Therefore there there's a risk of conflicting keys or overriding existing keys from other forks. The same pipeline behaviors can be executed multiple times on nested chains (e.g. nested sends).
     /// 
     /// </summary>
-    internal void SetOnRoot<T>(string key, T t) => root.Set(key, t);
+    internal void SetOnRoot<T>(string key, T t)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        ArgumentNullException.ThrowIfNull(t);
+
+        root.Set(key, t);
+    }
 
     /// <summary>
     /// Merges the passed context into this one.
@@ -156,7 +162,7 @@ public class ContextBag : IReadOnlyContextBag
         }
     }
 
-    Dictionary<string, object?> GetOrCreateStash()
+    Dictionary<string, object> GetOrCreateStash()
     {
         stash ??= [];
 
@@ -174,5 +180,5 @@ public class ContextBag : IReadOnlyContextBag
 
     private protected ContextBag root;
 
-    Dictionary<string, object?>? stash;
+    Dictionary<string, object>? stash;
 }

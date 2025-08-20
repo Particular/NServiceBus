@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -19,7 +20,7 @@ class MarkAsAcknowledgedBehavior : IBehavior<IAuditContext, IAuditContext>
 
     public class State
     {
-        public static readonly State Instance = new State();
+        public static readonly State Instance = new();
 
         State()
         {

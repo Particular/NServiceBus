@@ -111,7 +111,7 @@ public abstract class Saga
         }
 
         options.SetDestination(Entity.Originator);
-        options.Context.Set(new AttachCorrelationIdBehavior.State(Entity.OriginalMessageId));
+        options.Context.Set(new AttachCorrelationIdBehavior.State { CustomCorrelationId = Entity.OriginalMessageId });
 
         //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since
         //that would cause the saga that started us (if it was a saga) to not be found. When we have metadata available in the future we'll set the correct id and type
@@ -129,10 +129,7 @@ public abstract class Saga
     /// Marks the saga as complete.
     /// This may result in the sagas state being deleted by the persister.
     /// </summary>
-    protected void MarkAsComplete()
-    {
-        Completed = true;
-    }
+    protected void MarkAsComplete() => Completed = true;
 
     void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
     {

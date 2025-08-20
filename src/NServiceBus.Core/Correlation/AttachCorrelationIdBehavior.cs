@@ -12,7 +12,7 @@ class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         string? correlationId = null;
-        if (context.GetOperationProperties().TryGet(out State state))
+        if (context.GetOperationProperties().TryGet<State>(out var state))
         {
             correlationId = state.CustomCorrelationId;
         }
@@ -45,5 +45,8 @@ class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         return next(context);
     }
 
-    public record State(string? CustomCorrelationId);
+    public class State
+    {
+        public string? CustomCorrelationId { get; set; }
+    }
 }
