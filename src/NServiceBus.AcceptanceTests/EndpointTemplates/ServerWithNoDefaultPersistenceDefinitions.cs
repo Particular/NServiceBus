@@ -12,6 +12,8 @@ using NServiceBus.Serialization;
 using Settings;
 using Unicast.Messages;
 using ProtoBuf.Meta;
+using NServiceBus.Settings;
+using NServiceBus.Configuration.AdvancedExtensibility;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
@@ -46,7 +48,7 @@ public class ProtoBufSerializer :
     /// <summary>
     /// <see cref="SerializationDefinition.Configure"/>
     /// </summary>
-    public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings) =>
+    public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) =>
         _ =>
         {
             var runtimeTypeModel = settings.GetRuntimeTypeModel();
@@ -92,9 +94,10 @@ class MessageSerializer :
         runtimeTypeModel.Serialize(stream, message);
     }
 
-    public object[] Deserialize(Stream stream, IList<Type> messageTypes)
+    public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes)
     {
         var messageType = messageTypes.First();
+        using var stream = new MemoryStream(body.ToArray(), writable: false);
         var message = runtimeTypeModel.Deserialize(stream, null, messageType);
         return new[] { message };
     }
@@ -115,7 +118,7 @@ public static class ProtoBufConfigurationExtensions
         settings.Set(runtimeTypeModel);
     }
 
-    internal static RuntimeTypeModel GetRuntimeTypeModel(this ReadOnlySettings settings) =>
+    internal static RuntimeTypeModel GetRuntimeTypeModel(this IReadOnlySettings settings) =>
         settings.GetOrDefault<RuntimeTypeModel>();
 
     /// <summary>
@@ -133,7 +136,7 @@ public static class ProtoBufConfigurationExtensions
         settings.Set("NServiceBus.ProtoBuf.ContentTypeKey", contentTypeKey);
     }
 
-    internal static string GetContentTypeKey(this ReadOnlySettings settings) =>
+    internal static string GetContentTypeKey(this IReadOnlySettings settings) =>
         settings.GetOrDefault<string>("NServiceBus.ProtoBuf.ContentTypeKey");
 }
 
