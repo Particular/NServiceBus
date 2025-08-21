@@ -97,8 +97,13 @@ class MessageSerializer :
     public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes)
     {
         var messageType = messageTypes.First();
-        using var stream = new MemoryStream(body.ToArray(), writable: false);
-        var message = runtimeTypeModel.Deserialize(stream, null, messageType);
+
+        object message = null;
+        using (var stream = new MemoryStream(body.ToArray(), writable: false))
+        {
+            message = runtimeTypeModel.Deserialize(stream, null, messageType);
+        }
+
         return new[] { message };
     }
 
