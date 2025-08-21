@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 using AcceptanceTesting.Customization;
 using AcceptanceTesting.Support;
 using MessageInterfaces;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Serialization;
+using NUnit.Framework.Internal;
+using ProtoBuf;
+using ProtoBuf.Meta;
 using Settings;
 using Unicast.Messages;
-using ProtoBuf.Meta;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NUnit.Framework.Internal;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
@@ -96,6 +97,8 @@ class ProtobufMessageSerializer :
             this.runtimeTypeModel = runtimeTypeModel;
         }
 
+        this.runtimeTypeModel.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
+
         if (contentType == null)
         {
             ContentType = "protobuf";
@@ -131,6 +134,25 @@ class ProtobufMessageSerializer :
     }
 
     public string ContentType { get; }
+}
+
+[ProtoContract]
+public class DateTimeOffsetSurrogate
+{
+    [ProtoMember(1)]
+    public required string DateTimeString { get; set; }
+
+    public static implicit operator DateTimeOffsetSurrogate(DateTimeOffset value)
+    {
+        var dateTimeString = new DateTimeOffsetSurrogate { DateTimeString = value.ToString("O") };
+
+        return dateTimeString;
+    }
+
+    public static implicit operator DateTimeOffset(DateTimeOffsetSurrogate value)
+    {
+        return DateTimeOffset.Parse(value.DateTimeString);
+    }
 }
 
 public static class ProtoBufConfigurationExtensions
