@@ -12,7 +12,6 @@ using NServiceBus.Serialization;
 using Settings;
 using Unicast.Messages;
 using ProtoBuf.Meta;
-using NServiceBus.Settings;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NUnit.Framework.Internal;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
@@ -37,7 +36,7 @@ public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
         //var serializer = builder.UseSerialization<ProtoBufSerializer>();
         //serializer.RuntimeTypeModel(RuntimeTypeModel.Default);
 
-        await configurationBuilderCustomization(builder).ConfigureAwait(false);
+        await configurationBuilderCustomization(builder);
 
         // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
         builder.ScanTypesForTest(endpointConfiguration);
@@ -52,31 +51,31 @@ public class ProtoBufSerializer :
     /// <summary>
     /// <see cref="SerializationDefinition.Configure"/>
     /// </summary>
-    public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) =>
-        _ =>
+    public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
+    {
+        var runtimeTypeModel = settings.GetRuntimeTypeModel();
+
+        if (runtimeTypeModel == null)
         {
-            var runtimeTypeModel = settings.GetRuntimeTypeModel();
+            runtimeTypeModel = RuntimeTypeModel.Create();
 
-            if (runtimeTypeModel == null)
+            var registry = settings.Get<MessageMetadataRegistry>();
+            var messageTypes = registry.GetAllMessages().Select(m => m.MessageType);
+
+            foreach (var messageType in messageTypes)
             {
-                runtimeTypeModel = RuntimeTypeModel.Create();
-
-                var registry = settings.Get<MessageMetadataRegistry>();
-                var messageTypes = registry.GetAllMessages().Select(m => m.MessageType);
-
-                foreach (var messageType in messageTypes)
+                var metaType = runtimeTypeModel.Add(messageType, false);
+                var propertyCounter = 1;
+                var props = messageType.GetProperties();
+                foreach (var prop in props)
                 {
-                    var metaType = runtimeTypeModel.Add(messageType, false);
-                    var propertyCounter = 1;
-                    foreach (var prop in messageType.GetProperties())
-                    {
-                        metaType.Add(propertyCounter++, prop.Name);
-                    }
+                    metaType.Add(propertyCounter++, prop.Name);
                 }
             }
-            var contentTypeKey = settings.GetContentTypeKey();
-            return new ProtobufMessageSerializer(contentTypeKey, runtimeTypeModel);
-        };
+        }
+        var contentTypeKey = settings.GetContentTypeKey();
+        return _ => new ProtobufMessageSerializer(contentTypeKey, runtimeTypeModel);
+    }
 }
 
 class ProtobufMessageSerializer :
