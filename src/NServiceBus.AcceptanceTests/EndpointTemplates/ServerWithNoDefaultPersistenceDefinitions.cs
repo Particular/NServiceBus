@@ -7,15 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting.Customization;
 using AcceptanceTesting.Support;
-using Avro.IO;
-using Avro.Reflect;
-using Chr.Avro.Abstract;
-using Chr.Avro.Representation;
 using MessageInterfaces;
 using NServiceBus.Serialization;
 using Settings;
 using Unicast.Messages;
-using Schema = Avro.Schema;
+using ProtoBuf.Meta;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
@@ -33,7 +29,7 @@ public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 
         await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
-        builder.UseSerialization<AvroSerializer>();
+        builder.UseSerialization<ProtoBufSerializer>();
 
         await configurationBuilderCustomization(builder).ConfigureAwait(false);
 
@@ -44,69 +40,110 @@ public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     }
 }
 
-public class AvroSerializer : SerializationDefinition
+public class ProtoBufSerializer :
+    SerializationDefinition
 {
-    public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
-    {
-        //for now use reflection to generate the schemas
-        var registry = settings.Get<MessageMetadataRegistry>();
-        var messageTypes = registry.GetAllMessages().Select(m => m.MessageType);
-        var schemaCache = new SchemaCache();
-
-        foreach (var messageType in messageTypes)
+    /// <summary>
+    /// <see cref="SerializationDefinition.Configure"/>
+    /// </summary>
+    public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings) =>
+        _ =>
         {
-            var builder = new SchemaBuilder(
-            nullableReferenceTypeBehavior: NullableReferenceTypeBehavior.All);
-            var chrSchema = builder.BuildSchema(messageType); // a RecordSchema instance
-
-            var writer = new JsonSchemaWriter();
-            var schemaJson = writer.Write(chrSchema);
-
-            Console.WriteLine(schemaJson);
-            schemaCache.Add(messageType, Schema.Parse(schemaJson));
-        }
-
-        return _ => new AvroMessageSerializer(schemaCache, new ClassCache());
-    }
+            var runtimeTypeModel = settings.GetRuntimeTypeModel();
+            var contentTypeKey = settings.GetContentTypeKey();
+            return new MessageSerializer(contentTypeKey, runtimeTypeModel);
+        };
 }
 
-public class AvroMessageSerializer(SchemaCache schemaCache, ClassCache classCache) : IMessageSerializer
+class MessageSerializer :
+    IMessageSerializer
 {
-    public string ContentType => "avro/binary";
+    RuntimeTypeModel runtimeTypeModel;
+
+    public MessageSerializer(string? contentType, RuntimeTypeModel? runtimeTypeModel)
+    {
+        if (runtimeTypeModel == null)
+        {
+            this.runtimeTypeModel = RuntimeTypeModel.Default;
+        }
+        else
+        {
+            this.runtimeTypeModel = runtimeTypeModel;
+        }
+
+        if (contentType == null)
+        {
+            ContentType = "protobuf";
+        }
+        else
+        {
+            ContentType = contentType;
+        }
+    }
 
     public void Serialize(object message, Stream stream)
     {
-        // TODO: serializing records fails
-        var schema = schemaCache.GetSchema(message.GetType());
-        var writer = new ReflectDefaultWriter(message.GetType(), schema, classCache);
-
-        writer.Write(message, new BinaryEncoder(stream));
-    }
-
-    public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
-    {
-        var messages = new List<object>();
-        foreach (var messageType in messageTypes)
+        var messageType = message.GetType();
+        if (messageType.Name.EndsWith("__impl"))
         {
-            var schema = schemaCache.GetSchema(messageType);
-            var reader = new ReflectDefaultReader(messageType, schema, schema, classCache);
-            using var stream = new ReadOnlyStream(body);
-            var message = reader.Read(null, schema, schema, new BinaryDecoder(stream));
-            messages.Add(message);
+            throw new("Interface based message are not supported. Create a class that implements the desired interface.");
         }
 
-        return messages.ToArray();
+        runtimeTypeModel.Serialize(stream, message);
     }
+
+    public object[] Deserialize(Stream stream, IList<Type> messageTypes)
+    {
+        var messageType = messageTypes.First();
+        var message = runtimeTypeModel.Deserialize(stream, null, messageType);
+        return new[] { message };
+    }
+
+    public string ContentType { get; }
 }
 
-public class SchemaCache
+public static class ProtoBufConfigurationExtensions
 {
-    public Schema GetSchema(Type getType) => schemaCache[getType];
-
-    readonly IDictionary<Type, Schema> schemaCache = new Dictionary<Type, Schema>();
-
-    public void Add(Type messageType, Schema schema)
+    /// <summary>
+    /// Configures the <see cref="RuntimeTypeModel"/> to use.
+    /// </summary>
+    /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>
+    /// <param name="runtimeTypeModel">The <see cref="RuntimeTypeModel"/> to use.</param>
+    public static void RuntimeTypeModel(this SerializationExtensions<ProtoBufSerializer> config, RuntimeTypeModel runtimeTypeModel)
     {
-        schemaCache[messageType] = schema;
+        var settings = config.GetSettings();
+        settings.Set(runtimeTypeModel);
+    }
+
+    internal static RuntimeTypeModel GetRuntimeTypeModel(this ReadOnlySettings settings) =>
+        settings.GetOrDefault<RuntimeTypeModel>();
+
+    /// <summary>
+    /// Configures string to use for <see cref="Headers.ContentType"/> headers.
+    /// </summary>
+    /// <remarks>
+    /// Defaults to "wire".
+    /// </remarks>
+    /// <param name="config">The <see cref="SerializationExtensions{T}"/> instance.</param>
+    /// <param name="contentTypeKey">The content type key to use.</param>
+    public static void ContentTypeKey(this SerializationExtensions<ProtoBufSerializer> config, string contentTypeKey)
+    {
+        Guard.AgainstEmpty(contentTypeKey, nameof(contentTypeKey));
+        var settings = config.GetSettings();
+        settings.Set("NServiceBus.ProtoBuf.ContentTypeKey", contentTypeKey);
+    }
+
+    internal static string GetContentTypeKey(this ReadOnlySettings settings) =>
+        settings.GetOrDefault<string>("NServiceBus.ProtoBuf.ContentTypeKey");
+}
+
+static class Guard
+{
+    public static void AgainstEmpty(string value, string argumentName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(argumentName);
+        }
     }
 }
