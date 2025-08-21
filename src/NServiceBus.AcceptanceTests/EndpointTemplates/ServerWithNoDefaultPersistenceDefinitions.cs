@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTests.EndpointTemplates;
 
 using System;
 using System.Collections.Generic;
@@ -119,7 +121,7 @@ class ProtobufMessageSerializer :
     {
         var messageType = messageTypes.First();
 
-        object message = null;
+        object message;
         using (var stream = new MemoryStream(body.ToArray(), writable: false))
         {
             message = runtimeTypeModel.Deserialize(stream, null, messageType);
