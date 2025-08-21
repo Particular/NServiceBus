@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#pragma warning disable 1591 // Disable CS1591 for the following code
+namespace NServiceBus;
 
 using System;
 using System.IO;
