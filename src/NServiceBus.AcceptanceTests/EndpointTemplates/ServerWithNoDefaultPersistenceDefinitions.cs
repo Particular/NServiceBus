@@ -14,6 +14,8 @@ using Unicast.Messages;
 using ProtoBuf.Meta;
 using NServiceBus.Settings;
 using NServiceBus.Configuration.AdvancedExtensibility;
+using NUnit.Framework.Internal;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
@@ -32,6 +34,8 @@ public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
         await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
         builder.UseSerialization<ProtoBufSerializer>();
+        //var serializer = builder.UseSerialization<ProtoBufSerializer>();
+        //serializer.RuntimeTypeModel(RuntimeTypeModel.Default);
 
         await configurationBuilderCustomization(builder).ConfigureAwait(false);
 
@@ -52,17 +56,35 @@ public class ProtoBufSerializer :
         _ =>
         {
             var runtimeTypeModel = settings.GetRuntimeTypeModel();
+
+            if (runtimeTypeModel == null)
+            {
+                runtimeTypeModel = RuntimeTypeModel.Create();
+
+                var registry = settings.Get<MessageMetadataRegistry>();
+                var messageTypes = registry.GetAllMessages().Select(m => m.MessageType);
+
+                foreach (var messageType in messageTypes)
+                {
+                    var metaType = runtimeTypeModel.Add(messageType, false);
+                    var propertyCounter = 1;
+                    foreach (var prop in messageType.GetProperties())
+                    {
+                        metaType.Add(propertyCounter++, prop.Name);
+                    }
+                }
+            }
             var contentTypeKey = settings.GetContentTypeKey();
-            return new MessageSerializer(contentTypeKey, runtimeTypeModel);
+            return new ProtobufMessageSerializer(contentTypeKey, runtimeTypeModel);
         };
 }
 
-class MessageSerializer :
+class ProtobufMessageSerializer :
     IMessageSerializer
 {
     RuntimeTypeModel runtimeTypeModel;
 
-    public MessageSerializer(string? contentType, RuntimeTypeModel? runtimeTypeModel)
+    public ProtobufMessageSerializer(string? contentType, RuntimeTypeModel? runtimeTypeModel)
     {
         if (runtimeTypeModel == null)
         {
