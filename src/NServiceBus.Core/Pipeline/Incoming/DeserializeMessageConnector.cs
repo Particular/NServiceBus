@@ -66,14 +66,17 @@ class DeserializeMessageConnector(
             return [];
         }
 
-        if (physicalMessage.Body.Length == 0)
+        bool hasEnclosedMessageTypesValue = physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue);
+
+        if (!hasEnclosedMessageTypesValue && physicalMessage.Body.Length == 0)
         {
             log.Debug("Received a message without body. Skipping deserialization.");
             return [];
         }
 
         List<Type>? messageTypes = null;
-        if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
+
+        if (hasEnclosedMessageTypesValue)
         {
             messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
                 static (key, registry) =>
@@ -119,15 +122,21 @@ class DeserializeMessageConnector(
         // add the default content type
         physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-        var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
-
-        var logicalMessages = new LogicalMessage[deserializedMessages.Length];
-        for (var i = 0; i < deserializedMessages.Length; i++)
+        if (physicalMessage.Body.Length != 0)
         {
-            var x = deserializedMessages[i];
-            logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
+            var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+
+            var logicalMessages = new LogicalMessage[deserializedMessages.Length];
+            for (var i = 0; i < deserializedMessages.Length; i++)
+            {
+                var x = deserializedMessages[i];
+                logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
+            }
+
+            return logicalMessages;
         }
-        return logicalMessages;
+
+        return [logicalMessageFactory.Create(messageTypes![0], null)];
     }
 
     static bool DoesTypeHaveImplAddedByVersion3(ReadOnlySpan<char> existingTypeString) => existingTypeString.IndexOf(ImplSuffix) != -1;
