@@ -70,7 +70,7 @@ class DeserializeMessageConnector(
 
         if (!hasEnclosedMessageTypesValue && physicalMessage.Body.Length == 0)
         {
-            log.Debug("Received a message without body. Skipping deserialization.");
+            log.Debug("Received a message without body or message type header. Skipping deserialization.");
             return [];
         }
 
@@ -78,7 +78,7 @@ class DeserializeMessageConnector(
 
         if (hasEnclosedMessageTypesValue)
         {
-            messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
+            messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue!,
                 static (key, registry) =>
                 {
                     var keySpan = key.AsSpan();
@@ -116,27 +116,27 @@ class DeserializeMessageConnector(
 
         var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
+        if (physicalMessage.Body.Length == 0 && !messageSerializer.SupportsZeroLengthMessages)
+        {
+            log.Debug("Received a message without body for a serializer that doesn't support zero length messages.");
+            return [];
+        }
+
         mapper.Initialize(messageTypes);
 
         // For nested behaviors who have an expectation ContentType existing
         // add the default content type
         physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-        if (physicalMessage.Body.Length != 0)
+        var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+
+        var logicalMessages = new LogicalMessage[deserializedMessages.Length];
+        for (var i = 0; i < deserializedMessages.Length; i++)
         {
-            var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
-
-            var logicalMessages = new LogicalMessage[deserializedMessages.Length];
-            for (var i = 0; i < deserializedMessages.Length; i++)
-            {
-                var x = deserializedMessages[i];
-                logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
-            }
-
-            return logicalMessages;
+            var x = deserializedMessages[i];
+            logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
         }
-
-        return [logicalMessageFactory.Create(messageTypes![0], null)];
+        return logicalMessages;
     }
 
     static bool DoesTypeHaveImplAddedByVersion3(ReadOnlySpan<char> existingTypeString) => existingTypeString.IndexOf(ImplSuffix) != -1;

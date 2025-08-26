@@ -31,4 +31,14 @@ public interface IMessageSerializer
     /// </param>
     /// <returns>Deserialized messages.</returns>
     object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the serializer supports zero-length messages.
+    /// NOTE Hack for proof of concept.
+    /// </summary>  
+    bool SupportsZeroLengthMessages
+    {
+        get => false;   // default implementation
+        set => throw new NotImplementedException("This serializer does not support changing this property by default.");
+    }
 }
