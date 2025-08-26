@@ -134,6 +134,8 @@ class ProtobufMessageSerializer :
     }
 
     public string ContentType { get; }
+
+    public bool SupportsZeroLengthMessages { get; set;  } = true;
 }
 
 [ProtoContract]
