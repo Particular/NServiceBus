@@ -96,6 +96,15 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
 
             Context testContext;
         }
+
+        //NOTE added to avoid "handler not found" exceptions for serializer that support zero body length message
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        {
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 
     public class InitiatingMessage : IMessage

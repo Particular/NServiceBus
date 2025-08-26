@@ -63,12 +63,20 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
         }
     }
 
-    public record class RecordClassMessage : IMessage
+    //NOTE updated to a class with a paremeterless constructor to avoid issues with serializers that require it - for spike purposes
+    public class RecordClassMessage : IMessage
     {
         public string SomeText { get; set; }
     }
 
-    public record class ReadonlyRecordClassMessage(string SomeText) : IMessage
+    public class ReadonlyRecordClassMessage : IMessage
     {
+        public ReadonlyRecordClassMessage()
+        {
+
+        }
+
+        public ReadonlyRecordClassMessage(string someText) => SomeText = someText;
+        public string SomeText { get; set; }
     }
 }

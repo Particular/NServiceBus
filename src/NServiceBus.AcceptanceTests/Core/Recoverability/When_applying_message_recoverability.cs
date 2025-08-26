@@ -127,6 +127,15 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
 
             Context testContext;
         }
+
+        //NOTE added to avoid "handler not found" exceptions for serializer that support zero body length message
+        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        {
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 
     public class InitiatingMessage : IMessage
