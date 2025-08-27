@@ -31,7 +31,7 @@ class SerializationFeature : Feature
         var mainSerializer = CreateMessageSerializer(mainSerializerAndDefinition, mapper, settings);
 
         var additionalDeserializerDefinitions = context.Settings.GetAdditionalSerializers();
-        var additionalDeserializers = new List<IMessageSerializer>();
+        var additionalDeserializers = new List<MessageSerializerBag>();
 
         var additionalDeserializerDiagnostics = new List<object>();
         foreach (var definitionAndSettings in additionalDeserializerDefinitions)
@@ -45,7 +45,8 @@ class SerializationFeature : Feature
             {
                 Type = deserializerType.FullName,
                 Version = FileVersionRetriever.GetFileVersion(deserializerType),
-                deserializer.ContentType
+                deserializer.MessageSerializer.ContentType,
+                deserializer.SupportsZeroLengthMessages
             });
         }
 
@@ -54,7 +55,7 @@ class SerializationFeature : Feature
         var resolver = new MessageDeserializerResolver(mainSerializer, additionalDeserializers);
         var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
         context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
-        context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(mainSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
+        context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(mainSerializer.MessageSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
         context.Services.AddSingleton(_ => mapper);
         context.Services.AddSingleton<IMessageCreator>(sp => sp.GetRequiredService<IMessageMapper>());
@@ -69,7 +70,8 @@ class SerializationFeature : Feature
             {
                 Type = mainSerializerAndDefinition.Item1.GetType().FullName,
                 Version = FileVersionRetriever.GetFileVersion(mainSerializerAndDefinition.Item1.GetType()),
-                mainSerializer.ContentType
+                mainSerializer.MessageSerializer.ContentType,
+                mainSerializer.SupportsZeroLengthMessages
             },
             AdditionalDeserializers = additionalDeserializerDiagnostics,
             AllowMessageTypeInference = allowMessageTypeInference,
@@ -77,7 +79,7 @@ class SerializationFeature : Feature
         });
     }
 
-    static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, IReadOnlySettings mainSettings)
+    static MessageSerializerBag CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, IReadOnlySettings mainSettings)
     {
         var definition = definitionAndSettings.Item1;
         var deserializerSettings = definitionAndSettings.Item2;
@@ -92,7 +94,7 @@ class SerializationFeature : Feature
             throw new ArgumentException($"Serializer '{definition.GetType().Name}' defines no content type. Ensure the '{nameof(serializer.ContentType)}' property of the serializer has a value.");
         }
 
-        return serializer;
+        return new MessageSerializerBag(serializer, definition.SupportsZeroLengthMessages);
     }
 
     static void LogFoundMessages(MessageMetadata[] messageDefinitions)

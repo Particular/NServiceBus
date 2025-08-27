@@ -34,7 +34,7 @@ public class IncomingPipelineMetricTagsTests
         };
 
         var messageMapper = new MessageMapper();
-        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false);
+        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new MessageSerializerBag(new FakeSerializer(), false), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false);
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {

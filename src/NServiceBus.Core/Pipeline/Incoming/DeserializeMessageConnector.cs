@@ -126,9 +126,9 @@ class DeserializeMessageConnector(
 
         // For nested behaviors who have an expectation ContentType existing
         // add the default content type
-        physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
+        physicalMessage.Headers[Headers.ContentType] = messageSerializer.MessageSerializer.ContentType;
 
-        var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+        var deserializedMessages = messageSerializer.MessageSerializer.Deserialize(physicalMessage.Body, messageTypes);
 
         var logicalMessages = new LogicalMessage[deserializedMessages.Length];
         for (var i = 0; i < deserializedMessages.Length; i++)

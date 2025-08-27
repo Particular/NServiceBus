@@ -2033,13 +2033,13 @@ namespace NServiceBus.Serialization
     public interface IMessageSerializer
     {
         string ContentType { get; }
-        bool SupportsZeroLengthMessages { get; set; }
         object[] Deserialize(System.ReadOnlyMemory<byte> body, System.Collections.Generic.IList<System.Type> messageTypes = null);
         void Serialize(object message, System.IO.Stream stream);
     }
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
+        public virtual bool SupportsZeroLengthMessages { get; set; }
         public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.IReadOnlySettings settings);
     }
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
