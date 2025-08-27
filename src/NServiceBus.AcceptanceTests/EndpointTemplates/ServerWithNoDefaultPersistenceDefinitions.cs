@@ -58,6 +58,8 @@ public class ProtoBufSerializer :
     {
         var runtimeTypeModel = settings.GetRuntimeTypeModel();
 
+        //NOTE this is creating the model at startup, which is not ideal. A better approach would be to use a schema registry.
+        //This test implementation is limited to primitive types - ie no nested complex types
         if (runtimeTypeModel == null)
         {
             runtimeTypeModel = RuntimeTypeModel.Create();
@@ -79,6 +81,8 @@ public class ProtoBufSerializer :
         var contentTypeKey = settings.GetContentTypeKey();
         return _ => new ProtobufMessageSerializer(contentTypeKey, runtimeTypeModel);
     }
+
+    public override bool SupportsZeroLengthMessages { get; set; } = true;
 }
 
 class ProtobufMessageSerializer :
@@ -134,8 +138,6 @@ class ProtobufMessageSerializer :
     }
 
     public string ContentType { get; }
-
-    public bool SupportsZeroLengthMessages { get; set;  } = true;
 }
 
 [ProtoContract]
