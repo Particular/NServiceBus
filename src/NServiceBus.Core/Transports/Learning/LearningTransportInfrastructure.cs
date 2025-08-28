@@ -106,4 +106,6 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
         return address;
     }
+
+    public override string GetManifest() => throw new NotImplementedException();
 }

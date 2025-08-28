@@ -28,4 +28,6 @@ public abstract class TransportInfrastructure
     /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
     /// </summary>
     public abstract string ToTransportAddress(QueueAddress address);
+
+    public abstract string GetManifest();
 }

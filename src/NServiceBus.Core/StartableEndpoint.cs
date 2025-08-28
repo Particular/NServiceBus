@@ -48,6 +48,8 @@ class StartableEndpoint
         var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+        var bla = settings.Get("PersistenceDefinitions");
+        Console.WriteLine(transportInfrastructure.GetManifest());
     }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
