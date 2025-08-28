@@ -91,6 +91,7 @@ public class When_configuring_transport_twice
             public override Task Shutdown(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
             public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+            public override string GetManifest() => string.Empty;
         }
 
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() => new[]

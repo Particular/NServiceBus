@@ -37,6 +37,8 @@ public class FakeTransportInfrastructure : TransportInfrastructure
         Dispatcher = new FakeDispatcher();
     }
 
+    public override string GetManifest() => string.Empty;
+
     public override Task Shutdown(CancellationToken cancellationToken = default)
     {
         startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");
