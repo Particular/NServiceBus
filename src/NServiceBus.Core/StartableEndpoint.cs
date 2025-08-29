@@ -3,6 +3,7 @@ namespace NServiceBus;
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Settings;
@@ -48,8 +49,8 @@ class StartableEndpoint
         var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
-        var bla = settings.Get("PersistenceDefinitions");
-        Console.WriteLine(transportInfrastructure.GetManifest());
+        //var bla = settings.Get("PersistenceDefinitions");
+        Console.WriteLine(new ManifestItem { ItemValue = transportInfrastructure.GetManifest() }.FormatJSON());
     }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)

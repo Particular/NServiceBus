@@ -102,7 +102,7 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         return baseAddress;
     }
 
-    public override string GetManifest() => string.Empty;
+    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => [];
 
     readonly string storagePath;
     readonly HostSettings settings;

@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -107,5 +108,5 @@ class LearningTransportInfrastructure : TransportInfrastructure
         return address;
     }
 
-    public override string GetManifest() => throw new NotImplementedException();
+    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => throw new NotImplementedException();
 }
