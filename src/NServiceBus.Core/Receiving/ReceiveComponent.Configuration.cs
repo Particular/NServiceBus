@@ -2,11 +2,33 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Transport;
 using Unicast;
 
 partial class ReceiveComponent
 {
+    public IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest()
+    {
+        var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
+
+        return [new("messageTypes",
+            new ManifestItem
+            {
+                ArrayValue = messageTypes.Select(
+                    type => new ManifestItem { ItemValue = [
+                        new("name", new ManifestItem { StringValue = type.Name }),
+                        new("schema", new ManifestItem { ArrayValue = type.GetProperties().Select(
+                            prop => new ManifestItem { ItemValue = [
+                                new("name", prop.Name),
+                                new("type", prop.PropertyType.Name)
+                                ]
+                            }).ToArray() })
+                        ] }).ToArray()
+            }
+        )];
+    }
+
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
     {
         var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;

@@ -29,5 +29,9 @@ public abstract class TransportInfrastructure
     /// </summary>
     public abstract string ToTransportAddress(QueueAddress address);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public abstract IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest();
 }
