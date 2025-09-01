@@ -51,7 +51,7 @@ class StartableEndpoint
 
         //var persistenceManifest = settings.Get("PersistenceDefinitions");
         var transportManifest = transportInfrastructure.GetManifest();
-        var messageManifest = receiveComponent.GetManifest();
+        var messageManifest = receiveComponent.GetManifest(settings.Get<Conventions>());
         Console.WriteLine(new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest] }.FormatJSON());
     }
 

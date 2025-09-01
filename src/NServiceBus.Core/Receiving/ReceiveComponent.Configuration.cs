@@ -8,7 +8,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    public IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest()
+    public IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(Conventions conventions)
     {
         var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
 
@@ -18,6 +18,9 @@ partial class ReceiveComponent
                 ArrayValue = messageTypes.Select(
                     type => new ManifestItem { ItemValue = [
                         new("name", new ManifestItem { StringValue = type.Name }),
+                        new("isMessage", new ManifestItem { StringValue = conventions.IsMessageType(type).ToString() }),
+                        new("isEvent", new ManifestItem { StringValue = conventions.IsEventType(type).ToString() }),
+                        new("isCommand", new ManifestItem { StringValue = conventions.IsCommandType(type).ToString() }),
                         new("schema", new ManifestItem { ArrayValue = type.GetProperties().Select(
                             prop => new ManifestItem { ItemValue = [
                                 new("name", prop.Name),
