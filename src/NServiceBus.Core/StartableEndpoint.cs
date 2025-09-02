@@ -2,7 +2,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -52,14 +51,16 @@ class StartableEndpoint
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-        var persistenceManifest = GetPersistenceManifest();
-        var transportManifest = transportInfrastructure.GetManifest();
-        var messageManifest = receiveComponent.GetManifest(settings.Get<Conventions>());
-        Console.WriteLine(new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest, .. persistenceManifest] }.FormatJSON());
+        await GeneratePersistenceManifest(transportInfrastructure, receiveComponent, cancellationToken).ConfigureAwait(false);
     }
 
-    IEnumerable<KeyValuePair<string, ManifestItem>> GetPersistenceManifest()
+    Task GeneratePersistenceManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken = default)
     {
+        if (!settings.TryGet("Manifest.Enable", out bool generateManifest) || !generateManifest)
+        {
+            return Task.CompletedTask;
+        }
+
         var persistenceManifest = new List<KeyValuePair<string, ManifestItem>>();
         if (settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
         {
@@ -70,12 +71,20 @@ class StartableEndpoint
             }
         }
 
-        return persistenceManifest.AsEnumerable();
+        var transportManifest = transportInfrastructure.GetManifest();
+        var messageManifest = receiveComponent.GetManifest(settings.Get<Conventions>());
+
+        manifest = new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest, .. persistenceManifest] };
+
+        return Task.CompletedTask;
     }
+
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
         await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
+
+        await hostingComponent.WriteManifestFile(manifest, cancellationToken).ConfigureAwait(false);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -105,6 +114,8 @@ class StartableEndpoint
     readonly SettingsHolder settings;
     readonly ReceiveComponent receiveComponent;
     readonly TransportSeam transportSeam;
+
+    ManifestItem manifest = new ManifestItem() { StringValue = "Manifest not available" };
 
     MessageSession messageSession;
     TransportInfrastructure transportInfrastructure;

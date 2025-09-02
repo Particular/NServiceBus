@@ -91,6 +91,18 @@ partial class HostingComponent
             set => settings.Set("Installers.Enable", value);
         }
 
+        public string? ManifestOutputPath
+        {
+            get => settings.GetOrDefault<string>("Manifest.Path");
+            set => settings.Set("Manifest.Path", value);
+        }
+
+        public bool ShouldGenerateManifest
+        {
+            get => settings.GetOrDefault<bool>("Manifest.Enable");
+            set => settings.Set("Manifest.Enable", value);
+        }
+
         public bool EnableOpenTelemetry { get; set; }
 
         internal void ApplyHostIdDefaultIfNeeded()

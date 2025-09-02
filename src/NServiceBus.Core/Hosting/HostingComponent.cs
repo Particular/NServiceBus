@@ -75,6 +75,18 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
         await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task WriteManifestFile(ManifestItem manifest, CancellationToken cancellationToken = default)
+    {
+        if (!configuration.ShouldGenerateManifest)
+        {
+            return;
+        }
+
+        var hostStartupManifestWriter = new HostStartupManifestWriter(configuration);
+
+        await hostStartupManifestWriter.Write(manifest, cancellationToken).ConfigureAwait(false);
+    }
+
     public void SetupCriticalErrors(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
         configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
 

@@ -28,6 +28,8 @@ partial class HostingComponent
             serviceCollection,
             settings.InstallationUserName,
             settings.ShouldRunInstallers,
+            settings.ShouldGenerateManifest,
+            settings.ManifestOutputPath,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
 
@@ -46,6 +48,8 @@ partial class HostingComponent
             IServiceCollection services,
             string? installationUserName,
             bool shouldRunInstallers,
+            bool shouldGenerateManifest,
+            string? manifestPath,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory)
         {
@@ -58,6 +62,8 @@ partial class HostingComponent
             Services = services;
             InstallationUserName = installationUserName;
             ShouldRunInstallers = shouldRunInstallers;
+            ShouldGenerateManifest = shouldGenerateManifest;
+            ManifestPath = manifestPath;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
 
@@ -86,6 +92,9 @@ partial class HostingComponent
         public bool ShouldRunInstallers { get; }
 
         public string? InstallationUserName { get; }
+
+        public bool ShouldGenerateManifest { get; }
+        public string? ManifestPath { get; }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 
