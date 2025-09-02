@@ -107,6 +107,4 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
         return address;
     }
-
-    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => throw new NotImplementedException();
 }

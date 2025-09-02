@@ -1,6 +1,7 @@
 namespace NServiceBus.Transport;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,5 +34,5 @@ public abstract class TransportInfrastructure
     /// 
     /// </summary>
     /// <returns></returns>
-    public abstract IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest();
+    public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
 }
