@@ -8,7 +8,6 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <GenerateSBOM>false</GenerateSBOM>
   </PropertyGroup>
 
   <ItemGroup>
