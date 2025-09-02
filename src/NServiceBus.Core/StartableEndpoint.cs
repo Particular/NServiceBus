@@ -1,10 +1,13 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using NServiceBus.Persistence;
 using Settings;
 using Transport;
 
@@ -49,10 +52,25 @@ class StartableEndpoint
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-        //var persistenceManifest = settings.Get("PersistenceDefinitions");
+        var persistenceManifest = GetPersistenceManifest();
         var transportManifest = transportInfrastructure.GetManifest();
         var messageManifest = receiveComponent.GetManifest(settings.Get<Conventions>());
-        Console.WriteLine(new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest] }.FormatJSON());
+        Console.WriteLine(new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest, .. persistenceManifest] }.FormatJSON());
+    }
+
+    IEnumerable<KeyValuePair<string, ManifestItem>> GetPersistenceManifest()
+    {
+        var persistenceManifest = new List<KeyValuePair<string, ManifestItem>>();
+        if (settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
+        {
+            foreach (var definitionType in definitions)
+            {
+                var definition = definitionType.DefinitionType.Construct<PersistenceDefinition>();
+                persistenceManifest.AddRange(definition.GetManifest(settings));
+            }
+        }
+
+        return persistenceManifest.AsEnumerable();
     }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
