@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -52,43 +53,50 @@ class StartableEndpoint
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-        await GeneratePersistenceManifest(transportInfrastructure, receiveComponent, cancellationToken).ConfigureAwait(false);
+        await GenerateManifest(transportInfrastructure, receiveComponent, cancellationToken).ConfigureAwait(false);
     }
 
-    Task GeneratePersistenceManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken = default)
+    Task GenerateManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken = default)
     {
-        if (!settings.TryGet("Manifest.Enable", out bool generateManifest) || !generateManifest)
+        try
         {
-            return Task.CompletedTask;
-        }
-
-        var persistenceManifest = new List<KeyValuePair<string, ManifestItem>>();
-        if (settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
-        {
-            foreach (var definitionType in definitions)
+            if (!settings.TryGet("Manifest.Enable", out bool generateManifest) || !generateManifest)
             {
-                var definition = definitionType.DefinitionType.Construct<PersistenceDefinition>();
-                persistenceManifest.AddRange(definition.GetManifest(settings));
+                return Task.CompletedTask;
             }
-        }
 
-        var conventions = settings.Get<Conventions>();
-        var receiveManifest = receiveComponent.GetManifest(conventions);
-        var events = receiveManifest.HandledMessages
-            .Where(handledMessage => handledMessage.IsEvent && !handledMessage.IsCommand && !conventions.IsInSystemConventionList(handledMessage.MessageType))
-            .Select(handledMessage => handledMessage.MessageType.FullName)
-            .ToArray();
-        var transportManifest = transportInfrastructure.GetManifest(events);
+            var persistenceManifest = new List<KeyValuePair<string, ManifestItem>>();
+            if (settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
+            {
+                foreach (var definitionType in definitions)
+                {
+                    var definition = definitionType.DefinitionType.Construct<PersistenceDefinition>();
+                    persistenceManifest.AddRange(definition.GetManifest(settings));
+                }
+            }
 
-        manifest = new ManifestItem
-        {
-            ItemValue = [
-                .. BaseManifestItems(),
+            var conventions = settings.Get<Conventions>();
+            var receiveManifest = receiveComponent.GetManifest(conventions);
+            var events = receiveManifest.HandledMessages
+                .Where(handledMessage => handledMessage.IsEvent && !handledMessage.IsCommand && !conventions.IsInSystemConventionList(handledMessage.MessageType))
+                .Select(handledMessage => handledMessage.MessageType.FullName)
+                .ToArray();
+            var transportManifest = transportInfrastructure.GetManifest(events);
+
+            manifest = new ManifestItem
+            {
+                ItemValue = [
+                    .. BaseManifestItems(),
                 .. transportManifest,
                 .. receiveManifest.ToMessageManifest(),
                 .. persistenceManifest
-            ]
-        };
+                ]
+            };
+        }
+        catch (Exception)
+        {
+            Debug.WriteLine("Generating the manifest failed. This is non-critical and the endpoint will continue to start.");
+        }
 
         return Task.CompletedTask;
     }
