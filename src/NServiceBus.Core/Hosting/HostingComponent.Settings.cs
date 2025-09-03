@@ -71,6 +71,12 @@ partial class HostingComponent
             set => settings.Set(HostDiagnosticsWriterSettingsKey, value);
         }
 
+        public Func<string, CancellationToken, Task>? EndpointManifestWriter
+        {
+            get => settings.GetOrDefault<Func<string, CancellationToken, Task>>(EndpointManifestWriterSettingsKey);
+            set => settings.Set(EndpointManifestWriterSettingsKey, value);
+        }
+
         public Func<ICriticalErrorContext, CancellationToken, Task>? CustomCriticalErrorAction
         {
             get => settings.GetOrDefault<Func<ICriticalErrorContext, CancellationToken, Task>>(CustomCriticalErrorActionSettingsKey);
@@ -133,6 +139,7 @@ partial class HostingComponent
         const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
         const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
         const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
+        const string EndpointManifestWriterSettingsKey = "EndpointManifestWriter";
         const string CustomCriticalErrorActionSettingsKey = "onCriticalErrorAction";
     }
 }

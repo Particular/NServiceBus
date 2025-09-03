@@ -82,7 +82,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             return;
         }
 
-        var hostStartupManifestWriter = new HostStartupManifestWriter(configuration);
+        var hostStartupManifestWriter = EndpointManifestWriterFactory.GetEndpointManifestWriter(configuration);
 
         await hostStartupManifestWriter.Write(manifest, cancellationToken).ConfigureAwait(false);
     }

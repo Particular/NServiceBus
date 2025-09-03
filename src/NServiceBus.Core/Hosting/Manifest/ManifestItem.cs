@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 
 /// <summary>
 /// 
@@ -51,7 +50,7 @@ public record ManifestItem
     /// 
     /// </summary>
     /// <returns></returns>
-    public string FormatJSON() => JsonSerializer.Serialize(JsonSerializer.Deserialize<dynamic>(ToString() ?? "{}"), new JsonSerializerOptions { WriteIndented = true });
+    public string FormatJSON() => JsonPrettyPrinter.Print(ToString() ?? "{}");
 
     /// <summary>
     /// 

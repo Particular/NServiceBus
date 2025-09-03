@@ -7,9 +7,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class HostStartupManifestWriter(HostingComponent.Configuration configuration)
+static class EndpointManifestWriterFactory
 {
-    public async Task Write(ManifestItem manifest, CancellationToken cancellationToken = default)
+    public static EndpointManifestWriter GetEndpointManifestWriter(HostingComponent.Configuration configuration)
+    {
+        var manifestWriter = configuration.EndpointManifestWriter;
+        manifestWriter ??= BuildDefaultManifestWriter(configuration);
+
+        return new EndpointManifestWriter(manifestWriter, configuration.EndpointManifestWriter != null);
+    }
+
+    static Func<string, CancellationToken, Task> BuildDefaultManifestWriter(HostingComponent.Configuration configuration)
     {
         var manifestRootPath = configuration.ManifestPath;
 
@@ -22,7 +30,7 @@ class HostStartupManifestWriter(HostingComponent.Configuration configuration)
             catch (Exception e)
             {
                 Logger.Warn("Unable to determine the manifest output directory. Check the attached exception for further information.", e);
-                return;
+                return (_, __) => Task.CompletedTask;
             }
         }
 
@@ -35,8 +43,7 @@ class HostStartupManifestWriter(HostingComponent.Configuration configuration)
             catch (Exception e)
             {
                 Logger.Warn("Unable to create the manifest output directory. Check the attached exception for further information.", e);
-
-                return;
+                return (_, __) => Task.CompletedTask;
             }
         }
 
@@ -45,26 +52,12 @@ class HostStartupManifestWriter(HostingComponent.Configuration configuration)
         var startupManifestFileName = $"{configuration.EndpointName}-manifest.txt";
         var startupManifestFilePath = Path.Combine(manifestRootPath, startupManifestFileName);
 
-        string manifestData;
-        try
+        return async (data, cancellationToken) =>
         {
-            manifestData = manifest.FormatJSON();
-        }
-        catch (Exception exception)
-        {
-            Logger.Error("Failed to serialize manifest data", exception);
-            return;
-        }
-        try
-        {
-            await AsyncFile.WriteText(startupManifestFilePath, manifestData, cancellationToken).ConfigureAwait(false);
+            await AsyncFile.WriteText(startupManifestFilePath, data, cancellationToken).ConfigureAwait(false);
             Logger.Info($"Manifest data written to '{startupManifestFilePath}'");
-        }
-        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-        {
-            Logger.Error("Failed to write manifest data", ex);
-        }
+        };
     }
 
-    static readonly ILog Logger = LogManager.GetLogger<HostStartupManifestWriter>();
+    static readonly ILog Logger = LogManager.GetLogger<EndpointManifestWriter>();
 }

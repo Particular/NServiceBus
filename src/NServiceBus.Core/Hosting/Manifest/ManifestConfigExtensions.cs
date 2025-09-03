@@ -3,6 +3,8 @@
 namespace NServiceBus;
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Installation;
 
 /// <summary>
@@ -23,6 +25,20 @@ public static class ManifestConfigExtensions
             config.Settings.Set("Manifest.Path", outputPath);
         }
 
+        config.Settings.Set("Manifest.Enable", true);
+    }
+
+    /// <summary>
+    /// Enables generation of manifest data and provides full control over how manifest data is persisted.
+    /// </summary>
+    /// <param name="config">Configuration object to extend.</param>
+    /// <param name="endpointManifestWriter">Func responsible for writing maifest data.</param>
+    public static void EnableManifestGeneration(this EndpointConfiguration config, Func<string, CancellationToken, Task> endpointManifestWriter)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(endpointManifestWriter);
+
+        config.Settings.Get<HostingComponent.Settings>().EndpointManifestWriter = endpointManifestWriter;
         config.Settings.Set("Manifest.Enable", true);
     }
 }

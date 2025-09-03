@@ -24,6 +24,7 @@ partial class HostingComponent
             settings.StartupDiagnostics,
             settings.DiagnosticsPath,
             settings.HostDiagnosticsWriter,
+            settings.EndpointManifestWriter,
             settings.EndpointName,
             serviceCollection,
             settings.InstallationUserName,
@@ -44,6 +45,7 @@ partial class HostingComponent
             StartupDiagnosticEntries startupDiagnostics,
             string? diagnosticsPath,
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
+            Func<string, CancellationToken, Task>? endpointManifestWriter,
             string endpointName,
             IServiceCollection services,
             string? installationUserName,
@@ -58,6 +60,7 @@ partial class HostingComponent
             StartupDiagnostics = startupDiagnostics;
             DiagnosticsPath = diagnosticsPath;
             HostDiagnosticsWriter = hostDiagnosticsWriter;
+            EndpointManifestWriter = endpointManifestWriter;
             EndpointName = endpointName;
             Services = services;
             InstallationUserName = installationUserName;
@@ -78,6 +81,8 @@ partial class HostingComponent
         public StartupDiagnosticEntries StartupDiagnostics { get; }
 
         public Func<string, CancellationToken, Task>? HostDiagnosticsWriter { get; }
+
+        public Func<string, CancellationToken, Task>? EndpointManifestWriter { get; }
 
         public string EndpointName { get; }
 
