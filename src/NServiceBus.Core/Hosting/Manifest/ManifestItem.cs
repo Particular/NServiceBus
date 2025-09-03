@@ -80,6 +80,7 @@ record ReceiveManifest
                 ArrayValue = HandledMessages.Select(
                     handledMessage => new ManifestItem { ItemValue = [
                         new("name", new ManifestItem { StringValue = handledMessage.MessageType.Name }),
+                        new("fullName", new ManifestItem { StringValue = handledMessage.MessageType.FullName }),
                         new("isMessage", new ManifestItem { StringValue = handledMessage.IsMessage.ToString() }),
                         new("isEvent", new ManifestItem { StringValue = handledMessage.IsEvent.ToString() }),
                         new("isCommand", new ManifestItem { StringValue = handledMessage.IsCommand.ToString() }),

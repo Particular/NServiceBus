@@ -80,11 +80,27 @@ class StartableEndpoint
             .ToArray();
         var transportManifest = transportInfrastructure.GetManifest(events);
 
-        manifest = new ManifestItem { ItemValue = [.. transportManifest, .. receiveManifest.ToMessageManifest(), .. persistenceManifest] };
+        manifest = new ManifestItem
+        {
+            ItemValue = [
+                .. BaseManifestItems(),
+                .. transportManifest,
+                .. receiveManifest.ToMessageManifest(),
+                .. persistenceManifest
+            ]
+        };
 
         return Task.CompletedTask;
     }
 
+    IEnumerable<KeyValuePair<string, ManifestItem>> BaseManifestItems()
+    {
+        yield return new("endpointName", new ManifestItem { StringValue = settings.EndpointName() });
+        if (settings.TryGet("EndpointInstanceDiscriminator", out string discriminator))
+        {
+            yield return new("uniqueAddressDiscriminator", new ManifestItem { StringValue = discriminator });
+        }
+    }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
