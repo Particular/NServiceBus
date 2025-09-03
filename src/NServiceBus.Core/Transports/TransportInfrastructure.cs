@@ -34,5 +34,5 @@ public abstract class TransportInfrastructure
     /// 
     /// </summary>
     /// <returns></returns>
-    public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
+    public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
 }

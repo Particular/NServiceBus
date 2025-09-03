@@ -114,7 +114,7 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
                 .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
         }
 
-        public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest() => [];
+        public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => [];
 
         public override Task Shutdown(CancellationToken cancellationToken = default)
         {

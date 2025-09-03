@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -71,10 +72,15 @@ class StartableEndpoint
             }
         }
 
-        var transportManifest = transportInfrastructure.GetManifest();
-        var messageManifest = receiveComponent.GetManifest(settings.Get<Conventions>());
+        var conventions = settings.Get<Conventions>();
+        var receiveManifest = receiveComponent.GetManifest(conventions);
+        var events = receiveManifest.HandledMessages
+            .Where(handledMessage => handledMessage.IsEvent && !handledMessage.IsCommand && !conventions.IsInSystemConventionList(handledMessage.MessageType))
+            .Select(handledMessage => handledMessage.MessageType.FullName)
+            .ToArray();
+        var transportManifest = transportInfrastructure.GetManifest(events);
 
-        manifest = new ManifestItem { ItemValue = [.. transportManifest, .. messageManifest, .. persistenceManifest] };
+        manifest = new ManifestItem { ItemValue = [.. transportManifest, .. receiveManifest.ToMessageManifest(), .. persistenceManifest] };
 
         return Task.CompletedTask;
     }

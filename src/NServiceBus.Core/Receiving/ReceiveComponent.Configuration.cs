@@ -5,31 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Transport;
 using Unicast;
+using static NServiceBus.ReceiveManifest;
 
 partial class ReceiveComponent
 {
-    public IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(Conventions conventions)
+    public ReceiveManifest GetManifest(Conventions conventions)
     {
         var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
 
-        return [new("messageTypes",
-            new ManifestItem
-            {
-                ArrayValue = messageTypes.Select(
-                    type => new ManifestItem { ItemValue = [
-                        new("name", new ManifestItem { StringValue = type.Name }),
-                        new("isMessage", new ManifestItem { StringValue = conventions.IsMessageType(type).ToString() }),
-                        new("isEvent", new ManifestItem { StringValue = conventions.IsEventType(type).ToString() }),
-                        new("isCommand", new ManifestItem { StringValue = conventions.IsCommandType(type).ToString() }),
-                        new("schema", new ManifestItem { ArrayValue = type.GetProperties().Select(
-                            prop => new ManifestItem { ItemValue = [
-                                new("name", prop.Name),
-                                new("type", prop.PropertyType.Name)
-                                ]
-                            }).ToArray() })
-                        ] }).ToArray()
-            }
-        )];
+        return new ReceiveManifest
+        {
+            HandledMessages = messageTypes.Select(
+                    type => new HandledMessage
+                    {
+                        MessageType = type,
+                        IsMessage = conventions.IsMessageType(type),
+                        IsCommand = conventions.IsCommandType(type),
+                        IsEvent = conventions.IsEventType(type),
+                    }).ToArray()
+        };
     }
 
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
