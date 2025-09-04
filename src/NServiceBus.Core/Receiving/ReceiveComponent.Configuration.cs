@@ -2,11 +2,34 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Transport;
 using Unicast;
+using static NServiceBus.ReceiveManifest;
 
 partial class ReceiveComponent
 {
+    public ReceiveManifest GetManifest(Conventions conventions)
+    {
+        var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
+
+        return new ReceiveManifest
+        {
+            HandledMessages = messageTypes.Select(
+                    type => new HandledMessage
+                    {
+                        MessageType = type,
+                        IsMessage = conventions.IsMessageType(type),
+                        IsCommand = conventions.IsCommandType(type),
+                        IsEvent = conventions.IsEventType(type),
+                    }).ToArray(),
+            EventTypes = messageTypes
+                .GetHandledEventTypes(conventions)
+                .Select(type => type.FullName)
+                .ToArray()
+        };
+    }
+
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
     {
         var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;

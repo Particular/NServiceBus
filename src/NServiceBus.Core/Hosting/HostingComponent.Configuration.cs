@@ -24,10 +24,13 @@ partial class HostingComponent
             settings.StartupDiagnostics,
             settings.DiagnosticsPath,
             settings.HostDiagnosticsWriter,
+            settings.EndpointManifestWriter,
             settings.EndpointName,
             serviceCollection,
             settings.InstallationUserName,
             settings.ShouldRunInstallers,
+            settings.ShouldGenerateManifest,
+            settings.ManifestOutputPath,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
 
@@ -42,10 +45,13 @@ partial class HostingComponent
             StartupDiagnosticEntries startupDiagnostics,
             string? diagnosticsPath,
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
+            Func<string, CancellationToken, Task>? endpointManifestWriter,
             string endpointName,
             IServiceCollection services,
             string? installationUserName,
             bool shouldRunInstallers,
+            bool shouldGenerateManifest,
+            string? manifestPath,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory)
         {
@@ -54,10 +60,13 @@ partial class HostingComponent
             StartupDiagnostics = startupDiagnostics;
             DiagnosticsPath = diagnosticsPath;
             HostDiagnosticsWriter = hostDiagnosticsWriter;
+            EndpointManifestWriter = endpointManifestWriter;
             EndpointName = endpointName;
             Services = services;
             InstallationUserName = installationUserName;
             ShouldRunInstallers = shouldRunInstallers;
+            ShouldGenerateManifest = shouldGenerateManifest;
+            ManifestPath = manifestPath;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
 
@@ -73,6 +82,8 @@ partial class HostingComponent
 
         public Func<string, CancellationToken, Task>? HostDiagnosticsWriter { get; }
 
+        public Func<string, CancellationToken, Task>? EndpointManifestWriter { get; }
+
         public string EndpointName { get; }
 
         public IServiceCollection Services { get; }
@@ -86,6 +97,9 @@ partial class HostingComponent
         public bool ShouldRunInstallers { get; }
 
         public string? InstallationUserName { get; }
+
+        public bool ShouldGenerateManifest { get; }
+        public string? ManifestPath { get; }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 

@@ -1,6 +1,7 @@
 namespace NServiceBus.Transport;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,4 +29,11 @@ public abstract class TransportInfrastructure
     /// Translates a <see cref="QueueAddress"/> object into a transport specific queue address-string.
     /// </summary>
     public abstract string ToTransportAddress(QueueAddress address);
+
+    /// <summary>
+    /// Returns infrastructure information about the transport.
+    /// </summary>
+    /// <param name="eventTypes">Event types defined on the endpoint.</param>
+    /// <returns>Transport manifest.</returns>
+    public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
 }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport;
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,8 @@ public class FakeTransportInfrastructure : TransportInfrastructure
     {
         Dispatcher = new FakeDispatcher();
     }
+
+    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => [];
 
     public override Task Shutdown(CancellationToken cancellationToken = default)
     {
