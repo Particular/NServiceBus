@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Receiving;
 using Unicast;
 using Unicast.Queuing;
 
