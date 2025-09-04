@@ -571,15 +571,16 @@ namespace NServiceBus
     }
     public static class ManifestConfigExtensions
     {
+        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> endpointManifestWriter) { }
         public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, string? outputPath) { }
     }
     public class ManifestItem : System.IEquatable<NServiceBus.ManifestItem>
     {
         public ManifestItem() { }
-        public NServiceBus.ManifestItem[]? ArrayValue { get; set; }
-        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItem>>? ItemValue { get; set; }
-        public string? StringValue { get; set; }
+        public NServiceBus.ManifestItem[]? ArrayValue { get; init; }
+        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItem>>? ItemValue { get; init; }
+        public string? StringValue { get; init; }
         public string FormatJSON() { }
         public override string? ToString() { }
         public static NServiceBus.ManifestItem op_Implicit(string value) { }
