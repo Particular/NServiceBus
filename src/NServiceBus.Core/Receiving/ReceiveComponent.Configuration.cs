@@ -3,6 +3,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NServiceBus.Receiving;
 using Transport;
 using Unicast;
 using static NServiceBus.ReceiveManifest;
@@ -22,7 +23,11 @@ partial class ReceiveComponent
                         IsMessage = conventions.IsMessageType(type),
                         IsCommand = conventions.IsCommandType(type),
                         IsEvent = conventions.IsEventType(type),
-                    }).ToArray()
+                    }).ToArray(),
+            EventTypes = messageTypes
+                .GetHandledEventTypes(conventions)
+                .Select(type => type.FullName)
+                .ToArray()
         };
     }
 

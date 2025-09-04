@@ -77,11 +77,7 @@ class StartableEndpoint
 
             var conventions = settings.Get<Conventions>();
             var receiveManifest = receiveComponent.GetManifest(conventions);
-            var events = receiveManifest.HandledMessages
-                .Where(handledMessage => handledMessage.IsEvent && !handledMessage.IsCommand && !conventions.IsInSystemConventionList(handledMessage.MessageType))
-                .Select(handledMessage => handledMessage.MessageType.FullName)
-                .ToArray();
-            var transportManifest = transportInfrastructure.GetManifest(events);
+            var transportManifest = transportInfrastructure.GetManifest(receiveManifest.EventTypes);
 
             manifest = new ManifestItem
             {
