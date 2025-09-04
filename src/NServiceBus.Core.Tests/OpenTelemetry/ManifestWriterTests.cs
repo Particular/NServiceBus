@@ -19,14 +19,16 @@ public class ManifestWriterTests
             return Task.CompletedTask;
         });
 
-        var manifest = new ManifestItem() {
+        var manifest = new ManifestItem()
+        {
             ArrayValue = [
             new ManifestItem() { StringValue = "hello" },
             new ManifestItem() { ItemValue = [
                 new("key 1", new ManifestItem { StringValue = "Key 1 value" }),
                 new("key 2", new ManifestItem { StringValue = "Key 2 value" })
             ]}
-        ]};
+            ]
+        };
 
         var writer = new EndpointManifestWriter(testWriter, true);
 
