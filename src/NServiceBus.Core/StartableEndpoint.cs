@@ -56,7 +56,7 @@ class StartableEndpoint
         await GenerateManifest(transportInfrastructure, receiveComponent, cancellationToken).ConfigureAwait(false);
     }
 
-    Task GenerateManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken = default)
+    Task GenerateManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken)
     {
         try
         {
