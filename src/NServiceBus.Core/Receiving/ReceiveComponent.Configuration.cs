@@ -3,7 +3,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NServiceBus.Receiving;
 using Transport;
 using Unicast;
 using static NServiceBus.ReceiveManifest;
