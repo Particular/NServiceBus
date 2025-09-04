@@ -569,6 +569,21 @@ namespace NServiceBus
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
     }
+    public static class ManifestConfigExtensions
+    {
+        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> endpointManifestWriter) { }
+        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, string? outputPath) { }
+    }
+    public class ManifestItem : System.IEquatable<NServiceBus.ManifestItem>
+    {
+        public ManifestItem() { }
+        public NServiceBus.ManifestItem[]? ArrayValue { get; set; }
+        public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItem>>? ItemValue { get; set; }
+        public string? StringValue { get; set; }
+        public string FormatJSON() { }
+        public override string? ToString() { }
+        public static NServiceBus.ManifestItem op_Implicit(string value) { }
+    }
     public static class MessageCausationConfigurationExtensions
     {
         public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ConversationIdStrategyContext, NServiceBus.ConversationId> customStrategy) { }
@@ -1562,6 +1577,7 @@ namespace NServiceBus.Persistence
     {
         protected PersistenceDefinition() { }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
+        public virtual System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItem>> GetManifest(NServiceBus.Settings.SettingsHolder settings) { }
         public bool HasSupportFor(System.Type storageType) { }
         public bool HasSupportFor<T>()
             where T : NServiceBus.StorageType { }
@@ -2252,6 +2268,7 @@ namespace NServiceBus.Transport
         protected TransportInfrastructure() { }
         public NServiceBus.Transport.IMessageDispatcher Dispatcher { get; protected set; }
         public System.Collections.Generic.IReadOnlyDictionary<string, NServiceBus.Transport.IMessageReceiver> Receivers { get; protected set; }
+        public virtual System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItem>> GetManifest(string[] eventTypes) { }
         public abstract System.Threading.Tasks.Task Shutdown(System.Threading.CancellationToken cancellationToken = default);
         public abstract string ToTransportAddress(NServiceBus.Transport.QueueAddress address);
     }

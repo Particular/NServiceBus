@@ -31,8 +31,9 @@ public abstract class TransportInfrastructure
     public abstract string ToTransportAddress(QueueAddress address);
 
     /// <summary>
-    /// 
+    /// Returns infrastructure information about the transport.
     /// </summary>
-    /// <returns></returns>
+    /// <param name="eventTypes">Event types defined on the endpoint.</param>
+    /// <returns>Transport manifest.</returns>
     public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
 }
