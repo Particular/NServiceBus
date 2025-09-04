@@ -87,9 +87,9 @@ class StartableEndpoint
             {
                 ItemValue = [
                     .. BaseManifestItems(),
-                .. transportManifest,
-                .. receiveManifest.ToMessageManifest(),
-                .. persistenceManifest
+                    .. transportManifest,
+                    .. receiveManifest.ToMessageManifest(),
+                    .. persistenceManifest
                 ]
             };
         }
@@ -107,6 +107,29 @@ class StartableEndpoint
         if (settings.TryGet("EndpointInstanceDiscriminator", out string discriminator))
         {
             yield return new("uniqueAddressDiscriminator", new ManifestItem { StringValue = discriminator });
+        }
+        yield return new("sendingQueues", new ManifestItem
+        {
+            ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => new ManifestItem { StringValue = address }).ToArray()
+        });
+        yield return new("errorQueue", new ManifestItem { StringValue = settings.ErrorQueueAddress() });
+        var auditConfig = settings.Get<AuditConfigReader.Result>();
+        yield return new("auditEnabled", new ManifestItem { StringValue = (auditConfig != null).ToString().ToLower() });
+        if (auditConfig != null)
+        {
+            yield return new("auditQueue", new ManifestItem { StringValue = auditConfig.Address });
+        }
+        _ = settings.TryGet("NServiceBus.Heartbeat.Queue", out string hearbeatsQueue);
+        yield return new("heartbeatsEnabled", new ManifestItem { StringValue = (!string.IsNullOrEmpty(hearbeatsQueue)).ToString().ToLower() });
+        if (!string.IsNullOrEmpty(hearbeatsQueue))
+        {
+            yield return new("heartbeatsQueue", new ManifestItem { StringValue = hearbeatsQueue });
+        }
+        _ = settings.TryGet("NServiceBus.Metrics.ServiceControl.MetricsAddress", out string metricsAddress);
+        yield return new("monitoringEnabled", new ManifestItem { StringValue = (!string.IsNullOrEmpty(metricsAddress)).ToString().ToLower() });
+        if (!string.IsNullOrEmpty(metricsAddress))
+        {
+            yield return new("monitoringQueue", new ManifestItem { StringValue = metricsAddress });
         }
     }
 
