@@ -13,6 +13,15 @@ using Installation;
 public static class ManifestConfigExtensions
 {
     /// <summary>
+    /// Enables generation of manifest data and persists it to the .manifest folder when the endpoint starts.
+    /// </summary>
+    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+    public static void EnableManifestGeneration(this EndpointConfiguration config)
+    {
+        config.EnableManifestGeneration((string?)null);
+    }
+
+    /// <summary>
     /// Enables generation of manifest data and persists it to the provided outputPath when the endpoint starts.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>

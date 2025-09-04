@@ -13,15 +13,15 @@ public record ManifestItem
     /// <summary>
     /// String value if applicable.
     /// </summary>
-    public string? StringValue { get; set; }
+    public string? StringValue { get; init; }
     /// <summary>
     /// Item value if applicable.
     /// </summary>
-    public IEnumerable<KeyValuePair<string, ManifestItem>>? ItemValue { get; set; }
+    public IEnumerable<KeyValuePair<string, ManifestItem>>? ItemValue { get; init; }
     /// <summary>
     /// Array value if applicable.
     /// </summary>
-    public ManifestItem[]? ArrayValue { get; set; }
+    public ManifestItem[]? ArrayValue { get; init; }
 
     /// <summary>
     /// Returns a string representation of the manifest item.
@@ -52,7 +52,7 @@ public record ManifestItem
     public string FormatJSON() => JsonPrettyPrinter.Print(ToString() ?? "{}");
 
     /// <summary>
-    /// 
+    /// Convert from string to a StringValue ManifestItem
     /// </summary>
     /// <param name="value"></param>
     public static implicit operator ManifestItem(string value) => new() { StringValue = value };
