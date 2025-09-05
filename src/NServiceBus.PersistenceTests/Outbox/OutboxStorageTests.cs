@@ -6,13 +6,8 @@ using NServiceBus.Outbox;
 using NUnit.Framework;
 
 [TestFixtureSource(typeof(PersistenceTestsConfiguration), nameof(PersistenceTestsConfiguration.OutboxVariants))]
-public class OutboxStorageTests
+public class OutboxStorageTests(TestVariant param)
 {
-    public OutboxStorageTests(TestVariant param)
-    {
-        this.param = param.DeepCopy();
-    }
-
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
@@ -39,7 +34,7 @@ public class OutboxStorageTests
 
         string transportOperationMessageId = Guid.NewGuid().ToString();
         var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, null, null, null) });
-        using (var transaction = await storage.BeginTransaction(ctx))
+        await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
 
@@ -69,7 +64,7 @@ public class OutboxStorageTests
         _ = await storage.Get(messageId, ctx);
 
         var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-        using (var transaction = await storage.BeginTransaction(ctx))
+        await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
 
@@ -95,17 +90,17 @@ public class OutboxStorageTests
         _ = await storage.Get("MySpecialId", winningContextBag);
         _ = await storage.Get("MySpecialId", losingContextBag);
 
-        using (var transactionA = await storage.BeginTransaction(winningContextBag))
+        await using (var transactionA = await storage.BeginTransaction(winningContextBag))
         {
-            await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()), transactionA, winningContextBag);
+            await storage.Store(new OutboxMessage("MySpecialId", []), transactionA, winningContextBag);
             await transactionA.Commit();
         }
 
         Assert.That(async () =>
         {
-            using (var transactionB = await storage.BeginTransaction(losingContextBag))
+            await using (var transactionB = await storage.BeginTransaction(losingContextBag))
             {
-                await storage.Store(new OutboxMessage("MySpecialId", Array.Empty<TransportOperation>()),
+                await storage.Store(new OutboxMessage("MySpecialId", []),
                     transactionB, losingContextBag);
                 await transactionB.Commit();
             }
@@ -123,9 +118,9 @@ public class OutboxStorageTests
         var messageId = Guid.NewGuid().ToString();
         _ = await storage.Get(messageId, ctx);
 
-        using (var transaction = await storage.BeginTransaction(ctx))
+        await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
             await storage.Store(messageToStore, transaction, ctx);
 
             // do not commit
@@ -146,9 +141,9 @@ public class OutboxStorageTests
         var messageId = Guid.NewGuid().ToString();
         _ = await storage.Get(messageId, ctx);
 
-        using (var transaction = await storage.BeginTransaction(ctx))
+        await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
             await storage.Store(messageToStore, transaction, ctx);
 
             await transaction.Commit();
@@ -159,5 +154,5 @@ public class OutboxStorageTests
     }
 
     PersistenceTestsConfiguration configuration;
-    TestVariant param;
+    readonly TestVariant param = param.DeepCopy();
 }
