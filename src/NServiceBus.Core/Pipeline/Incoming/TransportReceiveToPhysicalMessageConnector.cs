@@ -20,7 +20,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
-        var processingStartedAt = DateTimeOffset.UtcNow;
+        var processingStartedAt = Stopwatch.GetTimestamp();
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
@@ -40,10 +40,13 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
-
-                var processingCompletedAt = DateTimeOffset.UtcNow;
-                incomingPipelineMetrics.RecordProcessingTime(context, processingCompletedAt - processingStartedAt);
             }
+
+            // We are measuring outside the transaction scope instead of right after the transaction is committed.
+            // Under some specific configurations the heavy lifting is not done as part of the commit but
+            // as part of the transaction scope dispose (e.g., when using SQL with transaction scope and DTC)
+            var elapsedTime = Stopwatch.GetElapsedTime(processingStartedAt);
+            incomingPipelineMetrics.RecordProcessingTime(context, elapsedTime);
 
             physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
         }
