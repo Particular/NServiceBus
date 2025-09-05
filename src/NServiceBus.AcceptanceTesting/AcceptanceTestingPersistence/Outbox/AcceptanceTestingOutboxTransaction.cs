@@ -7,16 +7,28 @@ using Outbox;
 
 class AcceptanceTestingOutboxTransaction : IOutboxTransaction
 {
-    public AcceptanceTestingOutboxTransaction()
-    {
-        Transaction = new AcceptanceTestingTransaction();
-    }
-
-    public AcceptanceTestingTransaction Transaction { get; private set; }
+    public AcceptanceTestingTransaction Transaction { get; private set; } = new();
 
     public void Dispose()
     {
+        if (Transaction is null)
+        {
+            return;
+        }
+
         Transaction = null;
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        if (Transaction is null)
+        {
+            return default;
+        }
+
+        Transaction = null;
+
+        return default;
     }
 
     public Task Commit(CancellationToken cancellationToken = default)
@@ -25,8 +37,5 @@ class AcceptanceTestingOutboxTransaction : IOutboxTransaction
         return Task.CompletedTask;
     }
 
-    public void Enlist(Action action)
-    {
-        Transaction.Enlist(action);
-    }
+    public void Enlist(Action action) => Transaction.Enlist(action);
 }

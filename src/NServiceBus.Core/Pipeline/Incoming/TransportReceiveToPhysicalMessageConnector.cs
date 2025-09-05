@@ -30,7 +30,10 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
         {
             physicalMessageContext.Extensions.Set(pendingTransportOperations);
 
-            using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions, context.CancellationToken).ConfigureAwait(false))
+            var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions, context.CancellationToken)
+                .ConfigureAwait(false);
+
+            await using (outboxTransaction.ConfigureAwait(false))
             {
                 context.Extensions.Set(outboxTransaction);
                 await next(physicalMessageContext).ConfigureAwait(false);

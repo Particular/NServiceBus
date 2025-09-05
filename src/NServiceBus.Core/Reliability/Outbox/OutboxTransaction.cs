@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Transaction in which storage operations must enlist to be consistent with the outbox operations.
 /// </summary>
-public interface IOutboxTransaction : IDisposable
+public interface IOutboxTransaction : IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Commits the outbox transaction.
