@@ -13,10 +13,23 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
 {
     public AcceptanceTestingTransaction Transaction { get; private set; }
 
-    public void Dispose() => Transaction = null;
+    public void Dispose()
+    {
+        if (Transaction is null)
+        {
+            return;
+        }
+
+        Transaction = null;
+    }
 
     public ValueTask DisposeAsync()
     {
+        if (Transaction is null)
+        {
+            return default;
+        }
+
         Transaction = null;
         return default;
     }
