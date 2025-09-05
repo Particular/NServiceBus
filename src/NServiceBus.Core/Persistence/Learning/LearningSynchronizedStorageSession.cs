@@ -13,6 +13,11 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
 {
     public void Dispose()
     {
+        if (sagaFiles.Count == 0)
+        {
+            return;
+        }
+
         foreach (var sagaFile in sagaFiles.Values)
         {
             sagaFile.Dispose();
@@ -23,6 +28,11 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
 
     public async ValueTask DisposeAsync()
     {
+        if (sagaFiles.Count == 0)
+        {
+            return;
+        }
+
         foreach (var sagaFile in sagaFiles.Values)
         {
             await sagaFile.DisposeAsync().ConfigureAwait(false);
@@ -32,10 +42,12 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
     }
 
     public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
-        CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
+        CancellationToken cancellationToken = default) =>
+        new(false);
 
     public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
-        CancellationToken cancellationToken = default) => new ValueTask<bool>(false);
+        CancellationToken cancellationToken = default) =>
+        new(false);
 
     public Task Open(ContextBag context, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
@@ -63,20 +75,11 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
             .ConfigureAwait(false);
     }
 
-    public void Update(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
-    {
-        deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
-    }
+    public void Update(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
 
-    public void Save(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
-    {
-        deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
-    }
+    public void Save(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
 
-    public void Complete(IContainSagaData sagaData, SagaManifestCollection sagaManifests)
-    {
-        deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
-    }
+    public void Complete(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
 
     async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, SagaManifestCollection sagaManifests, CancellationToken cancellationToken)
     {
