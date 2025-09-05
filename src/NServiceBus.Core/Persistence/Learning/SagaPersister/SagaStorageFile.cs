@@ -9,13 +9,15 @@ using System.Threading.Tasks;
 
 class SagaStorageFile : IDisposable, IAsyncDisposable
 {
-    SagaStorageFile(FileStream fileStream)
-    {
-        this.fileStream = fileStream;
-    }
+    SagaStorageFile(FileStream fileStream) => this.fileStream = fileStream;
 
     public void Dispose()
     {
+        if (fileStream is null)
+        {
+            return;
+        }
+
         fileStream.Close();
 
         if (isCompleted)
@@ -29,6 +31,11 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (fileStream is null)
+        {
+            return;
+        }
+
         fileStream.Close();
 
         if (isCompleted)
@@ -101,9 +108,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
     public void MarkAsCompleted() => isCompleted = true;
 
     public ValueTask<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
-    {
-        return JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
-    }
+        => JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
 
     FileStream fileStream;
     bool isCompleted;
