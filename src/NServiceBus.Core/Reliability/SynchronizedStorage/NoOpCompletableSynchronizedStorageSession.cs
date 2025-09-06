@@ -11,11 +11,11 @@ sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronize
 {
     public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
-        new ValueTask<bool>(true);
+        new(true);
 
     public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
-        new ValueTask<bool>(false);
+        new(false);
 
     public Task Open(ContextBag context, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;

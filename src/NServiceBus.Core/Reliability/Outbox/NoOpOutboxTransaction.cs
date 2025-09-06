@@ -10,5 +10,7 @@ sealed class NoOpOutboxTransaction : IOutboxTransaction
     {
     }
 
+    public ValueTask DisposeAsync() => default;
+
     public Task Commit(CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

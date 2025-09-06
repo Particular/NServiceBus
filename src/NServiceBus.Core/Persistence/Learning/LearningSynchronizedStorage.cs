@@ -6,13 +6,7 @@ using Persistence;
 
 sealed class LearningSynchronizedStorage : Feature
 {
-    public LearningSynchronizedStorage()
-    {
-        DependsOn<SynchronizedStorage>();
-    }
+    public LearningSynchronizedStorage() => DependsOn<SynchronizedStorage>();
 
-    protected internal override void Setup(FeatureConfigurationContext context)
-    {
-        context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
-    }
+    protected internal override void Setup(FeatureConfigurationContext context) => context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
 }
