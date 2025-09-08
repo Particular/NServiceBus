@@ -6,6 +6,7 @@ using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using AcceptanceTests;
 using EndpointTemplates;
+using Features;
 using NUnit.Framework;
 
 public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
@@ -19,8 +20,32 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
             .WithEndpoint<Publisher>(b =>
                 b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, session => session.Publish(new MyEvent()))
             )
-            .WithEndpoint<Subscriber1>()
-            .WithEndpoint<Subscriber2>()
+            .WithEndpoint<Subscriber1>(b => b.When(async (session, ctx) =>
+            {
+                await session.Subscribe<MyEvent>();
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.Subscriber1Subscribed = true;
+                    ctx.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                }
+                else
+                {
+                    ctx.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
+                }
+            }))
+            .WithEndpoint<Subscriber2>(b => b.When(async (session, ctx) =>
+            {
+                await session.Subscribe<MyEvent>();
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.Subscriber2Subscribed = true;
+                    ctx.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                }
+                else
+                {
+                    ctx.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
+                }
+            }))
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(TimeSpan.FromSeconds(10));
 
@@ -50,12 +75,14 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
                 if (s.SubscriberEndpoint.Contains(subscriber1))
                 {
                     context.Subscriber1Subscribed = true;
+                    context.AddTrace($"{subscriber1} is now subscribed");
                 }
 
                 var subscriber2 = Conventions.EndpointNamingConvention(typeof(Subscriber2));
                 if (s.SubscriberEndpoint.Contains(subscriber2))
                 {
                     context.Subscriber2Subscribed = true;
+                    context.AddTrace($"{subscriber2} is now subscribed");
                 }
             });
         }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
@@ -66,6 +93,8 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
         public Subscriber1() =>
             EndpointSetup<DefaultServer>(c =>
             {
+                c.DisableFeature<AutoSubscribe>();
+
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 c.EnableOutbox();
             }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
@@ -85,6 +114,8 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
         public Subscriber2() =>
             EndpointSetup<DefaultServer>(c =>
             {
+                c.DisableFeature<AutoSubscribe>();
+
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 c.EnableOutbox();
             }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
