@@ -66,16 +66,19 @@ class DeserializeMessageConnector(
             return [];
         }
 
-        if (physicalMessage.Body.Length == 0)
+        bool hasEnclosedMessageTypesValue = physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue);
+
+        if (!hasEnclosedMessageTypesValue && physicalMessage.Body.Length == 0)
         {
-            log.Debug("Received a message without body. Skipping deserialization.");
+            log.Debug("Received a message without body or message type header. Skipping deserialization.");
             return [];
         }
 
         List<Type>? messageTypes = null;
-        if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypesValue))
+
+        if (hasEnclosedMessageTypesValue)
         {
-            messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue,
+            messageTypes = enclosedMessageTypesStringToMessageTypes.GetOrAdd(enclosedMessageTypesValue!,
                 static (key, registry) =>
                 {
                     var keySpan = key.AsSpan();
@@ -113,13 +116,19 @@ class DeserializeMessageConnector(
 
         var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
+        if (physicalMessage.Body.Length == 0 && !messageSerializer.SupportsZeroLengthMessages)
+        {
+            log.Debug("Received a message without body for a serializer that doesn't support zero length messages.");
+            return [];
+        }
+
         mapper.Initialize(messageTypes);
 
         // For nested behaviors who have an expectation ContentType existing
         // add the default content type
-        physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
+        physicalMessage.Headers[Headers.ContentType] = messageSerializer.MessageSerializer.ContentType;
 
-        var deserializedMessages = messageSerializer.Deserialize(physicalMessage.Body, messageTypes);
+        var deserializedMessages = messageSerializer.MessageSerializer.Deserialize(physicalMessage.Body, messageTypes);
 
         var logicalMessages = new LogicalMessage[deserializedMessages.Length];
         for (var i = 0; i < deserializedMessages.Length; i++)
