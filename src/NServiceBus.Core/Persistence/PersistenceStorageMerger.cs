@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using Persistence;
 using Settings;
 
-class PersistenceStorageMerger
+static class PersistenceStorageMerger
 {
-    public static List<EnabledPersistence> Merge(List<EnabledPersistence> definitions, SettingsHolder settings)
+    public static List<EnabledPersistence> MergePersistences(this SettingsHolder settings, List<EnabledPersistence> definitions)
     {
         definitions.Reverse();
 

@@ -95,8 +95,6 @@ public partial class EndpointConfiguration : ExposeSettings
 
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
-
-        PersistenceComponent.Configure(Settings);
     }
 
     internal ConventionsBuilder ConventionsBuilder;

@@ -10,16 +10,16 @@ using Settings;
 
 static class PersistenceComponent
 {
-    public static void Configure(SettingsHolder settings)
+    public static void ConfigurePersistence(this SettingsHolder settings)
     {
         if (!settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
         {
             return;
         }
 
-        var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
+        var enabledPersistences = settings.MergePersistences(definitions);
 
-        ValidateSagaAndOutboxUseSamePersistence(enabledPersistences, settings);
+        settings.ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
 
         var resultingSupportedStorages = new List<Type>();
         var diagnostics = new Dictionary<string, object>();
@@ -49,7 +49,7 @@ static class PersistenceComponent
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
-    static void ValidateSagaAndOutboxUseSamePersistence(List<EnabledPersistence> enabledPersistences, SettingsHolder settings)
+    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, List<EnabledPersistence> enabledPersistences)
     {
         var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
         var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
@@ -64,7 +64,7 @@ static class PersistenceComponent
         }
     }
 
-    internal static bool HasSupportFor<T>(IReadOnlySettings settings) where T : StorageType
+    internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType
     {
         settings.TryGet(ResultingSupportedStoragesSettingsKey, out List<Type> supportedStorages);
 

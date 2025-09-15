@@ -35,7 +35,7 @@ public class When_persistence_has_been_configured
 
         Assert.Throws<Exception>(() =>
         {
-            PersistenceComponent.Configure(config.Settings);
+            config.Settings.ConfigurePersistence();
         }, "Sagas and Outbox need to use the same type of persistence. Saga is configured to use FakeSagaPersistence. Outbox is configured to use FakeOutboxPersistence");
     }
 
@@ -57,7 +57,7 @@ public class When_persistence_has_been_configured
             config.EnableFeature<Outbox>();
         }
 
-        Assert.DoesNotThrow(() => PersistenceComponent.Configure(config.Settings), "Should not throw for a single single feature enabled out of the two.");
+        Assert.DoesNotThrow(() => config.Settings.ConfigurePersistence(), "Should not throw for a single single feature enabled out of the two.");
     }
 
     class FakeSagaPersistence : PersistenceDefinition

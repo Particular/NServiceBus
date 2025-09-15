@@ -15,7 +15,7 @@ public class When_no_storage_persistence_overrides_are_enabled
         config.UsePersistence<FakePersistence>();
         var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
+        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
 
         Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(StorageType.GetAvailableStorageTypes()));
     }
@@ -24,9 +24,9 @@ public class When_no_storage_persistence_overrides_are_enabled
     {
         public FakePersistence()
         {
-            Supports<StorageType.Sagas>(settings => { });
-            Supports<StorageType.Outbox>(settings => { });
-            Supports<StorageType.Subscriptions>(settings => { });
+            Supports<StorageType.Sagas>(_ => { });
+            Supports<StorageType.Outbox>(_ => { });
+            Supports<StorageType.Subscriptions>(_ => { });
         }
     }
 }
@@ -43,7 +43,7 @@ public class When_storage_overrides_are_provided
         config.UsePersistence<FakePersistence2, StorageType.Subscriptions>();
         var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
+        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
 
         Assert.Multiple(() =>
         {
@@ -56,8 +56,8 @@ public class When_storage_overrides_are_provided
     {
         public FakePersistence2()
         {
-            Supports<StorageType.Sagas>(settings => { });
-            Supports<StorageType.Subscriptions>(settings => { });
+            Supports<StorageType.Sagas>(_ => { });
+            Supports<StorageType.Subscriptions>(_ => { });
         }
     }
 
@@ -65,9 +65,9 @@ public class When_storage_overrides_are_provided
     {
         public FakePersistence()
         {
-            Supports<StorageType.Sagas>(settings => { });
-            Supports<StorageType.Outbox>(settings => { });
-            Supports<StorageType.Subscriptions>(settings => { });
+            Supports<StorageType.Sagas>(_ => { });
+            Supports<StorageType.Outbox>(_ => { });
+            Supports<StorageType.Subscriptions>(_ => { });
         }
     }
 }
@@ -82,7 +82,7 @@ public class When_explicitly_enabling_selected_storage
         config.UsePersistence<FakePersistence, StorageType.Sagas>();
         var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
+        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
 
         Assert.That(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))), Is.False);
     }
@@ -91,8 +91,8 @@ public class When_explicitly_enabling_selected_storage
     {
         public FakePersistence()
         {
-            Supports<StorageType.Sagas>(settings => { });
-            Supports<StorageType.Subscriptions>(settings => { });
+            Supports<StorageType.Sagas>(_ => { });
+            Supports<StorageType.Subscriptions>(_ => { });
         }
     }
 }
