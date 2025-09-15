@@ -83,7 +83,7 @@ static class PersistenceComponent
         return supportedStorages?.Contains(typeof(T)) ?? false;
     }
 
-    const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
+    internal const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
 
     const string ResultingSupportedStoragesSettingsKey = "ResultingSupportedStorages";
 
