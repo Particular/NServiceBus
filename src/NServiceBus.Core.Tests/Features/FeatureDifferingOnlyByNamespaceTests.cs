@@ -24,6 +24,7 @@
             };
 
             var settings = new SettingsHolder();
+            settings.Set(new FeatureComponent.Settings(settings));
             var featureSettings = new FeatureActivator(settings);
 
             featureSettings.Add(dependingFeature);

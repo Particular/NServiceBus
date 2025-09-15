@@ -27,7 +27,19 @@ public static partial class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
-        settings.SetDefault(featureType.FullName, FeatureState.Enabled);
+
+        // Default values etc needs double checking. This is a hack
+        if (settings.Get<FeatureComponent.Settings>().Features
+            .TryGetValue(featureType, out var state))
+        {
+            state.Default = FeatureState.Enabled;
+        }
+        else
+        {
+            settings.Get<FeatureComponent.Settings>().Features[featureType] = (FeatureState.Enabled, null);
+        }
+        // TODO backward compatibility?
+        //settings.SetDefault(featureType.FullName, FeatureState.Enabled);
         return settings;
     }
 
@@ -38,7 +50,12 @@ public static partial class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
-        return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
+
+        if (settings.Get<FeatureComponent.Settings>().Features.TryGetValue(featureType, out var featureState))
+        {
+            return featureState.Override.GetValueOrDefault(featureState.Default.GetValueOrDefault()) == FeatureState.Active;
+        }
+        return false;
     }
 
     /// <summary>
@@ -48,26 +65,71 @@ public static partial class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
-        return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;
+
+        if (settings.Get<FeatureComponent.Settings>().Features.TryGetValue(featureType, out var featureState))
+        {
+            return featureState.Override.GetValueOrDefault(featureState.Default.GetValueOrDefault()) == FeatureState.Enabled;
+        }
+        return false;
     }
 
     internal static void EnableFeature(this SettingsHolder settings, Type featureType)
     {
-        settings.Set(featureType.FullName, FeatureState.Enabled);
+        if (settings.Get<FeatureComponent.Settings>().Features
+            .TryGetValue(featureType, out var state))
+        {
+            state.Override = FeatureState.Enabled;
+        }
+        else
+        {
+            settings.Get<FeatureComponent.Settings>().Features[featureType] = (null, FeatureState.Enabled);
+        }
+        // TODO backward compatibility?
+        // settings.Set(featureType.FullName, FeatureState.Enabled);
     }
 
     internal static void DisableFeature(this SettingsHolder settings, Type featureType)
     {
-        settings.Set(featureType.FullName, FeatureState.Disabled);
+        if (settings.Get<FeatureComponent.Settings>().Features
+            .TryGetValue(featureType, out var state))
+        {
+            state.Override = FeatureState.Disabled;
+        }
+        else
+        {
+            settings.Get<FeatureComponent.Settings>().Features[featureType] = (null, FeatureState.Disabled);
+        }
+        // TODO backward compatibility?
+        //settings.Set(featureType.FullName, FeatureState.Disabled);
     }
 
     internal static void MarkFeatureAsActive(this SettingsHolder settings, Type featureType)
     {
-        settings.Set(featureType.FullName, FeatureState.Active);
+        if (settings.Get<FeatureComponent.Settings>().Features
+            .TryGetValue(featureType, out var state))
+        {
+            state.Override = FeatureState.Active;
+        }
+        else
+        {
+            settings.Get<FeatureComponent.Settings>().Features[featureType] = (null, FeatureState.Active);
+        }
+        // TODO backward compatibility?
+        //settings.Set(featureType.FullName, FeatureState.Active);
     }
 
     internal static void MarkFeatureAsDeactivated(this SettingsHolder settings, Type featureType)
     {
-        settings.Set(featureType.FullName, FeatureState.Deactivated);
+        if (settings.Get<FeatureComponent.Settings>().Features
+            .TryGetValue(featureType, out var state))
+        {
+            state.Override = FeatureState.Deactivated;
+        }
+        else
+        {
+            settings.Get<FeatureComponent.Settings>().Features[featureType] = (null, FeatureState.Deactivated);
+        }
+        // TODO backward compatibility?
+        //settings.Set(featureType.FullName, FeatureState.Deactivated);
     }
 }
