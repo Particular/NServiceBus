@@ -14,7 +14,7 @@ public class When_no_persistence_has_been_configured
     {
         var settings = new SettingsHolder();
 
-        var supported = PersistenceComponent.HasSupportFor<StorageType.Subscriptions>(settings);
+        var supported = settings.HasSupportFor<StorageType.Subscriptions>();
 
         Assert.That(supported, Is.False);
     }

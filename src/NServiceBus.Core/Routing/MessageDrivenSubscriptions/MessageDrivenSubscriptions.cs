@@ -59,7 +59,7 @@ class MessageDrivenSubscriptions : Feature
         var publishingEnabled = context.Settings.Get<bool>(EnablePublishingSettingsKey);
         if (publishingEnabled)
         {
-            if (!PersistenceComponent.HasSupportFor<StorageType.Subscriptions>(context.Settings))
+            if (!context.Settings.HasSupportFor<StorageType.Subscriptions>())
             {
                 throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the publish functionality using transportConfiguration.DisablePublishing()");
             }
