@@ -8,7 +8,7 @@ using Logging;
 using Persistence;
 using Settings;
 
-class PersistenceComponent
+static class PersistenceComponent
 {
     public static void Configure(SettingsHolder settings)
     {

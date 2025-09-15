@@ -33,8 +33,6 @@ public class When_persistence_has_been_configured
         config.EnableFeature<Outbox>();
         config.EnableFeature<Sagas>();
 
-        var startup = new PersistenceComponent();
-
         Assert.Throws<Exception>(() =>
         {
             PersistenceComponent.Configure(config.Settings);
@@ -59,24 +57,16 @@ public class When_persistence_has_been_configured
             config.EnableFeature<Outbox>();
         }
 
-        var startup = new PersistenceComponent();
-
         Assert.DoesNotThrow(() => PersistenceComponent.Configure(config.Settings), "Should not throw for a single single feature enabled out of the two.");
     }
 
     class FakeSagaPersistence : PersistenceDefinition
     {
-        public FakeSagaPersistence()
-        {
-            Supports<StorageType.Sagas>(settings => { });
-        }
+        public FakeSagaPersistence() => Supports<StorageType.Sagas>(_ => { });
     }
 
     class FakeOutboxPersistence : PersistenceDefinition
     {
-        public FakeOutboxPersistence()
-        {
-            Supports<StorageType.Outbox>(settings => { });
-        }
+        public FakeOutboxPersistence() => Supports<StorageType.Outbox>(_ => { });
     }
 }
