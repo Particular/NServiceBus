@@ -22,10 +22,12 @@ class FeatureComponent(SettingsHolder settings)
 
         foreach (var type in hostingConfiguration.AvailableTypes.Where(IsFeature))
         {
-            if (!featureSettings.Features.ContainsKey(type))
+            if (featureSettings.Features.ContainsKey(type))
             {
-                featureActivator.Add(type.Construct<Feature>());
+                continue;
             }
+
+            featureActivator.Add(type.Construct<Feature>());
         }
     }
 
