@@ -41,7 +41,7 @@ public class Sagas : Feature
     /// </summary>
     protected internal override void Setup(FeatureConfigurationContext context)
     {
-        if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
+        if (!PersistenceComponent.HasSupportFor<StorageType.Sagas>(context.Settings))
         {
             throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
         }

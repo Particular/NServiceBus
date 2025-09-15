@@ -13,7 +13,7 @@ public class When_no_storage_persistence_overrides_are_enabled
     {
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
+        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
         var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
@@ -41,7 +41,7 @@ public class When_storage_overrides_are_provided
         config.UsePersistence<FakePersistence>();
         config.UsePersistence<FakePersistence2, StorageType.Sagas>();
         config.UsePersistence<FakePersistence2, StorageType.Subscriptions>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
+        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
         var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
@@ -80,7 +80,7 @@ public class When_explicitly_enabling_selected_storage
     {
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence, StorageType.Sagas>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>("PersistenceDefinitions");
+        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
         var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 

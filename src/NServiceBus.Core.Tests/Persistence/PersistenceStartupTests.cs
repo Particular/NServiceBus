@@ -14,7 +14,7 @@ public class When_no_persistence_has_been_configured
     {
         var settings = new SettingsHolder();
 
-        var supported = PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(settings);
+        var supported = PersistenceComponent.HasSupportFor<StorageType.Subscriptions>(settings);
 
         Assert.That(supported, Is.False);
     }
@@ -33,11 +33,11 @@ public class When_persistence_has_been_configured
         config.EnableFeature<Outbox>();
         config.EnableFeature<Sagas>();
 
-        var startup = new PersistenceStartup();
+        var startup = new PersistenceComponent();
 
         Assert.Throws<Exception>(() =>
         {
-            startup.Run(config.Settings);
+            PersistenceComponent.Configure(config.Settings);
         }, "Sagas and Outbox need to use the same type of persistence. Saga is configured to use FakeSagaPersistence. Outbox is configured to use FakeOutboxPersistence");
     }
 
@@ -59,9 +59,9 @@ public class When_persistence_has_been_configured
             config.EnableFeature<Outbox>();
         }
 
-        var startup = new PersistenceStartup();
+        var startup = new PersistenceComponent();
 
-        Assert.DoesNotThrow(() => startup.Run(config.Settings), "Should not throw for a single single feature enabled out of the two.");
+        Assert.DoesNotThrow(() => PersistenceComponent.Configure(config.Settings), "Should not throw for a single single feature enabled out of the two.");
     }
 
     class FakeSagaPersistence : PersistenceDefinition

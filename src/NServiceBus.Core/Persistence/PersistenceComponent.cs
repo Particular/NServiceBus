@@ -8,11 +8,11 @@ using Logging;
 using Persistence;
 using Settings;
 
-class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
+class PersistenceComponent
 {
-    public void Run(SettingsHolder settings)
+    public static void Configure(SettingsHolder settings)
     {
-        if (!settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
+        if (!settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
         {
             return;
         }
@@ -44,7 +44,7 @@ class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
             }
         }
 
-        settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
+        settings.Set(ResultingSupportedStoragesSettingsKey, resultingSupportedStorages);
 
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
@@ -66,10 +66,14 @@ class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
 
     internal static bool HasSupportFor<T>(IReadOnlySettings settings) where T : StorageType
     {
-        settings.TryGet("ResultingSupportedStorages", out List<Type> supportedStorages);
+        settings.TryGet(ResultingSupportedStoragesSettingsKey, out List<Type> supportedStorages);
 
         return supportedStorages?.Contains(typeof(T)) ?? false;
     }
 
-    static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
+    internal const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
+
+    const string ResultingSupportedStoragesSettingsKey = "ResultingSupportedStorages";
+
+    static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
 }

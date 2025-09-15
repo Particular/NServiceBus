@@ -82,6 +82,7 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
         return new RoutingSettings<TTransport>(Settings);
     }
+
     //This needs to be here since we have downstreams that use reflection to access this property
     internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
     {
@@ -94,6 +95,8 @@ public partial class EndpointConfiguration : ExposeSettings
 
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
+
+        PersistenceComponent.Configure(Settings);
     }
 
     internal ConventionsBuilder ConventionsBuilder;
