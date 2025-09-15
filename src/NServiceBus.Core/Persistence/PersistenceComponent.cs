@@ -64,6 +64,18 @@ static class PersistenceComponent
         }
     }
 
+    internal static List<EnabledPersistence> GetOrSetEnabledPersistences(this SettingsHolder settings)
+    {
+        if (settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
+        {
+            return definitions;
+        }
+
+        definitions = [];
+        settings.Set(PersistenceDefinitionsSettingsKey, definitions);
+        return definitions;
+    }
+
     internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType
     {
         settings.TryGet(ResultingSupportedStoragesSettingsKey, out List<Type> supportedStorages);
@@ -71,7 +83,7 @@ static class PersistenceComponent
         return supportedStorages?.Contains(typeof(T)) ?? false;
     }
 
-    internal const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
+    const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
 
     const string ResultingSupportedStoragesSettingsKey = "ResultingSupportedStorages";
 
