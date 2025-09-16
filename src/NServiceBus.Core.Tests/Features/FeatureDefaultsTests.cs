@@ -83,6 +83,10 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
+        featureFactory.Add(level1);
+        featureFactory.Add(level2);
+        featureFactory.Add(level3);
+
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
         featureSettings.Add(level2);
@@ -117,6 +121,8 @@ public class FeatureDefaultsTests
         {
             OnDefaults = f => defaultsOrder.Add(f)
         };
+
+        featureFactory.Add(dependingFeature, feature);
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -154,6 +160,8 @@ public class FeatureDefaultsTests
         {
             OnDefaults = f => defaultsOrder.Add(f)
         };
+
+        featureFactory.Add(feature, feature2, feature3, dependingFeature);
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -194,9 +202,7 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
-        featureFactory.Add(level1);
-        featureFactory.Add(level2);
-        featureFactory.Add(level3);
+        featureFactory.Add(level1, level2, level3);
 
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
