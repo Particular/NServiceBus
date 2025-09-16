@@ -15,7 +15,7 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureSettings = new FeatureActivator(settings, new FeatureFactory());
     }
 
     [Test]
