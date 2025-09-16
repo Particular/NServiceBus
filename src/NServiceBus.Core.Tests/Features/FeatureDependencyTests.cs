@@ -54,7 +54,7 @@ public class FeatureDependencyTests
     [TestCaseSource(nameof(FeatureCombinationsForTests))]
     public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
     {
-        var featureSettings = new FeatureActivator(new SettingsHolder());
+        var featureSettings = new FeatureActivator(new SettingsHolder(), new FeatureFactory());
         var dependingFeature = setup.DependingFeature;
         featureSettings.Add(dependingFeature);
         Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
@@ -79,7 +79,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -111,7 +111,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -142,7 +142,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -179,7 +179,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
@@ -222,7 +222,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
@@ -259,7 +259,7 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        var featureSettings = new FeatureActivator(settings, new FeatureFactory());
 
         featureSettings.Add(level1);
         featureSettings.Add(level2);

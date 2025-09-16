@@ -34,12 +34,12 @@ public abstract class Feature
     /// <summary>
     /// The list of features that this feature is depending on.
     /// </summary>
-    internal List<List<string>> Dependencies { get; }
+    internal List<List<Dependency>> Dependencies { get; }
 
     /// <summary>
     /// Tells if this feature is enabled by default.
     /// </summary>
-    public bool IsEnabledByDefault { get; private set; }
+    public bool IsEnabledByDefault { get; internal set; }
 
     /// <summary>
     /// Indicates that the feature is active.
@@ -80,6 +80,15 @@ public abstract class Feature
     protected void EnableByDefault() => IsEnabledByDefault = true;
 
     /// <summary>
+    /// Marks that this features enables another feature by default
+    /// </summary>
+    /// TODO: Add type based overload?
+    protected void EnableByDefault<T>() where T : Feature =>
+        Dependencies.Add([
+            new Dependency(GetFeatureName(typeof(T)), typeof(T), true)
+        ]);
+
+    /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
     /// the dependent feature is active.
     /// This also causes this feature to be activated after the other feature.
@@ -95,7 +104,7 @@ public abstract class Feature
     protected void DependsOn(string featureTypeName) =>
         Dependencies.Add(
         [
-            featureTypeName
+            new Dependency(featureTypeName)
         ]);
 
     /// <summary>
@@ -116,7 +125,7 @@ public abstract class Feature
             }
         }
 
-        Dependencies.Add([.. features.Select(GetFeatureName)]);
+        Dependencies.Add([.. features.Select(t => new Dependency(GetFeatureName(t), t))]);
     }
 
     /// <summary>
@@ -137,7 +146,7 @@ public abstract class Feature
     {
         ArgumentNullException.ThrowIfNull(featureType);
 
-        DependsOnOptionally(GetFeatureName(featureType));
+        DependsOnAtLeastOne(typeof(RootFeature), featureType);
     }
 
     /// <summary>
@@ -158,7 +167,7 @@ public abstract class Feature
     {
         ArgumentNullException.ThrowIfNull(featureNames);
 
-        Dependencies.Add([.. featureNames]);
+        Dependencies.Add([.. featureNames.Select(n => new Dependency(n))]);
     }
 
     /// <summary>
@@ -202,6 +211,13 @@ public abstract class Feature
     readonly List<SetupPrerequisite> setupPrerequisites = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
+
+    internal class Dependency(string featureName, Type? featureType = null, bool enabledByDefault = false)
+    {
+        public Type? FeatureType { get; } = featureType;
+        public string FeatureName { get; } = featureName;
+        public bool EnabledByDefault { get; } = enabledByDefault;
+    }
 
     class SetupPrerequisite
     {
