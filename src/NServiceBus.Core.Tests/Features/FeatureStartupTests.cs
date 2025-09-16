@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -230,13 +231,16 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskThatThrows : TestFeature
     {
-        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null)
+        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null, [CallerArgumentExpression(nameof(throwOnStart))] string throwOnStartExpression = null, [CallerArgumentExpression(nameof(throwOnStop))] string throwOnStopExpression = null)
         {
             this.throwOnStart = throwOnStart;
             this.throwOnStop = throwOnStop;
             this.createException = createException ?? (() => new InvalidOperationException());
 
             EnableByDefault();
+
+            // This is a hack to bypass the restriction that the same feature type can't be added twice
+            Name = $"{GetType().FullName}.{throwOnStartExpression}.{throwOnStopExpression}";
         }
 
         public bool TaskStartCalled { get; private set; }

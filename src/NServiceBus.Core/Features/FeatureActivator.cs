@@ -27,7 +27,7 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 
         foreach (var dependency in feature.Dependencies.SelectMany(d => d))
         {
-            if (dependency.FeatureType is not null && !added.TryGetValue(dependency.FeatureName, out _))
+            if (dependency.FeatureType is not null && !added.ContainsKey(dependency.FeatureName))
             {
                 var dependentFeature = factory.CreateFeature(dependency.FeatureType);
                 if (dependency.EnabledByDefault)
