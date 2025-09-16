@@ -8,18 +8,18 @@ using Logging;
 using Persistence;
 using Settings;
 
-class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
+static class PersistenceComponent
 {
-    public void Run(SettingsHolder settings)
+    public static void ConfigurePersistence(this SettingsHolder settings)
     {
-        if (!settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
+        if (!settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
         {
             return;
         }
 
-        var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
+        var enabledPersistences = settings.MergePersistences(definitions);
 
-        ValidateSagaAndOutboxUseSamePersistence(enabledPersistences, settings);
+        settings.ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
 
         var resultingSupportedStorages = new List<Type>();
         var diagnostics = new Dictionary<string, object>();
@@ -44,12 +44,12 @@ class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
             }
         }
 
-        settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
+        settings.Set(ResultingSupportedStoragesSettingsKey, resultingSupportedStorages);
 
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
-    static void ValidateSagaAndOutboxUseSamePersistence(List<EnabledPersistence> enabledPersistences, SettingsHolder settings)
+    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, List<EnabledPersistence> enabledPersistences)
     {
         var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
         var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
@@ -64,12 +64,28 @@ class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
         }
     }
 
-    internal static bool HasSupportFor<T>(IReadOnlySettings settings) where T : StorageType
+    internal static List<EnabledPersistence> GetOrSetEnabledPersistences(this SettingsHolder settings)
     {
-        settings.TryGet("ResultingSupportedStorages", out List<Type> supportedStorages);
+        if (settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
+        {
+            return definitions;
+        }
+
+        definitions = [];
+        settings.Set(PersistenceDefinitionsSettingsKey, definitions);
+        return definitions;
+    }
+
+    internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType
+    {
+        settings.TryGet(ResultingSupportedStoragesSettingsKey, out List<Type> supportedStorages);
 
         return supportedStorages?.Contains(typeof(T)) ?? false;
     }
 
-    static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
+    internal const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
+
+    const string ResultingSupportedStoragesSettingsKey = "ResultingSupportedStorages";
+
+    static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
 }

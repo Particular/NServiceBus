@@ -58,11 +58,7 @@ public class PersistenceExtensions : ExposeSettings
     public PersistenceExtensions(Type definitionType, SettingsHolder settings, Type storageType)
         : base(settings)
     {
-        if (!Settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
-        {
-            definitions = [];
-            Settings.Set("PersistenceDefinitions", definitions);
-        }
+        List<EnabledPersistence> definitions = settings.GetOrSetEnabledPersistences();
 
         var enabledPersistence = new EnabledPersistence
         {
