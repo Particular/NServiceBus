@@ -32,5 +32,5 @@ class FeatureComponent(SettingsHolder settings)
 
     static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
-    readonly FeatureActivator featureActivator = new(settings);
+    readonly FeatureActivator featureActivator = new(settings, new FeatureFactory());
 }
