@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus.Features;
@@ -14,7 +15,7 @@ public class FeatureDefaultsTests
         public FeatureThatEnablesAnother()
         {
             EnableByDefault();
-            Defaults(s => s.EnableFeatureByDefault<FeatureThatIsEnabledByAnother>());
+            EnableByDefault<FeatureThatIsEnabledByAnother>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -24,10 +25,7 @@ public class FeatureDefaultsTests
 
     public class FeatureThatIsEnabledByAnother : Feature
     {
-        public FeatureThatIsEnabledByAnother()
-        {
-            Defaults(s => DefaultCalled = true);
-        }
+        public FeatureThatIsEnabledByAnother() => Defaults(s => DefaultCalled = true);
 
         public bool DefaultCalled;
 
@@ -37,19 +35,23 @@ public class FeatureDefaultsTests
     }
 
     FeatureActivator featureSettings;
+    FakeFeatureFactory featureFactory;
     SettingsHolder settings;
 
     [SetUp]
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureActivator(settings, featureFactory);
     }
 
     [Test]
     public void Feature_enabled_by_later_feature_should_have_default_called()
     {
         var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
+        featureFactory.Add(featureThatIsEnabledByAnother);
+
         //the orders matter here to expose a bug
         featureSettings.Add(featureThatIsEnabledByAnother);
         featureSettings.Add(new FeatureThatEnablesAnother());
@@ -192,6 +194,10 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
+        featureFactory.Add(level1);
+        featureFactory.Add(level2);
+        featureFactory.Add(level3);
+
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
         featureSettings.Add(level2);
@@ -213,10 +219,7 @@ public class FeatureDefaultsTests
 
     public class Level1 : TestFeature
     {
-        public Level1()
-        {
-            EnableByDefault();
-        }
+        public Level1() => EnableByDefault();
     }
 
     public class Level2 : TestFeature
@@ -242,7 +245,7 @@ public class FeatureDefaultsTests
         public Activate1()
         {
             EnableByDefault();
-            Defaults(s => s.EnableFeatureByDefault<Activate2>());
+            EnableByDefault<Activate2>();
         }
     }
 
@@ -251,32 +254,20 @@ public class FeatureDefaultsTests
         public Activate2()
         {
             DependsOn<Activate1>();
-            Defaults(s => s.EnableFeatureByDefault<Activate3>());
+            EnableByDefault<Activate3>();
         }
     }
 
     public class Activate3 : TestFeature
     {
-        public Activate3()
-        {
-            DependsOn<Activate2>();
-        }
+        public Activate3() => DependsOn<Activate2>();
     }
 
-    public class MyFeature1 : TestFeature
-    {
+    public class MyFeature1 : TestFeature;
 
-    }
+    public class MyFeature2 : TestFeature;
 
-    public class MyFeature2 : TestFeature
-    {
-
-    }
-
-    public class MyFeature3 : TestFeature
-    {
-
-    }
+    public class MyFeature3 : TestFeature;
 
     public class DependsOnOne_Feature : TestFeature
     {

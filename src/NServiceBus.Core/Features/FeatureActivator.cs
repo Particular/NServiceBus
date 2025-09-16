@@ -9,15 +9,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureActivator(SettingsHolder settings)
+class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 {
     internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
 
     public void Add(Feature feature)
     {
+        if (!added.TryAdd(feature.Name, true))
+        {
+            return;
+        }
+
         if (feature.IsEnabledByDefault)
         {
-            settings.EnableFeatureByDefault(feature.GetType());
+            _ = settings.EnableFeatureByDefault(feature.GetType());
+        }
+
+        foreach (var dependency in feature.Dependencies.SelectMany(d => d))
+        {
+            if (dependency.FeatureType is not null && !added.TryGetValue(dependency.FeatureName, out _))
+            {
+                var dependentFeature = factory.CreateFeature(dependency.FeatureType);
+                if (dependency.EnabledByDefault)
+                {
+                    dependentFeature.IsEnabledByDefault = true;
+                }
+                Add(dependentFeature);
+            }
+            else
+            {
+                if (dependency.EnabledByDefault)
+                {
+                    // TODO Move to internal extension?
+                    // Also we seem to always assume Feature.Name == FullName
+                    settings.SetDefault(dependency.FeatureName, FeatureState.Enabled);
+                }
+            }
         }
 
         features.Add(new FeatureInfo(feature, new FeatureDiagnosticData
@@ -25,7 +52,7 @@ class FeatureActivator(SettingsHolder settings)
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
             Version = feature.Version,
-            Dependencies = feature.Dependencies.AsReadOnly(),
+            Dependencies = feature.Dependencies.Select(d => d.Select(x => x.FeatureName).Distinct().ToList().AsReadOnly()).ToList().AsReadOnly(),
             PrerequisiteStatus = new PrerequisiteStatus(),
             StartupTasks = []
         }));
@@ -112,7 +139,7 @@ class FeatureActivator(SettingsHolder settings)
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
+            foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames).Select(d => d.FeatureName).Distinct())
             {
                 if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                 {
@@ -170,12 +197,12 @@ class FeatureActivator(SettingsHolder settings)
             return true;
         }
 
-        Func<List<string>, bool> dependencyActivator = dependencies =>
+        Func<List<Feature.Dependency>, bool> dependencyActivator = dependencies =>
         {
             var dependentFeaturesToActivate = new List<FeatureInfo>();
 
             foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
-                .SingleOrDefault(f => f.Feature.Name == dependencyName))
+                .SingleOrDefault(f => f.Feature.Name == dependencyName.FeatureName))
                 .Where(dependency => dependency != null))
             {
                 dependentFeaturesToActivate.Add(dependency!);
@@ -215,6 +242,7 @@ class FeatureActivator(SettingsHolder settings)
 
     readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
+    readonly Dictionary<string, bool> added = [];
 
     class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
     {

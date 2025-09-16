@@ -24,8 +24,6 @@ public class Sagas : Feature
             {
                 conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
             }
-
-            s.EnableFeatureByDefault<SynchronizedStorage>();
         });
 
         Defaults(s => s.Set(new SagaMetadataCollection()));
@@ -33,6 +31,7 @@ public class Sagas : Feature
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
         Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
 
+        EnableByDefault<SynchronizedStorage>();
         DependsOn<SynchronizedStorage>();
     }
 
