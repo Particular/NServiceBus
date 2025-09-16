@@ -41,13 +41,4 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     /// Completes the session by saving the changes.
     /// </summary>
     Task CompleteAsync(CancellationToken cancellationToken = default);
-
-    ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        Dispose();
-
-        GC.SuppressFinalize(this);
-
-        return default;
-    }
 }
