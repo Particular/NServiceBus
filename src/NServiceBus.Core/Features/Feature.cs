@@ -24,7 +24,7 @@ public abstract class Feature
     /// <summary>
     /// Feature name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; internal init; }
 
     /// <summary>
     /// The version for this feature.
