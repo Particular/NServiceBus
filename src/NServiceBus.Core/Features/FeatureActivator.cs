@@ -52,7 +52,8 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
             Version = feature.Version,
-            Dependencies = feature.Dependencies.Select(d => d.Select(x => x.FeatureName).Distinct().ToList().AsReadOnly()).ToList().AsReadOnly(),
+            Dependencies = feature.Dependencies.Select(d => d.Where(x => !x.EnabledByDefault).Select(x => x.FeatureName).ToList().AsReadOnly())
+                .Where(innerList => innerList.Count > 0).ToList().AsReadOnly(),
             PrerequisiteStatus = new PrerequisiteStatus(),
             StartupTasks = []
         }));
@@ -139,7 +140,7 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames).Select(d => d.FeatureName).Distinct())
+            foreach (var dependencyName in node.FeatureState.Diagnostics.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
             {
                 if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                 {
@@ -197,12 +198,12 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
             return true;
         }
 
-        Func<List<Feature.Dependency>, bool> dependencyActivator = dependencies =>
+        Func<IReadOnlyList<string>, bool> dependencyActivator = dependencies =>
         {
             var dependentFeaturesToActivate = new List<FeatureInfo>();
 
             foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
-                .SingleOrDefault(f => f.Feature.Name == dependencyName.FeatureName))
+                .SingleOrDefault(f => f.Feature.Name == dependencyName))
                 .Where(dependency => dependency != null))
             {
                 dependentFeaturesToActivate.Add(dependency!);
@@ -210,7 +211,7 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
             return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
         };
         var featureType = featureInfo.Feature.GetType();
-        if (featureInfo.Feature.Dependencies.All(dependencyActivator))
+        if (featureInfo.Diagnostics.Dependencies.All(dependencyActivator))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 

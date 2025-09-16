@@ -15,7 +15,8 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings, new FeatureFactory());
+        feautureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureActivator(settings, feautureFactory);
     }
 
     [Test]
@@ -138,6 +139,7 @@ public class FeatureStartupTests
 
     FeatureActivator featureSettings;
     SettingsHolder settings;
+    FakeFeatureFactory feautureFactory;
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {
