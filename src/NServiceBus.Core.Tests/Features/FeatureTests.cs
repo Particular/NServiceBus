@@ -22,16 +22,11 @@ public class FeatureTests
     }
 
 
-    public class MyFeature : TestFeature
-    {
-    }
+    public class MyFeature : TestFeature;
 
 
     public class MyEnabledByDefaultFeature : TestFeature
     {
-        public MyEnabledByDefaultFeature()
-        {
-            EnableByDefault();
-        }
+        public MyEnabledByDefaultFeature() => EnableByDefault();
     }
 }

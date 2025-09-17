@@ -16,6 +16,7 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
+        settings.Set(new FeatureComponent.Settings(settings));
         feautureFactory = new FakeFeatureFactory();
         featureSettings = new FeatureActivator(settings, feautureFactory);
     }
