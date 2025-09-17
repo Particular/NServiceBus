@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +14,20 @@ class FeatureComponent(SettingsHolder settings)
 {
     public void RegisterFeatureEnabledStatusInSettings(HostingComponent.Configuration hostingConfiguration)
     {
+        var featureSettings = settings.Get<Settings>();
+
+        // When scanning is enabled we might find some types multiple times so we need to de-dupe them.
+        var featureTypes = new HashSet<Type>(featureSettings.Features);
+
+        // When scanning is disabled the available types might only contain explicitely added stuff.
         foreach (var type in hostingConfiguration.AvailableTypes.Where(IsFeature))
         {
-            featureActivator.Add(type.Construct<Feature>());
+            featureTypes.Add(type);
+        }
+
+        foreach (var featureType in featureTypes)
+        {
+            featureActivator.Add(featureFactory.CreateFeature(featureType));
         }
     }
 
@@ -32,5 +44,23 @@ class FeatureComponent(SettingsHolder settings)
 
     static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
-    readonly FeatureActivator featureActivator = new(settings, new FeatureFactory());
+    static readonly FeatureFactory featureFactory = new();
+    readonly FeatureActivator featureActivator = new(settings, featureFactory);
+
+    public class Settings
+    {
+        readonly SettingsHolder settings;
+
+        public Settings(SettingsHolder settings)
+        {
+            this.settings = settings;
+            Features = [];
+        }
+
+        public HashSet<Type> Features
+        {
+            get => settings.Get<HashSet<Type>>("NServiceBus.Features.Features");
+            private init => settings.Set("NServiceBus.Features.Features", value);
+        }
+    }
 }
