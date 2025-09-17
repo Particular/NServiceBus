@@ -4,6 +4,7 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,14 @@ using Settings;
 class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 {
     internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
+
+    public void Add(Type featureType)
+    {
+        if (TryCreateFeature(featureType, out var feature))
+        {
+            Add(feature);
+        }
+    }
 
     public void Add(Feature feature)
     {
@@ -27,9 +36,8 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 
         foreach (var dependency in feature.Dependencies.SelectMany(d => d))
         {
-            if (dependency.FeatureType is not null && !added.ContainsKey(dependency.FeatureName))
+            if (TryCreateFeature(dependency.FeatureType, out var dependentFeature))
             {
-                var dependentFeature = factory.CreateFeature(dependency.FeatureType);
                 if (dependency.EnabledByDefault)
                 {
                     dependentFeature.IsEnabledByDefault = true;
@@ -118,6 +126,18 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
             .Select(task => task.Stop(session, cancellationToken));
 
         return Task.WhenAll(featureStopTasks);
+    }
+
+    bool TryCreateFeature(Type? featureType, [NotNullWhen(true)] out Feature? feature)
+    {
+        if (featureType is not null && !added.ContainsKey(Feature.GetFeatureName(featureType)))
+        {
+            feature = factory.CreateFeature(featureType);
+            return true;
+        }
+
+        feature = null;
+        return false;
     }
 
     static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
