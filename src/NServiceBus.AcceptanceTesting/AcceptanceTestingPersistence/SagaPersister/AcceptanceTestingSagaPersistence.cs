@@ -9,7 +9,7 @@ class AcceptanceTestingSagaPersistence : Feature
     public AcceptanceTestingSagaPersistence()
     {
         DependsOn<Sagas>();
-        Defaults(s => s.EnableFeature(typeof(AcceptanceTestingTransactionalStorageFeature)));
+        EnableByDefault<AcceptanceTestingTransactionalStorageFeature>();
     }
 
     protected internal override void Setup(FeatureConfigurationContext context)

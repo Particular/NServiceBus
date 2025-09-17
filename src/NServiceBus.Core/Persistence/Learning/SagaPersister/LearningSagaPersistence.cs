@@ -10,8 +10,11 @@ class LearningSagaPersistence : Feature
     internal LearningSagaPersistence()
     {
         DependsOn<Sagas>();
-        Defaults(s => s.Set<ISagaIdGenerator>(new LearningSagaIdGenerator()));
-        Defaults(s => s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas")));
+        Defaults(s =>
+        {
+            s.Set<ISagaIdGenerator>(new LearningSagaIdGenerator());
+            s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"));
+        });
     }
 
     protected internal override void Setup(FeatureConfigurationContext context)

@@ -27,6 +27,8 @@ public static partial class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
+
+        _ = settings.Get<FeatureComponent.Settings>().Features.Add(featureType);
         settings.SetDefault(featureType.FullName, FeatureState.Enabled);
         return settings;
     }
@@ -53,6 +55,7 @@ public static partial class SettingsExtensions
 
     internal static void EnableFeature(this SettingsHolder settings, Type featureType)
     {
+        _ = settings.Get<FeatureComponent.Settings>().Features.Add(featureType);
         settings.Set(featureType.FullName, FeatureState.Enabled);
     }
 
