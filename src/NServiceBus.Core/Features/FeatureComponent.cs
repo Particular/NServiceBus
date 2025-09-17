@@ -27,7 +27,7 @@ class FeatureComponent(SettingsHolder settings)
 
         foreach (var featureType in featureTypes)
         {
-            featureActivator.Add(featureFactory.CreateFeature(featureType));
+            featureActivator.Add(featureType);
         }
     }
 
@@ -44,8 +44,7 @@ class FeatureComponent(SettingsHolder settings)
 
     static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
-    static readonly FeatureFactory featureFactory = new();
-    readonly FeatureActivator featureActivator = new(settings, featureFactory);
+    readonly FeatureActivator featureActivator = new(settings, new FeatureFactory());
 
     public class Settings
     {
