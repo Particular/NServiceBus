@@ -85,7 +85,7 @@ public abstract class Feature
     /// TODO: Add type based overload?
     protected void EnableByDefault<T>() where T : Feature =>
         Dependencies.Add([
-            new Dependency(GetFeatureName(typeof(T)), typeof(T), true)
+            new Dependency(GetFeatureName(typeof(T)), typeof(T), enabledByDefault: true)
         ]);
 
     /// <summary>
@@ -94,7 +94,11 @@ public abstract class Feature
     /// This also causes this feature to be activated after the other feature.
     /// </summary>
     /// <typeparam name="T">Feature that this feature depends on.</typeparam>
-    protected void DependsOn<T>() where T : Feature => DependsOn(GetFeatureName(typeof(T)));
+    protected void DependsOn<T>() where T : Feature =>
+        Dependencies.Add(
+        [
+            new Dependency(GetFeatureName(typeof(T)), typeof(T))
+        ]);
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -205,7 +209,7 @@ public abstract class Feature
         }
     }
 
-    static string GetFeatureName(Type featureType) => featureType.FullName!;
+    internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
