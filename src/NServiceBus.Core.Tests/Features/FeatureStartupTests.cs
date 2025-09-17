@@ -26,6 +26,8 @@ public class FeatureStartupTests
     {
         var feature = new FeatureWithStartupTask();
 
+        feautureFactory.Add(feature);
+
         featureSettings.Add(feature);
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
@@ -45,8 +47,13 @@ public class FeatureStartupTests
     {
         var orderBuilder = new StringBuilder();
 
-        featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
-        featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
+        var featureWithStartupTaskWithDependency = new FeatureWithStartupTaskWithDependency(orderBuilder);
+        var featureWithStartupThatAnotherFeatureDependsOn = new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder);
+
+        feautureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
+
+        featureSettings.Add(featureWithStartupTaskWithDependency);
+        featureSettings.Add(featureWithStartupThatAnotherFeatureDependsOn);
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
