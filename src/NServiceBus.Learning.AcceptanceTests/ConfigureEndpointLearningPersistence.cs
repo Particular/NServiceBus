@@ -27,8 +27,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
 
         storageDir = Path.Combine(tempDir, "learn", testRunId);
 
-        configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
-            .SagaStorageDirectory(storageDir);
+        configuration.UsePersistence<LearningPersistence>().SagaStorageDirectory(storageDir);
 
         return Task.CompletedTask;
     }

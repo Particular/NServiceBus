@@ -8,18 +8,8 @@ public class AcceptanceTestingPersistence : PersistenceDefinition
 {
     internal AcceptanceTestingPersistence()
     {
-        Supports<StorageType.Sagas>(s =>
-        {
-            s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>();
-            s.EnableFeatureByDefault<AcceptanceTestingTransactionalStorageFeature>();
-        });
-
+        Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>());
         Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<AcceptanceTestingSubscriptionPersistence>());
-
-        Supports<StorageType.Outbox>(s =>
-        {
-            s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>();
-            s.EnableFeatureByDefault<AcceptanceTestingTransactionalStorageFeature>();
-        });
+        Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>());
     }
 }
