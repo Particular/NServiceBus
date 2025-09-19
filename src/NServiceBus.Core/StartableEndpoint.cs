@@ -70,18 +70,21 @@ class StartableEndpoint
             ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => (ManifestItems.ManifestItem)address).ToArray()
         });
         hostingComponent.Config.AddManifestEntry("errorQueue", settings.ErrorQueueAddress());
+        //TODO: get the auditconfig to write its own manifest
         var auditConfig = settings.Get<AuditConfigReader.Result>();
         hostingComponent.Config.AddManifestEntry("auditEnabled", (auditConfig != null).ToString().ToLower());
         if (auditConfig != null)
         {
             hostingComponent.Config.AddManifestEntry("auditQueue", auditConfig.Address);
         }
+        //TODO: get the heartbeat to write its own manifest
         _ = settings.TryGet("NServiceBus.Heartbeat.Queue", out string hearbeatsQueue);
         hostingComponent.Config.AddManifestEntry("heartbeatsEnabled", (!string.IsNullOrEmpty(hearbeatsQueue)).ToString().ToLower());
         if (!string.IsNullOrEmpty(hearbeatsQueue))
         {
             hostingComponent.Config.AddManifestEntry("heartbeatsQueue", hearbeatsQueue);
         }
+        //TODO: get the metrics to write its own manifest
         _ = settings.TryGet("NServiceBus.Metrics.ServiceControl.MetricsAddress", out string metricsAddress);
         hostingComponent.Config.AddManifestEntry("monitoringEnabled", (!string.IsNullOrEmpty(metricsAddress)).ToString().ToLower());
         if (!string.IsNullOrEmpty(metricsAddress))
