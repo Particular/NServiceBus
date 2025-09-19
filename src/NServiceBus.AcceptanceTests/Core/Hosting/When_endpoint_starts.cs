@@ -99,7 +99,9 @@ public class When_endpoint_starts : NServiceBusAcceptanceTest
     {
         public MyManifestEndpoint()
         {
+#pragma warning disable NSBCOREEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             EndpointSetup<DefaultServer>(c => c.EnableManifestGeneration(basePath));
+#pragma warning restore NSBCOREEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         }
     }
 
