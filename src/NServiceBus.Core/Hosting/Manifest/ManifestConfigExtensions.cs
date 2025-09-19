@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Installation;
@@ -16,16 +17,15 @@ public static class ManifestConfigExtensions
     /// Enables generation of manifest data and persists it to the .manifest folder when the endpoint starts.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    public static void EnableManifestGeneration(this EndpointConfiguration config)
-    {
-        config.EnableManifestGeneration((string?)null);
-    }
+    [Experimental(DiagnosticDescriptors.ExperimentalManifestAttribute)]
+    public static void EnableManifestGeneration(this EndpointConfiguration config) => config.EnableManifestGeneration((string?)null);
 
     /// <summary>
     /// Enables generation of manifest data and persists it to the provided outputPath when the endpoint starts.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="outputPath">The outputPath to  <see cref="INeedToInstallSomething.Install" />.</param>
+    [Experimental(DiagnosticDescriptors.ExperimentalManifestAttribute)]
     public static void EnableManifestGeneration(this EndpointConfiguration config, string? outputPath)
     {
         ArgumentNullException.ThrowIfNull(config);
@@ -42,6 +42,7 @@ public static class ManifestConfigExtensions
     /// </summary>
     /// <param name="config">Configuration object to extend.</param>
     /// <param name="endpointManifestWriter">Func responsible for writing maifest data.</param>
+    [Experimental(DiagnosticDescriptors.ExperimentalManifestAttribute)]
     public static void EnableManifestGeneration(this EndpointConfiguration config, Func<string, CancellationToken, Task> endpointManifestWriter)
     {
         ArgumentNullException.ThrowIfNull(config);

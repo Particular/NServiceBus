@@ -29,6 +29,7 @@ partial class HostingComponent
             });
 
             settings.Set(new StartupDiagnosticEntries());
+            settings.Set(new ManifestItems());
         }
 
         public Guid HostId
@@ -53,11 +54,7 @@ partial class HostingComponent
             set => settings.Set(PropertiesSettingsKey, value);
         }
 
-        public StartupDiagnosticEntries StartupDiagnostics
-        {
-            get => settings.Get<StartupDiagnosticEntries>();
-            set => settings.Set(value);
-        }
+        public StartupDiagnosticEntries StartupDiagnostics => settings.Get<StartupDiagnosticEntries>();
 
         public string? DiagnosticsPath
         {
@@ -108,6 +105,8 @@ partial class HostingComponent
             get => settings.GetOrDefault<bool>("Manifest.Enable");
             set => settings.Set("Manifest.Enable", value);
         }
+
+        public ManifestItems Manifest => settings.Get<ManifestItems>();
 
         public bool EnableOpenTelemetry { get; set; }
 

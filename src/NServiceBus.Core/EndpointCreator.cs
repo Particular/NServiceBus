@@ -97,6 +97,7 @@ class EndpointCreator
             settings.ErrorQueueAddress(),
             hostingConfiguration,
             pipelineSettings);
+        receiveComponent.AddManifest(hostingConfiguration, settings);
 
         pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration, receiveConfiguration);
 

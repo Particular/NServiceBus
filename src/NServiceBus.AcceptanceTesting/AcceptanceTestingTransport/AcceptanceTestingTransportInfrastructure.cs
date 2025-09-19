@@ -102,8 +102,6 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         return baseAddress;
     }
 
-    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => [];
-
     readonly string storagePath;
     readonly HostSettings settings;
     readonly AcceptanceTestingTransport transportSettings;

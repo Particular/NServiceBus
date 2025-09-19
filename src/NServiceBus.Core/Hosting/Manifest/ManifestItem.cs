@@ -8,52 +8,65 @@ using System.Linq;
 /// <summary>
 /// Class for storing manifest information in a structured way.
 /// </summary>
-public record ManifestItem
+public class ManifestItems
 {
     /// <summary>
-    /// String value if applicable.
+    /// Adds a new section to the diagnostics.
     /// </summary>
-    public string? StringValue { get; init; }
-    /// <summary>
-    /// Item value if applicable.
-    /// </summary>
-    public IEnumerable<KeyValuePair<string, ManifestItem>>? ItemValue { get; init; }
-    /// <summary>
-    /// Array value if applicable.
-    /// </summary>
-    public ManifestItem[]? ArrayValue { get; init; }
+    public void Add(string name, ManifestItem manifestItem) => entries.Add(new(name, manifestItem));
+
+    readonly List<KeyValuePair<string, ManifestItem>> entries = [];
 
     /// <summary>
-    /// Returns a string representation of the manifest item.
+    /// Returns a formatted JSON representation of the manifest items.
     /// </summary>
-    /// <returns>Manifest item as string.</returns>
-    public override string? ToString()
+    /// <returns>Manifest as JSON.</returns>
+    public string FormatJSON() => JsonPrettyPrinter.Print(new ManifestItem { ItemValue = entries }.ToString()!);
+
+    /// <summary>
+    /// Object for storing manifest information in a structured way.
+    /// </summary>
+    public record ManifestItem
     {
-        if (StringValue is not null)
+        /// <summary>
+        /// String value if applicable.
+        /// </summary>
+        public string? StringValue { get; init; }
+        /// <summary>
+        /// Item value if applicable.
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, ManifestItem>>? ItemValue { get; init; }
+        /// <summary>
+        /// Array value if applicable.
+        /// </summary>
+        public ManifestItem[]? ArrayValue { get; init; }
+
+        /// <summary>
+        /// Returns a string representation of the manifest item.
+        /// </summary>
+        /// <returns>Manifest item as string.</returns>
+        public override string? ToString()
         {
-            return $"\"{StringValue}\"";
-        }
-        if (ItemValue is not null)
-        {
-            return $@"{{ {string.Join(", ", ItemValue.Select(kvp => $"\"{kvp.Key}\": {kvp.Value}"))} }}";
-        }
-        if (ArrayValue is not null)
-        {
-            return $@"[ {string.Join(", ", ArrayValue)} ]";
+            if (StringValue is not null)
+            {
+                return $"\"{StringValue}\"";
+            }
+            if (ItemValue is not null)
+            {
+                return $@"{{ {string.Join(", ", ItemValue.Select(kvp => $"\"{kvp.Key}\": {kvp.Value}"))} }}";
+            }
+            if (ArrayValue is not null)
+            {
+                return $@"[ {string.Join(", ", ArrayValue)} ]";
+            }
+
+            return base.ToString();
         }
 
-        return base.ToString();
+        /// <summary>
+        /// Convert from string to a StringValue ManifestItem
+        /// </summary>
+        /// <param name="value"></param>
+        public static implicit operator ManifestItem(string value) => new() { StringValue = value };
     }
-
-    /// <summary>
-    /// Returns a formatted JSON representation of the manifest item.
-    /// </summary>
-    /// <returns>Manifest item as JSON.</returns>
-    public string FormatJSON() => JsonPrettyPrinter.Print(ToString() ?? "{}");
-
-    /// <summary>
-    /// Convert from string to a StringValue ManifestItem
-    /// </summary>
-    /// <param name="value"></param>
-    public static implicit operator ManifestItem(string value) => new() { StringValue = value };
 }

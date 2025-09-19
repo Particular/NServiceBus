@@ -8,7 +8,7 @@ using Logging;
 
 class EndpointManifestWriter(Func<string, CancellationToken, Task> manifestWriter, bool isCustomWriter)
 {
-    public async Task Write(ManifestItem manifest, CancellationToken cancellationToken = default)
+    public async Task Write(ManifestItems manifest, CancellationToken cancellationToken = default)
     {
         string manifestData;
         try

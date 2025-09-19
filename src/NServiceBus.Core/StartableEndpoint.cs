@@ -1,14 +1,11 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using NServiceBus.Persistence;
 using Settings;
 using Transport;
 
@@ -53,79 +50,43 @@ class StartableEndpoint
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-        await GenerateManifest(transportInfrastructure, receiveComponent, cancellationToken).ConfigureAwait(false);
+        AddBaseManifestItems();
     }
 
-    Task GenerateManifest(TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CancellationToken cancellationToken)
+    void AddBaseManifestItems()
     {
-        try
+        if (!hostingComponent.Config.ShouldGenerateManifest)
         {
-            if (!settings.TryGet("Manifest.Enable", out bool generateManifest) || !generateManifest)
-            {
-                return Task.CompletedTask;
-            }
-
-            var persistenceManifest = new List<KeyValuePair<string, ManifestItem>>();
-            if (settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
-            {
-                foreach (var definitionType in definitions)
-                {
-                    var definition = definitionType.DefinitionType.Construct<PersistenceDefinition>();
-                    persistenceManifest.AddRange(definition.GetManifest(settings));
-                }
-            }
-
-            var conventions = settings.Get<Conventions>();
-            var receiveManifest = receiveComponent.GetManifest(conventions);
-            var transportManifest = transportInfrastructure.GetManifest(receiveManifest.EventTypes);
-
-            manifest = new ManifestItem
-            {
-                ItemValue = [
-                    .. BaseManifestItems(),
-                    .. transportManifest,
-                    .. receiveManifest.ToMessageManifest(),
-                    .. persistenceManifest
-                ]
-            };
-        }
-        catch (Exception)
-        {
-            Debug.WriteLine("Generating the manifest failed. This is non-critical and the endpoint will continue to start.");
+            return;
         }
 
-        return Task.CompletedTask;
-    }
-
-    IEnumerable<KeyValuePair<string, ManifestItem>> BaseManifestItems()
-    {
-        yield return new("endpointName", new ManifestItem { StringValue = settings.EndpointName() });
+        hostingComponent.Config.AddManifestEntry("endpointName", settings.EndpointName());
         if (settings.TryGet("EndpointInstanceDiscriminator", out string discriminator))
         {
-            yield return new("uniqueAddressDiscriminator", new ManifestItem { StringValue = discriminator });
+            hostingComponent.Config.AddManifestEntry("uniqueAddressDiscriminator", discriminator);
         }
-        yield return new("sendingQueues", new ManifestItem
+        hostingComponent.Config.AddManifestEntry("sendingQueues", new ManifestItems.ManifestItem
         {
-            ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => new ManifestItem { StringValue = address }).ToArray()
+            ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => (ManifestItems.ManifestItem)address).ToArray()
         });
-        yield return new("errorQueue", new ManifestItem { StringValue = settings.ErrorQueueAddress() });
+        hostingComponent.Config.AddManifestEntry("errorQueue", settings.ErrorQueueAddress());
         var auditConfig = settings.Get<AuditConfigReader.Result>();
-        yield return new("auditEnabled", new ManifestItem { StringValue = (auditConfig != null).ToString().ToLower() });
+        hostingComponent.Config.AddManifestEntry("auditEnabled", (auditConfig != null).ToString().ToLower());
         if (auditConfig != null)
         {
-            yield return new("auditQueue", new ManifestItem { StringValue = auditConfig.Address });
+            hostingComponent.Config.AddManifestEntry("auditQueue", auditConfig.Address);
         }
         _ = settings.TryGet("NServiceBus.Heartbeat.Queue", out string hearbeatsQueue);
-        yield return new("heartbeatsEnabled", new ManifestItem { StringValue = (!string.IsNullOrEmpty(hearbeatsQueue)).ToString().ToLower() });
+        hostingComponent.Config.AddManifestEntry("heartbeatsEnabled", (!string.IsNullOrEmpty(hearbeatsQueue)).ToString().ToLower());
         if (!string.IsNullOrEmpty(hearbeatsQueue))
         {
-            yield return new("heartbeatsQueue", new ManifestItem { StringValue = hearbeatsQueue });
+            hostingComponent.Config.AddManifestEntry("heartbeatsQueue", hearbeatsQueue);
         }
         _ = settings.TryGet("NServiceBus.Metrics.ServiceControl.MetricsAddress", out string metricsAddress);
-        yield return new("monitoringEnabled", new ManifestItem { StringValue = (!string.IsNullOrEmpty(metricsAddress)).ToString().ToLower() });
+        hostingComponent.Config.AddManifestEntry("monitoringEnabled", (!string.IsNullOrEmpty(metricsAddress)).ToString().ToLower());
         if (!string.IsNullOrEmpty(metricsAddress))
         {
-            yield return new("monitoringQueue", new ManifestItem { StringValue = metricsAddress });
+            hostingComponent.Config.AddManifestEntry("monitoringQueue", metricsAddress);
         }
     }
 
@@ -133,14 +94,14 @@ class StartableEndpoint
     {
         await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
-        await hostingComponent.WriteManifestFile(manifest, cancellationToken).ConfigureAwait(false);
-
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
         }
 
         await featureComponent.Start(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
+
+        await hostingComponent.WriteManifestFile(cancellationToken).ConfigureAwait(false);
 
         // when the service provider is externally managed it is null in the running endpoint instance
         IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;
@@ -163,8 +124,6 @@ class StartableEndpoint
     readonly SettingsHolder settings;
     readonly ReceiveComponent receiveComponent;
     readonly TransportSeam transportSeam;
-
-    ManifestItem manifest = new ManifestItem() { StringValue = "Manifest not available" };
 
     MessageSession messageSession;
     TransportInfrastructure transportInfrastructure;

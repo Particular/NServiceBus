@@ -49,13 +49,6 @@ public abstract class PersistenceDefinition
         return storageToActionMap.ContainsKey(storageType);
     }
 
-    /// <summary>
-    /// Returns infrastructure information about the persistence.
-    /// </summary>
-    /// <param name="settings">Settings configured for the endpoint.</param>
-    /// <returns>Persistence manifest.</returns>
-    public virtual IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(SettingsHolder settings) => Enumerable.Empty<KeyValuePair<string, ManifestItem>>();
-
     internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
     {
         if (!storageType.IsSubclassOf(typeof(StorageType)))

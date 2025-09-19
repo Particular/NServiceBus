@@ -38,8 +38,6 @@ public class FakeTransportInfrastructure : TransportInfrastructure
         Dispatcher = new FakeDispatcher();
     }
 
-    public override IEnumerable<KeyValuePair<string, ManifestItem>> GetManifest(string[] eventTypes) => [];
-
     public override Task Shutdown(CancellationToken cancellationToken = default)
     {
         startUpSequence.Add($"{nameof(TransportInfrastructure)}.{nameof(Shutdown)}");

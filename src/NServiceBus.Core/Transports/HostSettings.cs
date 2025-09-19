@@ -12,11 +12,12 @@ public partial class HostSettings
     /// <summary>
     /// Creates a new instance of <see cref="HostSettings"/>.
     /// </summary>
-    public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, IReadOnlySettings coreSettings = null)
+    public HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, ManifestItems manifest, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, IReadOnlySettings coreSettings = null)
     {
         Name = name;
         HostDisplayName = hostDisplayName;
         StartupDiagnostic = startupDiagnostic;
+        Manifest = manifest;
         CriticalErrorAction = criticalErrorAction;
         SetupInfrastructure = setupInfrastructure;
         CoreSettings = coreSettings;
@@ -42,6 +43,11 @@ public partial class HostSettings
     /// A <see cref="StartupDiagnosticEntries"/> instance that can store diagnostic information about this transport.
     /// </summary>
     public StartupDiagnosticEntries StartupDiagnostic { get; }
+
+    /// <summary>
+    /// A <see cref="ManifestItems"/> instance that can store manifest information about this transport.
+    /// </summary>
+    public ManifestItems Manifest { get; }
 
     /// <summary>
     /// A callback to invoke when exception occur that can't be handled by the transport.
