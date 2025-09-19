@@ -17,6 +17,7 @@ public class When_creating_send_only_transport : NServiceBusTransportTest
             GetTestName(),
             string.Empty,
             new StartupDiagnosticEntries(),
+            new ManifestItems(),
             (_, __, ___) => { },
             true);
 
