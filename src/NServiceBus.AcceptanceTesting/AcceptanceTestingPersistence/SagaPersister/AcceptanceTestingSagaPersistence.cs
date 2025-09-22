@@ -10,6 +10,7 @@ class AcceptanceTestingSagaPersistence : Feature
     {
         DependsOn<Sagas>();
         DependsOn<AcceptanceTestingTransactionalStorageFeature>();
+
         EnableByDefault<AcceptanceTestingTransactionalStorageFeature>();
     }
 
