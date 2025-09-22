@@ -6,10 +6,7 @@ using Unicast.Messages;
 
 class TimeToBeReceived : Feature
 {
-    public TimeToBeReceived()
-    {
-        EnableByDefault();
-    }
+    public TimeToBeReceived() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {

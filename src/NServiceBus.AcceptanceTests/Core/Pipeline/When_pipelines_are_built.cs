@@ -47,9 +47,6 @@ public class When_pipelines_are_built : NServiceBusAcceptanceTest
 
     class RegularEndpoint : EndpointConfigurationBuilder
     {
-        public RegularEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public RegularEndpoint() => EndpointSetup<DefaultServer>();
     }
 }

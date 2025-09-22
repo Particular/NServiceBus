@@ -4,10 +4,7 @@ using Features;
 
 class ReceiveStatisticsFeature : Feature
 {
-    public ReceiveStatisticsFeature()
-    {
-        EnableByDefault();
-    }
+    public ReceiveStatisticsFeature() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {
