@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Logging;
 using Particular.Licensing;
 
-class LicenseReminder : Feature
+sealed class LicenseReminder : Feature
 {
     public LicenseReminder()
     {

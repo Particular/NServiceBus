@@ -9,10 +9,7 @@ using Features;
 /// </summary>
 public class UnitOfWorkSettings
 {
-    internal UnitOfWorkSettings(EndpointConfiguration config)
-    {
-        this.config = config;
-    }
+    internal UnitOfWorkSettings(EndpointConfiguration config) => this.config = config;
 
     /// <summary>
     /// Wraps <see cref="IHandleMessages{T}">handlers</see> in a <see cref="TransactionScope" /> to make sure all storage
