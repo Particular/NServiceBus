@@ -18,6 +18,10 @@ public static class ReceiveSettingsExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(discriminator);
 
         config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+        if (config.Settings.TryGet<ManifestItems>(out var manifest))
+        {
+            manifest.Add("uniqueAddressDiscriminator", discriminator);
+        }
     }
 
     /// <summary>

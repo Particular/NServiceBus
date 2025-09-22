@@ -26,5 +26,9 @@ public static class ConfigureAudit
         }
 
         config.Settings.Set(new AuditConfigReader.Result(auditQueue, timeToBeReceived));
+        if (config.Settings.TryGet<ManifestItems>(out var manifest))
+        {
+            manifest.Add("auditQueue", auditQueue);
+        }
     }
 }
