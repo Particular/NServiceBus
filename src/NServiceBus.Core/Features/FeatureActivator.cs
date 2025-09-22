@@ -12,19 +12,20 @@ using Settings;
 
 class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 {
-    internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
+    internal List<FeatureDiagnosticData> Status => [.. added.Values.Select(f => f.Diagnostics)];
 
     public void Add(Type featureType)
     {
-        if (TryCreateFeature(featureType, out var feature))
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.ContainsKey(featureName))
         {
-            Add(feature);
+            Add(factory.CreateFeature(featureType));
         }
     }
 
     public void Add(Feature feature)
     {
-        if (!added.TryAdd(feature.Name, true))
+        if (added.ContainsKey(feature.Name))
         {
             return;
         }
@@ -36,13 +37,20 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 
         foreach (var dependency in feature.Dependencies.SelectMany(d => d))
         {
-            if (TryCreateFeature(dependency.FeatureType, out var dependentFeature))
+            var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
+            if (!added.ContainsKey(featureName))
             {
-                if (dependency.EnabledByDefault)
+                var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
+                if (dependentFeatureType != null)
                 {
-                    dependentFeature.IsEnabledByDefault = true;
+                    var dependentFeature = factory.CreateFeature(dependentFeatureType);
+                    if (dependency.EnabledByDefault)
+                    {
+                        feature.Defaults(s => s.EnableFeatureByDefault(dependentFeatureType));
+                    }
+
+                    Add(dependentFeature);
                 }
-                Add(dependentFeature);
             }
             else
             {
@@ -50,12 +58,12 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
                 {
                     // TODO Move to internal extension?
                     // Also we seem to always assume Feature.Name == FullName
-                    settings.SetDefault(dependency.FeatureName, FeatureState.Enabled);
+                    feature.Defaults(s => settings.SetDefault(dependency.FeatureName, FeatureState.Enabled));
                 }
             }
         }
 
-        features.Add(new FeatureInfo(feature, new FeatureDiagnosticData
+        added.Add(feature.Name, new FeatureInfo(feature, new FeatureDiagnosticData
         {
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
@@ -70,7 +78,7 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
     {
         // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
-        var sourceFeatures = Sort(features);
+        var sourceFeatures = Sort(added.Values);
 
         while (true)
         {
@@ -89,7 +97,7 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
             ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
-        return [.. features.Select(t => t.Diagnostics)];
+        return [.. added.Values.Select(t => t.Diagnostics)];
     }
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
@@ -261,9 +269,8 @@ class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
         return diagnosticData.PrerequisiteStatus.IsSatisfied;
     }
 
-    readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
-    readonly Dictionary<string, bool> added = [];
+    readonly Dictionary<string, FeatureInfo> added = [];
 
     class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
     {

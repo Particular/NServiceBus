@@ -39,7 +39,7 @@ public abstract class Feature
     /// <summary>
     /// Tells if this feature is enabled by default.
     /// </summary>
-    public bool IsEnabledByDefault { get; internal set; }
+    public bool IsEnabledByDefault { get; private set; }
 
     /// <summary>
     /// Indicates that the feature is active.
@@ -50,7 +50,7 @@ public abstract class Feature
     /// Registers default settings.
     /// </summary>
     /// <param name="settings">The settings holder.</param>
-    protected void Defaults(Action<SettingsHolder> settings) => registeredDefaults.Add(settings);
+    protected internal void Defaults(Action<SettingsHolder> settings) => registeredDefaults.Add(settings);
 
     /// <summary>
     /// Called when the features is activated.
