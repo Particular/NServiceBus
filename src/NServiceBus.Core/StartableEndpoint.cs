@@ -50,16 +50,11 @@ class StartableEndpoint
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-        AddBaseManifestItems();
+        AddSendingQueueManifest();
     }
 
-    void AddBaseManifestItems()
+    void AddSendingQueueManifest()
     {
-        if (!hostingComponent.Config.ShouldGenerateManifest)
-        {
-            return;
-        }
-
         hostingComponent.Config.AddManifestEntry("sendingQueues", new ManifestItems.ManifestItem
         {
             ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => (ManifestItems.ManifestItem)address).ToArray()
