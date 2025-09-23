@@ -1,7 +1,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -55,17 +54,12 @@ class StartableEndpoint
 
     void AddSendingQueueManifest()
     {
-        hostingComponent.Config.AddManifestEntry("sendingQueues", new ManifestItems.ManifestItem
-        {
-            ArrayValue = transportSeam.QueueBindings.SendingAddresses.Select(address => (ManifestItems.ManifestItem)address).ToArray()
-        });
-        hostingComponent.Config.AddManifestEntry("errorQueue", settings.ErrorQueueAddress());
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-SendingQueues", transportSeam.QueueBindings.SendingAddresses);
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-ErrorQueue", settings.ErrorQueueAddress());
     }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
-        await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
-
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -73,7 +67,7 @@ class StartableEndpoint
 
         await featureComponent.Start(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
 
-        await hostingComponent.WriteManifestFile(cancellationToken).ConfigureAwait(false);
+        await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
         // when the service provider is externally managed it is null in the running endpoint instance
         IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;

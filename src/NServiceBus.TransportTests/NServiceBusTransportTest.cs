@@ -106,7 +106,6 @@ public abstract class NServiceBusTransportTest
             InputQueueName,
             string.Empty,
             new StartupDiagnosticEntries(),
-            new ManifestItems(),
             (message, ex, token) =>
             {
                 if (onCriticalError == null)

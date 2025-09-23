@@ -23,28 +23,38 @@ partial class ReceiveComponent
                         IsEvent = conventions.IsEventType(type),
                     });
 
-        hostingConfiguration.AddManifestEntry("messageTypes",
-            new ManifestItems.ManifestItem
-            {
-                ArrayValue = handledMessages.Select(
-                    handledMessage => new ManifestItems.ManifestItem
-                    {
-                        ItemValue = [
-                        new("name", handledMessage.MessageType.Name),
-                        new("fullName", handledMessage.MessageType.FullName),
-                        new("isMessage", handledMessage.IsMessage.ToString().ToLower()),
-                        new("isEvent", handledMessage.IsEvent.ToString().ToLower()),
-                        new("isCommand", handledMessage.IsCommand.ToString().ToLower()),
-                        new("schema", new ManifestItems.ManifestItem { ArrayValue = handledMessage.MessageType.GetProperties().Select(
-                            prop => new ManifestItems.ManifestItem { ItemValue = [
-                                new("name", prop.Name),
-                                new("type", prop.PropertyType.Name)
-                                ]
-                            }).ToArray() })
-                        ]
-                    }).ToArray()
-            }
-        );
+        hostingConfiguration.AddStartupDiagnosticsSection("Manifest-MessageTypes",
+            handledMessages.Select(
+                handledMessage => new ReceiveComponentManifestMessageType
+                {
+                    Name = handledMessage.MessageType.Name,
+                    FullName = handledMessage.MessageType.FullName,
+                    IsMessage = handledMessage.IsMessage,
+                    IsEvent = handledMessage.IsEvent,
+                    IsCommand = handledMessage.IsCommand,
+                    Schema = handledMessage.MessageType.GetProperties().Select(
+                        prop => new ReceiveComponentManifestMessageType.SchemaProperty
+                        {
+                            Name = prop.Name,
+                            Type = prop.PropertyType.Name,
+                        }).ToArray()
+                }).ToArray());
+    }
+
+    record ReceiveComponentManifestMessageType
+    {
+        public record SchemaProperty
+        {
+            public string Name { get; init; }
+            public string Type { get; init; }
+        }
+
+        public string Name { get; init; }
+        public string FullName { get; init; }
+        public bool IsMessage { get; init; }
+        public bool IsEvent { get; init; }
+        public bool IsCommand { get; init; }
+        public SchemaProperty[] Schema { get; init; }
     }
 
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)

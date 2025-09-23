@@ -33,8 +33,8 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
         var transportDefinition = transportSeamSettings.TransportDefinition;
         transportSeamSettings.settings.Set(transportDefinition);
 
-        var settings = new HostSettings(hostingConfiguration.EndpointName, hostingConfiguration.HostInformation.DisplayName,
-            hostingConfiguration.StartupDiagnostics, hostingConfiguration.Manifest,
+        var settings = new HostSettings(hostingConfiguration.EndpointName,
+            hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
             hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
             transportSeamSettings.settings);
 

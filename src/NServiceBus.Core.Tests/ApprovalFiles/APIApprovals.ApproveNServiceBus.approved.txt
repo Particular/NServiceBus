@@ -569,30 +569,6 @@ namespace NServiceBus
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
     }
-    public static class ManifestConfigExtensions
-    {
-        [System.Diagnostics.CodeAnalysis.Experimental("NSBCOREEXP0001")]
-        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config) { }
-        [System.Diagnostics.CodeAnalysis.Experimental("NSBCOREEXP0001")]
-        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> endpointManifestWriter) { }
-        [System.Diagnostics.CodeAnalysis.Experimental("NSBCOREEXP0001")]
-        public static void EnableManifestGeneration(this NServiceBus.EndpointConfiguration config, string? outputPath) { }
-    }
-    public class ManifestItems
-    {
-        public ManifestItems() { }
-        public void Add(string name, NServiceBus.ManifestItems.ManifestItem manifestItem) { }
-        public string FormatJSON() { }
-        public class ManifestItem : System.IEquatable<NServiceBus.ManifestItems.ManifestItem>
-        {
-            public ManifestItem() { }
-            public NServiceBus.ManifestItems.ManifestItem[]? ArrayValue { get; init; }
-            public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, NServiceBus.ManifestItems.ManifestItem>>? ItemValue { get; init; }
-            public string? StringValue { get; init; }
-            public override string? ToString() { }
-            public static NServiceBus.ManifestItems.ManifestItem op_Implicit(string value) { }
-        }
-    }
     public static class MessageCausationConfigurationExtensions
     {
         public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ConversationIdStrategyContext, NServiceBus.ConversationId> customStrategy) { }
@@ -2152,11 +2128,10 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, NServiceBus.ManifestItems manifest, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings coreSettings = null) { }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings coreSettings = null) { }
         public NServiceBus.Settings.IReadOnlySettings CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
-        public NServiceBus.ManifestItems Manifest { get; }
         public string Name { get; }
         public bool SetupInfrastructure { get; }
         public NServiceBus.StartupDiagnosticEntries StartupDiagnostic { get; }
