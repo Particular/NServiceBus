@@ -17,6 +17,8 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         var deduplicatedEntries = DeduplicateEntries(entries);
         var dictionary = deduplicatedEntries
             .OrderBy(e => e.Name)
+            //Note: this will allow for filtering out 'slow' operations to create a cut-down diagnostics should the need arise in future
+            .Select(e => new { e.Name, Data = e.Data is Func<object> func ? func() : e.Data })
             .ToDictionary(e => e.Name, e => e.Data, StringComparer.OrdinalIgnoreCase);
 
         string data;
