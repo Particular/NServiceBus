@@ -20,18 +20,17 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
             ctx.AddSource("AssemblyScanningOptionsAttribute.g.cs", SourceText.From(SourceGenerationHelper.AssemblyScanningOptionsAttribute, Encoding.UTF8));
         });
 
+        //context.SyntaxProvider.ForAttributeWithMetadataName()
+
         var sourceTypes = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: static (node, _) => node is TypeDeclarationSyntax,
-            transform: GetTypeData);
+            transform: GetTypeFromGeneratorSyntaxContext);
 
         var metadataTypes = context.CompilationProvider
             .SelectMany((compilation, x) => GetAllTypes(compilation.GlobalNamespace))
-            .Where(IsTypeToIncludeInAssemblyScanning);
+            .Select(GetTypeData);
 
-        var matchingSourceTypes = sourceTypes
-            .Where(IsTypeToIncludeInAssemblyScanning);
-
-        var collectedSource = matchingSourceTypes.Collect();
+        var collectedSource = sourceTypes.Collect();
         var collectedMetadata = metadataTypes.Collect();
 
         var combined = collectedSource.Combine(collectedMetadata)
@@ -57,7 +56,10 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
 
             foreach (var type in matches)
             {
-                sb.AppendLine($"            \"{type.ToDisplayString()}\",");
+                if (type is not null)
+                {
+                    sb.AppendLine($"            \"{type.Value.DisplayName}\",");
+                }
             }
 
             sb.AppendLine("""
@@ -71,31 +73,25 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
 
     }
 
-    static INamedTypeSymbol GetTypeData(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    static ScannedTypeInfo? GetTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
-        var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken) as INamedTypeSymbol;
-
-        return symbol!;
+        var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken);
+        return GetTypeData(symbol as INamedTypeSymbol, cancellationToken);
     }
 
-    static bool IsTypeToIncludeInAssemblyScanning(INamedTypeSymbol? type)
+    static ScannedTypeInfo? GetTypeData(INamedTypeSymbol? type, CancellationToken cancellationToken)
     {
-        if (type is null)
+        if (type is null || type.IsAnonymousType || type.IsImplicitlyDeclared || type.IsComImport || type.IsUnmanagedType || !type.CanBeReferencedByName)
         {
-            return false;
+            return null;
         }
 
-        if (type.IsAnonymousType || type.IsImplicitlyDeclared || type.IsComImport || type.IsUnmanagedType || !type.CanBeReferencedByName)
+        if (!(type.ContainingNamespace?.Name.StartsWith("NServiceBus") ?? false))
         {
-            return false;
+            return null;
         }
 
-        if (type.ContainingNamespace?.Name.StartsWith("NServiceBus") ?? false)
-        {
-            return true;
-        }
-
-        return false;
+        return new ScannedTypeInfo(type.ToDisplayString());
     }
 
     static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol ns)
@@ -136,3 +132,5 @@ public class SourceGenerationHelper
 {
     public const string AssemblyScanningOptionsAttribute = "";
 }
+
+record struct ScannedTypeInfo(string DisplayName);
