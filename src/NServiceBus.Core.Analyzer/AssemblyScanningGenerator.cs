@@ -40,7 +40,10 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
                 return src.Concat(meta).ToImmutableArray();
             });
 
-        context.RegisterSourceOutput(combined, (sourceProductionContext, matches) =>
+        // Instead of RegisterSourceOutput because it doesn't need to be directly called from anything
+        // but generated sources - not having it is not going to cause red squigglies
+        // https://andrewlock.net/creating-a-source-generator-part-9-avoiding-performance-pitfalls-in-incremental-generators/#7-consider-using-registerimplementationsourceoutput-instead-of-registersourceoutput
+        context.RegisterImplementationSourceOutput(combined, (sourceProductionContext, matches) =>
         {
             var sb = new StringBuilder();
             sb.AppendLine("""
