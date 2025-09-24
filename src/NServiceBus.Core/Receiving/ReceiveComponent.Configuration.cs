@@ -24,7 +24,7 @@ partial class ReceiveComponent
                     });
 
         hostingConfiguration.AddStartupDiagnosticsSection("Manifest-MessageTypes",
-            handledMessages.Select(
+            () => handledMessages.Select(
                 handledMessage => new ReceiveComponentManifestMessageType
                 {
                     Name = handledMessage.MessageType.Name,
