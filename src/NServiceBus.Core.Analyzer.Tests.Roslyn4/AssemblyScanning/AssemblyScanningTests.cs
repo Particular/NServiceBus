@@ -15,19 +15,35 @@ public class AssemblyScanningTests
     public void Basic()
     {
         var source = $$"""
-                     namespace NServiceBus
-                     {
-                         public class IncludedType {}
-                         public class SecondIncludedType {}
-                         public interface IIncludedInterface {}
-                     }
-                     namespace NopeNotThese
-                     {
-                        public class NotIncludedType {}
-                        public class SecondNotIncludedType {}
-                        public interface INotIncludedInterface {}
-                     }
-                     """;
+                       using System.Threading;
+                       using System.Threading.Tasks;
+                       using NServiceBus;
+                       using NServiceBus.Features;
+                       using NServiceBus.Installation;
+
+                       namespace UserCode;
+
+                       public class MyEvent : IEvent {}
+                       public class MyCommand : ICommand {}
+                       public class MyMessage : IMessage {}
+                       public class MyFeature : Feature
+                       {
+                           protected override void Setup(FeatureConfigurationContext context) { }
+                       }
+                       public class MyHandler : IHandleMessages<MyEvent>
+                       {
+                           public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+                       public class MySecondHandler : IHandleMessages<MyCommand>
+                       {
+                           public Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+                       public class Installer : INeedToInstallSomething
+                       {
+                           public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
+                       }
+                       public class NotInteresting { }
+                       """;
 
         var (output, diagnostics) = GetGeneratedOutput(source);
 
@@ -59,12 +75,13 @@ public class AssemblyScanningTests
             syntaxTree
         }, references);
 
-        var generator = new AssemblyScanningGenerator();
+        var generator = new KnownTypesGenerator();
 
         var driver = CSharpGeneratorDriver.Create(generator);
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generateDiagnostics);
 
         // add necessary references for the generated trigger
+        references.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
         references.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
         Compile(outputCompilation.SyntaxTrees, references);
 
