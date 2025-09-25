@@ -26,5 +26,6 @@ public static class ConfigureAudit
         }
 
         config.Settings.Set(new AuditConfigReader.Result(auditQueue, timeToBeReceived));
+        config.Settings.AddStartupDiagnosticsSection("Manifest-AuditQueue", auditQueue);
     }
 }

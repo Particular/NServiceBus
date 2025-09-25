@@ -48,18 +48,26 @@ class StartableEndpoint
         var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
         await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+
+        AddSendingQueueManifest();
+    }
+
+    void AddSendingQueueManifest()
+    {
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-SendingQueues", transportSeam.QueueBindings.SendingAddresses);
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-ErrorQueue", settings.ErrorQueueAddress());
     }
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
-        await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
-
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
         }
 
         await featureComponent.Start(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
+
+        await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
         // when the service provider is externally managed it is null in the running endpoint instance
         IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;

@@ -106,18 +106,12 @@ public class AutoSubscribe : Feature
             return Task.CompletedTask;
         }
 
-        static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
-        {
-            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
-                .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
-                .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
-                .Where(t => conventions.IsEventType(t)) //only events
+        static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings) =>
+            handlerRegistry.GetMessageTypes() //get all potential messages
+                .GetHandledEventTypes(conventions)
                 .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
                 .Except(settings.ExcludedTypes)
                 .ToArray();
-
-            return messageTypesHandled;
-        }
 
         readonly MessageHandlerRegistry messageHandlerRegistry;
         readonly Conventions conventions;

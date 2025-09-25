@@ -18,6 +18,7 @@ public static class ReceiveSettingsExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(discriminator);
 
         config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+        config.Settings.AddStartupDiagnosticsSection("Manifest-UniqueAddressDiscriminator", discriminator);
     }
 
     /// <summary>

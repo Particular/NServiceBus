@@ -13,6 +13,8 @@ using Support;
 
 partial class HostingComponent(HostingComponent.Configuration configuration)
 {
+    internal Configuration Config => configuration;
+
     public static HostingComponent Initialize(Configuration configuration)
     {
         var serviceCollection = configuration.Services;

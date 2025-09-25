@@ -53,11 +53,7 @@ partial class HostingComponent
             set => settings.Set(PropertiesSettingsKey, value);
         }
 
-        public StartupDiagnosticEntries StartupDiagnostics
-        {
-            get => settings.Get<StartupDiagnosticEntries>();
-            set => settings.Set(value);
-        }
+        public StartupDiagnosticEntries StartupDiagnostics => settings.Get<StartupDiagnosticEntries>();
 
         public string? DiagnosticsPath
         {
