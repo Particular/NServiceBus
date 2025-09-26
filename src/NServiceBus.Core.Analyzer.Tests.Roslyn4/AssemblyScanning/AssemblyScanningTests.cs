@@ -15,13 +15,24 @@ public class AssemblyScanningTests
     public void Basic()
     {
         var source = $$"""
+                       using System;
                        using System.Threading;
                        using System.Threading.Tasks;
                        using NServiceBus;
                        using NServiceBus.Features;
                        using NServiceBus.Installation;
+                       
+                       [assembly: UserCode.ImportantType(typeof(UserCode.IAmImportantNonCoreType))]
 
                        namespace UserCode;
+                       
+                       [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
+                       public class ImportantTypeAttribute : Attribute
+                       {
+                           public Type Type { get; }
+                           
+                           public ImportantTypeAttribute(Type type) => Type = type;
+                       }
 
                        public class MyEvent : IEvent {}
                        public class MyCommand : ICommand {}
@@ -43,6 +54,8 @@ public class AssemblyScanningTests
                            public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
                        }
                        public class NotInteresting { }
+                       public class DownstreamSpecificType : IAmImportantNonCoreType { }
+                       public interface IAmImportantNonCoreType { }
                        """;
 
         var (output, diagnostics) = GetGeneratedOutput(source);
