@@ -25,10 +25,8 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                 transform: (syntaxContext, token) =>
                 {
                     var info = syntaxContext.Attributes.First();
-                    var metadataTypeName = info.ConstructorArguments[0].Value as string;
-                    var methodName = info.ConstructorArguments[1].Value as string;
 
-                    if (metadataTypeName is not null && methodName is not null)
+                    if (info.ConstructorArguments[0].Value is string metadataTypeName && info.ConstructorArguments[1].Value is string methodName)
                     {
                         return new MarkerTypeInfo(metadataTypeName, methodName);
                     }
