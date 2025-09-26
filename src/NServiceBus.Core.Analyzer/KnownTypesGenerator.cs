@@ -20,7 +20,26 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         //     ctx.AddSource("FakeStuffForNow.g.cs", SourceText.From(SourceGenerationHelper.FakeStuffForNow, Encoding.UTF8));
         // });
 
-        //context.SyntaxProvider.ForAttributeWithMetadataName()
+        var extraMarkers = context.SyntaxProvider.ForAttributeWithMetadataName("UserCode.ImportantTypeAttribute",
+                predicate: (node, token) => true,
+                transform: (syntaxContext, token) =>
+                {
+                    var info = syntaxContext.Attributes.First();
+                    var metadataTypeName = info.ConstructorArguments[0].Value as string;
+                    var methodName = info.ConstructorArguments[1].Value as string;
+
+                    if (metadataTypeName is not null && methodName is not null)
+                    {
+                        return new MarkerTypeInfo(metadataTypeName, methodName);
+                    }
+
+                    return default;
+                })
+            .Where(x => x != default);
+
+        var emCollected = extraMarkers.Collect();
+
+        context.RegisterSourceOutput(emCollected, (_, _) => { });
 
         var markerTypes = context.CompilationProvider.Select((compilation, cancellationToken) =>
         {
