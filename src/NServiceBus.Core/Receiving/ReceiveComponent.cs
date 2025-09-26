@@ -150,7 +150,7 @@ partial class ReceiveComponent
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
         var pipelineMetrics = builder.GetService<IncomingPipelineMetrics>();
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics);
+        var mainPipelineExecutor = new PipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
@@ -164,7 +164,22 @@ partial class ReceiveComponent
             recoverabilityPipelineExecutor.Invoke,
             cancellationToken).ConfigureAwait(false);
 
-        receivers.Add(mainPump);
+        bool hasPushPipelines = false;
+        foreach (var pushPipelineDefinition in configuration.PushPipelineDefinitions)
+        {
+            var executor = new PushPipelineExecutor(builder, pipelineCache, messageOperations, receivePipeline);
+            pushPipelineDefinition.OnMessage = executor.Invoke;
+            pushPipelineDefinition.OnError = recoverabilityPipelineExecutor.Invoke;
+
+            hasPushPipelines = true;
+        }
+
+        receivers.Add(hasPushPipelines ? new OnlyInitialize(mainPump) : mainPump);
+
+        if (hasPushPipelines)
+        {
+            return;
+        }
 
         if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
         {
@@ -282,6 +297,23 @@ partial class ReceiveComponent
         }
 
         return receiver;
+    }
+
+    class OnlyInitialize(IMessageReceiver inner) : IMessageReceiver
+    {
+        public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError,
+            CancellationToken cancellationToken = default) =>
+            inner.Initialize(limitations, onMessage, onError, cancellationToken);
+
+        public Task StartReceive(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task StopReceive(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public ISubscriptionManager Subscriptions => inner.Subscriptions;
+        public string Id => inner.Id;
+        public string ReceiveAddress => inner.ReceiveAddress;
     }
 
     readonly Configuration configuration;

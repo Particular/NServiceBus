@@ -52,6 +52,17 @@ public class FeatureConfigurationContext
     internal List<FeatureStartupTaskController> TaskControllers { get; }
 
     /// <summary>
+    ///
+    /// </summary>
+    /// <param name="name"></param>
+    public IPushPipeline AddPushPipeline(string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        return Receiving.AddPushPipeline(name);
+    }
+
+    /// <summary>
     /// Adds a new satellite receiver.
     /// </summary>
     /// <param name="name">Name of the satellite.</param>

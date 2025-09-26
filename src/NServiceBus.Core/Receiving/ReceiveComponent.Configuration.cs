@@ -63,6 +63,7 @@ partial class ReceiveComponent
         public PushRuntimeSettings PushRuntimeSettings { get; } = pushRuntimeSettings;
 
         public IReadOnlyList<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
+        public IReadOnlyList<PushPipelineDefinition> PushPipelineDefinitions => pushPipelineDefinitions;
 
         public bool PurgeOnStartup { get; } = purgeOnStartup;
 
@@ -83,6 +84,14 @@ partial class ReceiveComponent
             satelliteDefinitions.Add(satelliteDefinition);
         }
 
+        public IPushPipeline AddPushPipeline(string name)
+        {
+            var pushPipelineDefinition = new PushPipelineDefinition(name);
+            pushPipelineDefinitions.Add(pushPipelineDefinition);
+            return pushPipelineDefinition;
+        }
+
         readonly List<SatelliteDefinition> satelliteDefinitions = [];
+        readonly List<PushPipelineDefinition> pushPipelineDefinitions = [];
     }
 }
