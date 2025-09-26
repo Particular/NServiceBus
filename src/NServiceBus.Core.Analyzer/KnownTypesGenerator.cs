@@ -17,16 +17,34 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     {
         // context.RegisterPostInitializationOutput(ctx =>
         // {
-        //     ctx.AddSource("AssemblyScanningOptionsAttribute.g.cs", SourceText.From(SourceGenerationHelper.AssemblyScanningOptionsAttribute, Encoding.UTF8));
+        //     ctx.AddSource("FakeStuffForNow.g.cs", SourceText.From(SourceGenerationHelper.FakeStuffForNow, Encoding.UTF8));
         // });
 
         //context.SyntaxProvider.ForAttributeWithMetadataName()
 
-        var sourceTypes = context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: static (node, _) => node is TypeDeclarationSyntax,
-            transform: GetTypeFromGeneratorSyntaxContext);
+        var markerTypes = context.CompilationProvider.Select((compilation, cancellationToken) =>
+        {
+            return MarkerTypeInfos
+                .Select(info => compilation.GetTypeByMetadataName(info.TypeName))
+                .ToImmutableArray();
+        });
 
-        var collected = sourceTypes.Collect();
+        var sourceTypes = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (node, _) => node is TypeDeclarationSyntax,
+                transform: GetNamedTypeFromGeneratorSyntaxContext)
+            .Where(type => type is not null);
+
+        var relevantTypes = sourceTypes.Combine(markerTypes)
+            .Where(pair =>
+            {
+                var (type, markerTypeSymbols) = pair;
+                return markerTypeSymbols.Any(markerType => IsAssignableTo(type!, markerType!));
+            })
+            .Where(pair => pair.Left is not null)
+            .Select((pair, cancellationToken) => new ScannedTypeInfo(pair.Left!.ToDisplayString()));
+
+        var collected = relevantTypes.Collect();
 
         // Instead of RegisterSourceOutput because it doesn't need to be directly called from anything
         // but generated sources - not having it is not going to cause red squigglies
@@ -47,10 +65,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
             foreach (var type in matches)
             {
-                if (type is not null)
-                {
-                    sb.AppendLine($"            typeof({type.Value.DisplayName}),");
-                }
+                sb.AppendLine($"            typeof({type.DisplayName}),");
             }
 
             sb.AppendLine("""
@@ -63,29 +78,56 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         });
     }
 
-    static readonly ImmutableHashSet<TargetType> InterfaceTypeNameObjects =
-    [
-        new ("NServiceBus", "IEvent"),
-        new ("NServiceBus", "ICommand"),
-        new ("NServiceBus", "IMessage"),
-        new ("NServiceBus", "IHandleMessages`1"),
-        new ("NServiceBus.Installation", "INeedToInstallSomething"),
-    ];
-
-    static readonly ImmutableHashSet<string> InterfaceTypeNames =
-    [
-        "NServiceBus.IEvent",
-        "NServiceBus.ICommand",
-        "NServiceBus.IMessage",
-        "NServiceBus.IHandleMessages`1",
-        "NServiceBus.Installation.INeedToInstallSomething"
-    ];
-
-    record struct TargetType(string Namespace, string Name);
-
-    static ScannedTypeInfo? GetTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    // Customized version that treats IHandleMessages<RealType> the same as IHandleMessages<T>
+    static bool IsAssignableTo(INamedTypeSymbol type, INamedTypeSymbol target)
     {
+        if (SymbolEqualityComparer.Default.Equals(type, target))
+        {
+            return true;
+        }
 
+        if (target.TypeKind == TypeKind.Interface)
+        {
+            //return type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, target));
+            foreach (var iface in type.AllInterfaces)
+            {
+                if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, target))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // walk base types
+        var baseType = type.BaseType;
+        while (baseType != null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(baseType, target))
+            {
+                return true;
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
+    }
+
+    static readonly ImmutableArray<MarkerTypeInfo> MarkerTypeInfos =
+    [
+        new ("NServiceBus.IEvent", "AddEvent"),
+        new ("NServiceBus.ICommand", "AddCommand"),
+        new ("NServiceBus.IMessage", "AddMessage"),
+        new ("NServiceBus.IHandleMessages`1", "AddHandler"),
+        new ("NServiceBus.Installation.INeedToInstallSomething", "AddInstaller"),
+    ];
+
+    public record struct MarkerTypeInfo(string TypeName, string RegisterMethod);
+
+    static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
         var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken);
 
         if (symbol is not INamedTypeSymbol type)
@@ -98,32 +140,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             return null;
         }
 
-        foreach (var iface in type.AllInterfaces)
-        {
-            var ifaceName = (iface.ContainingNamespace is not null ? iface.ContainingNamespace?.ToDisplayString() + "." : "") + iface.MetadataName;
-            if (InterfaceTypeNames.Contains(ifaceName))
-            {
-                return new ScannedTypeInfo(type.ToDisplayString());
-            }
-        }
-
-        // foreach (var iface in type.AllInterfaces)
-        // {
-        //     foreach (var targetIface in InterfaceTypeNames)
-        //     {
-        //         if (iface.ContainingNamespace.Name == targetIface.Namespace && iface.MetadataName == targetIface.Name)
-        //         {
-        //             return new ScannedTypeInfo(type.ToDisplayString());
-        //         }
-        //     }
-        // }
-
-        // if (type.AllInterfaces.Any(i => InterfaceTypeNames.Any(n => i.ContainingNamespace.Name == n.Namespace && i.MetadataName == n.Name)))
-        // {
-        //
-        // }
-
-        return null;
+        return type;
     }
 
     record struct ScannedTypeInfo(string DisplayName);
@@ -136,7 +153,7 @@ public sealed class CombinedGenerator : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(ctx =>
         {
-            ctx.AddSource("AssemblyScanningOptionsAttribute.g.cs", SourceText.From(SourceGenerationHelper.AssemblyScanningOptionsAttribute, Encoding.UTF8));
+            ctx.AddSource("AssemblyScanningOptionsAttribute.g.cs", SourceText.From(SourceGenerationHelper.FakeStuffForNow, Encoding.UTF8));
         });
 
         //context.SyntaxProvider.ForAttributeWithMetadataName()
@@ -254,5 +271,5 @@ public sealed class CombinedGenerator : IIncrementalGenerator
 
 public class SourceGenerationHelper
 {
-    public const string AssemblyScanningOptionsAttribute = "";
+    public const string FakeStuffForNow = "";
 }
