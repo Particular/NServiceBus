@@ -22,16 +22,21 @@ public class AssemblyScanningTests
                        using NServiceBus.Features;
                        using NServiceBus.Installation;
                        
-                       [assembly: UserCode.ImportantType(typeof(UserCode.IAmImportantNonCoreType))]
+                       [assembly: UserCode.ImportantType("UserCode.IAmImportantNonCoreType", "RegisterImportantThing")]
 
                        namespace UserCode;
                        
                        [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
                        public class ImportantTypeAttribute : Attribute
                        {
-                           public Type Type { get; }
+                           public string MetadataTypeName { get; }
+                           public string RegisterMethodName { get; }
                            
-                           public ImportantTypeAttribute(Type type) => Type = type;
+                           public ImportantTypeAttribute(string metadataTypeName, string methodName)
+                           {
+                               MetadataTypeName = metadataTypeName;
+                               RegisterMethodName = methodName;
+                           }
                        }
 
                        public class MyEvent : IEvent {}
