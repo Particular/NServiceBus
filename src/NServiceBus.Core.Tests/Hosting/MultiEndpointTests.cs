@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
-using NServiceBus.Transport.Learning;
 using NUnit.Framework;
 
 [TestFixture]
