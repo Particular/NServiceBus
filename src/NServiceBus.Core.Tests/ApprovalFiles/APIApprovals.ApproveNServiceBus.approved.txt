@@ -294,6 +294,23 @@ namespace NServiceBus
     {
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
+    public interface IMultiEndpointInstance : System.IAsyncDisposable
+    {
+        System.Collections.Generic.IReadOnlyCollection<NServiceBus.IMultiEndpointInstance.EndpointInstanceInfo> Endpoints { get; }
+        NServiceBus.IEndpointInstance this[string endpointName] { get; }
+        NServiceBus.IEndpointInstance this[object serviceKey] { get; }
+        System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
+        public sealed class EndpointInstanceInfo
+        {
+            public string EndpointName { get; }
+            public object ServiceKey { get; }
+            public NServiceBus.IEndpointInstance Instance { get; }
+        }
+    }
+    public interface IStartableMultiEndpointWithExternallyManagedContainer
+    {
+        System.Threading.Tasks.Task<NServiceBus.IMultiEndpointInstance> Start(System.IServiceProvider serviceProvider, System.Threading.CancellationToken cancellationToken = default);
+    }
     public static class ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -383,6 +400,18 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingHostName(string hostName) { }
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
+    }
+    public static class MultiEndpoint
+    {
+        public static NServiceBus.IStartableMultiEndpointWithExternallyManagedContainer Create(Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, System.Action<NServiceBus.MultiEndpointConfiguration> configure) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IMultiEndpointInstance> Start(System.Action<NServiceBus.MultiEndpointConfiguration> configure, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public sealed class MultiEndpointConfiguration
+    {
+        public MultiEndpointConfiguration() { }
+        public NServiceBus.EndpointConfiguration AddEndpoint(string endpointName, System.Action<NServiceBus.EndpointConfiguration>? configure = null) { }
+        public NServiceBus.EndpointConfiguration AddEndpoint(object serviceKey, string endpointName, System.Action<NServiceBus.EndpointConfiguration>? configure = null) { }
+        public void AddEndpoint(NServiceBus.EndpointConfiguration configuration, object? serviceKey = null) { }
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     public interface ICancellableContext
