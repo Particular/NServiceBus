@@ -26,7 +26,7 @@ public sealed class MultiEndpointConfiguration
     /// <param name="serviceKey">The service key used to register endpoint specific services in the service collection.</param>
     /// <param name="endpointName">The name of the endpoint.</param>
     /// <param name="configure">Optional delegate used to customize the endpoint configuration.</param>
-    public EndpointConfiguration AddEndpoint(object serviceKey, string endpointName, Action<EndpointConfiguration>? configure = null)
+    public EndpointConfiguration AddEndpoint(string serviceKey, string endpointName, Action<EndpointConfiguration>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(serviceKey);
         ArgumentNullException.ThrowIfNull(endpointName);
@@ -42,7 +42,7 @@ public sealed class MultiEndpointConfiguration
     /// </summary>
     /// <param name="configuration">The endpoint configuration to add.</param>
     /// <param name="serviceKey">Optional service key used to register endpoint specific services. If not provided the endpoint name is used.</param>
-    public void AddEndpoint(EndpointConfiguration configuration, object? serviceKey = null)
+    public void AddEndpoint(EndpointConfiguration configuration, string? serviceKey = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
@@ -53,7 +53,7 @@ public sealed class MultiEndpointConfiguration
 
     internal IReadOnlyCollection<EndpointDefinition> Build() => endpointDefinitions.AsReadOnly();
 
-    void AddEndpointInternal(EndpointConfiguration configuration, object serviceKey)
+    void AddEndpointInternal(EndpointConfiguration configuration, string serviceKey)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(serviceKey);
@@ -75,7 +75,7 @@ public sealed class MultiEndpointConfiguration
 
     readonly List<EndpointDefinition> endpointDefinitions = [];
     readonly HashSet<string> endpointNames = new(StringComparer.OrdinalIgnoreCase);
-    readonly HashSet<object> serviceKeys = [];
+    readonly HashSet<string> serviceKeys = [];
 
-    internal readonly record struct EndpointDefinition(string EndpointName, object ServiceKey, EndpointConfiguration Configuration);
+    internal readonly record struct EndpointDefinition(string EndpointName, string ServiceKey, EndpointConfiguration Configuration);
 }

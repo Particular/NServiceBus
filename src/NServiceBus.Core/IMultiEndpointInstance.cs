@@ -20,12 +20,12 @@ public interface IMultiEndpointInstance : IAsyncDisposable
     /// <summary>
     /// Gets the running endpoint instance associated with the provided endpoint name.
     /// </summary>
-    IEndpointInstance this[string endpointName] { get; }
+    IEndpointInstance GetByEndpointName(string endpointName);
 
     /// <summary>
     /// Gets the running endpoint instance associated with the provided service key.
     /// </summary>
-    IEndpointInstance this[object serviceKey] { get; }
+    IEndpointInstance GetByKey(string serviceKey);
 
     /// <summary>
     /// Stops all running endpoints.
@@ -37,7 +37,7 @@ public interface IMultiEndpointInstance : IAsyncDisposable
     /// </summary>
     public sealed class EndpointInstanceInfo
     {
-        internal EndpointInstanceInfo(string endpointName, object serviceKey, IEndpointInstance instance)
+        internal EndpointInstanceInfo(string endpointName, string serviceKey, IEndpointInstance instance)
         {
             EndpointName = endpointName;
             ServiceKey = serviceKey;
@@ -52,7 +52,7 @@ public interface IMultiEndpointInstance : IAsyncDisposable
         /// <summary>
         /// The service key associated with the endpoint registrations.
         /// </summary>
-        public object ServiceKey { get; }
+        public string ServiceKey { get; }
 
         /// <summary>
         /// The running endpoint instance.

@@ -66,7 +66,7 @@ public static class MultiEndpoint
 
     sealed class EndpointHost
     {
-        public EndpointHost(string endpointName, object serviceKey, EndpointCreator creator, KeyedServiceCollectionAdapter services, EndpointInstanceAccessor accessor)
+        public EndpointHost(string endpointName, string serviceKey, EndpointCreator creator, KeyedServiceCollectionAdapter services, EndpointInstanceAccessor accessor)
         {
             EndpointName = endpointName;
             ServiceKey = serviceKey;
@@ -76,7 +76,7 @@ public static class MultiEndpoint
         }
 
         public string EndpointName { get; }
-        public object ServiceKey { get; }
+        public string ServiceKey { get; }
         public EndpointCreator EndpointCreator { get; }
         public KeyedServiceCollectionAdapter Services { get; }
         public EndpointInstanceAccessor Accessor { get; }
@@ -150,23 +150,16 @@ public static class MultiEndpoint
         }
 
         public IReadOnlyCollection<IMultiEndpointInstance.EndpointInstanceInfo> Endpoints => endpointList;
-
-        public IEndpointInstance this[string endpointName]
+        public IEndpointInstance GetByEndpointName(string endpointName)
         {
-            get
-            {
-                ArgumentNullException.ThrowIfNull(endpointName);
-                return endpointsByName[endpointName].Instance;
-            }
+            ArgumentNullException.ThrowIfNull(endpointName);
+            return endpointsByName[endpointName].Instance;
         }
 
-        public IEndpointInstance this[object serviceKey]
+        public IEndpointInstance GetByKey(string serviceKey)
         {
-            get
-            {
-                ArgumentNullException.ThrowIfNull(serviceKey);
-                return endpointsByServiceKey[serviceKey].Instance;
-            }
+            ArgumentNullException.ThrowIfNull(serviceKey);
+            return endpointsByServiceKey[serviceKey].Instance;
         }
 
         public async Task Stop(CancellationToken cancellationToken = default)
@@ -205,7 +198,7 @@ public static class MultiEndpoint
         }
 
         readonly Dictionary<string, IMultiEndpointInstance.EndpointInstanceInfo> endpointsByName = new(StringComparer.OrdinalIgnoreCase);
-        readonly Dictionary<object, IMultiEndpointInstance.EndpointInstanceInfo> endpointsByServiceKey = [];
+        readonly Dictionary<string, IMultiEndpointInstance.EndpointInstanceInfo> endpointsByServiceKey = [];
         readonly IReadOnlyList<IMultiEndpointInstance.EndpointInstanceInfo> endpointList;
         int stopped;
     }
@@ -219,10 +212,9 @@ public static class MultiEndpoint
         }
 
         public IReadOnlyCollection<IMultiEndpointInstance.EndpointInstanceInfo> Endpoints => inner.Endpoints;
+        public IEndpointInstance GetByEndpointName(string endpointName) => inner.GetByEndpointName(endpointName);
 
-        public IEndpointInstance this[string endpointName] => inner[endpointName];
-
-        public IEndpointInstance this[object serviceKey] => inner[serviceKey];
+        public IEndpointInstance GetByKey(string serviceKey) => inner.GetByKey(serviceKey);
 
         public async Task Stop(CancellationToken cancellationToken = default)
         {
