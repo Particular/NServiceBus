@@ -138,7 +138,11 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         }
         else if (descriptor.ImplementationFactory is not null)
         {
-            keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (sp, _) => descriptor.ImplementationFactory!(sp), descriptor.Lifetime);
+            keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (serviceProvider, key) =>
+            {
+                var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
+                return descriptor.ImplementationFactory!(keyedProvider);
+            }, descriptor.Lifetime);
         }
         else if (descriptor.ImplementationType is not null)
         {

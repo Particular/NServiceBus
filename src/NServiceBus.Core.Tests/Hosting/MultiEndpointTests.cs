@@ -88,4 +88,25 @@ public class MultiEndpointTests
         Assert.That(keyedProvider.GetService(typeof(EndpointInstanceAccessor)), Is.Not.Null);
         Assert.That(keyedProvider.GetService(typeof(string)), Is.EqualTo("shared"));
     }
+
+    [Test]
+    public void Implementation_factory_gets_keyed_provider()
+    {
+        var services = new ServiceCollection();
+        var adapter = new KeyedServiceCollectionAdapter(services, "endpoint");
+
+        IServiceProvider? capturedProvider = null;
+
+        adapter.AddSingleton(sp =>
+        {
+            capturedProvider = sp;
+            return new object();
+        });
+
+        var provider = services.BuildServiceProvider();
+        var keyedProvider = new KeyedServiceProviderAdapter(provider, "endpoint", adapter);
+
+        Assert.That(keyedProvider.GetService(typeof(object)), Is.Not.Null);
+        Assert.That(capturedProvider, Is.TypeOf<KeyedServiceProviderAdapter>());
+    }
 }
