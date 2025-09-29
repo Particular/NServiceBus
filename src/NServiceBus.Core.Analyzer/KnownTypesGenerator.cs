@@ -1,6 +1,7 @@
 #nullable enable
 namespace NServiceBus.Core.Analyzer;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -20,7 +21,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         //     ctx.AddSource("FakeStuffForNow.g.cs", SourceText.From(SourceGenerationHelper.FakeStuffForNow, Encoding.UTF8));
         // });
 
-        var extraMarkers = context.SyntaxProvider.ForAttributeWithMetadataName("NServiceBus.Extensibility.NServiceBusExtensionPointAttribute",
+        var extraMarkersFromSource = context.SyntaxProvider.ForAttributeWithMetadataName("NServiceBus.Extensibility.NServiceBusExtensionPointAttribute",
                 predicate: (node, token) => true,
                 transform: (syntaxContext, token) =>
                 {
@@ -37,14 +38,26 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             .Where(x => x != default)
             .Collect();
 
-        var markerTypes = context.CompilationProvider.Select((compilation, cancellationToken) =>
-        {
-            return MarkerTypeInfos
-                .Select(info => compilation.GetTypeByMetadataName(info.TypeName))
-                .ToImmutableArray();
-        });
+        var extraMarkersFromCompilation = context.CompilationProvider.SelectMany((compilation, cancellationToken) =>
+            {
+                // Walk all types in the compilation.GlobalNamespace where t.GetAttributes() contains the known attribute type
+                return Array.Empty<INamedTypeSymbol>().ToImmutableArray();
+            })
+            .Collect();
 
-        var allMarkers = extraMarkers.Combine(markerTypes)
+        // TODO: Combine into the existing allMarkers collection somehow
+
+        // TODO: Choice between SelectMany() + Collect(), or Select() w/o Collect(). Which one is better?
+        var markerTypes = context.CompilationProvider.SelectMany((compilation, cancellationToken) =>
+            {
+                return MarkerTypeInfos
+                    .Select(info => compilation.GetTypeByMetadataName(info.TypeName))
+                    // TODO: If using SelectMany(), is it better to force the ImmutableArray here, or return IEnumerable?
+                    .ToImmutableArray();
+            })
+            .Collect();
+
+        var allMarkers = extraMarkersFromSource.Combine(markerTypes)
                 .Select((pair, ct) => pair.Left.Concat(pair.Right).ToImmutableArray());
 
         var mySourceTypes = context.SyntaxProvider
@@ -139,7 +152,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         new ("NServiceBus.ICommand", "AddCommand"),
         new ("NServiceBus.IMessage", "AddMessage"),
         new ("NServiceBus.IHandleMessages`1", "AddHandler"),
-        new ("NServiceBus.Installation.INeedToInstallSomething", "AddInstaller"),
+        new ("NServiceBus.Installation.INeedToInstallSomething", "AddInstaller")
     ];
 
     public record struct MarkerTypeInfo(string TypeName, string RegisterMethod);
