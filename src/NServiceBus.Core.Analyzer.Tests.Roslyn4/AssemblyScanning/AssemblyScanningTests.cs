@@ -21,7 +21,8 @@ public class AssemblyScanningTests
                        using NServiceBus;
                        using NServiceBus.Features;
                        using NServiceBus.Installation;
-                       
+                       using NServiceBus.Extensibility;
+
                        namespace UserCode;
                        
                        public class MyEvent : IEvent {}
@@ -44,36 +45,34 @@ public class AssemblyScanningTests
                            public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
                        }
                        public class NotInteresting { }
+
                        public class DownstreamSpecificType : IAmImportantNonCoreType { }
+
+                       [NServiceBusExtentionPoint]
                        public interface IAmImportantNonCoreType { }
 
-                       [NsbHandler]
-                       public class MyHandlerViaAttribute
-                       {
-                           public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
-                       }
-
-                       [NsbSaga]
-                       public class MySagaViaAttribute
-                       {
-                          //todo: saga with saga data
-                       }
+                    
                        """;
 
         var (output, _) = GetGeneratedOutput(source);
 
-        // Assert the generated registry contains expected types
-        Assert.That(output, Does.Contain("typeof(UserCode.MyEvent)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MyCommand)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MyMessage)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MyHandler)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MySecondHandler)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.Installer)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MyHandlerViaAttribute)"));
-        Assert.That(output, Does.Contain("typeof(UserCode.MySagaViaAttribute)"));
+        Assert.Multiple(() =>
+        {
+            // Assert the g enerated registry contains expected types
+            Assert.That(output, Does.Contain("typeof(UserCode.MyEvent)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.MyCommand)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.MyMessage)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.MyHandler)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.MySecondHandler)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.Installer)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.DownstreamSpecificType)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.IAmImportantNonCoreType)"));
 
-        // Assert the generated registry does not contain expected types
-        Assert.That(output, Does.Not.Contain("typeof(UserCode.NotInteresting)"));
+            // Assert the generated registry does not contain expected types
+            Assert.That(output, Does.Not.Contain("typeof(UserCode.NotInteresting)"));
+        });
+
+       
     }
 
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
