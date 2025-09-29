@@ -50,8 +50,6 @@ public class AssemblyScanningTests
 
                        [NServiceBusExtensionPoint("RegisterImportant")]
                        public interface IAmImportantNonCoreType { }
-
-
                        """;
 
         var (output, _) = GetGeneratedOutput(source);
@@ -67,6 +65,7 @@ public class AssemblyScanningTests
             Assert.That(output, Does.Contain("typeof(UserCode.Installer)"));
             Assert.That(output, Does.Contain("typeof(UserCode.DownstreamSpecificType)"));
             Assert.That(output, Does.Contain("typeof(UserCode.IAmImportantNonCoreType)"));
+            Assert.That(output, Does.Contain("typeof(UserCode.MyFeature)"));
 
             // Assert the generated registry does not contain expected types
             Assert.That(output, Does.Not.Contain("typeof(UserCode.NotInteresting)"));

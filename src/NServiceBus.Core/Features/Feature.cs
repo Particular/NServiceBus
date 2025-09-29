@@ -10,6 +10,7 @@ using Settings;
 /// <summary>
 /// Used to control the various features supported by the framework.
 /// </summary>
+[NServiceBus.Extensibility.NServiceBusExtensionPoint("AddFeature")]
 public abstract class Feature
 {
     /// <summary>
