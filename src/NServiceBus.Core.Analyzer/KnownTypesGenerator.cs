@@ -1,5 +1,6 @@
 #nullable enable
 namespace NServiceBus.Core.Analyzer;
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -19,19 +20,16 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         //     ctx.AddSource("FakeStuffForNow.g.cs", SourceText.From(SourceGenerationHelper.FakeStuffForNow, Encoding.UTF8));
         // });
 
-        var extraMarkers = context.SyntaxProvider.ForAttributeWithMetadataName("NServiceBus.Extensibility.ServiceBusExtentionPointAttribute",
+        var extraMarkers = context.SyntaxProvider.ForAttributeWithMetadataName("NServiceBus.Extensibility.NServiceBusExtensionPointAttribute",
                 predicate: (node, token) => true,
                 transform: (syntaxContext, token) =>
                 {
-                    var info = syntaxContext.Attributes.First();
+                    var attributeInfo = syntaxContext.Attributes.First();
 
-                    //need to return the inamedtypesymbols for the thing it it decorating
-
-                    if (info.ConstructorArguments[0].Value is string metadataTypeName && info.ConstructorArguments[1].Value is string methodName)
+                    if (syntaxContext.TargetSymbol is INamedTypeSymbol decoratedType && attributeInfo.ConstructorArguments[0].Value is string registrationMethodName)
                     {
-                        return new MarkerTypeInfo(metadataTypeName, methodName);
+                        return new MarkerTypeInfo(decoratedType.ToDisplayString(), registrationMethodName);
                     }
-                   
 
                     return default;
                 })
@@ -304,7 +302,7 @@ public class SourceGenerationHelper
 //{
 //    public void Initialize(IncrementalGeneratorInitializationContext context)
 //    {
-        
+
 
 //        var builtInMarkerTypes = context.CompilationProvider.Select((compilation, cancellationToken) =>
 //        {
@@ -344,7 +342,7 @@ public class SourceGenerationHelper
 //        //// Collect all types separately, then combine
 //        //var collectedRelevant = relevantTypes.Collect();
 //        //var collectedNsbHandler = nsbAttibuteTypes.Collect();
-        
+
 //        //var combined = collectedRelevant
 //        //    .Combine(collectedNsbHandler)
 //        //    .Select((tuple, cancellationToken) =>

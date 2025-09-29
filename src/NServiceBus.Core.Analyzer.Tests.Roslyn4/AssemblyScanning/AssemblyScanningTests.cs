@@ -48,10 +48,10 @@ public class AssemblyScanningTests
 
                        public class DownstreamSpecificType : IAmImportantNonCoreType { }
 
-                       [NServiceBusExtentionPoint]
+                       [NServiceBusExtensionPoint("RegisterImportant")]
                        public interface IAmImportantNonCoreType { }
 
-                    
+
                        """;
 
         var (output, _) = GetGeneratedOutput(source);
@@ -72,7 +72,7 @@ public class AssemblyScanningTests
             Assert.That(output, Does.Not.Contain("typeof(UserCode.NotInteresting)"));
         });
 
-       
+
     }
 
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
