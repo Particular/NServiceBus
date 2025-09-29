@@ -28,16 +28,14 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
                     if (syntaxContext.TargetSymbol is INamedTypeSymbol decoratedType && attributeInfo.ConstructorArguments[0].Value is string registrationMethodName)
                     {
-                        return new MarkerTypeInfo(decoratedType.ToDisplayString(), registrationMethodName);
+                        return decoratedType;
+                        //return new MarkerTypeInfo(decoratedType.ToDisplayString(), registrationMethodName);
                     }
 
                     return default;
                 })
-            .Where(x => x != default);
-
-        var emCollected = extraMarkers.Collect();
-
-        context.RegisterSourceOutput(emCollected, (_, _) => { });
+            .Where(x => x != default)
+            .Collect();
 
         var markerTypes = context.CompilationProvider.Select((compilation, cancellationToken) =>
         {
@@ -46,13 +44,16 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                 .ToImmutableArray();
         });
 
-        var sourceTypes = context.SyntaxProvider
+        var allMarkers = extraMarkers.Combine(markerTypes)
+                .Select((pair, ct) => pair.Left.Concat(pair.Right).ToImmutableArray());
+
+        var mySourceTypes = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => node is TypeDeclarationSyntax,
                 transform: GetNamedTypeFromGeneratorSyntaxContext)
             .Where(type => type is not null);
 
-        var relevantTypes = sourceTypes.Combine(markerTypes)
+        var relevantTypes = mySourceTypes.Combine(allMarkers)
             .Where(pair =>
             {
                 var (type, markerTypeSymbols) = pair;
