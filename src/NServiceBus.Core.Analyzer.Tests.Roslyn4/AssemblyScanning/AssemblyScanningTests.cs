@@ -22,23 +22,8 @@ public class AssemblyScanningTests
                        using NServiceBus.Features;
                        using NServiceBus.Installation;
                        
-                       [assembly: UserCode.ImportantType("UserCode.IAmImportantNonCoreType", "RegisterImportantThing")]
-
                        namespace UserCode;
                        
-                       [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-                       public class ImportantTypeAttribute : Attribute
-                       {
-                           public string MetadataTypeName { get; }
-                           public string RegisterMethodName { get; }
-                           
-                           public ImportantTypeAttribute(string metadataTypeName, string methodName)
-                           {
-                               MetadataTypeName = metadataTypeName;
-                               RegisterMethodName = methodName;
-                           }
-                       }
-
                        public class MyEvent : IEvent {}
                        public class MyCommand : ICommand {}
                        public class MyMessage : IMessage {}
@@ -61,17 +46,24 @@ public class AssemblyScanningTests
                        public class NotInteresting { }
                        public class DownstreamSpecificType : IAmImportantNonCoreType { }
                        public interface IAmImportantNonCoreType { }
+
+                       [NsbHandler]
+                       public class MyHandlerFromAttribute
+                       {
+                           public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
                        """;
 
-        var (output, diagnostics) = GetGeneratedOutput(source);
+        var (output, _) = GetGeneratedOutput(source);
 
-        foreach (var diagnostic in diagnostics)
-        {
-            Console.WriteLine(diagnostic);
-        }
-
-        Console.WriteLine("----------");
-        Console.WriteLine(output);
+        // Assert the generated registry contains expected types
+        Assert.That(output, Does.Contain("typeof(UserCode.MyEvent)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.MyCommand)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.MyMessage)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.MyHandler)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.MySecondHandler)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.Installer)"));
+        Assert.That(output, Does.Contain("typeof(UserCode.MyHandlerFromAttribute)"));
     }
 
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
@@ -88,19 +80,18 @@ public class AssemblyScanningTests
             }
         }
 
-        var compilation = Compile(new[]
-        {
-            syntaxTree
-        }, references);
-
-        var generator = new KnownTypesGenerator();
-
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generateDiagnostics);
-
-        // add necessary references for the generated trigger
+        // Add necessary references for the generated trigger
         references.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
         references.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
+
+        var generator = new KnownTypesGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // Run the generator first to provide the NsbHandlerAttribute
+        var initialCompilation = CSharpCompilation.Create("initial", new[] { syntaxTree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        driver.RunGeneratorsAndUpdateCompilation(initialCompilation, out var outputCompilation, out var generateDiagnostics);
+
+        // Now compile the final result with all generated sources
         Compile(outputCompilation.SyntaxTrees, references);
 
         if (!suppressGeneratedDiagnosticsErrors)
@@ -108,7 +99,12 @@ public class AssemblyScanningTests
             Assert.That(generateDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), Is.False, "Failed: " + generateDiagnostics.FirstOrDefault()?.GetMessage());
         }
 
-        return (outputCompilation.SyntaxTrees.Last().ToString(), generateDiagnostics);
+        var generated = outputCompilation.SyntaxTrees
+            .Select(st => st.ToString())
+            .FirstOrDefault(text => text.Contains("namespace Generated") && text.Contains("class Registry"))
+            ?? string.Empty;
+
+        return (generated, generateDiagnostics);
     }
 
     static CSharpCompilation Compile(IEnumerable<SyntaxTree> syntaxTrees, IEnumerable<MetadataReference> references)
