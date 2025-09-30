@@ -47,6 +47,10 @@ partial class HostingComponent
 
         public string Discriminator => settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
 
+        public ManuallyRegisteredInstallers ManuallyRegisteredInstallers => settings.GetOrCreate<ManuallyRegisteredInstallers>();
+
+        public ManuallyRegisteredFeatures ManuallyRegisteredFeatures => settings.GetOrCreate<ManuallyRegisteredFeatures>();
+
         public Dictionary<string, string> Properties
         {
             get => settings.Get<Dictionary<string, string>>(PropertiesSettingsKey);

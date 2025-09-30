@@ -18,6 +18,12 @@ partial class HostingComponent
     {
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
+        // Add manually registered installers
+        availableTypes.AddRange(settings.ManuallyRegisteredInstallers.InstallerTypes);
+
+        // Add manually registered features
+        availableTypes.AddRange(settings.ManuallyRegisteredFeatures.FeatureTypes);
+
         var configuration = new Configuration(settings,
             availableTypes,
             new CriticalError(settings.CustomCriticalErrorAction),

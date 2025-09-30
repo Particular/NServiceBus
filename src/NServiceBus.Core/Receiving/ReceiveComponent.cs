@@ -73,7 +73,7 @@ partial class ReceiveComponent
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
         var messageHandlerRegistry = configuration.MessageHandlerRegistry;
-        RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
+        RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes, configuration.ManuallyRegisteredHandlers);
 
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
@@ -240,9 +240,12 @@ partial class ReceiveComponent
         return Task.WhenAll(receiverStopTasks);
     }
 
-    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
+    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes, ManuallyRegisteredHandlers manuallyRegisteredHandlers)
     {
         var types = new List<Type>(availableTypes);
+
+        // Include manually registered handlers
+        types.AddRange(manuallyRegisteredHandlers.HandlerTypes);
 
         foreach (var t in orderedTypes)
         {

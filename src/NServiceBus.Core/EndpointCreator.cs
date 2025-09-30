@@ -26,7 +26,15 @@ class EndpointCreator
 
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
 
-        endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
+        var availableTypes = assemblyScanningComponent.AvailableTypes.ToList();
+
+        // Add manually registered initializers
+        if (settings.TryGet(out ManuallyRegisteredInitializers manuallyRegisteredInitializers))
+        {
+            availableTypes.AddRange(manuallyRegisteredInitializers.InitializerTypes);
+        }
+
+        endpointConfiguration.FinalizeConfiguration(availableTypes);
 
         endpointConfiguration.Settings.ConfigurePersistence();
 
@@ -129,7 +137,15 @@ class EndpointCreator
     {
         var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, settings.IsDynamicTypeLoadingEnabled());
 
-        messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+        var availableTypes = settings.GetAvailableTypes().ToList();
+        
+        // Add manually registered message types
+        if (settings.TryGet(out ManuallyRegisteredMessages manuallyRegisteredMessages))
+        {
+            availableTypes.AddRange(manuallyRegisteredMessages.MessageTypes);
+        }
+        
+        messageMetadataRegistry.RegisterMessageTypesFoundIn(availableTypes);
 
         settings.Set(messageMetadataRegistry);
 

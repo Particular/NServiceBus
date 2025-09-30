@@ -39,6 +39,7 @@ partial class ReceiveComponent
             isSendOnlyEndpoint,
             settings.ExecuteTheseHandlersFirst,
             settings.MessageHandlerRegistry,
+            settings.ManuallyRegisteredHandlers,
             transportSeam);
 
         settings.RegisterReceiveConfigurationForBackwardsCompatibility(receiveConfiguration);
@@ -54,6 +55,7 @@ partial class ReceiveComponent
         bool isSendOnlyEndpoint,
         List<Type> executeTheseHandlersFirst,
         MessageHandlerRegistry messageHandlerRegistry,
+        ManuallyRegisteredHandlers manuallyRegisteredHandlers,
         TransportSeam transportSeam)
     {
         public QueueAddress LocalQueueAddress { get; } = localQueueAddress;
@@ -71,6 +73,8 @@ partial class ReceiveComponent
         public List<Type> ExecuteTheseHandlersFirst { get; } = executeTheseHandlersFirst;
 
         public MessageHandlerRegistry MessageHandlerRegistry { get; } = messageHandlerRegistry;
+
+        public ManuallyRegisteredHandlers ManuallyRegisteredHandlers { get; } = manuallyRegisteredHandlers;
 
         public TransportSeam TransportSeam { get; } = transportSeam;
 

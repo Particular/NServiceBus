@@ -24,6 +24,8 @@ partial class ReceiveComponent
 
         public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
 
+        public ManuallyRegisteredHandlers ManuallyRegisteredHandlers => settings.GetOrCreate<ManuallyRegisteredHandlers>();
+
         public bool CustomQueueNameBaseProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
         public string CustomQueueNameBase => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomQueueNameBaseKey);

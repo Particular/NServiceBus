@@ -49,7 +49,20 @@ public class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+        
+        var availableTypes = context.Settings.GetAvailableTypes().ToList();
+        
+        // Add manually registered saga types
+        if (context.Settings.TryGet(out ManuallyRegisteredSagas manuallyRegisteredSagas))
+        {
+            foreach (var saga in manuallyRegisteredSagas.Sagas)
+            {
+                availableTypes.Add(saga.SagaType);
+                // Note: sagaDataType is not added to availableTypes as it's already associated via the saga
+            }
+        }
+        
+        sagaMetaModel.Initialize(availableTypes, conventions);
 
         var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
 
