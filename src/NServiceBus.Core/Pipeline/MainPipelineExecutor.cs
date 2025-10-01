@@ -15,7 +15,7 @@ class MainPipelineExecutor(
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
-    MarshalingRouter marshalers)
+    UnmarshalingRouter marshalers)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
