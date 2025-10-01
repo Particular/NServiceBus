@@ -44,7 +44,6 @@ NServiceBus.Hosting.Helpers.SkippedFile
 NServiceBus.Hosting.HostInformation
 NServiceBus.ICriticalErrorContext
 NServiceBus.IDistributionPolicy
-NServiceBus.IMarshalMessages
 NServiceBus.IMessageConvention
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
@@ -53,6 +52,7 @@ NServiceBus.ImmediateRetry
 NServiceBus.IPipelineContext
 NServiceBus.IStartableEndpointWithExternallyManagedContainer
 NServiceBus.IToSagaExpression`1
+NServiceBus.IUnmarshalMessages
 NServiceBus.LearningPersistence
 NServiceBus.LearningSagaPersisterConfigurationExtensions
 NServiceBus.LearningTransport
