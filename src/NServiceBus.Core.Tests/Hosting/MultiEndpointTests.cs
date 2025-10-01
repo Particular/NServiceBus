@@ -3,9 +3,9 @@ namespace NServiceBus.Core.Tests.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
-using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]
@@ -53,6 +53,53 @@ public class MultiEndpointTests
         var lazySessions = services.Where(descriptor => descriptor.ServiceType == typeof(Lazy<IMessageSession>)).ToList();
         Assert.That(lazySessions, Has.Count.EqualTo(2));
         Assert.That(lazySessions.Select(d => d.ServiceKey), Is.SupersetOf(new object[] { "Sales", "Shipping" }));
+    }
+
+    [Test]
+    public async Task DemoTest()
+    {
+        var services = new ServiceCollection();
+
+        var startable = MultiEndpoint.Create(services, configuration =>
+        {
+            var sales = configuration.AddEndpoint("Sales");
+
+            sales.TypesToScanInternal([typeof(MySalesCommandHandler)]);
+            sales.UseSerialization<SystemJsonSerializer>();
+            sales.UseTransport(new LearningTransport());
+
+            var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
+            shipping.TypesToScanInternal([]);
+            shipping.UseSerialization<SystemJsonSerializer>();
+            shipping.UseTransport(new LearningTransport());
+        });
+
+        var serviceProvider = services.BuildServiceProvider();
+        await startable.Start(serviceProvider);
+
+        var salesSession = serviceProvider.GetKeyedService<IMessageSession>("Sales");
+
+        await salesSession.SendLocal(new MySalesCommand { Message = "Hello from sales" });
+
+        var shippingSession = serviceProvider.GetKeyedService<IMessageSession>("Shipping");
+
+        await shippingSession.Send("Sales", new MySalesCommand { Message = "Hello from shipping" });
+
+        await Task.Delay(TimeSpan.FromSeconds(3));
+    }
+
+    public class MySalesCommand : ICommand
+    {
+        public string Message { get; set; }
+    }
+
+    class MySalesCommandHandler : IHandleMessages<MySalesCommand>
+    {
+        public Task Handle(MySalesCommand message, IMessageHandlerContext context)
+        {
+            Console.WriteLine(message.Message);
+            return Task.CompletedTask;
+        }
     }
 
     [Test]
