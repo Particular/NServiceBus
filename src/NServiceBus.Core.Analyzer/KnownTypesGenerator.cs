@@ -310,7 +310,10 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         new ("NServiceBus.IContainSagaData", "RegisterSagaData"),
         new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller"),
         new ("NServiceBus.Features.Feature", "RegisterFeature"),
-        new ("NServiceBus.INeedInitialization", "RegisterInitializer")
+        new ("NServiceBus.INeedInitialization", "RegisterInitializer"),
+        new ("NServiceBus.Sagas.IFinder", "RegisterSagaFinder"),
+        new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer"),
+        new ("NServiceBus.IHandleSagaNotFound", "RegisterSagaNotFoundHandler"),
     ];
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
