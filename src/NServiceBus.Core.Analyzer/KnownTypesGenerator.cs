@@ -49,16 +49,14 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         // Marker source 2: [NServiceBusExtensionPoint] attributes in referenced assemblies
         var markersFromCompilationAttributes = context.CompilationProvider
-            .SelectMany((compilation, cancellationToken) => GetTypesWithExtensionPointAttribute(compilation, cancellationToken));
+            .SelectMany(GetTypesWithExtensionPointAttribute);
 
         // Marker source 3: Built-in marker types (IHandleMessages<T>, Saga<T>, IEvent, ICommand, etc.)
         var builtInMarkers = context.CompilationProvider
             .SelectMany((compilation, cancellationToken) =>
             {
                 return MarkerTypeInfos
-                    .Select(info => new MarkerTypeInfo(
-                        compilation.GetTypeByMetadataName(info.TypeName),
-                        info.RegisterMethod))
+                    .Select(info => new MarkerTypeInfo(compilation.GetTypeByMetadataName(info.TypeName), info.RegisterMethod))
                     .Where(m => m.Symbol is not null);
             });
 
@@ -76,15 +74,15 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         // against the cached marker arrays - very efficient!
         var matchedTypesFromSourceAttributes = sourceTypes
             .Combine(collectedSourceMarkers)
-            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right));
+            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken));
 
         var matchedTypesFromCompilationAttributes = sourceTypes
             .Combine(collectedCompilationMarkers)
-            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right));
+            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken));
 
         var matchedTypesFromBuiltInMarkers = sourceTypes
             .Combine(collectedBuiltInMarkers)
-            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right));
+            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken));
 
         // --- CACHE BOUNDARY: Collect matched types from each source independently ---
         // Final collection before combining results - maintains separation between sources
@@ -97,27 +95,35 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         var allScannedTypes = collectedFromSource
             .Combine(collectedFromCompilation)
             .Combine(collectedFromBuiltIn)
-            .Select((tuple, cancellationToken) =>
+            .Select((tuple, _) =>
             {
                 var ((source, compilation), builtIn) = tuple;
-                return source.Concat(compilation).Concat(builtIn).ToImmutableArray();
+                return source.Concat(compilation).Concat(builtIn)
+                    // CompilationProvider and SyntaxProvider can both surface an extension point type in user code
+                    .Distinct()
+                    .ToImmutableArray();
             });
 
         // --- GENERATE OUTPUT ---
-        context.RegisterImplementationSourceOutput(allScannedTypes, static (sourceProductionContext, matches) =>
-            GenerateRegistrationCode(sourceProductionContext, matches));
+        context.RegisterImplementationSourceOutput(allScannedTypes, GenerateRegistrationCode);
     }
 
-    static IEnumerable<ScannedTypeInfo> FindMatchingMarkers(INamedTypeSymbol? type, ImmutableArray<MarkerTypeInfo> markers)
+    static IEnumerable<ScannedTypeInfo> FindMatchingMarkers(INamedTypeSymbol? type, ImmutableArray<MarkerTypeInfo> markers, CancellationToken cancellationToken)
     {
         if (type is null)
         {
             yield break;
         }
 
+        // TODO: Is it really desired to have all returned? This currently results in events registered as events AND messages.
+        // It would be more efficient to only return the first, but this would create an ordering problem in the baked-in list,
+        // where you'd want to have IEvent and ICommand precede IMessage, or else sort the hard-coded list by inheritance
+        // relationships?
         foreach (var marker in markers)
         {
-            if (marker.Symbol is not null && IsAssignableTo(type, marker.Symbol))
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (marker.Symbol is not null && !SymbolEqualityComparer.Default.Equals(type, marker.Symbol) && IsAssignableTo(type, marker.Symbol))
             {
                 yield return CreateScannedTypeInfo(type, marker);
             }
