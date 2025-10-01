@@ -11,11 +11,19 @@ public sealed class NServiceBusExtensionPointAttribute : Attribute
     /// <summary>
     ///
     /// </summary>
-    public string RegistrationMethodName { get; set; }
+    public string RegistrationMethodName { get; init; }
 
     /// <summary>
     ///
     /// </summary>
-    /// <param name="registrationMethodName"></param>
-    public NServiceBusExtensionPointAttribute(string registrationMethodName) => RegistrationMethodName = registrationMethodName;
+    public bool AutoRegister { get; init; }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public NServiceBusExtensionPointAttribute(string registrationMethodName, bool autoRegister)
+    {
+        RegistrationMethodName = registrationMethodName;
+        AutoRegister = autoRegister;
+    }
 }

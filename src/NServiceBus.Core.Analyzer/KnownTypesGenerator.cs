@@ -39,9 +39,10 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                 {
                     var attributeInfo = syntaxContext.Attributes.First();
                     if (syntaxContext.TargetSymbol is INamedTypeSymbol decoratedType &&
-                        attributeInfo.ConstructorArguments[0].Value is string registrationMethodName)
+                        attributeInfo.ConstructorArguments[0].Value is string registrationMethodName &&
+                        attributeInfo.ConstructorArguments[1].Value is bool autoRegister)
                     {
-                        return new MarkerTypeInfo(decoratedType, registrationMethodName);
+                        return new MarkerTypeInfo(decoratedType, registrationMethodName, autoRegister);
                     }
                     return default;
                 })
@@ -56,7 +57,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             .SelectMany((compilation, cancellationToken) =>
             {
                 return MarkerTypeInfos
-                    .Select(info => new MarkerTypeInfo(compilation.GetTypeByMetadataName(info.TypeName), info.RegisterMethod))
+                    .Select(info => new MarkerTypeInfo(compilation.GetTypeByMetadataName(info.TypeName), info.RegisterMethod, info.AutoRegister))
                     .Where(m => m.Symbol is not null);
             });
 
@@ -125,7 +126,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
             if (marker.Symbol is not null && IsFromExtensionPoint(type, marker.Symbol))
             {
-                yield return new ScannedTypeInfo(type.ToDisplayString(), marker.RegisterMethod);
+                yield return new ScannedTypeInfo(type.ToDisplayString(), marker.RegisterMethod, marker.AutoRegister);
             }
         }
     }
@@ -144,20 +145,20 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                       #nullable enable
                       namespace NServiceBus.Generated
                       {
-                          public static class TypeRegistration
+                          public static class RequiredTypeRegistration
                           {
                               public static void RegisterTypes(NServiceBus.EndpointConfiguration config)
                               {
                       """);
 
-        foreach (var type in matches)
+        foreach (var type in matches.Where(t => t.AutoRegister))
         {
             sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
         }
 
         sb.AppendLine();
         sb.AppendLine("            // OR");
-        foreach (var type in matches)
+        foreach (var type in matches.Where(t => t.AutoRegister))
         {
             sb.AppendLine($"            config.RegisterExtensionType<{type.DisplayName}>();");
         }
@@ -165,7 +166,29 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         sb.AppendLine("""
                               }
                           }
-                          
+
+                          public static class OptionalTypeRegistration
+                          {
+                              public static void RegisterTypes(NServiceBus.EndpointConfiguration config)
+                              {
+                      """);
+
+        foreach (var type in matches.Where(t => !t.AutoRegister))
+        {
+            sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("            // OR");
+        foreach (var type in matches.Where(t => !t.AutoRegister))
+        {
+            sb.AppendLine($"            config.RegisterExtensionType<{type.DisplayName}>();");
+        }
+
+        sb.AppendLine("""
+                              }
+                          }
+
                           public static class TemporaryRegistrationExtensions
                           {
                               public static void RegisterExtensionType<T>(this NServiceBus.EndpointConfiguration config) { }
@@ -203,9 +226,10 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             var extensionPointAttr = type.GetAttributes()
                 .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
 
-            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod)
+            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
+                extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
             {
-                yield return new MarkerTypeInfo(type, registerMethod);
+                yield return new MarkerTypeInfo(type, registerMethod, autoRegister);
             }
 
             // Recursively search nested types
@@ -234,9 +258,10 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             var extensionPointAttr = nested.GetAttributes()
                 .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
 
-            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod)
+            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
+                extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
             {
-                yield return new MarkerTypeInfo(nested, registerMethod);
+                yield return new MarkerTypeInfo(nested, registerMethod, autoRegister);
             }
 
             // Recursively search deeper nested types
@@ -287,18 +312,18 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     // These are converted to MarkerTypeInfo with actual symbols during generation
     static readonly ImmutableArray<BuiltInMarkerInfo> MarkerTypeInfos =
     [
-        new ("NServiceBus.IEvent", "RegisterEvent"),
-        new ("NServiceBus.ICommand", "RegisterCommand"),
-        new ("NServiceBus.IMessage", "RegisterMessage"),
-        new ("NServiceBus.IHandleMessages`1", "RegisterHandler"),
-        new ("NServiceBus.Saga`1", "RegisterSaga"),
-        new ("NServiceBus.IContainSagaData", "RegisterSagaData"),
-        new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller"),
-        new ("NServiceBus.Features.Feature", "RegisterFeature"),
-        new ("NServiceBus.INeedInitialization", "RegisterInitializer"),
-        new ("NServiceBus.Sagas.IFinder", "RegisterSagaFinder"),
-        new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer"),
-        new ("NServiceBus.IHandleSagaNotFound", "RegisterSagaNotFoundHandler"),
+        new ("NServiceBus.IEvent", "RegisterEvent", false),
+        new ("NServiceBus.ICommand", "RegisterCommand", false),
+        new ("NServiceBus.IMessage", "RegisterMessage", false),
+        new ("NServiceBus.IHandleMessages`1", "RegisterHandler", false),
+        new ("NServiceBus.Saga`1", "RegisterSaga", false),
+        new ("NServiceBus.IContainSagaData", "RegisterSagaData", false),
+        new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller", true),
+        new ("NServiceBus.Features.Feature", "RegisterFeature", true),
+        new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
+        new ("NServiceBus.Sagas.IFinder", "RegisterSagaFinder", true),
+        new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer", true),
+        new ("NServiceBus.IHandleSagaNotFound", "RegisterSagaNotFoundHandler", true),
     ];
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
@@ -318,9 +343,9 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         return type;
     }
 
-    record struct ScannedTypeInfo(string DisplayName, string RegisterMethod);
-    record struct BuiltInMarkerInfo(string TypeName, string RegisterMethod);
-    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, string RegisterMethod);
+    record struct ScannedTypeInfo(string DisplayName, string RegisterMethod, bool AutoRegister);
+    record struct BuiltInMarkerInfo(string TypeName, string RegisterMethod, bool AutoRegister);
+    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, string RegisterMethod, bool AutoRegister);
 
     const string ExtensionAttributeMetadataName = "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute";
 }
