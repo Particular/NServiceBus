@@ -130,7 +130,8 @@ public class MainPipelineExecutorTests
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
             new ActivityFactory(),
-            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"),
+            new MarshalingRouter([]));
 
         return executor;
     }
