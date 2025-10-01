@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
 
-class MarshalingComponent
+class UnmarshalingComponent
 {
-    public static MarshalingComponent Initialize(HostingComponent.Configuration hostingConfiguration)
+    public static UnmarshalingComponent Initialize(HostingComponent.Configuration hostingConfiguration)
     {
-        hostingConfiguration.Services.AddSingleton<MarshalingRouter>();
-        return new MarshalingComponent();
+        hostingConfiguration.Services.AddSingleton<UnmarshalingRouter>();
+        return new UnmarshalingComponent();
     }
 }
 
-class MarshalingRouter(IEnumerable<IMarshalMessages> translators)
+class UnmarshalingRouter(IEnumerable<IUnmarshalMessages> translators)
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
