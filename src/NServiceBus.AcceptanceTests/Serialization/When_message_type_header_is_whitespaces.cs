@@ -20,11 +20,11 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
             .Done(c => c.IncomingMessageReceived)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.HandlerInvoked, Is.False);
             Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
-        });
+        }
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
     }

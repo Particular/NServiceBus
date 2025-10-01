@@ -26,11 +26,11 @@ public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTes
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.MessageFailed, Is.True);
             Assert.That(context.TTBRHasExpiredAndMessageIsStillInErrorQueue, Is.True);
-        });
+        }
     }
 
     class Context : ScenarioContext

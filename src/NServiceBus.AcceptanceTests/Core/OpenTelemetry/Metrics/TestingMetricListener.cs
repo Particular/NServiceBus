@@ -71,11 +71,11 @@ class TestingMetricListener : IDisposable
         }
         else
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(ReportedMeters.ContainsKey(metricName), Is.True, $"'{metricName}' metric was not reported.");
                 Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
-            });
+            }
         }
     }
 

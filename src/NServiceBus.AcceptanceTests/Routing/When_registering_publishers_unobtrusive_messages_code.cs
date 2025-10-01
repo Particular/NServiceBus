@@ -19,11 +19,11 @@ public class When_registering_publishers_unobtrusive_messages_code : NServiceBus
             .Done(c => c.ReceivedMessage)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Subscribed, Is.True);
             Assert.That(context.ReceivedMessage, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

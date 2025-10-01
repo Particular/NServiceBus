@@ -13,11 +13,11 @@ public class ContextBagTests
     {
         var contextBag = new ContextBag();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(() => contextBag.Set<string>("NullValue", null!), Throws.ArgumentNullException);
             Assert.That(() => contextBag.SetOnRoot<string>("NullValue", null!), Throws.ArgumentNullException);
-        });
+        }
     }
 
     [Test]
@@ -25,11 +25,11 @@ public class ContextBagTests
     {
         var contextBag = new ContextBag();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(() => contextBag.Set<string?>("NullValue", null), Throws.ArgumentNullException);
             Assert.That(() => contextBag.SetOnRoot<string?>("NullValue", null), Throws.ArgumentNullException);
-        });
+        }
     }
 
     [Test]
@@ -55,11 +55,11 @@ public class ContextBagTests
 
         context.SetOnRoot(key, 42);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(root.Get<int>(key), Is.EqualTo(42), "should store value on root context");
             Assert.That(context.Get<int>(key), Is.EqualTo(42), "stored value should be readable in the writing context");
             Assert.That(fork.Get<int>(key), Is.EqualTo(42), "stored value should be visible to a forked context");
-        });
+        }
     }
 }

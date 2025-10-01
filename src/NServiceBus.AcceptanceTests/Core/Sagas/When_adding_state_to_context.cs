@@ -24,11 +24,11 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
             .Done(c => c.FinderUsed)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.FinderUsed, Is.True);
             Assert.That(context.ContextBag.Get<SagaEndpoint.BehaviorWhichAddsThingsToTheContext.State>().SomeData, Is.EqualTo("SomeData"));
-        });
+        }
     }
 
     public class Context : ScenarioContext

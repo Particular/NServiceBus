@@ -45,11 +45,11 @@ public class When_storage_overrides_are_provided
 
         var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Subscriptions)]));
             Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Sagas)]));
-        });
+        }
     }
 
     class FakePersistence2 : PersistenceDefinition

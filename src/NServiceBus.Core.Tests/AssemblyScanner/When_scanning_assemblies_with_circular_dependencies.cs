@@ -18,10 +18,10 @@ public class When_scanning_assemblies_with_circular_dependencies
 
         var result = scanner.GetScannableAssemblies();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryA")), Is.False);
             Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryB")), Is.False);
-        });
+        }
     }
 }

@@ -19,11 +19,11 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ctx.SendingEndpointGotResponse, Is.True);
             Assert.That(ctx.OtherEndpointGotResponse, Is.False);
-        });
+        }
     }
 
     public class Context : ScenarioContext

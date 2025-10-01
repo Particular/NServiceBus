@@ -23,12 +23,12 @@ public class When_skip_wrapping_xml : NServiceBusAcceptanceTest
             .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.XmlPropertyValue.ToString(), Is.EqualTo(xmlContent.ToString()));
             Assert.That(context.XmlMessage.Root.Name.LocalName, Is.EqualTo(nameof(MessageWithRawXml)));
             Assert.That(context.XmlMessage.Root.Elements().Single().ToString(), Is.EqualTo(xmlContent.ToString()));
-        });
+        }
     }
 
     class Context : ScenarioContext

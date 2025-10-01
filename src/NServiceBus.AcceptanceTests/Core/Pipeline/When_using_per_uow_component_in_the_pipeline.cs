@@ -24,11 +24,11 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
             .Done(c => c.MessagesProcessed >= 2)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.ValueEmpty, Is.False, "Empty value in the UoW component meaning the UoW component has been registered as per-call");
             Assert.That(context.ValueAlreadyInitialized, Is.False, "Value in the UoW has already been initialized when it was resolved for the first time in a given pipeline meaning the UoW component has been registered as a singleton.");
-        });
+        }
     }
 
     static Task SendMessage(IMessageSession s)

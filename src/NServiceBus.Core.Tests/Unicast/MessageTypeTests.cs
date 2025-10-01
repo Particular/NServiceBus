@@ -11,11 +11,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType(typeof(TestMessage));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(typeof(TestMessage).FullName, Is.EqualTo(messageType.TypeName));
             Assert.That(typeof(TestMessage).Assembly.GetName().Version, Is.EqualTo(messageType.Version));
-        });
+        }
     }
 
     [Test]
@@ -23,11 +23,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType(typeof(TestMessage).AssemblyQualifiedName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(typeof(TestMessage).FullName, Is.EqualTo(messageType.TypeName));
             Assert.That(typeof(TestMessage).Assembly.GetName().Version, Is.EqualTo(messageType.Version));
-        });
+        }
     }
 
     [Test]
@@ -35,11 +35,11 @@ public class MessageTypeTests
     {
         var messageType = new Subscriptions.MessageType("TestMessage", "1.2.3.4");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(messageType.TypeName, Is.EqualTo("TestMessage"));
             Assert.That(new Version(1, 2, 3, 4), Is.EqualTo(messageType.Version));
-        });
+        }
     }
 
     [Test]
@@ -52,11 +52,11 @@ public class MessageTypeTests
 
         var messageType = new Subscriptions.MessageType(input);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(expectedTypeName, Is.EqualTo(messageType.TypeName));
             Assert.That(expectedVersion, Is.EqualTo(messageType.Version));
-        });
+        }
     }
 
     class TestMessage

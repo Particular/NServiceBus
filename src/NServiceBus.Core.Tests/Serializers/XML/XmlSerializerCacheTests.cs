@@ -26,12 +26,12 @@ public class XmlSerializerCacheTests
         cache.InitType(typeof(RecursiveType));
 
         var members = cache.typeMembers[typeof(RecursiveType)];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(members.Item1.Single().FieldType, Is.EqualTo(typeof(RecursiveType)));
             Assert.That(members.Item2[0].PropertyType, Is.EqualTo(typeof(RecursiveType)));
             Assert.That(members.Item2[1].PropertyType, Is.EqualTo(typeof(RecursiveType[])));
-        });
+        }
     }
 
     [Test]

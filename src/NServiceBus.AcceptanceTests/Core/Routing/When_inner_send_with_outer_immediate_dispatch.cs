@@ -22,11 +22,11 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
             .Done(c => c.MessageBReceived)
             .Run(TimeSpan.FromSeconds(15));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.MessageBReceived, Is.True);
             Assert.That(context.MessageCReceived, Is.False);
-        });
+        }
     }
 
     class Context : ScenarioContext

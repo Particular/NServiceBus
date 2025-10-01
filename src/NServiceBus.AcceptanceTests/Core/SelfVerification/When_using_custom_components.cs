@@ -17,12 +17,12 @@ public class When_using_custom_components : NServiceBusAcceptanceTest
             .Done(c => c.Starting)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ctx.Starting, Is.True);
             Assert.That(ctx.ComponentsStarted, Is.True);
             Assert.That(ctx.Stopped, Is.True);
-        });
+        }
     }
 
     class Context : ScenarioContext

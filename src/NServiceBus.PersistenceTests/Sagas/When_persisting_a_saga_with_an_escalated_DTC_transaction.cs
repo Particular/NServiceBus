@@ -83,12 +83,12 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
         var notUpdatedSagaData = await GetById<TestSagaData>(startingSagaData.Id);
 
         Assert.That(notUpdatedSagaData, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(notUpdatedSagaData.LastUpdatedBy, Is.EqualTo("Unchanged"));
             Assert.That(enlistmentNotifier.CommitWasCalled, Is.False);
             Assert.That(enlistmentNotifier.RollbackWasCalled, Is.True);
-        });
+        }
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>

@@ -81,11 +81,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(originalBehaviorFactoryCalled, Is.False);
             Assert.That(behavior, Is.InstanceOf<BehaviorB>());
-        });
+        }
     }
 
     [Test]
@@ -105,11 +105,11 @@ public class RegisterStepTests
         registerStep.Replace(replacement);
         var behavior = registerStep.CreateBehavior(builder);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(replacementBehaviorFactoryCalled, Is.True);
             Assert.That(behavior, Is.InstanceOf<BehaviorB>());
-        });
+        }
     }
 
     class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>

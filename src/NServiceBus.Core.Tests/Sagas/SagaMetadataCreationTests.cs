@@ -38,11 +38,11 @@ public class SagaMetadataCreationTests
     public void DetectUniquePropertiesByAttribute()
     {
         var metadata = SagaMetadata.Create(typeof(MySaga));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
             Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
-        });
+        }
     }
 
     [Test]
@@ -83,11 +83,11 @@ public class SagaMetadataCreationTests
     public void HandleBothUniqueAttributeAndMapping()
     {
         var metadata = SagaMetadata.Create(typeof(MySagaWithMappedAndUniqueProperty));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
             Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
-        });
+        }
     }
 
     [TestCase(typeof(MySagaWithMappedProperty))]
@@ -95,11 +95,11 @@ public class SagaMetadataCreationTests
     public void AutomaticallyAddUniqueForMappedProperties(Type sagaType)
     {
         var metadata = SagaMetadata.Create(sagaType);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
             Assert.That(correlatedProperty.Name, Is.EqualTo("UniqueProperty"));
-        });
+        }
     }
 
     [Test]
@@ -125,7 +125,7 @@ public class SagaMetadataCreationTests
 
         var messages = metadata.AssociatedMessages;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(messages.Count, Is.EqualTo(4));
 
@@ -136,7 +136,7 @@ public class SagaMetadataCreationTests
             Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.Message3).FullName), Is.False);
 
             Assert.That(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.MyTimeout).FullName), Is.False);
-        });
+        }
     }
 
     [Test]
@@ -146,12 +146,12 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
             Assert.That(finder.Properties["property-accessor"], Is.Not.Null);
             Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
-        });
+        }
     }
 
     [Test]
@@ -161,13 +161,13 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(finder.Type, Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
             Assert.That(finder.Properties["message-header-name"], Is.EqualTo("CorrelationHeader"));
             Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
             Assert.That(finder.Properties["saga-property-type"], Is.EqualTo(typeof(int)));
-        });
+        }
     }
 
     [Test]
@@ -216,11 +216,11 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(finder.Type, Is.EqualTo(typeof(CustomFinderAdapter<MySagaWithScannedFinder.SagaData, SomeMessage>)));
             Assert.That(finder.Properties["custom-finder-clr-type"], Is.EqualTo(typeof(MySagaWithScannedFinder.CustomFinder)));
-        });
+        }
     }
 
     [TestCase(typeof(SagaThatMapsMessageItDoesntHandle))]

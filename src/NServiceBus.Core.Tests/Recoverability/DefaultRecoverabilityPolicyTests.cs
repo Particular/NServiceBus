@@ -71,11 +71,11 @@ public class DefaultRecoverabilityPolicyTests
         var recoverabilityAction = policy(errorContext);
         var delayedRetryAction = recoverabilityAction as DelayedRetry;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(recoverabilityAction, Is.InstanceOf<DelayedRetry>(), "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
             Assert.That(delayedRetryAction.Delay, Is.EqualTo(deliveryDelay));
-        });
+        }
     }
 
     [Test]
@@ -137,12 +137,12 @@ public class DefaultRecoverabilityPolicyTests
         errorContext = CreateErrorContext(retryNumber: 2);
         var result3 = policy(errorContext);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result1.Delay, Is.EqualTo(baseDelay));
             Assert.That(result2.Delay, Is.EqualTo(TimeSpan.FromSeconds(20)));
             Assert.That(result3, Is.InstanceOf<MoveToError>());
-        });
+        }
     }
 
     [Test]

@@ -49,11 +49,11 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Subscriber1GotTheEvent, Is.True);
             Assert.That(context.Subscriber2GotTheEvent, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

@@ -88,12 +88,12 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dependingFeature.IsActive, Is.True);
 
             Assert.That(order.First(), Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
-        });
+        }
     }
 
     [Test]
@@ -120,11 +120,11 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dependingFeature.IsActive, Is.True);
             Assert.That(order.First(), Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
-        });
+        }
     }
 
     [Test]
@@ -149,11 +149,11 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dependingFeature.IsActive, Is.False);
             Assert.That(order, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -192,14 +192,14 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dependingFeature.IsActive, Is.True);
 
             Assert.That(order[0], Is.InstanceOf<MyFeature1>(), "Upstream dependencies should be activated first");
             Assert.That(order[1], Is.InstanceOf<MyFeature2>(), "Upstream dependencies should be activated first");
             Assert.That(order[2], Is.InstanceOf<MyFeature3>(), "Upstream dependencies should be activated first");
-        });
+        }
     }
 
     [Test]
@@ -231,7 +231,7 @@ public class FeatureDependencyTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(level1.IsActive, Is.True, "Level1 wasn't activated");
             Assert.That(level2.IsActive, Is.True, "Level2 wasn't activated");
@@ -240,7 +240,7 @@ public class FeatureDependencyTests
             Assert.That(order[0], Is.InstanceOf<Level1>(), "Upstream dependencies should be activated first");
             Assert.That(order[1], Is.InstanceOf<Level2>(), "Upstream dependencies should be activated first");
             Assert.That(order[2], Is.InstanceOf<Level3>(), "Upstream dependencies should be activated first");
-        });
+        }
     }
 
     [Test]

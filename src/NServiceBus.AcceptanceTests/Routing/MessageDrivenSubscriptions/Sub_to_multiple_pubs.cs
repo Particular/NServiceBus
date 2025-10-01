@@ -31,11 +31,11 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
             .Done(c => c.SubscribedToPublisher1 && c.SubscribedToPublisher2)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.SubscribedToPublisher1, Is.True);
             Assert.That(context.SubscribedToPublisher2, Is.True);
-        });
+        }
 
     }
 

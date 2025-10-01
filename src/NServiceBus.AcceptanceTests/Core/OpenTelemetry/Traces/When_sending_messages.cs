@@ -23,11 +23,11 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is being sent");
         var sentMessage = outgoingMessageActivities.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sentMessage.ParentId, Is.Null, "sends without ambient span should start a new trace");
             Assert.That(sentMessage.DisplayName, Is.EqualTo("send message"));
-        });
+        }
 
         var sentMessageTags = sentMessage.Tags.ToImmutableDictionary();
         sentMessageTags.VerifyTag("nservicebus.message_id", context.SentMessageId);
@@ -56,20 +56,20 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
 
         var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
             Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
-        });
+        }
 
         var sendRequest = sendMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "send and receive operations are part of the same root activity");
             Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
-        });
+        }
 
         Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
     }
@@ -91,20 +91,20 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
 
         var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
         var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
             Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
-        });
+        }
 
         var sendRequest = sendMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
             Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
-        });
+        }
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");

@@ -33,11 +33,11 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         var publishedMessage = outgoingEventActivities.Single();
         publishedMessage.VerifyUniqueTags();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish event"));
             Assert.That(publishedMessage.ParentId, Is.Null, "publishes without ambient span should start a new trace");
-        });
+        }
 
         var sentMessageTags = publishedMessage.Tags.ToImmutableDictionary();
         sentMessageTags.VerifyTag("nservicebus.message_id", context.PublishedMessageId);
@@ -70,20 +70,20 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
         var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
             Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
-        });
+        }
 
         var publishRequest = publishMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.EqualTo(publishRequest.RootId), "publish and receive operations are part the same root activity");
             Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
-        });
+        }
 
         Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
     }
@@ -111,20 +111,20 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
         var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
             Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
-        });
+        }
 
         var publishRequest = publishMessageActivities[0];
         var receiveRequest = receiveMessageActivities[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.Not.EqualTo(publishRequest.RootId), "publish and receive operations are part of different root activities");
             Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
-        });
+        }
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");

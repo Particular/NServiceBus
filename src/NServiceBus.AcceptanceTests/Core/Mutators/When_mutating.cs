@@ -77,55 +77,55 @@ public class When_mutating : NServiceBusAcceptanceTest
         {
             public Task MutateIncoming(MutateIncomingMessageContext context)
             {
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(context.Headers, Is.Not.Empty);
                     Assert.That(context.Message, Is.Not.Null);
-                });
+                }
                 return Task.CompletedTask;
             }
 
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(context.Headers, Is.Not.Empty);
                     Assert.That(context.Body, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
-                });
+                }
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(context.OutgoingHeaders, Is.Not.Empty);
                     Assert.That(context.OutgoingMessage, Is.Not.Null);
-                });
+                }
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(incomingHeaders, Is.Not.Empty);
                     Assert.That(incomingMessage, Is.Not.Null);
-                });
+                }
                 return Task.CompletedTask;
             }
 
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(context.OutgoingHeaders, Is.Not.Empty);
                     Assert.That(context.OutgoingBody, Is.Not.EqualTo(default(ReadOnlyMemory<byte>)));
-                });
+                }
                 context.TryGetIncomingHeaders(out var incomingHeaders);
                 context.TryGetIncomingMessage(out var incomingMessage);
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(incomingHeaders, Is.Not.Empty);
                     Assert.That(incomingMessage, Is.Not.Null);
-                });
+                }
                 return Task.CompletedTask;
             }
         }

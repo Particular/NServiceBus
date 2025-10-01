@@ -24,7 +24,7 @@ public class TransportOperationsTests
 
         Assert.That(result.MulticastTransportOperations.Count, Is.EqualTo(1));
         var multicastOp = result.MulticastTransportOperations.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(multicastOp.Message, Is.EqualTo(multicastOperation.Message));
             Assert.That(multicastOp.MessageType, Is.EqualTo((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType));
@@ -32,15 +32,15 @@ public class TransportOperationsTests
             Assert.That(multicastOp.RequiredDispatchConsistency, Is.EqualTo(multicastOperation.RequiredDispatchConsistency));
 
             Assert.That(result.UnicastTransportOperations.Count, Is.EqualTo(1));
-        });
+        }
         var unicastOp = result.UnicastTransportOperations.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(unicastOp.Message, Is.EqualTo(unicastOperation.Message));
             Assert.That(unicastOp.Destination, Is.EqualTo((unicastOperation.AddressTag as UnicastAddressTag)?.Destination));
             Assert.That(unicastOp.Properties, Is.EqualTo(unicastOperation.Properties));
             Assert.That(unicastOp.RequiredDispatchConsistency, Is.EqualTo(unicastOperation.RequiredDispatchConsistency));
-        });
+        }
     }
 
     [Test]
@@ -48,11 +48,11 @@ public class TransportOperationsTests
     {
         var result = new TransportOperations();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.MulticastTransportOperations.Count, Is.EqualTo(0));
             Assert.That(result.UnicastTransportOperations.Count, Is.EqualTo(0));
-        });
+        }
     }
 
     [Test]

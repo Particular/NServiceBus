@@ -37,7 +37,7 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
         var outgoingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
         var incomingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(outgoingMessageActivity.ParentId, Is.EqualTo(context.WrapperActivityId), "outgoing message should be connected to the ambient span");
             Assert.That(outgoingMessageActivity.RootId, Is.EqualTo(context.WrapperActivityRootId), "outgoing message should be connected to the ambient trace");
@@ -45,7 +45,7 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
             Assert.That(incomingMessageActivity.ParentId, Is.EqualTo(outgoingMessageActivity.Id), "received message should be connected to send operation span");
             Assert.That(incomingMessageActivity.RootId, Is.EqualTo(context.WrapperActivityRootId), "received message should be connected to the ambient trace");
             Assert.That(incomingMessageActivity.TraceStateString, Is.EqualTo(wrapperActivityTraceState), "ambient trace state should be floated to incoming message span");
-        });
+        }
     }
 
     class Context : ScenarioContext

@@ -13,12 +13,12 @@ public class IncomingMessageTests
         var headers = new Dictionary<string, string>();
         var message = new IncomingMessage("nativeId", headers, System.Array.Empty<byte>());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.NativeMessageId, Is.EqualTo("nativeId"));
             Assert.That(message.MessageId, Is.EqualTo("nativeId"));
             Assert.That(headers[Headers.MessageId], Is.EqualTo("nativeId"));
-        });
+        }
     }
 
     [Test]
@@ -30,11 +30,11 @@ public class IncomingMessageTests
         };
         var message = new IncomingMessage("nativeId", headers, System.Array.Empty<byte>());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.NativeMessageId, Is.EqualTo("nativeId"));
             Assert.That(message.MessageId, Is.EqualTo("coreId"));
-        });
+        }
     }
 
     [Test]
@@ -46,10 +46,10 @@ public class IncomingMessageTests
         };
         var message = new IncomingMessage("nativeId", headers, System.Array.Empty<byte>());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.NativeMessageId, Is.EqualTo("nativeId"));
             Assert.That(message.MessageId, Is.EqualTo("nativeId"));
-        });
+        }
     }
 }

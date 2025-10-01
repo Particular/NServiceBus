@@ -37,11 +37,11 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
             .Done(c => c.GotEventA && c.GotEventB)
             .Run(TimeSpan.FromSeconds(20));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.GotEventA, Is.True);
             Assert.That(context.GotEventB, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

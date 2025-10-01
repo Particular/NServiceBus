@@ -70,11 +70,11 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(publishersForEvent, Is.Not.Null);
                 Assert.That(publishersForEventWithNamespace, Is.Not.Null);
-            });
+            }
         }
 
         [Test]
@@ -88,11 +88,11 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(publishersForEvent, Is.Null);
                 Assert.That(publishersForEventWithNamespace, Is.Not.Null);
-            });
+            }
         }
 
         [Test]
@@ -108,13 +108,13 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(result1, Is.Not.Null);
                 Assert.That(result2, Is.Not.Null);
                 Assert.That(result3, Is.Not.Null);
                 Assert.That(result4, Is.Not.Null);
-            });
+            }
         }
 
         [Test]
@@ -130,13 +130,13 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(result1, Is.Not.Null);
                 Assert.That(result4, Is.Not.Null);
                 Assert.That(result2, Is.Null);
                 Assert.That(result3, Is.Null);
-            });
+            }
         }
 
         [Theory]
@@ -154,13 +154,13 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(result3, Is.Not.Null);
                 Assert.That(result1, Is.Null);
                 Assert.That(result2, Is.Null);
                 Assert.That(result4, Is.Null);
-            });
+            }
         }
 
         static Publishers ApplyPublisherRegistrations(RoutingSettings<MessageDrivenTransportDefinition> routingSettings)

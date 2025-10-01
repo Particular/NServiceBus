@@ -22,18 +22,18 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test");
             Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are sent as part of this test");
-        });
+        }
 
         var sendRequest = outgoingMessageActivities[0];
         var receiveRequest = incomingMessageActivities[0];
         var sendReply = outgoingMessageActivities[1];
         var receiveReply = incomingMessageActivities[1];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
             Assert.That(receiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
@@ -45,7 +45,7 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
             Assert.That(receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
             Assert.That(sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
             Assert.That(receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
-        });
+        }
     }
 
     class Context : ScenarioContext

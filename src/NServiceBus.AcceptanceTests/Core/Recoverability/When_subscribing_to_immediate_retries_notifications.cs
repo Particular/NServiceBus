@@ -21,14 +21,14 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
             .Done(c => c.MessageSentToError)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.LastImmediateRetryInfo.Exception, Is.InstanceOf<SimulatedException>());
             // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
             Assert.That(context.TotalNumberOfHandlerInvocations, Is.EqualTo(4));
             Assert.That(context.TotalNumberOfImmediateRetriesEventInvocations, Is.EqualTo(3));
             Assert.That(context.LastImmediateRetryInfo.RetryAttempt, Is.EqualTo(2));
-        });
+        }
     }
 
     class Context : ScenarioContext

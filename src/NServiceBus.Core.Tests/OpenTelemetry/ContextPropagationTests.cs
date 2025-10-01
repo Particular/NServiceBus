@@ -47,11 +47,11 @@ public class ContextPropagationTests
         contextBag.Set(Headers.StartNewTrace, bool.TrueString);
         ContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(headers.ContainsKey(Headers.StartNewTrace), Is.True, bool.TrueString);
             Assert.That(bool.TrueString, Is.EqualTo(headers[Headers.StartNewTrace]));
-        });
+        }
     }
 
     [Test]
@@ -127,12 +127,12 @@ public class ContextPropagationTests
 
         if (testCase.HasBaggage)
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(baggageHeaderSet, Is.True, "Should have a baggage header if there is baggage");
 
                 Assert.That(baggageValue, Is.EqualTo(testCase.BaggageHeaderValueWithoutOptionalWhitespace), "baggage header is set but is not correct");
-            });
+            }
         }
         else
         {

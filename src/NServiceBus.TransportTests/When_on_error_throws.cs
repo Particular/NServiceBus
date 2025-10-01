@@ -54,12 +54,12 @@ public class When_on_error_throws : NServiceBusTransportTest
 
         await retried.Task;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(criticalErrorCalled, Is.True, "Should invoke critical error");
             Assert.That(criticalErrorMessage, Is.EqualTo($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`"));
             Assert.That(criticalErrorException, Is.EqualTo(exceptionFromOnError));
-        });
+        }
 
         var logItemsAboveInfo = LogFactory.LogItems.Where(item => item.Level > LogLevel.Info).Select(log => $"{log.Level}: {log.Message}").ToArray();
         Assert.That(logItemsAboveInfo, Is.Empty, "Transport should not log anything above LogLevel.Info:" + string.Join(Environment.NewLine, logItemsAboveInfo));

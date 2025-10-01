@@ -18,14 +18,14 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
             .Done(c => c.MessageFailed)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Exception.Data.Contains("Message type"), Is.True);
             Assert.That(context.Exception.Data.Contains("Handler type"), Is.True);
             Assert.That(context.Exception.Data.Contains("Handler start time"), Is.True);
             Assert.That(context.Exception.Data.Contains("Handler failure time"), Is.True);
             Assert.That(context.Exception.Data.Contains("Message ID"), Is.True);
-        });
+        }
         // we can't assert for the native message ID as not every transport has uses a different ID internally
     }
 

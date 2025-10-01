@@ -19,12 +19,12 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
         var replyMessage = outgoingMessageActivities[1];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(replyMessage.DisplayName, Is.EqualTo("reply"));
             Assert.That(replyMessage.RootId, Is.EqualTo(outgoingMessageActivities[0].RootId), "reply should belong to same trace as the triggering message");
             Assert.That(replyMessage.ParentId, Is.Not.Null, "reply should have ambient span");
-        });
+        }
 
         replyMessage.VerifyUniqueTags();
     }

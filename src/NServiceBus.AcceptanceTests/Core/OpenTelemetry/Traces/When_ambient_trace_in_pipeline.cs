@@ -24,14 +24,14 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
 
         var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
         var sendFromHandlerActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Last();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sendFromHandlerActivity.ParentId, Is.EqualTo(context.AmbientActivityId), "the outgoing message should be connected to the ambient span");
             Assert.That(sendFromHandlerActivity.RootId, Is.EqualTo(context.AmbientActivityRootId), "outgoing and ambient activity should belong to same trace");
             Assert.That(sendFromHandlerActivity.TraceStateString, Is.EqualTo(ExpectedTraceState), "outgoing activity should capture ambient trace state");
             Assert.That(context.AmbientActivityParentId, Is.EqualTo(handlerActivity.Id), "the ambient activity should be connected to the handler span");
             Assert.That(context.AmbientActivityRootId, Is.EqualTo(handlerActivity.RootId), "handler and ambient activity should belong to same trace");
-        });
+        }
     }
 
     class Context : ScenarioContext

@@ -15,11 +15,11 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.ConversationIdReceived, Is.EqualTo(context.FirstConversationId), "Conversation id should flow to outgoing messages");
             Assert.That(context.RelatedToReceived, Is.EqualTo(context.MessageIdOfFirstMessage), "RelatedToId on outgoing messages should be set to the message id of the message causing it to be sent");
-        });
+        }
     }
 
     public class Context : ScenarioContext

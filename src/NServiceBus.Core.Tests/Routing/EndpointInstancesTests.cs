@@ -64,10 +64,10 @@ public class EndpointInstancesTests
         var salesInstances = instances.FindInstances("Sales");
 
         var singleInstance = salesInstances.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(singleInstance.Discriminator, Is.Null);
             Assert.That(singleInstance.Properties, Is.Empty);
-        });
+        }
     }
 }

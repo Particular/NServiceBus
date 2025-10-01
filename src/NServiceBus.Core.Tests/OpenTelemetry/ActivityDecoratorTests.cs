@@ -53,10 +53,10 @@ public class ActivityDecoratorTests
         var tags = activity.Tags.ToImmutableDictionary();
 
         Assert.That(tags.Count, Is.EqualTo(2), "should only contain approved NServiceBus headers");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(tags["nservicebus.message_id"], Is.EqualTo(headers[Headers.MessageId]));
             Assert.That(tags["nservicebus.control_message"], Is.EqualTo(headers[Headers.ControlMessageHeader]));
-        });
+        }
     }
 }

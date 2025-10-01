@@ -28,22 +28,22 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
         var timeSent = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.TimeSent]);
         var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeOffsetHelper.ToDateTimeOffset(context.FaultHeaders[Headers.TimeSent]);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingStarted));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(processingEnded));
             Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSent));
             Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
-        });
+        }
         Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded), nameof(processingEnded));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(timeSent, Is.LessThanOrEqualTo(timeSentWhenFailedMessageWasSentToTheErrorQueue), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
 
             Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(context.TimeSentOnTheFailingMessageWhenItWasHandled), nameof(timeSentWhenFailedMessageWasSentToTheErrorQueue));
             Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded), nameof(processingStarted));
             Assert.That(context.IsMessageHandledByTheFaultEndpoint, Is.True, nameof(context.IsMessageHandledByTheFaultEndpoint));
-        });
+        }
     }
 
     public class Context : ScenarioContext

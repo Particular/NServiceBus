@@ -26,13 +26,13 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                        && c.ManuallyRegisteredEventHandlerInvoked)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.RegularCommandHandlerInvoked, Is.True);
             Assert.That(context.ManuallyRegisteredCommandHandlerInvoked, Is.True);
             Assert.That(context.RegularEventHandlerInvoked, Is.True);
             Assert.That(context.ManuallyRegisteredEventHandlerInvoked, Is.True);
-        });
+        }
     }
 
     class Context : ScenarioContext

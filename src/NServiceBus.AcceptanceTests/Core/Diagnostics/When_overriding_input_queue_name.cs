@@ -15,11 +15,11 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Done, Is.True);
             Assert.That(context.InputQueue, Does.StartWith("OverriddenInputQueue"));
-        });
+        }
     }
 
     public class MyEndpoint : EndpointConfigurationBuilder

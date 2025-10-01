@@ -24,11 +24,11 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mutator.MutateOutgoingCalled, Is.True);
             Assert.That(otherMutator.MutateOutgoingCalled, Is.True);
-        });
+        }
     }
 
     [Test]
@@ -45,11 +45,11 @@ class MutateOutgoingTransportMessageBehaviorTests
 
         await behavior.Invoke(physicalContext, ctx => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(explicitMutator.MutateOutgoingCalled, Is.True);
             Assert.That(containerMutator.MutateOutgoingCalled, Is.True);
-        });
+        }
     }
 
     [Test]

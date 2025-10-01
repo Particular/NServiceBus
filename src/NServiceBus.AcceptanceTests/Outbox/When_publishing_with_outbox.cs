@@ -55,11 +55,11 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(TimeSpan.FromSeconds(10));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Subscriber1GotTheEvent, Is.True);
             Assert.That(context.Subscriber2GotTheEvent, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

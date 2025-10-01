@@ -30,11 +30,11 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
             .Done(c => c.MessageDelivered >= 1)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ctx.MessageDelivered, Is.EqualTo(1));
             Assert.That(ctx.StrategyCalled, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

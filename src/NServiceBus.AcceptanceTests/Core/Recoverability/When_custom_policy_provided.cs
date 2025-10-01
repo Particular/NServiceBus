@@ -21,12 +21,12 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Configuration.Immediate.MaxNumberOfRetries, Is.EqualTo(MaxImmediateRetries));
             Assert.That(context.Configuration.Delayed.MaxNumberOfRetries, Is.EqualTo(MaxDelayedRetries));
             Assert.That(context.Configuration.Delayed.TimeIncrease, Is.EqualTo(DelayedRetryDelayIncrease));
-        });
+        }
     }
 
     static TimeSpan DelayedRetryDelayIncrease = TimeSpan.FromMinutes(1);

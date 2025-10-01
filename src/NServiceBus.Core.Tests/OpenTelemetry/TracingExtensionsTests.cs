@@ -51,11 +51,11 @@ public class TracingExtensionsTests
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 
         var tags = activity.Tags.ToImmutableDictionary();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
             Assert.That(tags["otel.status_description"], Is.EqualTo(exception.Message));
-        });
+        }
 
         var errorEvent = activity.Events.Single();
         Assert.That(errorEvent.Name, Is.EqualTo("exception"));

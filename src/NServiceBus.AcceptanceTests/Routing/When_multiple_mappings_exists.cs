@@ -18,11 +18,11 @@ public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
             .Done(c => c.WasCalled1 || c.WasCalled2)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.WasCalled1, Is.True);
             Assert.That(context.WasCalled2, Is.False);
-        });
+        }
     }
 
     public class Context : ScenarioContext

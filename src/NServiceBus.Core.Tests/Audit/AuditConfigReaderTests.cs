@@ -14,11 +14,11 @@ public class AuditConfigReaderTests
 
         settingsHolder.Set(new AuditConfigReader.Result(configuredAddress, null));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(settingsHolder.TryGetAuditQueueAddress(out var address), Is.True);
             Assert.That(address, Is.EqualTo(configuredAddress));
-        });
+        }
     }
 
     [Test]
@@ -29,11 +29,11 @@ public class AuditConfigReaderTests
 
         settingsHolder.Set(new AuditConfigReader.Result("someAddress", configuredExpiration));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(settingsHolder.TryGetAuditMessageExpiration(out var expiration), Is.True);
             Assert.That(expiration, Is.EqualTo(configuredExpiration));
-        });
+        }
     }
 
     [Test]

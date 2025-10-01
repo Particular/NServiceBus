@@ -27,11 +27,11 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
             .Done(c => c.ReceivedNonDelayedMessage && c.ReceivedDelayedMessage)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.DelayedMessageDelayed, Is.True, "should delay the message sent with 'DelayDeliveryWith'");
             Assert.That(context.NonDelayedMessageDelayed, Is.False, "should not delay the message sent with default options");
-        });
+        }
     }
 
     class Context : ScenarioContext

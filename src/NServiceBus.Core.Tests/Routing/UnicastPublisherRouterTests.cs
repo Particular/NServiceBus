@@ -69,11 +69,11 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(routes.Count(), Is.EqualTo(1));
             Assert.That(ExtractDestination(routes.Single()), Is.EqualTo("address"));
-        });
+        }
     }
 
     [Test]
@@ -89,11 +89,11 @@ public class UnicastPublisherRouterTests
 
         var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(routes.Count(), Is.EqualTo(1));
             Assert.That(ExtractDestination(routes.First()), Is.EqualTo("address"));
-        });
+        }
     }
 
     [Test]

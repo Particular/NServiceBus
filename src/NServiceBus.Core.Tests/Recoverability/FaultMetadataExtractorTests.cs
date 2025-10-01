@@ -20,7 +20,7 @@ public class FaultMetadataExtractorTests
 
         var metadata = extractor.Extract(CreateErrorContext(exception));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata["NServiceBus.ExceptionInfo.ExceptionType"], Is.EqualTo("System.AggregateException"));
             Assert.That(metadata["NServiceBus.ExceptionInfo.StackTrace"], Is.EqualTo(exception.ToString()));
@@ -30,7 +30,7 @@ public class FaultMetadataExtractorTests
             Assert.That(metadata["NServiceBus.ExceptionInfo.HelpLink"], Is.EqualTo("A fake help link"));
             Assert.That(metadata["NServiceBus.ExceptionInfo.Source"], Is.EqualTo("NServiceBus.Core.Tests"));
             Assert.That(metadata[FaultsHeaderKeys.FailedQ], Is.EqualTo("my-address"));
-        });
+        }
     }
 
     [Test]

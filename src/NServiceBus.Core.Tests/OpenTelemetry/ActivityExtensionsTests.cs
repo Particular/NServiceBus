@@ -14,11 +14,11 @@ public class ActivityExtensionsTests
         ambientActivity.Start();
 
         var contextBag = new ContextBag();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
             Assert.That(activity, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -29,11 +29,11 @@ public class ActivityExtensionsTests
 
         var contextBag = new ContextBag();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
             Assert.That(activity, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -48,10 +48,10 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         contextBag.SetOutgoingPipelineActitvity(recordingActivity);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.True);
             Assert.That(activity, Is.EqualTo(recordingActivity));
-        });
+        }
     }
 }

@@ -44,11 +44,11 @@ public class OutboxStorageTests(TestVariant param)
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.That(message, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.MessageId, Is.EqualTo(messageId));
             Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
-        });
+        }
         Assert.That(message.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
     }
 
