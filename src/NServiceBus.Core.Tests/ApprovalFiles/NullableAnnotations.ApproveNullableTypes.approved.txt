@@ -44,6 +44,7 @@ NServiceBus.Hosting.Helpers.SkippedFile
 NServiceBus.Hosting.HostInformation
 NServiceBus.ICriticalErrorContext
 NServiceBus.IDistributionPolicy
+NServiceBus.IMarshalMessages
 NServiceBus.IMessageConvention
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
