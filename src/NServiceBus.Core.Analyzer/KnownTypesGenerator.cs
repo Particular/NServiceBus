@@ -33,8 +33,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         // Marker source 1: [NServiceBusExtensionPoint] attributes in user's source code
         var markersFromSourceAttributes = context.SyntaxProvider
-            .ForAttributeWithMetadataName(
-                "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute",
+            .ForAttributeWithMetadataName(ExtensionAttributeMetadataName,
                 predicate: (node, token) => true,
                 transform: (syntaxContext, token) =>
                 {
@@ -50,10 +49,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         // Marker source 2: [NServiceBusExtensionPoint] attributes in referenced assemblies
         var markersFromCompilationAttributes = context.CompilationProvider
-            .SelectMany((compilation, cancellationToken) =>
-            {
-                return GetTypesWithExtensionPointAttribute(compilation.GlobalNamespace, cancellationToken);
-            });
+            .SelectMany((compilation, cancellationToken) => GetTypesWithExtensionPointAttribute(compilation, cancellationToken));
 
         // Marker source 3: Built-in marker types (IHandleMessages<T>, Saga<T>, IEvent, ICommand, etc.)
         var builtInMarkers = context.CompilationProvider
@@ -219,7 +215,19 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         sourceProductionContext.AddSource("TypeRegistration.g.cs", sb.ToString());
     }
 
-    static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(INamespaceSymbol ns, CancellationToken cancellationToken)
+    static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(Compilation compilation, CancellationToken cancellationToken)
+    {
+        var attributeType = compilation.GetTypeByMetadataName(ExtensionAttributeMetadataName);
+        if (attributeType is null)
+        {
+            return [];
+        }
+
+        return GetTypesWithExtensionPointAttribute(compilation.GlobalNamespace, attributeType, cancellationToken);
+
+    }
+
+    static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(INamespaceSymbol ns, INamedTypeSymbol attributeType, CancellationToken cancellationToken)
     {
         // Walk all types in this namespace and its children looking for [NServiceBusExtensionPoint]
         foreach (var type in ns.GetTypeMembers())
@@ -227,7 +235,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             cancellationToken.ThrowIfCancellationRequested();
 
             var extensionPointAttr = type.GetAttributes()
-                .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute");
+                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
 
             if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod)
             {
@@ -235,7 +243,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             }
 
             // Recursively search nested types
-            foreach (var nested in GetNestedTypesWithAttribute(type, cancellationToken))
+            foreach (var nested in GetNestedTypesWithAttribute(type, attributeType, cancellationToken))
             {
                 yield return nested;
             }
@@ -244,21 +252,21 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         // Recursively search child namespaces
         foreach (var childNamespace in ns.GetNamespaceMembers())
         {
-            foreach (var markerType in GetTypesWithExtensionPointAttribute(childNamespace, cancellationToken))
+            foreach (var markerType in GetTypesWithExtensionPointAttribute(childNamespace, attributeType, cancellationToken))
             {
                 yield return markerType;
             }
         }
     }
 
-    static IEnumerable<MarkerTypeInfo> GetNestedTypesWithAttribute(INamedTypeSymbol type, CancellationToken cancellationToken)
+    static IEnumerable<MarkerTypeInfo> GetNestedTypesWithAttribute(INamedTypeSymbol type, INamedTypeSymbol attributeType, CancellationToken cancellationToken)
     {
         foreach (var nested in type.GetTypeMembers())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var extensionPointAttr = nested.GetAttributes()
-                .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute");
+                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
 
             if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod)
             {
@@ -266,7 +274,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             }
 
             // Recursively search deeper nested types
-            foreach (var deeperNested in GetNestedTypesWithAttribute(nested, cancellationToken))
+            foreach (var deeperNested in GetNestedTypesWithAttribute(nested, attributeType, cancellationToken))
             {
                 yield return deeperNested;
             }
@@ -346,4 +354,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     }
 
     record struct ScannedTypeInfo(string DisplayName, string RegisterMethod, string? SagaDataType);
+
+    const string ExtensionAttributeMetadataName = "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute";
 }
