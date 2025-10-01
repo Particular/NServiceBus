@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
 
-class MainPipelineExecutor(
+class PipelineExecutor(
     IServiceProvider rootBuilder,
     IPipelineCache pipelineCache,
     MessageOperations messageOperations,
@@ -29,7 +29,8 @@ class MainPipelineExecutor(
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+            var message = new IncomingMessage(messageContext.NativeMessageId, messageContext.Headers,
+                messageContext.Body);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -66,6 +67,7 @@ class MainPipelineExecutor(
                 {
                     incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
                 }
+
                 throw;
             }
             finally
@@ -74,7 +76,9 @@ class MainPipelineExecutor(
             }
 
             var completedAt = DateTimeOffset.UtcNow;
-            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
+            await receivePipelineNotification
+                .Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

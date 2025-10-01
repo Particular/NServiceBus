@@ -12,7 +12,7 @@ using OpenTelemetry.Helpers;
 using Transport;
 
 [TestFixture]
-public class MainPipelineExecutorTests
+public class PipelineExecutorTests
 {
     [Test]
     public async Task Should_share_message_context_extension_values()
@@ -121,9 +121,9 @@ public class MainPipelineExecutorTests
             "receiver",
             new ContextBag());
 
-    static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
+    static PipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
-        var executor = new MainPipelineExecutor(
+        var executor = new PipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
             new TestableMessageOperations(),
