@@ -50,6 +50,13 @@ public class AssemblyScanningTests
 
                        [NServiceBusExtensionPoint("RegisterImportant")]
                        public interface IAmImportantNonCoreType { }
+                       
+                       public class MySaga : Saga<MySagaData>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) { }
+                       }
+                       
+                       public class MySagaData : ContainSagaData { }
                        """;
 
         var (output, _) = GetGeneratedOutput(source);

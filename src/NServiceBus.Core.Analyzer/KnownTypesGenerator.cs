@@ -123,7 +123,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (marker.Symbol is not null && !SymbolEqualityComparer.Default.Equals(type, marker.Symbol) && IsAssignableTo(type, marker.Symbol))
+            if (marker.Symbol is not null && IsFromExtensionPoint(type, marker.Symbol))
             {
                 yield return CreateScannedTypeInfo(type, marker);
             }
@@ -132,24 +132,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
     static ScannedTypeInfo CreateScannedTypeInfo(INamedTypeSymbol type, MarkerTypeInfo marker)
     {
-        string? sagaDataType = null;
-
-        // For sagas, extract the saga data type from Saga<TSagaData>
-        if (marker.RegisterMethod == "RegisterSaga")
-        {
-            var baseType = type.BaseType;
-            while (baseType != null)
-            {
-                if (baseType.OriginalDefinition.ToDisplayString() == "NServiceBus.Saga<TSagaData>")
-                {
-                    sagaDataType = baseType.TypeArguments[0].ToDisplayString();
-                    break;
-                }
-                baseType = baseType.BaseType;
-            }
-        }
-
-        return new ScannedTypeInfo(type.ToDisplayString(), marker.RegisterMethod, sagaDataType);
+        return new ScannedTypeInfo(type.ToDisplayString(), marker.RegisterMethod);
     }
 
     static void GenerateRegistrationCode(SourceProductionContext sourceProductionContext, ImmutableArray<ScannedTypeInfo> matches)
@@ -184,14 +167,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         foreach (var type in matches)
         {
-            if (type.RegisterMethod == "RegisterSaga" && type.SagaDataType != null)
-            {
-                sb.AppendLine($"            //config.{type.RegisterMethod}<{type.DisplayName}, {type.SagaDataType}>();");
-            }
-            else
-            {
-                sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
-            }
+            sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
         }
 
         sb.AppendLine();
@@ -230,7 +206,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         }
 
         return GetTypesWithExtensionPointAttribute(compilation.GlobalNamespace, attributeType, cancellationToken);
-
     }
 
     static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(INamespaceSymbol ns, INamedTypeSymbol attributeType, CancellationToken cancellationToken)
@@ -287,20 +262,19 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         }
     }
 
-    // Customized version that treats IHandleMessages<RealType> the same as IHandleMessages<T>
-    static bool IsAssignableTo(INamedTypeSymbol type, INamedTypeSymbol target)
+    static bool IsFromExtensionPoint(INamedTypeSymbol type, INamedTypeSymbol extensionMarkerType)
     {
-        if (SymbolEqualityComparer.Default.Equals(type, target))
+        if (SymbolEqualityComparer.Default.Equals(type, extensionMarkerType))
         {
-            return true;
+            // We don't want to get IEvent itself
+            return false;
         }
 
-        if (target.TypeKind == TypeKind.Interface)
+        if (extensionMarkerType.TypeKind == TypeKind.Interface)
         {
-            //return type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, target));
             foreach (var iface in type.AllInterfaces)
             {
-                if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, target))
+                if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, extensionMarkerType))
                 {
                     return true;
                 }
@@ -309,11 +283,11 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             return false;
         }
 
-        // walk base types
+        // Walk base types
         var baseType = type.BaseType;
         while (baseType != null)
         {
-            if (SymbolEqualityComparer.Default.Equals(baseType, target))
+            if (SymbolEqualityComparer.Default.Equals(baseType.OriginalDefinition, extensionMarkerType))
             {
                 return true;
             }
@@ -333,14 +307,11 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         new ("NServiceBus.IMessage", "RegisterMessage"),
         new ("NServiceBus.IHandleMessages`1", "RegisterHandler"),
         new ("NServiceBus.Saga`1", "RegisterSaga"),
+        new ("NServiceBus.IContainSagaData", "RegisterSagaData"),
         new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller"),
         new ("NServiceBus.Features.Feature", "RegisterFeature"),
         new ("NServiceBus.INeedInitialization", "RegisterInitializer")
     ];
-
-    record struct BuiltInMarkerInfo(string TypeName, string RegisterMethod);
-
-    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, string RegisterMethod);
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
@@ -359,7 +330,9 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         return type;
     }
 
-    record struct ScannedTypeInfo(string DisplayName, string RegisterMethod, string? SagaDataType);
+    record struct ScannedTypeInfo(string DisplayName, string RegisterMethod);
+    record struct BuiltInMarkerInfo(string TypeName, string RegisterMethod);
+    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, string RegisterMethod);
 
     const string ExtensionAttributeMetadataName = "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute";
 }
