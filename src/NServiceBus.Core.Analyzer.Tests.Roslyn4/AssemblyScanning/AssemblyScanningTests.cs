@@ -22,6 +22,8 @@ public class AssemblyScanningTests
                        using NServiceBus.Features;
                        using NServiceBus.Installation;
                        using NServiceBus.Extensibility;
+                       
+                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(false)]
 
                        namespace UserCode;
                        
@@ -83,7 +85,7 @@ public class AssemblyScanningTests
 
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Source.cs");
         var references = new List<MetadataReference>();
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -99,8 +101,9 @@ public class AssemblyScanningTests
         references.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
         references.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
 
-        var generator = new KnownTypesGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var knownTypesGenerator = new KnownTypesGenerator();
+        var scanningGenerator = new AssemblyScanningGenerator();
+        var driver = CSharpGeneratorDriver.Create(knownTypesGenerator, scanningGenerator);
 
         // Run the generator first to provide the NsbHandlerAttribute
         var initialCompilation = CSharpCompilation.Create("initial", new[] { syntaxTree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -115,11 +118,16 @@ public class AssemblyScanningTests
         }
 
         var generated = outputCompilation.SyntaxTrees
-            .Select(st => st.ToString())
-            .FirstOrDefault(text => text.Contains("namespace NServiceBus.Generated"))
-            ?? string.Empty;
+            .Where(st => st.FilePath != "Source.cs")
+            .Select(st => $"""
+                          {st.FilePath}
+                          -------------
+                          {st}
+                          ========================================================================================
+                          """);
+        string combinedGeneration = string.Join("", generated);
 
-        return (generated, generateDiagnostics);
+        return (combinedGeneration, generateDiagnostics);
     }
 
     static CSharpCompilation Compile(IEnumerable<SyntaxTree> syntaxTrees, IEnumerable<MetadataReference> references)
