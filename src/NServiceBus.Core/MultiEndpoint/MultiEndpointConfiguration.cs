@@ -4,8 +4,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using Configuration.AdvancedExtensibility;
-using Settings;
 
 /// <summary>
 /// Configuration builder for hosting multiple endpoints within the same service collection.

@@ -37,7 +37,7 @@ public static class MultiEndpoint
             var keyedServices = new KeyedServiceCollectionAdapter(serviceCollection, definition.ServiceKey);
             var accessor = new EndpointInstanceAccessor();
 
-            keyedServices.AddSingleton<EndpointInstanceAccessor>(accessor);
+            keyedServices.AddSingleton(accessor);
             keyedServices.AddSingleton(_ => new Lazy<IMessageSession>(() => accessor.Get()));
             keyedServices.AddSingleton<IMessageSession>(_ => accessor.Get());
             keyedServices.AddSingleton<IEndpointInstance>(_ => accessor.Get());
@@ -64,31 +64,17 @@ public static class MultiEndpoint
         return new OwnedServiceProviderMultiEndpointInstance(instance, serviceProvider);
     }
 
-    sealed class EndpointHost
+    sealed class EndpointHost(string endpointName, string serviceKey, EndpointCreator creator, KeyedServiceCollectionAdapter services, EndpointInstanceAccessor accessor)
     {
-        public EndpointHost(string endpointName, string serviceKey, EndpointCreator creator, KeyedServiceCollectionAdapter services, EndpointInstanceAccessor accessor)
-        {
-            EndpointName = endpointName;
-            ServiceKey = serviceKey;
-            EndpointCreator = creator;
-            Services = services;
-            Accessor = accessor;
-        }
-
-        public string EndpointName { get; }
-        public string ServiceKey { get; }
-        public EndpointCreator EndpointCreator { get; }
-        public KeyedServiceCollectionAdapter Services { get; }
-        public EndpointInstanceAccessor Accessor { get; }
+        public string EndpointName { get; } = endpointName;
+        public string ServiceKey { get; } = serviceKey;
+        public EndpointCreator EndpointCreator { get; } = creator;
+        public KeyedServiceCollectionAdapter Services { get; } = services;
+        public EndpointInstanceAccessor Accessor { get; } = accessor;
     }
 
-    sealed class MultiEndpointHost : IStartableMultiEndpointWithExternallyManagedContainer
+    sealed class MultiEndpointHost(IReadOnlyCollection<EndpointHost> endpointHosts) : IStartableMultiEndpointWithExternallyManagedContainer
     {
-        public MultiEndpointHost(IReadOnlyCollection<EndpointHost> endpointHosts)
-        {
-            this.endpointHosts = endpointHosts;
-        }
-
         public async Task<IMultiEndpointInstance> Start(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -133,8 +119,6 @@ public static class MultiEndpoint
                 }
             }
         }
-
-        readonly IReadOnlyCollection<EndpointHost> endpointHosts;
     }
 
     sealed class MultiEndpointInstance : IMultiEndpointInstance
@@ -203,14 +187,9 @@ public static class MultiEndpoint
         int stopped;
     }
 
-    sealed class OwnedServiceProviderMultiEndpointInstance : IMultiEndpointInstance
+    sealed class OwnedServiceProviderMultiEndpointInstance(IMultiEndpointInstance inner, IServiceProvider serviceProvider)
+        : IMultiEndpointInstance
     {
-        public OwnedServiceProviderMultiEndpointInstance(IMultiEndpointInstance inner, IServiceProvider serviceProvider)
-        {
-            this.inner = inner;
-            this.serviceProvider = serviceProvider;
-        }
-
         public IReadOnlyCollection<IMultiEndpointInstance.EndpointInstanceInfo> Endpoints => inner.Endpoints;
         public IEndpointInstance GetByEndpointName(string endpointName) => inner.GetByEndpointName(endpointName);
 
@@ -259,8 +238,6 @@ public static class MultiEndpoint
             }
         }
 
-        readonly IMultiEndpointInstance inner;
-        readonly IServiceProvider serviceProvider;
         int disposed;
     }
 }
