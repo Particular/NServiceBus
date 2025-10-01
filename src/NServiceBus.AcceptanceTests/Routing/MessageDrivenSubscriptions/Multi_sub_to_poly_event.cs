@@ -33,11 +33,11 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
             .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.SubscriberGotIMyEvent, Is.True);
             Assert.That(context.SubscriberGotMyEvent2, Is.True);
-        });
+        }
 
     }
 

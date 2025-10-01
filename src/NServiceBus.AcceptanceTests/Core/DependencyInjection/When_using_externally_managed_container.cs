@@ -29,11 +29,11 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         .Done(c => c.MessageReceived)
         .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ServiceProvider, Is.Not.Null, "IServiceProvider should be injectable");
             Assert.That(result.CustomService, Is.SameAs(myComponent), "Should inject custom services");
-        });
+        }
     }
 
     class Context : ScenarioContext

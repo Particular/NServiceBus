@@ -42,11 +42,11 @@ public class RoutingToDispatchConnectorTests
         Assert.That(operations.ToList(), Has.Count.EqualTo(1));
 
         TransportOperation destination1Operation = operations.ElementAt(0);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(destination1Operation.Message.MessageId, Is.EqualTo("ID"));
             Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
-        });
+        }
         Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
         Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
         Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
@@ -85,11 +85,11 @@ public class RoutingToDispatchConnectorTests
         Assert.That(operations.ToList(), Has.Count.EqualTo(2));
 
         TransportOperation destination1Operation = operations.ElementAt(0);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(destination1Operation.Message.MessageId, Is.EqualTo("ID"));
             Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
-        });
+        }
         Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
         Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
         Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
@@ -100,11 +100,11 @@ public class RoutingToDispatchConnectorTests
         Assert.That(destination1DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
 
         TransportOperation destination2Operation = operations.ElementAt(1);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(destination2Operation.Message.MessageId, Is.EqualTo("ID"));
             Assert.That((destination2Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination2"));
-        });
+        }
         Dictionary<string, string> destination2Headers = destination2Operation.Message.Headers;
         Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
         Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
@@ -112,13 +112,13 @@ public class RoutingToDispatchConnectorTests
         Assert.That(destination2Headers, Is.Not.SameAs(originalHeaders));
         DispatchProperties destination2DispatchProperties = destination2Operation.Properties;
         Assert.That(destination2DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(destination2DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
 
             Assert.That(destination1Headers, Is.Not.SameAs(destination2Headers));
             Assert.That(destination1DispatchProperties, Is.Not.SameAs(destination2DispatchProperties));
-        });
+        }
     }
 
     [Test]
@@ -204,12 +204,12 @@ public class RoutingToDispatchConnectorTests
         await behavior.Invoke(routingContext, _ => Task.CompletedTask);
 
         var contentTypeTag = pipelineActivity.GetTagItem(ActivityTags.ContentType);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(contentTypeTag, Is.EqualTo("test content type"), "should set tags on activity from pipeline context");
 
             Assert.That(ambientActivity.GetTagItem(ActivityTags.ContentType), Is.Null, "should not set tags on Activity.Current");
-        });
+        }
     }
 
     static OutgoingSendContext CreateContext(SendOptions options, bool fromHandler)

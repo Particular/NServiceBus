@@ -17,13 +17,13 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
             .Done(c => c.Done)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.HostId, Is.Not.Null, "Host Id should be included in fault message headers");
             Assert.That(context.HostName, Is.Not.Null, "Host Name should be included in fault message headers");
             Assert.That(context.Endpoint, Is.Not.Null, "Endpoint name should be included in fault message headers.");
             Assert.That(context.Machine, Is.Not.Null, "Machine should be included in fault message headers.");
-        });
+        }
     }
 
     public class Context : ScenarioContext

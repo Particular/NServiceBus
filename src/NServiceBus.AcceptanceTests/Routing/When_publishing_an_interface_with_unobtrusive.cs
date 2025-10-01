@@ -28,11 +28,11 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
             .Done(c => c.GotTheEvent)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.GotTheEvent, Is.True);
             Assert.That(context.EventTypePassedToRouting, Is.EqualTo(typeof(IMyEvent)));
-        });
+        }
     }
 
     public class Context : ScenarioContext

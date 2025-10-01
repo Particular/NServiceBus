@@ -30,13 +30,13 @@ public class FeatureSettingsTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(featureWithTrueCondition.IsActive, Is.True);
             Assert.That(featureWithFalseCondition.IsActive, Is.False);
             Assert.That(featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
                 Is.EqualTo("The description"));
-        });
+        }
     }
 
     [Test]
@@ -58,11 +58,11 @@ public class FeatureSettingsTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(settings.HasSetting("Test1"), Is.False);
             Assert.That(settings.HasSetting("Test2"), Is.False);
-        });
+        }
     }
 
 

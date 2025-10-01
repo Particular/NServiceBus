@@ -14,11 +14,11 @@ public class TransportOperationTest
         var transportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"));
         var secondTransportOperation = new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination2"));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(secondTransportOperation.Properties, Is.Not.SameAs(transportOperation.Properties));
             Assert.That(transportOperation.Properties, Is.Empty);
-        });
+        }
         Assert.That(secondTransportOperation.Properties, Is.Empty);
     }
 }

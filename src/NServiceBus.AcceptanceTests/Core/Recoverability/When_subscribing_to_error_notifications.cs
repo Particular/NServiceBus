@@ -27,7 +27,7 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
             .Done(c => c.MessageSentToError)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.MessageSentToErrorException, Is.InstanceOf<SimulatedException>());
             Assert.That(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), Is.True, "The last exception should be logged as `error` before sending it to the error queue");
@@ -36,7 +36,7 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
             Assert.That(context.TotalNumberOfHandlerInvocations, Is.EqualTo(4 * 3));
             Assert.That(context.TotalNumberOfImmediateRetriesEventInvocations, Is.EqualTo(3 * 3));
             Assert.That(context.NumberOfDelayedRetriesPerformed, Is.EqualTo(2));
-        });
+        }
     }
 
     class Context : ScenarioContext

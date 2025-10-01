@@ -23,11 +23,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mutator.MutateIncomingCalled, Is.True);
             Assert.That(otherMutator.MutateIncomingCalled, Is.True);
-        });
+        }
     }
 
     [Test]
@@ -43,11 +43,11 @@ class MutateIncomingMessageBehaviorTests
 
         await behavior.Invoke(context, ctx => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(explicitMutator.MutateIncomingCalled, Is.True);
             Assert.That(containerMutator.MutateIncomingCalled, Is.True);
-        });
+        }
     }
 
     [Test]

@@ -23,12 +23,12 @@ public class DelayedRetryRecoverabilityActionTests
 
         var routingStrategy = routingContext.RoutingStrategies.Single() as UnicastRoutingStrategy;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That((routingStrategy.Apply([]) as UnicastAddressTag).Destination, Is.EqualTo(recoverabilityContext.ReceiveAddress));
             Assert.That(routingContext.Extensions.Get<DispatchProperties>().DelayDeliveryWith.Delay, Is.EqualTo(delay));
             Assert.That(delayedRetryAction.ErrorHandleResult, Is.EqualTo(ErrorHandleResult.Handled));
-        });
+        }
     }
 
     [Test]
@@ -50,20 +50,20 @@ public class DelayedRetryRecoverabilityActionTests
 
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("3"));
             Assert.That(incomingMessage.Headers[Headers.DelayedRetries], Is.EqualTo(delayedDeliveriesPerformed.ToString()));
-        });
+        }
 
         var utcDateTime = DateTimeOffsetHelper.ToDateTimeOffset(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
         // the serialization removes precision which may lead to now being greater than the deserialized header value
         var adjustedNow = DateTimeOffsetHelper.ToDateTimeOffset(DateTimeOffsetHelper.ToWireFormattedString(now));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
             Assert.That(incomingMessage.Headers[Headers.DelayedRetriesTimestamp], Is.EqualTo(originalHeadersTimestamp));
-        });
+        }
     }
 
     [Test]
@@ -76,13 +76,13 @@ public class DelayedRetryRecoverabilityActionTests
 
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("1"));
             Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
             Assert.That(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp), Is.True);
             Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);
-        });
+        }
     }
 
     static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0)

@@ -13,11 +13,11 @@ public class TimeToBeReceivedAttributeTests
             typeof(InheritedClassWithAttribute)
         }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived), Is.True);
             Assert.That(timeToBeReceived, Is.EqualTo(TimeSpan.FromSeconds(2)));
-        });
+        }
     }
 
     [Test]
@@ -28,11 +28,11 @@ public class TimeToBeReceivedAttributeTests
             typeof(InheritedClassWithNoAttribute)
         }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived), Is.True);
             Assert.That(timeToBeReceived, Is.EqualTo(TimeSpan.FromSeconds(1)));
-        });
+        }
     }
 
     [Test]
@@ -49,11 +49,11 @@ public class TimeToBeReceivedAttributeTests
     {
         var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived), Is.True);
             Assert.That(timeToBeReceived, Is.EqualTo(TimeSpan.FromSeconds(2)));
-        });
+        }
     }
 
     [Test]
@@ -61,11 +61,11 @@ public class TimeToBeReceivedAttributeTests
     {
         var mappings = new TimeToBeReceivedMappings(Array.Empty<Type>(), TimeToBeReceivedMappings.DefaultConvention, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived), Is.True);
             Assert.That(timeToBeReceived, Is.EqualTo(TimeSpan.FromSeconds(1)));
-        });
+        }
     }
 
     [Test]

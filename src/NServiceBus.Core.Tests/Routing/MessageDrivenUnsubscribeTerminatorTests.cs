@@ -53,11 +53,11 @@ public class MessageDrivenUnsubscribeTerminatorTests
 
         await terminator.Invoke(context, c => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(1));
             Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(10));
-        });
+        }
     }
 
     [Test]
@@ -76,11 +76,11 @@ public class MessageDrivenUnsubscribeTerminatorTests
 
         Assert.That(async () => await terminator.Invoke(context, c => Task.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(0));
             Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(11));
-        });
+        }
     }
 
     class FakeDispatcher : IMessageDispatcher

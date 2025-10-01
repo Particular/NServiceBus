@@ -41,11 +41,11 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
             .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.V1SubscriberGotTheMessage, Is.True);
             Assert.That(context.V2SubscriberGotTheMessage, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

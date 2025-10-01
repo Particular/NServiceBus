@@ -19,12 +19,12 @@ public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcc
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains($"No handlers could be found for message type: {typeof(MyCommand).FullName}")), Is.True, "No handlers could be found was not logged.");
             Assert.That(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Message header '{typeof(MyCommand).FullName}' was mapped to type '{typeof(MyCommand).FullName}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode.")), Is.False, "Message type could not be mapped.");
             Assert.That(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Could not determine message type from message header '{typeof(MyCommand).FullName}'")), Is.False, "Message type could not be mapped.");
-        });
+        }
     }
 
     public class Context : ScenarioContext { }

@@ -18,11 +18,11 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
             .Done(c => c.MessageHandled)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.OriginalBehaviorInvoked, Is.False);
             Assert.That(context.ReplacementBehaviorInvoked, Is.True);
-        });
+        }
     }
 
     class Context : ScenarioContext

@@ -40,11 +40,11 @@ public class When_scope_throws_after_successful_message_processing : NServiceBus
 
         var errorContext = await secondFailure.Task;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(errorContext.Exception, Is.InstanceOf<TransactionAbortedException>());
             Assert.That(errorContext.ImmediateProcessingFailures, Is.LessThanOrEqualTo(2));
-        });
+        }
     }
 }
 

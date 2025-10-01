@@ -16,10 +16,10 @@ public class MulticastTransportOperationTest
 
         transportOperation.Properties.DiscardIfNotReceivedBefore = new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(secondTransportOperation.Properties, Is.Empty);
             Assert.That(transportOperation.Properties, Is.Not.Empty);
-        });
+        }
     }
 }

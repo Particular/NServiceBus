@@ -24,11 +24,11 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
             .Done(c => c.HandlerGotTheRequest)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.SerializeCalled, Is.True);
             Assert.That(context.DeserializeCalled, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext

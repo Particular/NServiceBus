@@ -97,7 +97,7 @@ public class JsonMessageSerializerTest
         Assert.That(result[0], Is.TypeOf(typeof(A)));
         var a = (A)result[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(a.Data, Is.EqualTo(obj.Data));
             Assert.That(a.I, Is.EqualTo(23));
@@ -115,7 +115,7 @@ public class JsonMessageSerializerTest
 
             Assert.That(a.Bs[0], Is.InstanceOf<B>());
             Assert.That(a.Bs[1], Is.Not.InstanceOf<BB>());
-        });
+        }
     }
 
     [Test]
@@ -171,19 +171,19 @@ public class JsonMessageSerializerTest
         Assert.That(result[0], Is.AssignableTo(typeof(IA)));
         var a = (IA)result[0];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(obj.Data, Is.EqualTo(a.Data));
             Assert.That(a.I, Is.EqualTo(42));
             Assert.That(a.S, Is.EqualTo("kalle"));
             Assert.That(a.B, Is.Not.Null);
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(a.B.BString, Is.EqualTo("BOO"));
             Assert.That(a.B.C, Is.TypeOf(typeof(JsonElement)));
             Assert.That(((JsonElement)a.B.C).GetProperty("Cstr").GetString(), Is.EqualTo("COO"));
-        });
+        }
 
     }
 
@@ -216,7 +216,7 @@ public class JsonMessageSerializerTest
             typeof(DateTimeMessage)
         ]).Cast<DateTimeMessage>().Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.DateTime.Kind, Is.EqualTo(expectedDateTime.Kind));
             Assert.That(result.DateTime, Is.EqualTo(expectedDateTime));
@@ -226,17 +226,17 @@ public class JsonMessageSerializerTest
             Assert.That(result.DateTimeUtc, Is.EqualTo(expectedDateTimeUtc));
 
             Assert.That(result.DateTimeOffset, Is.EqualTo(expectedDateTimeOffset));
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.DateTimeOffset.Offset, Is.EqualTo(expectedDateTimeOffset.Offset));
             Assert.That(result.DateTimeOffsetLocal, Is.EqualTo(expectedDateTimeOffsetLocal));
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.DateTimeOffsetLocal.Offset, Is.EqualTo(expectedDateTimeOffsetLocal.Offset));
             Assert.That(result.DateTimeOffsetUtc, Is.EqualTo(expectedDateTimeOffsetUtc));
-        });
+        }
         Assert.That(result.DateTimeOffsetUtc.Offset, Is.EqualTo(expectedDateTimeOffsetUtc.Offset));
     }
 

@@ -18,11 +18,11 @@ public class TestableMessageHandlerContextTests
         await context.Send(messageInstance, sendOptions);
 
         Assert.That(context.SentMessages, Has.Length.EqualTo(1));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.SentMessages[0].Message, Is.SameAs(messageInstance));
             Assert.That(context.SentMessages[0].Options, Is.SameAs(sendOptions));
-        });
+        }
     }
 
     [Test]
@@ -45,11 +45,11 @@ public class TestableMessageHandlerContextTests
         await context.Publish(messageInstance, publishOptions);
 
         Assert.That(context.PublishedMessages, Has.Length.EqualTo(1));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.PublishedMessages[0].Message, Is.SameAs(messageInstance));
             Assert.That(context.PublishedMessages[0].Options, Is.SameAs(publishOptions));
-        });
+        }
     }
 
     [Test]
@@ -72,11 +72,11 @@ public class TestableMessageHandlerContextTests
         await context.Reply(messageInstance, publishOptions);
 
         Assert.That(context.RepliedMessages, Has.Length.EqualTo(1));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.RepliedMessages[0].Message, Is.SameAs(messageInstance));
             Assert.That(context.RepliedMessages[0].Options, Is.SameAs(publishOptions));
-        });
+        }
     }
 
     [Test]

@@ -44,12 +44,12 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].StepId, Is.EqualTo("1"));
             Assert.That(model[1].StepId, Is.EqualTo("2"));
             Assert.That(model[2].StepId, Is.EqualTo("3"));
-        });
+        }
     }
 
     [Test]
@@ -64,12 +64,12 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
             Assert.That(model[0].Description, Is.EqualTo("new"));
             Assert.That(model[1].Description, Is.EqualTo("2"));
-        });
+        }
     }
 
     [Test]
@@ -80,11 +80,11 @@ class BehaviorRegistrationsCoordinatorTests
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
         Assert.That(model.Count, Is.EqualTo(1));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
             Assert.That(model[0].Description, Is.EqualTo("new"));
-        });
+        }
     }
 
     [Test]
@@ -97,11 +97,11 @@ class BehaviorRegistrationsCoordinatorTests
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
         Assert.That(model.Count, Is.EqualTo(1));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].BehaviorType.FullName, Is.EqualTo(typeof(ReplacedBehavior).FullName));
             Assert.That(model[0].Description, Is.EqualTo("new"));
-        });
+        }
     }
 
     [Test]
@@ -117,7 +117,7 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].StepId, Is.EqualTo("1"));
             Assert.That(model[1].StepId, Is.EqualTo("1.5"));
@@ -125,7 +125,7 @@ class BehaviorRegistrationsCoordinatorTests
             Assert.That(model[3].StepId, Is.EqualTo("2.5"));
             Assert.That(model[4].StepId, Is.EqualTo("3"));
             Assert.That(model[5].StepId, Is.EqualTo("3.5"));
-        });
+        }
     }
 
     [Test]
@@ -140,14 +140,14 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].StepId, Is.EqualTo("1"));
             Assert.That(model[1].StepId, Is.EqualTo("1.5"));
             Assert.That(model[2].StepId, Is.EqualTo("2"));
             Assert.That(model[3].StepId, Is.EqualTo("2.5"));
             Assert.That(model[4].StepId, Is.EqualTo("3"));
-        });
+        }
     }
 
     [Test]
@@ -163,7 +163,7 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].StepId, Is.EqualTo("1"));
             Assert.That(model[1].StepId, Is.EqualTo("1.5"));
@@ -171,7 +171,7 @@ class BehaviorRegistrationsCoordinatorTests
             Assert.That(model[3].StepId, Is.EqualTo("2.5"));
             Assert.That(model[4].StepId, Is.EqualTo("3"));
             Assert.That(model[5].StepId, Is.EqualTo("3.5"));
-        });
+        }
     }
 
     [Test]
@@ -187,7 +187,7 @@ class BehaviorRegistrationsCoordinatorTests
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(model[0].StepId, Is.EqualTo("1"));
             Assert.That(model[1].StepId, Is.EqualTo("1.1"));
@@ -195,7 +195,7 @@ class BehaviorRegistrationsCoordinatorTests
             Assert.That(model[3].StepId, Is.EqualTo("1.6"));
             Assert.That(model[4].StepId, Is.EqualTo("2"));
             Assert.That(model[5].StepId, Is.EqualTo("3"));
-        });
+        }
     }
 
     [Test]

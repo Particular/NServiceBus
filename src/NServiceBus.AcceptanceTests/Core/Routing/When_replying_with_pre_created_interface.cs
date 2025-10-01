@@ -17,11 +17,11 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
             .Done(c => c.GotTheReply)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.GotTheReply, Is.True);
             Assert.That(context.MessageTypeInPipeline, Is.EqualTo(typeof(IMyReply)));
-        });
+        }
     }
 
     public class Context : ScenarioContext

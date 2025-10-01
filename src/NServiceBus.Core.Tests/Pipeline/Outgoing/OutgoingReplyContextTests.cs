@@ -19,18 +19,18 @@ public class OutgoingReplyContextTests
         testee.Extensions.Set("anotherKey", "anotherValue");
 
         options.Context.TryGet("someKey", out string value);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(value, Is.EqualTo("someValue"));
             Assert.That(options.Context.TryGet("anotherKey", out string _), Is.False);
-        });
+        }
         testee.Extensions.TryGet("someKey", out string updatedValue);
         testee.Extensions.TryGet("anotherKey", out string anotherValue2);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(updatedValue, Is.EqualTo("updatedValue"));
             Assert.That(anotherValue2, Is.EqualTo("anotherValue"));
-        });
+        }
     }
 
     [Test]
@@ -77,19 +77,19 @@ public class OutgoingReplyContextTests
         var innerContext = new OutgoingReplyContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-id", [], innerOptions, parentContext);
 
         var innerOperationProperties = innerContext.GetOperationProperties();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(innerOperationProperties.Get<string>("inner key"), Is.EqualTo("inner value"));
             Assert.That(innerOperationProperties.Get<string>("shared key"), Is.EqualTo("inner shared value"));
             Assert.That(innerOperationProperties.TryGet("outer key", out string _), Is.False);
-        });
+        }
 
         var outerOperationProperties = parentContext.GetOperationProperties();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(outerOperationProperties.Get<string>("outer key"), Is.EqualTo("outer value"));
             Assert.That(outerOperationProperties.Get<string>("shared key"), Is.EqualTo("outer shared value"));
             Assert.That(outerOperationProperties.TryGet("inner key", out string _), Is.False);
-        });
+        }
     }
 }

@@ -19,11 +19,11 @@ public class When_subscriber_has_subscription_migration_mode_enabled : NServiceB
             .Done(c => c.EventReceived)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.EventReceived, Is.True);
             Assert.That(context.Subscriber, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(MigratedSubscriber))));
-        });
+        }
     }
 
     [Test]

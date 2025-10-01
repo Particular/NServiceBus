@@ -30,13 +30,13 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
             .Done(c => c.HandlerGotTheRequest)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.HandlerGotTheRequest, Is.True);
             Assert.That(context.SerializeCalled, Is.True);
             Assert.That(context.DeserializeCalled, Is.True);
             Assert.That(context.ValueFromSettings, Is.EqualTo("SomeFancySettings"));
-        });
+        }
     }
 
     public class Context : ScenarioContext

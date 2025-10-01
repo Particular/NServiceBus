@@ -217,12 +217,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ExtractDestination(route1), Is.EqualTo("Sales-1"));
             Assert.That(ExtractDestination(route2), Is.EqualTo("Sales-2"));
             Assert.That(ExtractDestination(route3), Is.EqualTo("Sales-1"));
-        });
+        }
     }
 
     [Test]
@@ -328,12 +328,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ExtractDestination(route1), Is.EqualTo("Endpoint-2"));
             Assert.That(ExtractDestination(route2), Is.EqualTo("Endpoint-2"));
             Assert.That(ExtractDestination(route3), Is.EqualTo("Endpoint-2"));
-        });
+        }
     }
 
     [Test]
@@ -358,12 +358,12 @@ public class UnicastSendRouterTests
         var route2 = router.Route(context);
         var route3 = router.Route(context);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ExtractDestination(route1), Is.EqualTo("Endpoint-1"));
             Assert.That(ExtractDestination(route2), Is.EqualTo("Endpoint-2"));
             Assert.That(ExtractDestination(route3), Is.EqualTo("Endpoint-1"));
-        });
+        }
     }
 
     [Test]

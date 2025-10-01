@@ -23,11 +23,11 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
         Assert.That(context.EndpointsStarted, Is.True, "because it should not prevent endpoint startup");
 
         var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to an event:"));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(log.Level, Is.EqualTo(LogLevel.Error));
             Assert.That(log.LoggerName, Is.EqualTo(typeof(AutoSubscribe).FullName));
-        });
+        }
         Assert.That(log.Message, Does.Contain($"No publisher address could be found for message type '{typeof(MyEvent).FullName}'."));
     }
 

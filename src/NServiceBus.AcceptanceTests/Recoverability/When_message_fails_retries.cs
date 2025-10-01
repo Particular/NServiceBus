@@ -21,12 +21,12 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
 
         var testContext = (Context)exception.ScenarioContext;
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.FailedMessage.Headers[Headers.EnclosedMessageTypes], Is.EqualTo(typeof(MessageWhichFailsRetries).AssemblyQualifiedName));
             Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(testContext.PhysicalMessageId));
             Assert.That(exception.FailedMessage.Exception, Is.AssignableFrom<SimulatedException>());
-        });
+        }
 
         Assert.That(testContext.Logs.Count(l => l.Message
             .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")), Is.EqualTo(1));

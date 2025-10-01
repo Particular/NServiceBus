@@ -20,22 +20,22 @@ public class RollingLoggerTests
         };
         logger1.WriteLine("Foo");
         var files1 = tempPath.GetFiles();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(files1, Has.Count.EqualTo(1));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files1.First()), Is.EqualTo($"Foo{Environment.NewLine}"));
-        });
+        }
         var logger2 = new RollingLogger(tempPath.TempDirectory)
         {
             GetDate = () => dateTime
         };
         logger2.WriteLine("Bar");
         var files2 = tempPath.GetFiles();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(files2, Has.Count.EqualTo(1));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files2.First()), Is.EqualTo($"Foo{Environment.NewLine}Bar{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -118,18 +118,18 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(2));
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files.First()), Is.EqualTo($"Some long text{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -151,18 +151,18 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(2));
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(files.First()), Is.EqualTo($"Foo{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -201,18 +201,18 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(2));
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Some long text{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -256,18 +256,18 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(2));
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Foo{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Bar{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -321,25 +321,25 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(3), "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-01_2.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Long text2{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-01_3.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Long text3{Environment.NewLine}"));
-        });
+        }
 
         var third = files[2];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(third), Is.EqualTo("nsb_log_2010-10-01_4.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(third), Is.EqualTo($"Long text4{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]
@@ -363,25 +363,25 @@ public class RollingLoggerTests
         Assert.That(files, Has.Count.EqualTo(3), "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
         var first = files[0];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(first), Is.EqualTo("nsb_log_2010-10-03_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(first), Is.EqualTo($"Foo3{Environment.NewLine}"));
-        });
+        }
 
         var second = files[1];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(second), Is.EqualTo("nsb_log_2010-10-04_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(second), Is.EqualTo($"Foo4{Environment.NewLine}"));
-        });
+        }
 
         var third = files[2];
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Path.GetFileName(third), Is.EqualTo("nsb_log_2010-10-05_0.txt"));
             Assert.That(NonLockingFileReader.ReadAllTextWithoutLocking(third), Is.EqualTo($"Foo5{Environment.NewLine}"));
-        });
+        }
     }
 
     [Test]

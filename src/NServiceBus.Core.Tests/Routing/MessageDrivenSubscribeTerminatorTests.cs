@@ -35,11 +35,11 @@ public class MessageDrivenSubscribeTerminatorTests
             var unicastTransportOperations = dispatchedTransportOperation.UnicastTransportOperations;
             var operations = new List<UnicastTransportOperation>(unicastTransportOperations);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(operations[0].Message.Headers.ContainsKey(Headers.TimeSent), Is.True);
                 Assert.That(operations[0].Message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
-            });
+            }
         }
     }
 
@@ -67,11 +67,11 @@ public class MessageDrivenSubscribeTerminatorTests
 
         await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(1));
             Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(10));
-        });
+        }
     }
 
     [Test]
@@ -88,11 +88,11 @@ public class MessageDrivenSubscribeTerminatorTests
             await subscribeTerminator.Invoke(context, c => Task.CompletedTask);
         }, Throws.InstanceOf<QueueNotFoundException>());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dispatcher.DispatchedTransportOperations.Count, Is.EqualTo(0));
             Assert.That(dispatcher.FailedNumberOfTimes, Is.EqualTo(11));
-        });
+        }
     }
 
     [Test]
@@ -151,11 +151,11 @@ public class MessageDrivenSubscribeTerminatorTests
         var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
 
         Assert.That(exception.InnerExceptions.Count, Is.EqualTo(2));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.InnerExceptions.Any(e => e is QueueNotFoundException), Is.True); // exception from dispatcher
             Assert.That(exception.InnerExceptions.Any(e => e.Message.Contains($"No publisher address could be found for message type '{typeof(EventB)}'")), Is.True); // exception from terminator
-        });
+        }
     }
 
 

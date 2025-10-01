@@ -53,12 +53,12 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         var discard = operationProperties.DiscardIfNotReceivedBefore;
         Assert.That(discard, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(discard.MaxTime, Is.EqualTo(maxTime));
 
             Assert.That(fakeOutbox.StoredMessage, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -79,11 +79,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
         Assert.That(routing, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(routing.Destination, Is.EqualTo("myEndpoint"));
             Assert.That(fakeOutbox.StoredMessage, Is.Null);
-        });
+        }
     }
 
 
@@ -108,11 +108,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
         Assert.That(routing, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(routing.MessageType, Is.EqualTo(typeof(MyEvent)));
             Assert.That(fakeOutbox.StoredMessage, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -169,11 +169,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(pipelineActivity.Events.Count(e => e.Name == "Start dispatching"), Is.EqualTo(0));
             Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(0));
-        });
+        }
     }
 
     static TestableTransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)

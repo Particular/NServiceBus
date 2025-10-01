@@ -20,11 +20,11 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ctx.SendingEndpointGotResponse, Is.True);
             Assert.That(ctx.OtherEndpointGotResponse, Is.False);
-        });
+        }
     }
 
     [Test]
@@ -56,11 +56,11 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             .Done(c => c.OtherEndpointGotResponse)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ctx.OtherEndpointGotResponse, Is.True);
             Assert.That(ctx.SendingEndpointGotResponse, Is.False);
-        });
+        }
     }
 
     public class Context : ScenarioContext

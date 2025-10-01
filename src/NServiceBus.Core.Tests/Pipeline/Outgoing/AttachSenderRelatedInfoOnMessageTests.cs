@@ -32,11 +32,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             {Headers.TimeSent, timeSent}
         });
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
             Assert.That(message.Headers[Headers.TimeSent], Is.EqualTo(timeSent));
-        });
+        }
     }
 
     [Test]
@@ -56,11 +56,11 @@ public class AttachSenderRelatedInfoOnMessageTests
              {Headers.NServiceBusVersion, nsbVersion}
         });
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.Headers.ContainsKey(Headers.NServiceBusVersion), Is.True);
             Assert.That(message.Headers[Headers.NServiceBusVersion], Is.EqualTo(nsbVersion));
-        });
+        }
     }
 
     [Test]
@@ -83,11 +83,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             DoNotDeliverBefore = new DoNotDeliverBefore(doNotDeliverBefore)
         });
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
             Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
-        });
+        }
     }
 
     [Test]
@@ -102,11 +102,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(2))
         });
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
             Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
-        });
+        }
     }
 
     static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)

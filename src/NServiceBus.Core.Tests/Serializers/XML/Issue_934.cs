@@ -27,11 +27,11 @@ public class Issue_934
             messageDeserialized = serializer.Deserialize(stream.ToArray(), new[] { message.GetType() });
         }
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(((TestMessageWithChar)messageDeserialized[0]).InvalidCharacter, Is.EqualTo(message.InvalidCharacter));
             Assert.That(((TestMessageWithChar)messageDeserialized[0]).ValidCharacter, Is.EqualTo(message.ValidCharacter));
-        });
+        }
     }
 
     public class TestMessageWithChar : IMessage

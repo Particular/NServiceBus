@@ -47,25 +47,25 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test");
             Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are sent as part of this test");
-        });
+        }
 
         var sendRequest = outgoingMessageActivities[0];
         var receiveRequest = incomingMessageActivities[0];
         var sendReply = outgoingMessageActivities[1];
         var receiveReply = incomingMessageActivities[1];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
             Assert.That(receiveRequest.ParentId, Is.Null, "first incoming message does not have a parent, it's a root");
             Assert.That(sendReply.RootId, Is.Not.EqualTo(sendRequest.RootId), "first send operation is different than the root activity of the reply");
             Assert.That(receiveReply.ParentId, Is.EqualTo(sendReply.Id), "second incoming message is correlated to the second send operation");
             Assert.That(receiveReply.RootId, Is.EqualTo(sendReply.RootId), "second incoming message is the root activity");
-        });
+        }
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
@@ -85,24 +85,24 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test (2 attempts)");
             Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message sent as part of this test");
-        });
+        }
 
         var sendRequest = outgoingMessageActivities[0];
         var firstAttemptReceiveRequest = incomingMessageActivities[0];
         var secondAttemptReceiveRequest = incomingMessageActivities[1];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(firstAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
             Assert.That(firstAttemptReceiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
 
             Assert.That(secondAttemptReceiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and 2nd receive operations are part of different root activities");
             Assert.That(secondAttemptReceiveRequest.ParentId, Is.Null, "first incoming message does not have a parent, it's a root");
-        });
+        }
         ActivityLink link = secondAttemptReceiveRequest.Links.FirstOrDefault();
         Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
@@ -119,11 +119,11 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(incomingMessageActivities, Has.Count.EqualTo(3), "3 messages are received as part of this test");
             Assert.That(outgoingMessageActivities, Has.Count.EqualTo(3), "3 messages are sent as part of this test");
-        });
+        }
 
         var startSagaSend = outgoingMessageActivities[0];
         var startSagaReceive = incomingMessageActivities[0];
@@ -132,7 +132,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var completeSagaSend = outgoingMessageActivities[2];
         var completeSagaReceive = incomingMessageActivities[2];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(startSagaReceive.RootId, Is.EqualTo(startSagaSend.RootId), "send start saga operation is the root activity of the receive start saga operation");
             Assert.That(startSagaReceive.ParentId, Is.EqualTo(startSagaSend.Id), "start saga receive operation is child of the start saga send operation");
@@ -140,17 +140,17 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
             Assert.That(timeoutReceive.RootId, Is.Not.EqualTo(timeoutSend.RootId), "timeout send and receive operations are part of different root activities");
             Assert.That(timeoutReceive.ParentId, Is.Null, "timeout receive operation does not have a parent, it's a root");
-        });
+        }
         ActivityLink timeoutReceiveLink = timeoutReceive.Links.FirstOrDefault();
         Assert.That(timeoutReceiveLink, Is.Not.EqualTo(default(ActivityLink)), "timeout receive operation is linked");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(timeoutReceiveLink.Context.TraceId, Is.EqualTo(timeoutSend.TraceId), "imeout receive operation links to the timeout send operation");
 
             Assert.That(completeSagaSend.RootId, Is.EqualTo(timeoutReceive.RootId), "timeout receive operation is the root of the complete saga send operation");
             Assert.That(completeSagaReceive.RootId, Is.EqualTo(timeoutReceive.RootId), "timeout receive operation is the root of the complete saga receive operation");
             Assert.That(completeSagaReceive.ParentId, Is.EqualTo(completeSagaSend.Id), "complete saga send operation is the parent of the complete saga receive operation");
-        });
+        }
     }
 
     class Context : ScenarioContext

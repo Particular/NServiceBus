@@ -38,7 +38,7 @@ public class MessageOperationsTests
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -48,7 +48,7 @@ public class MessageOperationsTests
             Assert.That(activity.DisplayName, Is.EqualTo("send message"));
 
             Assert.That(operations.SendPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
-        });
+        }
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class MessageOperationsTests
         await operations.Publish(new FakeRootContext(), new object(), new PublishOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -74,7 +74,7 @@ public class MessageOperationsTests
             Assert.That(activity.DisplayName, Is.EqualTo("publish event"));
 
             Assert.That(operations.PublishPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
-        });
+        }
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class MessageOperationsTests
         await operations.Reply(new FakeRootContext(), new object(), new ReplyOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -100,7 +100,7 @@ public class MessageOperationsTests
             Assert.That(activity.DisplayName, Is.EqualTo("reply"));
 
             Assert.That(operations.ReplyPipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
-        });
+        }
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class MessageOperationsTests
         await operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -126,7 +126,7 @@ public class MessageOperationsTests
             Assert.That(activity.DisplayName, Is.EqualTo("subscribe event"));
 
             Assert.That(operations.SubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
-        });
+        }
     }
 
     [Test]
@@ -142,7 +142,7 @@ public class MessageOperationsTests
         await operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
@@ -152,7 +152,7 @@ public class MessageOperationsTests
             Assert.That(activity.DisplayName, Is.EqualTo("unsubscribe event"));
 
             Assert.That(operations.UnsubscribePipeline.LastContext.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.EqualTo(activity));
-        });
+        }
     }
 
     [Test]
@@ -170,11 +170,11 @@ public class MessageOperationsTests
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
         var tags = activity.Tags.ToImmutableDictionary();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
             Assert.That(tags["otel.status_description"], Is.EqualTo(ex.Message));
-        });
+        }
     }
 
     [Test]
@@ -195,11 +195,11 @@ public class MessageOperationsTests
         await operations.Send(new FakeRootContext(), new object(), new SendOptions());
 
         Assert.That(activity, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
             Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id));
             Assert.That(activity.TraceId, Is.Not.EqualTo(ambientActivity.TraceId));
-        });
+        }
     }
 }

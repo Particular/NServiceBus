@@ -21,7 +21,7 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
 
         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.ResolvedAddress, Is.EqualTo("SomeAddress"));
             Assert.That(context.ReceiveAddresses.MainReceiveAddress, Is.EqualTo(endpointName));
@@ -29,7 +29,7 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
             Assert.That(context.ReceiveAddresses.SatelliteReceiveAddresses.Single(), Is.EqualTo("MySatellite"));
             Assert.That(context.LocalQueueAddress.ToString(), Is.EqualTo(endpointName));
             Assert.That(context.InstanceSpecificQueueAddress.ToString(), Is.EqualTo(endpointName + "-MyInstance"));
-        });
+        }
     }
 
     class Context : ScenarioContext

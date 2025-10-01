@@ -21,11 +21,11 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
             .Done(c => c.TimeoutReceived)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.TimeoutReceived, Is.True);
             Assert.That(context.HandlerCalled, Is.EqualTo(1));
-        });
+        }
     }
 
     public class Context : ScenarioContext

@@ -30,11 +30,11 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
             .Done(c => c.PlacedSagaId != Guid.Empty && c.BilledSagaId != Guid.Empty)
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.PlacedSagaId, Is.Not.EqualTo(Guid.Empty));
             Assert.That(context.BilledSagaId, Is.Not.EqualTo(Guid.Empty));
-        });
+        }
         Assert.That(context.BilledSagaId, Is.EqualTo(context.PlacedSagaId), "Both messages should have been handled by the same saga, but SagaIds don't match.");
     }
 

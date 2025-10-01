@@ -28,11 +28,11 @@ public class OutgoingLogicalMessageContextTests
 
         context.UpdateMessage(newMessage);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
             Assert.That(((IMyMessage)context.Message.Instance).Id, Is.EqualTo(newMessageId));
-        });
+        }
     }
 
     [Test]
