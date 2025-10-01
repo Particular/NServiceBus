@@ -1,9 +1,11 @@
 namespace NServiceBus.Core.Tests.Hosting;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
+using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]
@@ -27,10 +29,15 @@ public class MultiEndpointTests
         MultiEndpoint.Create(services, configuration =>
         {
             var sales = configuration.AddEndpoint("Sales");
+
+            sales.TypesToScanInternal([]);
+            sales.UseSerialization<SystemJsonSerializer>();
             sales.UseTransport(new LearningTransport());
             sales.SendOnly();
 
-            var shipping = configuration.AddEndpoint("Shipping");
+            var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
+            shipping.TypesToScanInternal([]);
+            shipping.UseSerialization<SystemJsonSerializer>();
             shipping.UseTransport(new LearningTransport());
             shipping.SendOnly();
         });
