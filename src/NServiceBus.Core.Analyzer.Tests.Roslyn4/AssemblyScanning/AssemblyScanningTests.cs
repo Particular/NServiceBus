@@ -48,7 +48,7 @@ public class AssemblyScanningTests
 
                        public class DownstreamSpecificType : IAmImportantNonCoreType { }
 
-                       [NServiceBusExtensionPoint("RegisterImportant")]
+                       [NServiceBusExtensionPoint("RegisterImportant", true)]
                        public interface IAmImportantNonCoreType { }
                        
                        public class MySaga : Saga<MySagaData>
@@ -116,7 +116,7 @@ public class AssemblyScanningTests
 
         var generated = outputCompilation.SyntaxTrees
             .Select(st => st.ToString())
-            .FirstOrDefault(text => text.Contains("namespace NServiceBus.Generated") && text.Contains("public static class TypeRegistration"))
+            .FirstOrDefault(text => text.Contains("namespace NServiceBus.Generated"))
             ?? string.Empty;
 
         return (generated, generateDiagnostics);
