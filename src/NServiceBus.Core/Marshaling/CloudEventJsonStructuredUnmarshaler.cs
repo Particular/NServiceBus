@@ -20,7 +20,7 @@
             return new IncomingMessage(id, headers, body);
         }
 
-        ReadOnlyMemory<byte> ExtractBody(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBody(JsonObject receivedCloudEvent)
         {
             if (receivedCloudEvent.ContainsKey("data_base64"))
             {
@@ -32,9 +32,9 @@
             }
         }
 
-        ReadOnlyMemory<byte> ExtractBodyFromProperty(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBodyFromProperty(JsonObject receivedCloudEvent)
         {
-            if(receivedCloudEvent["datacontenttype"].GetValue<string>()!.EndsWith("json"))
+            if (receivedCloudEvent["datacontenttype"].GetValue<string>()!.EndsWith("json"))
             {
                 return new ReadOnlyMemory<byte>(
                     Encoding.UTF8.GetBytes(JsonSerializer.Serialize(receivedCloudEvent["data"])));
@@ -46,7 +46,7 @@
             }
         }
 
-        ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonObject receivedCloudEvent)
         {
             return new ReadOnlyMemory<byte>(Convert.FromBase64String(receivedCloudEvent["data_base64"].GetValue<string>()));
         }
