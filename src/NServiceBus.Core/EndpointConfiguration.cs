@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
+using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
@@ -31,6 +32,7 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
+        Settings.Set(new FeatureComponent.Settings(Settings));
         Settings.Set(new HostingComponent.Settings(Settings));
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
@@ -38,6 +40,25 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.Set(new RecoverabilityComponent.Configuration());
         Settings.Set(new ConsecutiveFailuresConfiguration());
         Settings.Set(Pipeline = new PipelineSettings(Settings));
+
+        Settings.EnableFeatureByDefault<RootFeature>();
+        Settings.EnableFeatureByDefault<MessageCausation>();
+        Settings.EnableFeatureByDefault<MessageCorrelation>();
+        Settings.EnableFeatureByDefault<AutoCorrelationFeature>();
+        Settings.EnableFeatureByDefault<ReceiveStatisticsFeature>();
+        Settings.EnableFeatureByDefault<Mutators>();
+        Settings.EnableFeatureByDefault<MessageDrivenSubscriptions>();
+        Settings.EnableFeatureByDefault<TimeToBeReceived>();
+        Settings.EnableFeatureByDefault<Features.Audit>();
+        Settings.EnableFeatureByDefault<DelayedDeliveryFeature>();
+        Settings.EnableFeatureByDefault<LicenseReminder>();
+        Settings.EnableFeatureByDefault<Features.Sagas>();
+        Settings.EnableFeatureByDefault<SerializationFeature>();
+        Settings.EnableFeatureByDefault<SubscriptionMigrationMode>();
+        Settings.EnableFeatureByDefault<StaticHeaders>();
+        Settings.EnableFeatureByDefault<PlatformRetryNotifications>();
+        Settings.EnableFeatureByDefault<InferredMessageTypeEnricherFeature>();
+        Settings.EnableFeatureByDefault<NativePublishSubscribeFeature>();
 
         ConventionsBuilder = new ConventionsBuilder(Settings);
     }

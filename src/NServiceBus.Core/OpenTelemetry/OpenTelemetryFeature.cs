@@ -2,7 +2,7 @@ namespace NServiceBus;
 
 using Features;
 
-class OpenTelemetryFeature : Feature
+sealed class OpenTelemetryFeature : Feature
 {
     protected internal override void Setup(FeatureConfigurationContext context)
     {

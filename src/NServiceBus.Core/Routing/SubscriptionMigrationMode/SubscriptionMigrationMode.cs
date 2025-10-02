@@ -6,7 +6,7 @@ using Transport;
 using Unicast.Messages;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-class SubscriptionMigrationMode : Feature
+sealed class SubscriptionMigrationMode : Feature
 {
     public SubscriptionMigrationMode()
     {

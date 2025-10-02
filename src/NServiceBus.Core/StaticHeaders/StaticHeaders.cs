@@ -2,7 +2,7 @@
 
 using Features;
 
-class StaticHeaders : Feature
+sealed class StaticHeaders : Feature
 {
     public StaticHeaders()
     {

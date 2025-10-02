@@ -3,12 +3,9 @@
 using System.Collections.Generic;
 using MessageMutator;
 
-class Mutators : Feature
+sealed class Mutators : Feature
 {
-    public Mutators()
-    {
-        EnableByDefault();
-    }
+    public Mutators() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {
