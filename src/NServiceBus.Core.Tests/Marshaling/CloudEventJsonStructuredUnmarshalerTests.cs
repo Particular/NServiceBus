@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Text;
 using System.Text.Json;
-using NServiceBus.Marshaling;
+using NServiceBus;
 using Testing;
 using Transport;
 
