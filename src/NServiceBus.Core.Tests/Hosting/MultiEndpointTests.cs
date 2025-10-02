@@ -69,7 +69,7 @@ public class MultiEndpointTests
             sales.UseTransport(new LearningTransport());
 
             var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
-            shipping.TypesToScanInternal([]);
+            shipping.TypesToScanInternal([typeof(MySalesEventHandler)]);
             shipping.UseSerialization<SystemJsonSerializer>();
             shipping.UseTransport(new LearningTransport());
         });
@@ -78,12 +78,14 @@ public class MultiEndpointTests
         await startable.Start(serviceProvider);
 
         var salesSession = serviceProvider.GetKeyedService<IMessageSession>("Sales");
-
-        await salesSession.SendLocal(new MySalesCommand { Message = "Hello from sales" });
-
         var shippingSession = serviceProvider.GetKeyedService<IMessageSession>("Shipping");
 
+        await salesSession.SendLocal(new MySalesCommand { Message = "Hello from sales" });
+        await shippingSession.SendLocal(new MySalesCommand { Message = "Should result in no handlers found" });
         await shippingSession.Send("Sales", new MySalesCommand { Message = "Hello from shipping" });
+
+        await salesSession.Publish(new MySalesEvent());
+
 
         await Task.Delay(TimeSpan.FromSeconds(3));
     }
@@ -93,11 +95,24 @@ public class MultiEndpointTests
         public string Message { get; set; }
     }
 
+    public class MySalesEvent : IEvent
+    {
+    }
+
     class MySalesCommandHandler : IHandleMessages<MySalesCommand>
     {
         public Task Handle(MySalesCommand message, IMessageHandlerContext context)
         {
             Console.WriteLine(message.Message);
+            return Task.CompletedTask;
+        }
+    }
+
+    class MySalesEventHandler : IHandleMessages<MySalesEvent>
+    {
+        public Task Handle(MySalesEvent message, IMessageHandlerContext context)
+        {
+            Console.WriteLine("Got the my sales event");
             return Task.CompletedTask;
         }
     }

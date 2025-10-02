@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 class KeyedServiceCollectionAdapter : IServiceCollection
@@ -161,86 +160,4 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     readonly object serviceKey;
     readonly List<ServiceDescriptor> descriptors = [];
     readonly HashSet<Type> serviceTypes = [];
-}
-
-class KeyedServiceProviderAdapter : IServiceProvider
-{
-    public KeyedServiceProviderAdapter(IServiceProvider inner, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
-    {
-        ArgumentNullException.ThrowIfNull(inner);
-        ArgumentNullException.ThrowIfNull(serviceKey);
-        ArgumentNullException.ThrowIfNull(serviceCollection);
-
-        this.inner = inner;
-        this.serviceKey = serviceKey;
-        this.serviceCollection = serviceCollection;
-    }
-
-    public object? GetService(Type serviceType)
-    {
-        ArgumentNullException.ThrowIfNull(serviceType);
-
-        if (serviceType == typeof(IServiceScopeFactory))
-        {
-            var scopeFactory = inner.GetService<IServiceScopeFactory>();
-            if (scopeFactory != null)
-            {
-                return new KeyedServiceScopeFactory(scopeFactory, serviceKey, serviceCollection);
-            }
-        }
-
-        var keyed = ServiceProviderKeyedServiceExtensions.GetKeyedService(inner, serviceType, serviceKey);
-        if (keyed != null)
-        {
-            return keyed;
-        }
-
-        if (serviceCollection.ContainsService(serviceType))
-        {
-            return keyed;
-        }
-
-        return inner.GetService(serviceType);
-    }
-
-    readonly IServiceProvider inner;
-    readonly object serviceKey;
-    readonly KeyedServiceCollectionAdapter serviceCollection;
-}
-
-class KeyedServiceScopeFactory(IServiceScopeFactory innerFactory, object serviceKey, KeyedServiceCollectionAdapter serviceCollection) : IServiceScopeFactory
-{
-    public IServiceScope CreateScope()
-    {
-        var innerScope = innerFactory.CreateScope();
-        return new KeyedServiceScope(innerScope, serviceKey, serviceCollection);
-    }
-
-    class KeyedServiceScope : IServiceScope, IAsyncDisposable
-    {
-        public KeyedServiceScope(IServiceScope innerScope, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
-        {
-            ArgumentNullException.ThrowIfNull(innerScope);
-
-            this.innerScope = innerScope;
-            ServiceProvider = new KeyedServiceProviderAdapter(innerScope.ServiceProvider, serviceKey, serviceCollection);
-        }
-
-        public IServiceProvider ServiceProvider { get; }
-
-        public void Dispose() => innerScope.Dispose();
-
-        public ValueTask DisposeAsync()
-        {
-            if (innerScope is IAsyncDisposable asyncDisposable)
-            {
-                return asyncDisposable.DisposeAsync();
-            }
-
-            innerScope.Dispose();
-            return ValueTask.CompletedTask;
-        }
-
-        readonly IServiceScope innerScope;
-    }
 }
