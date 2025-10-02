@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Marshaling
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
