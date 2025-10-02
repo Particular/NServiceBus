@@ -10,6 +10,10 @@
 
     class CloudEventJsonStructuredUnmarshaler : IUnmarshalMessages
     {
+        static readonly JsonSerializerOptions options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
         public IncomingMessage CreateIncomingMessage(MessageContext messageContext)
         {
             JsonObject receivedCloudEvent = DeserializeOrThrow(messageContext);
@@ -76,13 +80,6 @@
         JsonObject DeserializeOrThrow(MessageContext messageContext)
         {
             ThrowIfInvalidMessage(messageContext);
-
-            JsonSerializerOptions options = new()
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-
             var receivedCloudEvent = JsonSerializer.Deserialize<JsonObject>(messageContext.Body.Span, options);
 
             ThrowIfInvalidCloudEvent(receivedCloudEvent);
