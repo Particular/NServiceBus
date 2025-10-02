@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner;
 
 using System.Linq;
-using Hosting.Helpers;
+using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]
