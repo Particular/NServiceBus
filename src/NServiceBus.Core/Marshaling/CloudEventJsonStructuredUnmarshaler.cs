@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using System.Text.Json;
-    using System.Text.Json.Nodes;
     using Transport;
 
     class CloudEventJsonStructuredUnmarshaler : IUnmarshalMessages
@@ -16,7 +15,7 @@
         };
         public IncomingMessage CreateIncomingMessage(MessageContext messageContext)
         {
-            JsonObject receivedCloudEvent = DeserializeOrThrow(messageContext);
+            JsonDocument receivedCloudEvent = DeserializeOrThrow(messageContext);
             var headers = ExtractHeaders(receivedCloudEvent);
             var body = ExtractBody(receivedCloudEvent);
             string id = ExtractId(receivedCloudEvent);
@@ -24,9 +23,9 @@
             return new IncomingMessage(id, headers, body);
         }
 
-        static ReadOnlyMemory<byte> ExtractBody(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBody(JsonDocument receivedCloudEvent)
         {
-            if (receivedCloudEvent.ContainsKey("data_base64"))
+            if (receivedCloudEvent.RootElement.TryGetProperty("data_base64", out _))
             {
                 return ExtractBodyFromBase64(receivedCloudEvent);
             }
@@ -36,38 +35,41 @@
             }
         }
 
-        static ReadOnlyMemory<byte> ExtractBodyFromProperty(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBodyFromProperty(JsonDocument receivedCloudEvent)
         {
-            if (receivedCloudEvent["datacontenttype"].GetValue<string>()!.EndsWith("json"))
+            if (receivedCloudEvent.RootElement.TryGetProperty("datacontenttype", out var property)
+                && property.GetString()!.EndsWith("json"))
             {
                 return new ReadOnlyMemory<byte>(
-                    Encoding.UTF8.GetBytes(JsonSerializer.Serialize(receivedCloudEvent["data"])));
+                    Encoding.UTF8.GetBytes(receivedCloudEvent.RootElement.GetProperty("data").GetRawText()));
             }
-            else
+            else 
             {
                 return new ReadOnlyMemory<byte>(
-                    Encoding.UTF8.GetBytes(receivedCloudEvent["data"].GetValue<string>()));
+                    Encoding.UTF8.GetBytes(receivedCloudEvent.RootElement.GetProperty("data").GetString()!));
             }
         }
 
-        static ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonObject receivedCloudEvent)
+        static ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonDocument receivedCloudEvent)
         {
-            return new ReadOnlyMemory<byte>(Convert.FromBase64String(receivedCloudEvent["data_base64"].GetValue<string>()));
+            return new ReadOnlyMemory<byte>(Convert.FromBase64String(receivedCloudEvent.RootElement.GetProperty("data_base64").GetString()!));
         }
 
-        static Dictionary<string, string> ExtractHeaders(JsonObject receivedCloudEvent)
+        static Dictionary<string, string> ExtractHeaders(JsonDocument receivedCloudEvent)
         {
             var propertiesToIgnore = new[] { "data", "data_base64" };
 
             return receivedCloudEvent
-                .Where(p => !propertiesToIgnore.Contains(p.Key))
-                .Where(p => p.Value is not null)
-                .ToDictionary(p => p.Key, p => p.Value!.GetValue<string>());
+                .RootElement
+                .EnumerateObject()
+                .Where(p => !propertiesToIgnore.Contains(p.Name))
+                .Where(p => p.Value.ValueKind != JsonValueKind.Null)
+                .ToDictionary(p => p.Name, p => p.Value.GetString());
         }
 
-        static string ExtractId(JsonObject receivedCloudEvent) => receivedCloudEvent["id"].GetValue<string>();
+        static string ExtractId(JsonDocument receivedCloudEvent) => receivedCloudEvent.RootElement.GetProperty("id").GetString();
 
-        static void ThrowIfInvalidCloudEvent(JsonObject receivedCloudEvent)
+        static void ThrowIfInvalidCloudEvent(JsonDocument receivedCloudEvent)
         {
             if (receivedCloudEvent == null)
             {
@@ -77,10 +79,10 @@
             // TODO check headers throw
         }
 
-        JsonObject DeserializeOrThrow(MessageContext messageContext)
+        JsonDocument DeserializeOrThrow(MessageContext messageContext)
         {
             ThrowIfInvalidMessage(messageContext);
-            var receivedCloudEvent = JsonSerializer.Deserialize<JsonObject>(messageContext.Body.Span, options);
+            var receivedCloudEvent = JsonSerializer.Deserialize<JsonDocument>(messageContext.Body.Span, options);
 
             ThrowIfInvalidCloudEvent(receivedCloudEvent);
 
