@@ -83,6 +83,135 @@ public class AssemblyScanningTests
         Console.Write(output);
     }
 
+    [Test]
+    public void MultiHost_ModularMonolith()
+    {
+        var source = $$"""
+                       using System;
+                       using System.Threading;
+                       using System.Threading.Tasks;
+                       using NServiceBus;
+                       using NServiceBus.Features;
+                       using NServiceBus.Installation;
+                       using NServiceBus.Extensibility;
+                       
+                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(false)]
+
+                       // Sales Endpoint
+                       namespace MyApp.Sales.Commands
+                       {
+                           public class PlaceOrderCommand : ICommand {}
+                           public class CancelOrderCommand : ICommand {}
+                       }
+                       
+                       namespace MyApp.Sales.Events
+                       {
+                           public class OrderPlacedEvent : IEvent {}
+                           public class OrderCancelledEvent : IEvent {}
+                       }
+                       
+                       namespace MyApp.Sales.Handlers
+                       {
+                           public class PlaceOrderHandler : IHandleMessages<MyApp.Sales.Commands.PlaceOrderCommand>
+                           {
+                               public Task Handle(MyApp.Sales.Commands.PlaceOrderCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                           public class CancelOrderHandler : IHandleMessages<MyApp.Sales.Commands.CancelOrderCommand>
+                           {
+                               public Task Handle(MyApp.Sales.Commands.CancelOrderCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                       }
+                       
+                       namespace MyApp.Sales.Sagas
+                       {
+                           public class OrderSaga : Saga<OrderSagaData>
+                           {
+                               protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper) { }
+                           }
+                           public class OrderSagaData : ContainSagaData { }
+                       }
+                       
+                       // Billing Endpoint
+                       namespace MyApp.Billing.Commands
+                       {
+                           public class ProcessPaymentCommand : ICommand {}
+                       }
+                       
+                       namespace MyApp.Billing.Events
+                       {
+                           public class PaymentProcessedEvent : IEvent {}
+                           public class PaymentFailedEvent : IEvent {}
+                       }
+                       
+                       namespace MyApp.Billing.Handlers
+                       {
+                           public class ProcessPaymentHandler : IHandleMessages<MyApp.Billing.Commands.ProcessPaymentCommand>
+                           {
+                               public Task Handle(MyApp.Billing.Commands.ProcessPaymentCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                           public class OrderPlacedEventHandler : IHandleMessages<MyApp.Sales.Events.OrderPlacedEvent>
+                           {
+                               public Task Handle(MyApp.Sales.Events.OrderPlacedEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                       }
+                       
+                       namespace MyApp.Billing.Sagas
+                       {
+                           public class PaymentSaga : Saga<PaymentSagaData>
+                           {
+                               protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PaymentSagaData> mapper) { }
+                           }
+                           public class PaymentSagaData : ContainSagaData { }
+                       }
+                       
+                       // Shipping Endpoint
+                       namespace MyApp.Shipping.Commands
+                       {
+                           public class ShipOrderCommand : ICommand {}
+                       }
+                       
+                       namespace MyApp.Shipping.Events
+                       {
+                           public class OrderShippedEvent : IEvent {}
+                       }
+                       
+                       namespace MyApp.Shipping.Handlers
+                       {
+                           public class ShipOrderHandler : IHandleMessages<MyApp.Shipping.Commands.ShipOrderCommand>
+                           {
+                               public Task Handle(MyApp.Shipping.Commands.ShipOrderCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                           public class PaymentProcessedEventHandler : IHandleMessages<MyApp.Billing.Events.PaymentProcessedEvent>
+                           {
+                               public Task Handle(MyApp.Billing.Events.PaymentProcessedEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                       }
+                       
+                       // Shared Infrastructure
+                       namespace MyApp.Infrastructure
+                       {
+                           public class SharedFeature : Feature
+                           {
+                               protected override void Setup(FeatureConfigurationContext context) { }
+                           }
+                           public class DatabaseInstaller : INeedToInstallSomething
+                           {
+                               public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
+                           }
+                       }
+                       
+                       // Should not be registered
+                       namespace MyApp.Domain
+                       {
+                           public class DomainModel { }
+                       }
+                       """;
+
+        var (output, _) = GetGeneratedOutput(source);
+
+        Console.Write(output);
+    }
+
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Source.cs");
