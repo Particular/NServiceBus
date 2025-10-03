@@ -314,9 +314,9 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     // These are converted to MarkerTypeInfo with actual symbols during generation
     static readonly ImmutableArray<BuiltInMarkerInfo> MarkerTypeInfos =
     [
-        new ("NServiceBus.IEvent", "RegisterEvent", false),
-        new ("NServiceBus.ICommand", "RegisterCommand", false),
-        new ("NServiceBus.IMessage", "RegisterMessage", false),
+        new ("NServiceBus.IEvent", "RegisterEvent", true),
+        new ("NServiceBus.ICommand", "RegisterCommand", true),
+        new ("NServiceBus.IMessage", "RegisterMessage", true),
         new ("NServiceBus.IHandleMessages`1", "RegisterHandler", false),
         new ("NServiceBus.Saga`1", "RegisterSaga", false),
         new ("NServiceBus.IContainSagaData", "RegisterSagaData", false),

@@ -23,7 +23,7 @@ public class AssemblyScanningTests
                        using NServiceBus.Installation;
                        using NServiceBus.Extensibility;
                        
-                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(false)]
+                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(true)]
 
                        namespace UserCode;
                        
@@ -120,10 +120,10 @@ public class AssemblyScanningTests
         var generated = outputCompilation.SyntaxTrees
             .Where(st => st.FilePath != "Source.cs")
             .Select(st => $"""
-                          {st.FilePath}
-                          -------------
+                          // ========================================================================================
+                          // {st.FilePath}
+                          // ========================================================================================
                           {st}
-                          ========================================================================================
                           """);
         string combinedGeneration = string.Join("", generated);
 
