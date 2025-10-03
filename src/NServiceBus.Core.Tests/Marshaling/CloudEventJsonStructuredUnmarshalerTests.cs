@@ -23,9 +23,9 @@ public class CloudEventJsonStructuredUnmarshalerTests
     {
         NativeMessageId = Guid.NewGuid().ToString();
         Payload = new Dictionary<string, object> {
-            ["Type"] = "com.example.someevent",
-            ["Source"] = "/mycontext",
-            ["Id"] = Guid.NewGuid().ToString()
+            ["type"] = "com.example.someevent",
+            ["source"] = "/mycontext",
+            ["id"] = Guid.NewGuid().ToString()
         };
         NativeHeaders = new Dictionary<string, string>
         {
@@ -48,10 +48,10 @@ public class CloudEventJsonStructuredUnmarshalerTests
 
         Assert.Multiple (() =>
         {
-            Assert.That(actual.MessageId, Is.EqualTo(Payload["Id"]));
+            Assert.That(actual.MessageId, Is.EqualTo(Payload["id"]));
             // TODO Assert.That(actual.NativeMessageId, Is.EqualTo(NativeMessageId));
-            Assert.That(actual.Headers["Type"], Is.EqualTo(Payload["Type"]));
-            Assert.That(actual.Headers["Source"], Is.EqualTo(Payload["Source"]));
+            Assert.That(actual.Headers["type"], Is.EqualTo(Payload["type"]));
+            Assert.That(actual.Headers["source"], Is.EqualTo(Payload["source"]));
             Assert.That(actual.Headers["datacontenttype"], Is.EqualTo(Payload["datacontenttype"]));
             Assert.That(actual.Body.Span.SequenceEqual(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(cloudEventBody))));
         });
@@ -67,10 +67,10 @@ public class CloudEventJsonStructuredUnmarshalerTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(actual.MessageId, Is.EqualTo(Payload["Id"]));
+            Assert.That(actual.MessageId, Is.EqualTo(Payload["id"]));
             // TODO Assert.That(actual.NativeMessageId, Is.EqualTo(NativeMessageId));
-            Assert.That(actual.Headers["Type"], Is.EqualTo(Payload["Type"]));
-            Assert.That(actual.Headers["Source"], Is.EqualTo(Payload["Source"]));
+            Assert.That(actual.Headers["type"], Is.EqualTo(Payload["type"]));
+            Assert.That(actual.Headers["source"], Is.EqualTo(Payload["source"]));
             Assert.That(actual.Headers["datacontenttype"], Is.EqualTo(Payload["datacontenttype"]));
             Assert.That(actual.Body.Span.SequenceEqual(Encoding.UTF8.GetBytes(Payload["data"].ToString())));
         });
@@ -87,10 +87,10 @@ public class CloudEventJsonStructuredUnmarshalerTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(actual.MessageId, Is.EqualTo(Payload["Id"]));
+            Assert.That(actual.MessageId, Is.EqualTo(Payload["id"]));
             // TODO Assert.That(actual.NativeMessageId, Is.EqualTo(NativeMessageId));
-            Assert.That(actual.Headers["Type"], Is.EqualTo(Payload["Type"]));
-            Assert.That(actual.Headers["Source"], Is.EqualTo(Payload["Source"]));
+            Assert.That(actual.Headers["type"], Is.EqualTo(Payload["type"]));
+            Assert.That(actual.Headers["source"], Is.EqualTo(Payload["source"]));
             Assert.That(actual.Headers["datacontenttype"], Is.EqualTo(Payload["datacontenttype"]));
             Assert.That(actual.Body.Span.SequenceEqual(Encoding.UTF8.GetBytes(rawPayload)));
         });
@@ -98,7 +98,8 @@ public class CloudEventJsonStructuredUnmarshalerTests
 
     private IncomingMessage RunUnmarshalTest()
     {
-        var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Payload)));
+        string serializedBody = JsonSerializer.Serialize(Payload);
+        var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(serializedBody));
         var context = new TestableMessageContext(NativeMessageId, NativeHeaders, fullBody);
         return Unmarshaler.CreateIncomingMessage(context);
     }
