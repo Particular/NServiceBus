@@ -30,13 +30,8 @@ class KeyedServiceProviderAdapter : IServiceProvider
             }
         }
 
-        var keyed = ServiceProviderKeyedServiceExtensions.GetKeyedService(inner, serviceType, serviceKey);
-        if (keyed != null)
-        {
-            return keyed;
-        }
-
-        if (serviceCollection.ContainsService(serviceType))
+        var keyed = inner.GetKeyedService(serviceType, serviceKey);
+        if (keyed != null || serviceCollection.ContainsService(serviceType))
         {
             return keyed;
         }
