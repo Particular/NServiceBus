@@ -70,7 +70,9 @@ public class MultiEndpointTests
             sales.TypesToScanInternal([typeof(MySalesCommandHandler), typeof(MyFancyFeature)]);
             sales.UseSerialization<SystemJsonSerializer>();
             sales.UseTransport(new LearningTransport());
-            sales.Settings.EnableFeatureByDefault<MyFancyFeature>();
+            sales.EnableFeature<MyFancyFeature>();
+
+            sales.AddHandler<MySalesCommandHandler, MySalesCommand>();
 
             var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
             var shippingRecoverability = shipping.Recoverability();
@@ -78,7 +80,7 @@ public class MultiEndpointTests
             shippingRecoverability.Delayed(immediate => immediate.NumberOfRetries(0));
             shipping.TypesToScanInternal([typeof(MySalesEventHandler), typeof(MyFancyFeature)]);
             // notice doesn't enable feature and therefore leads to dependency of MySalesEventHandler not being resolved
-            // sales.Settings.EnableFeatureByDefault<MyFancyFeature>();
+            //shipping.EnableFeature<MyFancyFeature>();
             shipping.UseSerialization<SystemJsonSerializer>();
             shipping.UseTransport(new LearningTransport());
         });
@@ -93,8 +95,7 @@ public class MultiEndpointTests
         await shippingSession.SendLocal(new MySalesCommand { Message = "Should result in no handlers found" });
         await shippingSession.Send("Sales", new MySalesCommand { Message = "Hello from shipping" });
 
-        //await salesSession.Publish(new MySalesEvent());
-
+        await salesSession.Publish(new MySalesEvent());
 
         await Task.Delay(TimeSpan.FromSeconds(3));
     }
