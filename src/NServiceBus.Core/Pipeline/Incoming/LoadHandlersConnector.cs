@@ -48,7 +48,9 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
             foreach (var messageHandler in handlersToInvoke)
             {
-                messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
+                // This is horribly inefficient and only done here for the spike.
+                var handler = ActivatorUtilities.CreateInstance(context.Builder, messageHandler.HandlerType);
+                messageHandler.Instance = handler;
 
                 var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
 
