@@ -21,8 +21,9 @@ public class AssemblyScanningTests
                        using System.Threading.Tasks;
                        using NServiceBus;
                        using NServiceBus.Features;
-                       using NServiceBus.Installation;
                        using NServiceBus.Extensibility;
+                       using NServiceBus.Installation;
+                       using NServiceBus.Sagas;
                        
                        [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(true)]
 
@@ -70,6 +71,11 @@ public class AssemblyScanningTests
                        }
                        
                        public class MySagaData : ContainSagaData { }
+                       
+                       public class MySagaNotFound : IHandleSagaNotFound
+                       {
+                           public Task Handle(object message, IMessageProcessingContext context) => Task.CompletedTask;
+                       }
                        """;
 
         var (output, _) = GetGeneratedOutput(source);

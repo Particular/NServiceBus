@@ -1,6 +1,7 @@
 #nullable enable
 namespace NServiceBus.Core.Analyzer;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -57,8 +58,19 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             .SelectMany((compilation, cancellationToken) =>
             {
                 return MarkerTypeInfos
-                    .Select(info => new MarkerTypeInfo(compilation.GetTypeByMetadataName(info.TypeName), info.RegisterMethod, info.AutoRegister))
-                    .Where(m => m.Symbol is not null);
+                    .Select(info =>
+                    {
+                        var symbol = compilation.GetTypeByMetadataName(info.TypeName);
+                        if (symbol is null)
+                        {
+                            throw new InvalidOperationException($"Symbol for NServiceBus known marker type '{info.TypeName}' could not be found in the compilation.");
+                        }
+                        if (symbol.IsGenericType)
+                        {
+                            throw new InvalidOperationException($"Marker type '{info.TypeName}' cannot be an unbound generic type.");
+                        }
+                        return new MarkerTypeInfo(symbol, info.RegisterMethod, info.AutoRegister);
+                    });
             });
 
         // --- CACHE BOUNDARY: Collect each marker source independently ---
@@ -317,15 +329,15 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         new ("NServiceBus.IEvent", "RegisterEvent", true),
         new ("NServiceBus.ICommand", "RegisterCommand", true),
         new ("NServiceBus.IMessage", "RegisterMessage", true),
-        new ("NServiceBus.IHandleMessages`1", "RegisterHandler", false),
-        new ("NServiceBus.Saga`1", "RegisterSaga", false),
+        new ("NServiceBus.IHandleMessages", "RegisterHandler", false),
+        new ("NServiceBus.Saga", "RegisterSaga", false),
         new ("NServiceBus.IContainSagaData", "RegisterSagaData", false),
         new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller", true),
         new ("NServiceBus.Features.Feature", "RegisterFeature", true),
         new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
         new ("NServiceBus.Sagas.IFinder", "RegisterSagaFinder", true),
         new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer", true),
-        new ("NServiceBus.IHandleSagaNotFound", "RegisterSagaNotFoundHandler", true),
+        new ("NServiceBus.Sagas.IHandleSagaNotFound", "RegisterSagaNotFoundHandler", true),
     ];
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
