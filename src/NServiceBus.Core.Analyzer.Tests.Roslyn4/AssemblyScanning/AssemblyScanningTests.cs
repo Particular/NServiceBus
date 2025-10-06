@@ -4,11 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Installation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using NUnit.Framework;
 
 [TestFixture]
@@ -98,7 +96,25 @@ public class AssemblyScanningTests
 
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Source.cs");
+        var features = new Dictionary<string, string>
+        {
+            ["InterceptorsNamespaces"] = "NServiceBus",
+            ["InterceptorsPreviewNamespaces"] = "NServiceBus",
+        };
+
+        var parseOptions = new CSharpParseOptions(LanguageVersion.LatestMajor)
+            .WithFeatures(features);
+
+        string[] sources = [source];
+
+        var syntaxTrees = sources
+            .Select(x =>
+            {
+                var tree = CSharpSyntaxTree.ParseText(x, path: "Source.cs");
+                var options = parseOptions;
+                return tree.WithRootAndOptions(tree.GetRoot(), options);
+            });
+
         var references = new List<MetadataReference>();
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -114,24 +130,23 @@ public class AssemblyScanningTests
         references.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
         references.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
 
-        var editorConfig = SourceText.From("""
-                                           is_global = true
-
-                                           build_property.InterceptorsNamespaces = NServiceBus
-                                           """);
-        var analyzerConfig = AnalyzerConfig.Parse(editorConfig, "/.editorconfig");
-        var analyzerConfigSet = AnalyzerConfigSet.Create(ImmutableArray.Create(analyzerConfig));
-
         IIncrementalGenerator[] generators = [new KnownTypesGenerator(), new AssemblyScanningGenerator()];
-        var driver = CSharpGeneratorDriver.Create(generators)
-            .WithUpdatedAnalyzerConfigOptions(new TestAnalyzerConfigOptionsProvider());
 
-        var initialCompilation = CSharpCompilation.Create("initial", [syntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var opts = new GeneratorDriverOptions(disabledOutputs: IncrementalGeneratorOutputKind.None, trackIncrementalGeneratorSteps: true);
+
+        GeneratorDriver driver =
+            CSharpGeneratorDriver.Create(
+                generators.Select(x => x.AsSourceGenerator()),
+                driverOptions: opts,
+                optionsProvider: new OptionsProvider(new DictionaryAnalyzerOptions(features)),
+                parseOptions: parseOptions);
+
+
+        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+
+        var initialCompilation = CSharpCompilation.Create("initial", syntaxTrees, references, options);
 
         driver.RunGeneratorsAndUpdateCompilation(initialCompilation, out var outputCompilation, out var generatedDiagnostics);
-
-        // Now compile the final result with all generated sources
-        //Compile(outputCompilation.SyntaxTrees, references);
 
         if (!suppressGeneratedDiagnosticsErrors)
         {
@@ -139,12 +154,12 @@ public class AssemblyScanningTests
         }
 
         // Verify the code compiled:
-        // var compilationErrors = outputCompilation
-        //     .GetDiagnostics()
-        //     .Where(d => d.Severity >= DiagnosticSeverity.Warning)
-        //     .ToArray();
+        var compilationErrors = outputCompilation
+            .GetDiagnostics()
+            .Where(d => d.Severity >= DiagnosticSeverity.Warning)
+            .ToArray();
 
-        // Assert.That(compilationErrors, Is.Empty, compilationErrors.FirstOrDefault()?.GetMessage());
+        Assert.That(compilationErrors, Is.Empty, compilationErrors.FirstOrDefault()?.GetMessage());
 
         var generated = outputCompilation.SyntaxTrees
             .Where(st => st.FilePath != "Source.cs")
@@ -159,44 +174,19 @@ public class AssemblyScanningTests
         return (combinedGeneration, generatedDiagnostics);
     }
 
-    // static CSharpCompilation Compile(IEnumerable<SyntaxTree> syntaxTrees, IEnumerable<MetadataReference> references)
-    // {
-    //     var compilation = CSharpCompilation.Create("result", syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-    //
-    //     // Verify the code compiled:
-    //     var compilationErrors = compilation
-    //         .GetDiagnostics()
-    //         .Where(d => d.Severity >= DiagnosticSeverity.Warning)
-    //         .ToArray();
-    //
-    //     Assert.That(compilationErrors, Is.Empty, compilationErrors.FirstOrDefault()?.GetMessage());
-    //
-    //     return compilation;
-    // }
-
-    sealed class TestAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
+    class OptionsProvider(AnalyzerConfigOptions options) : AnalyzerConfigOptionsProvider
     {
-        readonly AnalyzerConfigOptions opts = new InterceptorAnalyzerConfigOptions();
-
-        public override AnalyzerConfigOptions GlobalOptions => opts;
-
-        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => opts;
-
-        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => opts;
-
-        public sealed class InterceptorAnalyzerConfigOptions : AnalyzerConfigOptions
-        {
-            public override bool TryGetValue(string key, out string value)
-            {
-                if (key == "build_property.InterceptorsNamespaces")
-                {
-                    value = "NServiceBus";
-                    return true;
-                }
-
-                value = null;
-                return false;
-            }
-        }
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => options;
+        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => options;
+        public override AnalyzerConfigOptions GlobalOptions => options;
     }
+
+    internal sealed class DictionaryAnalyzerOptions(Dictionary<string, string> properties) : AnalyzerConfigOptions
+    {
+        public static DictionaryAnalyzerOptions Empty { get; } = new([]);
+
+        public override bool TryGetValue(string key, out string value)
+            => properties.TryGetValue(key, out value!);
+    }
+
 }
