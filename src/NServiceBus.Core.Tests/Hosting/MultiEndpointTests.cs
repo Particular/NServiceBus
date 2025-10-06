@@ -1,11 +1,12 @@
 namespace NServiceBus.Core.Tests.Hosting;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
+using NServiceBus.Features;
 using NUnit.Framework;
 
 [TestFixture]
@@ -63,18 +64,26 @@ public class MultiEndpointTests
         var startable = MultiEndpoint.Create(services, configuration =>
         {
             var sales = configuration.AddEndpoint("Sales");
-
-            sales.TypesToScanInternal([typeof(MySalesCommandHandler)]);
+            var salesRecoverability = sales.Recoverability();
+            salesRecoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+            salesRecoverability.Delayed(immediate => immediate.NumberOfRetries(0));
+            sales.TypesToScanInternal([typeof(MySalesCommandHandler), typeof(MyFancyFeature)]);
             sales.UseSerialization<SystemJsonSerializer>();
             sales.UseTransport(new LearningTransport());
+            sales.Settings.EnableFeatureByDefault<MyFancyFeature>();
 
             var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
-            shipping.TypesToScanInternal([typeof(MySalesEventHandler)]);
+            var shippingRecoverability = shipping.Recoverability();
+            shippingRecoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+            shippingRecoverability.Delayed(immediate => immediate.NumberOfRetries(0));
+            shipping.TypesToScanInternal([typeof(MySalesEventHandler), typeof(MyFancyFeature)]);
+            // notice doesn't enable feature and therefore leads to dependency of MySalesEventHandler not being resolved
+            // sales.Settings.EnableFeatureByDefault<MyFancyFeature>();
             shipping.UseSerialization<SystemJsonSerializer>();
             shipping.UseTransport(new LearningTransport());
         });
 
-        var serviceProvider = services.BuildServiceProvider();
+        await using var serviceProvider = services.BuildServiceProvider();
         await startable.Start(serviceProvider);
 
         var salesSession = serviceProvider.GetKeyedService<IMessageSession>("Sales");
@@ -84,10 +93,29 @@ public class MultiEndpointTests
         await shippingSession.SendLocal(new MySalesCommand { Message = "Should result in no handlers found" });
         await shippingSession.Send("Sales", new MySalesCommand { Message = "Hello from shipping" });
 
-        await salesSession.Publish(new MySalesEvent());
+        //await salesSession.Publish(new MySalesEvent());
 
 
         await Task.Delay(TimeSpan.FromSeconds(3));
+    }
+
+    class MyFancyFeature : Feature
+    {
+        static int instanceCounter;
+        readonly int instanceCount;
+
+        public MyFancyFeature() => instanceCount = Interlocked.Increment(ref instanceCounter);
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            int scopeCount = 0;
+            // this is just to demonstrate arbitrary complexity
+            // this would not work
+            // context.Services.AddKeyedSingleton("Hello from MyFancyFeature"+ instanceCount, "hellostring");
+            // context.Services.AddScoped(sp => new ScopeDependency(sp.GetRequiredKeyedService<string>("hellostring") + scopeCount++));
+            context.Services.AddSingleton(new SingletonDependencyOfScopedDependency("Hello from MyFancyFeature"+ instanceCount));
+            context.Services.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<SingletonDependencyOfScopedDependency>().Value + scopeCount++));
+        }
     }
 
     public class MySalesCommand : ICommand
@@ -95,25 +123,24 @@ public class MultiEndpointTests
         public string Message { get; set; }
     }
 
-    public class MySalesEvent : IEvent
-    {
-    }
+    public class MySalesEvent : IEvent;
 
-    class MySalesCommandHandler : IHandleMessages<MySalesCommand>
+    class MySalesCommandHandler(ScopeDependency dependency) : IHandleMessages<MySalesCommand>
     {
-        public Task Handle(MySalesCommand message, IMessageHandlerContext context)
+        public async Task Handle(MySalesCommand message, IMessageHandlerContext context)
         {
-            Console.WriteLine(message.Message);
-            return Task.CompletedTask;
+            await TestContext.Out.WriteLineAsync(message.Message);
+            await TestContext.Out.WriteLineAsync(dependency.Value);
         }
     }
 
-    class MySalesEventHandler : IHandleMessages<MySalesEvent>
+    // Bombs if MyFancyFeature is not enabled
+    class MySalesEventHandler(ScopeDependency dependency) : IHandleMessages<MySalesEvent>
     {
-        public Task Handle(MySalesEvent message, IMessageHandlerContext context)
+        public async Task Handle(MySalesEvent message, IMessageHandlerContext context)
         {
-            Console.WriteLine("Got the my sales event");
-            return Task.CompletedTask;
+            await TestContext.Out.WriteAsync("Got the my sales event");
+            await TestContext.Out.WriteLineAsync(dependency.Value);
         }
     }
 
@@ -185,13 +212,13 @@ public class MultiEndpointTests
 
         var salesAdapter = new KeyedServiceCollectionAdapter(services, "sales");
         int salesScopeCount = 0;
-        salesAdapter.AddSingleton("Hello from sales");
-        salesAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<string>() + salesScopeCount++));
+        salesAdapter.AddSingleton(new SingletonDependencyOfScopedDependency("Hello from sales"));
+        salesAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<SingletonDependencyOfScopedDependency>().Value + salesScopeCount++));
 
         var billingAdapter = new KeyedServiceCollectionAdapter(services, "billing");
         int billingScopeCount = 0;
-        billingAdapter.AddSingleton("Hello from billing");
-        billingAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<string>() + billingScopeCount++));
+        billingAdapter.AddSingleton(new SingletonDependencyOfScopedDependency("Hello from billing"));
+        billingAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<SingletonDependencyOfScopedDependency>().Value + billingScopeCount++));
 
         var provider = services.BuildServiceProvider();
 
@@ -253,4 +280,6 @@ public class MultiEndpointTests
 
         public void Dispose() => Disposed++;
     }
+
+    record SingletonDependencyOfScopedDependency(string Value);
 }
