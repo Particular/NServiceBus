@@ -82,7 +82,7 @@ public class AssemblyScanningTests
 
         // Assert.Multiple(() =>
         // {
-        //     // Assert the g enerated registry contains expected types
+        //     // Assert the generated registry contains expected types
         //     Assert.That(output, Does.Contain("typeof(UserCode.MyEvent)"));
         //     Assert.That(output, Does.Contain("typeof(UserCode.MyCommand)"));
         //     Assert.That(output, Does.Contain("typeof(UserCode.MyMessage)"));
