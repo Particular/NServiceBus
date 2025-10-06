@@ -177,4 +177,80 @@ public class MultiEndpointTests
         Assert.That(keyedProvider.GetService(typeof(object)), Is.Not.Null);
         Assert.That(capturedProvider, Is.TypeOf<KeyedServiceProviderAdapter>());
     }
+
+    [Test]
+    public async Task Implementation_factory_with_scope_gets_keyed_provider()
+    {
+        var services = new ServiceCollection();
+
+        var salesAdapter = new KeyedServiceCollectionAdapter(services, "sales");
+        int salesScopeCount = 0;
+        salesAdapter.AddSingleton("Hello from sales");
+        salesAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<string>() + salesScopeCount++));
+
+        var billingAdapter = new KeyedServiceCollectionAdapter(services, "billing");
+        int billingScopeCount = 0;
+        billingAdapter.AddSingleton("Hello from billing");
+        billingAdapter.AddScoped(sp => new ScopeDependency(sp.GetRequiredService<string>() + billingScopeCount++));
+
+        var provider = services.BuildServiceProvider();
+
+        ScopeDependency salesScope1Dependency;
+        ScopeDependency salesScope2Dependency;
+        ScopeDependency billingScope1Dependency;
+        ScopeDependency billingScope2Dependency;
+        await using (var scope1 = provider.CreateAsyncScope())
+        await using (var scope2 = provider.CreateAsyncScope())
+        {
+            salesScope1Dependency = scope1.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("sales");
+            var salesScope1DependencySecondResolve = scope1.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("sales");
+            salesScope2Dependency = scope2.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("sales");
+            billingScope1Dependency = scope1.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("billing");
+            var billingScope1DependencySecondResolve = scope1.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("billing");
+            billingScope2Dependency = scope2.ServiceProvider.GetRequiredKeyedService<ScopeDependency>("billing");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(salesScope1Dependency.Disposed, Is.Zero);
+                Assert.That(salesScope1Dependency.Value, Is.EqualTo("Hello from sales0"));
+                Assert.That(salesScope1Dependency, Is.EqualTo(salesScope1DependencySecondResolve));
+                Assert.That(salesScope1Dependency, Is.Not.EqualTo(salesScope2Dependency));
+            }
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(billingScope1Dependency.Disposed, Is.Zero);
+                Assert.That(billingScope1Dependency.Value, Is.EqualTo("Hello from billing0"));
+                Assert.That(billingScope1Dependency, Is.EqualTo(billingScope1DependencySecondResolve));
+                Assert.That(billingScope1Dependency, Is.Not.EqualTo(billingScope2Dependency));
+            }
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(salesScope2Dependency.Disposed, Is.Zero);
+                Assert.That(salesScope2Dependency.Value, Is.EqualTo("Hello from sales1"));
+            }
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(billingScope2Dependency.Disposed, Is.Zero);
+                Assert.That(billingScope2Dependency.Value, Is.EqualTo("Hello from billing1"));
+            }
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(salesScope1Dependency.Disposed, Is.EqualTo(1));
+            Assert.That(salesScope2Dependency.Disposed, Is.EqualTo(1));
+            Assert.That(billingScope1Dependency.Disposed, Is.EqualTo(1));
+            Assert.That(billingScope2Dependency.Disposed, Is.EqualTo(1));
+        }
+    }
+
+    sealed class ScopeDependency(string value) : IDisposable
+    {
+        public string Value { get; } = value;
+
+        public int Disposed { get; private set; }
+
+        public void Dispose() => Disposed++;
+    }
 }
