@@ -43,7 +43,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                         attributeInfo.ConstructorArguments[0].Value is string registrationMethodName &&
                         attributeInfo.ConstructorArguments[1].Value is bool autoRegister)
                     {
-                        return new MarkerTypeInfo(decoratedType, registrationMethodName, autoRegister);
+                        return new MarkerTypeInfo(decoratedType, new MarkerInfo(decoratedType.ToDisplayString(), registrationMethodName), autoRegister);
                     }
                     return default;
                 })
@@ -69,7 +69,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                         {
                             throw new InvalidOperationException($"Marker type '{info.TypeName}' cannot be an unbound generic type.");
                         }
-                        return new MarkerTypeInfo(symbol, info.RegisterMethod, info.AutoRegister);
+                        return new MarkerTypeInfo(symbol, new MarkerInfo(info.TypeName, info.RegisterMethod), info.AutoRegister);
                     });
             });
 
@@ -138,7 +138,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
             if (marker.Symbol is not null && IsFromExtensionPoint(type, marker.Symbol))
             {
-                yield return new ScannedTypeInfo(type.ToDisplayString(), marker.RegisterMethod, marker.AutoRegister);
+                yield return new ScannedTypeInfo(type.ToDisplayString(), new MarkerInfo(marker.Symbol.ToDisplayString(), marker.Marker.RegisterMethod), marker.AutoRegister);
             }
         }
     }
@@ -166,7 +166,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         foreach (var type in matches.Where(t => t.AutoRegister))
         {
-            sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
+            sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
         }
 
         sb.AppendLine();
@@ -189,7 +189,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         foreach (var type in matches.Where(t => !t.AutoRegister))
         {
-            sb.AppendLine($"            config.{type.RegisterMethod}<{type.DisplayName}>();");
+            sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
         }
 
         sb.AppendLine();
@@ -207,9 +207,9 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                           {
                               public static void RegisterExtensionType<T>(this NServiceBus.EndpointConfiguration config) { }
                       """);
-        foreach (var methodName in matches.Select(m => m.RegisterMethod).Distinct())
+        foreach (var marker in matches.Select(m => m.Marker).Distinct())
         {
-            sb.AppendLine($"        public static void {methodName}<TType>(this NServiceBus.EndpointConfiguration config) {{ }}");
+            sb.AppendLine($"        public static void {marker.RegisterMethod}<TType>(this NServiceBus.EndpointConfiguration config) where TType : {marker.Type} {{ }}");
         }
         sb.AppendLine("""
                           }
@@ -243,7 +243,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
                 extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
             {
-                yield return new MarkerTypeInfo(type, registerMethod, autoRegister);
+                yield return new MarkerTypeInfo(type, new(type.ToDisplayString(), registerMethod), autoRegister);
             }
 
             // Recursively search nested types
@@ -275,7 +275,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
                 extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
             {
-                yield return new MarkerTypeInfo(nested, registerMethod, autoRegister);
+                yield return new MarkerTypeInfo(nested, new(nested.ToDisplayString(), registerMethod), autoRegister);
             }
 
             // Recursively search deeper nested types
@@ -357,9 +357,11 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         return type;
     }
 
-    record struct ScannedTypeInfo(string DisplayName, string RegisterMethod, bool AutoRegister);
+    record struct ScannedTypeInfo(string DisplayName, MarkerInfo Marker, bool AutoRegister);
     record struct BuiltInMarkerInfo(string TypeName, string RegisterMethod, bool AutoRegister);
-    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, string RegisterMethod, bool AutoRegister);
+    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, MarkerInfo Marker, bool AutoRegister);
+
+    record struct MarkerInfo(string Type, string RegisterMethod);
 
     const string ExtensionAttributeMetadataName = "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute";
 }
