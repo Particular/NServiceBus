@@ -363,16 +363,20 @@ public record struct CompilationAssemblyDetails(string SimpleName, string Identi
 {
     public static CompilationAssemblyDetails FromAssembly(IAssemblySymbol assembly) => new(assembly.Name, assembly.Identity.GetDisplayName());
 
+    const string NamePrefix = "GeneratedTypeRegistrations_";
+    const int HashBytesToUse = 10;
+
     public string ToGenerationClassName()
     {
-        var sb = new StringBuilder(SimpleName.Replace(".", "_"), SimpleName.Length + 60)
+        var sb = new StringBuilder(NamePrefix, NamePrefix.Length + SimpleName.Length + 1 /* for _ separator*/ + (HashBytesToUse * 2))
+            .Append(SimpleName.Replace('.', '_'))
             .Append('_');
 
         using var sha = SHA256.Create();
 
         var identityBytes = Encoding.UTF8.GetBytes(Identity);
         var hashBytes = sha.ComputeHash(identityBytes);
-        for (var i = 0; i < 10; i++)
+        for (var i = 0; i < HashBytesToUse; i++)
         {
             _ = sb.Append(hashBytes[i].ToString("x2"));
         }
