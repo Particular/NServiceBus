@@ -170,13 +170,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
         }
 
-        sb.AppendLine();
-        sb.AppendLine("            // OR");
-        foreach (var type in matches.Where(t => t.Marker.AutoRegister))
-        {
-            sb.AppendLine($"            config.RegisterExtensionType<{type.DisplayName}>();");
-        }
-
         sb.AppendLine("""
                               }
                           }
@@ -191,13 +184,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         foreach (var type in matches.Where(t => !t.Marker.AutoRegister))
         {
             sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("            // OR");
-        foreach (var type in matches.Where(t => !t.Marker.AutoRegister))
-        {
-            sb.AppendLine($"            config.RegisterExtensionType<{type.DisplayName}>();");
         }
 
         sb.AppendLine("""
