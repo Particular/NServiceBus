@@ -179,7 +179,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         foreach (var type in data.Types.Where(t => t.Marker.AutoRegister))
         {
-            sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
+            sb.AppendLine($"            config.TypeRegistrations.RegisterExtensionType<{type.Marker.TypeName}, {type.DisplayName}>();");
         }
 
         sb.AppendLine("""
@@ -191,7 +191,7 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         foreach (var type in data.Types.Where(t => !t.Marker.AutoRegister))
         {
-            sb.AppendLine($"            config.{type.Marker.RegisterMethod}<{type.DisplayName}>();");
+            sb.AppendLine($"            config.TypeRegistrations.RegisterExtensionType<{type.Marker.TypeName}, {type.DisplayName}>();");
         }
 
         sb.AppendLine("""
