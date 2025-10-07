@@ -508,6 +508,11 @@ namespace NServiceBus
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
+    public interface IUnmarshalMessages
+    {
+        NServiceBus.Transport.IncomingMessage CreateIncomingMessage(NServiceBus.Transport.MessageContext messageContext);
+        bool IsValidMessage(NServiceBus.Transport.MessageContext messageContext);
+    }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
