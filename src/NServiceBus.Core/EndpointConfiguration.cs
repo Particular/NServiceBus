@@ -74,6 +74,12 @@ public partial class EndpointConfiguration : ExposeSettings
     }
 
     /// <summary>
+    /// Hidden from IntelliSense. Used by source-generated registration code.
+    /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public TypeRegistrations TypeRegistrations { get; } = new();
+
+    /// <summary>
     /// Configures NServiceBus to use the given transport.
     /// </summary>
     public RoutingSettings<TTransport> UseTransport<TTransport>(TTransport transportDefinition)
