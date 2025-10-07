@@ -99,6 +99,100 @@ public class AssemblyScanningTests
         Console.Write(output);
     }
 
+    [Test]
+    public void TypeRegistrations_Should_Store_And_Retrieve_Types_Correctly()
+    {
+        var source = $$"""
+                       using System;
+                       using System.Threading;
+                       using System.Threading.Tasks;
+                       using NServiceBus;
+                       using NServiceBus.Features;
+                       using NServiceBus.Extensibility;
+                       using NServiceBus.Installation;
+                       using NServiceBus.Sagas;
+                       
+                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(true)]
+
+                       namespace TestNamespace;
+                       
+                       public class Program
+                       {
+                           public void Main()
+                           {
+                               var cfg = new EndpointConfiguration("TestEndpoint");
+                               cfg.UseSourceGeneratedTypeDiscovery();
+                           }
+                       }
+                       
+                       // Required types (AutoRegister = true)
+                       public class TestEvent : IEvent {}
+                       public class TestCommand : ICommand {}
+                       public class TestFeature : Feature
+                       {
+                           protected override void Setup(FeatureConfigurationContext context) { }
+                       }
+                       public class TestInstaller : INeedToInstallSomething
+                       {
+                           public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
+                       }
+                       
+                       // Optional types (AutoRegister = false)  
+                       public class TestHandler : IHandleMessages<TestEvent>
+                       {
+                           public Task Handle(TestEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       // Optional types (AutoRegister = false)  
+                       public class TestHandler2 : IHandleMessages<TestEvent>
+                       {
+                           public Task Handle(TestEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+                       public class TestSaga : Saga<TestSagaData>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) { }
+                       }
+                       public class TestSagaData : ContainSagaData { }
+                       """;
+
+        var (output, diagnostics) = GetGeneratedOutput(source);
+
+        Console.Write(output);
+
+        // Verify no compilation errors
+        Assert.That(diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), Is.False,
+            "Compilation failed: " + diagnostics.FirstOrDefault()?.GetMessage());
+
+        // Verify the generated code contains the expected TypeRegistrations calls
+        Assert.Multiple(() =>
+        {
+            // Required types should be in RequiredTypeRegistration
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.IEvent, TestNamespace.TestEvent>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.ICommand, TestNamespace.TestCommand>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.Features.Feature, TestNamespace.TestFeature>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.Installation.INeedToInstallSomething, TestNamespace.TestInstaller>()"));
+
+            // Optional types should be in OptionalTypeRegistration
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.IHandleMessages, TestNamespace.TestHandler>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.IHandleMessages, TestNamespace.TestHandler2>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.Saga, TestNamespace.TestSaga>()"));
+            Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.IContainSagaData, TestNamespace.TestSagaData>()"));
+
+            // Verify the structure is correct
+            Assert.That(output, Does.Contain("public static class RequiredTypeRegistration"));
+            Assert.That(output, Does.Contain("public static class OptionalTypeRegistration"));
+            Assert.That(output, Does.Contain("public static void RegisterTypes(NServiceBus.EndpointConfiguration config)"));
+        });
+
+        // Now test that the generated code actually compiles and can be executed
+        // This is a more comprehensive test that validates the end-to-end flow
+        var compilation = CreateCompilationWithGeneratedCode(source, output);
+        var diagnostics2 = compilation.GetDiagnostics();
+
+        Assert.That(diagnostics2.Where(d => d.Severity >= DiagnosticSeverity.Error), Is.Empty,
+            "Generated code compilation failed: " + string.Join("; ", diagnostics2.Where(d => d.Severity >= DiagnosticSeverity.Error).Select(d => d.GetMessage())));
+    }
+
     static (string output, ImmutableArray<Diagnostic> diagnostics) GetGeneratedOutput(string source, bool suppressGeneratedDiagnosticsErrors = false)
     {
         var features = new Dictionary<string, string>
@@ -177,6 +271,70 @@ public class AssemblyScanningTests
         Assert.That(compilationErrors, Is.Empty, compilationErrors.FirstOrDefault()?.GetMessage());
 
         return (combinedGeneration, generatedDiagnostics);
+    }
+
+    static CSharpCompilation CreateCompilationWithGeneratedCode(string originalSource, string generatedOutput)
+    {
+        var features = new Dictionary<string, string>
+        {
+            ["InterceptorsNamespaces"] = "NServiceBus",
+            ["InterceptorsPreviewNamespaces"] = "NServiceBus",
+        };
+
+        var parseOptions = new CSharpParseOptions(LanguageVersion.LatestMajor)
+            .WithFeatures(features);
+
+        // Parse the original source
+        var originalTree = CSharpSyntaxTree.ParseText(originalSource, path: "Source.cs", options: parseOptions);
+
+        // Parse the generated code (extract just the C# code, not the file headers)
+        var generatedCode = ExtractGeneratedCode(generatedOutput);
+        var generatedTree = CSharpSyntaxTree.ParseText(generatedCode, path: "Generated.cs", options: parseOptions);
+
+        var references = new List<MetadataReference>();
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        foreach (var assembly in assemblies)
+        {
+            if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
+            {
+                references.Add(MetadataReference.CreateFromFile(assembly.Location));
+            }
+        }
+
+        // Add necessary references
+        references.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
+        references.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
+
+        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        return CSharpCompilation.Create("test", [originalTree, generatedTree], references, options);
+    }
+
+    static string ExtractGeneratedCode(string fullOutput)
+    {
+        // Extract just the C# code from the generated output, removing file headers
+        var lines = fullOutput.Split('\n');
+        var codeLines = new List<string>();
+        var inCodeBlock = false;
+
+        foreach (var line in lines)
+        {
+            if (line.Trim().StartsWith("// <auto-generated/>"))
+            {
+                inCodeBlock = true;
+                codeLines.Add(line);
+            }
+            else if (inCodeBlock && !line.Trim().StartsWith("// =="))
+            {
+                codeLines.Add(line);
+            }
+            else if (line.Trim().StartsWith("// =="))
+            {
+                inCodeBlock = false;
+            }
+        }
+
+        return string.Join('\n', codeLines);
     }
 
     class OptionsProvider(AnalyzerConfigOptions options) : AnalyzerConfigOptionsProvider
