@@ -25,8 +25,6 @@ public class AssemblyScanningTests
                        using NServiceBus.Installation;
                        using NServiceBus.Sagas;
                        
-                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(true)]
-
                        namespace UserCode;
                        
                        public class Program
