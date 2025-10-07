@@ -32,8 +32,9 @@ public class AssemblyScanningTests
                            public void Main()
                            {
                                var cfg = new EndpointConfiguration("UserCode");
-                               cfg.TurnOffAssemblyScanningAndUseSourceGenerationInstead(true);
-                               cfg.TurnOffAssemblyScanningAndUseSourceGenerationInstead(false);
+
+                               cfg.UseSourceGeneratedTypeDiscovery()
+                                   .RegisterHandlersAndSagas();
                            }
                        }
                        
@@ -157,6 +158,16 @@ public class AssemblyScanningTests
             Assert.That(generatedDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), Is.False, "Failed: " + generatedDiagnostics.FirstOrDefault()?.GetMessage());
         }
 
+        var generated = outputCompilation.SyntaxTrees
+            .Where(st => st.FilePath != "Source.cs")
+            .Select(st => $"""
+                           // ========================================================================================
+                           // {st.FilePath}
+                           // ========================================================================================
+                           {st}
+                           """);
+        string combinedGeneration = string.Join("", generated);
+
         // Verify the code compiled:
         var compilationErrors = outputCompilation
             .GetDiagnostics()
@@ -164,16 +175,6 @@ public class AssemblyScanningTests
             .ToArray();
 
         Assert.That(compilationErrors, Is.Empty, compilationErrors.FirstOrDefault()?.GetMessage());
-
-        var generated = outputCompilation.SyntaxTrees
-            .Where(st => st.FilePath != "Source.cs")
-            .Select(st => $"""
-                          // ========================================================================================
-                          // {st.FilePath}
-                          // ========================================================================================
-                          {st}
-                          """);
-        string combinedGeneration = string.Join("", generated);
 
         return (combinedGeneration, generatedDiagnostics);
     }
