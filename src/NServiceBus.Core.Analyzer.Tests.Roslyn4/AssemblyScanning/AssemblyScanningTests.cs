@@ -112,16 +112,16 @@ public class AssemblyScanningTests
                        using NServiceBus.Installation;
                        using NServiceBus.Sagas;
                        
-                       [assembly:NServiceBus.Extensibility.SourceGeneratedAssemblyScanning(true)]
-
                        namespace TestNamespace;
                        
                        public class Program
                        {
                            public void Main()
                            {
-                               var cfg = new EndpointConfiguration("TestEndpoint");
-                               cfg.UseSourceGeneratedTypeDiscovery();
+                               var cfg = new EndpointConfiguration("MyApp");
+                       
+                               cfg.UseSourceGeneratedTypeDiscovery()
+                                   .RegisterHandlersAndSagas();
                            }
                        }
                        
