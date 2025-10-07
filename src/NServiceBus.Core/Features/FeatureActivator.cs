@@ -4,28 +4,72 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureActivator(SettingsHolder settings)
+class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
 {
-    internal List<FeatureDiagnosticData> Status => [.. features.Select(f => f.Diagnostics)];
+    internal List<FeatureDiagnosticData> Status => [.. added.Values.Select(f => f.Diagnostics)];
+
+    public void Add(Type featureType)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.ContainsKey(featureName))
+        {
+            Add(factory.CreateFeature(featureType));
+        }
+    }
 
     public void Add(Feature feature)
     {
-        if (feature.IsEnabledByDefault)
+        if (added.ContainsKey(feature.Name))
         {
-            settings.EnableFeatureByDefault(feature.GetType());
+            return;
         }
 
-        features.Add(new FeatureInfo(feature, new FeatureDiagnosticData
+        if (feature.IsEnabledByDefault)
+        {
+            _ = settings.EnableFeatureByDefault(feature.GetType());
+        }
+
+        foreach (var dependency in feature.Dependencies.SelectMany(d => d))
+        {
+            var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
+            if (!added.ContainsKey(featureName))
+            {
+                var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
+                if (dependentFeatureType != null)
+                {
+                    var dependentFeature = factory.CreateFeature(dependentFeatureType);
+                    if (dependency.EnabledByDefault)
+                    {
+                        feature.Defaults(s => s.EnableFeatureByDefault(dependentFeatureType));
+                    }
+
+                    Add(dependentFeature);
+                }
+            }
+            else
+            {
+                if (dependency.EnabledByDefault)
+                {
+                    // TODO Move to internal extension?
+                    // Also we seem to always assume Feature.Name == FullName
+                    feature.Defaults(s => settings.SetDefault(dependency.FeatureName, FeatureState.Enabled));
+                }
+            }
+        }
+
+        added.Add(feature.Name, new FeatureInfo(feature, new FeatureDiagnosticData
         {
             EnabledByDefault = feature.IsEnabledByDefault,
             Name = feature.Name,
             Version = feature.Version,
-            Dependencies = feature.Dependencies.AsReadOnly(),
+            Dependencies = feature.Dependencies.Select(d => d.Where(x => !x.EnabledByDefault).Select(x => x.FeatureName).ToList().AsReadOnly())
+                .Where(innerList => innerList.Count > 0).ToList().AsReadOnly(),
             PrerequisiteStatus = new PrerequisiteStatus(),
             StartupTasks = []
         }));
@@ -34,7 +78,7 @@ class FeatureActivator(SettingsHolder settings)
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
     {
         // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
-        var sourceFeatures = Sort(features);
+        var sourceFeatures = Sort(added.Values);
 
         while (true)
         {
@@ -53,7 +97,7 @@ class FeatureActivator(SettingsHolder settings)
             ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
-        return [.. features.Select(t => t.Diagnostics)];
+        return [.. added.Values.Select(t => t.Diagnostics)];
     }
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
@@ -92,6 +136,18 @@ class FeatureActivator(SettingsHolder settings)
         return Task.WhenAll(featureStopTasks);
     }
 
+    bool TryCreateFeature(Type? featureType, [NotNullWhen(true)] out Feature? feature)
+    {
+        if (featureType is not null && !added.ContainsKey(Feature.GetFeatureName(featureType)))
+        {
+            feature = factory.CreateFeature(featureType);
+            return true;
+        }
+
+        feature = null;
+        return false;
+    }
+
     static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
     {
         // Step 1: create nodes for graph
@@ -112,7 +168,7 @@ class FeatureActivator(SettingsHolder settings)
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
+            foreach (var dependencyName in node.FeatureState.Diagnostics.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
             {
                 if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                 {
@@ -170,7 +226,7 @@ class FeatureActivator(SettingsHolder settings)
             return true;
         }
 
-        Func<List<string>, bool> dependencyActivator = dependencies =>
+        Func<IReadOnlyList<string>, bool> dependencyActivator = dependencies =>
         {
             var dependentFeaturesToActivate = new List<FeatureInfo>();
 
@@ -183,7 +239,7 @@ class FeatureActivator(SettingsHolder settings)
             return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
         };
         var featureType = featureInfo.Feature.GetType();
-        if (featureInfo.Feature.Dependencies.All(dependencyActivator))
+        if (featureInfo.Diagnostics.Dependencies.All(dependencyActivator))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -213,8 +269,8 @@ class FeatureActivator(SettingsHolder settings)
         return diagnosticData.PrerequisiteStatus.IsSatisfied;
     }
 
-    readonly List<FeatureInfo> features = [];
     readonly List<FeatureInfo> enabledFeatures = [];
+    readonly Dictionary<string, FeatureInfo> added = [];
 
     class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
     {

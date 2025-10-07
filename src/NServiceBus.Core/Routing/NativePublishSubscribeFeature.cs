@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Unicast.Messages;
 using Transport;
 
-class NativePublishSubscribeFeature : Feature
+sealed class NativePublishSubscribeFeature : Feature
 {
     public NativePublishSubscribeFeature()
     {

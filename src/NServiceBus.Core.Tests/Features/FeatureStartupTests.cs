@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,13 +16,17 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        settings.Set(new FeatureComponent.Settings(settings));
+        feautureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureActivator(settings, feautureFactory);
     }
 
     [Test]
     public async Task Should_start_and_stop_features()
     {
         var feature = new FeatureWithStartupTask();
+
+        feautureFactory.Add(feature);
 
         featureSettings.Add(feature);
 
@@ -42,8 +47,13 @@ public class FeatureStartupTests
     {
         var orderBuilder = new StringBuilder();
 
-        featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
-        featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
+        var featureWithStartupTaskWithDependency = new FeatureWithStartupTaskWithDependency(orderBuilder);
+        var featureWithStartupThatAnotherFeatureDependsOn = new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder);
+
+        feautureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
+
+        featureSettings.Add(featureWithStartupTaskWithDependency);
+        featureSettings.Add(featureWithStartupThatAnotherFeatureDependsOn);
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
@@ -138,6 +148,7 @@ public class FeatureStartupTests
 
     FeatureActivator featureSettings;
     SettingsHolder settings;
+    FakeFeatureFactory feautureFactory;
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {
@@ -228,13 +239,16 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskThatThrows : TestFeature
     {
-        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null)
+        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null, [CallerArgumentExpression(nameof(throwOnStart))] string throwOnStartExpression = null, [CallerArgumentExpression(nameof(throwOnStop))] string throwOnStopExpression = null)
         {
             this.throwOnStart = throwOnStart;
             this.throwOnStop = throwOnStop;
             this.createException = createException ?? (() => new InvalidOperationException());
 
             EnableByDefault();
+
+            // This is a hack to bypass the restriction that the same feature type can't be added twice
+            Name = $"{GetType().FullName}.{throwOnStartExpression}.{throwOnStopExpression}";
         }
 
         public bool TaskStartCalled { get; private set; }

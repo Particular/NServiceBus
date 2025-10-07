@@ -12,12 +12,9 @@ using Serialization;
 using Settings;
 using Unicast.Messages;
 
-class SerializationFeature : Feature
+sealed class SerializationFeature : Feature
 {
-    public SerializationFeature()
-    {
-        EnableByDefault();
-    }
+    public SerializationFeature() => EnableByDefault();
 
     protected internal sealed override void Setup(FeatureConfigurationContext context)
     {

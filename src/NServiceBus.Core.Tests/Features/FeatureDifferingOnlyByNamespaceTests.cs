@@ -24,7 +24,11 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set(new FeatureComponent.Settings(settings));
+            var featureFactory = new FakeFeatureFactory();
+            var featureSettings = new FeatureActivator(settings, featureFactory);
+
+            featureFactory.Add(dependingFeature, feature);
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);

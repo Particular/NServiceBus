@@ -16,7 +16,8 @@ public class FeatureSettingsTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        settings.Set(new FeatureComponent.Settings(settings));
+        featureSettings = new FeatureActivator(settings, new FeatureFactory());
     }
 
     [Test]
