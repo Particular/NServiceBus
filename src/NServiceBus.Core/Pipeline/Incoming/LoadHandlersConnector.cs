@@ -29,6 +29,8 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
         {
             await storageSession.Open(context).ConfigureAwait(false);
 
+            var handlersFor2 = messageHandlerRegistry.GetHandlersFor2(context.Message.MessageType);
+
             var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
             if (!context.MessageHandled && handlersToInvoke.Count == 0)
