@@ -1,5 +1,5 @@
 #nullable enable
-namespace NServiceBus.Core.Analyzer;
+namespace NServiceBus.Core.SourceGen;
 
 using System;
 using System.Collections.Generic;

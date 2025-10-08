@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
+using SourceGen;
 
 [TestFixture]
 public class AssemblyScanningTests
