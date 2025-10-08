@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -29,11 +31,14 @@ public static class SourceGenerationAssemblyScanningExtensions
 /// <summary>
 /// Provides options to auto-register message handlers and sagas using source generation.
 /// </summary>
-public sealed class SourceGenerationTypeDiscoveryOptions(EndpointConfiguration endpointConfiguration)
+public sealed class SourceGenerationTypeDiscoveryOptions
 {
+    internal SourceGenerationTypeDiscoveryOptions(EndpointConfiguration endpointConfiguration)
+        => Configuration = endpointConfiguration;
+
     /// <summary>
     /// Makes the <see cref="EndpointConfiguration" /> instance available for source generator.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public EndpointConfiguration Configuration => endpointConfiguration;
+    public EndpointConfiguration Configuration { get; init; }
 }
