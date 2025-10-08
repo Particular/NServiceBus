@@ -180,9 +180,9 @@ public class AssemblyScanningTests
             Assert.That(output, Does.Contain("config.TypeRegistrations.RegisterExtensionType<NServiceBus.IContainSagaData, TestNamespace.TestSagaData>()"));
 
             // Verify the structure is correct
-            Assert.That(output, Does.Contain("public static class RequiredTypeRegistration"));
-            Assert.That(output, Does.Contain("public static class OptionalTypeRegistration"));
-            Assert.That(output, Does.Contain("public static void RegisterTypes(NServiceBus.EndpointConfiguration config)"));
+            Assert.That(output, Does.Contain("public static class GeneratedTypeRegistrations_initial_"));
+            Assert.That(output, Does.Contain("public static void RegisterRequiredTypes(NServiceBus.EndpointConfiguration config)"));
+            Assert.That(output, Does.Contain("public static void RegisterOptionalTypes(NServiceBus.EndpointConfiguration config)"));
         });
 
         // Now test that the generated code actually compiles and can be executed
