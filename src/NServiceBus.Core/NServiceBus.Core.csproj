@@ -26,6 +26,10 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Label="Local source generator">
+    <ProjectReference Include="..\NServiceBus.Core.SourceGen\NServiceBus.Core.SourceGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>

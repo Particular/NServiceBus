@@ -38,7 +38,7 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
         var currentAssemblyRegistrationTypeByConvention = context.CompilationProvider
             .Select((compilation, _) => CompilationAssemblyDetails.FromAssembly(compilation.Assembly))
             .Select((assemblyInfo, _) => assemblyInfo.ToGenerationClassName())
-            .Select((className, _) => new GeneratedRegistrationClass(className));
+            .Select((className, _) => new GeneratedRegistrationClass($"NServiceBus.Generated.{className}"));
 
         var allTypesAsInterceptor = collectedRegistrationTypes
             .Combine(collectedInterceptorLocations)
@@ -154,6 +154,11 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
 
     static void GenerateInterceptorCode(SourceProductionContext sourceProductionContext, InterceptorsAndRegistrationClasses data)
     {
+        if (data == default)
+        {
+            return;
+        }
+
         var (regClasses, interceptLocations) = data;
 
         var locationsByMethodName = interceptLocations.ToLookup(location => location!.Value.MethodName);
@@ -200,7 +205,7 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
 
             foreach (var method in regClasses)
             {
-                sb.AppendLine($"            NServiceBus.Generated.{method.ClassName}.RegisterRequiredTypes(endpointConfiguration);");
+                sb.AppendLine($"            {method.FullClassName}.RegisterRequiredTypes(endpointConfiguration);");
             }
 
             sb.AppendLine("        }");
@@ -220,7 +225,7 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
 
             foreach (var method in regClasses)
             {
-                sb.AppendLine($"            NServiceBus.Generated.{method.ClassName}.RegisterOptionalTypes(options.Configuration);");
+                sb.AppendLine($"            {method.FullClassName}.RegisterOptionalTypes(options.Configuration);");
             }
 
             sb.AppendLine("        }");
@@ -234,7 +239,7 @@ public sealed class AssemblyScanningGenerator : IIncrementalGenerator
         sourceProductionContext.AddSource("Interception.g.cs", sb.ToString());
     }
 
-    record struct GeneratedRegistrationClass(string ClassName);
+    record struct GeneratedRegistrationClass(string FullClassName);
     record struct InterceptDetails(string MethodName, InterceptableLocation Location);
     record struct InterceptorsAndRegistrationClasses(ImmutableArray<GeneratedRegistrationClass> Methods, ImmutableArray<InterceptDetails?> Locations);
 
