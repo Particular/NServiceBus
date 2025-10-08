@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(AnalyzerTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
