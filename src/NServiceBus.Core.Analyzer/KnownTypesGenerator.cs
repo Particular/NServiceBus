@@ -198,16 +198,15 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                               }
                           }
 
-                          public static class TemporaryRegistrationExtensions
-                          {
-                              public static void RegisterExtensionType<T>(this NServiceBus.EndpointConfiguration config) { }
+                          // public static class TemporaryRegistrationExtensions
+                          // {
                       """);
         foreach (var marker in data.Types.Select(m => m.Marker).Distinct())
         {
-            sb.AppendLine($"        public static void {marker.RegisterMethod}<TType>(this NServiceBus.EndpointConfiguration config) where TType : {marker.TypeName} {{ }}");
+            sb.AppendLine($"    //    public static void {marker.RegisterMethod}<TType>(this NServiceBus.EndpointConfiguration config) where TType : {marker.TypeName} {{ }}");
         }
         sb.AppendLine("""
-                          }
+                          // }
                       }
                       """);
 
