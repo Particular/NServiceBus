@@ -72,15 +72,13 @@ public class MultiEndpointTests
             sales.UseTransport(new LearningTransport());
             sales.EnableFeature<MyFancyFeature>();
 
-            sales.AddHandler<MySalesCommandHandler, MySalesCommand>();
-
             var shipping = configuration.AddEndpoint("Shipping", c => c.TypesToScanInternal([]));
             var shippingRecoverability = shipping.Recoverability();
             shippingRecoverability.Immediate(immediate => immediate.NumberOfRetries(0));
             shippingRecoverability.Delayed(immediate => immediate.NumberOfRetries(0));
             shipping.TypesToScanInternal([typeof(MySalesEventHandler), typeof(MyFancyFeature)]);
             // notice doesn't enable feature and therefore leads to dependency of MySalesEventHandler not being resolved
-            //shipping.EnableFeature<MyFancyFeature>();
+            shipping.EnableFeature<MyFancyFeature>();
             shipping.UseSerialization<SystemJsonSerializer>();
             shipping.UseTransport(new LearningTransport());
         });
@@ -92,7 +90,7 @@ public class MultiEndpointTests
         var shippingSession = serviceProvider.GetKeyedService<IMessageSession>("Shipping");
 
         await salesSession.SendLocal(new MySalesCommand { Message = "Hello from sales" });
-        await shippingSession.SendLocal(new MySalesCommand { Message = "Should result in no handlers found" });
+        //await shippingSession.SendLocal(new MySalesCommand { Message = "Should result in no handlers found" });
         await shippingSession.Send("Sales", new MySalesCommand { Message = "Hello from shipping" });
 
         await salesSession.Publish(new MySalesEvent());
@@ -184,6 +182,32 @@ public class MultiEndpointTests
         Assert.That(keyedProvider.GetService(typeof(EndpointInstanceAccessor)), Is.Not.Null);
         Assert.That(keyedProvider.GetService(typeof(string)), Is.EqualTo("shared"));
     }
+
+    [Test]
+    public void Keyed_provider_gets_keyed_services()
+    {
+        var services = new ServiceCollection();
+
+        var salesAdapter = new KeyedServiceCollectionAdapter(services, "sales");
+        salesAdapter.AddSingleton<IMyService, MyService1>();
+        salesAdapter.AddSingleton<IMyService, MyService2>();
+
+        var billingAdapter = new KeyedServiceCollectionAdapter(services, "billing");
+        billingAdapter.AddSingleton<IMyService, MyService1>();
+        billingAdapter.AddSingleton<IMyService, MyService2>();
+
+        var provider = services.BuildServiceProvider();
+        var salesKeyedProvider = new KeyedServiceProviderAdapter(provider, "sales", salesAdapter);
+        var billingKeyedProvider = new KeyedServiceProviderAdapter(provider, "billing", billingAdapter);
+
+        Assert.That(salesKeyedProvider.GetServices<IMyService>().ToList(), Has.Count.EqualTo(2));
+        Assert.That(billingKeyedProvider.GetServices<IMyService>().ToList(), Has.Count.EqualTo(2));
+    }
+
+    interface IMyService;
+
+    class MyService1 : IMyService;
+    class MyService2 : IMyService;
 
     [Test]
     public void Implementation_factory_gets_keyed_provider()

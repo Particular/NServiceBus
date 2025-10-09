@@ -2,6 +2,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 class KeyedServiceProviderAdapter : IServiceProvider
@@ -28,6 +29,20 @@ class KeyedServiceProviderAdapter : IServiceProvider
             {
                 return new KeyedServiceScopeFactory(scopeFactory, serviceKey, serviceCollection);
             }
+        }
+
+        if (serviceType.IsGenericType &&
+            serviceType.GetGenericTypeDefinition() == typeof(System.Collections.Generic.IEnumerable<>))
+        {
+            var itemType = serviceType.GetGenericArguments()[0];
+
+            var keyedServices = inner.GetKeyedServices(itemType, serviceKey);
+            if (keyedServices.Any() || serviceCollection.ContainsService(serviceType))
+            {
+                return keyedServices;
+            }
+
+            return inner.GetServices(serviceType);
         }
 
         var keyed = inner.GetKeyedService(serviceType, serviceKey);
