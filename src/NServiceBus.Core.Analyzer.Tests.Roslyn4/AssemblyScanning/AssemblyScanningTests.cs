@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -78,26 +79,7 @@ public class AssemblyScanningTests
                        }
                        """;
 
-        var (output, _) = GetGeneratedOutput(source);
-
-        // Assert.Multiple(() =>
-        // {
-        //     // Assert the generated registry contains expected types
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MyEvent)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MyCommand)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MyMessage)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MyHandler)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MySecondHandler)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.Installer)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.DownstreamSpecificType)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.IAmImportantNonCoreType)"));
-        //     Assert.That(output, Does.Contain("typeof(UserCode.MyFeature)"));
-        //
-        //     // Assert the generated registry does not contain expected types
-        //     Assert.That(output, Does.Not.Contain("typeof(UserCode.NotInteresting)"));
-        // });
-
-        Console.Write(output);
+        _ = GetGeneratedOutput(source);
     }
 
     [Test]
@@ -253,15 +235,37 @@ public class AssemblyScanningTests
             Assert.That(generatedDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), Is.False, "Failed: " + generatedDiagnostics.FirstOrDefault()?.GetMessage());
         }
 
-        var generated = outputCompilation.SyntaxTrees
-            .Where(st => st.FilePath != "Source.cs")
-            .Select(st => $"""
-                           // ========================================================================================
-                           // {st.FilePath}
-                           // ========================================================================================
-                           {st}
-                           """);
-        string combinedGeneration = string.Join("", generated);
+        const string divider = "// ========================================================================================";
+
+        var sb = new StringBuilder();
+        if (generatedDiagnostics.Any())
+        {
+            _ = sb.AppendLine(divider)
+                .AppendLine("// Diagnostics")
+                .AppendLine(divider);
+            foreach (var diagnostic in generatedDiagnostics)
+            {
+                _ = sb.AppendLine(diagnostic.ToString());
+            }
+        }
+
+        foreach (var syntaxTree in outputCompilation.SyntaxTrees)
+        {
+            _ = sb.AppendLine(divider)
+                .Append("// ").AppendLine(syntaxTree.FilePath)
+                .AppendLine(divider);
+
+            var lines = syntaxTree.GetText().Lines;
+            var padSize = lines.Count.ToString().Length;
+            foreach (var line in lines)
+            {
+                _ = sb.AppendLine($"{(line.LineNumber + 1).ToString().PadLeft(padSize)}: {line.Text?.GetSubText(line.Span)}");
+            }
+        }
+
+        string combinedGeneration = sb.ToString();
+
+        Console.WriteLine(combinedGeneration);
 
         // Verify the code compiled:
         var compilationErrors = outputCompilation
@@ -279,7 +283,6 @@ public class AssemblyScanningTests
         var features = new Dictionary<string, string>
         {
             ["InterceptorsNamespaces"] = "NServiceBus",
-            ["InterceptorsPreviewNamespaces"] = "NServiceBus",
         };
 
         var parseOptions = new CSharpParseOptions(LanguageVersion.LatestMajor)
