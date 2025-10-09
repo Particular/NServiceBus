@@ -48,7 +48,11 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
             foreach (var messageHandler in handlersToInvoke)
             {
-                messageHandler.Instance = context.Builder.GetRequiredService(messageHandler.HandlerType);
+                // This is horribly inefficient and only done here for the spike.
+                // if we still want to support registering handlers on DI we would need to store that information in the handler metadata
+                // so that we could fall back doing context.Builder.GetRequiredService(messageHandler.HandlerType)
+                var handler = ActivatorUtilities.CreateInstance(context.Builder, messageHandler.HandlerType);
+                messageHandler.Instance = handler;
 
                 var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
 
