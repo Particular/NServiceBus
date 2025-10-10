@@ -26,6 +26,10 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Label="Local source generator">
+    <ProjectReference Include="..\NServiceBus.Core.SourceGen\NServiceBus.Core.SourceGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
@@ -35,6 +39,7 @@
   <ItemGroup>
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
     <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.SourceGen\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.SourceGen.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.SourceGen.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddPropsFileToPackage">
