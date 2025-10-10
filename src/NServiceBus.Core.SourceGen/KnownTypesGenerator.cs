@@ -377,18 +377,29 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     // These are converted to MarkerTypeInfo with actual symbols during generation
     static readonly ImmutableArray<MarkerInfo> MarkerTypeInfos =
     [
+        // Not sure we need these at all
         new ("NServiceBus.IEvent", "RegisterEvent", true),
         new ("NServiceBus.ICommand", "RegisterCommand", true),
         new ("NServiceBus.IMessage", "RegisterMessage", true),
+        new ("NServiceBus.IContainSagaData", "RegisterSagaData", false),
+
+        // Obvious per-endpoint registration choices
         new ("NServiceBus.IHandleMessages", "RegisterHandler", false),
         new ("NServiceBus.Saga", "RegisterSaga", false),
-        new ("NServiceBus.IContainSagaData", "RegisterSagaData", false),
-        new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller", true),
-        new ("NServiceBus.Features.Feature", "RegisterFeature", true),
-        new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
         new ("NServiceBus.Sagas.IFinder", "RegisterSagaFinder", true),
-        new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer", true),
         new ("NServiceBus.Sagas.IHandleSagaNotFound", "RegisterSagaNotFoundHandler", true),
+
+        // May be able to remove features as an explicit-registration only
+        new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller", true),
+        // May be able to remove features as an explicit-registration only
+        new ("NServiceBus.Features.Feature", "RegisterFeature", true),
+
+        // Obsolete?
+        new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
+        new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer", true),
+
+        // Custom checks are out there ;-)
+
     ];
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
