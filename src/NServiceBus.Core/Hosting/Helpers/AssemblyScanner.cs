@@ -87,13 +87,6 @@ public class AssemblyScanner
             return results;
         }
 
-        // Always scan Core assembly
-        var coreAssembly = typeof(AssemblyScanner).Assembly;
-        if (ScanAssembly(coreAssembly, processed))
-        {
-            AddTypesToResult(coreAssembly, results);
-        }
-
         if (ScanAppDomainAssemblies)
         {
             var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
