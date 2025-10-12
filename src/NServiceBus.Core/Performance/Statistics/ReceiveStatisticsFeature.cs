@@ -2,10 +2,8 @@
 
 using Features;
 
-class ReceiveStatisticsFeature : Feature
+sealed class ReceiveStatisticsFeature : Feature
 {
-    public ReceiveStatisticsFeature() => EnableByDefault();
-
     protected internal override void Setup(FeatureConfigurationContext context)
     {
         context.Pipeline.Register("ProcessingStatistics", new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
