@@ -11,8 +11,6 @@ sealed class LicenseReminder : Feature
 {
     public LicenseReminder()
     {
-        EnableByDefault();
-
         Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
         Defaults(s => s.SetDefault(LicenseFilePathSettingsKey, null));
     }

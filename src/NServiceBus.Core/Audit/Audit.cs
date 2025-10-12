@@ -12,7 +12,6 @@ public class Audit : Feature
 {
     internal Audit()
     {
-        EnableByDefault();
         Defaults(settings =>
         {
             settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));

@@ -8,7 +8,6 @@ sealed class NativePublishSubscribeFeature : Feature
 {
     public NativePublishSubscribeFeature()
     {
-        EnableByDefault();
         Prerequisite(c => c.Settings.Get<TransportDefinition>().SupportsPublishSubscribe, "The transport does not support native pub sub");
         Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
     }
