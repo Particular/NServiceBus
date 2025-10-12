@@ -17,6 +17,7 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(builder => builder.CustomConfig((endpointConfig, ctx) =>
             {
+                endpointConfig.EnableFeature<MyFeatureThatOverridesHostInformationDefaults>();
                 endpointConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(ctx.CustomHostId);
             }))
             .Done(c => c.EndpointsStarted)
@@ -31,17 +32,12 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
 
     public class MyEndpoint : EndpointConfigurationBuilder
     {
-        public MyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public MyEndpoint() => EndpointSetup<DefaultServer>();
     }
 
     public class MyFeatureThatOverridesHostInformationDefaults : Feature
     {
-        public MyFeatureThatOverridesHostInformationDefaults()
-        {
-            EnableByDefault();
+        public MyFeatureThatOverridesHostInformationDefaults() =>
             Defaults(s =>
             {
                 var fieldInfo = s.GetType().GetField("Defaults", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -52,7 +48,6 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
                 testContext.HostIdDefaultApplied = defaults.ContainsKey("NServiceBus.HostInformation.HostId");
                 testContext.HostIdObserved = s.Get<Guid>("NServiceBus.HostInformation.HostId");
             });
-        }
 
         protected override void Setup(FeatureConfigurationContext context)
         {

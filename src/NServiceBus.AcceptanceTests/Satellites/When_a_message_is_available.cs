@@ -39,19 +39,11 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.EnableFeature<MySatelliteFeature>());
 
         public class MySatelliteFeature : Feature
         {
             public static string SatelliteReceiveAddress;
-
-            public MySatelliteFeature()
-            {
-                EnableByDefault();
-            }
 
             protected override void Setup(FeatureConfigurationContext context)
             {
@@ -76,10 +68,7 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
 
             class SatelliteFeatureStartupTask : FeatureStartupTask
             {
-                public SatelliteFeatureStartupTask(ReceiveAddresses receiveAddresses)
-                {
-                    SatelliteReceiveAddress = receiveAddresses.SatelliteReceiveAddresses.Single();
-                }
+                public SatelliteFeatureStartupTask(ReceiveAddresses receiveAddresses) => SatelliteReceiveAddress = receiveAddresses.SatelliteReceiveAddresses.Single();
 
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -88,7 +77,5 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }
