@@ -19,7 +19,6 @@ sealed class MessageDrivenSubscriptions : Feature
 
     internal MessageDrivenSubscriptions()
     {
-        EnableByDefault();
         Defaults(s =>
         {
             // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature

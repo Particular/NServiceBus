@@ -8,10 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// Simple feature that allows registration of <see cref="FeatureStartupTask"/> without having to define a <see cref="Feature"/> beforehand.
 /// </summary>
-class FeatureStartupTaskRunner : Feature
+sealed class FeatureStartupTaskRunner : Feature
 {
     public const string ConfigKey = "FeatureStartupTaskRunner.StartupTasks";
-    public FeatureStartupTaskRunner() => EnableByDefault();
 
     protected internal override void Setup(FeatureConfigurationContext context)
     {

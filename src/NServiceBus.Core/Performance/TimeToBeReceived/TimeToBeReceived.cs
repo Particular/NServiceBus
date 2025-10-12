@@ -4,10 +4,8 @@ using Transport;
 using System.Linq;
 using Unicast.Messages;
 
-class TimeToBeReceived : Feature
+sealed class TimeToBeReceived : Feature
 {
-    public TimeToBeReceived() => EnableByDefault();
-
     protected internal override void Setup(FeatureConfigurationContext context)
     {
         var mappings = GetMappings(context);

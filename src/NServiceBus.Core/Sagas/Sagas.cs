@@ -13,8 +13,6 @@ public class Sagas : Feature
 {
     internal Sagas()
     {
-        EnableByDefault();
-
         Defaults(s =>
         {
             conventions = s.Get<Conventions>();
