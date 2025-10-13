@@ -28,21 +28,12 @@ public class When_installers_not_enabled : NServiceBusAcceptanceTest
 
     class EndpointWithInstaller : EndpointConfigurationBuilder
     {
-        public EndpointWithInstaller()
-        {
+        public EndpointWithInstaller() =>
             // disable installers as installers are enabled by default in DefaultServer
             EndpointSetup<DefaultServer>(c => c.GetSettings().Set("Installers.Enable", false));
-        }
 
-        public class CustomInstaller : INeedToInstallSomething
+        public class CustomInstaller(Context testContext) : INeedToInstallSomething
         {
-            Context testContext;
-
-            public CustomInstaller(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Install(string identity, CancellationToken cancellationToken = default)
             {
                 testContext.InstallerCalled = true;
