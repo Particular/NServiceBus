@@ -80,7 +80,7 @@ static class TypeExtensionMethods
             return result;
         }
 
-        var publicKeyTokenOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+        var publicKeyTokenOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken() ?? [];
         IsSystemTypeCache[type.TypeHandle] = result = IsClrType(publicKeyTokenOfContainingAssembly);
         return result;
     }
