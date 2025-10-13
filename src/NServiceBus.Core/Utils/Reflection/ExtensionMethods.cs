@@ -8,10 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 static class TypeExtensionMethods
 {
     public static T Construct<T>(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicConstructors |
-                                    DynamicallyAccessedMemberTypes.None |
-                                    DynamicallyAccessedMemberTypes.PublicConstructors |
-                                    DynamicallyAccessedMemberTypes.PublicParameterlessConstructor), NotNull]
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         this Type type) => (T)Activator.CreateInstance(type, nonPublic: true);
 
     /// <summary>
