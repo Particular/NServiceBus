@@ -46,6 +46,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         public EndpointWithInstaller() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
+                c.RegisterInstaller<CustomInstaller>();
                 c.EnableFeature<CustomFeature>();
 
                 // Register FakeTransport to track transport seam usage during installation
