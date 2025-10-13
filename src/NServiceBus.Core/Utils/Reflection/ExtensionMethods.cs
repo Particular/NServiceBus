@@ -4,21 +4,16 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 static class TypeExtensionMethods
 {
-    public static T Construct<T>(this Type type)
-    {
-        var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Array.Empty<Type>(), null);
-        if (defaultConstructor != null)
-        {
-            return (T)defaultConstructor.Invoke(null);
-        }
-
-        return (T)Activator.CreateInstance(type);
-    }
+    public static T Construct<T>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicConstructors |
+                                    DynamicallyAccessedMemberTypes.None |
+                                    DynamicallyAccessedMemberTypes.PublicConstructors |
+                                    DynamicallyAccessedMemberTypes.PublicParameterlessConstructor), NotNull]
+        this Type type) => (T)Activator.CreateInstance(type, nonPublic: true);
 
     /// <summary>
     /// Returns true if the type can be serialized as is.
