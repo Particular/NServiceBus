@@ -77,14 +77,14 @@ static class TypeExtensionMethods
             return result;
         }
 
-        var publicKeyTokenOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken() ?? [];
+        var publicKeyTokenOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
         IsSystemTypeCache[type.TypeHandle] = result = IsClrType(publicKeyTokenOfContainingAssembly);
         return result;
     }
 
     public static bool IsFromParticularAssembly(this Type type) =>
-        (type.Assembly.GetName()
-            .GetPublicKeyToken() ?? [])
+        type.Assembly.GetName()
+            .GetPublicKeyToken()
             .SequenceEqual(nsbPublicKeyToken);
 
     static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
