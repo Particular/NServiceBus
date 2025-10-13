@@ -21,11 +21,11 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
         serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
-        foreach (var installerType in configuration.AvailableTypes.Where(IsINeedToInstallSomething))
-        {
-            serviceCollection.AddTransient(installerType);
-            serviceCollection.AddTransient(sp => (INeedToInstallSomething)sp.GetRequiredService(installerType));
-        }
+//        foreach (var installerType in configuration.AvailableTypes.Where(IsINeedToInstallSomething))
+//        {
+//            serviceCollection.AddTransient(installerType);
+//            serviceCollection.AddTransient(sp => (INeedToInstallSomething)sp.GetRequiredService(installerType));
+//        }
 
         // Apply user registrations last, so that user overrides win.
         foreach (var registration in configuration.UserRegistrations)
