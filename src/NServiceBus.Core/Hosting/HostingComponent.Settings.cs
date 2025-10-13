@@ -22,13 +22,14 @@ partial class HostingComponent
             settings.SetDefault(DisplayNameSettingsKey, RuntimeEnvironment.MachineName);
             settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
             {
-                {"Machine", RuntimeEnvironment.MachineName},
-                {"ProcessID", Environment.ProcessId.ToString()},
-                {"UserName", Environment.UserName},
-                {"PathToExecutable", fullPathToStartingExe}
+                { "Machine", RuntimeEnvironment.MachineName },
+                { "ProcessID", Environment.ProcessId.ToString() },
+                { "UserName", Environment.UserName },
+                { "PathToExecutable", fullPathToStartingExe }
             });
 
             settings.Set(new StartupDiagnosticEntries());
+            settings.Set(new InstallerRegistry());
         }
 
         public Guid HostId
@@ -54,6 +55,8 @@ partial class HostingComponent
         }
 
         public StartupDiagnosticEntries StartupDiagnostics => settings.Get<StartupDiagnosticEntries>();
+
+        public InstallerRegistry InstallerRegistry => settings.Get<InstallerRegistry>();
 
         public string? DiagnosticsPath
         {

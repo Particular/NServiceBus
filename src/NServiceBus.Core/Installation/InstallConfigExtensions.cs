@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using Installation;
 using Microsoft.Extensions.DependencyInjection;
+using Settings;
 
 /// <summary>
 /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething" />s are run.
@@ -30,12 +31,22 @@ public static class InstallConfigExtensions
     /// <summary>
     /// TODO
     /// </summary>
-    /// <param name="config"></param>
-    /// <param name="username"></param>
     public static void RegisterInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        config.RegisterComponents(sc => sc.AddTransient<INeedToInstallSomething, TInstaller>());
+        config.Settings.RegisterInstaller<TInstaller>();
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public static void RegisterInstaller<TInstaller>(this IReadOnlySettings settings) where TInstaller : class, INeedToInstallSomething
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var registry = settings.Get<InstallerRegistry>();
+
+        registry.Add<TInstaller>();
     }
 }

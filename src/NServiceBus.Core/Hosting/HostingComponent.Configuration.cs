@@ -18,6 +18,11 @@ partial class HostingComponent
     {
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
+        foreach (var installerType in availableTypes.Where(IsINeedToInstallSomething))
+        {
+            settings.InstallerRegistry.Add(installerType);
+        }
+
         var configuration = new Configuration(settings,
             availableTypes,
             new CriticalError(settings.CustomCriticalErrorAction),
@@ -60,6 +65,7 @@ partial class HostingComponent
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
+            InstallerTypes = settings.InstallerRegistry.GetInstallers();
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -90,5 +96,7 @@ partial class HostingComponent
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 
         public IActivityFactory ActivityFactory { get; set; }
+
+        public IEnumerable<Type> InstallerTypes { get; }
     }
 }

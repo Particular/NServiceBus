@@ -21,11 +21,10 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
         serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
-//        foreach (var installerType in configuration.AvailableTypes.Where(IsINeedToInstallSomething))
-//        {
-//            serviceCollection.AddTransient(installerType);
-//            serviceCollection.AddTransient(sp => (INeedToInstallSomething)sp.GetRequiredService(installerType));
-//        }
+        foreach (var installerType in configuration.InstallerTypes)
+        {
+            serviceCollection.AddTransient(typeof(INeedToInstallSomething), installerType);
+        }
 
         // Apply user registrations last, so that user overrides win.
         foreach (var registration in configuration.UserRegistrations)
@@ -49,7 +48,8 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             Environment.SystemPageSize,
             HostName = Dns.GetHostName(),
             Environment.UserName,
-            PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine)
+            PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
+            Installers = string.Join(";", configuration.InstallerTypes.Select(t => t.FullName))
         });
 
         return new HostingComponent(configuration);
