@@ -18,9 +18,7 @@ public static class PersistenceConfig
     public static PersistenceExtensions<T> UsePersistence<T>(this EndpointConfiguration config) where T : PersistenceDefinition
     {
         ArgumentNullException.ThrowIfNull(config);
-        var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
-        var extensions = Activator.CreateInstance(type, config.Settings)!;
-        return (PersistenceExtensions<T>)extensions;
+        return new PersistenceExtensions<T>(config.Settings);
     }
 
     /// <summary>
@@ -33,9 +31,7 @@ public static class PersistenceConfig
         where S : StorageType
     {
         ArgumentNullException.ThrowIfNull(config);
-        var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
-        var extensions = Activator.CreateInstance(type, config.Settings)!;
-        return (PersistenceExtensions<T, S>)extensions;
+        return new PersistenceExtensions<T, S>(config.Settings);
     }
 
     /// <summary>
