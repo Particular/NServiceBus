@@ -83,8 +83,8 @@ static class TypeExtensionMethods
     }
 
     public static bool IsFromParticularAssembly(this Type type) =>
-        type.Assembly.GetName()
-            .GetPublicKeyToken()
+        (type.Assembly.GetName()
+            .GetPublicKeyToken() ?? [])
             .SequenceEqual(nsbPublicKeyToken);
 
     static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
