@@ -71,11 +71,7 @@ static class TypeExtensionMethods
             return Type.GetTypeFromHandle(typeHandle).Name;
         }, t);
 
-    static bool IsClrType(byte[] a1)
-    {
-        IStructuralEquatable structuralEquatable = a1;
-        return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
-    }
+    static bool IsClrType(ReadOnlySpan<byte> publicKeyToken) => publicKeyToken.SequenceEqual(MsPublicKeyToken);
 
     public static bool IsSystemType(this Type type)
     {
