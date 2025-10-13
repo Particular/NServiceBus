@@ -16,6 +16,7 @@ partial class HostingComponent
 
     public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
     {
+        //TODO: Modify scanner so that only INeedToInstallSomething declared outside NServiceBus assemblies are included
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
         foreach (var installerType in availableTypes.Where(IsINeedToInstallSomething))
