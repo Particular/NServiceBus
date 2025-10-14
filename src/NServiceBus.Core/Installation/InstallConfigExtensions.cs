@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using Features;
 using Installation;
 using Microsoft.Extensions.DependencyInjection;
 using Settings;
@@ -35,18 +36,16 @@ public static class InstallConfigExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        config.Settings.RegisterInstaller<TInstaller>();
+        config.Settings.Get<InstallerRegistry>().Add<TInstaller>();
     }
 
     /// <summary>
     /// TODO
     /// </summary>
-    public static void RegisterInstaller<TInstaller>(this IReadOnlySettings settings) where TInstaller : class, INeedToInstallSomething
+    public static void RegisterInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
     {
-        ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(context);
 
-        var registry = settings.Get<InstallerRegistry>();
-
-        registry.Add<TInstaller>();
+        context.Settings.Get<InstallerRegistry>().Add<TInstaller>();
     }
 }

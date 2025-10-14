@@ -7,7 +7,6 @@ using EndpointTemplates;
 using FakeTransport;
 using Features;
 using Installation;
-using Configuration.AdvancedExtensibility;
 using NUnit.Framework;
 using Transport;
 
@@ -26,11 +25,8 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
             Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
         }
-        Assert.That(new[]
-        {
-            $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-            $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
-        }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
+
+        Assert.That(new[] { $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}", $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main", }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
     }
 
     class Context : ScenarioContext
@@ -46,7 +42,6 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         public EndpointWithInstaller() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
-                c.RegisterInstaller<CustomInstaller>();
                 c.EnableFeature<CustomFeature>();
 
                 // Register FakeTransport to track transport seam usage during installation
@@ -68,6 +63,8 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
+                context.RegisterInstaller<CustomInstaller>();
+
                 var testContext = context.Settings.Get<Context>();
                 testContext.FeatureSetupCalled = true;
 
