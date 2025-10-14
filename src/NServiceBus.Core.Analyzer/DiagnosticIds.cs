@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer
 {
-#if FIXES
+#if FIXES || SOURCEGEN
     static class DiagnosticIds
 #else
     public static class DiagnosticIds
@@ -24,5 +24,6 @@
         public const string CorrelationPropertyTypeMustMatchMessageMappingExpressions = "NSB0016";
         public const string ToSagaMappingMustBeToAProperty = "NSB0017";
         public const string SagaMappingExpressionCanBeRewritten = "NSB0018";
+        public const string ExtensionTypeAttributeCantDecorateGenericType = "NSB0019";
     }
 }
