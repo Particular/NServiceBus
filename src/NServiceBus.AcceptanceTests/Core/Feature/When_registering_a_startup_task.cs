@@ -32,46 +32,26 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
 
     public class SendOnlyEndpoint : EndpointConfigurationBuilder
     {
-        public SendOnlyEndpoint()
-        {
+        public SendOnlyEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.SendOnly();
                 c.EnableFeature<Bootstrapper>();
             });
-        }
 
         public class Bootstrapper : Feature
         {
-            public Bootstrapper()
-            {
-                EnableByDefault();
-            }
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetService<Context>()));
 
-            protected override void Setup(FeatureConfigurationContext context)
+            public class MyTask(Context scenarioContext) : FeatureStartupTask
             {
-                context.RegisterStartupTask(b => new MyTask(b.GetService<Context>()));
-            }
-
-            public class MyTask : FeatureStartupTask
-            {
-                public MyTask(Context scenarioContext)
-                {
-                    this.scenarioContext = scenarioContext;
-                }
-
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     scenarioContext.SendOnlyEndpointWasStarted = true;
                     return Task.CompletedTask;
                 }
 
-                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    return Task.CompletedTask;
-                }
-
-                readonly Context scenarioContext;
+                protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
         }
     }

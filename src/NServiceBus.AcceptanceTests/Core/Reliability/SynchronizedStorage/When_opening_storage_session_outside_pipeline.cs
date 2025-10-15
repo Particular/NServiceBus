@@ -57,31 +57,18 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<Bootstrapper>();
             });
-        }
 
         public class Bootstrapper : Feature
         {
-            public Bootstrapper() => EnableByDefault();
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetRequiredService<Context>(), b));
 
-            protected override void Setup(FeatureConfigurationContext context)
+            public class MyTask(Context scenarioContext, IServiceProvider provider) : FeatureStartupTask
             {
-                context.RegisterStartupTask(b => new MyTask(b.GetRequiredService<Context>(), b));
-            }
-
-            public class MyTask : FeatureStartupTask
-            {
-                public MyTask(Context scenarioContext, IServiceProvider provider)
-                {
-                    this.provider = provider;
-                    this.scenarioContext = scenarioContext;
-                }
-
                 protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     await using (var scope = provider.CreateAsyncScope())
@@ -107,9 +94,6 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                 }
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-                readonly Context scenarioContext;
-                readonly IServiceProvider provider;
             }
         }
     }
