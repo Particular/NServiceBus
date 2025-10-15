@@ -3,7 +3,10 @@
 namespace NServiceBus;
 
 using System;
+using Features;
 using Installation;
+using Microsoft.Extensions.DependencyInjection;
+using Settings;
 
 /// <summary>
 /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething" />s are run.
@@ -24,5 +27,25 @@ public static class InstallConfigExtensions
         }
 
         config.Settings.Set("Installers.Enable", true);
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public static void RegisterInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        config.Settings.Get<InstallerRegistry>().Add<TInstaller>();
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public static void RegisterInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        context.Settings.Get<InstallerRegistry>().Add<TInstaller>();
     }
 }
