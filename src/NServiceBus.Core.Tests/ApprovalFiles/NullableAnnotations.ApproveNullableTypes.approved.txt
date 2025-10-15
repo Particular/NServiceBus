@@ -52,6 +52,7 @@ NServiceBus.ImmediateRetry
 NServiceBus.IPipelineContext
 NServiceBus.IStartableEndpointWithExternallyManagedContainer
 NServiceBus.IToSagaExpression`1
+NServiceBus.IUnmarshalMessages
 NServiceBus.LearningPersistence
 NServiceBus.LearningSagaPersisterConfigurationExtensions
 NServiceBus.LearningTransport
