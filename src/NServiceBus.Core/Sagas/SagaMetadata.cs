@@ -253,8 +253,13 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                 if (existingMapping != null)
                 {
-                    var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
-                    throw new Exception(bothMappingAndFinder);
+                    if (existingMapping is not CustomFinderSagaToMessageMap)
+                    {
+                        var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
+                        throw new Exception(bothMappingAndFinder);
+                    }
+
+                    continue;
                 }
                 mapper.ConfigureCustomFinder(finderType, messageType);
             }
@@ -362,6 +367,8 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 MessageType = typeof(TMessage)
             });
         }
+
+        public void ConfigureFinder<TSagaEntity, TMessage, TSagaFinder>() where TSagaEntity : IContainSagaData where TSagaFinder : ISagaFinder<TSagaEntity, TMessage> => ConfigureCustomFinder(typeof(TSagaFinder), typeof(TMessage));
 
         static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
         {
