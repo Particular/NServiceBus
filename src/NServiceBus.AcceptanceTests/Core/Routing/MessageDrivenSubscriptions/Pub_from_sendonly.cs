@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NServiceBus.Extensibility;
-using NServiceBus.Features;
+using AcceptanceTesting;
+using EndpointTemplates;
+using Extensibility;
+using Features;
 using NServiceBus.Persistence;
-using NServiceBus.Unicast.Subscriptions;
+using Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
@@ -39,39 +39,27 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
 
     public class SendOnlyPublisher : EndpointConfigurationBuilder
     {
-        public SendOnlyPublisher()
-        {
+        public SendOnlyPublisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.SendOnly();
-                b.UsePersistence(typeof(HardCodedPersistence));
+                b.UsePersistence<HardCodedPersistence>();
                 b.DisableFeature<AutoSubscribe>();
             }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
-        }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
-            EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
-        }
+        public Subscriber() => EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SubscriberGotTheEvent = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -80,47 +68,39 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
     {
     }
 
-    public class HardCodedPersistence : PersistenceDefinition
+    public class HardCodedPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<HardCodedPersistence>
     {
-        internal HardCodedPersistence()
-        {
+        HardCodedPersistence() =>
             Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<HardCodedPersistenceFeature>());
-        }
+
+        public static HardCodedPersistence Create() => new();
     }
 
     public class HardCodedPersistenceFeature : Feature
     {
-        protected override void Setup(FeatureConfigurationContext context)
-        {
+        protected override void Setup(FeatureConfigurationContext context) =>
             context.Services.AddSingleton(typeof(ISubscriptionStorage), typeof(HardcodedSubscriptionManager));
-        }
     }
 
     public class HardcodedSubscriptionManager : ISubscriptionStorage
     {
-        public HardcodedSubscriptionManager()
-        {
-            addressTask = Task.FromResult(new[]
+        public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber,
+            MessageType messageType, ContextBag context, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber,
+            MessageType messageType, ContextBag context, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>>
+            GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context,
+                CancellationToken cancellationToken = default) => addressTask;
+
+        readonly Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> addressTask =
+            Task.FromResult(new[]
             {
-                new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber(Conventions.EndpointNamingConvention(typeof(Subscriber)), null)
+                new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber(
+                    Conventions.EndpointNamingConvention(typeof(Subscriber)), null)
             }.AsEnumerable());
-        }
-
-        public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
-        {
-            return addressTask;
-        }
-
-        Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> addressTask;
     }
 }
