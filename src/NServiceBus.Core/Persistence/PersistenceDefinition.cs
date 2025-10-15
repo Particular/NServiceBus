@@ -82,3 +82,17 @@ public abstract class PersistenceDefinition
     readonly List<Action<SettingsHolder>> defaults = [];
     readonly Dictionary<StorageType, Type> storageToFeatureMap = [];
 }
+
+/// <summary>
+///
+/// </summary>
+/// <typeparam name="TDefinition"></typeparam>
+public interface IPersistenceDefinitionFactory<out TDefinition>
+    where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
+{
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
+    static abstract TDefinition Create(SettingsHolder settings = null);
+}
