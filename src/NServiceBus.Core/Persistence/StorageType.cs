@@ -2,28 +2,41 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 /// <summary>
 /// The storage types used for NServiceBus needs.
 /// </summary>
-public abstract partial class StorageType
+public abstract class StorageType
 {
-    StorageType(string storage)
+    StorageType(string storage) => this.storage = storage;
+
+    /// <inheritdoc />
+    public override string ToString() => storage;
+
+    /// <inheritdoc />
+    public override bool Equals(object obj)
     {
-        this.storage = storage;
+        if (obj is StorageType other)
+        {
+            return storage == other.storage;
+        }
+
+        return false;
     }
 
     /// <inheritdoc />
-    public override string ToString()
-    {
-        return storage;
-    }
+    public override int GetHashCode() => storage != null ? storage.GetHashCode() : 0;
 
-    internal static List<Type> GetAvailableStorageTypes()
+    internal static IReadOnlyCollection<StorageType> GetAvailableStorageTypes() =>
+        [Subscriptions.Instance, Sagas.Instance, Outbox.Instance];
+
+    internal static StorageType Get<TStorageType>() where TStorageType : notnull, StorageType => typeof(TStorageType) switch
     {
-        return typeof(StorageType).GetNestedTypes().Where(t => t.BaseType == typeof(StorageType)).ToList();
-    }
+        { } t when t == typeof(Subscriptions) => Subscriptions.Instance,
+        { } t when t == typeof(Sagas) => Sagas.Instance,
+        { } t when t == typeof(Outbox) => Outbox.Instance,
+        _ => throw new InvalidOperationException($"The storage type '{typeof(TStorageType)}' is not supported.")
+    };
 
     readonly string storage;
 
@@ -32,9 +45,11 @@ public abstract partial class StorageType
     /// </summary>
     public sealed class Subscriptions : StorageType
     {
-        internal Subscriptions() : base("Subscriptions")
+        Subscriptions() : base("Subscriptions")
         {
         }
+
+        internal static readonly StorageType Instance = new Subscriptions();
     }
 
     /// <summary>
@@ -42,9 +57,11 @@ public abstract partial class StorageType
     /// </summary>
     public sealed class Sagas : StorageType
     {
-        internal Sagas() : base("Sagas")
+        Sagas() : base("Sagas")
         {
         }
+
+        internal static readonly StorageType Instance = new Sagas();
     }
 
     /// <summary>
@@ -52,8 +69,10 @@ public abstract partial class StorageType
     /// </summary>
     public sealed class Outbox : StorageType
     {
-        internal Outbox() : base("Outbox")
+        Outbox() : base("Outbox")
         {
         }
+
+        internal static readonly StorageType Instance = new Outbox();
     }
 }

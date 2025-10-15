@@ -5,6 +5,6 @@ using System.Collections.Generic;
 
 class EnabledPersistence
 {
-    public List<Type> SelectedStorages { get; set; }
+    public List<StorageType> SelectedStorages { get; set; }
     public Type DefinitionType;
 }

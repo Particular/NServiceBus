@@ -8,5 +8,5 @@ using Persistence;
 /// </summary>
 public class LearningPersistence : PersistenceDefinition
 {
-    internal LearningPersistence() => Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<LearningSagaPersistence>());
+    internal LearningPersistence() => Supports<StorageType.Sagas, LearningSagaPersistence>();
 }

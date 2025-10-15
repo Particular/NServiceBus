@@ -21,7 +21,7 @@ static class PersistenceComponent
 
         settings.ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
 
-        var resultingSupportedStorages = new List<Type>();
+        var resultingSupportedStorages = new List<StorageType>();
         var diagnostics = new Dictionary<string, object>();
 
         foreach (var definition in enabledPersistences)
@@ -36,7 +36,7 @@ static class PersistenceComponent
                 persistenceDefinition.ApplyActionForStorage(storageType, settings);
                 resultingSupportedStorages.Add(storageType);
 
-                diagnostics.Add(storageType.Name, new
+                diagnostics.Add(storageType.ToString(), new
                 {
                     Type = definition.DefinitionType.FullName,
                     Version = FileVersionRetriever.GetFileVersion(definition.DefinitionType)
@@ -51,8 +51,8 @@ static class PersistenceComponent
 
     static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, List<EnabledPersistence> enabledPersistences)
     {
-        var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
-        var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
+        var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance));
+        var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance));
         var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
 
         if (sagaPersisterType != null

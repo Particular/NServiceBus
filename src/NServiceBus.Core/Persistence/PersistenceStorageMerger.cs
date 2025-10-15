@@ -10,7 +10,7 @@ static class PersistenceStorageMerger
     {
         definitions.Reverse();
 
-        var availableStorages = StorageType.GetAvailableStorageTypes();
+        var availableStorages = new List<StorageType>(StorageType.GetAvailableStorageTypes());
         var mergedEnabledPersistences = new List<EnabledPersistence>();
 
         foreach (var definition in definitions)
