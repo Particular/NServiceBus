@@ -43,12 +43,12 @@ static class PersistenceComponent
             }
         }
 
-        settings.Set(ResultingSupportedStoragesSettingsKey, resultingSupportedStorages);
+        settings.Set<IReadOnlyCollection<StorageType>>(resultingSupportedStorages);
 
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
-    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<MergedPersistence> enabledPersistences)
+    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences)
     {
         var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance));
         var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance));
@@ -65,14 +65,10 @@ static class PersistenceComponent
 
     internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType
     {
-        settings.TryGet(ResultingSupportedStoragesSettingsKey, out List<Type> supportedStorages);
+        _ = settings.TryGet(out IReadOnlyCollection<StorageType> supportedStorages);
 
-        return supportedStorages?.Contains(typeof(T)) ?? false;
+        return supportedStorages?.Contains(StorageType.Get<T>()) ?? false;
     }
-
-    internal const string PersistenceDefinitionsSettingsKey = "PersistenceDefinitions";
-
-    const string ResultingSupportedStoragesSettingsKey = "ResultingSupportedStorages";
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
 }

@@ -468,4 +468,18 @@ namespace NServiceBus.Features
     }
 }
 
+namespace NServiceBus.Persistence
+{
+    using System;
+    using Particular.Obsoletes;
+    using Settings;
+
+    public partial class PersistenceDefinition
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "Supports<TStorage, TFeature>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'Supports<TStorage, TFeature>()' instead. Will be removed in version 11.0.0.", true)]
+        protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

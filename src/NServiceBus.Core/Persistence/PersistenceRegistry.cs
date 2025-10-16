@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -21,12 +23,12 @@ sealed class PersistenceRegistry
         return new EnableBuilder<TDefinition>((TDefinition)persistenceAndStorageTypes.Definition, this, settings);
     }
 
-    public IReadOnlyCollection<MergedPersistence> Merge()
+    public IReadOnlyCollection<EnabledPersistence> Merge()
     {
         IEnumerable<KeyValuePair<Type, (PersistenceDefinition Definition, List<StorageType> EnabledStorages)>> reversedDefinitions = definitions.Reverse();
 
         var availableStorages = new List<StorageType>(StorageType.GetAvailableStorageTypes());
-        var mergedEnabledPersistences = new List<MergedPersistence>();
+        var enabledPersistences = new List<EnabledPersistence>();
 
         foreach (var (_, (persistenceDefinition, enabledStorages)) in reversedDefinitions)
         {
@@ -47,11 +49,11 @@ sealed class PersistenceRegistry
 
             if (selectedStorages.Count != 0)
             {
-                mergedEnabledPersistences.Add(new MergedPersistence(selectedStorages, persistenceDefinition));
+                enabledPersistences.Add(new EnabledPersistence(selectedStorages, persistenceDefinition));
             }
         }
 
-        return mergedEnabledPersistences;
+        return enabledPersistences;
     }
 
     void EnableStorageFor<TDefinition>(SettingsHolder settings, StorageType storage)

@@ -5,9 +5,9 @@ namespace NServiceBus.Persistence;
 using Settings;
 
 /// <summary>
-///
+/// Defines a factory for creating persistence definitions used in <see cref="PersistenceConfig.UsePersistence{T}"/>.
 /// </summary>
-/// <typeparam name="TDefinition"></typeparam>
+/// <typeparam name="TDefinition">The persistence definition type.</typeparam>
 public interface IPersistenceDefinitionFactory<out TDefinition>
     where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
 {

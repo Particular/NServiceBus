@@ -11,5 +11,8 @@ public class LearningPersistence : PersistenceDefinition, IPersistenceDefinition
 {
     LearningPersistence() => Supports<StorageType.Sagas, LearningSagaPersistence>();
 
+    /// <summary>
+    /// Creates the learning persistence definition.
+    /// </summary>
     public static LearningPersistence Create(SettingsHolder settings) => new();
 }

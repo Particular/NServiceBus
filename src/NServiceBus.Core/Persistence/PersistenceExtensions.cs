@@ -2,8 +2,6 @@
 
 namespace NServiceBus;
 
-using System;
-using System.Collections.Generic;
 using Configuration.AdvancedExtensibility;
 using Persistence;
 using Settings;
@@ -14,17 +12,12 @@ using Settings;
 /// </summary>
 /// <typeparam name="T">The persister definition eg <see cref="LearningPersistence" />, etc.</typeparam>
 /// <typeparam name="S">The <see cref="StorageType" />storage type.</typeparam>
-public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
+/// <remarks>
+/// Initializes a new instance of <see cref="PersistenceExtensions" />.
+/// </remarks>
+public class PersistenceExtensions<T, S>(SettingsHolder settings) : PersistenceExtensions<T>(settings, StorageType.Get<S>())
     where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
-    where S : StorageType
-{
-    /// <summary>
-    /// Initializes a new instance of <see cref="PersistenceExtensions" />.
-    /// </summary>
-    public PersistenceExtensions(SettingsHolder settings) : base(settings, StorageType.Get<S>())
-    {
-    }
-}
+    where S : StorageType;
 
 /// <summary>
 /// This class provides implementers of persisters with an extension mechanism for custom settings via extension
@@ -41,17 +34,13 @@ public partial class PersistenceExtensions<T> : ExposeSettings
     {
     }
 
-    /// <summary>
-    /// Constructor for a specific <see cref="StorageType" />.
-    /// </summary>
-    protected PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
+    internal PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
     {
-        var registry = settings
-            .GetOrCreate<PersistenceRegistry>()
-            .Enable<T>(settings);
+        var registry = settings.GetOrCreate<PersistenceRegistry>();
+        var enablePersistence = registry.Enable<T>(settings);
         if (storageType is not null)
         {
-            registry.WithStorage(storageType);
+            enablePersistence.WithStorage(storageType);
         }
     }
 }

@@ -8,7 +8,7 @@ using Settings;
 /// <summary>
 /// Base class for persistence definitions.
 /// </summary>
-public abstract class PersistenceDefinition
+public abstract partial class PersistenceDefinition
 {
     /// <summary>
     /// Used by the storage definitions to declare what they support.
@@ -24,16 +24,6 @@ public abstract class PersistenceDefinition
         }
 
         storageToFeatureMap[storageType] = typeof(TFeature);
-    }
-
-    /// <summary>
-    /// Used by the storage definitions to declare what they support.
-    /// </summary>
-#pragma warning disable CA1822
-    protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
-#pragma warning restore CA1822
-    {
-        // TODO obsolete
     }
 
     /// <summary>

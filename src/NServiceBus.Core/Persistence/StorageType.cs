@@ -30,12 +30,12 @@ public abstract class StorageType
     internal static IReadOnlyCollection<StorageType> GetAvailableStorageTypes() =>
         [Subscriptions.Instance, Sagas.Instance, Outbox.Instance];
 
-    internal static StorageType Get<TStorageType>() where TStorageType : notnull, StorageType => typeof(TStorageType) switch
+    internal static StorageType Get<TStorage>() where TStorage : notnull, StorageType => typeof(TStorage) switch
     {
         { } t when t == typeof(Subscriptions) => Subscriptions.Instance,
         { } t when t == typeof(Sagas) => Sagas.Instance,
         { } t when t == typeof(Outbox) => Outbox.Instance,
-        _ => throw new InvalidOperationException($"The storage type '{typeof(TStorageType)}' is not supported.")
+        _ => throw new InvalidOperationException($"The storage type '{typeof(TStorage)}' is not supported.")
     };
 
     readonly string storage;
