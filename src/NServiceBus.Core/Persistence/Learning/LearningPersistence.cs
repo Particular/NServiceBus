@@ -2,6 +2,7 @@
 
 using Features;
 using Persistence;
+using Settings;
 
 /// <summary>
 /// Used to enable Learning persistence.
@@ -9,5 +10,6 @@ using Persistence;
 public class LearningPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<LearningPersistence>
 {
     LearningPersistence() => Supports<StorageType.Sagas, LearningSagaPersistence>();
-    public static LearningPersistence Create() => new();
+
+    public static LearningPersistence Create(SettingsHolder settings) => new();
 }

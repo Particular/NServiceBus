@@ -8,7 +8,7 @@ using Persistence;
 /// <summary>
 /// Enables users to select persistence by calling .UsePersistence().
 /// </summary>
-public static class PersistenceConfig
+public static partial class PersistenceConfig
 {
     /// <summary>
     /// Configures the given persistence to be used.
@@ -34,18 +34,5 @@ public static class PersistenceConfig
     {
         ArgumentNullException.ThrowIfNull(config);
         return new PersistenceExtensions<T, S>(config.Settings);
-    }
-
-    /// <summary>
-    /// Configures the given persistence to be used.
-    /// </summary>
-    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    /// <param name="definitionType">The persistence definition eg <see cref="LearningPersistence" />, NHibernate etc.</param>
-    // TODO obsolete?
-    public static PersistenceExtensions UsePersistence(this EndpointConfiguration config, Type definitionType)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(definitionType);
-        return new PersistenceExtensions(definitionType, config.Settings, null);
     }
 }

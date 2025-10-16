@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,7 @@ public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
     /// <summary>
     /// Initializes a new instance of <see cref="PersistenceExtensions" />.
     /// </summary>
-    public PersistenceExtensions(SettingsHolder settings) : base(settings, typeof(S))
+    public PersistenceExtensions(SettingsHolder settings) : base(settings, StorageType.Get<S>())
     {
     }
 }
@@ -29,54 +31,40 @@ public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
 /// methods.
 /// </summary>
 /// <typeparam name="T">The persister definition eg <see cref="LearningPersistence" />, etc.</typeparam>
-public class PersistenceExtensions<T> : PersistenceExtensions where T : PersistenceDefinition
+public partial class PersistenceExtensions<T> : ExposeSettings
+    where T : PersistenceDefinition
 {
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public PersistenceExtensions(SettingsHolder settings) : base(typeof(T), settings, null)
+    public PersistenceExtensions(SettingsHolder settings) : this(settings, default(StorageType))
     {
     }
 
     /// <summary>
     /// Constructor for a specific <see cref="StorageType" />.
     /// </summary>
-    protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
+    protected PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
     {
-    }
-}
-
-/// <summary>
-/// This class provides implementers of persisters with an extension mechanism for custom settings via extension
-/// methods.
-/// </summary>
-public class PersistenceExtensions : ExposeSettings
-{
-    /// <summary>
-    /// Initializes a new instance of <see cref="PersistenceExtensions" />.
-    /// </summary>
-    public PersistenceExtensions(Type definitionType, SettingsHolder settings, Type storageType)
-        : base(settings)
-    {
-        List<EnabledPersistence> definitions = settings.GetOrSetEnabledPersistences();
-
-        var enabledPersistence = new EnabledPersistence
-        {
-            DefinitionType = definitionType,
-            SelectedStorages = []
-        };
-
-        if (storageType != null)
-        {
-            var definition = definitionType.Construct<PersistenceDefinition>();
-            if (!definition.HasSupportFor(storageType))
-            {
-                throw new Exception($"{definitionType.Name} does not support storage type {storageType.Name}. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for supported variations.");
-            }
-
-            enabledPersistence.SelectedStorages.Add(storageType);
-        }
-
-        definitions.Add(enabledPersistence);
+        // List<EnabledPersistence> definitions = settings.GetOrSetEnabledPersistences();
+        //
+        // var enabledPersistence = new EnabledPersistence
+        // {
+        //     DefinitionType = definitionType,
+        //     SelectedStorages = []
+        // };
+        //
+        // if (storageType != null)
+        // {
+        //     var definition = definitionType.Construct<PersistenceDefinition>();
+        //     if (!definition.HasSupportFor(storageType))
+        //     {
+        //         throw new Exception($"{definitionType.Name} does not support storage type {storageType.Name}. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for supported variations.");
+        //     }
+        //
+        //     enabledPersistence.SelectedStorages.Add(storageType);
+        // }
+        //
+        // definitions.Add(enabledPersistence);
     }
 }
