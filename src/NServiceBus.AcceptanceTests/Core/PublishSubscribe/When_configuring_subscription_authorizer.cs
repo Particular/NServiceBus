@@ -14,6 +14,7 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Persistence;
+using Settings;
 using Unicast.Subscriptions;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -100,10 +101,7 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
         }
         class StorageAccessor : FeatureStartupTask
         {
-            public StorageAccessor(ISubscriptionStorage subscriptionStorage, Context testContext)
-            {
-                testContext.SubscriptionStorage = (FakePersistence.FakeSubscriptionStorage)subscriptionStorage;
-            }
+            public StorageAccessor(ISubscriptionStorage subscriptionStorage, Context testContext) => testContext.SubscriptionStorage = (FakePersistence.FakeSubscriptionStorage)subscriptionStorage;
 
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -111,27 +109,17 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
         }
     }
 
-    public class AllowedEvent : IEvent
-    {
-    }
+    public class AllowedEvent : IEvent;
 
-    public class ForbiddenEvent : IEvent
-    {
-    }
+    public class ForbiddenEvent : IEvent;
 
-    class FakePersistence : PersistenceDefinition
+    class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
     {
-        public FakePersistence()
-        {
-            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault(typeof(SubscriptionStorageFeature)));
-        }
+        FakePersistence() => Supports<StorageType.Subscriptions, SubscriptionStorageFeature>();
 
         class SubscriptionStorageFeature : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.Services.AddSingleton<ISubscriptionStorage>(new FakeSubscriptionStorage());
-            }
+            protected override void Setup(FeatureConfigurationContext context) => context.Services.AddSingleton<ISubscriptionStorage>(new FakeSubscriptionStorage());
         }
 
         public class FakeSubscriptionStorage : ISubscriptionStorage
@@ -148,5 +136,7 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
 
             public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
+
+        public static FakePersistence Create(SettingsHolder settings) => new();
     }
 }

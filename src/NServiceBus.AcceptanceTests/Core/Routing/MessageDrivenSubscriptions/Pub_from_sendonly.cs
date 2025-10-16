@@ -14,6 +14,7 @@ using NServiceBus.Persistence;
 using Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 using NUnit.Framework;
+using Settings;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class Pub_from_sendonly : NServiceBusAcceptanceTest
@@ -73,7 +74,7 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
         HardCodedPersistence() =>
             Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<HardCodedPersistenceFeature>());
 
-        public static HardCodedPersistence Create() => new();
+        public static HardCodedPersistence Create(SettingsHolder settings) => new();
     }
 
     public class HardCodedPersistenceFeature : Feature
