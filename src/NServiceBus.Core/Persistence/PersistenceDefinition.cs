@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Persistence;
+﻿#nullable enable
+
+namespace NServiceBus.Persistence;
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ public abstract partial class PersistenceDefinition
         where TFeature : Feature
     {
         var storageType = StorageType.Get<TStorage>();
-        if (storageToFeatureMap.TryGetValue(storageType, out Type supportedStorageType))
+        if (storageToFeatureMap.TryGetValue(storageType, out var supportedStorageType))
         {
             throw new Exception($"Storage {typeof(TStorage)} is already supported by {supportedStorageType}");
         }

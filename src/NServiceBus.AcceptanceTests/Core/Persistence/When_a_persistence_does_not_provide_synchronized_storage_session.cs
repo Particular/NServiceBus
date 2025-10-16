@@ -10,7 +10,6 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Persistence;
 using NUnit.Framework;
-using Settings;
 using Unicast.Subscriptions;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -38,7 +37,9 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
 
         sealed class FakeStorage : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context)
+            {
+            }
         }
     }
 

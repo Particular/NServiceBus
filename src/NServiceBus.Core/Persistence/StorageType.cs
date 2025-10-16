@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ public abstract class StorageType
     public override string ToString() => storage;
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is StorageType other)
         {
@@ -25,7 +27,7 @@ public abstract class StorageType
     }
 
     /// <inheritdoc />
-    public override int GetHashCode() => storage != null ? storage.GetHashCode() : 0;
+    public override int GetHashCode() => storage.GetHashCode();
 
     internal static IReadOnlyCollection<StorageType> GetAvailableStorageTypes() =>
         [Subscriptions.Instance, Sagas.Instance, Outbox.Instance];

@@ -52,8 +52,6 @@ NServiceBus.ImmediateRetry
 NServiceBus.IPipelineContext
 NServiceBus.IStartableEndpointWithExternallyManagedContainer
 NServiceBus.IToSagaExpression`1
-NServiceBus.LearningPersistence
-NServiceBus.LearningSagaPersisterConfigurationExtensions
 NServiceBus.LearningTransport
 NServiceBus.LearningTransportConfigurationExtensions
 NServiceBus.LoadMessageHandlersExtensions
@@ -80,10 +78,6 @@ NServiceBus.OutboxConfigExtensions
 NServiceBus.PendingTransportOperations
 NServiceBus.Persistence.CompletableSynchronizedStorageSessionExtensions
 NServiceBus.Persistence.ICompletableSynchronizedStorageSession
-NServiceBus.Persistence.PersistenceDefinition
-NServiceBus.PersistenceExtensions
-NServiceBus.PersistenceExtensions`1
-NServiceBus.PersistenceExtensions`2
 NServiceBus.Pipeline.ForkConnector`2
 NServiceBus.Pipeline.IAuditActionContext
 NServiceBus.Pipeline.IAuditContext
