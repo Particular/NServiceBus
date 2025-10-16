@@ -2,7 +2,6 @@
 
 using Features;
 using Persistence;
-using Settings;
 
 /// <summary>
 /// Used to enable Learning persistence.
@@ -14,5 +13,5 @@ public class LearningPersistence : PersistenceDefinition, IPersistenceDefinition
     /// <summary>
     /// Creates the learning persistence definition.
     /// </summary>
-    public static LearningPersistence Create(SettingsHolder settings) => new();
+    public static LearningPersistence Create() => new();
 }

@@ -137,6 +137,6 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
             public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
-        public static FakePersistence Create(SettingsHolder settings) => new();
+        public static FakePersistence Create() => new();
     }
 }

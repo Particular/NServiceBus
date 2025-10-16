@@ -71,7 +71,7 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
     {
         HardCodedPersistence() => Supports<StorageType.Subscriptions, HardCodedPersistenceFeature>();
 
-        public static HardCodedPersistence Create(SettingsHolder settings) => new();
+        public static HardCodedPersistence Create() => new();
     }
 
     class HardCodedPersistenceFeature : Feature

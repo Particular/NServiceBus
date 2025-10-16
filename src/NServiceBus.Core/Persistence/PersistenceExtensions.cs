@@ -37,7 +37,7 @@ public partial class PersistenceExtensions<T> : ExposeSettings
     internal PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
     {
         var registry = settings.GetOrCreate<PersistenceRegistry>();
-        var enablePersistence = registry.Enable<T>(settings);
+        var enablePersistence = registry.Enable<T>();
         if (storageType is not null)
         {
             enablePersistence.WithStorage(storageType);

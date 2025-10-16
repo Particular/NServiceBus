@@ -20,7 +20,7 @@ public class When_configuring_storage_type_not_supported_by_persistence
     {
         PartialPersistence() => Supports<StorageType.Subscriptions, FakeSubscriptionStorage>();
 
-        public static PartialPersistence Create(SettingsHolder settings) => new();
+        public static PartialPersistence Create() => new();
 
         class FakeSubscriptionStorage : Feature
         {
@@ -42,7 +42,7 @@ public class When_configuring_storage_type_supported_by_persistence
     {
         public PartialPersistence() => Supports<StorageType.Subscriptions, FakeSubscriptionStorage>();
 
-        public static PartialPersistence Create(SettingsHolder settings) => new();
+        public static PartialPersistence Create() => new();
 
         class FakeSubscriptionStorage : Feature
         {

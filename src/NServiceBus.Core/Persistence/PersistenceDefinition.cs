@@ -38,21 +38,9 @@ public abstract partial class PersistenceDefinition
     /// <summary>
     /// True if supplied storage is supported.
     /// </summary>
-    public bool HasSupportFor<T>() where T : StorageType => storageToFeatureMap.ContainsKey(StorageType.Get<T>());
+    public bool HasSupportFor<T>() where T : StorageType => HasSupportFor(StorageType.Get<T>());
 
     internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
-
-    /// <summary>
-    /// True if supplied storage is supported.
-    /// </summary>
-#pragma warning disable CA1822
-    public bool HasSupportFor(Type storageType)
-#pragma warning restore CA1822
-    {
-        // TODO
-        ArgumentNullException.ThrowIfNull(storageType);
-        return false;
-    }
 
     internal void ApplyActionForStorage(StorageType storageType, SettingsHolder settings)
     {

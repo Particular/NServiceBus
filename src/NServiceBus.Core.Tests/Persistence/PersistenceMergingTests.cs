@@ -4,7 +4,6 @@ using System.Linq;
 using NServiceBus.Features;
 using NServiceBus.Persistence;
 using NUnit.Framework;
-using Settings;
 
 [TestFixture]
 public class When_no_storage_persistence_overrides_are_enabled
@@ -34,7 +33,7 @@ public class When_no_storage_persistence_overrides_are_enabled
             Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
-        public static FakePersistence Create(SettingsHolder settings) => new();
+        public static FakePersistence Create() => new();
 
         class FakeStorage : Feature
         {
@@ -73,7 +72,7 @@ public class When_storage_overrides_are_provided
             Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
-        public static FakePersistence2 Create(SettingsHolder settings) => new();
+        public static FakePersistence2 Create() => new();
 
         class FakeStorage : Feature
         {
@@ -90,7 +89,7 @@ public class When_storage_overrides_are_provided
             Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
-        public static FakePersistence Create(SettingsHolder settings) => new();
+        public static FakePersistence Create() => new();
 
         class FakeStorage : Feature
         {
@@ -122,7 +121,7 @@ public class When_explicitly_enabling_selected_storage
             Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
-        public static FakePersistence Create(SettingsHolder settings) => new();
+        public static FakePersistence Create() => new();
 
         class FakeStorage : Feature
         {

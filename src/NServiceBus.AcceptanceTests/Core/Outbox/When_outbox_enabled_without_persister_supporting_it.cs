@@ -35,6 +35,6 @@ public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAc
 
     class FakeNoOutboxSupportPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeNoOutboxSupportPersistence>
     {
-        public static FakeNoOutboxSupportPersistence Create(SettingsHolder settings) => new();
+        public static FakeNoOutboxSupportPersistence Create() => new();
     }
 }

@@ -479,6 +479,10 @@ namespace NServiceBus.Persistence
         [ObsoleteMetadata(ReplacementTypeOrMember = "Supports<TStorage, TFeature>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use 'Supports<TStorage, TFeature>()' instead. Will be removed in version 11.0.0.", true)]
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "HasSupportFor<T>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'HasSupportFor<T>()' instead. Will be removed in version 11.0.0.", true)]
+        public bool HasSupportFor(Type storageType) => throw new NotImplementedException();
     }
 }
 

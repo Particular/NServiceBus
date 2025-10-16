@@ -13,5 +13,5 @@ public class AcceptanceTestingPersistence : PersistenceDefinition, IPersistenceD
         Supports<StorageType.Outbox, AcceptanceTestingOutboxPersistence>();
     }
 
-    public static AcceptanceTestingPersistence Create(SettingsHolder settingsHolder) => new();
+    public static AcceptanceTestingPersistence Create() => new();
 }

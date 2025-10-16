@@ -63,7 +63,7 @@ public class When_persistence_has_been_configured
     class FakeSagaPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeSagaPersistence>
     {
         FakeSagaPersistence() => Supports<StorageType.Sagas, FakeStorage>();
-        public static FakeSagaPersistence Create(SettingsHolder settings) => new();
+        public static FakeSagaPersistence Create() => new();
 
         class FakeStorage : Feature
         {
@@ -74,7 +74,7 @@ public class When_persistence_has_been_configured
     class FakeOutboxPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeOutboxPersistence>
     {
         FakeOutboxPersistence() => Supports<StorageType.Outbox, FakeStorage>();
-        public static FakeOutboxPersistence Create(SettingsHolder settings) => new();
+        public static FakeOutboxPersistence Create() => new();
 
         class FakeStorage : Feature
         {

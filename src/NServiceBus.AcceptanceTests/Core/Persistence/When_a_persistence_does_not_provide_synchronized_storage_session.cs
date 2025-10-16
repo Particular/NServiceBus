@@ -34,7 +34,7 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
             Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
-        public static FakeNoSynchronizedStorageSupportPersistence Create(SettingsHolder settings) => new();
+        public static FakeNoSynchronizedStorageSupportPersistence Create() => new();
 
         sealed class FakeStorage : Feature
         {

@@ -2,8 +2,6 @@
 
 namespace NServiceBus.Persistence;
 
-using Settings;
-
 /// <summary>
 /// Defines a factory for creating persistence definitions used in <see cref="PersistenceConfig.UsePersistence{T}"/>.
 /// </summary>
@@ -15,5 +13,5 @@ public interface IPersistenceDefinitionFactory<out TDefinition>
     /// Creates the persistence definition.
     /// </summary>
     /// <returns>The persistence definition.</returns>
-    static abstract TDefinition Create(SettingsHolder settings);
+    static abstract TDefinition Create();
 }

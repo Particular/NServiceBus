@@ -6,21 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Persistence;
-using Settings;
 
 sealed class PersistenceRegistry
 {
-    public EnableBuilder<TDefinition> Enable<TDefinition>(SettingsHolder settings)
+    public EnableBuilder<TDefinition> Enable<TDefinition>()
         where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
     {
         if (definitions.TryGetValue(typeof(TDefinition), out var persistenceAndStorageTypes))
         {
-            return new EnableBuilder<TDefinition>((TDefinition)persistenceAndStorageTypes.Definition, this, settings);
+            return new EnableBuilder<TDefinition>((TDefinition)persistenceAndStorageTypes.Definition, this);
         }
 
-        var definition = TDefinition.Create(settings);
+        var definition = TDefinition.Create();
         definitions.Add(typeof(TDefinition), (definition, []));
-        return new EnableBuilder<TDefinition>((TDefinition)persistenceAndStorageTypes.Definition, this, settings);
+        return new EnableBuilder<TDefinition>((TDefinition)persistenceAndStorageTypes.Definition, this);
     }
 
     public IReadOnlyCollection<EnabledPersistence> Merge()
@@ -56,10 +55,10 @@ sealed class PersistenceRegistry
         return enabledPersistences;
     }
 
-    void EnableStorageFor<TDefinition>(SettingsHolder settings, StorageType storage)
+    void EnableStorageFor<TDefinition>(StorageType storage)
         where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
     {
-        var builder = Enable<TDefinition>(settings);
+        var builder = Enable<TDefinition>();
 
         if (!builder.Persistence.HasSupportFor(storage))
         {
@@ -73,24 +72,23 @@ sealed class PersistenceRegistry
         }
     }
 
-    void EnableStorageFor<TDefinition, TStorage>(SettingsHolder settings)
+    void EnableStorageFor<TDefinition, TStorage>()
         where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
         where TStorage : StorageType =>
-        EnableStorageFor<TDefinition>(settings, StorageType.Get<TStorage>());
+        EnableStorageFor<TDefinition>(StorageType.Get<TStorage>());
 
     public class EnableBuilder<TDefinition>(
         TDefinition definition,
-        PersistenceRegistry registry,
-        SettingsHolder settings)
+        PersistenceRegistry registry)
         where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
     {
         public TDefinition Persistence { get; } = definition;
 
         public void WithStorage<TStorage>()
             where TStorage : StorageType =>
-            registry.EnableStorageFor<TDefinition, TStorage>(settings);
+            registry.EnableStorageFor<TDefinition, TStorage>();
 
-        public void WithStorage(StorageType storageType) => registry.EnableStorageFor<TDefinition>(settings, storageType);
+        public void WithStorage(StorageType storageType) => registry.EnableStorageFor<TDefinition>(storageType);
     }
 
     readonly Dictionary<Type, (PersistenceDefinition Definition, List<StorageType> EnabledStorageTypes)> definitions = [];
