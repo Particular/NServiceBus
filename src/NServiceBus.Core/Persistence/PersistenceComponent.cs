@@ -30,17 +30,16 @@ static class PersistenceComponent
             var persistenceDefinition = enabledPersistence.Definition;
             persistenceDefinition.ApplyDefaults(settings);
 
-            var definitionType = persistenceDefinition.GetType();
             foreach (var storageType in enabledPersistence.SelectedStorages)
             {
-                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definitionType.Name, storageType);
+                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", persistenceDefinition.Name, storageType);
                 persistenceDefinition.ApplyActionForStorage(storageType, settings);
                 resultingSupportedStorages.Add(storageType);
 
                 diagnostics.Add(storageType.ToString(), new
                 {
-                    Type = definitionType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(definitionType)
+                    Type = persistenceDefinition.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(persistenceDefinition.GetType())
                 });
             }
         }
@@ -52,16 +51,16 @@ static class PersistenceComponent
 
     static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences)
     {
-        var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance));
-        var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance));
+        var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance))?.Definition;
+        var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance))?.Definition;
         var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
 
-        if (sagaPersisterType != null
-            && outboxPersisterType != null
-            && sagaPersisterType.Definition != outboxPersisterType.Definition
+        if (sagaPersisterDefinition != null
+            && outboxPersisterDefinition != null
+            && sagaPersisterDefinition != outboxPersisterDefinition
             && bothFeaturesEnabled)
         {
-            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use {sagaPersisterType.Definition.GetType().Name}. Outbox persistence is configured to use {outboxPersisterType.GetType().Name}.");
+            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
         }
     }
 

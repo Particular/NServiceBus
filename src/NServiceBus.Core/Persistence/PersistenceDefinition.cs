@@ -42,6 +42,9 @@ public abstract partial class PersistenceDefinition
     /// </summary>
     public bool HasSupportFor<T>() where T : StorageType => HasSupportFor(StorageType.Get<T>());
 
+    internal string Name => GetType().Name;
+    internal string FullName => GetType().FullName ?? Name;
+
     internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
 
     internal void ApplyActionForStorage(StorageType storageType, SettingsHolder settings)
