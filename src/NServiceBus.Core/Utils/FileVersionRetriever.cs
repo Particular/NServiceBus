@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 
-class FileVersionRetriever
+static class FileVersionRetriever
 {
     public static string GetFileVersion(Type type) => GetFileVersion(type.Assembly);
 
