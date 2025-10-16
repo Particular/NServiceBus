@@ -60,8 +60,8 @@ public class When_storage_overrides_are_provided
         using (Assert.EnterMultipleScope())
         {
             Assert.That(enabledPersistences, Has.Count.EqualTo(2));
-            Assert.That(enabledPersistences.ElementAt(0).SelectedStorages, Is.EquivalentTo([StorageType.Subscriptions.Instance]));
-            Assert.That(enabledPersistences.ElementAt(1).SelectedStorages, Is.EquivalentTo([StorageType.Sagas.Instance]));
+            Assert.That(enabledPersistences.ElementAt(0).SelectedStorages, Is.EquivalentTo([StorageType.Sagas.Instance, StorageType.Subscriptions.Instance]));
+            Assert.That(enabledPersistences.ElementAt(1).SelectedStorages, Is.EquivalentTo([StorageType.Outbox.Instance]));
         }
     }
 
