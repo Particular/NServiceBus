@@ -13,7 +13,7 @@ public class When_configuring_storage_type_not_supported_by_persistence
     public void Should_throw_exception()
     {
         var ex = Assert.Throws<Exception>(() => new PersistenceExtensions<PartialPersistence, StorageType.Sagas>(new SettingsHolder()));
-        Assert.That(ex.Message, Does.StartWith("PartialPersistence does not support storage type Sagas."));
+        Assert.That(ex.Message, Does.StartWith("PartialPersistence does not support storage type 'Sagas'."));
     }
 
     public class PartialPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<PartialPersistence>
