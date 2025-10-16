@@ -5,41 +5,40 @@ using System.Collections.Generic;
 using System.Linq;
 using Features;
 using Logging;
-using Persistence;
 using Settings;
 
 static class PersistenceComponent
 {
     public static void ConfigurePersistence(this SettingsHolder settings)
     {
-        if (!settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
+        if (!settings.TryGet<PersistenceRegistry>(out var persistenceRegistry))
         {
             return;
         }
 
-        var enabledPersistences = settings.MergePersistences(definitions);
+        var enabledPersistences = persistenceRegistry.Merge();
 
         settings.ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
 
         var resultingSupportedStorages = new List<StorageType>();
         var diagnostics = new Dictionary<string, object>();
 
-        foreach (var definition in enabledPersistences)
+        foreach (var enabledPersistence in enabledPersistences)
         {
-            var persistenceDefinition = definition.DefinitionType.Construct<PersistenceDefinition>();
-
+            var persistenceDefinition = enabledPersistence.Definition;
             persistenceDefinition.ApplyDefaults(settings);
 
-            foreach (var storageType in definition.SelectedStorages)
+            var definitionType = persistenceDefinition.GetType();
+            foreach (var storageType in enabledPersistence.SelectedStorages)
             {
-                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definitionType.Name, storageType);
                 persistenceDefinition.ApplyActionForStorage(storageType, settings);
                 resultingSupportedStorages.Add(storageType);
 
                 diagnostics.Add(storageType.ToString(), new
                 {
-                    Type = definition.DefinitionType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(definition.DefinitionType)
+                    Type = definitionType.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(definitionType)
                 });
             }
         }
@@ -49,7 +48,7 @@ static class PersistenceComponent
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
-    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, List<EnabledPersistence> enabledPersistences)
+    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<MergedPersistence> enabledPersistences)
     {
         var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance));
         var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance));
@@ -57,23 +56,11 @@ static class PersistenceComponent
 
         if (sagaPersisterType != null
             && outboxPersisterType != null
-            && sagaPersisterType.DefinitionType != outboxPersisterType.DefinitionType
+            && sagaPersisterType.Definition != outboxPersisterType.Definition
             && bothFeaturesEnabled)
         {
-            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use {sagaPersisterType.DefinitionType.Name}. Outbox persistence is configured to use {outboxPersisterType.DefinitionType.Name}.");
+            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use {sagaPersisterType.Definition.GetType().Name}. Outbox persistence is configured to use {outboxPersisterType.GetType().Name}.");
         }
-    }
-
-    internal static List<EnabledPersistence> GetOrSetEnabledPersistences(this SettingsHolder settings)
-    {
-        if (settings.TryGet(PersistenceDefinitionsSettingsKey, out List<EnabledPersistence> definitions))
-        {
-            return definitions;
-        }
-
-        definitions = [];
-        settings.Set(PersistenceDefinitionsSettingsKey, definitions);
-        return definitions;
     }
 
     internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType

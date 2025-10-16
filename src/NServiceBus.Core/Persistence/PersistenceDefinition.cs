@@ -50,6 +50,8 @@ public abstract class PersistenceDefinition
     /// </summary>
     public bool HasSupportFor<T>() where T : StorageType => storageToFeatureMap.ContainsKey(StorageType.Get<T>());
 
+    internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
+
     /// <summary>
     /// True if supplied storage is supported.
     /// </summary>

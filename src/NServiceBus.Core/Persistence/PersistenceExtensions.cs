@@ -15,7 +15,7 @@ using Settings;
 /// <typeparam name="T">The persister definition eg <see cref="LearningPersistence" />, etc.</typeparam>
 /// <typeparam name="S">The <see cref="StorageType" />storage type.</typeparam>
 public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
-    where T : PersistenceDefinition
+    where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
     where S : StorageType
 {
     /// <summary>
@@ -32,7 +32,7 @@ public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
 /// </summary>
 /// <typeparam name="T">The persister definition eg <see cref="LearningPersistence" />, etc.</typeparam>
 public partial class PersistenceExtensions<T> : ExposeSettings
-    where T : PersistenceDefinition
+    where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
 {
     /// <summary>
     /// Default constructor.
@@ -46,25 +46,12 @@ public partial class PersistenceExtensions<T> : ExposeSettings
     /// </summary>
     protected PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
     {
-        // List<EnabledPersistence> definitions = settings.GetOrSetEnabledPersistences();
-        //
-        // var enabledPersistence = new EnabledPersistence
-        // {
-        //     DefinitionType = definitionType,
-        //     SelectedStorages = []
-        // };
-        //
-        // if (storageType != null)
-        // {
-        //     var definition = definitionType.Construct<PersistenceDefinition>();
-        //     if (!definition.HasSupportFor(storageType))
-        //     {
-        //         throw new Exception($"{definitionType.Name} does not support storage type {storageType.Name}. See http://docs.particular.net/nservicebus/persistence-in-nservicebus for supported variations.");
-        //     }
-        //
-        //     enabledPersistence.SelectedStorages.Add(storageType);
-        // }
-        //
-        // definitions.Add(enabledPersistence);
+        var registry = settings
+            .GetOrCreate<PersistenceRegistry>()
+            .Enable<T>(settings);
+        if (storageType is not null)
+        {
+            registry.WithStorage(storageType);
+        }
     }
 }

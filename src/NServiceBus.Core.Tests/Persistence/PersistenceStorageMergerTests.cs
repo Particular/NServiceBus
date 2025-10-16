@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence;
 
-using System.Collections.Generic;
 using System.Linq;
+using NServiceBus.Features;
 using NServiceBus.Persistence;
 using NUnit.Framework;
+using Settings;
 
 [TestFixture]
 public class When_no_storage_persistence_overrides_are_enabled
@@ -13,20 +14,31 @@ public class When_no_storage_persistence_overrides_are_enabled
     {
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
+        var registry = config.Settings.Get<PersistenceRegistry>();
+        var enabledPersistences = registry.Merge();
 
-        Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo(StorageType.GetAvailableStorageTypes()));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(enabledPersistences, Has.Count.EqualTo(1));
+            Assert.That(enabledPersistences.ElementAt(0).SelectedStorages, Is.EquivalentTo(StorageType.GetAvailableStorageTypes()));
+        }
     }
 
-    class FakePersistence : PersistenceDefinition
+    class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
     {
-        public FakePersistence()
+        FakePersistence()
         {
-            Supports<StorageType.Sagas>(_ => { });
-            Supports<StorageType.Outbox>(_ => { });
-            Supports<StorageType.Subscriptions>(_ => { });
+            Supports<StorageType.Sagas, FakeStorage>();
+            Supports<StorageType.Outbox, FakeStorage>();
+            Supports<StorageType.Subscriptions, FakeStorage>();
+        }
+
+        public static FakePersistence Create(SettingsHolder settings) => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }
@@ -41,33 +53,48 @@ public class When_storage_overrides_are_provided
         config.UsePersistence<FakePersistence>();
         config.UsePersistence<FakePersistence2, StorageType.Sagas>();
         config.UsePersistence<FakePersistence2, StorageType.Subscriptions>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
+        var registry = config.Settings.Get<PersistenceRegistry>();
+        var enabledPersistences = registry.Merge();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(resultedEnabledPersistences[0].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Subscriptions)]));
-            Assert.That(resultedEnabledPersistences[1].SelectedStorages, Is.EquivalentTo([typeof(StorageType.Sagas)]));
+            Assert.That(enabledPersistences, Has.Count.EqualTo(2));
+            Assert.That(enabledPersistences.ElementAt(0).SelectedStorages, Is.EquivalentTo([StorageType.Subscriptions.Instance]));
+            Assert.That(enabledPersistences.ElementAt(1).SelectedStorages, Is.EquivalentTo([StorageType.Sagas.Instance]));
         }
     }
 
-    class FakePersistence2 : PersistenceDefinition
+    class FakePersistence2 : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence2>
     {
-        public FakePersistence2()
+        FakePersistence2()
         {
-            Supports<StorageType.Sagas>(_ => { });
-            Supports<StorageType.Subscriptions>(_ => { });
+            Supports<StorageType.Sagas, FakeStorage>();
+            Supports<StorageType.Subscriptions, FakeStorage>();
+        }
+
+        public static FakePersistence2 Create(SettingsHolder settings) => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 
-    class FakePersistence : PersistenceDefinition
+    class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
     {
-        public FakePersistence()
+        FakePersistence()
         {
-            Supports<StorageType.Sagas>(_ => { });
-            Supports<StorageType.Outbox>(_ => { });
-            Supports<StorageType.Subscriptions>(_ => { });
+            Supports<StorageType.Sagas, FakeStorage>();
+            Supports<StorageType.Outbox, FakeStorage>();
+            Supports<StorageType.Subscriptions, FakeStorage>();
+        }
+
+        public static FakePersistence Create(SettingsHolder settings) => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }
@@ -80,19 +107,26 @@ public class When_explicitly_enabling_selected_storage
     {
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence, StorageType.Sagas>();
-        var persistences = config.Settings.Get<List<EnabledPersistence>>(PersistenceComponent.PersistenceDefinitionsSettingsKey);
 
-        var resultedEnabledPersistences = config.Settings.MergePersistences(persistences);
+        var registry = config.Settings.Get<PersistenceRegistry>();
+        var enabledPersistences = registry.Merge();
 
-        Assert.That(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))), Is.False);
+        Assert.That(enabledPersistences.Any(p => p.SelectedStorages.Contains(StorageType.Subscriptions.Instance)), Is.False);
     }
 
-    class FakePersistence : PersistenceDefinition
+    class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
     {
-        public FakePersistence()
+        FakePersistence()
         {
-            Supports<StorageType.Sagas>(_ => { });
-            Supports<StorageType.Subscriptions>(_ => { });
+            Supports<StorageType.Sagas, FakeStorage>();
+            Supports<StorageType.Subscriptions, FakeStorage>();
+        }
+
+        public static FakePersistence Create(SettingsHolder settings) => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }
