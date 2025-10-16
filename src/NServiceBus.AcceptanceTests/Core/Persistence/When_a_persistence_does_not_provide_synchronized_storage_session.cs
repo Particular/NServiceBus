@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using Extensibility;
+using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Persistence;
 using NUnit.Framework;
@@ -29,11 +30,16 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
     {
         FakeNoSynchronizedStorageSupportPersistence()
         {
-            Supports<StorageType.Sagas>(s => { });
-            Supports<StorageType.Subscriptions>(s => { });
+            Supports<StorageType.Sagas, FakeStorage>();
+            Supports<StorageType.Subscriptions, FakeStorage>();
         }
 
         public static FakeNoSynchronizedStorageSupportPersistence Create(SettingsHolder settings) => new();
+
+        sealed class FakeStorage : Feature
+        {
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+        }
     }
 
     class NoOpISubscriptionStorage : ISubscriptionStorage

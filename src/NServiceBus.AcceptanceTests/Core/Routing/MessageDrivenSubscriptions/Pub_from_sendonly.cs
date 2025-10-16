@@ -65,25 +65,22 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
     }
 
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 
     public class HardCodedPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<HardCodedPersistence>
     {
-        HardCodedPersistence() =>
-            Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<HardCodedPersistenceFeature>());
+        HardCodedPersistence() => Supports<StorageType.Subscriptions, HardCodedPersistenceFeature>();
 
         public static HardCodedPersistence Create(SettingsHolder settings) => new();
     }
 
-    public class HardCodedPersistenceFeature : Feature
+    class HardCodedPersistenceFeature : Feature
     {
         protected override void Setup(FeatureConfigurationContext context) =>
-            context.Services.AddSingleton(typeof(ISubscriptionStorage), typeof(HardcodedSubscriptionManager));
+            context.Services.AddSingleton<ISubscriptionStorage, HardcodedSubscriptionManager>();
     }
 
-    public class HardcodedSubscriptionManager : ISubscriptionStorage
+    class HardcodedSubscriptionManager : ISubscriptionStorage
     {
         public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber,
             MessageType messageType, ContextBag context, CancellationToken cancellationToken = default) =>
