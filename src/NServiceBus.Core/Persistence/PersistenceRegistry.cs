@@ -12,24 +12,27 @@ sealed class PersistenceRegistry
     public EnableBuilder<TDefinition> Enable<TDefinition>()
         where TDefinition : PersistenceDefinition, IPersistenceDefinitionFactory<TDefinition>
     {
-        if (definitions.TryGetValue(typeof(TDefinition), out var builder))
+        if (tracker.TryGetValue(typeof(TDefinition), out var position))
         {
-            return (EnableBuilder<TDefinition>)builder;
+            return (EnableBuilder<TDefinition>)definitions[position];
         }
 
         var strongBuilder = new EnableBuilder<TDefinition>();
-        definitions.Add(typeof(TDefinition), strongBuilder);
+        tracker.Add(typeof(TDefinition), definitions.Count);
+        definitions.Add(strongBuilder);
         return strongBuilder;
     }
 
     public IReadOnlyCollection<EnabledPersistence> Merge()
     {
-        IEnumerable<KeyValuePair<Type, IEnabledBuilder>> builtPersistences = definitions.Reverse();
+        // the order of the definitions is reversed when merging because the last UsePersistence calls have higher priority
+        // using linq to reverse to avoid mutating the original list
+        IEnumerable<IEnabledBuilder> builtPersistences = definitions.AsEnumerable().Reverse();
 
         var availableStorages = new List<StorageType>(StorageType.GetAvailableStorageTypes());
         var enabledPersistences = new List<EnabledPersistence>();
 
-        foreach (var (_, builtPersistence) in builtPersistences)
+        foreach (var builtPersistence in builtPersistences)
         {
             var supportedStorages = builtPersistence.Persistence.GetSupportedStorages(builtPersistence.EnabledStorageTypes);
 
@@ -84,5 +87,9 @@ sealed class PersistenceRegistry
         IReadOnlyCollection<StorageType> EnabledStorageTypes { get; }
     }
 
-    readonly Dictionary<Type, IEnabledBuilder> definitions = [];
+    readonly Dictionary<Type, int> tracker = [];
+    // using a list to preserve the order of registrations since a dictionary does not guarantee it
+    // the order is important because the last UsePersistence calls have higher priority during merging
+    // that's why the list is reversed when merging.
+    readonly List<IEnabledBuilder> definitions = [];
 }
