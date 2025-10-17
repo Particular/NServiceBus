@@ -16,3 +16,17 @@ public interface ISagaNotFoundHandler<TMessage>
     /// <returns></returns>
     Task Handle(TMessage message, IMessageProcessingContext context);
 }
+
+/// <summary>
+/// 
+/// </summary>
+public interface ISagaNotFoundHandler
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    Task Handle(object message, IMessageProcessingContext context);
+}

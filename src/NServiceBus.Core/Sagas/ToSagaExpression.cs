@@ -26,10 +26,12 @@ public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, ICon
     /// Defines the property on the saga data to which the message property should be mapped.
     /// </summary>
     /// <param name="sagaEntityProperty">The property to map.</param>
-    public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty)
+    public SagaNotFoundExpression<TSagaData, TMessage> ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty)
     {
         ArgumentNullException.ThrowIfNull(sagaEntityProperty);
         sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
+
+        return new SagaNotFoundExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration);
     }
 
     readonly Expression<Func<TMessage, object?>> messageProperty;

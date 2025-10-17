@@ -62,7 +62,6 @@ public class Sagas : Feature
 
         // Register the Saga related behaviors for incoming messages
         context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.GetRequiredService<ISagaPersister>(), sagaIdGenerator, sagaMetaModel), "Invokes the saga logic");
-        context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }
 
@@ -82,11 +81,6 @@ public class Sagas : Feature
     static bool IsSagaType(Type t)
     {
         return IsCompatible(t, typeof(Saga));
-    }
-
-    static bool IsSagaNotFoundHandler(Type t)
-    {
-        return IsCompatible(t, typeof(IHandleSagaNotFound));
     }
 
     static bool IsCompatible(Type t, Type source)

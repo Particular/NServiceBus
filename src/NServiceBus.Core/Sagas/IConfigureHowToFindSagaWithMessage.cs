@@ -29,4 +29,10 @@ public interface IConfigureHowToFindSagaWithMessage
     /// Configures a handler when saga is not found
     /// </summary>
     void ConfigureNotFoundHandler<TSagaEntity, TMessage, TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler<TMessage> where TSagaEntity : IContainSagaData;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TSagaNotFoundHandler"></typeparam>
+    void ConfigureCatchAllNotFoundHandler<TSagaNotFoundHandler>() where TSagaNotFoundHandler : ISagaNotFoundHandler;
 }

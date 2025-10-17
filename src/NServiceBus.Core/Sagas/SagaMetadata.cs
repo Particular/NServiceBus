@@ -365,6 +365,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
         public void ConfigureFinder<TSagaEntity, TMessage, TSagaFinder>() where TSagaEntity : IContainSagaData where TSagaFinder : ISagaFinder<TSagaEntity, TMessage> => ConfigureCustomFinder(typeof(TSagaFinder), typeof(TMessage));
         public void ConfigureNotFoundHandler<TSagaEntity, TMessage, TNotFoundHandler>() where TSagaEntity : IContainSagaData where TNotFoundHandler : ISagaNotFoundHandler<TMessage> => ConfigureNotFoundHandler(typeof(TNotFoundHandler), typeof(TMessage));
+        public void ConfigureCatchAllNotFoundHandler<TSagaNotFoundHandler>() where TSagaNotFoundHandler : ISagaNotFoundHandler => throw new NotImplementedException();
 
         static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
         {

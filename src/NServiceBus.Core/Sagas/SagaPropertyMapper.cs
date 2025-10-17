@@ -75,5 +75,15 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
         return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TSagaNotFoundHandler"></typeparam>
+    /// <exception cref="NotImplementedException"></exception>
+    public void ConfigureNotFoundHandler<TSagaNotFoundHandler>() where TSagaNotFoundHandler : ISagaNotFoundHandler
+    {
+        sagaMessageFindingConfiguration.ConfigureCatchAllNotFoundHandler<TSagaNotFoundHandler>();
+    }
+
     readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
 }
