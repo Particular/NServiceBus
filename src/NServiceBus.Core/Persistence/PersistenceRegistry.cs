@@ -17,6 +17,7 @@ sealed class PersistenceRegistry
         }
 
         var strongBuilder = new EnableBuilder<TDefinition>();
+        // using the count here works because we never remove enabled persistences
         tracker.Add(typeof(TDefinition), definitions.Count);
         definitions.Add(strongBuilder);
         return strongBuilder;
