@@ -53,7 +53,7 @@ static class PersistenceComponent
     {
         var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
         var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
-        var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
+        var bothFeaturesEnabled = settings.IsFeatureEnabled<Features.Sagas>() && settings.IsFeatureEnabled<Features.Outbox>();
 
         if (sagaPersisterDefinition != null
             && outboxPersisterDefinition != null
