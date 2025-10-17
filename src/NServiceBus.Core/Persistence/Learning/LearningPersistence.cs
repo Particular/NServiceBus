@@ -15,5 +15,5 @@ public class LearningPersistence : PersistenceDefinition, IPersistenceDefinition
     /// <summary>
     /// Creates the learning persistence definition.
     /// </summary>
-    public static LearningPersistence Create() => new();
+    static LearningPersistence IPersistenceDefinitionFactory<LearningPersistence>.Create() => new();
 }

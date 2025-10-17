@@ -2,7 +2,6 @@
 
 using AcceptanceTesting;
 using Persistence;
-using Settings;
 
 public class AcceptanceTestingPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<AcceptanceTestingPersistence>
 {
@@ -13,5 +12,5 @@ public class AcceptanceTestingPersistence : PersistenceDefinition, IPersistenceD
         Supports<StorageType.Outbox, AcceptanceTestingOutboxPersistence>();
     }
 
-    public static AcceptanceTestingPersistence Create() => new();
+    static AcceptanceTestingPersistence IPersistenceDefinitionFactory<AcceptanceTestingPersistence>.Create() => new();
 }
