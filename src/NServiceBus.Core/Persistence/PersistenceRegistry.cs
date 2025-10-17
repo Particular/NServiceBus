@@ -4,7 +4,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Persistence;
 
 sealed class PersistenceRegistry
@@ -26,8 +25,9 @@ sealed class PersistenceRegistry
     public IReadOnlyCollection<EnabledPersistence> Merge()
     {
         // the order of the definitions is reversed when merging because the last UsePersistence calls have higher priority
-        // using linq to reverse to avoid mutating the original list
-        IEnumerable<IEnabledBuilder> builtPersistences = definitions.AsEnumerable().Reverse();
+        // taking a copy to avoid modifying the original list
+        var builtPersistences = new List<IEnabledBuilder>(definitions);
+        builtPersistences.Reverse();
 
         var availableStorages = new List<StorageType>(StorageType.GetAvailableStorageTypes());
         var enabledPersistences = new List<EnabledPersistence>();
