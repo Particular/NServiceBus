@@ -7,8 +7,10 @@ namespace NServiceBus
     using System.Reflection;
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
+    using Configuration.AdvancedExtensibility;
     using NServiceBus.DataBus;
     using Particular.Obsoletes;
+    using Settings;
 
     [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
@@ -230,6 +232,33 @@ namespace NServiceBus
         [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
         public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Func<IServiceProvider, IDataBus> dataBusFactory, IDataBusSerializer dataBusSerializer) => throw new NotImplementedException();
     }
+
+    public static partial class PersistenceConfig
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "UsePersistence<T>", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'UsePersistence<T>' instead. Will be removed in version 11.0.0.", true)]
+        public static PersistenceExtensions UsePersistence(this EndpointConfiguration config, Type definitionType) =>
+            throw new NotImplementedException();
+    }
+
+    [ObsoleteMetadata(ReplacementTypeOrMember = "PersistenceExtensions<T>", RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'PersistenceExtensions<T>' instead. Will be removed in version 11.0.0.", true)]
+    public class PersistenceExtensions : ExposeSettings
+    {
+        public PersistenceExtensions(Type definitionType, SettingsHolder settings, Type storageType)
+            : base(settings) =>
+            throw new NotImplementedException();
+    }
+
+    public partial class PersistenceExtensions<T>
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null)", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null)' instead. Will be removed in version 11.0.0.", true)]
+        protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(settings) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.DataBus
@@ -372,6 +401,24 @@ namespace NServiceBus.Features
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBus
     {
+    }
+}
+
+namespace NServiceBus.Persistence
+{
+    using System;
+    using Particular.Obsoletes;
+    using Settings;
+
+    public partial class PersistenceDefinition
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "Supports<TStorage, TFeature>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'Supports<TStorage, TFeature>()' instead. Will be removed in version 11.0.0.", true)]
+        protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "HasSupportFor<T>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'HasSupportFor<T>()' instead. Will be removed in version 11.0.0.", true)]
+        public bool HasSupportFor(Type storageType) => throw new NotImplementedException();
     }
 }
 

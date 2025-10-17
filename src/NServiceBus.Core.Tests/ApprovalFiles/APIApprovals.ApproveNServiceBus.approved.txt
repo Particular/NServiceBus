@@ -544,7 +544,7 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
     }
-    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
     public static class LearningSagaPersisterConfigurationExtensions
     {
         public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, string path) { }
@@ -668,25 +668,29 @@ namespace NServiceBus
     }
     public static class PersistenceConfig
     {
+        [System.Obsolete("Use \'UsePersistence<T>\' instead. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.PersistenceExtensions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
         public static NServiceBus.PersistenceExtensions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.Persistence.PersistenceDefinition { }
+            where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T> { }
         public static NServiceBus.PersistenceExtensions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.Persistence.PersistenceDefinition
+            where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T>
             where S : NServiceBus.StorageType { }
     }
+    [System.Obsolete("Use \'PersistenceExtensions<T>\' instead. Will be removed in version 11.0.0.", true)]
     public class PersistenceExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public PersistenceExtensions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
     }
-    public class PersistenceExtensions<T> : NServiceBus.PersistenceExtensions
-        where T : NServiceBus.Persistence.PersistenceDefinition
+    public class PersistenceExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+        where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T>
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        [System.Obsolete("Use \'PersistenceExtensions(SettingsHolder settings, StorageType? storageType = nu" +
+            "ll)\' instead. Will be removed in version 11.0.0.", true)]
         protected PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
     }
     public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
-        where T : NServiceBus.Persistence.PersistenceDefinition
+        where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T>
         where S : NServiceBus.StorageType
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
@@ -913,6 +917,8 @@ namespace NServiceBus
     }
     public abstract class StorageType
     {
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
         public override string ToString() { }
         public sealed class Outbox : NServiceBus.StorageType { }
         public sealed class Sagas : NServiceBus.StorageType { }
@@ -1557,16 +1563,26 @@ namespace NServiceBus.Persistence
         System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface IPersistenceDefinitionFactory<out TDefinition>
+        where out TDefinition : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<TDefinition>
+    {
+        TDefinition Create();
+    }
     public interface ISynchronizedStorageSession { }
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
+        [System.Obsolete("Use \'HasSupportFor<T>()\' instead. Will be removed in version 11.0.0.", true)]
         public bool HasSupportFor(System.Type storageType) { }
         public bool HasSupportFor<T>()
             where T : NServiceBus.StorageType { }
+        [System.Obsolete("Use \'Supports<TStorage, TFeature>()\' instead. Will be removed in version 11.0.0.", true)]
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
             where T : NServiceBus.StorageType { }
+        protected void Supports<TStorage, TFeature>()
+            where TStorage : NServiceBus.StorageType
+            where TFeature : NServiceBus.Features.Feature { }
     }
 }
 namespace NServiceBus.Pipeline

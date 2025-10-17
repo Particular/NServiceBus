@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -61,7 +63,7 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
         deferredActions.Clear();
     }
 
-    public async Task<TSagaData> Read<TSagaData>(Guid sagaId, SagaManifestCollection sagaManifests, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+    public async Task<TSagaData?> Read<TSagaData>(Guid sagaId, SagaManifestCollection sagaManifests, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
     {
         var sagaStorageFile = await Open(sagaId, typeof(TSagaData), sagaManifests, cancellationToken)
             .ConfigureAwait(false);
@@ -81,7 +83,7 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
 
     public void Complete(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
 
-    async Task<SagaStorageFile> Open(Guid sagaId, Type entityType, SagaManifestCollection sagaManifests, CancellationToken cancellationToken)
+    async Task<SagaStorageFile?> Open(Guid sagaId, Type entityType, SagaManifestCollection sagaManifests, CancellationToken cancellationToken)
     {
         var sagaManifest = sagaManifests.GetForEntityType(entityType);
 

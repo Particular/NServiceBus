@@ -8,7 +8,7 @@ using Settings;
 /// <summary>
 /// Feature related extensions to the settings.
 /// </summary>
-public static partial class SettingsExtensions
+public static class SettingsExtensions
 {
     /// <summary>
     /// Marks the given feature as enabled by default.
@@ -51,23 +51,33 @@ public static partial class SettingsExtensions
         return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;
     }
 
+    internal static bool IsFeatureEnabled<T>(this IReadOnlySettings settings) where T : Feature
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        return settings.IsFeatureEnabled(typeof(T));
+    }
+
     internal static void EnableFeature(this SettingsHolder settings, Type featureType)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         settings.Set(featureType.FullName, FeatureState.Enabled);
     }
 
     internal static void DisableFeature(this SettingsHolder settings, Type featureType)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         settings.Set(featureType.FullName, FeatureState.Disabled);
     }
 
     internal static void MarkFeatureAsActive(this SettingsHolder settings, Type featureType)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         settings.Set(featureType.FullName, FeatureState.Active);
     }
 
     internal static void MarkFeatureAsDeactivated(this SettingsHolder settings, Type featureType)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         settings.Set(featureType.FullName, FeatureState.Deactivated);
     }
 }
