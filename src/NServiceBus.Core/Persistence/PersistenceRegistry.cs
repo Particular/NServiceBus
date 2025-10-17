@@ -33,9 +33,9 @@ sealed class PersistenceRegistry
         var availableStorages = new List<StorageType>(StorageType.GetAvailableStorageTypes());
         var enabledPersistences = new List<EnabledPersistence>();
 
-        foreach (var builtPersistence in builtPersistences)
+        foreach (var (persistence, enabledStorageTypes) in builtPersistences)
         {
-            var supportedStorages = builtPersistence.Persistence.GetSupportedStorages(builtPersistence.EnabledStorageTypes);
+            var supportedStorages = persistence.GetSupportedStorages(enabledStorageTypes);
 
             var selectedStorages = new List<StorageType>();
 
@@ -52,7 +52,7 @@ sealed class PersistenceRegistry
 
             if (selectedStorages.Count != 0)
             {
-                enabledPersistences.Add(new EnabledPersistence(selectedStorages, builtPersistence.Persistence));
+                enabledPersistences.Add(new EnabledPersistence(selectedStorages, persistence));
             }
         }
 
@@ -86,6 +86,12 @@ sealed class PersistenceRegistry
         PersistenceDefinition Persistence { get; }
 
         IReadOnlyCollection<StorageType> EnabledStorageTypes { get; }
+
+        void Deconstruct(out PersistenceDefinition persistence, out IReadOnlyCollection<StorageType> enabledStorageTypes)
+        {
+            persistence = Persistence;
+            enabledStorageTypes = EnabledStorageTypes;
+        }
     }
 
     readonly Dictionary<Type, int> tracker = [];
