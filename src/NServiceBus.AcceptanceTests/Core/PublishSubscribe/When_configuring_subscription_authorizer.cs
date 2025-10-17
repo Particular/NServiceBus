@@ -14,7 +14,6 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Persistence;
-using Settings;
 using Unicast.Subscriptions;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 

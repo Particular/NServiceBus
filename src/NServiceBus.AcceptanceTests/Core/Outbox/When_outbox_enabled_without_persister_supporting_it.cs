@@ -5,7 +5,6 @@ using AcceptanceTesting;
 using EndpointTemplates;
 using NServiceBus.Persistence;
 using NUnit.Framework;
-using Settings;
 
 public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAcceptanceTest
 {
