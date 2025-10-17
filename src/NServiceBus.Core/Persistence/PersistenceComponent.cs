@@ -51,8 +51,8 @@ static class PersistenceComponent
 
     static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences)
     {
-        var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Sagas.Instance))?.Definition;
-        var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(StorageType.Outbox.Instance))?.Definition;
+        var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
+        var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
         var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
 
         if (sagaPersisterDefinition != null
@@ -68,7 +68,7 @@ static class PersistenceComponent
     {
         _ = settings.TryGet(out IReadOnlyCollection<StorageType> supportedStorages);
 
-        return supportedStorages?.Contains(StorageType.Get<T>()) ?? false;
+        return supportedStorages.Contains<T>();
     }
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
