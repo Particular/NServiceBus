@@ -41,7 +41,7 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <see cref="IToSagaExpression{TSagaData}.ToSaga" /> to link <typeparamref name="TMessage"/> with
     /// <typeparamref name="TSagaData"/> using <paramref name="headerName"/>.
     /// </returns>
-    public IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName)
+    public IToSagaExpression<TSagaData, TMessage> ConfigureHeaderMapping<TMessage>(string headerName)
     {
         ArgumentNullException.ThrowIfNull(headerName);
 

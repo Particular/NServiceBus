@@ -60,14 +60,6 @@ public class Sagas : Feature
 
         RegisterCustomFindersInContainer(context.Services, sagaMetaModel);
 
-        foreach (var t in context.Settings.GetAvailableTypes())
-        {
-            if (IsSagaNotFoundHandler(t))
-            {
-                context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
-            }
-        }
-
         // Register the Saga related behaviors for incoming messages
         context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.GetRequiredService<ISagaPersister>(), sagaIdGenerator, sagaMetaModel), "Invokes the saga logic");
         context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");

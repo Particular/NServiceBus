@@ -24,4 +24,9 @@ public interface IConfigureHowToFindSagaWithMessage
     /// Configures a custom finder
     /// </summary>
     void ConfigureFinder<TSagaEntity, TMessage, TSagaFinder>() where TSagaFinder : ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : IContainSagaData;
+
+    /// <summary>
+    /// Configures a handler when saga is not found
+    /// </summary>
+    void ConfigureNotFoundHandler<TSagaEntity, TMessage, TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler<TMessage> where TSagaEntity : IContainSagaData;
 }
