@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Hosting.Helpers;
+using Sagas;
 using Support;
 
 public static class EndpointConfigurationExtensions
@@ -36,6 +37,7 @@ public static class EndpointConfigurationExtensions
                 .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
                 .Union(customizationConfiguration.TypesToInclude)
                 .Except(customizationConfiguration.TypesToExclude)
+                .Where(t => !t.IsAssignableTo(typeof(IFinder)))
                 .ToList());
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
