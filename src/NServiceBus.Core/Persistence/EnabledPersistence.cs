@@ -1,10 +1,8 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
 
-using System;
+namespace NServiceBus;
+
 using System.Collections.Generic;
+using Persistence;
 
-class EnabledPersistence
-{
-    public List<Type> SelectedStorages { get; set; }
-    public Type DefinitionType;
-}
+record EnabledPersistence(IReadOnlyCollection<StorageType> SelectedStorages, PersistenceDefinition Definition);

@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -47,7 +49,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
         fileStream = null;
     }
 
-    public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken = default)
+    public static Task<SagaStorageFile?> Open(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken = default)
     {
         var filePath = manifest.GetFilePath(sagaId);
 
@@ -56,7 +58,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
             return noSagaFoundResult;
         }
 
-        return OpenWithRetryOnConcurrency(filePath, FileMode.Open, cancellationToken);
+        return OpenWithRetryOnConcurrency(filePath, FileMode.Open, cancellationToken)!;
     }
 
     public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest, CancellationToken cancellationToken = default)
@@ -96,6 +98,8 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
     public async Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
     {
+        ObjectDisposedException.ThrowIf(fileStream is null, this);
+
         fileStream.Position = 0;
         await JsonSerializer.SerializeAsync(fileStream, sagaData, sagaData.GetType(), Options, cancellationToken)
             .ConfigureAwait(false);
@@ -107,14 +111,18 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
     public void MarkAsCompleted() => isCompleted = true;
 
-    public ValueTask<TSagaData> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
-        => JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
+    public ValueTask<TSagaData?> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+    {
+        ObjectDisposedException.ThrowIf(fileStream is null, this);
 
-    FileStream fileStream;
+        return JsonSerializer.DeserializeAsync<TSagaData>(fileStream, Options, cancellationToken);
+    }
+
+    FileStream? fileStream;
     bool isCompleted;
 
     const int DefaultBufferSize = 4096;
-    static readonly Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
+    static readonly Task<SagaStorageFile?> noSagaFoundResult = Task.FromResult<SagaStorageFile?>(null);
 
     static readonly JsonSerializerOptions Options = new()
     {

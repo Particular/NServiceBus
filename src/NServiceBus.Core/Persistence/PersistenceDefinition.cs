@@ -1,26 +1,31 @@
-﻿namespace NServiceBus.Persistence;
+﻿#nullable enable
+
+namespace NServiceBus.Persistence;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Features;
 using Settings;
 
 /// <summary>
 /// Base class for persistence definitions.
 /// </summary>
-public abstract class PersistenceDefinition
+public abstract partial class PersistenceDefinition
 {
     /// <summary>
     /// Used by the storage definitions to declare what they support.
     /// </summary>
-    protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
+    protected void Supports<TStorage, TFeature>()
+        where TStorage : StorageType
+        where TFeature : Feature
     {
-        ArgumentNullException.ThrowIfNull(action);
-        if (storageToActionMap.ContainsKey(typeof(T)))
+        var storageType = StorageType.Get<TStorage>();
+        if (storageToFeatureMap.TryGetValue(storageType, out var supportedStorageType))
         {
-            throw new Exception($"Action for {typeof(T)} already defined.");
+            throw new Exception($"Storage {typeof(TStorage)} is already supported by {supportedStorageType}");
         }
-        storageToActionMap[typeof(T)] = action;
+
+        storageToFeatureMap[storageType] = typeof(TFeature);
     }
 
     /// <summary>
@@ -35,28 +40,17 @@ public abstract class PersistenceDefinition
     /// <summary>
     /// True if supplied storage is supported.
     /// </summary>
-    public bool HasSupportFor<T>() where T : StorageType
-    {
-        return HasSupportFor(typeof(T));
-    }
+    public bool HasSupportFor<T>() where T : StorageType => HasSupportFor(StorageType.Get<T>());
 
-    /// <summary>
-    /// True if supplied storage is supported.
-    /// </summary>
-    public bool HasSupportFor(Type storageType)
-    {
-        ArgumentNullException.ThrowIfNull(storageType);
-        return storageToActionMap.ContainsKey(storageType);
-    }
+    internal string Name => GetType().Name;
+    internal string FullName => GetType().FullName ?? Name;
 
-    internal void ApplyActionForStorage(Type storageType, SettingsHolder settings)
+    internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
+
+    internal void ApplyActionForStorage(StorageType storageType, SettingsHolder settings)
     {
-        if (!storageType.IsSubclassOf(typeof(StorageType)))
-        {
-            throw new ArgumentException($"Storage type '{storageType.FullName}' is not a sub-class of StorageType", nameof(storageType));
-        }
-        var actionForStorage = storageToActionMap[storageType];
-        actionForStorage(settings);
+        var featureSupportingStorage = storageToFeatureMap[storageType];
+        _ = settings.EnableFeatureByDefault(featureSupportingStorage);
     }
 
     internal void ApplyDefaults(SettingsHolder settings)
@@ -67,16 +61,9 @@ public abstract class PersistenceDefinition
         }
     }
 
-    internal List<Type> GetSupportedStorages(List<Type> selectedStorages)
-    {
-        if (selectedStorages.Count > 0)
-        {
-            return selectedStorages;
-        }
-
-        return storageToActionMap.Keys.ToList();
-    }
+    internal IReadOnlyCollection<StorageType> GetSupportedStorages(IReadOnlyCollection<StorageType> selectedStorages) =>
+        selectedStorages.Count > 0 ? selectedStorages : [.. storageToFeatureMap.Keys];
 
     readonly List<Action<SettingsHolder>> defaults = [];
-    readonly Dictionary<Type, Action<SettingsHolder>> storageToActionMap = [];
+    readonly Dictionary<StorageType, Type> storageToFeatureMap = [];
 }

@@ -1,15 +1,16 @@
 ﻿namespace NServiceBus;
 
-using Features;
 using AcceptanceTesting;
 using Persistence;
 
-public class AcceptanceTestingPersistence : PersistenceDefinition
+public class AcceptanceTestingPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<AcceptanceTestingPersistence>
 {
-    internal AcceptanceTestingPersistence()
+    AcceptanceTestingPersistence()
     {
-        Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<AcceptanceTestingSagaPersistence>());
-        Supports<StorageType.Subscriptions>(s => s.EnableFeatureByDefault<AcceptanceTestingSubscriptionPersistence>());
-        Supports<StorageType.Outbox>(s => s.EnableFeatureByDefault<AcceptanceTestingOutboxPersistence>());
+        Supports<StorageType.Sagas, AcceptanceTestingSagaPersistence>();
+        Supports<StorageType.Subscriptions, AcceptanceTestingSubscriptionPersistence>();
+        Supports<StorageType.Outbox, AcceptanceTestingOutboxPersistence>();
     }
+
+    static AcceptanceTestingPersistence IPersistenceDefinitionFactory<AcceptanceTestingPersistence>.Create() => new();
 }

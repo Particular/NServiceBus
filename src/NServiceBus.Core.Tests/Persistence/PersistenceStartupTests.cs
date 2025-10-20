@@ -60,13 +60,25 @@ public class When_persistence_has_been_configured
         Assert.DoesNotThrow(() => config.Settings.ConfigurePersistence(), "Should not throw for a single single feature enabled out of the two.");
     }
 
-    class FakeSagaPersistence : PersistenceDefinition
+    class FakeSagaPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeSagaPersistence>
     {
-        public FakeSagaPersistence() => Supports<StorageType.Sagas>(_ => { });
+        FakeSagaPersistence() => Supports<StorageType.Sagas, FakeStorage>();
+        public static FakeSagaPersistence Create() => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+        }
     }
 
-    class FakeOutboxPersistence : PersistenceDefinition
+    class FakeOutboxPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeOutboxPersistence>
     {
-        public FakeOutboxPersistence() => Supports<StorageType.Outbox>(_ => { });
+        FakeOutboxPersistence() => Supports<StorageType.Outbox, FakeStorage>();
+        public static FakeOutboxPersistence Create() => new();
+
+        class FakeStorage : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+        }
     }
 }
