@@ -301,7 +301,7 @@ public class SourceGeneratorTest
 
         foreach (var syntaxTree in FilteredSyntaxTrees())
         {
-            WriteHeading(syntaxTree.FilePath);
+            WriteHeading(syntaxTree.FilePath.Replace('\\', '/'));
 
             if (withLineNumbers)
             {
