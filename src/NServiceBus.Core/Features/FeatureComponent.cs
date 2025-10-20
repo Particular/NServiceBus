@@ -27,24 +27,24 @@ class FeatureComponent(SettingsHolder settings)
 
         foreach (var featureType in featureTypes)
         {
-            featureActivator.Add(featureType);
+            featureRegistry.Add(featureType);
         }
     }
 
     public void Initialize(FeatureConfigurationContext featureConfigurationContext)
     {
-        var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
+        var featureStats = featureRegistry.SetupFeatures(featureConfigurationContext);
 
         settings.AddStartupDiagnosticsSection("Features", featureStats);
     }
 
-    public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default) => featureActivator.StartFeatures(builder, messageSession, cancellationToken);
+    public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default) => featureRegistry.StartFeatures(builder, messageSession, cancellationToken);
 
-    public Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default) => featureActivator.StopFeatures(messageSession, cancellationToken);
+    public Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default) => featureRegistry.StopFeatures(messageSession, cancellationToken);
 
     static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
-    readonly FeatureActivator featureActivator = new(settings, new FeatureFactory());
+    readonly FeatureRegistry featureRegistry = new(settings, new FeatureFactory());
 
     public class Settings
     {

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus.Features;
@@ -34,7 +33,7 @@ public class FeatureDefaultsTests
         }
     }
 
-    FeatureActivator featureSettings;
+    FeatureRegistry featureSettings;
     FakeFeatureFactory featureFactory;
     SettingsHolder settings;
 
@@ -44,7 +43,7 @@ public class FeatureDefaultsTests
         settings = new SettingsHolder();
         settings.Set(new FeatureComponent.Settings(settings));
         featureFactory = new FakeFeatureFactory();
-        featureSettings = new FeatureActivator(settings, featureFactory);
+        featureSettings = new FeatureRegistry(settings, featureFactory);
     }
 
     [Test]

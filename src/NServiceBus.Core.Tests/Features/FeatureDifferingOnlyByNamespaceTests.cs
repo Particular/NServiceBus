@@ -26,7 +26,7 @@
             var settings = new SettingsHolder();
             settings.Set(new FeatureComponent.Settings(settings));
             var featureFactory = new FakeFeatureFactory();
-            var featureSettings = new FeatureActivator(settings, featureFactory);
+            var featureSettings = new FeatureRegistry(settings, featureFactory);
 
             featureFactory.Add(dependingFeature, feature);
 
