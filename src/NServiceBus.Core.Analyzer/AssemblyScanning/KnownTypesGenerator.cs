@@ -36,40 +36,8 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
             .Select((compilation, _) => CompilationAssemblyDetails.FromAssembly(compilation.Assembly))
             .Select((assemblyDetails, _) => assemblyDetails.ToGenerationClassName());
 
-        // --- THREE INDEPENDENT MARKER SOURCES ---
-        // Each source is kept as a Plural stream until we collect it at the cache boundary.
-        // This ensures changes to one marker source don't invalidate caches from other sources.
-
-        // Marker source 1: [NServiceBusExtensionPoint] attributes in user's source code
-        var markersFromSourceAttributes = context.SyntaxProvider
-            .ForAttributeWithMetadataName(ExtensionAttributeMetadataName,
-                predicate: (node, token) => true,
-                transform: (syntaxContext, token) =>
-                {
-                    var attributeInfo = syntaxContext.Attributes.First();
-                    if (syntaxContext.TargetSymbol is INamedTypeSymbol decoratedType &&
-                        attributeInfo.ConstructorArguments[0].Value is string registrationMethodName &&
-                        attributeInfo.ConstructorArguments[1].Value is bool autoRegister)
-                    {
-                        var markerInfo = new MarkerInfo(decoratedType.ToDisplayString(), registrationMethodName, autoRegister);
-                        if (decoratedType.IsGenericType)
-                        {
-                            var syntaxRef = attributeInfo.ApplicationSyntaxReference;
-                            var location = new LocationProxy(syntaxRef!.SyntaxTree, syntaxRef.Span);
-                            var diagnosticInfo = new DiagnosticInfo(ExtensionTypeCantBeGeneric, location, markerInfo.TypeName);
-                            return new MarkerTypeInfo(decoratedType, markerInfo, diagnosticInfo);
-                        }
-                        return new MarkerTypeInfo(decoratedType, markerInfo);
-                    }
-                    return default;
-                })
-            .Where(x => x.Symbol is not null);
-
-        // Marker source 2: [NServiceBusExtensionPoint] attributes in referenced assemblies
-        var markersFromCompilationAttributes = context.CompilationProvider
-            .SelectMany(GetTypesWithExtensionPointAttribute);
-
-        // Marker source 3: Built-in marker types (IHandleMessages<T>, Saga<T>, IEvent, ICommand, etc.)
+        // Get compilation info about built-in marker types (IHandleMessages<T>, Saga<T>,etc.)
+        // Keep as Plural ValuesProvider until we collect it at the cache boundary
         var builtInMarkers = context.CompilationProvider
             .SelectMany((compilation, cancellationToken) =>
             {
@@ -90,79 +58,45 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
                     });
             });
 
-        // --- CACHE BOUNDARY: Collect each marker source independently ---
-        // Collecting here creates separate cache entries for each marker source.
-        // Changes to source attributes don't invalidate compilation or built-in marker caches.
-        // However, can't test on markers here because MarkerTypeInfo includes INamedTypeSymbol which is not cacheable.
-        var collectedSourceMarkers = markersFromSourceAttributes
-            .Where(m => m.Diagnostic is null)
-            .Collect();
-        var collectedCompilationMarkers = markersFromCompilationAttributes
-            .Where(m => m.Diagnostic is null)
-            .Collect();
-        var collectedBuiltInMarkers = builtInMarkers
-            .Where(m => m.Diagnostic is null)
+        // --- CACHE BOUNDARY: Collect the markers, however, can't test on markers here
+        // because MarkerTypeInfo includes INamedTypeSymbol which is not cacheable.
+        var collectedMarkers = builtInMarkers
             .Collect();
 
-        // Plus any markers that have diagnostics attached. These should only come from source, because built-in markers should be valid or throw,
-        // and markers from the compilation are stuck in their compiled state - can't raise a diagnostic for those.
-        var diagnostics = markersFromSourceAttributes
-            .Where(m => m.Diagnostic != null)
-            .Select((m, _) => m.Diagnostic)
-            .Collect();
-
-        // --- MATCH TYPES AGAINST MARKERS ---
-        // For each source type (Plural), pair it with each marker array (Singular).
+        // Match source types against markers
         // The Combine API requires: Combine<Plural, Singular>, so we collected markers above.
         // Result: When a new type is added, it flows through as ONE item and gets checked
         // against the cached marker arrays - very efficient!
-        var matchedTypesFromSourceAttributes = sourceTypes
-            .Combine(collectedSourceMarkers)
+        var matchedTypes = sourceTypes
+            .Combine(collectedMarkers)
             .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken))
-            .WithTrackingName("TypesFromSource");
+            .WithTrackingName("MatchedTypes");
 
-        var matchedTypesFromCompilationAttributes = sourceTypes
-            .Combine(collectedCompilationMarkers)
-            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken))
-            .WithTrackingName("TypesFromCompilation");
-
-        var matchedTypesFromBuiltInMarkers = sourceTypes
-            .Combine(collectedBuiltInMarkers)
-            .SelectMany((pair, cancellationToken) => FindMatchingMarkers(pair.Left, pair.Right, cancellationToken))
-            .WithTrackingName("TypesFromBuiltIn");
-
-        // --- CACHE BOUNDARY: Collect matched types from each source independently ---
+        // --- CACHE BOUNDARY: Collect matched types
         // Final collection before combining results - maintains separation between sources
-        var collectedFromSource = matchedTypesFromSourceAttributes
-            .Collect().WithTrackingName("CollectedFromSource");
-        var collectedFromCompilation = matchedTypesFromCompilationAttributes
-            .Collect().WithTrackingName("CollectedFromCompilation");
-        var collectedFromBuiltIn = matchedTypesFromBuiltInMarkers
-            .Collect().WithTrackingName("CollectedFromBuiltIn");
+        var collectedTypes = matchedTypes
+            .Collect().WithTrackingName("CollectedTypes");
 
         // --- FINAL COMBINATION ---
         // Only now do we merge all three result sets into one array for source generation
-        var generationData = collectedFromSource
-            .Combine(collectedFromCompilation)
-            .Combine(collectedFromBuiltIn)
+        var generationData = collectedTypes
             .Combine(assemblyNameInfo)
-            .Combine(diagnostics)
             .Select((tuple, _) =>
             {
-                var ((((source, compilation), builtIn), assemblyName), diagnosticInfos) = tuple;
-                var allScannedTypes = source.Concat(compilation).Concat(builtIn)
+                var (builtIn, assemblyName) = tuple;
+                var allScannedTypes = builtIn
                     // CompilationProvider and SyntaxProvider can both surface an extension point type in user code
                     .Distinct()
                     .ToImmutableArray();
 
-                return new GenerationData(assemblyName, allScannedTypes, diagnosticInfos);
+                return new GenerationData(assemblyName, allScannedTypes);
             });
 
         // --- GENERATE OUTPUT ---
         context.RegisterImplementationSourceOutput(generationData, GenerateRegistrationCode);
     }
 
-    record struct GenerationData(string AssemblyName, ImmutableArray<ScannedTypeInfo> Types, ImmutableArray<DiagnosticInfo?> Diagnostics);
+    record struct GenerationData(string AssemblyName, ImmutableArray<ScannedTypeInfo> Types);
 
     static IEnumerable<ScannedTypeInfo> FindMatchingMarkers(INamedTypeSymbol? type, ImmutableArray<MarkerTypeInfo> markers, CancellationToken cancellationToken)
     {
@@ -189,14 +123,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
     /// <auto-generated />
     static void GenerateRegistrationCode(SourceProductionContext sourceProductionContext, GenerationData data)
     {
-        foreach (var info in data.Diagnostics)
-        {
-            if (info.HasValue)
-            {
-                sourceProductionContext.ReportDiagnostic(info.Value.CreateDiagnostic());
-            }
-        }
-
         if (data.Types.Length == 0)
         {
             return; // No types to register, don't generate anything
@@ -262,90 +188,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         sourceProductionContext.AddSource("TypeRegistration.g.cs", sb.ToString());
     }
 
-    static readonly DiagnosticDescriptor ExtensionTypeCantBeGeneric = new DiagnosticDescriptor(
-        id: DiagnosticIds.ExtensionTypeAttributeCantDecorateGenericType,
-        title: "Extension types cannot be generic",
-        messageFormat: "Type '{0}' cannot be identified as an NServiceBus extension type because it is a generic type",
-        category: "Source Generation",
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
-
-    static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(Compilation compilation, CancellationToken cancellationToken)
-    {
-        var attributeType = compilation.GetTypeByMetadataName(ExtensionAttributeMetadataName);
-        if (attributeType is null)
-        {
-            return [];
-        }
-
-        return GetTypesWithExtensionPointAttribute(compilation.GlobalNamespace, attributeType, compilation.Assembly, cancellationToken);
-    }
-
-    static IEnumerable<MarkerTypeInfo> GetTypesWithExtensionPointAttribute(INamespaceSymbol ns, INamedTypeSymbol attributeType, IAssemblySymbol compilationAssembly, CancellationToken cancellationToken)
-    {
-        if (SymbolEqualityComparer.Default.Equals(ns.ContainingAssembly, compilationAssembly))
-        {
-            yield break;
-        }
-
-        // Walk all types in this namespace and its children looking for [NServiceBusExtensionPoint]
-        foreach (var type in ns.GetTypeMembers())
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var extensionPointAttr = type.GetAttributes()
-                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
-
-            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
-                extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
-            {
-                //if (!type.IsGenericType)
-                //{
-                yield return new MarkerTypeInfo(type, new(type.ToDisplayString(), registerMethod, autoRegister));
-                //}
-            }
-
-            // Recursively search nested types
-            foreach (var nested in GetNestedTypesWithAttribute(type, attributeType, cancellationToken))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                yield return nested;
-            }
-        }
-
-        // Recursively search child namespaces
-        foreach (var childNamespace in ns.GetNamespaceMembers())
-        {
-            foreach (var markerType in GetTypesWithExtensionPointAttribute(childNamespace, attributeType, compilationAssembly, cancellationToken))
-            {
-                yield return markerType;
-            }
-        }
-    }
-
-    static IEnumerable<MarkerTypeInfo> GetNestedTypesWithAttribute(INamedTypeSymbol type, INamedTypeSymbol attributeType, CancellationToken cancellationToken)
-    {
-        foreach (var nested in type.GetTypeMembers())
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var extensionPointAttr = nested.GetAttributes()
-                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
-
-            if (extensionPointAttr is not null && extensionPointAttr.ConstructorArguments[0].Value is string registerMethod &&
-                extensionPointAttr.ConstructorArguments[1].Value is bool autoRegister)
-            {
-                yield return new MarkerTypeInfo(nested, new(nested.ToDisplayString(), registerMethod, autoRegister));
-            }
-
-            // Recursively search deeper nested types
-            foreach (var deeperNested in GetNestedTypesWithAttribute(nested, attributeType, cancellationToken))
-            {
-                yield return deeperNested;
-            }
-        }
-    }
-
     static bool IsFromExtensionPoint(INamedTypeSymbol type, INamedTypeSymbol extensionMarkerType)
     {
         if (SymbolEqualityComparer.Default.Equals(type, extensionMarkerType))
@@ -409,9 +251,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
         // Obsolete?
         new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
         new ("NServiceBus.IWantToRunBeforeConfigurationIsFinalized", "RegisterConfigurationFinalizer", true),
-
-        // Custom checks are out there ;-)
-
     ];
 
     static INamedTypeSymbol? GetNamedTypeFromGeneratorSyntaxContext(GeneratorSyntaxContext context, CancellationToken cancellationToken)
@@ -433,18 +272,5 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
     record struct ScannedTypeInfo(string DisplayName, MarkerInfo Marker);
     record struct MarkerInfo(string TypeName, string RegisterMethod, bool AutoRegister);
-    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, MarkerInfo Marker, DiagnosticInfo? Diagnostic = null);
-
-    record struct DiagnosticInfo(DiagnosticDescriptor Descriptor, LocationProxy Location, params string[] MessageArgs)
-    {
-        public Diagnostic CreateDiagnostic() => Diagnostic.Create(Descriptor, Location.ToLocation(),
-            messageArgs: MessageArgs.ToArray<object>());
-    }
-
-    record struct LocationProxy(SyntaxTree Tree, TextSpan Span)
-    {
-        public Location ToLocation() => Location.Create(Tree, Span);
-    }
-
-    const string ExtensionAttributeMetadataName = "NServiceBus.Extensibility.NServiceBusExtensionPointAttribute";
+    record struct MarkerTypeInfo(INamedTypeSymbol? Symbol, MarkerInfo Marker);
 }

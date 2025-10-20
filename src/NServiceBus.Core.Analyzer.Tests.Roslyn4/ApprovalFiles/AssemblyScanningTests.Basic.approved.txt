@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Features;
-using NServiceBus.Extensibility;
 using NServiceBus.Installation;
 using NServiceBus.Sagas;
 
@@ -41,11 +40,6 @@ public class Installer : INeedToInstallSomething
 }
 public class NotInteresting { }
 
-public class DownstreamSpecificType : IAmImportantNonCoreType { }
-
-[NServiceBusExtensionPoint("RegisterImportant", true)]
-public interface IAmImportantNonCoreType { }
-
 public class MySaga : Saga<MySagaData>
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) { }
@@ -75,7 +69,6 @@ namespace NServiceBus.Generated
         /// </summary>
         public static void RegisterRequiredTypes(NServiceBus.EndpointConfiguration config)
         {
-            config.TypeRegistrations.RegisterExtensionType<UserCode.IAmImportantNonCoreType, UserCode.DownstreamSpecificType>();
             config.TypeRegistrations.RegisterExtensionType<NServiceBus.IEvent, UserCode.MyEvent>();
             config.TypeRegistrations.RegisterExtensionType<NServiceBus.IMessage, UserCode.MyEvent>();
             config.TypeRegistrations.RegisterExtensionType<NServiceBus.ICommand, UserCode.MyCommand>();
@@ -100,7 +93,6 @@ namespace NServiceBus.Generated
 
     // public static class TemporaryRegistrationExtensions
     // {
-    //    public static void RegisterImportant<TType>(this NServiceBus.EndpointConfiguration config) where TType : UserCode.IAmImportantNonCoreType { }
     //    public static void RegisterEvent<TType>(this NServiceBus.EndpointConfiguration config) where TType : NServiceBus.IEvent { }
     //    public static void RegisterMessage<TType>(this NServiceBus.EndpointConfiguration config) where TType : NServiceBus.IMessage { }
     //    public static void RegisterCommand<TType>(this NServiceBus.EndpointConfiguration config) where TType : NServiceBus.ICommand { }
@@ -135,12 +127,12 @@ namespace NServiceBus
 {
     static file class SourceGeneratedAssemblyScanningInterceptors
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "BTJmrtLYKlcnOqfat9mziE8BAABTb3VyY2UwMC5jcw==")] // Source00.cs(17,13)
+        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "Ltutow3dbm1UTnY354APki4BAABTb3VyY2UwMC5jcw==")] // Source00.cs(16,13)
         public static void UseSourceGeneratedTypeDiscovery(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             NServiceBus.Generated.GeneratedTypeRegistrations_Basic_ccbafe982105c50ae5bd.RegisterRequiredTypes(endpointConfiguration);
         }
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "BTJmrtLYKlcnOqfat9mziH4BAABTb3VyY2UwMC5jcw==")] // Source00.cs(18,14)
+        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "Ltutow3dbm1UTnY354APkl0BAABTb3VyY2UwMC5jcw==")] // Source00.cs(17,14)
         public static void RegisterHandlersAndSagas(NServiceBus.SourceGenerationTypeDiscoveryOptions options)
         {
             NServiceBus.Generated.GeneratedTypeRegistrations_Basic_ccbafe982105c50ae5bd.RegisterOptionalTypes(options.Configuration);

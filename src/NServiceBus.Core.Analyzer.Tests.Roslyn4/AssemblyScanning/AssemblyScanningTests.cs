@@ -23,7 +23,6 @@ public class AssemblyScanningTests
                        using System.Threading.Tasks;
                        using NServiceBus;
                        using NServiceBus.Features;
-                       using NServiceBus.Extensibility;
                        using NServiceBus.Installation;
                        using NServiceBus.Sagas;
                        
@@ -60,11 +59,6 @@ public class AssemblyScanningTests
                            public Task Install(string identity, CancellationToken cancellationToken) => Task.CompletedTask;
                        }
                        public class NotInteresting { }
-
-                       public class DownstreamSpecificType : IAmImportantNonCoreType { }
-
-                       [NServiceBusExtensionPoint("RegisterImportant", true)]
-                       public interface IAmImportantNonCoreType { }
                        
                        public class MySaga : Saga<MySagaData>
                        {
@@ -82,8 +76,7 @@ public class AssemblyScanningTests
         SourceGeneratorTest.ForIncrementalGenerator<KnownTypesGenerator>()
             .WithIncrementalGenerator<AssemblyScanningGenerator>()
             .WithSource(source)
-            .WithGeneratorStages("TypesFromSource", "TypesFromCompilation", "TypesFromBuiltIn")
-            .WithGeneratorStages("CollectedFromSource", "CollectedFromCompilation", "CollectedFromBuiltIn")
+            .WithGeneratorStages("MatchedTypes", "CollectedTypes")
             .Approve()
             .AssertRunsAreEqual();
     }

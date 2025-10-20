@@ -1214,11 +1214,6 @@ namespace NServiceBus.Extensibility
         bool TryGet<T>([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out T? result);
         bool TryGet<T>(string key, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out T? result);
     }
-    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface, AllowMultiple=false, Inherited=false)]
-    public sealed class NServiceBusExtensionPointAttribute : System.Attribute
-    {
-        public NServiceBusExtensionPointAttribute(string registrationMethodName, bool autoRegister) { }
-    }
 }
 namespace NServiceBus.Faults
 {
