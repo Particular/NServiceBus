@@ -404,8 +404,6 @@ public sealed class KnownTypesGenerator : IIncrementalGenerator
 
         // May be able to remove features as an explicit-registration only
         new ("NServiceBus.Installation.INeedToInstallSomething", "RegisterInstaller", true),
-        // May be able to remove features as an explicit-registration only
-        new ("NServiceBus.Features.Feature", "RegisterFeature", true),
 
         // Obsolete?
         new ("NServiceBus.INeedInitialization", "RegisterInitializer", true),
