@@ -18,7 +18,7 @@ public class FeatureStartupTests
         settings = new SettingsHolder();
         settings.Set(new FeatureComponent.Settings(settings));
         feautureFactory = new FakeFeatureFactory();
-        featureSettings = new FeatureActivator(settings, feautureFactory);
+        featureSettings = new FeatureRegistry(settings, feautureFactory);
     }
 
     [Test]
@@ -146,7 +146,7 @@ public class FeatureStartupTests
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
-    FeatureActivator featureSettings;
+    FeatureRegistry featureSettings;
     SettingsHolder settings;
     FakeFeatureFactory feautureFactory;
 

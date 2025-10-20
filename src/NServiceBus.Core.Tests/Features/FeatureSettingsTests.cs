@@ -9,7 +9,7 @@ using Settings;
 [TestFixture]
 public class FeatureSettingsTests
 {
-    FeatureActivator featureSettings;
+    FeatureRegistry featureSettings;
     SettingsHolder settings;
 
     [SetUp]
@@ -17,7 +17,7 @@ public class FeatureSettingsTests
     {
         settings = new SettingsHolder();
         settings.Set(new FeatureComponent.Settings(settings));
-        featureSettings = new FeatureActivator(settings, new FeatureFactory());
+        featureSettings = new FeatureRegistry(settings, new FeatureFactory());
     }
 
     [Test]

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureActivator(SettingsHolder settings, FeatureFactory factory)
+class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 {
     internal List<FeatureDiagnosticData> Status => [.. added.Values.Select(f => f.Diagnostics)];
 
