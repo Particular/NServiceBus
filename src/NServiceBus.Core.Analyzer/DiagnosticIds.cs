@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer
 {
-#if FIXES || SOURCEGEN
+#if FIXES
     static class DiagnosticIds
 #else
     public static class DiagnosticIds

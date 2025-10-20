@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus.Core.SourceGen;
 
 using System;

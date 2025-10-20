@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" />
-    <ProjectReference Include="..\NServiceBus.Core.SourceGen\NServiceBus.Core.SourceGen.csproj" />
     <ProjectReference Include="..\NServiceBus.Core.Analyzer.Fixes\NServiceBus.Core.Analyzer.Fixes.csproj" />
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>

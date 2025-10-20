@@ -2,7 +2,6 @@
   <Folder Name="/Analyzer/">
     <Project Path="NServiceBus.Core.Analyzer.Fixes/NServiceBus.Core.Analyzer.Fixes.csproj" />
     <Project Path="NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.csproj" />
-    <Project Path="NServiceBus.Core.SourceGen\NServiceBus.Core.SourceGen.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Custom.Build.props" />
