@@ -24,6 +24,26 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         info.Enable();
     }
 
+    public void EnableFeature<T>() where T : Feature
+    {
+        var featureName = Feature.GetFeatureName(typeof(T));
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            info = AddCore(factory.CreateFeature(typeof(T)));
+        }
+        info.Enable();
+    }
+
+    public void DisableFeature<T>() where T : Feature
+    {
+        var featureName = Feature.GetFeatureName(typeof(T));
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            info = AddCore(factory.CreateFeature(typeof(T)));
+        }
+        info.Disable();
+    }
+
     public void DisableFeature(Type featureType)
     {
         var featureName = Feature.GetFeatureName(featureType);
@@ -34,26 +54,19 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         info.Disable();
     }
 
-    public void EnableFeatureByDefault(Type featureType)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(featureType));
-        }
+    public void EnableFeatureByDefault(Type featureType) => EnableFeature(featureType);
 
-        info.Enable();
-    }
+    public void EnableFeatureByDefault<T>() where T : Feature => EnableFeature<T>();
 
-    public void EnableFeatureByDefault<T>() where T : Feature
+    public bool IsFeature<T>(FeatureState state) where T : Feature
     {
         var featureName = Feature.GetFeatureName(typeof(T));
-        if (!added.TryGetValue(featureName, out var info))
+        if (added.TryGetValue(featureName, out var info))
         {
-            info = AddCore(factory.CreateFeature(typeof(T)));
+            return info.State == state;
         }
-
-        info.Enable();
+        // backward compat with GetOrDefault
+        return state == FeatureState.Disabled;
     }
 
     public bool IsFeature(Type featureType, FeatureState state)
