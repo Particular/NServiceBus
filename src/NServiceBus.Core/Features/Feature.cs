@@ -44,15 +44,13 @@ public abstract class Feature
     /// <summary>
     /// Indicates that the feature is active.
     /// </summary>
-    public bool IsActive => State == FeatureState.Active;
-
-    internal FeatureState State { get; set; } = FeatureState.Disabled;
+    public bool IsActive { get; private set; }
 
     /// <summary>
     /// Registers default settings.
     /// </summary>
     /// <param name="settings">The settings holder.</param>
-    protected internal void Defaults(Action<SettingsHolder> settings) => registeredDefaults.Add(settings);
+    protected void Defaults(Action<SettingsHolder> settings) => registeredDefaults.Add(settings);
 
     /// <summary>
     /// Called when the features is activated.
@@ -196,7 +194,12 @@ public abstract class Feature
         return status;
     }
 
-    internal void SetupFeature(FeatureConfigurationContext config) => Setup(config);
+    internal void SetupFeature(FeatureConfigurationContext config)
+    {
+        Setup(config);
+
+        IsActive = true;
+    }
 
     internal void ConfigureDefaults(SettingsHolder settings)
     {

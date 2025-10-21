@@ -19,13 +19,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         if (!added.TryGetValue(featureName, out var info))
         {
             var feature = factory.CreateFeature(featureType);
-            feature.State = FeatureState.Enabled;
             Add(feature);
+
+            // we can make all this cleaner
+            info = added[featureName];
         }
-        else
-        {
-            info.Feature.State = FeatureState.Enabled;
-        }
+
+        info.Enable();
     }
 
     public void DisableFeature(Type featureType)
@@ -34,13 +34,12 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         if (!added.TryGetValue(featureName, out var info))
         {
             var feature = factory.CreateFeature(featureType);
-            feature.State = FeatureState.Disabled;
             Add(feature);
+
+            // we can make all this cleaner
+            info = added[featureName];
         }
-        else
-        {
-            info.Feature.State = FeatureState.Disabled;
-        }
+        info.Disable();
     }
 
     public void EnableFeatureByDefault(Type featureType)
@@ -49,13 +48,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         if (!added.TryGetValue(featureName, out var info))
         {
             var feature = factory.CreateFeature(featureType);
-            feature.State = FeatureState.Enabled;
             Add(feature);
+
+            // we can make all this cleaner
+            info = added[featureName];
         }
-        else
-        {
-            info.Feature.State = FeatureState.Enabled;
-        }
+
+        info.Enable();
     }
 
     public void EnableFeatureByDefault<T>() where T : Feature
@@ -64,13 +63,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         if (!added.TryGetValue(featureName, out var info))
         {
             var feature = factory.CreateFeature(typeof(T));
-            feature.State = FeatureState.Enabled;
             Add(feature);
+
+            // we can make all this cleaner
+            info = added[featureName];
         }
-        else
-        {
-            info.Feature.State = FeatureState.Enabled;
-        }
+
+        info.Enable();
     }
 
     public bool IsFeature(Type featureType, FeatureState state)
@@ -78,7 +77,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var featureName = Feature.GetFeatureName(featureType);
         if (added.TryGetValue(featureName, out var info))
         {
-            return info.Feature.State == state;
+            return info.State == state;
         }
         // backward compat with GetOrDefault
         return state == FeatureState.Disabled;
@@ -100,49 +99,43 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             return;
         }
 
-        if (feature.IsEnabledByDefault)
+        var featureInfos = new List<List<FeatureInfo>>();
+        foreach (var dependencies in feature.Dependencies)
         {
-            feature.State = FeatureState.Enabled;
-        }
+            var infos = new List<FeatureInfo>();
 
-        foreach (var dependency in feature.Dependencies.SelectMany(d => d))
-        {
-            var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
-            if (!added.TryGetValue(featureName, out var info))
+            foreach (var dependency in dependencies)
             {
-                var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
-                if (dependentFeatureType != null)
+                var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
+                if (!added.TryGetValue(featureName, out var info))
                 {
-                    var dependentFeature = factory.CreateFeature(dependentFeatureType);
-                    if (dependency.EnabledByDefault)
+                    var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
+                    if (dependentFeatureType != null)
                     {
-                        // ugly hack for now
-                        feature.Defaults(s => dependentFeature.State = FeatureState.Enabled);
+                        var dependentFeature = factory.CreateFeature(dependentFeatureType);
+                        Add(dependentFeature);
+                        // we can make all this cleaner
+                        info = added[dependentFeature.Name];
                     }
-
-                    Add(dependentFeature);
                 }
-            }
-            else
-            {
+
+                if (info is null)
+                {
+                    continue;
+                }
+
                 if (dependency.EnabledByDefault)
                 {
-                    // ugly hack for now
-                    feature.Defaults(s => info.Feature.State = FeatureState.Enabled);
+                    info.MarkAsEnabledByDefault();
                 }
+
+                infos.Add(info);
             }
+
+            featureInfos.Add(infos);
         }
 
-        added.Add(feature.Name, new FeatureInfo(feature, new FeatureDiagnosticData
-        {
-            EnabledByDefault = feature.IsEnabledByDefault,
-            Name = feature.Name,
-            Version = feature.Version,
-            Dependencies = feature.Dependencies.Select(d => d.Where(x => !x.EnabledByDefault).Select(x => x.FeatureName).ToList().AsReadOnly())
-                .Where(innerList => innerList.Count > 0).ToList().AsReadOnly(),
-            PrerequisiteStatus = new PrerequisiteStatus(),
-            StartupTasks = []
-        }));
+        added.Add(feature.Name, new FeatureInfo(feature, featureInfos));
     }
 
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
@@ -159,7 +152,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             }
             sourceFeatures.Remove(featureToActivate);
             enabledFeatures.Add(featureToActivate);
-            featureToActivate.Feature.ConfigureDefaults(settings);
+            featureToActivate.Configure(settings);
         }
 
         foreach (var feature in enabledFeatures)
@@ -226,9 +219,9 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var dependencyName in node.FeatureState.Diagnostics.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
+            foreach (var dependencyName in node.FeatureState.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
             {
-                if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
+                if (nameToNodeDict.TryGetValue(dependencyName.Feature.Name, out var referencedNode))
                 {
                     node.previous.Add(referencedNode);
                 }
@@ -279,7 +272,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
     static bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
     {
-        if (featureInfo.Feature.IsActive)
+        if (featureInfo.State == FeatureState.Active)
         {
             return true;
         }
@@ -302,10 +295,11 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
             if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
             {
-                featureInfo.Feature.State = FeatureState.Deactivated;
+                featureInfo.Disable();
                 return false;
             }
-            featureInfo.Feature.State = FeatureState.Active;
+
+            featureInfo.Activate();
 
             featureInfo.InitializeFrom(featureConfigurationContext);
 
@@ -314,7 +308,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
             return true;
         }
-        featureInfo.Feature.State = FeatureState.Deactivated;
+        featureInfo.Disable();
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
     }
@@ -329,11 +323,18 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
     readonly List<FeatureInfo> enabledFeatures = [];
     readonly Dictionary<string, FeatureInfo> added = [];
 
-    class FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
+    class FeatureInfo
     {
-        public FeatureDiagnosticData Diagnostics { get; } = diagnostics;
-        public Feature Feature { get; } = feature;
+        public FeatureDiagnosticData Diagnostics { get; }
+
+        public FeatureState State { get; private set; }
+
+        public Feature Feature { get; }
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
+
+        public IReadOnlyCollection<IReadOnlyCollection<FeatureInfo>> Dependencies { get; }
+
+        bool EnabledByDefault { get; set; }
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
         {
@@ -345,12 +346,57 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                 featureStartupTasks.Add(controller.Name);
             }
             Diagnostics.StartupTasks = featureStartupTasks;
-            Diagnostics.Active = true;
+            Diagnostics.Active = Feature.IsActive;
         }
 
         public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
+
+        public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<FeatureInfo>> dependencies)
+        {
+            Dependencies = dependencies;
+            Diagnostics = new FeatureDiagnosticData
+            {
+                EnabledByDefault = feature.IsEnabledByDefault,
+                PrerequisiteStatus = new PrerequisiteStatus(),
+                Name = feature.Name,
+                Version = feature.Version,
+                // TODO fix
+                Dependencies = dependencies.Select(d => d.Where(f => !f.Feature.IsEnabledByDefault).Select(f => f.Feature.Name).ToList().AsReadOnly()).ToList().AsReadOnly(),
+                StartupTasks = []
+            };
+            Feature = feature;
+            EnabledByDefault = feature.IsEnabledByDefault;
+
+            if (EnabledByDefault) // backward compat for reflection based stuff
+            {
+                Enable();
+            }
+        }
+
+        public void Configure(SettingsHolder settings)
+        {
+            Feature.ConfigureDefaults(settings);
+            foreach (IReadOnlyCollection<FeatureInfo> deps in Dependencies)
+            {
+                foreach (var dependency in deps)
+                {
+                    if (dependency.EnabledByDefault)
+                    {
+                        dependency.Enable();
+                    }
+                }
+            }
+        }
+
+        public void Enable() => State = FeatureState.Enabled;
+
+        public void Disable() => State = FeatureState.Disabled;
+
+        public void MarkAsEnabledByDefault() => EnabledByDefault = true;
+
+        public void Activate() => State = FeatureState.Active;
     }
 
     class Node
