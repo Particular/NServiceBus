@@ -168,7 +168,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var startedTaskControllers = new List<FeatureStartupTaskController>();
 
         // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
-        foreach (var feature in enabledFeatures.Where(f => f.Feature.IsActive))
+        foreach (var feature in enabledFeatures.Where(f => f.State == FeatureState.Active))
         {
             foreach (var taskController in feature.TaskControllers)
             {
@@ -192,7 +192,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
     public Task StopFeatures(IMessageSession session, CancellationToken cancellationToken = default)
     {
-        var featureStopTasks = enabledFeatures.Where(f => f.Feature.IsActive)
+        var featureStopTasks = enabledFeatures.Where(f => f.State == FeatureState.Active)
             .SelectMany(f => f.TaskControllers)
             .Select(task => task.Stop(session, cancellationToken));
 
@@ -270,14 +270,14 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         return false;
     }
 
-    static bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
+    static bool ActivateFeature(FeatureInfo featureInfo, IReadOnlyCollection<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
     {
         if (featureInfo.State == FeatureState.Active)
         {
             return true;
         }
 
-        if (featureInfo.Diagnostics.Dependencies.All(DependencyActivator))
+        if (featureInfo.Dependencies.All(list => DependencyActivator(list, featuresToActivate, featureConfigurationContext)))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -300,17 +300,15 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
 
-        bool DependencyActivator(IReadOnlyList<string> dependencies)
+        static bool DependencyActivator(IReadOnlyCollection<FeatureInfo> dependencies, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
         {
-            var dependentFeaturesToActivate = new List<FeatureInfo>();
+            var dependentFeaturesToActivate = dependencies
+                .Select(dependency => enabledFeatures.SingleOrDefault(f => f.Equals(dependency)))
+                .Where(dependency => dependency is not null)
+                .Select(dependency => dependency!)
+                .ToList();
 
-            foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate.SingleOrDefault(f => f.Feature.Name == dependencyName))
-                         .Where(dependency => dependency != null))
-            {
-                dependentFeaturesToActivate.Add(dependency!);
-            }
-
-            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
+            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, enabledFeatures, featureConfigurationContext));
         }
     }
 
