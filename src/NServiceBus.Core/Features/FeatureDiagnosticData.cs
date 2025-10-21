@@ -14,7 +14,7 @@ class FeatureDiagnosticData
 
     public required PrerequisiteStatus PrerequisiteStatus { get; set; }
 
-    public required IReadOnlyList<IReadOnlyList<string>> Dependencies { get; set; }
+    public required IReadOnlyList<string> Dependencies { get; set; }
 
     public required string Version { get; set; }
 
