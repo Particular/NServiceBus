@@ -7,22 +7,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hosting;
-using Installation;
 using Microsoft.Extensions.DependencyInjection;
 
 partial class HostingComponent
 {
-    static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
-
     public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
     {
-        //TODO: Modify scanner so that only INeedToInstallSomething declared outside NServiceBus assemblies are included
+        settings.InstallerRegistry.AddScannedInstallers(assemblyScanningComponent.AvailableTypes);
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-
-        foreach (var installerType in availableTypes.Where(IsINeedToInstallSomething))
-        {
-            settings.InstallerRegistry.Add(installerType);
-        }
 
         var configuration = new Configuration(settings,
             availableTypes,
