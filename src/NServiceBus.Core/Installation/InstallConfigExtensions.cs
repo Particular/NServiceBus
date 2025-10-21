@@ -5,8 +5,6 @@ namespace NServiceBus;
 using System;
 using Features;
 using Installation;
-using Microsoft.Extensions.DependencyInjection;
-using Settings;
 
 /// <summary>
 /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething" />s are run.
