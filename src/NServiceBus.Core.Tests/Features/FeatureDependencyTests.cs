@@ -55,9 +55,9 @@ public class FeatureDependencyTests
     public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
     {
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
         var dependingFeature = setup.DependingFeature;
 
         Array.ForEach(setup.AvailableFeatures, featureFactory.Add);
@@ -85,9 +85,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
 
@@ -121,9 +121,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
 
@@ -156,9 +156,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
 
@@ -197,9 +197,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature, feature2, feature3);
 
@@ -243,9 +243,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(level1, level2, level3);
 
@@ -283,9 +283,9 @@ public class FeatureDependencyTests
         };
 
         var settings = new SettingsHolder();
-        settings.Set(new FeatureComponent.Settings(settings));
         var featureFactory = new FakeFeatureFactory();
         var featureSettings = new FeatureRegistry(settings, featureFactory);
+        settings.Set(featureSettings);
 
         featureFactory.Add(level1, level2);
 
