@@ -30,7 +30,7 @@ public abstract class Feature
     /// <summary>
     /// The list of features that this feature is depending on.
     /// </summary>
-    /// <remarks>This property is compute intense and should only be accessed when needed.</remarks>
+    /// <remarks>This property is compute-intense and should only be accessed when needed.</remarks>
     internal IReadOnlyCollection<Dependency> Dependencies =>
         dependencies
             .SelectMany(g => g)
@@ -83,9 +83,8 @@ public abstract class Feature
     protected void EnableByDefault() => IsEnabledByDefault = true;
 
     /// <summary>
-    /// Marks that this features enables another feature by default
+    /// Marks that this feature enables another feature by default.
     /// </summary>
-    /// TODO: Add type based overload?
     protected void EnableByDefault<T>() where T : Feature =>
         dependencies.Add([
             new Dependency(GetFeatureName(typeof(T)), typeof(T), enabledByDefault: true)
