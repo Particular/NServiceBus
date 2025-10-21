@@ -19,13 +19,7 @@ class FeatureComponent
         this.settings.Set(this);
     }
 
-    public void RegisterFeatureEnabledStatusInSettings(HostingComponent.Configuration hostingConfiguration)
-    {
-        foreach (var featureType in hostingConfiguration.AvailableTypes.Where(IsFeature))
-        {
-            featureRegistry.Add(featureType);
-        }
-    }
+    public void RegisterFeatureEnabledStatusInSettings(HostingComponent.Configuration hostingConfiguration) => featureRegistry.AddScannedTypes(hostingConfiguration.AvailableTypes);
 
     public void Initialize(FeatureConfigurationContext featureConfigurationContext)
     {
@@ -37,8 +31,6 @@ class FeatureComponent
     public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default) => featureRegistry.StartFeatures(builder, messageSession, cancellationToken);
 
     public Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default) => featureRegistry.StopFeatures(messageSession, cancellationToken);
-
-    static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
     readonly FeatureRegistry featureRegistry;
     readonly SettingsHolder settings;
