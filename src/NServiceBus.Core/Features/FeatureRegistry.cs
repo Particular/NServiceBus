@@ -115,7 +115,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
         featureInfo = new FeatureInfo(feature, dependencyFeatureInfos, dependencies.Select(d => d.FeatureName).ToList().AsReadOnly());
-        added.Add(feature.Name, featureInfo);
+        added.Add(featureInfo.Name, featureInfo);
         return featureInfo;
     }
 
