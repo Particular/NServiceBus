@@ -2,12 +2,10 @@
 namespace NServiceBus;
 
 using System;
-using System.Linq;
 using System.Net;
 using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
-using Installation;
 using Microsoft.Extensions.DependencyInjection;
 using Support;
 
@@ -17,7 +15,10 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
 
     public static HostingComponent Initialize(Configuration configuration)
     {
+        configuration.InstallerRegistry.AddScannedInstallers(configuration.AvailableTypes);
+
         var serviceCollection = configuration.Services;
+
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
         serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
@@ -44,7 +45,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             HostName = Dns.GetHostName(),
             Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
-            Installers = string.Join(";", configuration.InstallerRegistry.GetInstallers().Select(t => t.FullName))
+            //TODO: Installers = string.Join(";", configuration.InstallerRegistry.GetInstallers().Select(t => t.FullName))
         });
 
         return new HostingComponent(configuration);
@@ -57,13 +58,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             return;
         }
 
-        var installationUserName = GetInstallationUserName();
-
-        foreach (var installerType in configuration.InstallerRegistry.GetInstallers())
-        {
-            var installer = (INeedToInstallSomething)ActivatorUtilities.CreateInstance(serviceProvider, installerType);
-            await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
-        }
+        await configuration.InstallerRegistry.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task WriteDiagnosticsFile(CancellationToken cancellationToken = default)
@@ -75,14 +70,4 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
 
     public void SetupCriticalErrors(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
         configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
-
-    string GetInstallationUserName()
-    {
-        if (configuration.InstallationUserName != null)
-        {
-            return configuration.InstallationUserName;
-        }
-
-        return Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
-    }
 }
