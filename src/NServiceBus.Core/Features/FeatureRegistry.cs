@@ -80,7 +80,17 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         return state == FeatureState.Disabled;
     }
 
-    public void Add(Type featureType)
+    public void AddScannedTypes(IEnumerable<Type> availableTypes)
+    {
+        foreach (var featureType in availableTypes.Where(IsFeature))
+        {
+            Add(featureType);
+        }
+    }
+
+    static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
+
+    void Add(Type featureType)
     {
         var featureName = Feature.GetFeatureName(featureType);
         if (!added.ContainsKey(featureName))
