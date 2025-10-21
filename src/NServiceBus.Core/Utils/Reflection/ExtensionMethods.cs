@@ -42,6 +42,7 @@ static class TypeExtensionMethods
         {
             return type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
         return false;
     }
 
@@ -77,6 +78,7 @@ static class TypeExtensionMethods
 
                 return result;
             }
+
             return Type.GetTypeFromHandle(typeHandle).Name;
         });
     }
@@ -98,10 +100,7 @@ static class TypeExtensionMethods
         return result;
     }
 
-    public static bool IsFromParticularAssembly(this Type type) =>
-        type.Assembly.GetName()
-            .GetPublicKeyToken()
-            .SequenceEqual(nsbPublicKeyToken);
+    public static bool IsFromParticularAssembly(this Type type) => IsParticularAssembly(type.Assembly);
 
     public static bool IsParticularAssembly(this Assembly assembly) =>
         assembly.GetName()
@@ -110,9 +109,9 @@ static class TypeExtensionMethods
 
     static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
 
-    static readonly ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
+    static readonly ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new();
 
-    static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
+    static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new();
 
     static readonly byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
 }
