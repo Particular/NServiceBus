@@ -47,11 +47,7 @@ public abstract partial class PersistenceDefinition
 
     internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
 
-    internal void ApplyActionForStorage(StorageType storageType, SettingsHolder settings)
-    {
-        var featureSupportingStorage = storageToFeatureMap[storageType];
-        _ = settings.EnableFeatureByDefault(featureSupportingStorage);
-    }
+    internal Type GetFeatureForStorage(StorageType storageType) => storageToFeatureMap[storageType];
 
     internal void ApplyDefaults(SettingsHolder settings)
     {
