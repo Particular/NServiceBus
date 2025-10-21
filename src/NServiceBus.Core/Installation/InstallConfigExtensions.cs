@@ -19,9 +19,10 @@ public static class InstallConfigExtensions
     public static void EnableInstallers(this EndpointConfiguration config, string? username = null)
     {
         ArgumentNullException.ThrowIfNull(config);
+
         if (username != null)
         {
-            config.Settings.Set("Installers.UserName", username);
+            config.Settings.Get<InstallerRegistry>().SetUserName(username);
         }
 
         config.Settings.Set("Installers.Enable", true);

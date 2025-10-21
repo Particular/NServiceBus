@@ -78,12 +78,6 @@ partial class HostingComponent
 
         public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
 
-        public string? InstallationUserName
-        {
-            get => settings.GetOrDefault<string>("Installers.UserName");
-            set => settings.Set("Installers.UserName", value);
-        }
-
         public bool ShouldRunInstallers
         {
             get => settings.GetOrDefault<bool>("Installers.Enable");

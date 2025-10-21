@@ -12,7 +12,6 @@ using System.Threading;
 /// </summary>
 public static class Installer
 {
-
     /// <summary>
     /// Executes all the installers and transport configuration without starting the endpoint.
     /// <see cref="Setup"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.

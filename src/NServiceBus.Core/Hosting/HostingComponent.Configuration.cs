@@ -13,7 +13,6 @@ partial class HostingComponent
 {
     public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
     {
-        settings.InstallerRegistry.AddScannedInstallers(assemblyScanningComponent.AvailableTypes);
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
         var configuration = new Configuration(settings,
@@ -24,7 +23,6 @@ partial class HostingComponent
             settings.HostDiagnosticsWriter,
             settings.EndpointName,
             serviceCollection,
-            settings.InstallationUserName,
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
@@ -42,7 +40,6 @@ partial class HostingComponent
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
             string endpointName,
             IServiceCollection services,
-            string? installationUserName,
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory)
@@ -54,7 +51,6 @@ partial class HostingComponent
             HostDiagnosticsWriter = hostDiagnosticsWriter;
             EndpointName = endpointName;
             Services = services;
-            InstallationUserName = installationUserName;
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
@@ -83,8 +79,6 @@ partial class HostingComponent
         public HostInformation HostInformation { get; }
 
         public bool ShouldRunInstallers { get; }
-
-        public string? InstallationUserName { get; }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 
