@@ -35,7 +35,7 @@ public static class EndpointConfigurationExtensions
             assemblyScanner.GetScannableAssemblies().Types
                 .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
                 .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
-                .Where(t => !t.IsAssignableTo(typeof(INeedToInstallSomething)))
+                .Where(t => !t.IsAssignableTo(typeof(INeedToInstallSomething))) //remove once we default the tests to not use scanning
                 .Union(customizationConfiguration.TypesToInclude)
                 .Except(customizationConfiguration.TypesToExclude)
                 .ToList());
