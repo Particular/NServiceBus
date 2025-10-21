@@ -18,11 +18,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var featureName = Feature.GetFeatureName(featureType);
         if (!added.TryGetValue(featureName, out var info))
         {
-            var feature = factory.CreateFeature(featureType);
-            Add(feature);
-
-            // we can make all this cleaner
-            info = added[featureName];
+            info = AddCore(factory.CreateFeature(featureType));
         }
 
         info.Enable();
@@ -33,11 +29,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var featureName = Feature.GetFeatureName(featureType);
         if (!added.TryGetValue(featureName, out var info))
         {
-            var feature = factory.CreateFeature(featureType);
-            Add(feature);
-
-            // we can make all this cleaner
-            info = added[featureName];
+            info = AddCore(factory.CreateFeature(featureType));
         }
         info.Disable();
     }
@@ -47,11 +39,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var featureName = Feature.GetFeatureName(featureType);
         if (!added.TryGetValue(featureName, out var info))
         {
-            var feature = factory.CreateFeature(featureType);
-            Add(feature);
-
-            // we can make all this cleaner
-            info = added[featureName];
+            info = AddCore(factory.CreateFeature(featureType));
         }
 
         info.Enable();
@@ -62,11 +50,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var featureName = Feature.GetFeatureName(typeof(T));
         if (!added.TryGetValue(featureName, out var info))
         {
-            var feature = factory.CreateFeature(typeof(T));
-            Add(feature);
-
-            // we can make all this cleaner
-            info = added[featureName];
+            info = AddCore(factory.CreateFeature(typeof(T)));
         }
 
         info.Enable();
@@ -92,15 +76,18 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         }
     }
 
-    public void Add(Feature feature)
+    public void Add(Feature feature) => _ = AddCore(feature);
+
+    FeatureInfo AddCore(Feature feature)
     {
-        if (added.ContainsKey(feature.Name))
+        if (added.TryGetValue(feature.Name, out var featureInfo))
         {
-            return;
+            return featureInfo;
         }
 
-        var infos = new List<FeatureInfo>();
-        foreach (var dependency in feature.Dependencies)
+        var dependencies = feature.Dependencies;
+        var dependencyFeatureInfos = new List<FeatureInfo>(dependencies.Count);
+        foreach (var dependency in dependencies)
         {
             var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
             if (!added.TryGetValue(featureName, out var info))
@@ -125,10 +112,12 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                 info.MarkAsEnabledByDefault();
             }
 
-            infos.Add(info);
+            dependencyFeatureInfos.Add(info);
         }
 
-        added.Add(feature.Name, new FeatureInfo(feature, infos));
+        featureInfo = new FeatureInfo(feature, dependencyFeatureInfos);
+        added.Add(feature.Name, featureInfo);
+        return featureInfo;
     }
 
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
@@ -150,7 +139,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         foreach (var feature in enabledFeatures)
         {
-            ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
+            _ = ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
         return [.. added.Values.Select(t => t.Diagnostics)];
