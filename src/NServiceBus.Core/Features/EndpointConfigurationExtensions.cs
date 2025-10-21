@@ -17,7 +17,7 @@ public static class EndpointConfigurationExtensions
     public static void EnableFeature<T>(this EndpointConfiguration config) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(config);
-        config.EnableFeature(typeof(T));
+        config.Settings.EnableFeature<T>();
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public static class EndpointConfigurationExtensions
     public static void DisableFeature<T>(this EndpointConfiguration config) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(config);
-        config.DisableFeature(typeof(T));
+        config.Settings.DisableFeature<T>();
     }
 
     /// <summary>

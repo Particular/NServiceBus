@@ -127,7 +127,7 @@ public class FeatureDefaultsTests
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
 
-        settings.EnableFeatureByDefault<MyFeature1>();
+        settings.EnableFeature<MyFeature1>();
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
@@ -168,9 +168,9 @@ public class FeatureDefaultsTests
         featureSettings.Add(feature2);
         featureSettings.Add(feature3);
 
-        settings.EnableFeatureByDefault<MyFeature1>();
-        settings.EnableFeatureByDefault<MyFeature2>();
-        settings.EnableFeatureByDefault<MyFeature3>();
+        settings.EnableFeature<MyFeature1>();
+        settings.EnableFeature<MyFeature2>();
+        settings.EnableFeature<MyFeature3>();
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
