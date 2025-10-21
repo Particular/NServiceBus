@@ -29,7 +29,7 @@ public static class InstallConfigExtensions
     }
 
     /// <summary>
-    /// TODO
+    /// Registers the installer type
     /// </summary>
     public static void RegisterInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
     {
@@ -39,7 +39,7 @@ public static class InstallConfigExtensions
     }
 
     /// <summary>
-    /// TODO
+    /// Registers the installer type
     /// </summary>
     public static void RegisterInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
     {
