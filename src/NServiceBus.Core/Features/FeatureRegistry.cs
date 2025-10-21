@@ -277,19 +277,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             return true;
         }
 
-        Func<IReadOnlyList<string>, bool> dependencyActivator = dependencies =>
-        {
-            var dependentFeaturesToActivate = new List<FeatureInfo>();
-
-            foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
-                .SingleOrDefault(f => f.Feature.Name == dependencyName))
-                .Where(dependency => dependency != null))
-            {
-                dependentFeaturesToActivate.Add(dependency!);
-            }
-            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
-        };
-        if (featureInfo.Diagnostics.Dependencies.All(dependencyActivator))
+        if (featureInfo.Diagnostics.Dependencies.All(DependencyActivator))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -311,6 +299,19 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         featureInfo.Disable();
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
+
+        bool DependencyActivator(IReadOnlyList<string> dependencies)
+        {
+            var dependentFeaturesToActivate = new List<FeatureInfo>();
+
+            foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate.SingleOrDefault(f => f.Feature.Name == dependencyName))
+                         .Where(dependency => dependency != null))
+            {
+                dependentFeaturesToActivate.Add(dependency!);
+            }
+
+            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
+        }
     }
 
     static bool HasAllPrerequisitesSatisfied(Feature feature, FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
