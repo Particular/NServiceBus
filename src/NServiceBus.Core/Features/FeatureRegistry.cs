@@ -145,7 +145,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         while (true)
         {
-            var featureToActivate = sourceFeatures.FirstOrDefault(x => IsFeature(x.Feature.GetType(), FeatureState.Enabled));
+            var featureToActivate = sourceFeatures.FirstOrDefault(x => x.State == FeatureState.Enabled);
             if (featureToActivate == null)
             {
                 break;
