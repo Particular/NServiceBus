@@ -1267,6 +1267,8 @@ namespace NServiceBus.Features
         protected void DependsOnOptionally<T>()
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
+        protected void EnableByDefault<T>()
+            where T : NServiceBus.Features.Feature { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
         protected abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
         public override string ToString() { }
