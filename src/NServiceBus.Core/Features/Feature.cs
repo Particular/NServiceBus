@@ -15,11 +15,7 @@ public abstract class Feature
     /// <summary>
     /// Creates an instance of <see cref="Feature" />.
     /// </summary>
-    protected Feature()
-    {
-        Dependencies = [];
-        Name = GetFeatureName(GetType());
-    }
+    protected Feature() => Name = GetFeatureName(GetType());
 
     /// <summary>
     /// Feature name.
@@ -34,7 +30,14 @@ public abstract class Feature
     /// <summary>
     /// The list of features that this feature is depending on.
     /// </summary>
-    internal List<List<Dependency>> Dependencies { get; }
+    /// <remarks>This property is compute intense and should only be accessed when needed.</remarks>
+    internal IReadOnlyCollection<Dependency> Dependencies =>
+        dependencies
+            .SelectMany(g => g)
+            .GroupBy(d => d.FeatureName)
+            .Select(g => g.FirstOrDefault(d => d.EnabledByDefault) ?? g.First())
+            .ToList()
+            .AsReadOnly();
 
     /// <summary>
     /// Tells if this feature is enabled by default.
@@ -84,7 +87,7 @@ public abstract class Feature
     /// </summary>
     /// TODO: Add type based overload?
     protected void EnableByDefault<T>() where T : Feature =>
-        Dependencies.Add([
+        dependencies.Add([
             new Dependency(GetFeatureName(typeof(T)), typeof(T), enabledByDefault: true)
         ]);
 
@@ -95,7 +98,7 @@ public abstract class Feature
     /// </summary>
     /// <typeparam name="T">Feature that this feature depends on.</typeparam>
     protected void DependsOn<T>() where T : Feature =>
-        Dependencies.Add(
+        dependencies.Add(
         [
             new Dependency(GetFeatureName(typeof(T)), typeof(T))
         ]);
@@ -106,7 +109,7 @@ public abstract class Feature
     /// </summary>
     /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
     protected void DependsOn(string featureTypeName) =>
-        Dependencies.Add(
+        dependencies.Add(
         [
             new Dependency(featureTypeName)
         ]);
@@ -129,7 +132,7 @@ public abstract class Feature
             }
         }
 
-        Dependencies.Add([.. features.Select(t => new Dependency(GetFeatureName(t), t))]);
+        dependencies.Add([.. features.Select(t => new Dependency(GetFeatureName(t), t))]);
     }
 
     /// <summary>
@@ -171,7 +174,7 @@ public abstract class Feature
     {
         ArgumentNullException.ThrowIfNull(featureNames);
 
-        Dependencies.Add([.. featureNames.Select(n => new Dependency(n))]);
+        dependencies.Add([.. featureNames.Select(n => new Dependency(n))]);
     }
 
     /// <summary>
@@ -213,6 +216,7 @@ public abstract class Feature
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
+    readonly List<List<Dependency>> dependencies = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
 
