@@ -363,8 +363,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                 PrerequisiteStatus = new PrerequisiteStatus(),
                 Name = feature.Name,
                 Version = feature.Version,
-                // TODO fix
-                Dependencies = dependencies.Select(d => d.Where(f => !f.Feature.IsEnabledByDefault).Select(f => f.Feature.Name).ToList().AsReadOnly()).ToList().AsReadOnly(),
+                Dependencies = dependencies.Select(d => d.Where(f => !f.Feature.IsEnabledByDefault).Select(f => f.Feature.Name).ToList().AsReadOnly())
+                    .Where(x => x.Count > 0).ToList().AsReadOnly(),
                 StartupTasks = []
             };
             Feature = feature;
