@@ -23,6 +23,8 @@ class InstallerRegistry
         }
     }
 
+    public object GetDiagnostics() => installers.Select(i => i.FullName).ToArray();
+
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         foreach (var installerType in installers)
