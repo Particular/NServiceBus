@@ -89,11 +89,12 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         var dependencyFeatureInfos = new List<FeatureInfo>(dependencies.Count);
         foreach (var dependency in dependencies)
         {
-            var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
-            if (!added.TryGetValue(featureName, out var info))
+            if (!added.TryGetValue(dependency.FeatureName, out var info))
             {
-                var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
-                if (dependentFeatureType != null)
+                var dependentFeatureType = dependency.FeatureType;
+                // when the feature type is null we assume there is a weak dependency to a feature that was only referenced by
+                // the name but must have been or will be added later to be taken into account by the dependency walking
+                if (dependentFeatureType is not null)
                 {
                     info = AddCore(factory.CreateFeature(dependentFeatureType));
                 }
@@ -112,7 +113,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             dependencyFeatureInfos.Add(info);
         }
 
-        featureInfo = new FeatureInfo(feature, dependencyFeatureInfos);
+        // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
+        featureInfo = new FeatureInfo(feature, dependencyFeatureInfos, dependencies.Select(d => d.FeatureName).ToList().AsReadOnly());
         added.Add(feature.Name, featureInfo);
         return featureInfo;
     }
@@ -178,31 +180,28 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         return Task.WhenAll(featureStopTasks);
     }
 
-    static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
+    static List<FeatureInfo> Sort(IReadOnlyCollection<FeatureInfo> featureInfos)
     {
         // Step 1: create nodes for graph
         var nameToNodeDict = new Dictionary<string, Node>();
-        var allNodes = new List<Node>();
-        foreach (var feature in features)
+        var allNodes = new List<Node>(featureInfos.Count);
+        foreach (var featureInfo in featureInfos)
         {
             // create entries to preserve order within
-            var node = new Node
-            {
-                FeatureState = feature
-            };
+            var node = new Node(featureInfo);
 
-            nameToNodeDict[feature.Feature.Name] = node;
+            nameToNodeDict[featureInfo.Name] = node;
             allNodes.Add(node);
         }
 
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var featureInfo in node.FeatureState.Dependencies)
+            foreach (var dependencyName in node.Dependencies)
             {
-                if (nameToNodeDict.TryGetValue(featureInfo.Feature.Name, out var referencedNode))
+                if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                 {
-                    node.previous.Add(referencedNode);
+                    node.Previous.Add(referencedNode);
                 }
             }
         }
@@ -228,24 +227,24 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
     static bool DirectedCycleExistsFrom(Node node, Node[] visitedNodes)
     {
-        if (node.previous.Count != 0)
+        if (node.Previous.Count == 0)
         {
-            if (visitedNodes.Any(n => n == node))
+            return false;
+        }
+
+        if (visitedNodes.Any(n => n == node))
+        {
+            return true;
+        }
+
+        Node[] newVisitedNodes = [.. visitedNodes, node];
+        foreach (var subNode in node.Previous)
+        {
+            if (DirectedCycleExistsFrom(subNode, newVisitedNodes))
             {
                 return true;
             }
-
-            Node[] newVisitedNodes = [.. visitedNodes, node];
-
-            foreach (var subNode in node.previous)
-            {
-                if (DirectedCycleExistsFrom(subNode, newVisitedNodes))
-                {
-                    return true;
-                }
-            }
         }
-
         return false;
     }
 
@@ -256,11 +255,11 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             return true;
         }
 
-        if (featureInfo.Dependencies.All(info => DependencyActivator(info, featuresToActivate, featureConfigurationContext)))
+        if (featureInfo.DependencyNames.All(dependencyName => DependencyActivator(dependencyName, featuresToActivate, featureConfigurationContext)))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
-            if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
+            if (!featureInfo.HasAllPrerequisitesSatisfied(featureConfigurationContext))
             {
                 featureInfo.Disable();
                 return false;
@@ -279,19 +278,12 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
 
-        static bool DependencyActivator(FeatureInfo dependency, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
+        static bool DependencyActivator(string dependencyName, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
         {
-            var dependentFeatureToActivate = enabledFeatures.SingleOrDefault(f => f.Equals(dependency));
+            var dependentFeatureToActivate = enabledFeatures.SingleOrDefault(f => f.Name == dependencyName);
 
             return dependentFeatureToActivate is not null && ActivateFeature(dependentFeatureToActivate, enabledFeatures, featureConfigurationContext);
         }
-    }
-
-    static bool HasAllPrerequisitesSatisfied(Feature feature, FeatureDiagnosticData diagnosticData, FeatureConfigurationContext context)
-    {
-        diagnosticData.PrerequisiteStatus = feature.CheckPrerequisites(context);
-
-        return diagnosticData.PrerequisiteStatus.IsSatisfied;
     }
 
     readonly List<FeatureInfo> enabledFeatures = [];
@@ -299,16 +291,17 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
     sealed class FeatureInfo
     {
-        public FeatureInfo(Feature feature, IReadOnlyCollection<FeatureInfo> dependencies)
+        public FeatureInfo(Feature feature, IReadOnlyCollection<FeatureInfo> dependencies, IReadOnlyCollection<string> dependencyNames)
         {
             Dependencies = dependencies;
+            DependencyNames = dependencyNames;
             Diagnostics = new FeatureDiagnosticData
             {
                 EnabledByDefault = feature.IsEnabledByDefault,
                 PrerequisiteStatus = new PrerequisiteStatus(),
                 Name = feature.Name,
                 Version = feature.Version,
-                Dependencies = dependencies.Select(f => f.Feature.Name).ToList().AsReadOnly(),
+                Dependencies = dependencyNames,
                 StartupTasks = []
             };
             Feature = feature;
@@ -322,9 +315,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         public FeatureDiagnosticData Diagnostics { get; }
         public FeatureState State { get; private set; }
-        public Feature Feature { get; }
+        public string Name => Feature.Name;
+
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
-        public IReadOnlyCollection<FeatureInfo> Dependencies { get; }
+        public IReadOnlyCollection<string> DependencyNames { get; }
+
+        Feature Feature { get; }
+        IReadOnlyCollection<FeatureInfo> Dependencies { get; }
         bool EnabledByDefault { get; set; }
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
@@ -354,6 +351,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             }
         }
 
+        public bool HasAllPrerequisitesSatisfied(FeatureConfigurationContext featureConfigurationContext)
+        {
+            Diagnostics.PrerequisiteStatus = Feature.CheckPrerequisites(featureConfigurationContext);
+
+            return Diagnostics.PrerequisiteStatus.IsSatisfied;
+        }
+
         public void Enable() => State = FeatureState.Enabled;
 
         public void Disable() => State = FeatureState.Disabled;
@@ -365,24 +369,25 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
 
-    class Node
+    sealed class Node(FeatureInfo featureInfo)
     {
-        internal void Visit(ICollection<FeatureInfo> output)
+        public IReadOnlyCollection<string> Dependencies => featureInfo.DependencyNames;
+        public List<Node> Previous { get; } = [];
+
+        public void Visit(ICollection<FeatureInfo> output)
         {
             if (visited)
             {
                 return;
             }
             visited = true;
-            foreach (var n in previous)
+            foreach (var n in Previous)
             {
                 n.Visit(output);
             }
-            output.Add(FeatureState);
+            output.Add(featureInfo);
         }
 
-        internal required FeatureInfo FeatureState;
-        internal readonly List<Node> previous = [];
         bool visited;
     }
 }
