@@ -21,11 +21,6 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
         serviceCollection.AddSingleton(_ => configuration.CriticalError);
 
-        foreach (var installerType in configuration.InstallerTypes)
-        {
-            serviceCollection.AddTransient(typeof(INeedToInstallSomething), installerType);
-        }
-
         // Apply user registrations last, so that user overrides win.
         foreach (var registration in configuration.UserRegistrations)
         {
@@ -49,13 +44,13 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             HostName = Dns.GetHostName(),
             Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
-            Installers = string.Join(";", configuration.InstallerTypes.Select(t => t.FullName))
+            Installers = string.Join(";", configuration.InstallerRegistry.GetInstallers().Select(t => t.FullName))
         });
 
         return new HostingComponent(configuration);
     }
 
-    public async Task RunInstallers(IServiceProvider builder, CancellationToken cancellationToken = default)
+    public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         if (!configuration.ShouldRunInstallers)
         {
@@ -64,8 +59,9 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
 
         var installationUserName = GetInstallationUserName();
 
-        foreach (var installer in builder.GetServices<INeedToInstallSomething>())
+        foreach (var installerType in configuration.InstallerRegistry.GetInstallers())
         {
+            var installer = (INeedToInstallSomething)ActivatorUtilities.CreateInstance(serviceProvider, installerType);
             await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
         }
     }

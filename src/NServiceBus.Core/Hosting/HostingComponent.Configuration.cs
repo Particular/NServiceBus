@@ -58,7 +58,7 @@ partial class HostingComponent
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
-            InstallerTypes = settings.InstallerRegistry.GetInstallers();
+            InstallerRegistry = settings.InstallerRegistry;
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -90,6 +90,6 @@ partial class HostingComponent
 
         public IActivityFactory ActivityFactory { get; set; }
 
-        public IEnumerable<Type> InstallerTypes { get; }
+        public InstallerRegistry InstallerRegistry { get; }
     }
 }
