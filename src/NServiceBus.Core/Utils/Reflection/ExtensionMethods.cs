@@ -4,14 +4,13 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 static class TypeExtensionMethods
 {
     public static T Construct<T>(this Type type)
     {
-        var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Array.Empty<Type>(), null);
+        var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, [], null);
         if (defaultConstructor != null)
         {
             return (T)defaultConstructor.Invoke(null);
@@ -23,17 +22,15 @@ static class TypeExtensionMethods
     /// <summary>
     /// Returns true if the type can be serialized as is.
     /// </summary>
-    public static bool IsSimpleType(this Type type)
-    {
-        return type == typeof(string) ||
-               type.IsPrimitive ||
-               type == typeof(decimal) ||
-               type == typeof(Guid) ||
-               type == typeof(DateTime) ||
-               type == typeof(TimeSpan) ||
-               type == typeof(DateTimeOffset) ||
-               type.IsEnum;
-    }
+    public static bool IsSimpleType(this Type type) =>
+        type == typeof(string) ||
+        type.IsPrimitive ||
+        type == typeof(decimal) ||
+        type == typeof(Guid) ||
+        type == typeof(DateTime) ||
+        type == typeof(TimeSpan) ||
+        type == typeof(DateTimeOffset) ||
+        type.IsEnum;
 
     public static bool IsNullableType(this Type type)
     {
@@ -50,9 +47,8 @@ static class TypeExtensionMethods
     /// Takes the name of the given type and makes it friendly for serialization
     /// by removing problematic characters.
     /// </summary>
-    public static string SerializationFriendlyName(this Type t)
-    {
-        return TypeToNameLookup.GetOrAdd(t.TypeHandle, typeHandle =>
+    public static string SerializationFriendlyName(this Type t) =>
+        TypeToNameLookup.GetOrAdd(t.TypeHandle, typeHandle =>
         {
             var index = t.Name.IndexOf('`');
             if (index >= 0)
@@ -79,9 +75,8 @@ static class TypeExtensionMethods
                 return result;
             }
 
-            return Type.GetTypeFromHandle(typeHandle).Name;
+            return Type.GetTypeFromHandle(typeHandle)?.Name;
         });
-    }
 
     static bool IsClrType(byte[] a1)
     {
