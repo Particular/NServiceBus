@@ -13,6 +13,77 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 {
     internal List<FeatureDiagnosticData> Status => [.. added.Values.Select(f => f.Diagnostics)];
 
+    public void EnableFeature(Type featureType)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            var feature = factory.CreateFeature(featureType);
+            feature.State = FeatureState.Enabled;
+            Add(feature);
+        }
+        else
+        {
+            info.Feature.State = FeatureState.Enabled;
+        }
+    }
+
+    public void DisableFeature(Type featureType)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            var feature = factory.CreateFeature(featureType);
+            feature.State = FeatureState.Disabled;
+            Add(feature);
+        }
+        else
+        {
+            info.Feature.State = FeatureState.Disabled;
+        }
+    }
+
+    public void EnableFeatureByDefault(Type featureType)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            var feature = factory.CreateFeature(featureType);
+            feature.State = FeatureState.Enabled;
+            Add(feature);
+        }
+        else
+        {
+            info.Feature.State = FeatureState.Enabled;
+        }
+    }
+
+    public void EnableFeatureByDefault<T>() where T : Feature
+    {
+        var featureName = Feature.GetFeatureName(typeof(T));
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            var feature = factory.CreateFeature(typeof(T));
+            feature.State = FeatureState.Enabled;
+            Add(feature);
+        }
+        else
+        {
+            info.Feature.State = FeatureState.Enabled;
+        }
+    }
+
+    public bool IsFeature(Type featureType, FeatureState state)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (added.TryGetValue(featureName, out var info))
+        {
+            return info.Feature.State == state;
+        }
+        // backward compat with GetOrDefault
+        return state == FeatureState.Disabled;
+    }
+
     public void Add(Type featureType)
     {
         var featureName = Feature.GetFeatureName(featureType);
@@ -31,13 +102,13 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         if (feature.IsEnabledByDefault)
         {
-            _ = settings.EnableFeatureByDefault(feature.GetType());
+            feature.State = FeatureState.Enabled;
         }
 
         foreach (var dependency in feature.Dependencies.SelectMany(d => d))
         {
             var featureName = dependency.FeatureType != null ? Feature.GetFeatureName(dependency.FeatureType) : dependency.FeatureName;
-            if (!added.ContainsKey(featureName))
+            if (!added.TryGetValue(featureName, out var info))
             {
                 var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
                 if (dependentFeatureType != null)
@@ -45,7 +116,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                     var dependentFeature = factory.CreateFeature(dependentFeatureType);
                     if (dependency.EnabledByDefault)
                     {
-                        feature.Defaults(s => s.EnableFeatureByDefault(dependentFeatureType));
+                        // ugly hack for now
+                        feature.Defaults(s => dependentFeature.State = FeatureState.Enabled);
                     }
 
                     Add(dependentFeature);
@@ -55,9 +127,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             {
                 if (dependency.EnabledByDefault)
                 {
-                    // TODO Move to internal extension?
-                    // Also we seem to always assume Feature.Name == FullName
-                    feature.Defaults(s => settings.SetDefault(dependency.FeatureName, FeatureState.Enabled));
+                    // ugly hack for now
+                    feature.Defaults(s => info.Feature.State = FeatureState.Enabled);
                 }
             }
         }
@@ -81,7 +152,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
         while (true)
         {
-            var featureToActivate = sourceFeatures.FirstOrDefault(x => settings.IsFeatureEnabled(x.Feature.GetType()));
+            var featureToActivate = sourceFeatures.FirstOrDefault(x => IsFeature(x.Feature.GetType(), FeatureState.Enabled));
             if (featureToActivate == null)
             {
                 break;
@@ -206,7 +277,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         return false;
     }
 
-    bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
+    static bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
     {
         if (featureInfo.Feature.IsActive)
         {
@@ -225,17 +296,16 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
             }
             return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
         };
-        var featureType = featureInfo.Feature.GetType();
         if (featureInfo.Diagnostics.Dependencies.All(dependencyActivator))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
             if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
             {
-                settings.MarkFeatureAsDeactivated(featureType);
+                featureInfo.Feature.State = FeatureState.Deactivated;
                 return false;
             }
-            settings.MarkFeatureAsActive(featureType);
+            featureInfo.Feature.State = FeatureState.Active;
 
             featureInfo.InitializeFrom(featureConfigurationContext);
 
@@ -244,7 +314,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
             return true;
         }
-        settings.MarkFeatureAsDeactivated(featureType);
+        featureInfo.Feature.State = FeatureState.Deactivated;
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
     }

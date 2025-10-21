@@ -56,7 +56,8 @@ class EndpointCreator
 
         hostingConfiguration.Services.AddSingleton(typeof(IReadOnlySettings), settings);
 
-        featureComponent = new FeatureComponent(settings);
+        // TODO This is ugly
+        featureComponent = settings.Get<FeatureComponent>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
