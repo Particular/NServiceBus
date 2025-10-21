@@ -95,10 +95,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                 var dependentFeatureType = dependency.FeatureType ?? Type.GetType(dependency.FeatureName, false);
                 if (dependentFeatureType != null)
                 {
-                    var dependentFeature = factory.CreateFeature(dependentFeatureType);
-                    Add(dependentFeature);
-                    // we can make all this cleaner
-                    info = added[dependentFeature.Name];
+                    info = AddCore(factory.CreateFeature(dependentFeatureType));
                 }
             }
 
