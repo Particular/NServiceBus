@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
+using Installation;
 using Logging;
 
 /// <summary>
@@ -316,6 +317,7 @@ public class AssemblyScanner
         {
             fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
         }
+
         return fileInfo;
     }
 
@@ -323,17 +325,29 @@ public class AssemblyScanner
 
     // The parameter and return types of this method are deliberately using the most concrete types
     // to avoid unnecessary allocations
-    List<Type> FilterAllowedTypes(Type[] types)
+    List<Type> FilterAllowedTypes(Type[] types, bool isParticularAssembly)
     {
         // assume the majority of types will be allowed to preallocate the list
         var allowedTypes = new List<Type>(types.Length);
         foreach (var typeToAdd in types)
         {
-            if (IsAllowedType(typeToAdd))
+            if (!IsAllowedType(typeToAdd))
             {
-                allowedTypes.Add(typeToAdd);
+                continue;
             }
+
+            // shortly we will stop scanning particular assemblies completely
+            if (isParticularAssembly)
+            {
+                if (typeToAdd.IsAssignableTo(typeof(INeedToInstallSomething)))
+                {
+                    continue;
+                }
+            }
+
+            allowedTypes.Add(typeToAdd);
         }
+
         return allowedTypes;
     }
 
@@ -344,11 +358,13 @@ public class AssemblyScanner
 
     void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
     {
+        var isParticularAssembly = assembly.IsParticularAssembly();
+
         try
         {
             //will throw if assembly cannot be loaded
             var types = assembly.GetTypes();
-            results.Types.AddRange(FilterAllowedTypes(types));
+            results.Types.AddRange(FilterAllowedTypes(types, isParticularAssembly));
         }
         catch (ReflectionTypeLoadException e)
         {
@@ -361,8 +377,9 @@ public class AssemblyScanner
             }
 
             LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!));
+            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!, isParticularAssembly));
         }
+
         results.Assemblies.Add(assembly);
     }
 
@@ -406,11 +423,7 @@ public class AssemblyScanner
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
     const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
-    static readonly string[] FileSearchPatternsToUse =
-    {
-        "*.dll",
-        "*.exe"
-    };
+    static readonly string[] FileSearchPatternsToUse = { "*.dll", "*.exe" };
 
     static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
     {

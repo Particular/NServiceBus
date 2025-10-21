@@ -54,7 +54,6 @@ static class AssemblyValidator
         var tokenString = Convert.ToHexString(assemblyName.GetPublicKeyToken() ?? Array.Empty<byte>());
         return IsRuntimeAssembly(tokenString);
     }
-
     static string GetPublicKeyToken(byte[] publicKey)
     {
         Span<byte> publicKeyToken = stackalloc byte[20];
