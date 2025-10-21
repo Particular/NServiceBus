@@ -45,7 +45,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             HostName = Dns.GetHostName(),
             Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
-            //TODO: Installers = string.Join(";", configuration.InstallerRegistry.GetInstallers().Select(t => t.FullName))
+            Installers = configuration.InstallerRegistry.GetDiagnostics()
         });
 
         return new HostingComponent(configuration);
