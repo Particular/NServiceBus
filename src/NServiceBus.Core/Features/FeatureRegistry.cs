@@ -324,36 +324,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
     readonly List<FeatureInfo> enabledFeatures = [];
     readonly Dictionary<string, FeatureInfo> added = [];
 
-    class FeatureInfo
+    sealed class FeatureInfo
     {
-        public FeatureDiagnosticData Diagnostics { get; }
-
-        public FeatureState State { get; private set; }
-
-        public Feature Feature { get; }
-        public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
-
-        public IReadOnlyCollection<IReadOnlyCollection<FeatureInfo>> Dependencies { get; }
-
-        bool EnabledByDefault { get; set; }
-
-        public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
-        {
-            Feature.SetupFeature(featureConfigurationContext);
-            var featureStartupTasks = new List<string>();
-            foreach (var controller in featureConfigurationContext.TaskControllers)
-            {
-                taskControllers.Add(controller);
-                featureStartupTasks.Add(controller.Name);
-            }
-            Diagnostics.StartupTasks = featureStartupTasks;
-            Diagnostics.Active = Feature.IsActive;
-        }
-
-        public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
-
-        readonly List<FeatureStartupTaskController> taskControllers = [];
-
         public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<FeatureInfo>> dependencies)
         {
             Dependencies = dependencies;
@@ -375,6 +347,28 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
                 Enable();
             }
         }
+
+        public FeatureDiagnosticData Diagnostics { get; }
+        public FeatureState State { get; private set; }
+        public Feature Feature { get; }
+        public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
+        public IReadOnlyCollection<IReadOnlyCollection<FeatureInfo>> Dependencies { get; }
+        bool EnabledByDefault { get; set; }
+
+        public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
+        {
+            Feature.SetupFeature(featureConfigurationContext);
+            var featureStartupTasks = new List<string>();
+            foreach (var controller in featureConfigurationContext.TaskControllers)
+            {
+                taskControllers.Add(controller);
+                featureStartupTasks.Add(controller.Name);
+            }
+            Diagnostics.StartupTasks = featureStartupTasks;
+            Diagnostics.Active = Feature.IsActive;
+        }
+
+        public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
         public void Configure(SettingsHolder settings)
         {
@@ -398,6 +392,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         public void MarkAsEnabledByDefault() => EnabledByDefault = true;
 
         public void Activate() => State = FeatureState.Active;
+
+        readonly List<FeatureStartupTaskController> taskControllers = [];
     }
 
     class Node
