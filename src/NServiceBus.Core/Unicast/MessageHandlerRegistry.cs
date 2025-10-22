@@ -64,7 +64,7 @@ public class MessageHandlerRegistry
             return;
         }
 
-        ValidateHandlerType(handlerType);
+        ValidateHandlerDoesNotInjectMessageSession(handlerType);
 
         var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
 
@@ -150,7 +150,7 @@ public class MessageHandlerRegistry
             .ToArray();
     }
 
-    static void ValidateHandlerType(Type handlerType)
+    static void ValidateHandlerDoesNotInjectMessageSession(Type handlerType)
     {
         var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
         var ctorArguments = handlerType.GetConstructors()
