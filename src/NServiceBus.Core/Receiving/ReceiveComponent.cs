@@ -251,12 +251,7 @@ partial class ReceiveComponent
 
         types.InsertRange(0, orderedTypes);
 
-        foreach (var t in types.Where(IsMessageHandler))
-        {
-            serviceCollection.AddScoped(t);
-
-            handlerRegistry.RegisterHandler(t);
-        }
+        handlerRegistry.AddScannedHandlers(types);
 
         serviceCollection.AddSingleton(handlerRegistry);
     }

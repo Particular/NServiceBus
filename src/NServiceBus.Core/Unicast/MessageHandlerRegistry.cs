@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FastExpressionCompiler;
 using Logging;
+using Particular.Obsoletes;
 using Pipeline;
 
 /// <summary>
@@ -55,7 +56,21 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the given potential handler type.
     /// </summary>
-    public void RegisterHandler(Type handlerType)
+    [ObsoleteMetadata(Message = "Deprecated in favor of a strongly-typed alternative",
+        TreatAsErrorFromVersion = "10",
+        RemoveInVersion = "11",
+        ReplacementTypeOrMember = "RegisterHandler<THandler>()")]
+    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'RegisterHandler<THandler>()' instead. Will be removed in version 11.0.0.", true)]
+    public void RegisterHandler(Type handlerType) => throw new NotImplementedException();
+
+    /// <summary>
+    /// Registers the given potential handler type.
+    /// </summary>
+    public void RegisterHandler<THandler>() where THandler : IHandleMessages => RegisterHandlerInternal(typeof(THandler));
+
+    internal void RegisterTimeoutHandler<THandler>() where THandler : IHandleTimeouts => RegisterHandlerInternal(typeof(THandler));
+
+    void RegisterHandlerInternal(Type handlerType)
     {
         ArgumentNullException.ThrowIfNull(handlerType);
 
@@ -76,6 +91,18 @@ public class MessageHandlerRegistry
             }
 
             CacheHandlerMethods(handlerType, messageType, typeList);
+        }
+    }
+
+    /// <summary>
+    /// Add handlers from types scanned at runtime.
+    /// </summary>
+    /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
+    public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
+    {
+        foreach (var type in orderedTypes.Where(ReceiveComponent.IsMessageHandler))
+        {
+            RegisterHandlerInternal(type);
         }
     }
 
