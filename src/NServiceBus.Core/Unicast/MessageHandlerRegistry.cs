@@ -100,10 +100,23 @@ public class MessageHandlerRegistry
     /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
     public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
     {
-        foreach (var type in orderedTypes.Where(ReceiveComponent.IsMessageHandler))
+        foreach (var type in orderedTypes.Where(IsMessageHandler))
         {
             RegisterHandlerInternal(type);
         }
+    }
+
+    internal static bool IsMessageHandler(Type type)
+    {
+        if (type.IsAbstract || type.IsGenericTypeDefinition)
+        {
+            return false;
+        }
+
+        return type.GetInterfaces()
+            .Where(@interface => @interface.IsGenericType)
+            .Select(@interface => @interface.GetGenericTypeDefinition())
+            .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
     }
 
     /// <summary>
@@ -193,6 +206,7 @@ public class MessageHandlerRegistry
     }
 
     readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
+    static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
     class DelegateHolder
