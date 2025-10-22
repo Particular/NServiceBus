@@ -72,7 +72,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         {
             info = AddCore(factory.CreateFeature(featureType));
         }
-        info.MarkAsEnabledByDefault();
+        info.EnabledByDefault();
     }
 
     public void EnableFeatureByDefault<T>() where T : Feature
@@ -82,7 +82,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         {
             info = AddCore(factory.CreateFeature(typeof(T)));
         }
-        info.MarkAsEnabledByDefault();
+        info.EnabledByDefault();
     }
 
     public bool IsFeature<T>(FeatureState state) where T : Feature
@@ -90,7 +90,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         var featureName = Feature.GetFeatureName(typeof(T));
         if (added.TryGetValue(featureName, out var info))
         {
-            return info.IsState(state);
+            return info.In(state);
         }
         // backward compat with GetOrDefault
         return state == FeatureState.Disabled;
@@ -101,7 +101,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         var featureName = Feature.GetFeatureName(featureType);
         if (added.TryGetValue(featureName, out var info))
         {
-            return info.IsState(state);
+            return info.In(state);
         }
         // backward compat with GetOrDefault
         return state == FeatureState.Disabled;
@@ -176,11 +176,11 @@ class FeatureComponent(FeatureFactory factory) // for testing
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext, SettingsHolder settings)
     {
         // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
-        var sourceFeatures = Sort(added.Values);
+        var sourceFeatures = added.Values.Sort();
 
         while (true)
         {
-            var featureToActivate = sourceFeatures.FirstOrDefault(x => x.State is FeatureStateInfo.Enabled or FeatureStateInfo.EnabledByDefault);
+            var featureToActivate = sourceFeatures.FirstOrDefault(f => f.Enabled);
             if (featureToActivate == null)
             {
                 break;
@@ -203,7 +203,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         var startedTaskControllers = new List<FeatureStartupTaskController>();
 
         // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
-        foreach (var feature in enabledFeatures.Where(f => f.State == FeatureStateInfo.Active))
+        foreach (var feature in enabledFeatures.Where(f => f.IsActive))
         {
             foreach (var taskController in feature.TaskControllers)
             {
@@ -227,84 +227,16 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
     public Task StopFeatures(IMessageSession session, CancellationToken cancellationToken = default)
     {
-        var featureStopTasks = enabledFeatures.Where(f => f.State == FeatureStateInfo.Active)
+        var featureStopTasks = enabledFeatures.Where(f => f.IsActive)
             .SelectMany(f => f.TaskControllers)
             .Select(task => task.Stop(session, cancellationToken));
 
         return Task.WhenAll(featureStopTasks);
     }
 
-    static List<FeatureInfo> Sort(IReadOnlyCollection<FeatureInfo> featureInfos)
-    {
-        // Step 1: create nodes for graph
-        var nameToNodeDict = new Dictionary<string, Node>();
-        var allNodes = new List<Node>(featureInfos.Count);
-        foreach (var featureInfo in featureInfos)
-        {
-            // create entries to preserve order within
-            var node = new Node(featureInfo);
-
-            nameToNodeDict[featureInfo.Name] = node;
-            allNodes.Add(node);
-        }
-
-        // Step 2: create edges dependencies
-        foreach (var node in allNodes)
-        {
-            foreach (var dependencyName in node.Dependencies.SelectMany(d => d))
-            {
-                if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
-                {
-                    node.Previous.Add(referencedNode);
-                }
-            }
-        }
-
-        // Step 3: Perform Topological Sort
-        var output = new List<FeatureInfo>();
-        foreach (var node in allNodes)
-        {
-            node.Visit(output);
-        }
-
-        // Step 4: DFS to check if we have an directed acyclic graph
-        foreach (var node in allNodes)
-        {
-            if (DirectedCycleExistsFrom(node, []))
-            {
-                throw new ArgumentException("Cycle in dependency graph detected");
-            }
-        }
-
-        return output;
-    }
-
-    static bool DirectedCycleExistsFrom(Node node, Node[] visitedNodes)
-    {
-        if (node.Previous.Count == 0)
-        {
-            return false;
-        }
-
-        if (visitedNodes.Any(n => n == node))
-        {
-            return true;
-        }
-
-        Node[] newVisitedNodes = [.. visitedNodes, node];
-        foreach (var subNode in node.Previous)
-        {
-            if (DirectedCycleExistsFrom(subNode, newVisitedNodes))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     static bool ActivateFeature(FeatureInfo featureInfo, IReadOnlyCollection<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
     {
-        if (featureInfo.State == FeatureStateInfo.Active)
+        if (featureInfo.IsActive)
         {
             return true;
         }
@@ -347,22 +279,13 @@ class FeatureComponent(FeatureFactory factory) // for testing
     readonly List<FeatureInfo> enabledFeatures = [];
     readonly Dictionary<string, FeatureInfo> added = [];
 
-    enum FeatureStateInfo
-    {
-        Disabled,
-        Enabled,
-        Active,
-        Deactivated,
-        EnabledByDefault,
-    }
-
-    sealed class FeatureInfo
+    internal sealed class FeatureInfo
     {
         public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<string>> dependencyNames)
         {
             if (feature.IsEnabledByDefault) // backward compat for reflection based stuff
             {
-                MarkAsEnabledByDefault();
+                EnabledByDefault();
             }
 
             DependencyNames = dependencyNames;
@@ -379,12 +302,14 @@ class FeatureComponent(FeatureFactory factory) // for testing
         }
 
         public FeatureDiagnosticData Diagnostics { get; }
-        public FeatureStateInfo State { get; private set; }
         public string Name => Feature.Name;
-
+        public bool Enabled => State is FeatureStateInfo.EnabledByDefault or FeatureStateInfo.Enabled;
+        public bool IsActive => State is FeatureStateInfo.Active;
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
         public IReadOnlyCollection<IReadOnlyCollection<string>> DependencyNames { get; }
+
         Feature Feature { get; }
+        FeatureStateInfo State { get; set; }
         IReadOnlyCollection<FeatureInfo> DependenciesToEnable { get; set; } = [];
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
@@ -402,7 +327,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
         public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
-        public bool IsState(FeatureState state) =>
+        public bool In(FeatureState state) =>
             state switch
             {
                 FeatureState.Disabled => State == FeatureStateInfo.Disabled,
@@ -417,7 +342,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
             Feature.ConfigureDefaults(settings);
             foreach (var dependency in DependenciesToEnable)
             {
-                dependency.MarkAsEnabledByDefault();
+                dependency.EnabledByDefault();
             }
         }
 
@@ -432,7 +357,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
         public void Disable() => State = FeatureStateInfo.Disabled;
 
-        public void MarkAsEnabledByDefault() => State = FeatureStateInfo.EnabledByDefault;
+        public void EnabledByDefault() => State = FeatureStateInfo.EnabledByDefault;
 
         public void Activate() => State = FeatureStateInfo.Active;
 
@@ -442,27 +367,14 @@ class FeatureComponent(FeatureFactory factory) // for testing
             => DependenciesToEnable = dependenciesToEnable;
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
-    }
 
-    sealed class Node(FeatureInfo featureInfo)
-    {
-        public IReadOnlyCollection<IReadOnlyCollection<string>> Dependencies => featureInfo.DependencyNames;
-        public List<Node> Previous { get; } = [];
-
-        public void Visit(ICollection<FeatureInfo> output)
+        enum FeatureStateInfo
         {
-            if (visited)
-            {
-                return;
-            }
-            visited = true;
-            foreach (var n in Previous)
-            {
-                n.Visit(output);
-            }
-            output.Add(featureInfo);
+            Disabled,
+            Enabled,
+            Active,
+            Deactivated,
+            EnabledByDefault,
         }
-
-        bool visited;
     }
 }
