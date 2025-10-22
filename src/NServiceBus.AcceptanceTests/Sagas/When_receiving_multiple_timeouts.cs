@@ -16,10 +16,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
         Requires.DelayedDelivery();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-            .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1
-            {
-                ContextId = c.Id
-            })))
+            .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))
             .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
             .Run(TimeSpan.FromSeconds(60));
 
@@ -41,69 +38,41 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
                 c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
             });
-        }
 
-        public class MultiTimeoutsSaga1 : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
+        public class MultiTimeoutsSaga1(Context testContext) : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
             IAmStartedByMessages<StartSaga1>,
             IHandleTimeouts<Saga1Timeout>,
             IHandleTimeouts<Saga2Timeout>
         {
-            public MultiTimeoutsSaga1(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
             {
-                if (message.ContextId != testContext.Id)
-                {
-                    return;
-                }
-
-                Data.ContextId = message.ContextId;
-
-                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout
-                {
-                    ContextId = testContext.Id
-                });
-                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout
-                {
-                    ContextId = testContext.Id
-                });
+                await RequestTimeout<Saga1Timeout>(context, TimeSpan.FromMilliseconds(1));
+                await RequestTimeout<Saga2Timeout>(context, TimeSpan.FromMilliseconds(1));
             }
 
             public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
             {
-                if (state.ContextId == testContext.Id)
-                {
-                    testContext.Saga1TimeoutFired = true;
-                }
-
                 if (testContext.Saga1TimeoutFired && testContext.Saga2TimeoutFired)
                 {
                     MarkAsComplete();
                 }
+
                 return Task.CompletedTask;
             }
 
             public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
             {
-                if (state.ContextId == testContext.Id)
-                {
-                    testContext.Saga2TimeoutFired = true;
-                }
-
                 if (testContext.Saga1TimeoutFired && testContext.Saga2TimeoutFired)
                 {
                     MarkAsComplete();
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -117,22 +86,13 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             {
                 public virtual Guid ContextId { get; set; }
             }
-
-            Context testContext;
         }
 
-        public class SagaNotFound : IHandleSagaNotFound
+        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
         {
-            public Context TestContext { get; set; }
-
             public Task Handle(object message, IMessageProcessingContext context)
             {
-                if (((dynamic)message).ContextId != TestContext.Id)
-                {
-                    return Task.CompletedTask;
-                }
-
-                TestContext.SagaNotFound = true;
+                testContext.SagaNotFound = true;
 
                 return Task.CompletedTask;
             }
@@ -140,10 +100,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 
         public class CatchAllMessageHandler : IHandleMessages<object>
         {
-            public Task Handle(object message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(object message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
@@ -153,13 +110,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
         public Guid ContextId { get; set; }
     }
 
-    public class Saga1Timeout
-    {
-        public Guid ContextId { get; set; }
-    }
+    public class Saga1Timeout;
 
-    public class Saga2Timeout
-    {
-        public Guid ContextId { get; set; }
-    }
+    public class Saga2Timeout;
 }

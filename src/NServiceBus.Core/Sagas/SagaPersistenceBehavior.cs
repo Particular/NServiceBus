@@ -81,7 +81,6 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
         {
             if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
             {
-                context.Extensions.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(currentSagaMetadata, context));
             }
             else
@@ -96,19 +95,16 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
                 //we don't invoke not found handlers for timeouts
                 if (isTimeoutMessage)
                 {
-                    context.Extensions.Get<SagaInvocationResult>().SagaFound();
                     logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
                 }
                 else
                 {
-                    context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
                     logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
                 }
             }
         }
         else
         {
-            context.Extensions.Get<SagaInvocationResult>().SagaFound();
             sagaInstanceState.AttachExistingEntity(loadedEntity);
         }
 
@@ -118,6 +114,7 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
 
         if (sagaInstanceState.NotFound)
         {
+            //TODO: Invoke not found handlers if present
             return;
         }
 

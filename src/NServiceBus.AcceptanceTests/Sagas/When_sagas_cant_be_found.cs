@@ -1,62 +1,34 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task IHandleSagaNotFound_only_called_once()
+    public async Task Handler_called_for_each_saga()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<ReceiverWithSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga
-            {
-                Id = Guid.NewGuid()
-            })))
-            .Done(c => c.Done)
+            .WithEndpoint<ReceiverWithSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
+            .Done(c => c.Saga1NotFound && c.Saga2NotFound)
             .Run();
 
-        Assert.That(context.TimesFired, Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task IHandleSagaNotFound_not_called_if_second_saga_is_executed()
-    {
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<ReceiverWithOrderedSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga
-            {
-                Id = Guid.NewGuid()
-            })))
-            .Done(c => c.Done)
-            .Run();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga1' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")), Is.True);
-            Assert.That(context.Logs.Any(m => m.Message.Equals("Could not find a started saga of 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+ReceiverWithOrderedSagas+ReceiverWithOrderedSagasSaga2' for message type 'NServiceBus.AcceptanceTests.Sagas.When_sagas_cant_be_found+MessageToSaga'.")), Is.False);
-            Assert.That(context.Logs.Any(m => m.Message.Contains("Going to invoke SagaNotFoundHandlers.")), Is.False);
-
-            Assert.That(context.TimesFired, Is.EqualTo(0));
-        }
+        Assert.That(context.Saga1NotFound, Is.True);
+        Assert.That(context.Saga2NotFound, Is.True);
     }
 
     public class Context : ScenarioContext
     {
-        public int TimesFired { get; set; }
-        public bool Done { get; set; }
+        public bool Saga1NotFound { get; set; }
+        public bool Saga2NotFound { get; set; }
     }
 
     public class ReceiverWithSagas : EndpointConfigurationBuilder
     {
-        public ReceiverWithSagas()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ReceiverWithSagas() => EndpointSetup<DefaultServer>();
 
         public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
@@ -85,16 +57,9 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
 
         public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                Data.MessageId = message.Id;
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
             {
@@ -108,19 +73,11 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
             }
         }
 
-        public class SagaNotFound : IHandleSagaNotFound
+        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
         {
-            Context testContext;
-
-            public SagaNotFound(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(object message, IMessageProcessingContext context)
             {
-                testContext.TimesFired++;
-                testContext.Done = true;
+                testContext.Saga1NotFound = true;
                 return Task.CompletedTask;
             }
         }
@@ -128,26 +85,14 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
 
     public class ReceiverWithOrderedSagas : EndpointConfigurationBuilder
     {
-        public ReceiverWithOrderedSagas()
-        {
-            EndpointSetup<DefaultServer>(c =>
-            {
-                c.ExecuteTheseHandlersFirst(typeof(ReceiverWithOrderedSagasSaga1), typeof(ReceiverWithOrderedSagasSaga2));
-            });
-        }
+        public ReceiverWithOrderedSagas() =>
+            EndpointSetup<DefaultServer>();
 
         public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                Data.MessageId = message.Id;
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
             {
@@ -163,25 +108,9 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
 
         public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
         {
-            Context context;
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context1) => Task.CompletedTask;
 
-            public ReceiverWithOrderedSagasSaga2(Context context)
-            {
-                this.context = context;
-            }
-
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                Data.MessageId = message.Id;
-                this.context.Done = true;
-                return Task.CompletedTask;
-            }
-
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                Data.MessageId = message.Id;
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
             {
@@ -195,18 +124,11 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
             }
         }
 
-        public class SagaNotFound : IHandleSagaNotFound
+        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
         {
-            Context testContext;
-
-            public SagaNotFound(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(object message, IMessageProcessingContext context)
             {
-                testContext.TimesFired++;
+                testContext.Saga2NotFound = true;
                 return Task.CompletedTask;
             }
         }
