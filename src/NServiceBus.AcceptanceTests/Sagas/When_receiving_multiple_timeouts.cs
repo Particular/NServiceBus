@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
@@ -80,6 +79,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             {
                 mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                     .ToSaga(s => s.ContextId);
+                mapper.ConfigureNotFoundHandler<SagaNotFound>();
             }
 
             public class MultiTimeoutsSaga1Data : ContainSagaData
