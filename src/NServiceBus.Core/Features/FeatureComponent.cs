@@ -65,16 +65,32 @@ class FeatureComponent(FeatureFactory factory) // for testing
         info.Disable();
     }
 
-    public void EnableFeatureByDefault(Type featureType) => EnableFeature(featureType);
+    public void EnableFeatureByDefault(Type featureType)
+    {
+        var featureName = Feature.GetFeatureName(featureType);
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            info = AddCore(factory.CreateFeature(featureType));
+        }
+        info.MarkAsEnabledByDefault();
+    }
 
-    public void EnableFeatureByDefault<T>() where T : Feature => EnableFeature<T>();
+    public void EnableFeatureByDefault<T>() where T : Feature
+    {
+        var featureName = Feature.GetFeatureName(typeof(T));
+        if (!added.TryGetValue(featureName, out var info))
+        {
+            info = AddCore(factory.CreateFeature(typeof(T)));
+        }
+        info.MarkAsEnabledByDefault();
+    }
 
     public bool IsFeature<T>(FeatureState state) where T : Feature
     {
         var featureName = Feature.GetFeatureName(typeof(T));
         if (added.TryGetValue(featureName, out var info))
         {
-            return info.State == state;
+            return info.IsState(state);
         }
         // backward compat with GetOrDefault
         return state == FeatureState.Disabled;
@@ -85,7 +101,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         var featureName = Feature.GetFeatureName(featureType);
         if (added.TryGetValue(featureName, out var info))
         {
-            return info.State == state;
+            return info.IsState(state);
         }
         // backward compat with GetOrDefault
         return state == FeatureState.Disabled;
@@ -162,7 +178,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
         while (true)
         {
-            var featureToActivate = sourceFeatures.FirstOrDefault(x => x.State == FeatureState.Enabled);
+            var featureToActivate = sourceFeatures.FirstOrDefault(x => x.State is FeatureStateInfo.Enabled or FeatureStateInfo.EnabledByDefault);
             if (featureToActivate == null)
             {
                 break;
@@ -185,7 +201,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         var startedTaskControllers = new List<FeatureStartupTaskController>();
 
         // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
-        foreach (var feature in enabledFeatures.Where(f => f.State == FeatureState.Active))
+        foreach (var feature in enabledFeatures.Where(f => f.State == FeatureStateInfo.Active))
         {
             foreach (var taskController in feature.TaskControllers)
             {
@@ -209,7 +225,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
     public Task StopFeatures(IMessageSession session, CancellationToken cancellationToken = default)
     {
-        var featureStopTasks = enabledFeatures.Where(f => f.State == FeatureState.Active)
+        var featureStopTasks = enabledFeatures.Where(f => f.State == FeatureStateInfo.Active)
             .SelectMany(f => f.TaskControllers)
             .Select(task => task.Stop(session, cancellationToken));
 
@@ -286,7 +302,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
     static bool ActivateFeature(FeatureInfo featureInfo, IReadOnlyCollection<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
     {
-        if (featureInfo.State == FeatureState.Active)
+        if (featureInfo.State == FeatureStateInfo.Active)
         {
             return true;
         }
@@ -325,6 +341,15 @@ class FeatureComponent(FeatureFactory factory) // for testing
     readonly List<FeatureInfo> enabledFeatures = [];
     readonly Dictionary<string, FeatureInfo> added = [];
 
+    enum FeatureStateInfo
+    {
+        Disabled,
+        Enabled,
+        Active,
+        Deactivated,
+        EnabledByDefault,
+    }
+
     sealed class FeatureInfo
     {
         public FeatureInfo(Feature feature, IReadOnlyCollection<string> dependencyNames)
@@ -349,7 +374,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         }
 
         public FeatureDiagnosticData Diagnostics { get; }
-        public FeatureState State { get; private set; }
+        public FeatureStateInfo State { get; private set; }
         public string Name => Feature.Name;
 
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
@@ -374,6 +399,17 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
         public override string ToString() => $"{Feature.Name} [{Feature.Version}]";
 
+        public bool IsState(FeatureState state) =>
+            state switch
+            {
+                FeatureState.Disabled => State == FeatureStateInfo.Disabled,
+                FeatureState.Enabled => State == FeatureStateInfo.Enabled,
+                FeatureState.Active => State == FeatureStateInfo.Active,
+                FeatureState.Deactivated => State == FeatureStateInfo.Deactivated,
+                _ => false,
+            };
+
+
         public void Configure(SettingsHolder settings)
         {
             Feature.ConfigureDefaults(settings);
@@ -393,15 +429,19 @@ class FeatureComponent(FeatureFactory factory) // for testing
             return Diagnostics.PrerequisiteStatus.IsSatisfied;
         }
 
-        public void Enable() => State = FeatureState.Enabled;
+        public void Enable() => State = FeatureStateInfo.Enabled;
 
-        public void Disable() => State = FeatureState.Disabled;
+        public void Disable() => State = FeatureStateInfo.Disabled;
 
-        public void MarkAsEnabledByDefault() => EnabledByDefault = true;
+        public void MarkAsEnabledByDefault()
+        {
+            EnabledByDefault = true;
+            State = FeatureStateInfo.EnabledByDefault;
+        }
 
-        public void Activate() => State = FeatureState.Active;
+        public void Activate() => State = FeatureStateInfo.Active;
 
-        public void Deactivate() => State = FeatureState.Deactivated;
+        public void Deactivate() => State = FeatureStateInfo.Deactivated;
 
         public void UpdateDependencies(IReadOnlyCollection<FeatureInfo> dependencyFeatureInfos) => Dependencies = dependencyFeatureInfos;
 
