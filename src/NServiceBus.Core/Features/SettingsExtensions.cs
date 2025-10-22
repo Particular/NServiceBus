@@ -11,9 +11,9 @@ using Settings;
 public static class SettingsExtensions
 {
     /// <summary>
+    /// TODO Obsolete?
     /// Marks the given feature as enabled by default.
     /// </summary>
-    /// TODO Obsolete?
     public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -22,9 +22,9 @@ public static class SettingsExtensions
     }
 
     /// <summary>
+    /// TODO Obsolete?
     /// Marks the given feature as enabled by default.
     /// </summary>
-    /// TODO Obsolete?
     public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -35,9 +35,9 @@ public static class SettingsExtensions
     }
 
     /// <summary>
+    /// TODO Obsolete?
     /// Returns if a given feature has been activated in this endpoint.
     /// </summary>
-    /// TODO Obsolete?
     public static bool IsFeatureActive(this IReadOnlySettings settings, Type featureType)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -46,9 +46,9 @@ public static class SettingsExtensions
     }
 
     /// <summary>
+    /// TODO Obsolete?
     /// Returns if a given feature has been enabled in this endpoint.
     /// </summary>
-    /// TODO Obsolete?
     public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType)
     {
         ArgumentNullException.ThrowIfNull(settings);
