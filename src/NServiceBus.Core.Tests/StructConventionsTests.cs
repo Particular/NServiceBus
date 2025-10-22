@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
@@ -38,8 +39,8 @@ In all other cases, you should define your types as classes.
                 continue;
             }
 
-            // For some reason this class's size is different across platforms causing the test to fail on Linux. Disabling here since it won't be used as of v8
-            if (type.Namespace.StartsWith("NServiceBus.Timeout.Core"))
+            // readonly structs can probably be ignored
+            if (type.GetCustomAttribute<IsReadOnlyAttribute>() != null)
             {
                 continue;
             }
