@@ -136,38 +136,40 @@ class FeatureComponent(FeatureFactory factory) // for testing
         }
 
         // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
-        featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.FeatureName).ToList().AsReadOnly());
+        featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
         added.Add(featureInfo.Name, featureInfo);
 
-        var dependencies = feature.Dependencies;
-        var dependencyFeatureInfos = new List<FeatureInfo>(dependencies.Count);
-        foreach (var dependency in dependencies)
+        var featuresToEnableByDefault = new List<FeatureInfo>(feature.Enabled.Count);
+        foreach (var toEnableByDefault in feature.Enabled)
         {
-            if (!added.TryGetValue(dependency.FeatureName, out var info))
+            if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
             {
-                var dependentFeatureType = dependency.FeatureType;
+                info = AddCore(factory.CreateFeature(toEnableByDefault.FeatureType));
+            }
+
+            featuresToEnableByDefault.Add(info);
+        }
+
+        featureInfo.UpdateDependencies(featuresToEnableByDefault);
+
+        foreach (var dependencies in feature.Dependencies)
+        {
+            foreach ((string featureName, Type? dependentFeatureType) in dependencies)
+            {
+                if (added.ContainsKey(featureName))
+                {
+                    continue;
+                }
+
                 // when the feature type is null we assume there is a weak dependency to a feature that was only referenced by
                 // the name but must have been or will be added later to be taken into account by the dependency walking
                 if (dependentFeatureType is not null)
                 {
-                    info = AddCore(factory.CreateFeature(dependentFeatureType));
+                    _ = AddCore(factory.CreateFeature(dependentFeatureType));
                 }
             }
-
-            if (info is null)
-            {
-                continue;
-            }
-
-            if (dependency.EnabledByDefault)
-            {
-                info.MarkAsEnabledByDefault();
-            }
-
-            dependencyFeatureInfos.Add(info);
         }
 
-        featureInfo.UpdateDependencies(dependencyFeatureInfos);
         return featureInfo;
     }
 
@@ -249,7 +251,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         // Step 2: create edges dependencies
         foreach (var node in allNodes)
         {
-            foreach (var dependencyName in node.Dependencies)
+            foreach (var dependencyName in node.Dependencies.SelectMany(d => d))
             {
                 if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                 {
@@ -307,7 +309,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
             return true;
         }
 
-        if (featureInfo.DependencyNames.All(dependencyName => DependencyActivator(dependencyName, featuresToActivate, featureConfigurationContext)))
+        if (featureInfo.DependencyNames.All(dependencyNames => DependencyActivator(dependencyNames, featuresToActivate, featureConfigurationContext)))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -330,11 +332,15 @@ class FeatureComponent(FeatureFactory factory) // for testing
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
 
-        static bool DependencyActivator(string dependencyName, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
+        static bool DependencyActivator(IReadOnlyCollection<string> dependencyNames, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
         {
-            var dependentFeatureToActivate = enabledFeatures.SingleOrDefault(f => f.Name == dependencyName);
+            var dependentFeaturesToActivate = dependencyNames
+                .Select(dependencyName => enabledFeatures.SingleOrDefault(f => f.Name == dependencyName))
+                .Where(dependency => dependency != null)
+                .Select(dependency => dependency!)
+                .ToList();
 
-            return dependentFeatureToActivate is not null && ActivateFeature(dependentFeatureToActivate, enabledFeatures, featureConfigurationContext);
+            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, enabledFeatures, featureConfigurationContext));
         }
     }
 
@@ -352,12 +358,17 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
     sealed class FeatureInfo
     {
-        public FeatureInfo(Feature feature, IReadOnlyCollection<string> dependencyNames)
+        public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<string>> dependencyNames)
         {
+            if (feature.IsEnabledByDefault) // backward compat for reflection based stuff
+            {
+                MarkAsEnabledByDefault();
+            }
+
             DependencyNames = dependencyNames;
             Diagnostics = new FeatureDiagnosticData
             {
-                EnabledByDefault = feature.IsEnabledByDefault,
+                EnabledByDefault = State == FeatureStateInfo.EnabledByDefault,
                 PrerequisiteStatus = new PrerequisiteStatus(),
                 Name = feature.Name,
                 Version = feature.Version,
@@ -365,12 +376,6 @@ class FeatureComponent(FeatureFactory factory) // for testing
                 StartupTasks = []
             };
             Feature = feature;
-            EnabledByDefault = feature.IsEnabledByDefault;
-
-            if (EnabledByDefault) // backward compat for reflection based stuff
-            {
-                Enable();
-            }
         }
 
         public FeatureDiagnosticData Diagnostics { get; }
@@ -378,11 +383,9 @@ class FeatureComponent(FeatureFactory factory) // for testing
         public string Name => Feature.Name;
 
         public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
-        public IReadOnlyCollection<string> DependencyNames { get; }
-
+        public IReadOnlyCollection<IReadOnlyCollection<string>> DependencyNames { get; }
         Feature Feature { get; }
-        IReadOnlyCollection<FeatureInfo> Dependencies { get; set; } = [];
-        bool EnabledByDefault { get; set; }
+        IReadOnlyCollection<FeatureInfo> DependenciesToEnable { get; set; } = [];
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
         {
@@ -409,16 +412,12 @@ class FeatureComponent(FeatureFactory factory) // for testing
                 _ => false,
             };
 
-
         public void Configure(SettingsHolder settings)
         {
             Feature.ConfigureDefaults(settings);
-            foreach (var dependency in Dependencies)
+            foreach (var dependency in DependenciesToEnable)
             {
-                if (dependency.EnabledByDefault)
-                {
-                    dependency.Enable();
-                }
+                dependency.MarkAsEnabledByDefault();
             }
         }
 
@@ -433,24 +432,21 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
         public void Disable() => State = FeatureStateInfo.Disabled;
 
-        public void MarkAsEnabledByDefault()
-        {
-            EnabledByDefault = true;
-            State = FeatureStateInfo.EnabledByDefault;
-        }
+        public void MarkAsEnabledByDefault() => State = FeatureStateInfo.EnabledByDefault;
 
         public void Activate() => State = FeatureStateInfo.Active;
 
         public void Deactivate() => State = FeatureStateInfo.Deactivated;
 
-        public void UpdateDependencies(IReadOnlyCollection<FeatureInfo> dependencyFeatureInfos) => Dependencies = dependencyFeatureInfos;
+        public void UpdateDependencies(IReadOnlyCollection<FeatureInfo> dependenciesToEnable)
+            => DependenciesToEnable = dependenciesToEnable;
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
 
     sealed class Node(FeatureInfo featureInfo)
     {
-        public IReadOnlyCollection<string> Dependencies => featureInfo.DependencyNames;
+        public IReadOnlyCollection<IReadOnlyCollection<string>> Dependencies => featureInfo.DependencyNames;
         public List<Node> Previous { get; } = [];
 
         public void Visit(ICollection<FeatureInfo> output)
