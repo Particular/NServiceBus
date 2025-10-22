@@ -32,26 +32,29 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
 
         public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                Data.MessageId = message.Id;
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
             {
                 mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                mapper.ConfigureNotFoundHandler<SagaNotFound>();
             }
 
             public class CantBeFoundSaga1Data : ContainSagaData
             {
                 public virtual Guid MessageId { get; set; }
+            }
+
+            public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
+            {
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    testContext.Saga1NotFound = true;
+                    return Task.CompletedTask;
+                }
             }
         }
 
@@ -65,71 +68,21 @@ public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
             {
                 mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                mapper.ConfigureNotFoundHandler<SagaNotFound>();
             }
 
             public class CantBeFoundSaga2Data : ContainSagaData
             {
                 public virtual Guid MessageId { get; set; }
             }
-        }
 
-        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
-        {
-            public Task Handle(object message, IMessageProcessingContext context)
+            public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
             {
-                testContext.Saga1NotFound = true;
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class ReceiverWithOrderedSagas : EndpointConfigurationBuilder
-    {
-        public ReceiverWithOrderedSagas() =>
-            EndpointSetup<DefaultServer>();
-
-        public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
-        {
-            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
-
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
-            }
-
-            public class ReceiverWithOrderedSagasSaga1Data : ContainSagaData
-            {
-                public virtual Guid MessageId { get; set; }
-            }
-        }
-
-        public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
-        {
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context1) => Task.CompletedTask;
-
-            public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
-            }
-
-            public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData
-            {
-                public virtual Guid MessageId { get; set; }
-            }
-        }
-
-        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
-        {
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                testContext.Saga2NotFound = true;
-                return Task.CompletedTask;
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    testContext.Saga2NotFound = true;
+                    return Task.CompletedTask;
+                }
             }
         }
     }
