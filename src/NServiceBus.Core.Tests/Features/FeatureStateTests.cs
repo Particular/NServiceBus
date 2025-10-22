@@ -7,14 +7,14 @@ using Settings;
 [TestFixture]
 public class FeatureStateTests
 {
-    FeatureRegistry featureSettings;
+    FeatureComponent featureSettings;
     SettingsHolder settings;
 
     [SetUp]
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureRegistry(settings, new FeatureFactory());
+        featureSettings = new FeatureComponent(new FeatureFactory());
         settings.Set(featureSettings);
     }
 
@@ -24,7 +24,7 @@ public class FeatureStateTests
         featureSettings.EnableFeature<FeatureThatDependsOnAnother>();
         featureSettings.EnableFeature<DependentFeature>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -38,7 +38,7 @@ public class FeatureStateTests
     {
         featureSettings.EnableFeature<FeatureThatDependsOnAnother>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -53,7 +53,7 @@ public class FeatureStateTests
         featureSettings.EnableFeature<FeatureThatDependsOnAnother>();
         featureSettings.DisableFeature<DependentFeature>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -85,7 +85,7 @@ public class FeatureStateTests
     {
         featureSettings.EnableFeature<FeatureThatGetsToggled>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -98,7 +98,7 @@ public class FeatureStateTests
     {
         featureSettings.EnableFeatureByDefault<FeatureThatGetsToggled>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -133,7 +133,7 @@ public class FeatureStateTests
     {
         featureSettings.DisableFeature<FeatureThatGetsToggled>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -144,7 +144,7 @@ public class FeatureStateTests
     [Test]
     public void Default_state_is_disabled()
     {
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {

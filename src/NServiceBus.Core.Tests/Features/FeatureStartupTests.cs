@@ -17,7 +17,7 @@ public class FeatureStartupTests
     {
         settings = new SettingsHolder();
         feautureFactory = new FakeFeatureFactory();
-        featureSettings = new FeatureRegistry(settings, feautureFactory);
+        featureSettings = new FeatureComponent(feautureFactory);
         settings.Set(featureSettings);
     }
 
@@ -30,7 +30,7 @@ public class FeatureStartupTests
 
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         await featureSettings.StartFeatures(null, null);
         await featureSettings.StopFeatures(null);
@@ -55,7 +55,7 @@ public class FeatureStartupTests
         featureSettings.Add(featureWithStartupTaskWithDependency);
         featureSettings.Add(featureWithStartupThatAnotherFeatureDependsOn);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         await featureSettings.StartFeatures(null, null);
         await featureSettings.StopFeatures(null);
@@ -76,7 +76,7 @@ public class FeatureStartupTests
 
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         await featureSettings.StartFeatures(null, null);
         await featureSettings.StopFeatures(null);
@@ -95,7 +95,7 @@ public class FeatureStartupTests
         featureSettings.Add(feature2);
         featureSettings.Add(feature3);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
         using (Assert.EnterMultipleScope())
@@ -119,7 +119,7 @@ public class FeatureStartupTests
         featureSettings.Add(feature1);
         featureSettings.Add(feature2);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         await featureSettings.StartFeatures(null, null);
 
@@ -138,7 +138,7 @@ public class FeatureStartupTests
         var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         await featureSettings.StartFeatures(null, null);
 
@@ -146,7 +146,7 @@ public class FeatureStartupTests
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
-    FeatureRegistry featureSettings;
+    FeatureComponent featureSettings;
     SettingsHolder settings;
     FakeFeatureFactory feautureFactory;
 

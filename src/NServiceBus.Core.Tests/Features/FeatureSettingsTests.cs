@@ -9,14 +9,14 @@ using Settings;
 [TestFixture]
 public class FeatureSettingsTests
 {
-    FeatureRegistry featureSettings;
+    FeatureComponent featureSettings;
     SettingsHolder settings;
 
     [SetUp]
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureRegistry(settings, new FeatureFactory());
+        featureSettings = new FeatureComponent(new FeatureFactory());
         settings.Set(featureSettings);
     }
 
@@ -29,7 +29,7 @@ public class FeatureSettingsTests
         featureSettings.Add(featureWithTrueCondition);
         featureSettings.Add(featureWithFalseCondition);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -45,7 +45,7 @@ public class FeatureSettingsTests
     {
         featureSettings.Add(new MyFeatureWithDefaults());
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(settings.HasSetting("Test1"), Is.True);
     }
@@ -57,7 +57,7 @@ public class FeatureSettingsTests
         featureSettings.Add(new MyFeatureWithDefaultsNotActive());
         featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {

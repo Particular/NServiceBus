@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Features;
 using Logging;
 using Settings;
 using Transport;
@@ -46,7 +47,7 @@ class RunningEndpointInstance(SettingsHolder settings,
 
                 // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.Stop(messageSession, cancellationToken).ConfigureAwait(false);
+                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
 
                 // Can throw
                 await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
