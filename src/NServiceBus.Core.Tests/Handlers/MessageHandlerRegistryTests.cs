@@ -10,17 +10,21 @@ using Unicast;
 [TestFixture]
 public class MessageHandlerRegistryTests
 {
-    [TestCase(typeof(HandlerWithIMessageSessionProperty))]
-    [TestCase(typeof(HandlerWithIEndpointInstanceProperty))]
-    [TestCase(typeof(HandlerWithIMessageSessionCtorDep))]
-    [TestCase(typeof(HandlerWithIEndpointInstanceCtorDep))]
-    [TestCase(typeof(HandlerWithInheritedIMessageSessionPropertyDep))]
-    [TestCase(typeof(SagaWithIllegalDep))]
-    public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
+    [Test]
+    public void ShouldThrowIfUserTriesToBypassTheHandlerContext()
     {
         var registry = new MessageHandlerRegistry();
 
-        Assert.Throws<Exception>(() => registry.RegisterHandler(handlerType));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIMessageSessionProperty>());
+            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIEndpointInstanceProperty>());
+            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIMessageSessionCtorDep>());
+            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIEndpointInstanceCtorDep>());
+            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithInheritedIMessageSessionPropertyDep>());
+            Assert.Throws<Exception>(() => registry.RegisterHandler<SagaWithIllegalDep>());
+        }
+
     }
 
     [Test]
@@ -28,7 +32,7 @@ public class MessageHandlerRegistryTests
     {
         var registry = new MessageHandlerRegistry();
 
-        registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));
+        registry.RegisterHandler<SagaWithTimeoutOfMessage>();
 
         var handlers = registry.GetHandlersFor(typeof(MyMessage));
 

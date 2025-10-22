@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -15,6 +16,6 @@ public static class MessageHandlerRegistrationExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        config.Settings.GetOrCreate<MessageHandlerRegistry>().RegisterHandler(typeof(THandler));
+        config.Settings.GetOrCreate<MessageHandlerRegistry>().RegisterHandler<THandler>();
     }
 }
