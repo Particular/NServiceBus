@@ -56,7 +56,7 @@ public class FeatureDependencyTests
     {
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
         var dependingFeature = setup.DependingFeature;
 
@@ -65,7 +65,7 @@ public class FeatureDependencyTests
         featureSettings.Add(dependingFeature);
         Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(dependingFeature.IsActive, Is.EqualTo(setup.ShouldBeActive));
     }
@@ -86,7 +86,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
@@ -96,7 +96,7 @@ public class FeatureDependencyTests
 
         settings.EnableFeature<MyFeature1>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -122,7 +122,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
@@ -132,7 +132,7 @@ public class FeatureDependencyTests
 
         settings.EnableFeature<MyFeature2>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -157,7 +157,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature);
@@ -165,7 +165,7 @@ public class FeatureDependencyTests
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -198,7 +198,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(dependingFeature, feature, feature2, feature3);
@@ -212,7 +212,7 @@ public class FeatureDependencyTests
         settings.EnableFeature<MyFeature2>();
         settings.EnableFeature<MyFeature3>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -244,7 +244,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(level1, level2, level3);
@@ -254,7 +254,7 @@ public class FeatureDependencyTests
         featureSettings.Add(level2);
         featureSettings.Add(level1);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -284,7 +284,7 @@ public class FeatureDependencyTests
 
         var settings = new SettingsHolder();
         var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureRegistry(settings, featureFactory);
+        var featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
 
         featureFactory.Add(level1, level2);
@@ -292,7 +292,7 @@ public class FeatureDependencyTests
         featureSettings.Add(level1);
         featureSettings.Add(level2);
 
-        Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext()));
+        Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings));
     }
 
     public class Level1 : TestFeature

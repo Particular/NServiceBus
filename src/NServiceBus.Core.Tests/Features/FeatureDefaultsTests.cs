@@ -33,7 +33,7 @@ public class FeatureDefaultsTests
         }
     }
 
-    FeatureRegistry featureSettings;
+    FeatureComponent featureSettings;
     FakeFeatureFactory featureFactory;
     SettingsHolder settings;
 
@@ -42,7 +42,7 @@ public class FeatureDefaultsTests
     {
         settings = new SettingsHolder();
         featureFactory = new FakeFeatureFactory();
-        featureSettings = new FeatureRegistry(settings, featureFactory);
+        featureSettings = new FeatureComponent(featureFactory);
         settings.Set(featureSettings);
     }
 
@@ -56,7 +56,7 @@ public class FeatureDefaultsTests
         featureSettings.Add(featureThatIsEnabledByAnother);
         featureSettings.Add(new FeatureThatEnablesAnother());
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(featureThatIsEnabledByAnother.DefaultCalled, Is.True, "FeatureThatIsEnabledByAnother wasn't activated");
     }
@@ -92,7 +92,7 @@ public class FeatureDefaultsTests
         featureSettings.Add(level2);
         featureSettings.Add(level1);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -129,7 +129,7 @@ public class FeatureDefaultsTests
 
         settings.EnableFeature<MyFeature1>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -172,7 +172,7 @@ public class FeatureDefaultsTests
         settings.EnableFeature<MyFeature2>();
         settings.EnableFeature<MyFeature3>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -209,7 +209,7 @@ public class FeatureDefaultsTests
         featureSettings.Add(level2);
         featureSettings.Add(level1);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {

@@ -56,12 +56,11 @@ class EndpointCreator
 
         hostingConfiguration.Services.AddSingleton(typeof(IReadOnlySettings), settings);
 
-        // TODO This is ugly
         featureComponent = settings.Get<FeatureComponent>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-        featureComponent.RegisterFeatureEnabledStatusInSettings(hostingConfiguration);
+        featureComponent.AddScannedTypes(hostingConfiguration.AvailableTypes);
 
         transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
@@ -77,8 +76,7 @@ class EndpointCreator
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
-
-        featureComponent.Initialize(featureConfigurationContext);
+        featureComponent.Initialize(featureConfigurationContext, settings);
 
         recoverabilityComponent.Initialize(
             receiveConfiguration,

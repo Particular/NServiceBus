@@ -17,7 +17,7 @@ public static class SettingsExtensions
     public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureRegistry>().EnableFeatureByDefault<T>();
+        settings.Get<FeatureComponent>().EnableFeatureByDefault<T>();
         return settings;
     }
 
@@ -30,7 +30,7 @@ public static class SettingsExtensions
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
 
-        settings.Get<FeatureRegistry>().EnableFeatureByDefault(featureType);
+        settings.Get<FeatureComponent>().EnableFeatureByDefault(featureType);
         return settings;
     }
 
@@ -42,7 +42,7 @@ public static class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
-        return settings.Get<FeatureRegistry>().IsFeature(featureType, FeatureState.Active);
+        return settings.Get<FeatureComponent>().IsFeature(featureType, FeatureState.Active);
     }
 
     /// <summary>
@@ -53,36 +53,36 @@ public static class SettingsExtensions
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(featureType);
-        return settings.Get<FeatureRegistry>().IsFeature(featureType, FeatureState.Enabled);
+        return settings.Get<FeatureComponent>().IsFeature(featureType, FeatureState.Enabled);
     }
 
     internal static bool IsFeatureEnabled<T>(this IReadOnlySettings settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
-        return settings.Get<FeatureRegistry>().IsFeature<T>(FeatureState.Enabled);
+        return settings.Get<FeatureComponent>().IsFeature<T>(FeatureState.Enabled);
     }
 
     internal static void EnableFeature<T>(this SettingsHolder settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureRegistry>().EnableFeature<T>();
+        settings.Get<FeatureComponent>().EnableFeature<T>();
     }
 
     internal static void EnableFeature(this SettingsHolder settings, Type featureType)
     {
         ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureRegistry>().EnableFeature(featureType);
+        settings.Get<FeatureComponent>().EnableFeature(featureType);
     }
 
     internal static void DisableFeature<T>(this SettingsHolder settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureRegistry>().DisableFeature<T>();
+        settings.Get<FeatureComponent>().DisableFeature<T>();
     }
 
     internal static void DisableFeature(this SettingsHolder settings, Type featureType)
     {
         ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureRegistry>().DisableFeature(featureType);
+        settings.Get<FeatureComponent>().DisableFeature(featureType);
     }
 }
