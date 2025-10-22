@@ -29,7 +29,7 @@ partial class HostingComponent
             });
 
             settings.Set(new StartupDiagnosticEntries());
-            settings.Set(new InstallerRegistry());
+            InstallerRegistry = new InstallerRegistry();
         }
 
         public Guid HostId
@@ -54,7 +54,7 @@ partial class HostingComponent
 
         public StartupDiagnosticEntries StartupDiagnostics => settings.Get<StartupDiagnosticEntries>();
 
-        public InstallerRegistry InstallerRegistry => settings.Get<InstallerRegistry>();
+        public InstallerRegistry InstallerRegistry { get; }
 
         public string? DiagnosticsPath
         {
