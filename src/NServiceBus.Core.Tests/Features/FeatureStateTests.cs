@@ -87,10 +87,7 @@ public class FeatureStateTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Active), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Active), Is.True);
     }
 
     [Test]
@@ -100,10 +97,7 @@ public class FeatureStateTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Active), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Active), Is.True);
     }
 
     [Test]
@@ -111,21 +105,15 @@ public class FeatureStateTests
     {
         featureSettings.EnableFeature<FeatureThatGetsToggled>();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.True);
     }
 
     [Test]
-    public void Should_enable_features_that_are_enabled_by_default()
+    public void Should_not_enable_features_that_are_enabled_by_default()
     {
         featureSettings.EnableFeatureByDefault<FeatureThatGetsToggled>();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.False);
     }
 
     [Test]
@@ -135,10 +123,7 @@ public class FeatureStateTests
 
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Disabled), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Disabled), Is.True);
     }
 
     [Test]
@@ -146,10 +131,7 @@ public class FeatureStateTests
     {
         featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Disabled), Is.True);
-        }
+        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Disabled), Is.True);
     }
 
     sealed class FeatureThatGetsToggled : Feature

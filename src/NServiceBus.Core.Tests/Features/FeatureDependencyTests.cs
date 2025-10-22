@@ -17,35 +17,35 @@ public class FeatureDependencyTests
             yield return new FeatureCombinations
             {
                 DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2(), new MyFeature3() },
+                AvailableFeatures = [new MyFeature1(), new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
                 DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
                 DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3() },
+                AvailableFeatures = [new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
                 DependingFeature = new DependsOnAtLeastOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
                 DependingFeature = new DependsOnAll_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
         }
