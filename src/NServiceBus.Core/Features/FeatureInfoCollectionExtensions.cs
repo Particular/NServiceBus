@@ -9,9 +9,9 @@ using Features;
 
 static class FeatureInfoCollectionExtensions
 {
-    extension(IReadOnlyCollection<FeatureComponent.FeatureInfo> featureInfos)
+    extension(IReadOnlyCollection<FeatureInfo> featureInfos)
     {
-        public ICollection<FeatureComponent.FeatureInfo> Sort()
+        public ICollection<FeatureInfo> Sort()
         {
             // Step 1: create nodes for graph
             var nameToNodeDict = new Dictionary<string, Node>();
@@ -38,7 +38,7 @@ static class FeatureInfoCollectionExtensions
             }
 
             // Step 3: Perform Topological Sort
-            var output = new List<FeatureComponent.FeatureInfo>();
+            var output = new List<FeatureInfo>();
             foreach (var node in allNodes)
             {
                 node.Visit(output);
@@ -81,12 +81,12 @@ static class FeatureInfoCollectionExtensions
         }
     }
 #pragma warning restore IDE0051
-    sealed class Node(FeatureComponent.FeatureInfo featureInfo)
+    sealed class Node(FeatureInfo featureInfo)
     {
         public IReadOnlyCollection<IReadOnlyCollection<string>> Dependencies => featureInfo.DependencyNames;
         public List<Node> Previous { get; } = [];
 
-        public void Visit(ICollection<FeatureComponent.FeatureInfo> output)
+        public void Visit(ICollection<FeatureInfo> output)
         {
             if (visited)
             {
