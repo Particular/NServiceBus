@@ -284,7 +284,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
             if (!featureInfo.HasAllPrerequisitesSatisfied(featureConfigurationContext))
             {
-                featureInfo.Disable();
+                featureInfo.Deactivate();
                 return false;
             }
 
@@ -297,7 +297,7 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
 
             return true;
         }
-        featureInfo.Disable();
+        featureInfo.Deactivate();
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
 
@@ -388,6 +388,8 @@ class FeatureRegistry(SettingsHolder settings, FeatureFactory factory)
         public void MarkAsEnabledByDefault() => EnabledByDefault = true;
 
         public void Activate() => State = FeatureState.Active;
+
+        public void Deactivate() => State = FeatureState.Deactivated;
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
