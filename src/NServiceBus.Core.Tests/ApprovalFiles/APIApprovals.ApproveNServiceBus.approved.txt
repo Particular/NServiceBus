@@ -384,7 +384,7 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
-    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
+    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages, NServiceBus.IHandleMessages<T> { }
     public interface ICancellableContext
     {
         System.Threading.CancellationToken CancellationToken { get; }
@@ -439,11 +439,13 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface IHandleMessages<T>
+    public interface IHandleMessages { }
+    public interface IHandleMessages<T> : NServiceBus.IHandleMessages
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
     }
-    public interface IHandleTimeouts<T>
+    public interface IHandleTimeouts { }
+    public interface IHandleTimeouts<T> : NServiceBus.IHandleTimeouts
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
@@ -590,6 +592,11 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+    }
+    public static class MessageHandlerRegistrationExtensions
+    {
+        public static void RegisterHandler<THandler>(this NServiceBus.EndpointConfiguration config)
+            where THandler : NServiceBus.IHandleMessages { }
     }
     public static class MessageIdExtensions
     {
@@ -2308,10 +2315,15 @@ namespace NServiceBus.Unicast
     public class MessageHandlerRegistry
     {
         public MessageHandlerRegistry() { }
+        public void AddScannedHandlers(System.Collections.Generic.IEnumerable<System.Type> orderedTypes) { }
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'RegisterHandler<THandle" +
+            "r>()\' instead. Will be removed in version 11.0.0.", true)]
         public void RegisterHandler(System.Type handlerType) { }
+        public void RegisterHandler<THandler>()
+            where THandler : NServiceBus.IHandleMessages { }
     }
     public class MessagesEventArgs : System.EventArgs
     {
