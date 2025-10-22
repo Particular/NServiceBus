@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using Unicast;
 
 /// <summary>
 /// Provides configuration options to tune handler ordering.
@@ -24,7 +25,7 @@ public static class LoadMessageHandlersExtensions
 
         foreach (var handlerType in handlerTypes)
         {
-            if (!ReceiveComponent.IsMessageHandler(handlerType))
+            if (!MessageHandlerRegistry.IsMessageHandler(handlerType))
             {
                 throw new ArgumentException($"'{handlerType}' is not a handler type, ensure that all types derive from IHandleMessages");
             }
