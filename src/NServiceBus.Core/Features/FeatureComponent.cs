@@ -119,6 +119,10 @@ class FeatureComponent(FeatureFactory factory) // for testing
             return featureInfo;
         }
 
+        // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
+        featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.FeatureName).ToList().AsReadOnly());
+        added.Add(featureInfo.Name, featureInfo);
+
         var dependencies = feature.Dependencies;
         var dependencyFeatureInfos = new List<FeatureInfo>(dependencies.Count);
         foreach (var dependency in dependencies)
@@ -147,9 +151,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
             dependencyFeatureInfos.Add(info);
         }
 
-        // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
-        featureInfo = new FeatureInfo(feature, dependencyFeatureInfos, dependencies.Select(d => d.FeatureName).ToList().AsReadOnly());
-        added.Add(featureInfo.Name, featureInfo);
+        featureInfo.UpdateDependencies(dependencyFeatureInfos);
         return featureInfo;
     }
 
@@ -322,13 +324,11 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
     readonly List<FeatureInfo> enabledFeatures = [];
     readonly Dictionary<string, FeatureInfo> added = [];
-    readonly FeatureFactory factory = factory;
 
     sealed class FeatureInfo
     {
-        public FeatureInfo(Feature feature, IReadOnlyCollection<FeatureInfo> dependencies, IReadOnlyCollection<string> dependencyNames)
+        public FeatureInfo(Feature feature, IReadOnlyCollection<string> dependencyNames)
         {
-            Dependencies = dependencies;
             DependencyNames = dependencyNames;
             Diagnostics = new FeatureDiagnosticData
             {
@@ -356,7 +356,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
         public IReadOnlyCollection<string> DependencyNames { get; }
 
         Feature Feature { get; }
-        IReadOnlyCollection<FeatureInfo> Dependencies { get; }
+        IReadOnlyCollection<FeatureInfo> Dependencies { get; set; } = [];
         bool EnabledByDefault { get; set; }
 
         public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
@@ -402,6 +402,8 @@ class FeatureComponent(FeatureFactory factory) // for testing
         public void Activate() => State = FeatureState.Active;
 
         public void Deactivate() => State = FeatureState.Deactivated;
+
+        public void UpdateDependencies(IReadOnlyCollection<FeatureInfo> dependencyFeatureInfos) => Dependencies = dependencyFeatureInfos;
 
         readonly List<FeatureStartupTaskController> taskControllers = [];
     }
