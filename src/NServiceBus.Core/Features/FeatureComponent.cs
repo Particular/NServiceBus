@@ -139,8 +139,8 @@ class FeatureComponent(FeatureFactory factory) // for testing
         featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
         added.Add(featureInfo.Name, featureInfo);
 
-        var featuresToEnableByDefault = new List<FeatureInfo>(feature.Enabled.Count);
-        foreach (var toEnableByDefault in feature.Enabled)
+        var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabledByDefault.Count);
+        foreach (var toEnableByDefault in feature.ToBeEnabledByDefault)
         {
             if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
             {
