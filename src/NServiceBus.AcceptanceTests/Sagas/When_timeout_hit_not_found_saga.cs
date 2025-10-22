@@ -33,26 +33,16 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class TimeoutHitsNotFoundSaga : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
+        public class TimeoutHitsNotFoundSaga(Context testContext) : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
             IAmStartedByMessages<StartSaga>,
-            IHandleSagaNotFound,
+            ISagaNotFoundHandler,
             IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
             IHandleMessages<SomeOtherMessage>
         {
-            public TimeoutHitsNotFoundSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartSaga message, IMessageHandlerContext context)
             {
-                Data.DataId = message.DataId;
-
                 //this will cause the message to be delivered right away
                 await RequestTimeout<MyTimeout>(context, TimeSpan.Zero);
                 await context.SendLocal(new SomeOtherMessage
@@ -63,10 +53,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                 MarkAsComplete();
             }
 
-            public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(SomeOtherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
             public Task Handle(object message, IMessageProcessingContext context)
             {
@@ -82,15 +69,13 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Timeout(MyTimeout state, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Timeout(MyTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
             {
                 mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 mapper.ConfigureMapping<SomeOtherMessage>(m => m.DataId).ToSaga(s => s.DataId);
+                mapper.ConfigureNotFoundHandler<TimeoutHitsNotFoundSaga>();
             }
 
             public class TimeoutHitsNotFoundSagaData : ContainSagaData
@@ -101,8 +86,6 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
             public class MyTimeout
             {
             }
-
-            Context testContext;
         }
     }
 

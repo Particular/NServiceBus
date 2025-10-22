@@ -118,6 +118,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         {
             return false;
         }
+
         return sagaMessage.IsAllowedToStartSaga;
     }
 
@@ -253,9 +254,15 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                 if (existingMapping != null)
                 {
-                    var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
-                    throw new Exception(bothMappingAndFinder);
+                    if (existingMapping is not CustomFinderSagaToMessageMap)
+                    {
+                        var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
+                        throw new Exception(bothMappingAndFinder);
+                    }
+
+                    continue;
                 }
+
                 mapper.ConfigureCustomFinder(finderType, messageType);
             }
         }
@@ -272,6 +279,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             {
                 continue;
             }
+
             result.Add(new SagaMessage(messageType, false));
         }
 
@@ -281,6 +289,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             {
                 continue;
             }
+
             result.Add(new SagaMessage(messageType, false));
         }
 
@@ -299,6 +308,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 {
                     continue;
                 }
+
                 yield return argument;
             }
         }
@@ -329,17 +339,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic
-    static readonly Type[] AllowedCorrelationPropertyTypes =
-    {
-        typeof(Guid),
-        typeof(string),
-        typeof(long),
-        typeof(ulong),
-        typeof(int),
-        typeof(uint),
-        typeof(short),
-        typeof(ushort)
-    };
+    static readonly Type[] AllowedCorrelationPropertyTypes = { typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort) };
 
     class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders
     {
@@ -362,6 +362,10 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 MessageType = typeof(TMessage)
             });
         }
+
+        public void ConfigureFinder<TSagaEntity, TMessage, TSagaFinder>() where TSagaEntity : IContainSagaData where TSagaFinder : ISagaFinder<TSagaEntity, TMessage> => ConfigureCustomFinder(typeof(TSagaFinder), typeof(TMessage));
+        public void ConfigureNotFoundHandler<TSagaEntity, TMessage, TNotFoundHandler>() where TSagaEntity : IContainSagaData where TNotFoundHandler : ISagaNotFoundHandler<TMessage> => ConfigureNotFoundHandler(typeof(TNotFoundHandler), typeof(TMessage));
+        public void ConfigureCatchAllNotFoundHandler<TSagaNotFoundHandler>() where TSagaNotFoundHandler : ISagaNotFoundHandler => throw new NotImplementedException();
 
         static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
         {
@@ -407,6 +411,11 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 MessageType = messageType,
                 CustomFinderType = finderType
             });
+        }
+
+        public void ConfigureNotFoundHandler(Type handlerType, Type messageType)
+        {
+            //TODO
         }
 
         static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)

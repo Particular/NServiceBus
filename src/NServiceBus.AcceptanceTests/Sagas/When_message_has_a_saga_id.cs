@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
@@ -15,10 +14,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session =>
             {
-                var message = new MessageWithSagaId
-                {
-                    DataId = Guid.NewGuid()
-                };
+                var message = new MessageWithSagaId { DataId = Guid.NewGuid() };
                 var options = new SendOptions();
 
                 options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
@@ -42,7 +38,6 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         public bool NotFoundHandlerCalled { get; set; }
         public bool MessageHandlerCalled { get; set; }
         public bool TimeoutHandlerCalled { get; set; }
-        public bool OtherSagaStarted { get; set; }
         public bool Done { get; set; }
     }
 
@@ -53,25 +48,14 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>();
         }
 
-        public class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
+        public class MessageWithSagaIdSaga(Context testContext) : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
             IAmStartedByMessages<MessageWithSagaId>,
             IHandleTimeouts<MessageWithSagaId>,
-            IHandleSagaNotFound
+            ISagaNotFoundHandler<MessageWithSagaId>
         {
-            public MessageWithSagaIdSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.MessageHandlerCalled = true;
-                return Task.CompletedTask;
-            }
-
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                testContext.NotFoundHandlerCalled = true;
                 return Task.CompletedTask;
             }
 
@@ -81,35 +65,33 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
+            public Task Handle(MessageWithSagaId message, IMessageProcessingContext context)
+            {
+                testContext.NotFoundHandlerCalled = true;
+                return Task.CompletedTask;
+            }
+
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
             {
                 mapper.ConfigureMapping<MessageWithSagaId>(m => m.DataId)
-                    .ToSaga(s => s.DataId);
+                    .ToSaga(s => s.DataId)
+                    .RegisterNotFoundHandler<MessageWithSagaIdSaga>();
             }
 
             public class MessageWithSagaIdSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
 
-        class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
+        class MessageWithSagaIdHandler(Context testContext) : IHandleMessages<MessageWithSagaId>
         {
-            public MessageWithSagaIdHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.Done = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
