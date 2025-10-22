@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 class InstallerRegistry
 {
-    public void SetUserName(string username) => installationUserName = username;
+    public string InstallationUserName { get; set; } = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
 
     public void Add<TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(typeof(TInstaller));
 
@@ -30,11 +30,10 @@ class InstallerRegistry
         foreach (var installerType in installers)
         {
             var installer = (INeedToInstallSomething)ActivatorUtilities.CreateInstance(serviceProvider, installerType);
-            await installer.Install(installationUserName, cancellationToken).ConfigureAwait(false);
+            await installer.Install(InstallationUserName, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    string installationUserName = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
     readonly HashSet<Type> installers = [];
 
     static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);

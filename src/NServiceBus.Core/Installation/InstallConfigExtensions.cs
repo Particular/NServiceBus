@@ -22,7 +22,7 @@ public static class InstallConfigExtensions
 
         if (username != null)
         {
-            config.Settings.Get<InstallerRegistry>().SetUserName(username);
+            config.Settings.Get<InstallerRegistry>().InstallationUserName = username;
         }
 
         config.Settings.Set("Installers.Enable", true);
