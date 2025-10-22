@@ -30,14 +30,12 @@ public abstract class Feature
     /// <summary>
     /// The list of features that this feature is depending on.
     /// </summary>
-    /// <remarks>This property is compute-intense and should only be accessed when needed.</remarks>
-    internal IReadOnlyCollection<Dependency> Dependencies =>
-        dependencies
-            .SelectMany(g => g)
-            .GroupBy(d => d.FeatureName)
-            .Select(g => g.FirstOrDefault(d => d.EnabledByDefault) ?? g.First())
-            .ToList()
-            .AsReadOnly();
+    internal IReadOnlyCollection<IReadOnlyCollection<Dependency>> Dependencies => dependencies;
+
+    /// <summary>
+    /// The list of features that this feature enables by default.
+    /// </summary>
+    internal IReadOnlyCollection<EnabledByDefault> Enabled => enabled;
 
     /// <summary>
     /// Tells if this feature is enabled by default.
@@ -86,9 +84,7 @@ public abstract class Feature
     /// Marks that this feature enables another feature by default.
     /// </summary>
     protected void EnableByDefault<T>() where T : Feature =>
-        dependencies.Add([
-            new Dependency(GetFeatureName(typeof(T)), typeof(T), enabledByDefault: true)
-        ]);
+        enabled.Add(new EnabledByDefault(GetFeatureName(typeof(T)), typeof(T)));
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -216,15 +212,12 @@ public abstract class Feature
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
     readonly List<List<Dependency>> dependencies = [];
+    readonly List<EnabledByDefault> enabled = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
 
-    internal class Dependency(string featureName, Type? featureType = null, bool enabledByDefault = false)
-    {
-        public Type? FeatureType { get; } = featureType;
-        public string FeatureName { get; } = featureName;
-        public bool EnabledByDefault { get; } = enabledByDefault;
-    }
+    internal readonly record struct Dependency(string FeatureName, Type? FeatureType = null);
+    internal readonly record struct EnabledByDefault(string FeatureName, Type FeatureType);
 
     class SetupPrerequisite
     {
