@@ -31,7 +31,9 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
-        Settings.Set(new HostingComponent.Settings(Settings));
+
+        HostingComponentSettings = new HostingComponent.Settings(Settings);
+        Settings.Set(HostingComponentSettings);
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
         Settings.Set(new ReceiveComponent.Settings(Settings));
@@ -65,6 +67,8 @@ public class EndpointConfiguration : ExposeSettings
 
         ConventionsBuilder = new ConventionsBuilder(Settings);
     }
+
+    internal readonly HostingComponent.Settings HostingComponentSettings;
 
     /// <summary>
     /// Access to the pipeline configuration.
