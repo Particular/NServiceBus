@@ -16,9 +16,10 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        feautureFactory = new FakeFeatureFactory();
-        featureSettings = new FeatureComponent(feautureFactory);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
         settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
     }
 
     [Test]
@@ -26,14 +27,14 @@ public class FeatureStartupTests
     {
         var feature = new FeatureWithStartupTask();
 
-        feautureFactory.Add(feature);
+        featureFactory.Add(feature);
 
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         using (Assert.EnterMultipleScope())
         {
@@ -50,15 +51,15 @@ public class FeatureStartupTests
         var featureWithStartupTaskWithDependency = new FeatureWithStartupTaskWithDependency(orderBuilder);
         var featureWithStartupThatAnotherFeatureDependsOn = new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder);
 
-        feautureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
+        featureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
 
         featureSettings.Add(featureWithStartupTaskWithDependency);
         featureSettings.Add(featureWithStartupThatAnotherFeatureDependsOn);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         var expectedOrderBuilder = new StringBuilder();
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
@@ -76,10 +77,10 @@ public class FeatureStartupTests
 
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         Assert.That(feature.TaskDisposed, Is.True);
     }
@@ -95,9 +96,9 @@ public class FeatureStartupTests
         featureSettings.Add(feature2);
         featureSettings.Add(feature3);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureComponent.StartFeatures(null, null));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.Message, Is.EqualTo("feature2"));
@@ -119,11 +120,11 @@ public class FeatureStartupTests
         featureSettings.Add(feature1);
         featureSettings.Add(feature2);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(null));
+        Assert.DoesNotThrowAsync(async () => await featureComponent.StopFeatures(null));
 
         using (Assert.EnterMultipleScope())
         {
@@ -138,17 +139,18 @@ public class FeatureStartupTests
         var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StopFeatures(null);
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
-    FeatureComponent featureSettings;
+    FeatureComponent.Settings featureSettings;
     SettingsHolder settings;
-    FakeFeatureFactory feautureFactory;
+    FakeFeatureFactory featureFactory;
+    FeatureComponent featureComponent;
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {

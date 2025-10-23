@@ -32,7 +32,7 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
-        Settings.Set(new FeatureComponent());
+        Settings.Set(new FeatureComponent.Settings());
         Settings.Set(new HostingComponent.Settings(Settings));
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));

@@ -10,6 +10,21 @@ using Settings;
 [TestFixture]
 public class FeatureDependencyTests
 {
+    SettingsHolder settings;
+    FakeFeatureFactory featureFactory;
+    FeatureComponent featureComponent;
+    FeatureComponent.Settings featureSettings;
+
+    [SetUp]
+    public void SetUp()
+    {
+        settings = new SettingsHolder();
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
+    }
+
     static IEnumerable<FeatureCombinations> FeatureCombinationsForTests
     {
         get
@@ -54,10 +69,6 @@ public class FeatureDependencyTests
     [TestCaseSource(nameof(FeatureCombinationsForTests))]
     public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
     {
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
         var dependingFeature = setup.DependingFeature;
 
         Array.ForEach(setup.AvailableFeatures, featureFactory.Add);
@@ -65,7 +76,7 @@ public class FeatureDependencyTests
         featureSettings.Add(dependingFeature);
         Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(dependingFeature.IsActive, Is.EqualTo(setup.ShouldBeActive));
     }
@@ -84,11 +95,6 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(dependingFeature, feature);
 
         featureSettings.Add(dependingFeature);
@@ -96,7 +102,7 @@ public class FeatureDependencyTests
 
         settings.EnableFeature<MyFeature1>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -120,11 +126,6 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(dependingFeature, feature);
 
         featureSettings.Add(dependingFeature);
@@ -132,7 +133,7 @@ public class FeatureDependencyTests
 
         settings.EnableFeature<MyFeature2>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -155,17 +156,12 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(dependingFeature, feature);
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -196,11 +192,6 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(dependingFeature, feature, feature2, feature3);
 
         featureSettings.Add(dependingFeature);
@@ -212,7 +203,7 @@ public class FeatureDependencyTests
         settings.EnableFeature<MyFeature2>();
         settings.EnableFeature<MyFeature3>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -242,11 +233,6 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(level1, level2, level3);
 
         //the orders matter here to expose a bug
@@ -254,7 +240,7 @@ public class FeatureDependencyTests
         featureSettings.Add(level2);
         featureSettings.Add(level1);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -282,17 +268,12 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureFactory = new FakeFeatureFactory();
-        var featureSettings = new FeatureComponent(featureFactory);
-        settings.Set(featureSettings);
-
         featureFactory.Add(level1, level2);
 
         featureSettings.Add(level1);
         featureSettings.Add(level2);
 
-        Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings));
+        Assert.Throws<ArgumentException>(() => featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings));
     }
 
     public class Level1 : TestFeature
