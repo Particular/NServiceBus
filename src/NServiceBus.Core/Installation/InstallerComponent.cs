@@ -12,14 +12,13 @@ using Settings;
 
 class InstallerComponent(InstallerComponent.Settings settings)
 {
-    public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new { InstallersEnabled = settings.Installers.Select(i => i.FullName).ToArray() });
+    public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new { InstallersEnabled = settings.Installers.Select(i => i.Name).ToArray() });
 
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        foreach (var installerType in settings.Installers)
+        foreach (var installer in settings.Installers)
         {
-            var installer = (INeedToInstallSomething)ActivatorUtilities.CreateInstance(serviceProvider, installerType);
-            await installer.Install(settings.InstallationUserName, cancellationToken).ConfigureAwait(false);
+            await installer.Install(serviceProvider, settings.InstallationUserName, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -27,20 +26,43 @@ class InstallerComponent(InstallerComponent.Settings settings)
     {
         public string InstallationUserName { get; set; } = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
 
-        public void Add<TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(typeof(TInstaller));
+        public void Add<TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(new Installer<TInstaller>());
 
         public void AddScannedInstallers(IEnumerable<Type> scannedTypes)
         {
             foreach (var installerType in scannedTypes.Where(IsINeedToInstallSomething))
             {
-                installers.Add(installerType);
+                var installerWrapperType = typeof(Installer<>).MakeGenericType(installerType);
+                installers.Add(((IInstaller)Activator.CreateInstance(installerWrapperType)!)!);
             }
         }
 
-        public IReadOnlyCollection<Type> Installers => installers;
+        public IReadOnlyCollection<IInstaller> Installers => installers;
 
-        readonly HashSet<Type> installers = [];
+        readonly HashSet<IInstaller> installers = [];
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
+
+        class Installer<T> : IInstaller where T : class, INeedToInstallSomething
+        {
+            public Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
+            {
+                var installer = ActivatorUtilities.CreateInstance<T>(serviceProvider);
+
+                return installer.Install(identity, cancellationToken);
+            }
+
+            public bool Equals(IInstaller? other) => other?.GetType() == typeof(T);
+
+            public string Name { get; } = typeof(T).FullName!;
+        }
+
+
+        public interface IInstaller : IEquatable<IInstaller>
+        {
+            string Name { get; }
+
+            Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default);
+        }
     }
 }
