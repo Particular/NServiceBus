@@ -82,8 +82,6 @@ public class MessageHandlerRegistry
             return;
         }
 
-        ValidateHandlerDoesNotInjectMessageSession(handlerType);
-
         var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
 
         foreach (var messageType in messageTypes)
@@ -204,21 +202,6 @@ public class MessageHandlerRegistry
             .Select(t => t.GetGenericArguments()[0])
             .Distinct()
             .ToArray();
-
-    static void ValidateHandlerDoesNotInjectMessageSession(Type handlerType)
-    {
-        var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
-        var ctorArguments = handlerType.GetConstructors()
-            .SelectMany(ctor => ctor.GetParameters().Select(p => p.ParameterType))
-            .ToList();
-
-        var dependencies = propertyTypes.Concat(ctorArguments).ToList();
-
-        if (dependencies.Any(t => typeof(IMessageSession).IsAssignableFrom(t)))
-        {
-            throw new Exception($"Interfaces IMessageSession or IEndpointInstance should not be resolved from the container to enable sending or publishing messages from within sagas or message handlers. Instead, use the context parameter on the {handlerType.Name}.Handle method to send or publish messages.");
-        }
-    }
 
     readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
