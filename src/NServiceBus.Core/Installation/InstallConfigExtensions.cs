@@ -22,7 +22,7 @@ public static class InstallConfigExtensions
 
         if (username != null)
         {
-            config.InstallerSettings.InstallationUserName = username;
+            config.Settings.Get<InstallerComponent.Settings>().InstallationUserName = username;
         }
 
         config.Settings.Set("Installers.Enable", true);
@@ -35,7 +35,7 @@ public static class InstallConfigExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        config.InstallerSettings.Add<TInstaller>();
+        config.Settings.Get<InstallerComponent.Settings>().Add<TInstaller>();
     }
 
     /// <summary>
