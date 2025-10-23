@@ -32,7 +32,6 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
-        Settings.Set(new FeatureComponent.Settings());
         Settings.Set(new HostingComponent.Settings(Settings));
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
@@ -41,25 +40,29 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.Set(new ConsecutiveFailuresConfiguration());
         Settings.Set(Pipeline = new PipelineSettings(Settings));
 
-        Settings.EnableFeatureByDefault<ReceiveStatisticsFeature>();
-        Settings.EnableFeatureByDefault<SerializationFeature>();
-        Settings.EnableFeatureByDefault<StaticHeaders>();
-        Settings.EnableFeatureByDefault<Features.Audit>();
-        Settings.EnableFeatureByDefault<MessageCausation>();
-        Settings.EnableFeatureByDefault<MessageCorrelation>();
-        Settings.EnableFeatureByDefault<DelayedDeliveryFeature>();
-        Settings.EnableFeatureByDefault<RootFeature>();
-        Settings.EnableFeatureByDefault<LicenseReminder>();
-        Settings.EnableFeatureByDefault<Mutators>();
-        Settings.EnableFeatureByDefault<TimeToBeReceived>();
-        Settings.EnableFeatureByDefault<Features.Sagas>();
-        Settings.EnableFeatureByDefault<AutoSubscribe>();
-        Settings.EnableFeatureByDefault<InferredMessageTypeEnricherFeature>();
-        Settings.EnableFeatureByDefault<MessageDrivenSubscriptions>();
-        Settings.EnableFeatureByDefault<NativePublishSubscribeFeature>();
-        Settings.EnableFeatureByDefault<SubscriptionMigrationMode>();
-        Settings.EnableFeatureByDefault<AutoCorrelationFeature>();
-        Settings.EnableFeatureByDefault<PlatformRetryNotifications>();
+        var featureSettings = new FeatureComponent.Settings();
+
+        featureSettings.EnableFeatureByDefault<ReceiveStatisticsFeature>();
+        featureSettings.EnableFeatureByDefault<SerializationFeature>();
+        featureSettings.EnableFeatureByDefault<StaticHeaders>();
+        featureSettings.EnableFeatureByDefault<Features.Audit>();
+        featureSettings.EnableFeatureByDefault<MessageCausation>();
+        featureSettings.EnableFeatureByDefault<MessageCorrelation>();
+        featureSettings.EnableFeatureByDefault<DelayedDeliveryFeature>();
+        featureSettings.EnableFeatureByDefault<RootFeature>();
+        featureSettings.EnableFeatureByDefault<LicenseReminder>();
+        featureSettings.EnableFeatureByDefault<Mutators>();
+        featureSettings.EnableFeatureByDefault<TimeToBeReceived>();
+        featureSettings.EnableFeatureByDefault<Features.Sagas>();
+        featureSettings.EnableFeatureByDefault<AutoSubscribe>();
+        featureSettings.EnableFeatureByDefault<InferredMessageTypeEnricherFeature>();
+        featureSettings.EnableFeatureByDefault<MessageDrivenSubscriptions>();
+        featureSettings.EnableFeatureByDefault<NativePublishSubscribeFeature>();
+        featureSettings.EnableFeatureByDefault<SubscriptionMigrationMode>();
+        featureSettings.EnableFeatureByDefault<AutoCorrelationFeature>();
+        featureSettings.EnableFeatureByDefault<PlatformRetryNotifications>();
+
+        Settings.Set(featureSettings);
 
         ConventionsBuilder = new ConventionsBuilder(Settings);
     }
