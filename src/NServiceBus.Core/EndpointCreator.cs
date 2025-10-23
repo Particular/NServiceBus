@@ -38,6 +38,8 @@ class EndpointCreator
 
         var installerComponent = new InstallerComponent(installerSettings);
 
+        installerComponent.Initialize(settings);
+
         var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, installerComponent, serviceCollection);
 
         var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
