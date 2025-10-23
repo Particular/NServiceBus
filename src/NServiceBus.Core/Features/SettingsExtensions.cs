@@ -8,32 +8,8 @@ using Settings;
 /// <summary>
 /// Feature related extensions to the settings.
 /// </summary>
-public static class SettingsExtensions
+public static partial class SettingsExtensions
 {
-    /// <summary>
-    /// TODO Obsolete?
-    /// Marks the given feature as enabled by default.
-    /// </summary>
-    public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureComponent.Settings>().EnableFeatureByDefault<T>();
-        return settings;
-    }
-
-    /// <summary>
-    /// TODO Obsolete?
-    /// Marks the given feature as enabled by default.
-    /// </summary>
-    public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        ArgumentNullException.ThrowIfNull(featureType);
-
-        settings.Get<FeatureComponent.Settings>().EnableFeatureByDefault(featureType);
-        return settings;
-    }
-
     /// <summary>
     /// TODO Obsolete?
     /// Returns if a given feature has been activated in this endpoint.
