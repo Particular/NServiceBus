@@ -4,6 +4,7 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -135,7 +136,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
         {
         }
 
-        public IReadOnlyCollection<FeatureInfo> Features => added.Values;
+        public IReadOnlyCollection<FeatureInfo> Features => added;
 
         public void EnableFeature(Type featureType)
         {
@@ -233,7 +234,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
         void Add(Type featureType)
         {
             var featureName = Feature.GetFeatureName(featureType);
-            if (!added.ContainsKey(featureName))
+            if (!added.Contains(featureName))
             {
                 Add(factory.CreateFeature(featureType));
             }
@@ -250,7 +251,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
             // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
             featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
-            added.Add(featureInfo.Name, featureInfo);
+            added.Add(featureInfo);
 
             var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabledByDefault.Count);
             foreach (var toEnableByDefault in feature.ToBeEnabledByDefault)
@@ -269,7 +270,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
             {
                 foreach ((string featureName, Type? dependentFeatureType) in dependencies)
                 {
-                    if (added.ContainsKey(featureName))
+                    if (added.Contains(featureName))
                     {
                         continue;
                     }
@@ -286,6 +287,11 @@ class FeatureComponent(FeatureComponent.Settings settings)
             return featureInfo;
         }
 
-        readonly Dictionary<string, FeatureInfo> added = [];
+        readonly FeatureInfoCollection added = [];
+
+        sealed class FeatureInfoCollection : KeyedCollection<string, FeatureInfo>
+        {
+            protected override string GetKeyForItem(FeatureInfo item) => item.Name;
+        }
     }
 }
