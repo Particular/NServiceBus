@@ -18,7 +18,7 @@ public class RunningEndpointInstanceTest
         var testInstance = new RunningEndpointInstance(
             settings,
             null,
-            new FeatureComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
             new TestableMessageSession(),
             null,
             new CancellationTokenSource(),

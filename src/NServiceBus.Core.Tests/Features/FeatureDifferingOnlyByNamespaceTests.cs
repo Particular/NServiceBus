@@ -25,8 +25,9 @@
 
             var settings = new SettingsHolder();
             var featureFactory = new FakeFeatureFactory();
-            var featureSettings = new FeatureComponent(featureFactory);
+            var featureSettings = new FeatureComponent.Settings(featureFactory);
             settings.Set(featureSettings);
+            var featureComponent = new FeatureComponent(featureSettings);
 
             featureFactory.Add(dependingFeature, feature);
 
@@ -35,7 +36,7 @@
 
             settings.EnableFeature<NamespaceA.MyFeature>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+            featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
             using (Assert.EnterMultipleScope())
             {

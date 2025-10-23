@@ -9,14 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Settings;
 
-class FeatureComponent(FeatureFactory factory) // for testing
+class FeatureComponent(FeatureComponent.Settings settings)
 {
-    public FeatureComponent() : this(new FeatureFactory())
-    {
-    }
-
-    internal List<FeatureDiagnosticData> Status => [.. added.Values.Select(f => f.Diagnostics)];
-
     public void Initialize(FeatureConfigurationContext featureConfigurationContext, SettingsHolder settings)
     {
         var featureStats = SetupFeatures(featureConfigurationContext, settings);
@@ -24,159 +18,10 @@ class FeatureComponent(FeatureFactory factory) // for testing
         settings.AddStartupDiagnosticsSection("Features", featureStats);
     }
 
-    public void EnableFeature(Type featureType)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(featureType));
-        }
-
-        info.Enable();
-    }
-
-    public void EnableFeature<T>() where T : Feature
-    {
-        var featureName = Feature.GetFeatureName(typeof(T));
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(typeof(T)));
-        }
-        info.Enable();
-    }
-
-    public void DisableFeature<T>() where T : Feature
-    {
-        var featureName = Feature.GetFeatureName(typeof(T));
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(typeof(T)));
-        }
-        info.Disable();
-    }
-
-    public void DisableFeature(Type featureType)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(featureType));
-        }
-        info.Disable();
-    }
-
-    public void EnableFeatureByDefault(Type featureType)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(featureType));
-        }
-        info.EnabledByDefault();
-    }
-
-    public void EnableFeatureByDefault<T>() where T : Feature
-    {
-        var featureName = Feature.GetFeatureName(typeof(T));
-        if (!added.TryGetValue(featureName, out var info))
-        {
-            info = AddCore(factory.CreateFeature(typeof(T)));
-        }
-        info.EnabledByDefault();
-    }
-
-    public bool IsFeature<T>(FeatureState state) where T : Feature
-    {
-        var featureName = Feature.GetFeatureName(typeof(T));
-        if (added.TryGetValue(featureName, out var info))
-        {
-            return info.In(state);
-        }
-        // backward compat with GetOrDefault
-        return state == FeatureState.Disabled;
-    }
-
-    public bool IsFeature(Type featureType, FeatureState state)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (added.TryGetValue(featureName, out var info))
-        {
-            return info.In(state);
-        }
-        // backward compat with GetOrDefault
-        return state == FeatureState.Disabled;
-    }
-
-    public void AddScannedTypes(IEnumerable<Type> availableTypes)
-    {
-        foreach (var featureType in availableTypes.Where(IsFeature))
-        {
-            Add(featureType);
-        }
-    }
-
-    static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
-
-    void Add(Type featureType)
-    {
-        var featureName = Feature.GetFeatureName(featureType);
-        if (!added.ContainsKey(featureName))
-        {
-            Add(factory.CreateFeature(featureType));
-        }
-    }
-
-    public void Add(Feature feature) => _ = AddCore(feature);
-
-    FeatureInfo AddCore(Feature feature)
-    {
-        if (added.TryGetValue(feature.Name, out var featureInfo))
-        {
-            return featureInfo;
-        }
-
-        // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
-        featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
-        added.Add(featureInfo.Name, featureInfo);
-
-        var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabledByDefault.Count);
-        foreach (var toEnableByDefault in feature.ToBeEnabledByDefault)
-        {
-            if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(toEnableByDefault.FeatureType));
-            }
-
-            featuresToEnableByDefault.Add(info);
-        }
-
-        featureInfo.UpdateDependencies(featuresToEnableByDefault);
-
-        foreach (var dependencies in feature.Dependencies)
-        {
-            foreach ((string featureName, Type? dependentFeatureType) in dependencies)
-            {
-                if (added.ContainsKey(featureName))
-                {
-                    continue;
-                }
-
-                // when the feature type is null we assume there is a weak dependency to a feature that was only referenced by
-                // the name but must have been or will be added later to be taken into account by the dependency walking
-                if (dependentFeatureType is not null)
-                {
-                    _ = AddCore(factory.CreateFeature(dependentFeatureType));
-                }
-            }
-        }
-
-        return featureInfo;
-    }
-
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext, SettingsHolder settings)
     {
         // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
-        var sourceFeatures = added.Values.Sort();
+        var sourceFeatures = features.Sort();
 
         while (true)
         {
@@ -195,7 +40,7 @@ class FeatureComponent(FeatureFactory factory) // for testing
             _ = ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
         }
 
-        return [.. added.Values.Select(t => t.Diagnostics)];
+        return [.. features.Select(t => t.Diagnostics)];
     }
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
@@ -234,14 +79,16 @@ class FeatureComponent(FeatureFactory factory) // for testing
         return Task.WhenAll(featureStopTasks);
     }
 
-    static bool ActivateFeature(FeatureInfo featureInfo, IReadOnlyCollection<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
+    static bool ActivateFeature(FeatureInfo featureInfo, IReadOnlyCollection<FeatureInfo> featuresToActivate,
+        FeatureConfigurationContext featureConfigurationContext)
     {
         if (featureInfo.IsActive)
         {
             return true;
         }
 
-        if (featureInfo.DependencyNames.All(dependencyNames => DependencyActivator(dependencyNames, featuresToActivate, featureConfigurationContext)))
+        if (featureInfo.DependencyNames.All(dependencyNames =>
+                DependencyActivator(dependencyNames, featuresToActivate, featureConfigurationContext)))
         {
             featureInfo.Diagnostics.DependenciesAreMet = true;
 
@@ -260,11 +107,13 @@ class FeatureComponent(FeatureFactory factory) // for testing
 
             return true;
         }
+
         featureInfo.Deactivate();
         featureInfo.Diagnostics.DependenciesAreMet = false;
         return false;
 
-        static bool DependencyActivator(IReadOnlyCollection<string> dependencyNames, IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
+        static bool DependencyActivator(IReadOnlyCollection<string> dependencyNames,
+            IReadOnlyCollection<FeatureInfo> enabledFeatures, FeatureConfigurationContext featureConfigurationContext)
         {
             var dependentFeaturesToActivate = dependencyNames
                 .Select(dependencyName => enabledFeatures.SingleOrDefault(f => f.Name == dependencyName))
@@ -272,10 +121,171 @@ class FeatureComponent(FeatureFactory factory) // for testing
                 .Select(dependency => dependency!)
                 .ToList();
 
-            return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, enabledFeatures, featureConfigurationContext));
+            return dependentFeaturesToActivate.Aggregate(false,
+                (current, f) => current | ActivateFeature(f, enabledFeatures, featureConfigurationContext));
         }
     }
 
     readonly List<FeatureInfo> enabledFeatures = [];
-    readonly Dictionary<string, FeatureInfo> added = [];
+    readonly IReadOnlyCollection<FeatureInfo> features = settings.Features;
+
+    public class Settings(FeatureFactory factory)
+    {
+        public Settings() : this(new FeatureFactory())
+        {
+        }
+
+        public IReadOnlyCollection<FeatureInfo> Features => added.Values;
+
+        public void EnableFeature(Type featureType)
+        {
+            var featureName = Feature.GetFeatureName(featureType);
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(featureType));
+            }
+
+            info.Enable();
+        }
+
+        public void EnableFeature<T>() where T : Feature
+        {
+            var featureName = Feature.GetFeatureName(typeof(T));
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(typeof(T)));
+            }
+            info.Enable();
+        }
+
+        public void DisableFeature<T>() where T : Feature
+        {
+            var featureName = Feature.GetFeatureName(typeof(T));
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(typeof(T)));
+            }
+            info.Disable();
+        }
+
+        public void DisableFeature(Type featureType)
+        {
+            var featureName = Feature.GetFeatureName(featureType);
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(featureType));
+            }
+            info.Disable();
+        }
+
+        public void EnableFeatureByDefault(Type featureType)
+        {
+            var featureName = Feature.GetFeatureName(featureType);
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(featureType));
+            }
+            info.EnabledByDefault();
+        }
+
+        public void EnableFeatureByDefault<T>() where T : Feature
+        {
+            var featureName = Feature.GetFeatureName(typeof(T));
+            if (!added.TryGetValue(featureName, out var info))
+            {
+                info = AddCore(factory.CreateFeature(typeof(T)));
+            }
+            info.EnabledByDefault();
+        }
+
+        public bool IsFeature<T>(FeatureState state) where T : Feature
+        {
+            var featureName = Feature.GetFeatureName(typeof(T));
+            if (added.TryGetValue(featureName, out var info))
+            {
+                return info.In(state);
+            }
+            // backward compat with GetOrDefault
+            return state == FeatureState.Disabled;
+        }
+
+        public bool IsFeature(Type featureType, FeatureState state)
+        {
+            var featureName = Feature.GetFeatureName(featureType);
+            if (added.TryGetValue(featureName, out var info))
+            {
+                return info.In(state);
+            }
+            // backward compat with GetOrDefault
+            return state == FeatureState.Disabled;
+        }
+
+        public void AddScannedTypes(IEnumerable<Type> availableTypes)
+        {
+            foreach (var featureType in availableTypes.Where(IsFeature))
+            {
+                Add(featureType);
+            }
+        }
+
+        static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
+
+        void Add(Type featureType)
+        {
+            var featureName = Feature.GetFeatureName(featureType);
+            if (!added.ContainsKey(featureName))
+            {
+                Add(factory.CreateFeature(featureType));
+            }
+        }
+
+        public void Add(Feature feature) => _ = AddCore(feature);
+
+        FeatureInfo AddCore(Feature feature)
+        {
+            if (added.TryGetValue(feature.Name, out var featureInfo))
+            {
+                return featureInfo;
+            }
+
+            // The actual list of dependency names can be different from the found hard-wired dependencies due to the DependsOn allowing to do weak typing.
+            featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
+            added.Add(featureInfo.Name, featureInfo);
+
+            var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabledByDefault.Count);
+            foreach (var toEnableByDefault in feature.ToBeEnabledByDefault)
+            {
+                if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
+                {
+                    info = AddCore(factory.CreateFeature(toEnableByDefault.FeatureType));
+                }
+
+                featuresToEnableByDefault.Add(info);
+            }
+
+            featureInfo.UpdateDependencies(featuresToEnableByDefault);
+
+            foreach (var dependencies in feature.Dependencies)
+            {
+                foreach ((string featureName, Type? dependentFeatureType) in dependencies)
+                {
+                    if (added.ContainsKey(featureName))
+                    {
+                        continue;
+                    }
+
+                    // when the feature type is null we assume there is a weak dependency to a feature that was only referenced by
+                    // the name but must have been or will be added later to be taken into account by the dependency walking
+                    if (dependentFeatureType is not null)
+                    {
+                        _ = AddCore(factory.CreateFeature(dependentFeatureType));
+                    }
+                }
+            }
+
+            return featureInfo;
+        }
+
+        readonly Dictionary<string, FeatureInfo> added = [];
+    }
 }
