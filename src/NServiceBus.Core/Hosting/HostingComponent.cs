@@ -9,14 +9,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Support;
 
-partial class HostingComponent(HostingComponent.Configuration configuration)
+partial class HostingComponent(HostingComponent.Configuration configuration, InstallerComponent installerComponent)
 {
     internal Configuration Config => configuration;
 
     public static HostingComponent Initialize(Configuration configuration)
     {
-        configuration.InstallerRegistry.AddScannedInstallers(configuration.AvailableTypes);
-
         var serviceCollection = configuration.Services;
 
         serviceCollection.AddSingleton(_ => configuration.HostInformation);
@@ -45,10 +43,11 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             HostName = Dns.GetHostName(),
             Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
-            Installers = configuration.InstallerRegistry.GetDiagnostics()
+            InstallersEnabled = configuration.ShouldRunInstallers,
+            Installers = configuration.InstallerComponent.GetDiagnostics()
         });
 
-        return new HostingComponent(configuration);
+        return new HostingComponent(configuration, configuration.InstallerComponent);
     }
 
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
@@ -58,7 +57,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration)
             return;
         }
 
-        await configuration.InstallerRegistry.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
+        await installerComponent.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task WriteDiagnosticsFile(CancellationToken cancellationToken = default)
