@@ -24,14 +24,19 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            var featureFactory = new FakeFeatureFactory();
+            var featureSettings = new FeatureComponent.Settings(featureFactory);
+            settings.Set(featureSettings);
+            var featureComponent = new FeatureComponent(featureSettings);
+
+            featureFactory.Add(dependingFeature, feature);
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            settings.EnableFeatureByDefault<NamespaceA.MyFeature>();
+            featureSettings.EnableFeature<NamespaceA.MyFeature>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
             using (Assert.EnterMultipleScope())
             {

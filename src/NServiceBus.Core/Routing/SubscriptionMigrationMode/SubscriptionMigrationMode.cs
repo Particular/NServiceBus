@@ -6,11 +6,10 @@ using Transport;
 using Unicast.Messages;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-class SubscriptionMigrationMode : Feature
+sealed class SubscriptionMigrationMode : Feature
 {
     public SubscriptionMigrationMode()
     {
-        EnableByDefault();
         Prerequisite(c => c.Settings.Get<TransportDefinition>().SupportsPublishSubscribe, "The transport does not support native pub sub");
         Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled subscription migration mode");
     }

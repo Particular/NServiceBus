@@ -5,34 +5,22 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Features;
 using Settings;
 using Transport;
 
-class StartableEndpoint
+class StartableEndpoint(
+    SettingsHolder settings,
+    FeatureComponent featureComponent,
+    ReceiveComponent receiveComponent,
+    TransportSeam transportSeam,
+    PipelineComponent pipelineComponent,
+    RecoverabilityComponent recoverabilityComponent,
+    HostingComponent hostingComponent,
+    SendComponent sendComponent,
+    IServiceProvider serviceProvider,
+    bool serviceProviderIsExternallyManaged)
 {
-    public StartableEndpoint(SettingsHolder settings,
-        FeatureComponent featureComponent,
-        ReceiveComponent receiveComponent,
-        TransportSeam transportSeam,
-        PipelineComponent pipelineComponent,
-        RecoverabilityComponent recoverabilityComponent,
-        HostingComponent hostingComponent,
-        SendComponent sendComponent,
-        IServiceProvider serviceProvider,
-        bool serviceProviderIsExternallyManaged)
-    {
-        this.settings = settings;
-        this.featureComponent = featureComponent;
-        this.receiveComponent = receiveComponent;
-        this.transportSeam = transportSeam;
-        this.pipelineComponent = pipelineComponent;
-        this.recoverabilityComponent = recoverabilityComponent;
-        this.hostingComponent = hostingComponent;
-        this.sendComponent = sendComponent;
-        this.serviceProvider = serviceProvider;
-        this.serviceProviderIsExternallyManaged = serviceProviderIsExternallyManaged;
-    }
-
     public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(serviceProvider, cancellationToken);
 
     public async Task Setup(CancellationToken cancellationToken = default)
@@ -65,7 +53,7 @@ class StartableEndpoint
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
         }
 
-        await featureComponent.Start(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
+        await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
 
         await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
@@ -79,17 +67,6 @@ class StartableEndpoint
 
         return runningInstance;
     }
-
-    readonly PipelineComponent pipelineComponent;
-    readonly RecoverabilityComponent recoverabilityComponent;
-    readonly HostingComponent hostingComponent;
-    readonly SendComponent sendComponent;
-    readonly IServiceProvider serviceProvider;
-    readonly bool serviceProviderIsExternallyManaged;
-    readonly FeatureComponent featureComponent;
-    readonly SettingsHolder settings;
-    readonly ReceiveComponent receiveComponent;
-    readonly TransportSeam transportSeam;
 
     MessageSession messageSession;
     TransportInfrastructure transportInfrastructure;

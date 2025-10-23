@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 static class TypeExtensionMethods
 {
@@ -31,6 +32,7 @@ static class TypeExtensionMethods
         {
             return type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
         return false;
     }
 
@@ -65,7 +67,8 @@ static class TypeExtensionMethods
 
                 return result;
             }
-            return Type.GetTypeFromHandle(typeHandle).Name;
+
+            return Type.GetTypeFromHandle(typeHandle)?.Name;
         }, t);
 
     static bool IsClrType(ReadOnlySpan<byte> publicKeyToken) => publicKeyToken.SequenceEqual(MsPublicKeyToken);
@@ -82,16 +85,16 @@ static class TypeExtensionMethods
         return result;
     }
 
-    public static bool IsFromParticularAssembly(this Type type) =>
-        type.Assembly.GetName()
+    public static bool IsFromParticularAssembly(this Type type) => IsParticularAssembly(type.Assembly);
+
+    public static bool IsParticularAssembly(this Assembly assembly) =>
+        assembly.GetName()
             .GetPublicKeyToken()
             .SequenceEqual(nsbPublicKeyToken);
 
     static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+    static readonly byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
 
     static readonly ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new();
-
     static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new();
-
-    static readonly byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
 }

@@ -5,7 +5,9 @@
 /// </summary>
 public class PlatformRetryNotifications : Feature
 {
-    PlatformRetryNotifications() => EnableByDefault();
+    PlatformRetryNotifications()
+    {
+    }
 
     /// <inheritdoc />
     protected internal override void Setup(FeatureConfigurationContext context)

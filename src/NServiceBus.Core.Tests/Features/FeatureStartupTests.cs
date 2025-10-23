@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,10 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
     }
 
     [Test]
@@ -23,12 +27,14 @@ public class FeatureStartupTests
     {
         var feature = new FeatureWithStartupTask();
 
+        featureFactory.Add(feature);
+
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         using (Assert.EnterMultipleScope())
         {
@@ -42,13 +48,18 @@ public class FeatureStartupTests
     {
         var orderBuilder = new StringBuilder();
 
-        featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
-        featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
+        var featureWithStartupTaskWithDependency = new FeatureWithStartupTaskWithDependency(orderBuilder);
+        var featureWithStartupThatAnotherFeatureDependsOn = new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        featureSettings.Add(featureWithStartupTaskWithDependency);
+        featureSettings.Add(featureWithStartupThatAnotherFeatureDependsOn);
+
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         var expectedOrderBuilder = new StringBuilder();
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
@@ -66,10 +77,10 @@ public class FeatureStartupTests
 
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         Assert.That(feature.TaskDisposed, Is.True);
     }
@@ -85,9 +96,9 @@ public class FeatureStartupTests
         featureSettings.Add(feature2);
         featureSettings.Add(feature3);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureComponent.StartFeatures(null, null));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.Message, Is.EqualTo("feature2"));
@@ -109,11 +120,11 @@ public class FeatureStartupTests
         featureSettings.Add(feature1);
         featureSettings.Add(feature2);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(null));
+        Assert.DoesNotThrowAsync(async () => await featureComponent.StopFeatures(null));
 
         using (Assert.EnterMultipleScope())
         {
@@ -128,16 +139,18 @@ public class FeatureStartupTests
         var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StopFeatures(null);
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
-    FeatureActivator featureSettings;
+    FeatureComponent.Settings featureSettings;
     SettingsHolder settings;
+    FakeFeatureFactory featureFactory;
+    FeatureComponent featureComponent;
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {
@@ -228,13 +241,16 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskThatThrows : TestFeature
     {
-        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null)
+        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null, [CallerArgumentExpression(nameof(throwOnStart))] string throwOnStartExpression = null, [CallerArgumentExpression(nameof(throwOnStop))] string throwOnStopExpression = null)
         {
             this.throwOnStart = throwOnStart;
             this.throwOnStop = throwOnStop;
             this.createException = createException ?? (() => new InvalidOperationException());
 
             EnableByDefault();
+
+            // This is a hack to bypass the restriction that the same feature type can't be added twice
+            Name = $"{GetType().FullName}.{throwOnStartExpression}.{throwOnStopExpression}";
         }
 
         public bool TaskStartCalled { get; private set; }

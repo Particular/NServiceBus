@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Features;
 using Hosting.Helpers;
 using Support;
 
@@ -31,12 +32,12 @@ public static class EndpointConfigurationExtensions
         var assemblyScanner = new AssemblyScanner { ScanFileSystemAssemblies = false };
 
         config.TypesToIncludeInScan(
-            assemblyScanner.GetScannableAssemblies().Types
+            [.. assemblyScanner.GetScannableAssemblies().Types
                 .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
                 .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
+                .Where(t => !t.IsAssignableTo(typeof(Feature))) //remove once we default the tests to not use scanning
                 .Union(customizationConfiguration.TypesToInclude)
-                .Except(customizationConfiguration.TypesToExclude)
-                .ToList());
+                .Except(customizationConfiguration.TypesToExclude)]);
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {

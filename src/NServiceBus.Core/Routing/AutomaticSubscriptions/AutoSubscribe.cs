@@ -15,11 +15,7 @@ using Unicast.Queuing;
 /// </summary>
 public class AutoSubscribe : Feature
 {
-    internal AutoSubscribe()
-    {
-        EnableByDefault();
-        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
-    }
+    internal AutoSubscribe() => Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
 
     /// <summary>
     /// See <see cref="Feature.Setup" />.

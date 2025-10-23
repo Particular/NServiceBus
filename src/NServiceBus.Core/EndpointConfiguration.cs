@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
+using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
@@ -38,6 +39,30 @@ public partial class EndpointConfiguration : ExposeSettings
         Settings.Set(new RecoverabilityComponent.Configuration());
         Settings.Set(new ConsecutiveFailuresConfiguration());
         Settings.Set(Pipeline = new PipelineSettings(Settings));
+
+        var featureSettings = new FeatureComponent.Settings();
+
+        featureSettings.EnableFeatureByDefault<ReceiveStatisticsFeature>();
+        featureSettings.EnableFeatureByDefault<SerializationFeature>();
+        featureSettings.EnableFeatureByDefault<StaticHeaders>();
+        featureSettings.EnableFeatureByDefault<Features.Audit>();
+        featureSettings.EnableFeatureByDefault<MessageCausation>();
+        featureSettings.EnableFeatureByDefault<MessageCorrelation>();
+        featureSettings.EnableFeatureByDefault<DelayedDeliveryFeature>();
+        featureSettings.EnableFeatureByDefault<RootFeature>();
+        featureSettings.EnableFeatureByDefault<LicenseReminder>();
+        featureSettings.EnableFeatureByDefault<Mutators>();
+        featureSettings.EnableFeatureByDefault<TimeToBeReceived>();
+        featureSettings.EnableFeatureByDefault<Features.Sagas>();
+        featureSettings.EnableFeatureByDefault<AutoSubscribe>();
+        featureSettings.EnableFeatureByDefault<InferredMessageTypeEnricherFeature>();
+        featureSettings.EnableFeatureByDefault<MessageDrivenSubscriptions>();
+        featureSettings.EnableFeatureByDefault<NativePublishSubscribeFeature>();
+        featureSettings.EnableFeatureByDefault<SubscriptionMigrationMode>();
+        featureSettings.EnableFeatureByDefault<AutoCorrelationFeature>();
+        featureSettings.EnableFeatureByDefault<PlatformRetryNotifications>();
+
+        Settings.Set(featureSettings);
 
         ConventionsBuilder = new ConventionsBuilder(Settings);
     }
