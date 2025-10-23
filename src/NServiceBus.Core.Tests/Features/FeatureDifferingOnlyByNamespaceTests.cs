@@ -34,7 +34,7 @@
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            settings.EnableFeature<NamespaceA.MyFeature>();
+            featureSettings.EnableFeature<NamespaceA.MyFeature>();
 
             featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
