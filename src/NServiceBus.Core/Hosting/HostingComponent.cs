@@ -43,8 +43,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
             HostName = Dns.GetHostName(),
             Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
-            InstallersEnabled = configuration.ShouldRunInstallers,
-            Installers = configuration.InstallerComponent.GetDiagnostics()
+            InstallersEnabled = configuration.ShouldRunInstallers
         });
 
         return new HostingComponent(configuration, configuration.InstallerComponent);
