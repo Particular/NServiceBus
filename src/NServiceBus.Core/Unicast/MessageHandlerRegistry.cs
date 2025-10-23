@@ -74,8 +74,6 @@ public class MessageHandlerRegistry
     /// </summary>
     public void RegisterHandler<THandler>() where THandler : IHandleMessages => RegisterHandlerInternal(typeof(THandler));
 
-    internal void RegisterTimeoutHandler<THandler>() where THandler : IHandleTimeouts => RegisterHandlerInternal(typeof(THandler));
-
     void RegisterHandlerInternal(Type handlerType)
     {
         ArgumentNullException.ThrowIfNull(handlerType);
