@@ -17,10 +17,11 @@ public static class EndpointConfigurationExtensions
     public static void EnableFeature<T>(this EndpointConfiguration config) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(config);
-        config.Settings.EnableFeature<T>();
+        config.Settings.Get<FeatureComponent.Settings>().EnableFeature<T>();
     }
 
     /// <summary>
+    /// TODO Obsolete?
     /// Enables the given feature.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
@@ -30,7 +31,7 @@ public static class EndpointConfigurationExtensions
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(featureType);
 
-        config.Settings.EnableFeature(featureType);
+        config.Settings.Get<FeatureComponent.Settings>().EnableFeature(featureType);
     }
 
     /// <summary>
@@ -40,10 +41,11 @@ public static class EndpointConfigurationExtensions
     public static void DisableFeature<T>(this EndpointConfiguration config) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(config);
-        config.Settings.DisableFeature<T>();
+        config.Settings.Get<FeatureComponent.Settings>().DisableFeature<T>();
     }
 
     /// <summary>
+    /// TODO Obsolete?
     /// Enables the given feature.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
@@ -53,6 +55,6 @@ public static class EndpointConfigurationExtensions
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(featureType);
 
-        config.Settings.DisableFeature(featureType);
+        config.Settings.Get<FeatureComponent.Settings>().DisableFeature(featureType);
     }
 }

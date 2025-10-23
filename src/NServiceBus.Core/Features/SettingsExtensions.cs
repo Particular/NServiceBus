@@ -22,6 +22,15 @@ public static partial class SettingsExtensions
     }
 
     /// <summary>
+    /// Returns if a given feature has been activated in this endpoint.
+    /// </summary>
+    public static bool IsFeatureActive<T>(this IReadOnlySettings settings) where T : Feature
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        return settings.Get<FeatureComponent.Settings>().IsFeature<T>(FeatureState.Active);
+    }
+
+    /// <summary>
     /// TODO Obsolete?
     /// Returns if a given feature has been enabled in this endpoint.
     /// </summary>
@@ -32,33 +41,12 @@ public static partial class SettingsExtensions
         return settings.Get<FeatureComponent.Settings>().IsFeature(featureType, FeatureState.Enabled);
     }
 
-    internal static bool IsFeatureEnabled<T>(this IReadOnlySettings settings) where T : Feature
+    /// <summary>
+    /// Returns if a given feature has been enabled in this endpoint.
+    /// </summary>
+    public static bool IsFeatureEnabled<T>(this IReadOnlySettings settings) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(settings);
         return settings.Get<FeatureComponent.Settings>().IsFeature<T>(FeatureState.Enabled);
-    }
-
-    internal static void EnableFeature<T>(this SettingsHolder settings) where T : Feature
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureComponent.Settings>().EnableFeature<T>();
-    }
-
-    internal static void EnableFeature(this SettingsHolder settings, Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureComponent.Settings>().EnableFeature(featureType);
-    }
-
-    internal static void DisableFeature<T>(this SettingsHolder settings) where T : Feature
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureComponent.Settings>().DisableFeature<T>();
-    }
-
-    internal static void DisableFeature(this SettingsHolder settings, Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-        settings.Get<FeatureComponent.Settings>().DisableFeature(featureType);
     }
 }

@@ -1323,7 +1323,11 @@ namespace NServiceBus.Features
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
         public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureActive<T>(this NServiceBus.Settings.IReadOnlySettings settings)
+            where T : NServiceBus.Features.Feature { }
         public static bool IsFeatureEnabled(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
+        public static bool IsFeatureEnabled<T>(this NServiceBus.Settings.IReadOnlySettings settings)
+            where T : NServiceBus.Features.Feature { }
     }
     public class SynchronizedStorage : NServiceBus.Features.Feature
     {
