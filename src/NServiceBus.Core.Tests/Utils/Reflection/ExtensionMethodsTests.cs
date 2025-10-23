@@ -35,36 +35,31 @@ public class ExtensionMethodsTests
         }
     }
 
-    public class Target
+    class Target
     {
-        public string Property1 { get; set; }
     }
 
     [Test]
-    public void Should_return_false_for_SN_and_non_particular_assembly()
-    {
-        Assert.That(typeof(string).IsFromParticularAssembly(), Is.False);
-    }
+    public void Should_return_false_for_type_in_SN_and_non_particular_assembly() => Assert.That(typeof(string).IsFromParticularAssembly(), Is.False);
 
     [Test]
-    public void Should_return_true_for_particular_assembly()
-    {
-        Assert.That(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly(), Is.True);
-    }
+    public void Should_return_true_for_type_from_particular_assembly() => Assert.That(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly(), Is.True);
 
     [Test]
-    public void Should_return_false_for_non_SN_and_non_particular_assembly()
-    {
-        var type = GetNonSnFakeType();
-        Assert.That(type.IsFromParticularAssembly(), Is.False);
-    }
+    public void Should_return_false_for_type_in_non_SN_and_non_particular_assembly() => Assert.That(GetNonSnFakeType().IsFromParticularAssembly(), Is.False);
+
+    [Test]
+    public void Should_return_false_for_SN_and_non_particular_assembly() => Assert.That(typeof(string).Assembly.IsParticularAssembly(), Is.False);
+
+    [Test]
+    public void Should_return_true_for_particular_assembly() => Assert.That(typeof(TransportReceiveToPhysicalMessageConnector).Assembly.IsParticularAssembly(), Is.True);
+
+    [Test]
+    public void Should_return_false_for_non_SN_and_non_particular_assembly() => Assert.That(GetNonSnFakeType().Assembly.IsParticularAssembly(), Is.False);
 
     static Type GetNonSnFakeType()
     {
-        var assemblyName = new AssemblyName
-        {
-            Name = "myAssembly"
-        };
+        var assemblyName = new AssemblyName { Name = "myAssembly" };
         var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
         var newModule = assemblyBuilder.DefineDynamicModule("myModule");
         var myType = newModule.DefineType("myType", TypeAttributes.Public);

@@ -22,10 +22,10 @@ partial class HostingComponent
             settings.SetDefault(DisplayNameSettingsKey, RuntimeEnvironment.MachineName);
             settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
             {
-                {"Machine", RuntimeEnvironment.MachineName},
-                {"ProcessID", Environment.ProcessId.ToString()},
-                {"UserName", Environment.UserName},
-                {"PathToExecutable", fullPathToStartingExe}
+                { "Machine", RuntimeEnvironment.MachineName },
+                { "ProcessID", Environment.ProcessId.ToString() },
+                { "UserName", Environment.UserName },
+                { "PathToExecutable", fullPathToStartingExe }
             });
 
             settings.Set(new StartupDiagnosticEntries());
@@ -44,8 +44,6 @@ partial class HostingComponent
         }
 
         public string EndpointName => settings.EndpointName();
-
-        public string Discriminator => settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
 
         public Dictionary<string, string> Properties
         {
@@ -74,12 +72,6 @@ partial class HostingComponent
         }
 
         public List<Action<IServiceCollection>> UserRegistrations { get; } = [];
-
-        public string? InstallationUserName
-        {
-            get => settings.GetOrDefault<string>("Installers.UserName");
-            set => settings.Set("Installers.UserName", value);
-        }
 
         public bool ShouldRunInstallers
         {

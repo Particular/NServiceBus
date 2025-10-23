@@ -30,7 +30,17 @@ class EndpointCreator
 
         endpointConfiguration.Settings.ConfigurePersistence();
 
-        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), assemblyScanningComponent, serviceCollection);
+        var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
+
+        var installerSettings = settings.Get<InstallerComponent.Settings>();
+
+        installerSettings.AddScannedInstallers(availableTypes);
+
+        var installerComponent = new InstallerComponent(installerSettings);
+
+        installerComponent.Initialize(settings);
+
+        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, installerComponent, serviceCollection);
 
         var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
         endpointCreator.Configure();
@@ -147,10 +157,7 @@ class EndpointCreator
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-        {
-            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
-        });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
 
         return new StartableEndpoint(settings,
             featureComponent,

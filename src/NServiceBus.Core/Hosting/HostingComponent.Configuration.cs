@@ -3,21 +3,15 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hosting;
-using Installation;
 using Microsoft.Extensions.DependencyInjection;
 
 partial class HostingComponent
 {
-    static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
-
-    public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
+    public static Configuration PrepareConfiguration(Settings settings, List<Type> availableTypes, InstallerComponent installerComponent, IServiceCollection serviceCollection)
     {
-        var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-
         var configuration = new Configuration(settings,
             availableTypes,
             new CriticalError(settings.CustomCriticalErrorAction),
@@ -26,10 +20,10 @@ partial class HostingComponent
             settings.HostDiagnosticsWriter,
             settings.EndpointName,
             serviceCollection,
-            settings.InstallationUserName,
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
-            settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
+            settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
+            installerComponent);
 
         return configuration;
     }
@@ -44,10 +38,10 @@ partial class HostingComponent
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
             string endpointName,
             IServiceCollection services,
-            string? installationUserName,
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
-            IActivityFactory activityFactory)
+            IActivityFactory activityFactory,
+            InstallerComponent installerComponent)
         {
             AvailableTypes = availableTypes;
             CriticalError = criticalError;
@@ -56,10 +50,10 @@ partial class HostingComponent
             HostDiagnosticsWriter = hostDiagnosticsWriter;
             EndpointName = endpointName;
             Services = services;
-            InstallationUserName = installationUserName;
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
+            InstallerComponent = installerComponent;
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -85,10 +79,10 @@ partial class HostingComponent
 
         public bool ShouldRunInstallers { get; }
 
-        public string? InstallationUserName { get; }
-
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 
         public IActivityFactory ActivityFactory { get; set; }
+
+        public InstallerComponent InstallerComponent { get; }
     }
 }
