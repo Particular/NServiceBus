@@ -4,6 +4,8 @@ namespace NServiceBus.Persistence;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Features;
 using Settings;
 
@@ -20,12 +22,12 @@ public abstract partial class PersistenceDefinition
         where TFeature : Feature
     {
         var storageType = StorageType.Get<TStorage>();
-        if (storageToFeatureMap.TryGetValue(storageType, out var supportedStorageType))
+        if (storageToFeature.TryGetValue(storageType, out var feature))
         {
-            throw new Exception($"Storage {typeof(TStorage)} is already supported by {supportedStorageType}");
+            throw new Exception($"Storage {storageType} is already supported by {feature.SupportedBy}");
         }
 
-        storageToFeatureMap[storageType] = typeof(TFeature);
+        storageToFeature.Add(new StorageFeature<TFeature>(storageType));
     }
 
     /// <summary>
@@ -45,9 +47,10 @@ public abstract partial class PersistenceDefinition
     internal string Name => GetType().Name;
     internal string FullName => GetType().FullName ?? Name;
 
-    internal bool HasSupportFor(StorageType storageType) => storageToFeatureMap.ContainsKey(storageType);
+    internal bool HasSupportFor(StorageType storageType) => storageToFeature.Contains(storageType);
 
-    internal Type GetFeatureForStorage(StorageType storageType) => storageToFeatureMap[storageType];
+    internal void Apply(StorageType forStorageType, FeatureComponent.Settings toSettings)
+        => storageToFeature[forStorageType].Apply(toSettings);
 
     internal void ApplyDefaults(SettingsHolder settings)
     {
@@ -58,8 +61,29 @@ public abstract partial class PersistenceDefinition
     }
 
     internal IReadOnlyCollection<StorageType> GetSupportedStorages(IReadOnlyCollection<StorageType> selectedStorages) =>
-        selectedStorages.Count > 0 ? selectedStorages : [.. storageToFeatureMap.Keys];
+        selectedStorages.Count > 0 ? selectedStorages : [.. storageToFeature.Select(x => x.StorageType)];
 
     readonly List<Action<SettingsHolder>> defaults = [];
-    readonly Dictionary<StorageType, Type> storageToFeatureMap = [];
+    readonly StorageTypeToFeatureMap storageToFeature = [];
+
+    class StorageTypeToFeatureMap : KeyedCollection<StorageType, IStorageFeature>
+    {
+        protected override StorageType GetKeyForItem(IStorageFeature item) => item.StorageType;
+    }
+
+    interface IStorageFeature
+    {
+        StorageType StorageType { get; }
+
+        string SupportedBy { get; }
+
+        void Apply(FeatureComponent.Settings settings);
+    }
+    class StorageFeature<TFeature>(StorageType storageType) : IStorageFeature
+        where TFeature : Feature
+    {
+        public string SupportedBy { get; } = Feature.GetFeatureName<TFeature>();
+        public StorageType StorageType { get; } = storageType;
+        public void Apply(FeatureComponent.Settings settings) => settings.EnableFeatureByDefault<TFeature>();
+    }
 }

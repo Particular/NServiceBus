@@ -207,6 +207,9 @@ public abstract class Feature
         }
     }
 
+    internal static string GetFeatureName<TFeature>() where TFeature : Feature
+        => typeof(TFeature).FullName!;
+
     internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
