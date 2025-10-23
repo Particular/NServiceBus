@@ -2320,7 +2320,8 @@ namespace NServiceBus.Unicast
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
         [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'RegisterHandler<THandle" +
-            "r>()\' instead. Will be removed in version 11.0.0.", true)]
+            "r>()\' instead. Will be treated as an error from version 11.0.0. Will be removed " +
+            "in version 12.0.0.", false)]
         public void RegisterHandler(System.Type handlerType) { }
         public void RegisterHandler<THandler>()
             where THandler : NServiceBus.IHandleMessages { }

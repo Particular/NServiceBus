@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using FastExpressionCompiler;
 using Logging;
@@ -57,11 +59,15 @@ public class MessageHandlerRegistry
     /// Registers the given potential handler type.
     /// </summary>
     [ObsoleteMetadata(Message = "Deprecated in favor of a strongly-typed alternative",
-        TreatAsErrorFromVersion = "10",
-        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12",
         ReplacementTypeOrMember = "RegisterHandler<THandler>()")]
-    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'RegisterHandler<THandler>()' instead. Will be removed in version 11.0.0.", true)]
-    public void RegisterHandler(Type handlerType) => throw new NotImplementedException();
+    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'RegisterHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    public void RegisterHandler(Type handlerType) =>
+        typeof(MessageHandlerRegistry)
+            .GetMethod(nameof(RegisterHandler), BindingFlags.Public | BindingFlags.Instance, [])!
+            .MakeGenericMethod(handlerType)
+            .Invoke(this, []);
 
     /// <summary>
     /// Registers the given potential handler type.
