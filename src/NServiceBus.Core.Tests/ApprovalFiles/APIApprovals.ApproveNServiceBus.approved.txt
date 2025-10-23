@@ -1313,7 +1313,13 @@ namespace NServiceBus.Features
     }
     public static class SettingsExtensions
     {
+        [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
+            "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
+            " be removed in version 11.0.0.", true)]
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault(this NServiceBus.Settings.SettingsHolder settings, System.Type featureType) { }
+        [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
+            "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
+            " be removed in version 11.0.0.", true)]
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
         public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
