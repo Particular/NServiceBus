@@ -33,7 +33,7 @@ static class PersistenceComponent
             foreach (var storageType in enabledPersistence.SelectedStorages)
             {
                 Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", persistenceDefinition.Name, storageType);
-                settings.EnableFeatureByDefault(persistenceDefinition.GetFeatureForStorage(storageType));
+                persistenceDefinition.Apply(storageType, settings.Get<FeatureComponent.Settings>());
                 resultingSupportedStorages.Add(storageType);
 
                 diagnostics.Add(storageType.ToString(), new
