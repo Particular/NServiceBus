@@ -181,18 +181,21 @@ public class MessageHandlerRegistry
         return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).CompileFast();
     }
 
-    static Type[] GetMessageTypesBeingHandledBy(Type type)
-    {
-        return (from t in type.GetInterfaces()
-                where t.IsGenericType
-                let potentialMessageType = t.GetGenericArguments()[0]
-                where
-                typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                select potentialMessageType)
+    static Type[] GetMessageTypesBeingHandledBy(Type type) =>
+        type.GetInterfaces()
+            .Where(t =>
+            {
+                if (!t.IsGenericType)
+                {
+                    return false;
+                }
+
+                var genericTypeDefinition = t.GetGenericTypeDefinition();
+                return genericTypeDefinition == typeof(IHandleMessages<>) || genericTypeDefinition == typeof(IHandleTimeouts<>);
+            })
+            .Select(t => t.GetGenericArguments()[0])
             .Distinct()
             .ToArray();
-    }
 
     static void ValidateHandlerDoesNotInjectMessageSession(Type handlerType)
     {
