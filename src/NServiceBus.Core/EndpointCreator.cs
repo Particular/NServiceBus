@@ -32,11 +32,13 @@ class EndpointCreator
 
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
-        endpointConfiguration.InstallerSettings.AddScannedInstallers(availableTypes);
+        var installerSettings = settings.Get<InstallerComponent.Settings>();
 
-        var installerComponent = new InstallerComponent(endpointConfiguration.InstallerSettings);
+        installerSettings.AddScannedInstallers(availableTypes);
 
-        var hostingConfiguration = HostingComponent.PrepareConfiguration(endpointConfiguration.HostingSettings, availableTypes, installerComponent, serviceCollection);
+        var installerComponent = new InstallerComponent(installerSettings);
+
+        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, installerComponent, serviceCollection);
 
         var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
         endpointCreator.Configure();
