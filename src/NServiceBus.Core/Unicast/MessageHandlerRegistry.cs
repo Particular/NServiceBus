@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -63,7 +62,9 @@ public class MessageHandlerRegistry
         RemoveInVersion = "12",
         ReplacementTypeOrMember = "RegisterHandler<THandler>()")]
     [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'RegisterHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
-    public void RegisterHandler(Type handlerType) =>
+    public void RegisterHandler(Type handlerType) => RegisterHandlerWithReflection(handlerType);
+
+    void RegisterHandlerWithReflection(Type handlerType) =>
         typeof(MessageHandlerRegistry)
             .GetMethod(nameof(RegisterHandler), BindingFlags.Public | BindingFlags.Instance, [])!
             .MakeGenericMethod(handlerType)
@@ -72,11 +73,9 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the given potential handler type.
     /// </summary>
-    public void RegisterHandler<THandler>() where THandler : IHandleMessages => RegisterHandlerInternal(typeof(THandler));
-
-    void RegisterHandlerInternal(Type handlerType)
+    public void RegisterHandler<THandler>() where THandler : IHandleMessages
     {
-        ArgumentNullException.ThrowIfNull(handlerType);
+        var handlerType = typeof(THandler);
 
         if (handlerType.IsAbstract)
         {
@@ -89,14 +88,27 @@ public class MessageHandlerRegistry
 
         foreach (var messageType in messageTypes)
         {
-            if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out var typeList))
-            {
-                handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = [];
-            }
-
-            CacheHandlerMethods(handlerType, messageType, typeList);
+            RegisterHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
+                .Invoke(this, []);
         }
     }
+
+    /// <summary>
+    /// Register a handler for a specific message type. Should only be called by a source generator.
+    /// </summary>
+    public void RegisterHandlerForMessage<THandler, TMessage>() where THandler : IHandleMessages<TMessage>
+    {
+        if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var typeList))
+        {
+            handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = typeList = [];
+        }
+
+        CacheMethod<THandler, TMessage>(typeof(IHandleMessages<>), typeList, isTimeoutHandler: false);
+        CacheMethod<THandler, TMessage>(typeof(IHandleTimeouts<>), typeList, isTimeoutHandler: true);
+    }
+
+    static readonly MethodInfo RegisterHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(RegisterHandlerForMessage)) ?? throw new MissingMethodException("RegisterHandlerForMessage");
 
     /// <summary>
     /// Add handlers from types scanned at runtime.
@@ -106,7 +118,7 @@ public class MessageHandlerRegistry
     {
         foreach (var type in orderedTypes.Where(IsMessageHandler))
         {
-            RegisterHandlerInternal(type);
+            RegisterHandlerWithReflection(type);
         }
     }
 
@@ -128,14 +140,10 @@ public class MessageHandlerRegistry
     /// </summary>
     public void Clear() => handlerAndMessagesHandledByHandlerCache.Clear();
 
-    static void CacheHandlerMethods(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
+    static void CacheMethod<THandler, TMessage>(Type interfaceGenericType, ICollection<DelegateHolder> methodList, bool isTimeoutHandler)
     {
-        CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList, isTimeoutHandler: false);
-        CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList, isTimeoutHandler: true);
-    }
-
-    static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, ICollection<DelegateHolder> methodList, bool isTimeoutHandler)
-    {
+        var handler = typeof(THandler);
+        var messageType = typeof(TMessage);
         var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
         if (handleMethod == null)
         {
