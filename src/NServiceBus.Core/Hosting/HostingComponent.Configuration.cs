@@ -3,7 +3,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hosting;
@@ -11,10 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 partial class HostingComponent
 {
-    public static Configuration PrepareConfiguration(Settings settings, AssemblyScanningComponent assemblyScanningComponent, IServiceCollection serviceCollection)
+    public static Configuration PrepareConfiguration(Settings settings, List<Type> availableTypes, InstallerComponent installerComponent, IServiceCollection serviceCollection)
     {
-        var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-
         var configuration = new Configuration(settings,
             availableTypes,
             new CriticalError(settings.CustomCriticalErrorAction),
@@ -25,7 +22,8 @@ partial class HostingComponent
             serviceCollection,
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
-            settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory());
+            settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
+            installerComponent);
 
         return configuration;
     }
@@ -42,7 +40,8 @@ partial class HostingComponent
             IServiceCollection services,
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
-            IActivityFactory activityFactory)
+            IActivityFactory activityFactory,
+            InstallerComponent installerComponent)
         {
             AvailableTypes = availableTypes;
             CriticalError = criticalError;
@@ -54,7 +53,7 @@ partial class HostingComponent
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
-            InstallerRegistry = settings.InstallerRegistry;
+            InstallerComponent = installerComponent;
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
@@ -84,6 +83,6 @@ partial class HostingComponent
 
         public IActivityFactory ActivityFactory { get; set; }
 
-        public InstallerRegistry InstallerRegistry { get; }
+        public InstallerComponent InstallerComponent { get; }
     }
 }

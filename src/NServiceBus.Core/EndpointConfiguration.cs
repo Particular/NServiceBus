@@ -32,8 +32,12 @@ public class EndpointConfiguration : ExposeSettings
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
 
-        HostingComponentSettings = new HostingComponent.Settings(Settings);
-        Settings.Set(HostingComponentSettings);
+        HostingSettings = new HostingComponent.Settings(Settings);
+        Settings.Set(HostingSettings);
+
+        InstallerSettings = new InstallerComponent.Settings();
+        Settings.Set(InstallerSettings);
+
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
         Settings.Set(new ReceiveComponent.Settings(Settings));
@@ -68,7 +72,8 @@ public class EndpointConfiguration : ExposeSettings
         ConventionsBuilder = new ConventionsBuilder(Settings);
     }
 
-    internal readonly HostingComponent.Settings HostingComponentSettings;
+    internal readonly HostingComponent.Settings HostingSettings;
+    internal readonly InstallerComponent.Settings InstallerSettings;
 
     /// <summary>
     /// Access to the pipeline configuration.
