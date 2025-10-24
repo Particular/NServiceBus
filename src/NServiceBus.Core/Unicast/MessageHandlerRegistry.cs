@@ -101,8 +101,8 @@ public class MessageHandlerRegistry
         }
 
         Log.DebugFormat("Associated '{0}' message with '{1}' handler.", typeof(TMessage), typeof(THandler));
-        var delegateHolder = new DelegateHolder<THandler, TMessage>();
-        methodList.Add(delegateHolder);
+        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = false });
+        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = true });
     }
 
     static readonly MethodInfo RegisterHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
@@ -161,7 +161,7 @@ public class MessageHandlerRegistry
     interface IDelegateHolder
     {
         Type MessageType { get; }
-        bool IsTimeoutHandler { get; }
+        bool IsTimeoutHandler { get; init; }
         object CreateHandler(IServiceProvider provider);
         Task Handle(object handler, object message, IMessageHandlerContext context);
     }
@@ -183,16 +183,24 @@ public class MessageHandlerRegistry
 
         public Type MessageType { get; } = typeof(TMessage);
 
-        public bool IsTimeoutHandler { get; }
+        public bool IsTimeoutHandler { get; init; }
 
         public object CreateHandler(IServiceProvider provider) => handlerFactory(provider, []);
 
-        public Task Handle(object handler, object message, IMessageHandlerContext context) => handler switch
+        public Task Handle(object handler, object message, IMessageHandlerContext context)
         {
-            IHandleMessages<TMessage> messageHandler => messageHandler.Handle((TMessage)message, context),
-            IHandleTimeouts<TMessage> timeoutHandler => timeoutHandler.Timeout((TMessage)message, context),
-            _ => throw new InvalidOperationException("Neither a message handler or timeout handler")
-        };
+            if (IsTimeoutHandler && handler is IHandleTimeouts<TMessage> timeoutHandler)
+            {
+                return timeoutHandler.Timeout((TMessage)message, context);
+            }
+
+            if (!IsTimeoutHandler && handler is IHandleMessages<TMessage> messageHandler)
+            {
+                return messageHandler.Handle((TMessage)message, context);
+            }
+
+            return Task.CompletedTask;
+        }
 
         static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);
     }
