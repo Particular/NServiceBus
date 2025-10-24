@@ -40,7 +40,26 @@ public class NullableAnnotations
     bool HasNonAnnotatedMember(Type type)
     {
         var allInfo = AllMemberNullabilityInfoFor(type).ToArray();
-        var noNullInfoFor = allInfo.Where(info => info.Info.WriteState is NullabilityState.Unknown || info.Info.ReadState == NullabilityState.Unknown).ToArray();
+        var noNullInfoFor = allInfo.Where(info =>
+        {
+            _ = type;
+            if (info.Info.ReadState == NullabilityState.Unknown)
+            {
+                return true;
+            }
+
+            if (info.Info.WriteState == NullabilityState.Unknown)
+            {
+                if (info.Item is PropertyInfo prop && !prop.CanWrite)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }).ToArray();
         return noNullInfoFor.Length != 0;
     }
 

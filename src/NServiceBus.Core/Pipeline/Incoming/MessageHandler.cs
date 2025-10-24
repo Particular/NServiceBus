@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Pipeline;
+﻿#nullable enable
+
+namespace NServiceBus.Pipeline;
 
 using System;
 using System.Threading.Tasks;
@@ -19,17 +21,30 @@ public class MessageHandler
         this.invocation = invocation;
     }
 
+    internal MessageHandler(Func<IServiceProvider, object> createHandler, Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+        : this(invocation, handlerType) => this.createHandler = createHandler;
+
     /// <summary>
     /// The actual instance, can be a saga, a timeout or just a plain handler.
     /// </summary>
-    public object Instance { get; set; }
+    public object? Instance { get; set; }
 
     /// <summary>
     /// The handler type, can be a saga, a timeout or just a plain handler.
     /// </summary>
     public Type HandlerType { get; }
 
-    internal bool IsTimeoutHandler { get; set; }
+    internal void CreateHandler(IServiceProvider provider)
+    {
+        if (createHandler is null)
+        {
+            throw new Exception("TEMP: Could not create handler from handler delegate");
+        }
+
+        Instance = createHandler(provider);
+    }
+
+    internal bool IsTimeoutHandler { get; init; }
 
     /// <summary>
     /// Invokes the message handler.
@@ -40,8 +55,12 @@ public class MessageHandler
     {
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(handlerContext);
-        return invocation(Instance, message, handlerContext);
+
+        return Instance is null
+            ? throw new Exception("Cannot invoke handler because MessageHandler Instance is not set.")
+            : invocation(Instance, message, handlerContext);
     }
 
     readonly Func<object, object, IMessageHandlerContext, Task> invocation;
+    readonly Func<IServiceProvider, object>? createHandler;
 }
