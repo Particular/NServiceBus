@@ -100,9 +100,27 @@ public class MessageHandlerRegistry
             handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = methodList = [];
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' handler.", typeof(TMessage), typeof(THandler));
-        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = false });
-        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = true });
+        foreach (var iface in typeof(THandler).GetInterfaces())
+        {
+            if (iface.IsGenericType)
+            {
+                var firstTypeParam = iface.GetGenericArguments()[0];
+                if (firstTypeParam == typeof(TMessage))
+                {
+                    var definition = iface.GetGenericTypeDefinition();
+                    if (definition == typeof(IHandleMessages<>))
+                    {
+                        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+                        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = false });
+                    }
+                    else if (definition == typeof(IHandleTimeouts<>))
+                    {
+                        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+                        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = true });
+                    }
+                }
+            }
+        }
     }
 
     static readonly MethodInfo RegisterHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
