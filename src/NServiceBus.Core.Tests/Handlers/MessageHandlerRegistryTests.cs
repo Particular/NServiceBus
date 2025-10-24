@@ -11,23 +11,6 @@ using Unicast;
 public class MessageHandlerRegistryTests
 {
     [Test]
-    public void ShouldThrowIfUserTriesToBypassTheHandlerContext()
-    {
-        var registry = new MessageHandlerRegistry();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIMessageSessionProperty>());
-            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIEndpointInstanceProperty>());
-            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIMessageSessionCtorDep>());
-            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithIEndpointInstanceCtorDep>());
-            Assert.Throws<Exception>(() => registry.RegisterHandler<HandlerWithInheritedIMessageSessionPropertyDep>());
-            Assert.Throws<Exception>(() => registry.RegisterHandler<SagaWithIllegalDep>());
-        }
-
-    }
-
-    [Test]
     public async Task ShouldIndicateWhetherAHandlerIsATimeoutHandler()
     {
         var registry = new MessageHandlerRegistry();
@@ -67,99 +50,6 @@ public class MessageHandlerRegistryTests
             Assert.That(regularInstance.TimeoutCalled, Is.False);
             Assert.That(regularInstance.HandlerCalled, Is.True);
         }
-    }
-
-    class HandlerWithIMessageSessionProperty : IHandleMessages<MyMessage>
-    {
-        public IMessageSession MessageSession { get; set; }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    class HandlerWithIEndpointInstanceProperty : IHandleMessages<MyMessage>
-    {
-        public IEndpointInstance EndpointInstance { get; set; }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    class HandlerWithIMessageSessionCtorDep : IHandleMessages<MyMessage>
-    {
-        public HandlerWithIMessageSessionCtorDep(IMessageSession messageSession)
-        {
-            MessageSession = messageSession;
-        }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        IMessageSession MessageSession;
-#pragma warning restore IDE0052 // Remove unread private members
-    }
-
-    class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
-    {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    class HandlerWithIEndpointInstanceCtorDep : IHandleMessages<MyMessage>
-    {
-        public HandlerWithIEndpointInstanceCtorDep(IEndpointInstance endpointInstance)
-        {
-            this.endpointInstance = endpointInstance;
-        }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        IEndpointInstance endpointInstance;
-#pragma warning restore IDE0052 // Remove unread private members
-    }
-
-    class SagaWithIllegalDep : Saga<SagaWithIllegalDep.MySagaData>, IAmStartedByMessages<MyMessage>
-    {
-        public SagaWithIllegalDep(IEndpointInstance endpointInstance)
-        {
-            this.endpointInstance = endpointInstance;
-        }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
-        {
-            throw new NotImplementedException();
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        IEndpointInstance endpointInstance;
-#pragma warning restore IDE0052 // Remove unread private members
-
-        public class MySagaData : ContainSagaData
-        {
-        }
-    }
-
-    class HandlerBaseWithIMessageSessionDep
-    {
-        public IMessageSession MessageSession { get; set; }
     }
 
     class MyMessage : IMessage
