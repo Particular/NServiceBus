@@ -3,11 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using FastExpressionCompiler;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
 using Pipeline;
 
@@ -32,7 +31,7 @@ public class MessageHandlerRegistry
             {
                 if (handlerDelegate.MessageType.IsAssignableFrom(messageType))
                 {
-                    messageHandlers.Add(new MessageHandler(handlerDelegate.MethodDelegate, handlerType)
+                    messageHandlers.Add(new MessageHandler(handlerDelegate.CreateHandler, handlerDelegate.Handle, handlerType)
                     {
                         IsTimeoutHandler = handlerDelegate.IsTimeoutHandler
                     });
@@ -94,15 +93,16 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Register a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    public void RegisterHandlerForMessage<THandler, TMessage>() where THandler : IHandleMessages<TMessage>
+    public void RegisterHandlerForMessage<THandler, TMessage>() where THandler : class
     {
-        if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var typeList))
+        if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var methodList))
         {
-            handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = typeList = [];
+            handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = methodList = [];
         }
 
-        CacheMethod<THandler, TMessage>(typeof(IHandleMessages<>), typeList, isTimeoutHandler: false);
-        CacheMethod<THandler, TMessage>(typeof(IHandleTimeouts<>), typeList, isTimeoutHandler: true);
+        Log.DebugFormat("Associated '{0}' message with '{1}' handler.", typeof(TMessage), typeof(THandler));
+        var delegateHolder = new DelegateHolder<THandler, TMessage>();
+        methodList.Add(delegateHolder);
     }
 
     static readonly MethodInfo RegisterHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
@@ -138,55 +138,6 @@ public class MessageHandlerRegistry
     /// </summary>
     public void Clear() => handlerAndMessagesHandledByHandlerCache.Clear();
 
-    static void CacheMethod<THandler, TMessage>(Type interfaceGenericType, ICollection<DelegateHolder> methodList, bool isTimeoutHandler)
-    {
-        var handler = typeof(THandler);
-        var messageType = typeof(TMessage);
-        var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
-        if (handleMethod == null)
-        {
-            return;
-        }
-        Log.DebugFormat("Associated '{0}' message with '{1}' handler.", messageType, handler);
-
-        var delegateHolder = new DelegateHolder
-        {
-            MessageType = messageType,
-            MethodDelegate = handleMethod,
-            IsTimeoutHandler = isTimeoutHandler
-        };
-        methodList.Add(delegateHolder);
-    }
-
-    static Func<object, object, IMessageHandlerContext, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
-    {
-        var interfaceType = interfaceGenericType.MakeGenericType(messageType);
-
-        if (!interfaceType.IsAssignableFrom(targetType))
-        {
-            return null;
-        }
-
-        var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
-        if (methodInfo == null)
-        {
-            return null;
-        }
-
-        var target = Expression.Parameter(typeof(object));
-        var messageParam = Expression.Parameter(typeof(object));
-        var contextParam = Expression.Parameter(typeof(IMessageHandlerContext));
-
-        var castTarget = Expression.Convert(target, targetType);
-
-        var methodParameters = methodInfo.GetParameters();
-        var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
-
-        Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
-
-        return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).CompileFast();
-    }
-
     static Type[] GetMessageTypesBeingHandledBy(Type type) =>
         type.GetInterfaces()
             .Where(t =>
@@ -203,14 +154,46 @@ public class MessageHandlerRegistry
             .Distinct()
             .ToArray();
 
-    readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
+    readonly Dictionary<Type, List<IDelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
-    class DelegateHolder
+    interface IDelegateHolder
     {
-        public bool IsTimeoutHandler { get; set; }
-        public Type MessageType;
-        public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
+        Type MessageType { get; }
+        bool IsTimeoutHandler { get; }
+        object CreateHandler(IServiceProvider provider);
+        Task Handle(object handler, object message, IMessageHandlerContext context);
+    }
+
+    class DelegateHolder<THandler, TMessage> : IDelegateHolder
+        where THandler : class
+    {
+        public DelegateHolder()
+        {
+            foreach (var iface in typeof(THandler).GetInterfaces())
+            {
+                if (iface.IsGenericType && iface.IsAssignableTo(typeof(IHandleTimeouts<TMessage>)))
+                {
+                    IsTimeoutHandler = true;
+                    return;
+                }
+            }
+        }
+
+        public Type MessageType { get; } = typeof(TMessage);
+
+        public bool IsTimeoutHandler { get; }
+
+        public object CreateHandler(IServiceProvider provider) => handlerFactory(provider, []);
+
+        public Task Handle(object handler, object message, IMessageHandlerContext context) => handler switch
+        {
+            IHandleMessages<TMessage> messageHandler => messageHandler.Handle((TMessage)message, context),
+            IHandleTimeouts<TMessage> timeoutHandler => timeoutHandler.Timeout((TMessage)message, context),
+            _ => throw new InvalidOperationException("Neither a message handler or timeout handler")
+        };
+
+        static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);
     }
 }

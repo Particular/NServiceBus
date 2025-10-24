@@ -11,6 +11,11 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : 
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
+        if (context.MessageHandler.Instance is null)
+        {
+            throw new Exception("MessageHandler.Instance should not be null");
+        }
+
         if (context.Extensions.TryGet<ActiveSagaInstance>(out var saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
         {
             return;
