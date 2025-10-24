@@ -187,18 +187,6 @@ public class MessageHandlerRegistry
     class DelegateHolder<THandler, TMessage> : IDelegateHolder
         where THandler : class
     {
-        public DelegateHolder()
-        {
-            foreach (var iface in typeof(THandler).GetInterfaces())
-            {
-                if (iface.IsGenericType && iface.IsAssignableTo(typeof(IHandleTimeouts<TMessage>)))
-                {
-                    IsTimeoutHandler = true;
-                    return;
-                }
-            }
-        }
-
         public Type MessageType { get; } = typeof(TMessage);
 
         public bool IsTimeoutHandler { get; init; }
