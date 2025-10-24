@@ -1749,7 +1749,7 @@ namespace NServiceBus.Pipeline
     {
         public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
         public System.Type HandlerType { get; }
-        public object Instance { get; set; }
+        public object? Instance { get; set; }
         public System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext) { }
     }
     public class OutgoingLogicalMessage
@@ -2325,6 +2325,8 @@ namespace NServiceBus.Unicast
         public void RegisterHandler(System.Type handlerType) { }
         public void RegisterHandler<THandler>()
             where THandler : NServiceBus.IHandleMessages { }
+        public void RegisterHandlerForMessage<THandler, TMessage>()
+            where THandler :  class { }
     }
     public class MessagesEventArgs : System.EventArgs
     {

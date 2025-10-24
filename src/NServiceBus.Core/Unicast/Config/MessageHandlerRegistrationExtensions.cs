@@ -16,6 +16,7 @@ public static class MessageHandlerRegistrationExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        config.Settings.GetOrCreate<MessageHandlerRegistry>().RegisterHandler<THandler>();
+        var registry = config.Settings.GetOrCreate<MessageHandlerRegistry>();
+        registry.RegisterHandler<THandler>();
     }
 }
