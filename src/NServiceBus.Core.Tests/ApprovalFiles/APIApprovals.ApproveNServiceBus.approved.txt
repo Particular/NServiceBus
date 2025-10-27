@@ -444,8 +444,7 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
     }
-    public interface IHandleTimeouts { }
-    public interface IHandleTimeouts<T> : NServiceBus.IHandleTimeouts
+    public interface IHandleTimeouts<T>
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
