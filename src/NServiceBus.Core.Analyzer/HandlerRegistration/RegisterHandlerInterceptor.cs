@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.Text;
 
 [Generator]
 public class RegisterHandlerInterceptor : IIncrementalGenerator
@@ -15,31 +16,53 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var locations = context.SyntaxProvider
-            .CreateSyntaxProvider(SyntaxLooksLikeRegisterHandlerMethod, TransformToInterceptor)
-            .WithTrackingName("AfterSyntax")
-            .Where(candidate => candidate is not null)
-            //.WithTrackingName("InterceptLocations")
-            ;
+            .CreateSyntaxProvider(
+                predicate: SyntaxLooksLikeRegisterHandlerMethod,
+                transform: (ctx, _) => new InvocationCandidate(ctx.Node.SyntaxTree.FilePath, ctx.Node.Span))
+            .WithTrackingName("InterceptCandidates");
 
-        var collected = locations.Collect()
-            .WithTrackingName("Collected");
+        var withCompilation = locations.Combine(context.CompilationProvider)
+            .Select(GetInterceptsFromCompilation)
+            .Where(static m => m is not null)
+            .Select(static (x, _) => x!.Value);
+
+        var collected = withCompilation.Collect();
 
         context.RegisterSourceOutput(collected, GenerateInterceptorCode);
     }
 
-    static bool SyntaxLooksLikeRegisterHandlerMethod(SyntaxNode node, CancellationToken cancellationToken) =>
-        node is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: RegisterHandlerMethodName } };
-
-    static InterceptDetails? TransformToInterceptor(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    static bool SyntaxLooksLikeRegisterHandlerMethod(SyntaxNode node, CancellationToken cancellationToken) => node is InvocationExpressionSyntax
     {
-        // Must be due to the predicate, do we need to play it safe here?
-        if (context.Node is not InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax } invocation)
+        Expression: MemberAccessExpressionSyntax
+        {
+            Name: GenericNameSyntax
+            {
+                Identifier.ValueText: RegisterHandlerMethodName,
+                TypeArgumentList.Arguments.Count: 1
+            }
+        },
+        ArgumentList.Arguments.Count: 0
+    };
+
+    static InterceptDetails? GetInterceptsFromCompilation((InvocationCandidate, Compilation) tuple, CancellationToken cancellationToken)
+    {
+        var (candidate, compilation) = tuple;
+
+        var syntaxTree = compilation.SyntaxTrees.FirstOrDefault(t => t.FilePath == candidate.FilePath);
+        if (syntaxTree is null)
         {
             return null;
         }
 
-        // Get the semantic model
-        if (context.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+        // Fairly expensive
+        var root = syntaxTree.GetRoot(cancellationToken);
+        if (root.FindNode(candidate.Span) is not InvocationExpressionSyntax invocation)
+        {
+            return null;
+        }
+
+        var semanticModel = compilation.GetSemanticModel(syntaxTree, ignoreAccessibility: true);
+        if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
         {
             return null;
         }
@@ -60,12 +83,12 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
             .Select(type => type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
             .ToImmutableArray();
 
-        if (context.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+        if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
         {
             return null;
         }
 
-        var methodName = $"RegisterHandler_{handlerType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat).Replace('.', '_')}_{location.Data.Replace('/', '_')}";
+        var methodName = $"RegisterHandler_{handlerType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat).Replace('.', '_')}_{location.Data.Replace('/', '_').Replace('+', '_')}";
         var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, messageTypes);
     }
@@ -97,7 +120,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         }
     };
 
-    static void GenerateInterceptorCode(SourceProductionContext context, ImmutableArray<InterceptDetails?> intercepts)
+    static void GenerateInterceptorCode(SourceProductionContext context, ImmutableArray<InterceptDetails> intercepts)
     {
         if (intercepts.Length == 0)
         {
@@ -129,7 +152,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
                           {
                       """);
 
-        foreach (var location in intercepts.OfType<InterceptDetails>())
+        foreach (var location in intercepts)
         {
             sb.AppendLine($"""        [global::System.Runtime.CompilerServices.InterceptsLocation({location.Location.Version}, "{location.Location.Data}")] // {location.Location.DisplayLocation}""");
             sb.AppendLine($$"""
@@ -154,11 +177,11 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         context.AddSource("InterceptionsOfRegisterHandlerMethod.g.cs", sb.ToString());
     }
 
-    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, ImmutableArray<string> MessageTypes);
-
     const string RegisterHandlerClassName = "MessageHandlerRegistrationExtensions";
     const string RegisterHandlerMethodName = "RegisterHandler";
 
+    record struct InvocationCandidate(string FilePath, TextSpan Span);
+    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, ImmutableArray<string> MessageTypes);
     record struct SafeInterceptionLocation(int Version, string Data, string DisplayLocation)
     {
         public static SafeInterceptionLocation From(InterceptableLocation location) =>
