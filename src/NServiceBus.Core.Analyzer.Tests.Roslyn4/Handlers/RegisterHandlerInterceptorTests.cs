@@ -40,7 +40,7 @@ public class RegisterHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<RegisterHandlerInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Two")
+            .WithGeneratorStages("InterceptCandidates", "WithCompilation", "Collected")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
