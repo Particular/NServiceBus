@@ -18,15 +18,17 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         var locations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: SyntaxLooksLikeRegisterHandlerMethod,
-                transform: (ctx, _) => new InvocationCandidate(ctx.Node.SyntaxTree.FilePath, ctx.Node.Span))
+                transform: static (ctx, _) => new InvocationCandidate(ctx.Node.SyntaxTree.FilePath, ctx.Node.Span))
             .WithTrackingName("InterceptCandidates");
 
         var withCompilation = locations.Combine(context.CompilationProvider)
             .Select(GetInterceptsFromCompilation)
             .Where(static m => m is not null)
-            .Select(static (x, _) => x!.Value);
+            .Select(static (x, _) => x!.Value)
+            .WithTrackingName("WithCompilation");
 
-        var collected = withCompilation.Collect();
+        var collected = withCompilation.Collect()
+            .WithTrackingName("Collected");
 
         context.RegisterSourceOutput(collected, GenerateInterceptorCode);
     }
@@ -162,7 +164,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
                                         var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                             .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                             """);
-            foreach (var messageType in location.MessageTypes)
+            foreach (var messageType in location.MessageTypes.Items)
             {
                 sb.AppendLine($"            registry.RegisterHandlerForMessage<{location.HandlerType}, {messageType}>();");
             }
@@ -181,7 +183,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
     const string RegisterHandlerMethodName = "RegisterHandler";
 
     record struct InvocationCandidate(string FilePath, TextSpan Span);
-    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, ImmutableArray<string> MessageTypes);
+    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<string> MessageTypes);
     record struct SafeInterceptionLocation(int Version, string Data, string DisplayLocation)
     {
         public static SafeInterceptionLocation From(InterceptableLocation location) =>
