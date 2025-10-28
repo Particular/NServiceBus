@@ -240,13 +240,15 @@ public class SourceGeneratorTest
             var step1 = steps1[i];
             var step2 = steps2[i];
 
-            var out1 = step1.Outputs.Select(o => o.Value);
-            var out2 = step2.Outputs.Select(o => o.Value);
+            var out1 = step1.Outputs.Select(o => o.Value).ToArray();
+            var out2 = step2.Outputs.Select(o => o.Value).ToArray();
 
-            Assert.That(out1, Is.EquivalentTo(out2), $"Step '{trackingName}' outputs are not the same between runs, but should be cacheable results.");
+            Assert.That(out1, Is.EqualTo(out2).UsingPropertiesComparer(), $"Step '{trackingName}' outputs are not the same between runs, but should be cacheable results.");
 
-            Assert.That(step2.Outputs.Select(o => o.Reason)
-                .All(reason => reason is IncrementalStepRunReason.Cached or IncrementalStepRunReason.Unchanged));
+            var outputReasons = step2.Outputs.Select(o => o.Reason).ToArray();
+            var badReasons = outputReasons.Where(reason => reason is not IncrementalStepRunReason.Cached and not IncrementalStepRunReason.Unchanged).ToArray();
+
+            Assert.That(badReasons.Length, Is.EqualTo(0), $"Step '{trackingName}' outputs contain reasons: {string.Join(',', badReasons)}. Should all be Cached or Unchanged to be memoizable.");
 
             // Not doing anything here to explicitly assert that types are not Compilation, ISymbol, SyntaxNode or other
             // types known to be bad ideas, but that would require nasty reflection to traverse an object graph
@@ -301,7 +303,7 @@ public class SourceGeneratorTest
 
         foreach (var syntaxTree in FilteredSyntaxTrees())
         {
-            WriteHeading(syntaxTree.FilePath);
+            WriteHeading(syntaxTree.FilePath.Replace('\\', '/'));
 
             if (withLineNumbers)
             {
@@ -418,7 +420,7 @@ public class SourceGeneratorTest
 
 public enum GeneratorTestOutput
 {
-    All = 0,
-    GeneratedOnly = 1,
-    SourceOnly = 2
+    GeneratedOnly = 0,
+    SourceOnly = 1,
+    All = 2
 }
