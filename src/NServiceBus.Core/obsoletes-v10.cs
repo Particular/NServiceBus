@@ -259,6 +259,19 @@ namespace NServiceBus
         [Obsolete("Use 'PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null)' instead. Will be removed in version 11.0.0.", true)]
         protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(settings) => throw new NotImplementedException();
     }
+
+    public static partial class EndpointConfigurationExtensions
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "EnableFeature<T>(this EndpointConfiguration config)", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'EnableFeature<T>(this EndpointConfiguration config)' instead. Will be removed in version 11.0.0.", true)]
+        public static void EnableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "DisableFeature<T>(this EndpointConfiguration config)", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'DisableFeature<T>(this EndpointConfiguration config)' instead. Will be removed in version 11.0.0.", true)]
+        public static void DisableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.DataBus

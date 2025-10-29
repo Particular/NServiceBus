@@ -8,7 +8,7 @@ using Features;
 /// <summary>
 /// Extension methods declarations.
 /// </summary>
-public static class EndpointConfigurationExtensions
+public static partial class EndpointConfigurationExtensions
 {
     /// <summary>
     /// Enables the given feature.
@@ -21,20 +21,6 @@ public static class EndpointConfigurationExtensions
     }
 
     /// <summary>
-    /// TODO Obsolete?
-    /// Enables the given feature.
-    /// </summary>
-    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    /// <param name="featureType">The feature to enable.</param>
-    public static void EnableFeature(this EndpointConfiguration config, Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(featureType);
-
-        config.Settings.Get<FeatureComponent.Settings>().EnableFeature(featureType);
-    }
-
-    /// <summary>
     /// Disables the given feature.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
@@ -42,19 +28,5 @@ public static class EndpointConfigurationExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
         config.Settings.Get<FeatureComponent.Settings>().DisableFeature<T>();
-    }
-
-    /// <summary>
-    /// TODO Obsolete?
-    /// Enables the given feature.
-    /// </summary>
-    /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    /// <param name="featureType">The feature to disable.</param>
-    public static void DisableFeature(this EndpointConfiguration config, Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(featureType);
-
-        config.Settings.Get<FeatureComponent.Settings>().DisableFeature(featureType);
     }
 }

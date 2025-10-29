@@ -279,9 +279,13 @@ namespace NServiceBus
     }
     public static class EndpointConfigurationExtensions
     {
+        [System.Obsolete("Use \'DisableFeature<T>(this EndpointConfiguration config)\' instead. Will be remov" +
+            "ed in version 11.0.0.", true)]
         public static void DisableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
         public static void DisableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
+        [System.Obsolete("Use \'EnableFeature<T>(this EndpointConfiguration config)\' instead. Will be remove" +
+            "d in version 11.0.0.", true)]
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
         public static void EnableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
