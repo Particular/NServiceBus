@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -23,12 +24,14 @@ public class SourceGeneratorTest
     string? scenarioName;
     Compilation? initialCompilation;
     Build? build;
+    Build? clonedBuild;
     ImmutableArray<Diagnostic> compilationDiagnostics;
     bool suppressDiagnosticErrors;
     bool suppressCompilationErrors;
     bool wroteToConsole;
     GeneratorTestOutput outputType;
-    HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
+    readonly HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
+    readonly List<string> generatorStagesList = [];
 
     SourceGeneratorTest(string? outputAssemblyName = null)
     {
@@ -124,7 +127,10 @@ public class SourceGeneratorTest
     {
         foreach (var stage in stages)
         {
-            generatorStages.Add(stage);
+            if (generatorStages.Add(stage))
+            {
+                generatorStagesList.Add(stage);
+            }
         }
         return this;
     }
@@ -193,6 +199,17 @@ public class SourceGeneratorTest
         }
     }
 
+    [MemberNotNull(nameof(clonedBuild)), MemberNotNull(nameof(build))]
+    void RunClonedBuild()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        clonedBuild ??= build.Clone();
+    }
+
     public SourceGeneratorTest AssertRunsAreEqual()
     {
         if (generatorStages.Count == 0)
@@ -200,19 +217,14 @@ public class SourceGeneratorTest
             throw new Exception("Must add GeneratorStages first.");
         }
 
-        if (build is null)
-        {
-            _ = Run();
-        }
-
-        var clone = build.Clone();
+        RunClonedBuild();
 
         Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>> GetTracked(GeneratorDriverRunResult result)
             => result.Results.SelectMany(r => r.TrackedSteps.Where(step => generatorStages.Contains(step.Key)))
                 .ToDictionary();
 
         var trackedSteps1 = GetTracked(build.RunResult);
-        var trackedSteps2 = GetTracked(clone.RunResult);
+        var trackedSteps2 = GetTracked(clonedBuild.RunResult);
 
         Assert.That(trackedSteps1, Is.Not.Empty);
         Assert.That(trackedSteps2.Count, Is.EqualTo(trackedSteps1.Count));
@@ -357,6 +369,51 @@ public class SourceGeneratorTest
         var output = GetCompilationOutput(true);
         Console.WriteLine(output);
         wroteToConsole = true;
+        return this;
+    }
+
+    public SourceGeneratorTest OutputSteps(params string[] specificStages)
+    {
+        RunClonedBuild();
+
+        var stagesToTrack = specificStages.Length != 0 ? specificStages : generatorStagesList.ToArray();
+        var wrapperType = typeof(ISourceGenerator).Assembly.GetType("Microsoft.CodeAnalysis.IncrementalGeneratorWrapper", throwOnError: true);
+        var generatorPropertyGetter = wrapperType!.GetProperty("Generator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetMethod!;
+
+        foreach (var result in clonedBuild.RunResult.Results)
+        {
+            var generatorType = result.Generator.GetType();
+            if (generatorType == wrapperType)
+            {
+                var innerGenerator = generatorPropertyGetter.Invoke(result.Generator, []);
+                if (innerGenerator is not null)
+                {
+                    generatorType = innerGenerator.GetType();
+                }
+            }
+            Console.WriteLine($"## {generatorType.Name} Results");
+            Console.WriteLine();
+
+            foreach (var stepName in stagesToTrack)
+            {
+                var namedStep = result.TrackedSteps[stepName];
+                var outputs = namedStep.SelectMany(runStep => runStep.Outputs).ToArray();
+                var outputCount = outputs.Length;
+                var reasons = outputs.Select(o => o.Reason).GroupBy(reason => reason)
+                    .Select(g => $"{g.Count()} {g.Key}")
+                    .ToArray();
+
+                Console.WriteLine($"Step {stepName} -  {outputCount} total outputs, {string.Join(", ", reasons)}");
+
+                foreach (var output in outputs)
+                {
+                    Console.WriteLine($"- [{output.Reason}] {output.Value}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
         return this;
     }
 
