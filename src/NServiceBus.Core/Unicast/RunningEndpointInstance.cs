@@ -54,8 +54,6 @@ class RunningEndpointInstance(SettingsHolder settings,
             catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
-
-                // TODO: Not throwing because reason unknown :)
             }
             finally
             {
