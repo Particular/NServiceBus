@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 using NServiceBus.Logging;
 using NServiceBus.Transport;
 
-class WrappedMessageReceiver : IMessageReceiver
+class WrappedMessageReceiver(
+    ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
+    IMessageReceiver baseReceiver)
+    : IMessageReceiver
 {
-    public WrappedMessageReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver baseReceiver)
-    {
-        this.baseReceiver = baseReceiver;
-        this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
-    }
-
     public async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
@@ -179,8 +176,6 @@ class WrappedMessageReceiver : IMessageReceiver
     static readonly ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
     static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new(1);
 
-    readonly IMessageReceiver baseReceiver;
-    readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
     ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
     TaskCompletionSource resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Task rateLimitTask;
