@@ -179,14 +179,14 @@ class WrappedMessageReceiver : IMessageReceiver
     }
 
     static readonly ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
-    static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new PushRuntimeSettings(1);
+    static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new(1);
 
     readonly IMessageReceiver baseReceiver;
     readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
     ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
-    TaskCompletionSource<bool> resetEventReplacement = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    TaskCompletionSource<bool> resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Task rateLimitTask;
-    readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
+    readonly CancellationTokenSource rateLimitLoopCancellationToken = new();
     OnMessage wrappedOnMessage;
     OnError wrappedOnError;
     PushRuntimeSettings originalLimitations;
