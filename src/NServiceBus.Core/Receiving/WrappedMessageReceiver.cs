@@ -50,7 +50,7 @@ class WrappedMessageReceiver : IMessageReceiver
             if (rateLimitTask != null)
             {
                 await rateLimitLoopCancellationToken.CancelAsync().ConfigureAwait(false);
-                resetEventReplacement.TrySetResult(true);
+                resetEventReplacement.TrySetResult();
                 await rateLimitTask.ConfigureAwait(false);
             }
         }
@@ -94,7 +94,7 @@ class WrappedMessageReceiver : IMessageReceiver
                 return;
             }
 
-            resetEventReplacement = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            resetEventReplacement = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -184,7 +184,7 @@ class WrappedMessageReceiver : IMessageReceiver
     readonly IMessageReceiver baseReceiver;
     readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
     ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
-    TaskCompletionSource<bool> resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    TaskCompletionSource resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Task rateLimitTask;
     readonly CancellationTokenSource rateLimitLoopCancellationToken = new();
     OnMessage wrappedOnMessage;
