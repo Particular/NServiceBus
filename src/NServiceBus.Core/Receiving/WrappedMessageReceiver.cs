@@ -45,12 +45,11 @@ class WrappedMessageReceiver : IMessageReceiver
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {
-        // Todo: can stop receive be called without cancellationToken being cancelled?
         try
         {
             if (rateLimitTask != null)
             {
-                rateLimitLoopCancellationToken.Cancel();
+                await rateLimitLoopCancellationToken.CancelAsync().ConfigureAwait(false);
                 resetEventReplacement.TrySetResult(true);
                 await rateLimitTask.ConfigureAwait(false);
             }
