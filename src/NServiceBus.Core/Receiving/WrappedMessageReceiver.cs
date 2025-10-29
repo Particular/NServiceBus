@@ -72,7 +72,7 @@ class WrappedMessageReceiver : IMessageReceiver
         {
             SwitchToRateLimitMode(ticks);
             return Task.CompletedTask;
-        }, (ticks, cancellationToken) =>
+        }, (ticks, _) =>
         {
             SwitchBackToNormalMode(ticks);
             return Task.CompletedTask;
