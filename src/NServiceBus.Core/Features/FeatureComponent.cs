@@ -138,17 +138,6 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         public IReadOnlyCollection<FeatureInfo> Features => added;
 
-        public void EnableFeature(Type featureType)
-        {
-            var featureName = Feature.GetFeatureName(featureType);
-            if (!added.TryGetValue(featureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(featureType));
-            }
-
-            info.Enable();
-        }
-
         public void EnableFeature<T>() where T : Feature
         {
             var featureName = Feature.GetFeatureName(typeof(T));
@@ -167,26 +156,6 @@ class FeatureComponent(FeatureComponent.Settings settings)
                 info = AddCore(factory.CreateFeature(typeof(T)));
             }
             info.Disable();
-        }
-
-        public void DisableFeature(Type featureType)
-        {
-            var featureName = Feature.GetFeatureName(featureType);
-            if (!added.TryGetValue(featureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(featureType));
-            }
-            info.Disable();
-        }
-
-        public void EnableFeatureByDefault(Type featureType)
-        {
-            var featureName = Feature.GetFeatureName(featureType);
-            if (!added.TryGetValue(featureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(featureType));
-            }
-            info.EnabledByDefault();
         }
 
         public void EnableFeatureByDefault<T>() where T : Feature
