@@ -11,19 +11,6 @@ class WrappedMessageReceiver(
     IMessageReceiver baseReceiver)
     : IMessageReceiver
 {
-    public async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken = default)
-    {
-        await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
-        await consecutiveFailuresCircuitBreaker.Success(cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<ErrorHandleResult> WrappedOnError(ErrorContext errorContext, CancellationToken cancellationToken = default)
-    {
-        await consecutiveFailuresCircuitBreaker.Failure(cancellationToken).ConfigureAwait(false);
-
-        return await wrappedOnError(errorContext, cancellationToken).ConfigureAwait(false);
-    }
-
     public ISubscriptionManager Subscriptions => baseReceiver.Subscriptions;
     public string Id => baseReceiver.Id;
     public string ReceiveAddress => baseReceiver.ReceiveAddress;
@@ -74,6 +61,19 @@ class WrappedMessageReceiver(
         });
 
         return baseReceiver.Initialize(originalLimitations, WrappedInvoke, WrappedOnError, cancellationToken);
+    }
+
+    async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken)
+    {
+        await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
+        await consecutiveFailuresCircuitBreaker.Success(cancellationToken).ConfigureAwait(false);
+    }
+
+    async Task<ErrorHandleResult> WrappedOnError(ErrorContext errorContext, CancellationToken cancellationToken)
+    {
+        await consecutiveFailuresCircuitBreaker.Failure(cancellationToken).ConfigureAwait(false);
+
+        return await wrappedOnError(errorContext, cancellationToken).ConfigureAwait(false);
     }
 
     async Task RateLimitLoop(CancellationToken cancellationToken)
