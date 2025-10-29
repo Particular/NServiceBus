@@ -1322,9 +1322,13 @@ namespace NServiceBus.Features
             " be removed in version 11.0.0.", true)]
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
+        [System.Obsolete("Use \'IsFeatureActive<T>(this IReadOnlySettings settings)\' instead. Will be remove" +
+            "d in version 11.0.0.", true)]
         public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureActive<T>(this NServiceBus.Settings.IReadOnlySettings settings)
             where T : NServiceBus.Features.Feature { }
+        [System.Obsolete("Use \'IsFeatureEnabled<T>(this IReadOnlySettings settings)\' instead. Will be remov" +
+            "ed in version 11.0.0.", true)]
         public static bool IsFeatureEnabled(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureEnabled<T>(this NServiceBus.Settings.IReadOnlySettings settings)
             where T : NServiceBus.Features.Feature { }

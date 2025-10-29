@@ -417,6 +417,20 @@ namespace NServiceBus.Features
             TreatAsErrorFromVersion = "10")]
         [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor. Will be removed in version 11.0.0.", true)]
         public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "IsFeatureActive<T>(this IReadOnlySettings settings)",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'IsFeatureActive<T>(this IReadOnlySettings settings)' instead. Will be removed in version 11.0.0.", true)]
+        public static bool IsFeatureActive(this IReadOnlySettings settings, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "IsFeatureEnabled<T>(this IReadOnlySettings settings)",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'IsFeatureEnabled<T>(this IReadOnlySettings settings)' instead. Will be removed in version 11.0.0.", true)]
+        public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType) => throw new NotImplementedException();
     }
 }
 
