@@ -32,9 +32,7 @@ class WrappedMessageReceiver : IMessageReceiver
     public string ReceiveAddress => baseReceiver.ReceiveAddress;
 
     public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
-    {
-        return baseReceiver.ChangeConcurrency(limitations, cancellationToken);
-    }
+        => baseReceiver.ChangeConcurrency(limitations, cancellationToken);
 
     public Task StartReceive(CancellationToken cancellationToken = default)
     {
@@ -158,10 +156,10 @@ class WrappedMessageReceiver : IMessageReceiver
     void SwitchBackToNormalMode(long stateChangeTime)
     {
         // Switching to normal mode always takes precedence so we don't check the previous state change time.
-        Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+        _ = Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
 
         endpointShouldBeRateLimited = false;
-        resetEventReplacement.TrySetResult(true);
+        _ = resetEventReplacement.TrySetResult();
     }
 
     void SwitchToRateLimitMode(long stateChangeTime)
@@ -174,7 +172,7 @@ class WrappedMessageReceiver : IMessageReceiver
             Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
 
             endpointShouldBeRateLimited = true;
-            resetEventReplacement.TrySetResult(true);
+            _ = resetEventReplacement.TrySetResult();
         }
     }
 
