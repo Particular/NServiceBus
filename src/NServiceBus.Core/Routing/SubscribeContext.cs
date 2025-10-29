@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.ComponentModel;
 using Extensibility;
 using Pipeline;
 
@@ -21,7 +20,4 @@ class SubscribeContext : BehaviorContext, ISubscribeContext
     }
 
     public Type[] EventTypes { get; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Type EventType => throw new NotImplementedException();
 }
