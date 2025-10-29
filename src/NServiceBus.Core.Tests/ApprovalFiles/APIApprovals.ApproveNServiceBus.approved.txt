@@ -545,6 +545,10 @@ namespace NServiceBus
     public static class InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
+        public static void RegisterInstaller<TInstaller>(this NServiceBus.EndpointConfiguration config)
+            where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
+        public static void RegisterInstaller<TInstaller>(this NServiceBus.Features.FeatureConfigurationContext context)
+            where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
     public static class LearningSagaPersisterConfigurationExtensions
