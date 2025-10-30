@@ -31,35 +31,35 @@ public class FeatureDependencyTests
         {
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
                 AvailableFeatures = [new MyFeature1(), new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
                 AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
                 AvailableFeatures = [new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAtLeastOne_Feature(),
+                DependingFeature = new DependsOnAtLeastOne_Feature { Enabled = true },
                 AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAll_Feature(),
+                DependingFeature = new DependsOnAll_Feature { Enabled = true },
                 AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
@@ -302,27 +302,18 @@ public class FeatureDependencyTests
 
     public class DependsOnOne_Feature : TestFeature
     {
-        public DependsOnOne_Feature()
-        {
-            EnableByDefault();
-            DependsOn<MyFeature1>();
-        }
+        public DependsOnOne_Feature() => DependsOn<MyFeature1>();
     }
 
     public class DependsOnOneByName_Feature : TestFeature
     {
-        public DependsOnOneByName_Feature()
-        {
-            EnableByDefault();
-            DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
-        }
+        public DependsOnOneByName_Feature() => DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
     }
 
     public class DependsOnAll_Feature : TestFeature
     {
         public DependsOnAll_Feature()
         {
-            EnableByDefault();
             DependsOn<MyFeature1>();
             DependsOn<MyFeature2>();
             DependsOn<MyFeature3>();
@@ -331,11 +322,7 @@ public class FeatureDependencyTests
 
     public class DependsOnAtLeastOne_Feature : TestFeature
     {
-        public DependsOnAtLeastOne_Feature()
-        {
-            EnableByDefault();
-            DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
-        }
+        public DependsOnAtLeastOne_Feature() => DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
     }
 
     public class FeatureCombinations
