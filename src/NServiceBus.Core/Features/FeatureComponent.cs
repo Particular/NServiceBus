@@ -165,7 +165,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
             {
                 info = AddCore(factory.CreateFeature(typeof(T)));
             }
-            info.EnabledByDefault();
+            info.EnableByDefault();
         }
 
         public bool IsFeature<T>(FeatureState state) where T : Feature

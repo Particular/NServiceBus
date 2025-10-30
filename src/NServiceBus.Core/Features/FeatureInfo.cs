@@ -13,7 +13,7 @@ sealed class FeatureInfo
     {
         if (feature.IsEnabledByDefault) // backward compat for reflection based stuff
         {
-            EnabledByDefault();
+            EnableByDefault();
         }
 
         DependencyNames = dependencyNames;
@@ -71,7 +71,7 @@ sealed class FeatureInfo
         Feature.ConfigureDefaults(settings);
         foreach (FeatureInfo dependency in DependenciesToEnable)
         {
-            dependency.EnabledByDefault();
+            dependency.EnableByDefault();
         }
     }
 
@@ -86,7 +86,7 @@ sealed class FeatureInfo
 
     public void Disable() => State = FeatureStateInfo.Disabled;
 
-    public void EnabledByDefault() => State = FeatureStateInfo.EnabledByDefault;
+    public void EnableByDefault() => State = FeatureStateInfo.EnabledByDefault;
 
     public void Activate() => State = FeatureStateInfo.Active;
 
