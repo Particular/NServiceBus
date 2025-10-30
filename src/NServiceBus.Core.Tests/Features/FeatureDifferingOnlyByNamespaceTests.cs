@@ -31,10 +31,8 @@
 
             featureFactory.Add(dependingFeature, feature);
 
-            featureSettings.Add(dependingFeature);
-            featureSettings.Add(feature);
-
             featureSettings.EnableFeature<NamespaceA.MyFeature>();
+            featureSettings.EnableFeature<NamespaceB.MyFeature>();
 
             featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -52,9 +50,7 @@ namespace NamespaceA
 {
     using NServiceBus.Core.Tests.Features;
 
-    public class MyFeature : TestFeature
-    {
-    }
+    public class MyFeature : TestFeature;
 }
 
 namespace NamespaceB
@@ -63,10 +59,6 @@ namespace NamespaceB
 
     public class MyFeature : TestFeature
     {
-        public MyFeature()
-        {
-            EnableByDefault();
-            DependsOn<NamespaceA.MyFeature>();
-        }
+        public MyFeature() => DependsOn<NamespaceA.MyFeature>();
     }
 }
