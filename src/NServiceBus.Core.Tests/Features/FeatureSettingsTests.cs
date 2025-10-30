@@ -102,7 +102,9 @@ public abstract class TestFeature : Feature
         {
             if (value)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 EnableByDefault();
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
     }

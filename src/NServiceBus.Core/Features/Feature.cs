@@ -5,6 +5,7 @@ namespace NServiceBus.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Particular.Obsoletes;
 using Settings;
 
 /// <summary>
@@ -78,6 +79,8 @@ public abstract class Feature
     /// <summary>
     /// Marks this feature as enabled by default.
     /// </summary>
+    [ObsoleteMetadata(Message = "Should this feature still need to rely on being discovered via assembly scanning it is possible to suppress this warning. In all other cases it is recommended to create an extension on top of EndpointConfiguration and enable the feature within the extension. This will remove the necessity for the feature to be scanned.", TreatAsErrorFromVersion = "12", RemoveInVersion = "13")]
+    [Obsolete("Should this feature still need to rely on being discovered via assembly scanning it is possible to suppress this warning. In all other cases it is recommended to create an extension on top of EndpointConfiguration and enable the feature within the extension. This will remove the necessity for the feature to be scanned.. Will be treated as an error from version 12.0.0. Will be removed in version 13.0.0.", false)]
     protected void EnableByDefault() => IsEnabledByDefault = true;
 
     /// <summary>
