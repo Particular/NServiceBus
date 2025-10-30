@@ -49,12 +49,27 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
         class Installer<T> : IInstaller where T : class, INeedToInstallSomething
         {
-            public Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
+            public async Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
             {
                 // Deliberately not using the factory because installers are only resolved at startup once
                 var installer = ActivatorUtilities.CreateInstance<T>(serviceProvider);
 
-                return installer.Install(identity, cancellationToken);
+                try
+                {
+                    await installer.Install(identity, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (installer is IAsyncDisposable asyncDisposableInstaller)
+                    {
+                        await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
+                    }
+
+                    if (installer is IDisposable disposableInstaller)
+                    {
+                        disposableInstaller.Dispose();
+                    }
+                }
             }
 
             public bool Equals(IInstaller? other) => other?.GetType() == typeof(T);
