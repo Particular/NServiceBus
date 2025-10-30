@@ -69,9 +69,7 @@ public class FeatureSettingsTests
     }
 
 
-    public class MyFeature : TestFeature
-    {
-    }
+    public class MyFeature : TestFeature;
 
     public class MyFeatureWithDefaults : TestFeature
     {
@@ -122,17 +120,15 @@ public class FeatureSettingsTests
 
 public abstract class TestFeature : Feature
 {
-    protected TestFeature()
-    {
+    protected TestFeature() =>
         Defaults(s =>
         {
             OnDefaults?.Invoke(this);
         });
-    }
 
     public bool Enabled
     {
-        get { return IsEnabledByDefault; }
+        get => IsEnabledByDefault;
         set
         {
             if (value)
@@ -145,8 +141,5 @@ public abstract class TestFeature : Feature
     public Action<Feature> OnActivation;
     public Action<Feature> OnDefaults;
 
-    protected internal override void Setup(FeatureConfigurationContext context)
-    {
-        OnActivation?.Invoke(this);
-    }
+    protected internal override void Setup(FeatureConfigurationContext context) => OnActivation?.Invoke(this);
 }
