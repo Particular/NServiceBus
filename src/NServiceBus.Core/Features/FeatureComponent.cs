@@ -179,17 +179,6 @@ class FeatureComponent(FeatureComponent.Settings settings)
             return state == FeatureState.Disabled;
         }
 
-        public bool IsFeature(Type featureType, FeatureState state)
-        {
-            var featureName = Feature.GetFeatureName(featureType);
-            if (added.TryGetValue(featureName, out var info))
-            {
-                return info.In(state);
-            }
-            // backward compat with GetOrDefault
-            return state == FeatureState.Disabled;
-        }
-
         public void AddScannedTypes(IEnumerable<Type> availableTypes)
         {
             foreach (var featureType in availableTypes.Where(IsFeature))
