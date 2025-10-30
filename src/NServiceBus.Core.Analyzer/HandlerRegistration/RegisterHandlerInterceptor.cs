@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Analyzer.HandlerRegistration;
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -90,9 +91,31 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
             return null;
         }
 
-        var methodName = $"RegisterHandler_{handlerType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat).Replace('.', '_')}_{location.Data.Replace('/', '_').Replace('+', '_')}";
+        var methodName = CreateMethodName(handlerType, candidate);
         var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, messageTypes);
+    }
+
+    static string CreateMethodName(INamedTypeSymbol handlerType, InvocationCandidate invocation)
+    {
+        const string NamePrefix = "RegisterHandler_";
+        const int HashBytesToUse = 10;
+
+        var sb = new StringBuilder(NamePrefix, 50)
+            .Append(handlerType.Name)
+            .Append('_');
+
+        using var sha = SHA256.Create();
+
+        var clearBytes = Encoding.UTF8.GetBytes($"{invocation.FilePath}:{invocation.Span.Start}-{invocation.Span.End}");
+        var hashBytes = sha.ComputeHash(clearBytes);
+
+        for (var i = 0; i < HashBytesToUse; i++)
+        {
+            _ = sb.Append(hashBytes[i].ToString("x2"));
+        }
+
+        return sb.ToString();
     }
 
     static bool IsRegisterHandlerMethod(IMethodSymbol method) => method is
