@@ -1,4 +1,5 @@
 #nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -47,6 +48,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
         {
             public Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
             {
+                // Deliberately not using the factory because installers are only resolved at startup once
                 var installer = ActivatorUtilities.CreateInstance<T>(serviceProvider);
 
                 return installer.Install(identity, cancellationToken);
