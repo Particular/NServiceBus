@@ -56,23 +56,6 @@ public class FeatureSettingsTests
         Assert.That(settings.HasSetting("Test1"), Is.True);
     }
 
-    [Test]
-    [Ignore("Discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
-    public void Should_not_register_defaults_if_feature_is_not_activated()
-    {
-        featureSettings.EnableFeatureByDefault<MyFeatureWithDefaultsNotActive>();
-        featureSettings.EnableFeatureByDefault<MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite>();
-
-        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(settings.HasSetting("Test1"), Is.False);
-            Assert.That(settings.HasSetting("Test2"), Is.False);
-        }
-    }
-
-
     public class MyFeatureWithDefaults : TestFeature
     {
         public MyFeatureWithDefaults() => Defaults(s => s.SetDefault("Test1", true));
