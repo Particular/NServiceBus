@@ -18,16 +18,18 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.InstallerCalled, Is.True);
+        Assert.That(context.AsyncDisposeInstallerCalled, Is.True);
+        Assert.That(context.DisposeInstallerCalled, Is.True);
         Assert.That(context.AsyncDisposeCalled, Is.True);
         Assert.That(context.DisposeCalled, Is.True);
     }
 
     class Context : ScenarioContext
     {
-        public bool InstallerCalled { get; set; }
+        public bool AsyncDisposeInstallerCalled { get; set; }
         public bool AsyncDisposeCalled { get; set; }
         public bool DisposeCalled { get; set; }
+        public bool DisposeInstallerCalled { get; set; }
     }
 
     class EndpointWithInstaller : EndpointConfigurationBuilder
@@ -37,14 +39,15 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             {
                 // installers are enabled by default by but this makes it more clear that they need to be on
                 c.EnableInstallers();
-                c.RegisterInstaller<CustomInstaller>();
+                c.RegisterInstaller<CustomInstallerWithAsyncDispose>();
+                c.RegisterInstaller<CustomInstallerWithDispose>();
             });
 
-        class CustomInstaller(Context testContext) : INeedToInstallSomething, IAsyncDisposable, IDisposable
+        class CustomInstallerWithAsyncDispose(Context testContext) : INeedToInstallSomething, IAsyncDisposable
         {
             public Task Install(string identity, CancellationToken cancellationToken = default)
             {
-                testContext.InstallerCalled = true;
+                testContext.AsyncDisposeInstallerCalled = true;
                 return Task.CompletedTask;
             }
 
@@ -52,6 +55,15 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             {
                 testContext.AsyncDisposeCalled = true;
                 return ValueTask.CompletedTask;
+            }
+        }
+
+        class CustomInstallerWithDispose(Context testContext) : INeedToInstallSomething, IDisposable
+        {
+            public Task Install(string identity, CancellationToken cancellationToken = default)
+            {
+                testContext.DisposeInstallerCalled = true;
+                return Task.CompletedTask;
             }
 
             public void Dispose() => testContext.DisposeCalled = true;
