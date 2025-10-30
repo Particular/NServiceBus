@@ -71,9 +71,11 @@ class InstallerComponent(InstallerComponent.Settings settings)
                 }
             }
 
-            public bool Equals(IInstaller? other) => other?.GetType() == typeof(T);
-
             public string Name { get; } = typeof(T).FullName!;
+
+            public bool Equals(IInstaller? other) => other?.Name == Name;
+
+            public override int GetHashCode() => Name.GetHashCode();
         }
 
 
