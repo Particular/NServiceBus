@@ -19,6 +19,8 @@ public class RegisterHandlerInterceptorTests
                         {
                             cfg.RegisterHandler<Handles1>();
                             cfg.RegisterHandler<Handles3>();
+                            // Duplicate call, methods should be deduped with 2 InterceptsLocation attributes
+                            cfg.RegisterHandler<Handles3>();
                         }
                      }
                      
