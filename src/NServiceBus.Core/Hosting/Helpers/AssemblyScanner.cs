@@ -328,7 +328,7 @@ public class AssemblyScanner
                 continue;
             }
 
-            // shortly we will stop scanning particular assemblies completely
+            // This section below contains temporary exclusions from scanning until we stop scanning particular assemblies completely
             if (isParticularAssembly)
             {
                 if (typeToAdd.IsAssignableTo(typeof(Feature)))

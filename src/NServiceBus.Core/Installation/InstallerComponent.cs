@@ -13,7 +13,10 @@ using Settings;
 
 class InstallerComponent(InstallerComponent.Settings settings)
 {
-    public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new { InstallersEnabled = settings.Installers.Select(i => i.Name).ToArray() });
+    public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new
+    {
+        InstallersEnabled = settings.Installers.Select(i => i.Name).ToArray()
+    });
 
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {

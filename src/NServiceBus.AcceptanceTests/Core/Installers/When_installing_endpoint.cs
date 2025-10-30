@@ -26,7 +26,10 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
         }
 
-        Assert.That(new[] { $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}", $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main", }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
+        Assert.That(new[]
+        {
+            $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}", $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
+        }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
     }
 
     class Context : ScenarioContext

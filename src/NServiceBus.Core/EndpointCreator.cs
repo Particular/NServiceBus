@@ -159,7 +159,10 @@ class EndpointCreator
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
+        {
+            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
+        });
 
         return new StartableEndpoint(settings,
             featureComponent,
