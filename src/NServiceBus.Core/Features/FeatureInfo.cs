@@ -11,7 +11,7 @@ sealed class FeatureInfo
 
     public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<string>> dependencyNames)
     {
-        if (feature.IsEnabledByDefault) // backward compat for reflection based stuff
+        if (feature.IsEnabledByDefault) // backward compat for reflection-based stuff
         {
             EnableByDefault();
         }
