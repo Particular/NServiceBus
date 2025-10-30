@@ -30,6 +30,7 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
         public EndpointWithInstaller() =>
             EndpointSetup<DefaultServer>(c =>
             {
+                // installers are enabled by default by but this makes it more clear that they need to be on
                 c.EnableInstallers();
                 c.RegisterInstaller<CustomInstaller>();
             });
