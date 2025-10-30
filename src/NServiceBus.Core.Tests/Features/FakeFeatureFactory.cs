@@ -18,5 +18,9 @@ class FakeFeatureFactory : FeatureFactory
 
     public void Add(Feature feature) => features[feature.GetType()] = feature;
 
-    public override Feature CreateFeature(Type featureType) => features[featureType];
+    public override Feature CreateFeature(Type featureType)
+    {
+        features.TryGetValue(featureType, out var feature);
+        return (feature ?? (Feature)Activator.CreateInstance(featureType)) ?? throw new InvalidOperationException("Feature not found");
+    }
 }
