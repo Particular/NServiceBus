@@ -6,35 +6,17 @@ using System.Threading.Tasks;
 using NServiceBus.Logging;
 using NServiceBus.Transport;
 
-class WrappedMessageReceiver : IMessageReceiver
+class WrappedMessageReceiver(
+    ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
+    IMessageReceiver baseReceiver)
+    : IMessageReceiver
 {
-    public WrappedMessageReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver baseReceiver)
-    {
-        this.baseReceiver = baseReceiver;
-        this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
-    }
-
-    public async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken = default)
-    {
-        await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
-        await consecutiveFailuresCircuitBreaker.Success(cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<ErrorHandleResult> WrappedOnError(ErrorContext errorContext, CancellationToken cancellationToken = default)
-    {
-        await consecutiveFailuresCircuitBreaker.Failure(cancellationToken).ConfigureAwait(false);
-
-        return await wrappedOnError(errorContext, cancellationToken).ConfigureAwait(false);
-    }
-
     public ISubscriptionManager Subscriptions => baseReceiver.Subscriptions;
     public string Id => baseReceiver.Id;
     public string ReceiveAddress => baseReceiver.ReceiveAddress;
 
     public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
-    {
-        return baseReceiver.ChangeConcurrency(limitations, cancellationToken);
-    }
+        => baseReceiver.ChangeConcurrency(limitations, cancellationToken);
 
     public Task StartReceive(CancellationToken cancellationToken = default)
     {
@@ -45,13 +27,12 @@ class WrappedMessageReceiver : IMessageReceiver
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {
-        // Todo: can stop receive be called without cancellationToken being cancelled?
         try
         {
             if (rateLimitTask != null)
             {
-                rateLimitLoopCancellationToken.Cancel();
-                resetEventReplacement.TrySetResult(true);
+                await rateLimitLoopCancellationToken.CancelAsync().ConfigureAwait(false);
+                resetEventReplacement.TrySetResult();
                 await rateLimitTask.ConfigureAwait(false);
             }
         }
@@ -73,13 +54,26 @@ class WrappedMessageReceiver : IMessageReceiver
         {
             SwitchToRateLimitMode(ticks);
             return Task.CompletedTask;
-        }, (ticks, cancellationToken) =>
+        }, (ticks, _) =>
         {
             SwitchBackToNormalMode(ticks);
             return Task.CompletedTask;
         });
 
         return baseReceiver.Initialize(originalLimitations, WrappedInvoke, WrappedOnError, cancellationToken);
+    }
+
+    async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken)
+    {
+        await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
+        await consecutiveFailuresCircuitBreaker.Success(cancellationToken).ConfigureAwait(false);
+    }
+
+    async Task<ErrorHandleResult> WrappedOnError(ErrorContext errorContext, CancellationToken cancellationToken)
+    {
+        await consecutiveFailuresCircuitBreaker.Failure(cancellationToken).ConfigureAwait(false);
+
+        return await wrappedOnError(errorContext, cancellationToken).ConfigureAwait(false);
     }
 
     async Task RateLimitLoop(CancellationToken cancellationToken)
@@ -95,7 +89,7 @@ class WrappedMessageReceiver : IMessageReceiver
                 return;
             }
 
-            resetEventReplacement = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            resetEventReplacement = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -159,10 +153,10 @@ class WrappedMessageReceiver : IMessageReceiver
     void SwitchBackToNormalMode(long stateChangeTime)
     {
         // Switching to normal mode always takes precedence so we don't check the previous state change time.
-        Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
+        _ = Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
 
         endpointShouldBeRateLimited = false;
-        resetEventReplacement.TrySetResult(true);
+        _ = resetEventReplacement.TrySetResult();
     }
 
     void SwitchToRateLimitMode(long stateChangeTime)
@@ -175,19 +169,17 @@ class WrappedMessageReceiver : IMessageReceiver
             Interlocked.Exchange(ref lastStateChangeTime, stateChangeTime);
 
             endpointShouldBeRateLimited = true;
-            resetEventReplacement.TrySetResult(true);
+            _ = resetEventReplacement.TrySetResult();
         }
     }
 
     static readonly ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
-    static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new PushRuntimeSettings(1);
+    static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new(1);
 
-    readonly IMessageReceiver baseReceiver;
-    readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
     ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
-    TaskCompletionSource<bool> resetEventReplacement = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    TaskCompletionSource resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Task rateLimitTask;
-    readonly CancellationTokenSource rateLimitLoopCancellationToken = new CancellationTokenSource();
+    readonly CancellationTokenSource rateLimitLoopCancellationToken = new();
     OnMessage wrappedOnMessage;
     OnError wrappedOnError;
     PushRuntimeSettings originalLimitations;
