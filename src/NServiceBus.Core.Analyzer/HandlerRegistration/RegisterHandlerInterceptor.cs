@@ -91,12 +91,12 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
             return null;
         }
 
-        var methodName = CreateMethodName(handlerType, candidate);
+        var methodName = CreateMethodName(handlerType);
         var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, messageTypes);
     }
 
-    static string CreateMethodName(INamedTypeSymbol handlerType, InvocationCandidate invocation)
+    static string CreateMethodName(INamedTypeSymbol handlerType)
     {
         const string NamePrefix = "RegisterHandler_";
         const int HashBytesToUse = 10;
@@ -107,7 +107,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
 
         using var sha = SHA256.Create();
 
-        var clearBytes = Encoding.UTF8.GetBytes($"{invocation.FilePath}:{invocation.Span.Start}-{invocation.Span.End}");
+        var clearBytes = Encoding.UTF8.GetBytes(handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
         var hashBytes = sha.ComputeHash(clearBytes);
 
         for (var i = 0; i < HashBytesToUse; i++)
@@ -177,19 +177,25 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
                           {
                       """);
 
-        foreach (var location in intercepts)
+        var groups = intercepts.GroupBy(i => i.MethodName);
+        foreach (var group in groups)
         {
-            sb.AppendLine($"""        [global::System.Runtime.CompilerServices.InterceptsLocation({location.Location.Version}, "{location.Location.Data}")] // {location.Location.DisplayLocation}""");
+            foreach (var location in group)
+            {
+                sb.AppendLine($"""        [global::System.Runtime.CompilerServices.InterceptsLocation({location.Location.Version}, "{location.Location.Data}")] // {location.Location.DisplayLocation}""");
+            }
+
+            var first = group.First();
             sb.AppendLine($$"""
-                                    public static void {{location.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
+                                    public static void {{first.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
                                     {
                                         System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                                         var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                             .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                             """);
-            foreach (var messageType in location.MessageTypes.Items)
+            foreach (var messageType in first.MessageTypes.Items)
             {
-                sb.AppendLine($"            registry.RegisterHandlerForMessage<{location.HandlerType}, {messageType}>();");
+                sb.AppendLine($"            registry.RegisterHandlerForMessage<{first.HandlerType}, {messageType}>();");
             }
             sb.AppendLine("        }");
         }
