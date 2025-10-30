@@ -28,7 +28,6 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
     class EndpointWithInstaller : EndpointConfigurationBuilder
     {
         public EndpointWithInstaller() =>
-            // installers are enabled by default by but this makes it more clear that they need to be on
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableInstallers();
