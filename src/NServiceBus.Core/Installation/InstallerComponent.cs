@@ -64,8 +64,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
                     {
                         await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
                     }
-
-                    if (installer is IDisposable disposableInstaller)
+                    else if (installer is IDisposable disposableInstaller)
                     {
                         disposableInstaller.Dispose();
                     }
