@@ -20,16 +20,16 @@ namespace NServiceBus
 {
     static file class InterceptionsOfRegisterHandlerMethod
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "fG5ok6kvoK7KRl1JBZjAEooAAAB0ZXN0LmNz")] // test.cs(8,12)
-        public static void RegisterHandler_Handles1_fG5ok6kvoK7KRl1JBZjAEooAAAB0ZXN0LmNz(NServiceBus.EndpointConfiguration endpointConfiguration)
+        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,12)
+        public static void RegisterHandler_Handles1_0845f1f6a764698d1572(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
             var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
             registry.RegisterHandlerForMessage<global::Handles1, global::Cmd1>();
         }
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "fG5ok6kvoK7KRl1JBZjAErIAAAB0ZXN0LmNz")] // test.cs(9,12)
-        public static void RegisterHandler_Handles3_fG5ok6kvoK7KRl1JBZjAErIAAAB0ZXN0LmNz(NServiceBus.EndpointConfiguration endpointConfiguration)
+        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,12)
+        public static void RegisterHandler_Handles3_06fd8f5fd35e303018e1(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
             var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)

@@ -9,13 +9,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 using Particular.Approvals;
 
-public class SourceGeneratorTest
+public partial class SourceGeneratorTest
 {
     readonly List<(string Filename, string Source)> sources;
     readonly List<ISourceGenerator> generators;
@@ -345,7 +346,8 @@ public class SourceGeneratorTest
         try
         {
             var output = GetCompilationOutput();
-            Approver.Verify(output, scrubber, scenarioName, callerFilePath, callerMemberName);
+            var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+            Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
             return this;
         }
         catch (Exception)
@@ -354,6 +356,9 @@ public class SourceGeneratorTest
             throw;
         }
     }
+
+    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocation\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
     {
