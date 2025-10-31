@@ -11,7 +11,7 @@ using Settings;
 /// <summary>
 /// Used to control the various features supported by the framework.
 /// </summary>
-public abstract class Feature
+public abstract partial class Feature
 {
     /// <summary>
     /// Creates an instance of <see cref="Feature" />.
@@ -140,19 +140,6 @@ public abstract class Feature
     /// </summary>
     /// <param name="featureName">The name of the feature that this feature depends on.</param>
     protected void DependsOnOptionally(string featureName) => DependsOnAtLeastOne(GetFeatureName(typeof(RootFeature)), featureName);
-
-    /// <summary>
-    /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
-    /// <see cref="Setup" /> method will be called
-    /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
-    /// </summary>
-    /// <param name="featureType">The type of the feature that this feature depends on.</param>
-    protected void DependsOnOptionally(Type featureType)
-    {
-        ArgumentNullException.ThrowIfNull(featureType);
-
-        DependsOnAtLeastOne(typeof(RootFeature), featureType);
-    }
 
     /// <summary>
     /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's

@@ -445,6 +445,16 @@ namespace NServiceBus.Features
         [Obsolete("Use 'IsFeatureEnabled<T>(this IReadOnlySettings settings)' instead. Will be removed in version 11.0.0.", true)]
         public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType) => throw new NotImplementedException();
     }
+
+    public abstract partial class Feature
+    {
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "DependsOnOptionally<T>()",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'DependsOnOptionally<T>()' instead. Will be removed in version 11.0.0.", true)]
+        protected void DependsOnOptionally(Type featureType) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.Persistence

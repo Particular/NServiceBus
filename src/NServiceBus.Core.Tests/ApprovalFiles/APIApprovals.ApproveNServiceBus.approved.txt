@@ -1266,6 +1266,7 @@ namespace NServiceBus.Features
             where T : NServiceBus.Features.Feature { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
+        [System.Obsolete("Use \'DependsOnOptionally<T>()\' instead. Will be removed in version 11.0.0.", true)]
         protected void DependsOnOptionally(System.Type featureType) { }
         protected void DependsOnOptionally(string featureName) { }
         protected void DependsOnOptionally<T>()
