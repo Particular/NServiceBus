@@ -12,13 +12,13 @@ using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
 
 [Generator]
-public class RegisterHandlerInterceptor : IIncrementalGenerator
+public class AddHandlerInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var locations = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: SyntaxLooksLikeRegisterHandlerMethod,
+                predicate: SyntaxLooksLikeAddHandlerMethod,
                 transform: static (ctx, _) => new InvocationCandidate(ctx.Node.SyntaxTree.FilePath, ctx.Node.Span))
             .WithTrackingName("InterceptCandidates");
 
@@ -34,13 +34,13 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         context.RegisterSourceOutput(collected, GenerateInterceptorCode);
     }
 
-    static bool SyntaxLooksLikeRegisterHandlerMethod(SyntaxNode node, CancellationToken cancellationToken) => node is InvocationExpressionSyntax
+    static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node, CancellationToken cancellationToken) => node is InvocationExpressionSyntax
     {
         Expression: MemberAccessExpressionSyntax
         {
             Name: GenericNameSyntax
             {
-                Identifier.ValueText: RegisterHandlerMethodName,
+                Identifier.ValueText: AddHandlerMethodName,
                 TypeArgumentList.Arguments.Count: 1
             }
         },
@@ -71,7 +71,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         }
 
         // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-        if (!IsRegisterHandlerMethod(operation.TargetMethod))
+        if (!IsAddHandlerMethod(operation.TargetMethod))
         {
             return null;
         }
@@ -98,7 +98,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
 
     static string CreateMethodName(INamedTypeSymbol handlerType)
     {
-        const string NamePrefix = "RegisterHandler_";
+        const string NamePrefix = "AddHandler_";
         const int HashBytesToUse = 10;
 
         var sb = new StringBuilder(NamePrefix, 50)
@@ -118,14 +118,14 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
         return sb.ToString();
     }
 
-    static bool IsRegisterHandlerMethod(IMethodSymbol method) => method is
+    static bool IsAddHandlerMethod(IMethodSymbol method) => method is
     {
-        Name: RegisterHandlerMethodName,
+        Name: AddHandlerMethodName,
         IsGenericMethod: true,
         TypeArguments: { Length: 1 },
         ContainingType:
         {
-            Name: RegisterHandlerClassName,
+            Name: AddHandlerClassName,
             ContainingNamespace:
             {
                 Name: "NServiceBus",
@@ -173,7 +173,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
 
                       namespace NServiceBus
                       {
-                          static file class InterceptionsOfRegisterHandlerMethod
+                          static file class InterceptionsOfAddHandlerMethod
                           {
                       """);
 
@@ -195,7 +195,7 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
                             """);
             foreach (var messageType in first.MessageTypes.Items)
             {
-                sb.AppendLine($"            registry.RegisterHandlerForMessage<{first.HandlerType}, {messageType}>();");
+                sb.AppendLine($"            registry.AddHandlerForMessage<{first.HandlerType}, {messageType}>();");
             }
             sb.AppendLine("        }");
         }
@@ -205,11 +205,11 @@ public class RegisterHandlerInterceptor : IIncrementalGenerator
                       }
                       """);
 
-        context.AddSource("InterceptionsOfRegisterHandlerMethod.g.cs", sb.ToString());
+        context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sb.ToString());
     }
 
-    const string RegisterHandlerClassName = "MessageHandlerRegistrationExtensions";
-    const string RegisterHandlerMethodName = "RegisterHandler";
+    const string AddHandlerClassName = "MessageHandlerRegistrationExtensions";
+    const string AddHandlerMethodName = "AddHandler";
 
     record struct InvocationCandidate(string FilePath, TextSpan Span);
     record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<string> MessageTypes);
