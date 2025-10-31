@@ -51,7 +51,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c =>
                 {
                     var registry = new MessageHandlerRegistry();
-                    registry.RegisterHandler<ManuallyRegisteredHandler>();
+                    registry.AddHandler<ManuallyRegisteredHandler>();
                     c.GetSettings().Set(registry);
                     // the handler isn't registered for DI automatically
                     c.RegisterComponents(components => components

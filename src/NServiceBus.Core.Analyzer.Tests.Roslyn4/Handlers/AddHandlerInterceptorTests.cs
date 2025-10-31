@@ -4,7 +4,7 @@ using HandlerRegistration;
 using Helpers;
 using NUnit.Framework;
 
-public class RegisterHandlerInterceptorTests
+public class AddHandlerInterceptorTests
 {
     [Test]
     public void BasicHandlers()
@@ -17,10 +17,10 @@ public class RegisterHandlerInterceptorTests
                      {
                         public void Configure(EndpointConfiguration cfg)
                         {
-                            cfg.RegisterHandler<Handles1>();
-                            cfg.RegisterHandler<Handles3>();
+                            cfg.AddHandler<Handles1>();
+                            cfg.AddHandler<Handles3>();
                             // Duplicate call, methods should be deduped with 2 InterceptsLocation attributes
-                            cfg.RegisterHandler<Handles3>();
+                            cfg.AddHandler<Handles3>();
                         }
                      }
                      
@@ -40,7 +40,7 @@ public class RegisterHandlerInterceptorTests
                      public class Evt1 : IEvent { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<RegisterHandlerInterceptor>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .WithGeneratorStages("InterceptCandidates", "WithCompilation", "Collected")
             .Approve()

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -59,20 +60,20 @@ public class MessageHandlerRegistry
     [ObsoleteMetadata(Message = "Deprecated in favor of a strongly-typed alternative",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12",
-        ReplacementTypeOrMember = "RegisterHandler<THandler>()")]
-    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'RegisterHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
-    public void RegisterHandler(Type handlerType) => RegisterHandlerWithReflection(handlerType);
+        ReplacementTypeOrMember = "AddHandler<THandler>()")]
+    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
-    void RegisterHandlerWithReflection(Type handlerType) =>
+    void AddHandlerWithReflection(Type handlerType) =>
         typeof(MessageHandlerRegistry)
-            .GetMethod(nameof(RegisterHandler), BindingFlags.Public | BindingFlags.Instance, [])!
+            .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, [])!
             .MakeGenericMethod(handlerType)
             .Invoke(this, []);
 
     /// <summary>
     /// Registers the given potential handler type.
     /// </summary>
-    public void RegisterHandler<THandler>() where THandler : IHandleMessages
+    public void AddHandler<THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
 
@@ -85,15 +86,16 @@ public class MessageHandlerRegistry
 
         foreach (var messageType in messageTypes)
         {
-            RegisterHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
+            AddHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
                 .Invoke(this, []);
         }
     }
 
     /// <summary>
-    /// Register a handler for a specific message type. Should only be called by a source generator.
+    /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    public void RegisterHandlerForMessage<THandler, TMessage>() where THandler : class
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void AddHandlerForMessage<THandler, TMessage>() where THandler : class
     {
         if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var methodList))
         {
@@ -123,8 +125,8 @@ public class MessageHandlerRegistry
         }
     }
 
-    static readonly MethodInfo RegisterHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(RegisterHandlerForMessage)) ?? throw new MissingMethodException("RegisterHandlerForMessage");
+    static readonly MethodInfo AddHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddHandlerForMessage));
 
     /// <summary>
     /// Add handlers from types scanned at runtime.
@@ -134,7 +136,7 @@ public class MessageHandlerRegistry
     {
         foreach (var type in orderedTypes.Where(IsMessageHandler))
         {
-            RegisterHandlerWithReflection(type);
+            AddHandlerWithReflection(type);
         }
     }
 
