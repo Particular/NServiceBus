@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
-    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="5.2.0" PrivateAssets="All" />
+    <PackageReference Include="FastExpressionCompiler.Internal.src" Version="5.3.3" PrivateAssets="All" GeneratePathProperty="true" />
     <PackageReference Include="Particular.Licensing.Sources" Version="6.1.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Obsoletes" Version="1.0.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
@@ -31,6 +31,10 @@
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
+
+  <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package">
+    <Compile Remove="$(PkgFastExpressionCompiler_Internal_src)\**\TestTools.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
