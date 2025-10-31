@@ -174,8 +174,6 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
         var sagaEntityType = genericArguments.Single();
 
-        ApplyScannedFinders(mapper, sagaEntityType, availableTypes, conventions);
-
         var finders = new List<SagaFinderDefinition>();
 
         var propertyMappings = mapper.Mappings.OfType<CorrelationSagaToMessageMap>()
@@ -220,47 +218,6 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         }
 
         return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
-    }
-
-    static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
-    {
-        var actualFinders = availableTypes.Where(t => typeof(IFinder).IsAssignableFrom(t) && t.IsClass)
-            .ToList();
-
-        foreach (var finderType in actualFinders)
-        {
-            foreach (var interfaceType in finderType.GetInterfaces())
-            {
-                var args = interfaceType.GetGenericArguments();
-                //since we don't want to process the IFinder type
-                if (args.Length != 2)
-                {
-                    continue;
-                }
-
-                var entityType = args[0];
-                if (entityType != sagaEntityType)
-                {
-                    continue;
-                }
-
-                var messageType = args[1];
-                if (!conventions.IsMessageType(messageType))
-                {
-                    var error = $"A custom ISagaFinder must target a valid message type as defined by the message conventions. Change '{messageType.FullName}' to a valid message type or add it to the message conventions. Finder name '{finderType.FullName}'.";
-                    throw new Exception(error);
-                }
-
-                var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
-                if (existingMapping != null)
-                {
-                    var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
-                    throw new Exception(bothMappingAndFinder);
-                }
-
-                mapper.ConfigureCustomFinder(finderType, messageType);
-            }
-        }
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)

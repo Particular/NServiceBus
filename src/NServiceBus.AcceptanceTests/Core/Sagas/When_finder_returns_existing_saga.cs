@@ -71,9 +71,9 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
                 mapper.ConfigureFinderMapping<SomeOtherMessage, CustomFinder>();
             }
 
-            public sealed class SagaData08 : ContainSagaData
+            public class SagaData08 : ContainSagaData
             {
-                public string Property { get; set; }
+                public virtual string Property { get; set; }
             }
         }
     }

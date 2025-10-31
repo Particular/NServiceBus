@@ -2,6 +2,11 @@ namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Extensibility;
+using Microsoft.Extensions.DependencyInjection;
+using Persistence;
 
 /// <summary>
 /// Defines a message finder.
@@ -20,6 +25,8 @@ public class SagaFinderDefinition
         MessageType = messageType;
         MessageTypeName = messageType.FullName;
         Properties = properties;
+
+        finderFactory = ActivatorUtilities.CreateFactory(type, []);
     }
 
     /// <summary>
@@ -41,4 +48,18 @@ public class SagaFinderDefinition
     /// Custom properties.
     /// </summary>
     public Dictionary<string, object> Properties { get; }
+
+    internal Task<IContainSagaData> InvokeFinder(IServiceProvider serviceProvider,
+        ISynchronizedStorageSession synchronizedStorageSession,
+        ContextBag context,
+        object message,
+        IReadOnlyDictionary<string, string> messageHeaders,
+        CancellationToken cancellationToken = default)
+    {
+        var finder = (SagaFinder)finderFactory.Invoke(serviceProvider, null);
+
+        return finder.Find(serviceProvider, this, synchronizedStorageSession, context, message, messageHeaders, cancellationToken);
+    }
+
+    readonly ObjectFactory finderFactory;
 }

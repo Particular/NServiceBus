@@ -2,7 +2,6 @@
 
 using Sagas;
 using System;
-using System.Collections.Generic;
 
 class CustomFinderSagaToMessageMap : SagaToMessageMap
 {
@@ -10,13 +9,8 @@ class CustomFinderSagaToMessageMap : SagaToMessageMap
 
     public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
     {
-        return new SagaFinderDefinition(
-            typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, MessageType),
-            MessageType,
-            new Dictionary<string, object>
-            {
-                {"custom-finder-clr-type", CustomFinderType}
-            });
+        var finderType = typeof(CustomFinderAdapter<,,>).MakeGenericType(CustomFinderType, sagaEntityType, MessageType);
+        return new SagaFinderDefinition(finderType, MessageType, []);
     }
 
     protected override string SagaDoesNotHandleMappedMessage(Type sagaType)
