@@ -69,7 +69,7 @@ public class FeatureStateTests
     {
         public FeatureThatDependsOnAnother() => DependsOn<DependentFeature>();
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }
@@ -78,7 +78,7 @@ public class FeatureStateTests
     {
         public DependentFeature() => Prerequisite(c => false, "Not to be activated");
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }
@@ -139,7 +139,7 @@ public class FeatureStateTests
 
     sealed class FeatureThatGetsToggled : Feature
     {
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }

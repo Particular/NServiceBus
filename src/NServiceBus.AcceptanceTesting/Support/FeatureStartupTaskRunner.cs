@@ -12,7 +12,7 @@ sealed class FeatureStartupTaskRunner : Feature
 {
     public const string ConfigKey = "FeatureStartupTaskRunner.StartupTasks";
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         if (context.Settings.TryGet<List<Func<IServiceProvider, FeatureStartupTask>>>(ConfigKey, out var startupTasks))
         {

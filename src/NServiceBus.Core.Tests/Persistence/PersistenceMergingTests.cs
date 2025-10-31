@@ -37,7 +37,7 @@ public class When_no_storage_persistence_overrides_are_enabled
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }
@@ -76,7 +76,7 @@ public class When_storage_overrides_are_provided
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 
@@ -93,7 +93,7 @@ public class When_storage_overrides_are_provided
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }
@@ -125,7 +125,7 @@ public class When_explicitly_enabling_selected_storage
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }

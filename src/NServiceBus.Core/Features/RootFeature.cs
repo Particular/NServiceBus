@@ -7,7 +7,7 @@ namespace NServiceBus.Features;
 /// </summary>
 sealed class RootFeature : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
     }
 }

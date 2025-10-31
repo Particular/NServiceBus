@@ -21,7 +21,7 @@ class LearningSagaPersistence : Feature
         DependsOn<LearningSynchronizedStorage>();
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var storageLocation = context.Settings.Get<string>(StorageLocationKey);
 

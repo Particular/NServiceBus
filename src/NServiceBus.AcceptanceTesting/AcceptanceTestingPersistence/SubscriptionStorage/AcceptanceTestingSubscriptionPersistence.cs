@@ -11,7 +11,7 @@ class AcceptanceTestingSubscriptionPersistence : Feature
         DependsOn("NServiceBus.Features.MessageDrivenSubscriptions");
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         context.Services.AddSingleton<ISubscriptionStorage, AcceptanceTestingSubscriptionStorage>();
     }

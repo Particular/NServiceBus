@@ -15,7 +15,7 @@ using Unicast.Messages;
 sealed class SerializationFeature : Feature
 {
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var mapper = context.Settings.Get<IMessageMapper>();
         var settings = context.Settings;

@@ -5,7 +5,7 @@ using MessageMutator;
 
 sealed class Mutators : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var registry = context.Settings.GetOrDefault<RegisteredMutators>() ?? new RegisteredMutators();
 

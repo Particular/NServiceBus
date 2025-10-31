@@ -15,7 +15,7 @@ sealed class LicenseReminder : Feature
         Defaults(s => s.SetDefault(LicenseFilePathSettingsKey, null));
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         try
         {

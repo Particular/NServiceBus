@@ -15,5 +15,5 @@ public class SynchronizedStorage : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context) => context.Services.AddScoped<ISynchronizedStorageSession>(provider => provider.GetService<ICompletableSynchronizedStorageSession>());
+    protected override void Setup(FeatureConfigurationContext context) => context.Services.AddScoped<ISynchronizedStorageSession>(provider => provider.GetService<ICompletableSynchronizedStorageSession>());
 }

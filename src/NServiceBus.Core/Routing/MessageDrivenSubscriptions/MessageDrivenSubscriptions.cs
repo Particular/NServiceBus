@@ -31,7 +31,7 @@ sealed class MessageDrivenSubscriptions : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         // The MessageDrivenSubscriptions feature needs to be activated when using the subscription migration mode as some persister packages check this feature before enabling the subscription storage.
         if (SubscriptionMigrationMode.IsMigrationModeEnabled(context.Settings))

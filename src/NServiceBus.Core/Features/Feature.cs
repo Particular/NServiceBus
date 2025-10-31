@@ -57,7 +57,7 @@ public abstract partial class Feature
     /// <summary>
     /// Called when the features is activated.
     /// </summary>
-    protected internal abstract void Setup(FeatureConfigurationContext context);
+    protected abstract void Setup(FeatureConfigurationContext context);
 
     /// <summary>
     /// Adds a setup prerequisite condition. If false this feature won't be setup.
@@ -87,7 +87,7 @@ public abstract partial class Feature
     /// Marks that this feature enables another feature by default.
     /// </summary>
     protected void EnableByDefault<T>() where T : Feature =>
-        toBeEnabledByDefault.Add(new EnabledByDefault(GetFeatureName(typeof(T)), typeof(T)));
+        toBeEnabledByDefault.Add(Default<T>());
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -96,10 +96,7 @@ public abstract partial class Feature
     /// </summary>
     /// <typeparam name="T">Feature that this feature depends on.</typeparam>
     protected void DependsOn<T>() where T : Feature =>
-        dependencies.Add(
-        [
-            new Dependency(GetFeatureName(typeof(T)), typeof(T))
-        ]);
+        dependencies.Add([Depends<T>()]);
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -107,10 +104,7 @@ public abstract partial class Feature
     /// </summary>
     /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
     protected void DependsOn(string featureTypeName) =>
-        dependencies.Add(
-        [
-            new Dependency(featureTypeName)
-        ]);
+        dependencies.Add([new Dependency(featureTypeName)]);
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -122,15 +116,7 @@ public abstract partial class Feature
     {
         ArgumentNullException.ThrowIfNull(features);
 
-        foreach (var feature in features)
-        {
-            if (!feature.IsSubclassOf(baseFeatureType))
-            {
-                throw new ArgumentException($"A Feature can only depend on another Feature. '{feature.FullName}' is not a Feature", nameof(features));
-            }
-        }
-
-        dependencies.Add([.. features.Select(t => new Dependency(GetFeatureName(t), t))]);
+        dependencies.Add([.. features.Select(Depends)]);
     }
 
     /// <summary>
@@ -139,7 +125,7 @@ public abstract partial class Feature
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
     /// <param name="featureName">The name of the feature that this feature depends on.</param>
-    protected void DependsOnOptionally(string featureName) => DependsOnAtLeastOne(GetFeatureName(typeof(RootFeature)), featureName);
+    protected void DependsOnOptionally(string featureName) => DependsOnAtLeastOne(rootFeature.FeatureName, featureName);
 
     /// <summary>
     /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
@@ -147,7 +133,7 @@ public abstract partial class Feature
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
     /// <typeparam name="T">The type of the feature that this feature depends on.</typeparam>
-    protected void DependsOnOptionally<T>() where T : Feature => DependsOnOptionally(typeof(T));
+    protected void DependsOnOptionally<T>() where T : Feature => dependencies.Add([rootFeature, Depends<T>()]);
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -202,12 +188,20 @@ public abstract partial class Feature
 
     internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
+    static EnabledByDefault Default<T>() where T : Feature => new(GetFeatureName<T>(), typeof(T));
+
+    static Dependency Depends<T>() where T : Feature => new(GetFeatureName<T>(), typeof(T));
+
+    static Dependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new Dependency(GetFeatureName(featureType), featureType);
+
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
     readonly List<List<Dependency>> dependencies = [];
     readonly List<EnabledByDefault> toBeEnabledByDefault = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
+
+    static readonly Dependency rootFeature = Depends<RootFeature>();
 
     internal readonly record struct Dependency(string FeatureName, Type? FeatureType = null);
     internal readonly record struct EnabledByDefault(string FeatureName, Type FeatureType);

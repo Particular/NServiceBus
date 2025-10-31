@@ -163,7 +163,7 @@ public class FeatureStartupTests
             this.orderBuilder = orderBuilder;
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
         class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
@@ -185,7 +185,7 @@ public class FeatureStartupTests
 
     class FeatureWithStartupThatAnotherFeatureDependsOn(StringBuilder orderBuilder) : TestFeature
     {
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
         class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
@@ -208,7 +208,7 @@ public class FeatureStartupTests
         public bool TaskStarted { get; private set; }
         public bool TaskStopped { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
         public class Runner(FeatureWithStartupTask parentFeature) : FeatureStartupTask
         {
@@ -246,7 +246,7 @@ public class FeatureStartupTests
         public bool TaskStopped { get; private set; }
         public bool TaskDisposed { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
         readonly bool throwOnStart;
         readonly bool throwOnStop;
@@ -294,7 +294,7 @@ public class FeatureStartupTests
     {
         public bool TaskDisposed { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
         public class Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature) : FeatureStartupTask, IDisposable
         {

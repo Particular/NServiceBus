@@ -24,7 +24,7 @@ public class When_configuring_storage_type_not_supported_by_persistence
 
         class FakeSubscriptionStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
         }
     }
 }
@@ -46,7 +46,7 @@ public class When_configuring_storage_type_supported_by_persistence
 
         class FakeSubscriptionStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
         }
     }
 }

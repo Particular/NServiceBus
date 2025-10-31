@@ -6,7 +6,7 @@ using Unicast.Messages;
 
 sealed class TimeToBeReceived : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var mappings = GetMappings(context);
 

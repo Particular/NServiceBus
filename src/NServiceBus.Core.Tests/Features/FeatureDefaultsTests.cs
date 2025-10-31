@@ -13,7 +13,7 @@ public class FeatureDefaultsTests
     {
         public FeatureThatEnablesAnother() => EnableByDefault<FeatureThatIsEnabledByAnother>();
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }
@@ -24,7 +24,7 @@ public class FeatureDefaultsTests
 
         public bool DefaultCalled;
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }

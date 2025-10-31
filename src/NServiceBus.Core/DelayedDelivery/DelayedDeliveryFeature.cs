@@ -6,7 +6,7 @@ using Transport;
 
 sealed class DelayedDeliveryFeature : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var transportHasNativeDelayedDelivery = context.Settings.Get<TransportDefinition>().SupportsDelayedDelivery;
 

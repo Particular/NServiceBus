@@ -8,7 +8,7 @@ using Settings;
 
 class MessageCausation : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var newIdGenerator = GetIdStrategy(context.Settings);
 

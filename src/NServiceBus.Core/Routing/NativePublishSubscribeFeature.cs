@@ -12,7 +12,7 @@ sealed class NativePublishSubscribeFeature : Feature
         Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 

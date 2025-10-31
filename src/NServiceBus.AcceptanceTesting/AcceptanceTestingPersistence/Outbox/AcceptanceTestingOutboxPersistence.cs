@@ -17,7 +17,7 @@ class AcceptanceTestingOutboxPersistence : Feature
         DependsOn<AcceptanceTestingTransactionalStorageFeature>();
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var outboxStorage = new AcceptanceTestingOutboxStorage();
 

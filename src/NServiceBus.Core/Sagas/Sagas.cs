@@ -37,7 +37,7 @@ public class Sagas : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         if (!context.Settings.HasSupportFor<StorageType.Sagas>())
         {

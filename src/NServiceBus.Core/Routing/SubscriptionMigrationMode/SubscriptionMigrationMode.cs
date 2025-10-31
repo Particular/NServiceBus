@@ -14,7 +14,7 @@ sealed class SubscriptionMigrationMode : Feature
         Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled subscription migration mode");
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 

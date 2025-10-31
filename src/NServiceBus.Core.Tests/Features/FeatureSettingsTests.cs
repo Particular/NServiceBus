@@ -112,5 +112,5 @@ public abstract class TestFeature : Feature
     public Action<Feature> OnActivation;
     public Action<Feature> OnDefaults;
 
-    protected internal override void Setup(FeatureConfigurationContext context) => OnActivation?.Invoke(this);
+    protected override void Setup(FeatureConfigurationContext context) => OnActivation?.Invoke(this);
 }

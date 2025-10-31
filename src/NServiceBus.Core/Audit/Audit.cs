@@ -25,7 +25,7 @@ public class Audit : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var auditConfig = context.Settings.Get<AuditConfigReader.Result>();
 

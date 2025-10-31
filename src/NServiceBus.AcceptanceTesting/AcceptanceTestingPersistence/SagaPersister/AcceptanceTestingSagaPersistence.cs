@@ -14,5 +14,5 @@ class AcceptanceTestingSagaPersistence : Feature
         EnableByDefault<AcceptanceTestingTransactionalStorageFeature>();
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context) => context.Services.AddSingleton<ISagaPersister, AcceptanceTestingSagaPersister>();
+    protected override void Setup(FeatureConfigurationContext context) => context.Services.AddSingleton<ISagaPersister, AcceptanceTestingSagaPersister>();
 }
