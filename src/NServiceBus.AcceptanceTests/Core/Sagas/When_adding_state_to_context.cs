@@ -31,7 +31,7 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
         }
     }
 
-    public class Context : ScenarioContext
+    class Context : ScenarioContext
     {
         public bool FinderUsed { get; set; }
         public IReadOnlyContextBag ContextBag { get; set; }
@@ -39,43 +39,32 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
+        public SagaEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 //use InMemoryPersistence as custom finder support is required
                 c.UsePersistence<AcceptanceTestingPersistence>();
                 c.Pipeline.Register(new BehaviorWhichAddsThingsToTheContext(), "adds some data to the context");
             });
-        }
 
-        class CustomFinder : ISagaFinder<TestSaga07.SagaData07, StartSagaMessage>
+        class CustomFinder(Context testContext) : ISagaFinder<TestSaga07.SagaData07, StartSagaMessage>
         {
-            public CustomFinder(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
             {
                 testContext.ContextBag = context;
                 testContext.FinderUsed = true;
                 return Task.FromResult(default(TestSaga07.SagaData07));
             }
-
-            Context testContext;
         }
 
         public class TestSaga07 : Saga<TestSaga07.SagaData07>, IAmStartedByMessages<StartSagaMessage>
         {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper)
             {
                 // custom finder used
+                mapper.ConfigureFinderMapping<StartSagaMessage, CustomFinder>();
             }
 
             public class SagaData07 : ContainSagaData
