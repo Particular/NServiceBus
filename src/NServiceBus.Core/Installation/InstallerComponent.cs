@@ -78,7 +78,6 @@ class InstallerComponent(InstallerComponent.Settings settings)
             public override int GetHashCode() => InstallerType.GetHashCode();
         }
 
-
         public interface IInstaller : IEquatable<IInstaller>
         {
             Type InstallerType { get; }
