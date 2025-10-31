@@ -15,7 +15,7 @@ public class MessageHandlerRegistryTests
     {
         var registry = new MessageHandlerRegistry();
 
-        registry.RegisterHandler<SagaWithTimeoutOfMessage>();
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
 
         var handlers = registry.GetHandlersFor(typeof(MyMessage));
 

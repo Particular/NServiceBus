@@ -12,11 +12,11 @@ public static class MessageHandlerRegistrationExtensions
     /// <summary>
     /// Registers a message handler.
     /// </summary>
-    public static void RegisterHandler<THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
+    public static void AddHandler<THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
 
         var registry = config.Settings.GetOrCreate<MessageHandlerRegistry>();
-        registry.RegisterHandler<THandler>();
+        registry.AddHandler<THandler>();
     }
 }

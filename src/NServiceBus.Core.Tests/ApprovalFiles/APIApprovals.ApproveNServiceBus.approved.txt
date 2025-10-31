@@ -600,7 +600,7 @@ namespace NServiceBus
     }
     public static class MessageHandlerRegistrationExtensions
     {
-        public static void RegisterHandler<THandler>(this NServiceBus.EndpointConfiguration config)
+        public static void AddHandler<THandler>(this NServiceBus.EndpointConfiguration config)
             where THandler : NServiceBus.IHandleMessages { }
     }
     public static class MessageIdExtensions
@@ -2360,18 +2360,18 @@ namespace NServiceBus.Unicast
     public class MessageHandlerRegistry
     {
         public MessageHandlerRegistry() { }
+        public void AddHandler<THandler>()
+            where THandler : NServiceBus.IHandleMessages { }
+        public void AddHandlerForMessage<THandler, TMessage>()
+            where THandler :  class { }
         public void AddScannedHandlers(System.Collections.Generic.IEnumerable<System.Type> orderedTypes) { }
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
-        [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'RegisterHandler<THandle" +
-            "r>()\' instead. Will be treated as an error from version 11.0.0. Will be removed " +
-            "in version 12.0.0.", false)]
+        [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'AddHandler<THandler>()\'" +
+            " instead. Will be treated as an error from version 11.0.0. Will be removed in ve" +
+            "rsion 12.0.0.", false)]
         public void RegisterHandler(System.Type handlerType) { }
-        public void RegisterHandler<THandler>()
-            where THandler : NServiceBus.IHandleMessages { }
-        public void RegisterHandlerForMessage<THandler, TMessage>()
-            where THandler :  class { }
     }
     public class MessagesEventArgs : System.EventArgs
     {

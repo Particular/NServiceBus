@@ -70,7 +70,7 @@ public class LoadHandlersConnectorTests
     public void Should_not_throw_if_ambient_scope_is_same_as_transport_scope()
     {
         var messageHandlerRegistry = new MessageHandlerRegistry();
-        messageHandlerRegistry.RegisterHandler<FakeHandler>();
+        messageHandlerRegistry.AddHandler<FakeHandler>();
 
         var context = new TestableIncomingLogicalMessageContext();
 

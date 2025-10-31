@@ -49,21 +49,22 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public EndpointWithRegularHandler()
         {
             EndpointSetup<DefaultServer>(c =>
-            {
-                var registry = new MessageHandlerRegistry();
-                registry.RegisterHandler(typeof(ManuallyRegisteredHandler));
-                c.GetSettings().Set(registry);
-                // the handler isn't registered for DI automatically
-                c.RegisterComponents(components => components
-                    .AddTransient<ManuallyRegisteredHandler>());
-                c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
-                    if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
+                    var registry = new MessageHandlerRegistry();
+                    registry.AddHandler<ManuallyRegisteredHandler>();
+                    c.GetSettings().Set(registry);
+                    // the handler isn't registered for DI automatically
+                    c.RegisterComponents(components => components
+                        .AddTransient<ManuallyRegisteredHandler>());
+                    c.OnEndpointSubscribed<Context>((t, ctx) =>
                     {
-                        ctx.EventSubscribed = true;
-                    }
-                });
-            }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
+                        if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
+                        {
+                            ctx.EventSubscribed = true;
+                        }
+                    });
+                }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))))
+                .ExcludeType<ManuallyRegisteredHandler>();
         }
 
         class RegularHandler : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
