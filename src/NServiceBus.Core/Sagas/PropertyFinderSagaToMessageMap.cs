@@ -8,9 +8,8 @@ class PropertyFinderSagaToMessageMap : CorrelationSagaToMessageMap
 {
     public Func<object, object> MessageProp;
 
-    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
-    {
-        return new SagaFinderDefinition(
+    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType) =>
+        new(
             typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType),
             MessageType,
             new Dictionary<string, object>
@@ -18,5 +17,4 @@ class PropertyFinderSagaToMessageMap : CorrelationSagaToMessageMap
                 {"property-accessor", MessageProp},
                 {"saga-property-name", SagaPropName}
             });
-    }
 }

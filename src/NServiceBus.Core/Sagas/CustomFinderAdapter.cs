@@ -9,17 +9,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class CustomFinderAdapter<TSagaData, TMessage> : SagaFinder where TSagaData : IContainSagaData
+class CustomFinderAdapter<TFinder, TSagaData, TMessage> : SagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : IContainSagaData
 {
     public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
-        var customFinderType = (Type)finderDefinition.Properties["custom-finder-clr-type"];
-
-        var finder = (ISagaFinder<TSagaData, TMessage>)builder.GetRequiredService(customFinderType);
+        var finder = factory.Invoke(builder, []);
 
         return await finder
             .FindBy((TMessage)message, storageSession, context, cancellationToken)
             .ThrowIfNull()
             .ConfigureAwait(false);
     }
+
+    readonly ObjectFactory<TFinder> factory = ActivatorUtilities.CreateFactory<TFinder>([]);
 }

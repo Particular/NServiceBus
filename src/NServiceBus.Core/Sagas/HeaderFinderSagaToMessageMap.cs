@@ -8,9 +8,8 @@ class HeaderFinderSagaToMessageMap : CorrelationSagaToMessageMap
 {
     public string HeaderName;
 
-    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType)
-    {
-        return new SagaFinderDefinition(
+    public override SagaFinderDefinition CreateSagaFinderDefinition(Type sagaEntityType) =>
+        new(
             typeof(HeaderPropertySagaFinder<>).MakeGenericType(sagaEntityType),
             MessageType,
             new Dictionary<string, object>
@@ -19,5 +18,4 @@ class HeaderFinderSagaToMessageMap : CorrelationSagaToMessageMap
                 {"saga-property-name", SagaPropName},
                 {"saga-property-type", SagaPropType}
             });
-    }
 }

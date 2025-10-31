@@ -70,9 +70,9 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
             // This additional, unused, message is required to reproduce https://github.com/Particular/NServiceBus/issues/4888
             public Task Handle(SomeOtherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            public sealed class SagaData06 : ContainSagaData
+            public class SagaData06 : ContainSagaData
             {
-                public string CorrelationProperty { get; set; }
+                public virtual string CorrelationProperty { get; set; }
             }
         }
     }
