@@ -15,7 +15,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
 {
     public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new
     {
-        InstallersEnabled = settings.Installers.Select(i => i.Name).ToArray()
+        InstallersEnabled = settings.Installers.Select(i => i.InstallerType.FullName).ToArray()
     });
 
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
@@ -71,17 +71,17 @@ class InstallerComponent(InstallerComponent.Settings settings)
                 }
             }
 
-            public string Name { get; } = typeof(T).FullName!;
+            public Type InstallerType { get; } = typeof(T);
 
-            public bool Equals(IInstaller? other) => other?.Name == Name;
+            public bool Equals(IInstaller? other) => other?.InstallerType == InstallerType;
 
-            public override int GetHashCode() => Name.GetHashCode();
+            public override int GetHashCode() => InstallerType.GetHashCode();
         }
 
 
         public interface IInstaller : IEquatable<IInstaller>
         {
-            string Name { get; }
+            Type InstallerType { get; }
 
             Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default);
         }
