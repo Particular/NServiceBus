@@ -39,8 +39,8 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             {
                 // installers are enabled by default by but this makes it more clear that they need to be on
                 c.EnableInstallers();
-                c.RegisterInstaller<CustomInstallerWithAsyncDispose>();
-                c.RegisterInstaller<CustomInstallerWithDispose>();
+                c.AddInstaller<CustomInstallerWithAsyncDispose>();
+                c.AddInstaller<CustomInstallerWithDispose>();
             });
 
         class CustomInstallerWithAsyncDispose(Context testContext) : INeedToInstallSomething, IAsyncDisposable

@@ -29,9 +29,9 @@ public static class InstallConfigExtensions
     }
 
     /// <summary>
-    /// Registers the installer type.
+    /// Adds the installer type.
     /// </summary>
-    public static void RegisterInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
+    public static void AddInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -39,9 +39,9 @@ public static class InstallConfigExtensions
     }
 
     /// <summary>
-    /// Registers the installer type.
+    /// Add the installer type.
     /// </summary>
-    public static void RegisterInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
+    public static void AddInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
     {
         ArgumentNullException.ThrowIfNull(context);
 

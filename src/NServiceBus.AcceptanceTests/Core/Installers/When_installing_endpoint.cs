@@ -66,7 +66,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.RegisterInstaller<CustomInstaller>();
+                context.AddInstaller<CustomInstaller>();
 
                 var testContext = context.Settings.Get<Context>();
                 testContext.FeatureSetupCalled = true;

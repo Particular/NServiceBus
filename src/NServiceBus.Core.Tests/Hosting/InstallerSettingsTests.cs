@@ -14,9 +14,9 @@ public class InstallerSettingsTests
     {
         var endpointConfiguration = new EndpointConfiguration("myendpoint");
 
-        endpointConfiguration.RegisterInstaller<MyInstaller>();
-        endpointConfiguration.RegisterInstaller<MyInstaller>();
-        endpointConfiguration.RegisterInstaller<MyInstaller2>();
+        endpointConfiguration.AddInstaller<MyInstaller>();
+        endpointConfiguration.AddInstaller<MyInstaller>();
+        endpointConfiguration.AddInstaller<MyInstaller2>();
 
         var settings = endpointConfiguration.Settings.Get<InstallerComponent.Settings>();
 
