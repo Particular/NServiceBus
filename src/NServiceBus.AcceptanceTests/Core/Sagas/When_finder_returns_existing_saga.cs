@@ -37,46 +37,27 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public SagaEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class CustomFinder : ISagaFinder<TestSaga08.SagaData08, SomeOtherMessage>
+        public class CustomFinder(Context testContext, ISagaPersister sagaPersister) : ISagaFinder<TestSaga08.SagaData08, SomeOtherMessage>
         {
-            public CustomFinder(Context testContext, ISagaPersister sagaPersister)
-            {
-                this.testContext = testContext;
-                this.sagaPersister = sagaPersister;
-            }
-
             public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
             {
                 testContext.FinderUsed = true;
                 var sagaData = await sagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context, cancellationToken).ConfigureAwait(false);
                 return sagaData;
             }
-
-            Context testContext;
-            ISagaPersister sagaPersister;
         }
 
-        public class TestSaga08 : Saga<TestSaga08.SagaData08>,
+        public class TestSaga08(Context testContext) : Saga<TestSaga08.SagaData08>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<SomeOtherMessage>
         {
-            public TestSaga08(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new SomeOtherMessage
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context) =>
+                context.SendLocal(new SomeOtherMessage
                 {
                     SagaId = Data.Id
                 });
-            }
 
             public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
             {
@@ -87,15 +68,13 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
             {
                 mapper.ConfigureMapping<StartSagaMessage>(saga => saga.Property).ToSaga(saga => saga.Property);
-                // Mapping not required for SomeOtherMessage because CustomFinder used
+                mapper.ConfigureFinderMapping<SomeOtherMessage, CustomFinder>();
             }
 
-            public class SagaData08 : ContainSagaData
+            public sealed class SagaData08 : ContainSagaData
             {
-                public virtual string Property { get; set; }
+                public string Property { get; set; }
             }
-
-            Context testContext;
         }
     }
 
