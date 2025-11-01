@@ -102,10 +102,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         return property != null;
     }
 
-    internal static bool IsSagaType(Type t)
-    {
-        return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType && !t.IsAbstract;
-    }
+    internal static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType && !t.IsAbstract;
 
     /// <summary>
     /// True if the specified message type is allowed to start the saga.
@@ -275,34 +272,28 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic
     static readonly Type[] AllowedCorrelationPropertyTypes =
-    {
+    [
         typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
-    };
+    ];
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
     /// </summary>
-    public class CorrelationPropertyMetadata
+    /// <remarks>
+    /// Creates a new instance of <see cref="CorrelationPropertyMetadata" />.
+    /// </remarks>
+    /// <param name="name">The name of the correlation property.</param>
+    /// <param name="type">The type of the correlation property.</param>
+    public class CorrelationPropertyMetadata(string name, Type type)
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CorrelationPropertyMetadata" />.
-        /// </summary>
-        /// <param name="name">The name of the correlation property.</param>
-        /// <param name="type">The type of the correlation property.</param>
-        public CorrelationPropertyMetadata(string name, Type type)
-        {
-            Name = name;
-            Type = type;
-        }
-
         /// <summary>
         /// The name of the correlation property.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; } = name;
 
         /// <summary>
         /// The type of the correlation property.
         /// </summary>
-        public Type Type { get; }
+        public Type Type { get; } = type;
     }
 }
