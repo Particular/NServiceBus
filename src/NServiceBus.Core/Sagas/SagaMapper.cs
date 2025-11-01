@@ -80,8 +80,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
     {
         if (propertyInfo == null)
         {
-            throw new ArgumentException(
-                $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
+            throw new ArgumentException($"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
         }
     }
 
