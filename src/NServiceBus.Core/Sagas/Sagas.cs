@@ -50,7 +50,7 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
 
         var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
 
