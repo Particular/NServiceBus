@@ -11,7 +11,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 {
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
     {
-        ThrowIfSagaDoesNotHandleMessage<TMessage>($"A property mapping");
+        AssertMessageCanBeMapped<TMessage>("property mapping");
 
         var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
         var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
@@ -34,7 +34,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
     void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
     {
-        ThrowIfSagaDoesNotHandleMessage<TMessage>($"A header mapping");
+        AssertMessageCanBeMapped<TMessage>("header mapping");
 
         var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
         var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
@@ -52,7 +52,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
     void IConfigureHowToFindSagaWithFinder.ConfigureMapping<TSagaEntity, TMessage, TFinder>()
     {
-        ThrowIfSagaDoesNotHandleMessage<TMessage>($"A custom saga finder {typeof(TFinder).FullName}");
+        AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
 
         Mappings.Add(new CustomFinderSagaToMessageMap
         {
@@ -61,16 +61,19 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         });
     }
 
-    void ThrowIfSagaDoesNotHandleMessage<TMessage>(string context)
+    void AssertMessageCanBeMapped<TMessage>(string context)
     {
         var msgType = typeof(TMessage);
 
-        if (sagaMessages.Any(s => msgType.IsAssignableFrom(s.MessageType)))
+        if (!sagaMessages.Any(s => msgType.IsAssignableFrom(s.MessageType)))
         {
-            return;
+            throw new ArgumentException($"Can't map message type {msgType.FullName} to saga {sagaType.Name} using a {context} since the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
         }
 
-        throw new ArgumentException($"{context} maps message type {msgType.FullName} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
+        if(Mappings.Any(s => s.MessageType == msgType))
+        {
+            throw new ArgumentException($"Can't add a {context} mapping for {msgType.FullName} to saga {sagaType.Name} since an existing mapping already exists. Please check your {nameof(Saga.ConfigureHowToFindSaga)}");
+        }
     }
 
     static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)

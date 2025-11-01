@@ -63,8 +63,8 @@ public class SagaMetadataCreationTests
     [Test]
     public void When_a_finder_and_a_mapping_exists_for_same_property()
     {
-        var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithMappingAndFinder)); });
-        Assert.That(exception.Message, Is.EqualTo("A custom ISagaFinder and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping or remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'."));
+        var exception = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithMappingAndFinder)));
+        Assert.That(exception.Message, Does.Contain("mapping already exists"));
     }
 
     [Test]
@@ -199,7 +199,7 @@ public class SagaMetadataCreationTests
     {
         var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(sagaType));
 
-        Assert.That(ex.Message.Contains("does not handle that message") && ex.Message.Contains("in the ConfigureHowToFindSaga method"));
+        Assert.That(ex.Message.Contains("since the saga does not handle that message"));
     }
 
     [Test]
