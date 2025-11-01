@@ -70,7 +70,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             throw new ArgumentException($"Can't map message type {msgType.FullName} to saga {sagaType.Name} using a {context} since the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
         }
 
-        if(Mappings.Any(s => s.MessageType == msgType))
+        if (Mappings.Any(s => s.MessageType == msgType))
         {
             throw new ArgumentException($"Can't add a {context} mapping for {msgType.FullName} to saga {sagaType.Name} since an existing mapping already exists. Please check your {nameof(Saga.ConfigureHowToFindSaga)}");
         }
