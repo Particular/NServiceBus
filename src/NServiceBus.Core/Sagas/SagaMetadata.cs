@@ -3,7 +3,6 @@ namespace NServiceBus.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -142,21 +141,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
     public static SagaMetadata Create(Type sagaType)
     {
         ArgumentNullException.ThrowIfNull(sagaType);
-        return Create(sagaType, [], new Conventions());
-    }
 
-    /// <summary>
-    /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
-    /// </summary>
-    /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</param>
-    /// <param name="availableTypes">Additional available types, used to locate saga finders and other related classes.</param>
-    /// <param name="conventions">Custom conventions to use while scanning types.</param>
-    /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create(Type sagaType, IEnumerable<Type> availableTypes, Conventions conventions)
-    {
-        ArgumentNullException.ThrowIfNull(sagaType);
-        ArgumentNullException.ThrowIfNull(availableTypes);
-        ArgumentNullException.ThrowIfNull(conventions);
         if (!IsSagaType(sagaType))
         {
             throw new Exception(sagaType.FullName + " is not a saga");
@@ -169,7 +154,10 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         }
 
         var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
-        var mapper = new SagaMapper();
+        var associatedMessages = GetAssociatedMessages(sagaType)
+            .ToList();
+
+        var mapper = new SagaMapper(sagaType, associatedMessages);
         saga.ConfigureHowToFindSaga(mapper);
 
         var sagaEntityType = genericArguments.Single();
@@ -194,13 +182,8 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             correlationProperty = new CorrelationPropertyMetadata(mapping.SagaPropName, mapping.SagaPropType);
         }
 
-        var associatedMessages = GetAssociatedMessages(sagaType)
-            .ToList();
-
         foreach (var mapping in mapper.Mappings)
         {
-            mapping.AssertSagaHandlesMappedMessage(sagaType, associatedMessages);
-
             finders.Add(mapping.CreateSagaFinderDefinition(sagaEntityType));
         }
 
@@ -295,104 +278,6 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
     {
         typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
     };
-
-    class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
-    {
-        void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
-        {
-            var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-            var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
-
-            ValidateMapping(messageExpression, sagaProp);
-
-            ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
-            var compiledMessageExpression = messageExpression.Compile();
-            var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
-
-            Mappings.Add(new PropertyFinderSagaToMessageMap
-            {
-                MessageProp = messageFunc,
-                SagaPropName = sagaProp.Name,
-                SagaPropType = sagaProp.PropertyType,
-                MessageType = typeof(TMessage)
-            });
-        }
-
-        static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
-        {
-            var memberExpr = messageExpression.Body as MemberExpression;
-
-            if (messageExpression.Body.NodeType == ExpressionType.Convert)
-            {
-                memberExpr = ((UnaryExpression)messageExpression.Body).Operand as MemberExpression;
-            }
-
-            if (memberExpr == null)
-            {
-                return;
-            }
-
-            var propertyInfo = memberExpr.Member as PropertyInfo;
-
-            if (propertyInfo != null)
-            {
-                if (propertyInfo.PropertyType != sagaProp.PropertyType)
-                {
-                    throw new InvalidOperationException($"When mapping a message to a saga, the member type on the message and the saga property must match. {propertyInfo.DeclaringType.FullName}.{propertyInfo.Name} is of type {propertyInfo.PropertyType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
-                }
-
-                return;
-            }
-
-            var fieldInfo = memberExpr.Member as FieldInfo;
-
-            if (fieldInfo != null)
-            {
-                if (fieldInfo.FieldType != sagaProp.PropertyType)
-                {
-                    throw new InvalidOperationException($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
-                }
-            }
-        }
-
-        public void ConfigureCustomFinder(Type finderType, Type messageType)
-        {
-            Mappings.Add(new CustomFinderSagaToMessageMap
-            {
-                MessageType = messageType,
-                CustomFinderType = finderType
-            });
-        }
-
-        static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
-        {
-            if (propertyInfo == null)
-            {
-                throw new ArgumentException(
-                    $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
-            }
-        }
-
-        void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
-        {
-            var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-            var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
-
-            ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
-
-            Mappings.Add(new HeaderFinderSagaToMessageMap
-            {
-                HeaderName = headerName,
-                SagaPropName = sagaProp.Name,
-                SagaPropType = sagaProp.PropertyType,
-                MessageType = typeof(TMessage)
-            });
-        }
-
-        void IConfigureHowToFindSagaWithFinder.ConfigureMapping<TSagaEntity, TMessage, TFinder>() => ConfigureCustomFinder(typeof(TFinder), typeof(TMessage));
-
-        public readonly List<SagaToMessageMap> Mappings = [];
-    }
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.

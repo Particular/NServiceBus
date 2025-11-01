@@ -13,7 +13,7 @@ public class When_saga_has_multiple_correlated_properties
     [Test]
     public void Should_throw()
     {
-        var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), [], new Conventions()));
+        var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties)));
         Approver.Verify(exception.Message);
     }
 

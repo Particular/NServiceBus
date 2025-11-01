@@ -13,15 +13,9 @@ public class SagaMetadataCollection : IEnumerable<SagaMetadata>
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
     /// </summary>
-    public IEnumerator<SagaMetadata> GetEnumerator()
-    {
-        return byEntity.Values.GetEnumerator();
-    }
+    public IEnumerator<SagaMetadata> GetEnumerator() => byEntity.Values.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Populates the model with saga metadata from the provided collection of types.
@@ -29,23 +23,12 @@ public class SagaMetadataCollection : IEnumerable<SagaMetadata>
     /// <param name="availableTypes">A collection of types to scan for sagas.</param>
     public void Initialize(IEnumerable<Type> availableTypes)
     {
-        Initialize(availableTypes, new Conventions());
-    }
-
-    /// <summary>
-    /// Populates the model with saga metadata from the provided collection of types.
-    /// </summary>
-    /// <param name="availableTypes">A collection of types to scan for sagas.</param>
-    /// <param name="conventions">Custom conventions to be used while scanning types.</param>
-    public void Initialize(IEnumerable<Type> availableTypes, Conventions conventions)
-    {
         ArgumentNullException.ThrowIfNull(availableTypes);
-        ArgumentNullException.ThrowIfNull(conventions);
 
         var availableTypesList = availableTypes.ToList();
 
         var foundSagas = availableTypesList.Where(SagaMetadata.IsSagaType)
-            .Select(t => SagaMetadata.Create(t, availableTypesList, conventions))
+            .Select(SagaMetadata.Create)
             .ToList();
 
         foreach (var saga in foundSagas)
@@ -77,10 +60,7 @@ public class SagaMetadataCollection : IEnumerable<SagaMetadata>
         return byType[sagaType];
     }
 
-    internal bool TryFind(Type sagaType, out SagaMetadata targetSagaMetaData)
-    {
-        return byType.TryGetValue(sagaType, out targetSagaMetaData);
-    }
+    internal bool TryFind(Type sagaType, out SagaMetadata targetSagaMetaData) => byType.TryGetValue(sagaType, out targetSagaMetaData);
 
     internal void VerifyIfEntitiesAreShared()
     {

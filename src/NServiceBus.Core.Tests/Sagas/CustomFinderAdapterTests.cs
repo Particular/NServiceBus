@@ -24,11 +24,7 @@ public class CustomFinderAdapterTests
 
         var messageType = typeof(StartSagaMessage);
 
-        var messageConventions = new Conventions();
-
-        messageConventions.DefineCommandTypeConventions(t => t == messageType);
-
-        var sagaMetadata = SagaMetadata.Create(typeof(TestSaga), availableTypes, messageConventions);
+        var sagaMetadata = SagaMetadata.Create(typeof(TestSaga));
 
         if (!sagaMetadata.TryGetFinder(messageType.FullName, out var finderDefinition))
         {
@@ -38,7 +34,7 @@ public class CustomFinderAdapterTests
         var services = new ServiceCollection();
         services.AddTransient(sp => new ReturnsNullFinder());
 
-        var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
+        var customerFinderAdapter = new CustomFinderAdapter<ReturnsNullFinder, TestSaga.SagaData, StartSagaMessage>();
 
         using var serviceProvider = services.BuildServiceProvider();
         Assert.That(async () => await customerFinderAdapter.Find(serviceProvider, finderDefinition, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
@@ -54,12 +50,10 @@ class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessage>
 
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
     {
+        mapper.ConfigureFinderMapping<StartSagaMessage, ReturnsNullFinder>();
     }
 
-    public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-    {
-        return Task.CompletedTask;
-    }
+    public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 }
 
 class StartSagaMessage
@@ -67,8 +61,5 @@ class StartSagaMessage
 
 class ReturnsNullFinder : ISagaFinder<TestSaga.SagaData, StartSagaMessage>
 {
-    public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-    {
-        return null;
-    }
+    public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => null;
 }
