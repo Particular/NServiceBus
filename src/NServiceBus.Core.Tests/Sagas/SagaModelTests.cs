@@ -13,7 +13,7 @@ public class SagaModelTests
     static SagaMetadataCollection GetModel(params Type[] types)
     {
         var sagaMetaModel = new SagaMetadataCollection();
-        sagaMetaModel.Initialize(types.ToList(), new Conventions());
+        sagaMetaModel.Initialize(types.ToList());
         return sagaMetaModel;
     }
 
