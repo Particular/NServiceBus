@@ -391,6 +391,12 @@ namespace NServiceBus
     {
         System.Threading.CancellationToken CancellationToken { get; }
     }
+    public interface IConfigureHowToFindSagaWithFinder
+    {
+        void ConfigureMapping<TSagaEntity, TMessage, TFinder>()
+            where TSagaEntity : NServiceBus.IContainSagaData
+            where TFinder : NServiceBus.Sagas.ISagaFinder<TSagaEntity, TMessage>;
+    }
     public interface IConfigureHowToFindSagaWithMessage
     {
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object?>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty)
@@ -869,6 +875,8 @@ namespace NServiceBus
     public class SagaPropertyMapper<TSagaData>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
+        public void ConfigureFinderMapping<TMessage, TFinder>()
+            where TFinder : NServiceBus.Sagas.ISagaFinder<TSagaData, TMessage> { }
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
@@ -2077,7 +2085,6 @@ namespace NServiceBus.Sagas
         public bool TryGetCorrelationProperty(out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata property) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
-        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public class CorrelationPropertyMetadata
         {
             public CorrelationPropertyMetadata(string name, System.Type type) { }
@@ -2092,7 +2099,6 @@ namespace NServiceBus.Sagas
         public NServiceBus.Sagas.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
     }
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
