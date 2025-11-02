@@ -32,5 +32,5 @@ public class SagaCorrelationProperty
     /// <summary>
     /// Represents a saga with no correlated property.
     /// </summary>
-    public static SagaCorrelationProperty None { get; } = null;
+    public static SagaCorrelationProperty None => null;
 }
