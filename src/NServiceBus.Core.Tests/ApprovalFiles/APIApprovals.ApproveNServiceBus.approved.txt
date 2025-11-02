@@ -2056,8 +2056,6 @@ namespace NServiceBus.Sagas
     {
         public System.Type MessageType { get; }
         public string MessageTypeName { get; }
-        public System.Collections.Generic.Dictionary<string, object> Properties { get; }
-        public System.Type Type { get; }
     }
     public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
     {
