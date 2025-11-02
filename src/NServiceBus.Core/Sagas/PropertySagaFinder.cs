@@ -9,15 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class PropertySagaFinder<TSagaData> : ICoreSagaFinder
+class PropertySagaFinder<TSagaData>(string sagaPropertyName, Func<object, object> propertyAccessor) : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
-    public async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+    public async Task<IContainSagaData> Find(IServiceProvider builder, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
-        var propertyAccessor = (Func<object, object>)finderDefinition.Properties["property-accessor"];
         var propertyValue = propertyAccessor(message);
-
-        var sagaPropertyName = (string)finderDefinition.Properties["saga-property-name"];
 
         var lookupValues = context.GetOrCreate<SagaLookupValues>();
         lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
@@ -26,7 +23,7 @@ class PropertySagaFinder<TSagaData> : ICoreSagaFinder
         {
             var saga = context.Get<ActiveSagaInstance>();
             var sagaEntityName = saga.Metadata.Name;
-            var messageName = finderDefinition.MessageTypeName;
+            var messageName = message.GetType().FullName;
 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {sagaPropertyName}. Correlation properties cannot be assigned null.");
         }
