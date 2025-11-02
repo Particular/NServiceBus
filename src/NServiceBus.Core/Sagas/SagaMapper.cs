@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Sagas;
 
-class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
+class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
 {
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
     {
@@ -20,16 +20,23 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
+        AssignCorrelationProperty<TMessage>(sagaProp);
+
         var compiledMessageExpression = messageExpression.Compile();
         var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
-        Mappings.Add(new PropertyFinderSagaToMessageMap
-        {
-            MessageProp = messageFunc,
-            SagaPropName = sagaProp.Name,
-            SagaPropType = sagaProp.PropertyType,
-            MessageType = typeof(TMessage)
-        });
+        Finders.Add(new SagaFinderDefinition(
+            typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            typeof(TMessage),
+            new Dictionary<string, object>
+            {
+                {
+                    "property-accessor", messageFunc
+                },
+                {
+                    "saga-property-name", sagaProp.Name
+                }
+            }));
     }
 
     void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
@@ -41,24 +48,31 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        Mappings.Add(new HeaderFinderSagaToMessageMap
-        {
-            HeaderName = headerName,
-            SagaPropName = sagaProp.Name,
-            SagaPropType = sagaProp.PropertyType,
-            MessageType = typeof(TMessage)
-        });
+        AssignCorrelationProperty<TMessage>(sagaProp);
+
+        Finders.Add(new SagaFinderDefinition(
+            typeof(HeaderPropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            typeof(TMessage),
+            new Dictionary<string, object>
+            {
+                {
+                    "message-header-name", headerName
+                },
+                {
+                    "saga-property-name", sagaProp.Name
+                },
+                {
+                    "saga-property-type", sagaProp.PropertyType
+                }
+            }));
     }
 
     void IConfigureHowToFindSagaWithFinder.ConfigureMapping<TSagaEntity, TMessage, TFinder>()
     {
         AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
+        var messageType = typeof(TMessage);
 
-        Mappings.Add(new CustomFinderSagaToMessageMap
-        {
-            MessageType = typeof(TMessage),
-            CustomFinderType = typeof(TFinder)
-        });
+        Finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,,>).MakeGenericType(typeof(TFinder), sagaEntityType, messageType), messageType, []));
     }
 
     void AssertMessageCanBeMapped<TMessage>(string context)
@@ -70,7 +84,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             throw new ArgumentException($"Can't map message type {msgType.FullName} to saga {sagaType.Name} using a {context} since the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
         }
 
-        if (Mappings.Any(s => s.MessageType == msgType))
+        if (Finders.Any(s => s.MessageType == msgType))
         {
             throw new ArgumentException($"Can't add a {context} mapping for {msgType.FullName} to saga {sagaType.Name} since an existing mapping already exists. Please check your {nameof(Saga.ConfigureHowToFindSaga)}");
         }
@@ -121,5 +135,16 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         }
     }
 
-    public readonly List<SagaToMessageMap> Mappings = [];
+    void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp)
+    {
+        if (CorrelationProperty != null && CorrelationProperty.Name != sagaProp.Name)
+        {
+            throw new ArgumentException($"Saga already have a mapping to property {CorrelationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
+        }
+
+        CorrelationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
+    }
+
+    public readonly List<SagaFinderDefinition> Finders = [];
+    public SagaMetadata.CorrelationPropertyMetadata CorrelationProperty { get; private set; }
 }

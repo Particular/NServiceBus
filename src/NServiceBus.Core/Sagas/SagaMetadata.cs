@@ -154,50 +154,25 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         var associatedMessages = GetAssociatedMessages(sagaType)
             .ToList();
 
-        var mapper = new SagaMapper(sagaType, associatedMessages);
-        saga.ConfigureHowToFindSaga(mapper);
-
         var sagaEntityType = genericArguments.Single();
 
-        var finders = new List<SagaFinderDefinition>();
+        var mapper = new SagaMapper(sagaType, sagaEntityType, associatedMessages);
+        saga.ConfigureHowToFindSaga(mapper);
 
-        var propertyMappings = mapper.Mappings.OfType<CorrelationSagaToMessageMap>()
-            .GroupBy(m => m.SagaPropName)
-            .ToList();
-
-        if (propertyMappings.Count > 1)
+        foreach (var sagaMessage in associatedMessages)
         {
-            var messageTypes = string.Join(",", propertyMappings.SelectMany(g => g.Select(m => m.MessageType.FullName)).Distinct());
-            throw new Exception($"Sagas can only have mappings that correlate on a single saga property. Use custom finders to correlate {messageTypes} to saga {sagaType.Name}");
-        }
-
-        CorrelationPropertyMetadata correlationProperty = null;
-
-        if (propertyMappings.Count != 0)
-        {
-            var mapping = propertyMappings.Single().First();
-            correlationProperty = new CorrelationPropertyMetadata(mapping.SagaPropName, mapping.SagaPropType);
-        }
-
-        foreach (var mapping in mapper.Mappings)
-        {
-            finders.Add(mapping.CreateSagaFinderDefinition(sagaEntityType));
-        }
-
-        foreach (var messageType in associatedMessages)
-        {
-            if (messageType.IsAllowedToStartSaga)
+            if (sagaMessage.IsAllowedToStartSaga)
             {
-                var match = mapper.Mappings.FirstOrDefault(m => m.MessageType.IsAssignableFrom(messageType.MessageType));
+                var match = mapper.Finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
                 if (match == null)
                 {
-                    var simpleName = messageType.MessageType.Name;
+                    var simpleName = sagaMessage.MessageType.Name;
                     throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
                 }
             }
         }
 
-        return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
+        return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, mapper.CorrelationProperty, associatedMessages, mapper.Finders);
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
