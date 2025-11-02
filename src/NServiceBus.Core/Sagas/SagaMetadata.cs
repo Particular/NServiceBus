@@ -29,24 +29,6 @@ public class SagaMetadata
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
 
-
-        if (!messages.Any(m => m.IsAllowedToStartSaga))
-        {
-            throw new Exception($@"
-Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {name} saga.");
-        }
-
-        if (correlationProperty != null)
-        {
-            if (!AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
-            {
-                var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
-
-                throw new Exception($@"
-{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
-            }
-        }
-
         associatedMessages = [];
 
         foreach (var sagaMessage in messages)
@@ -169,6 +151,21 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     var simpleName = sagaMessage.MessageType.Name;
                     throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
                 }
+            }
+        }
+
+        if (!associatedMessages.Any(m => m.IsAllowedToStartSaga))
+        {
+            throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
+        }
+
+        if (mapper.CorrelationProperty != null)
+        {
+            if (!AllowedCorrelationPropertyTypes.Contains(mapper.CorrelationProperty.Type))
+            {
+                var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
+
+                throw new Exception($"{mapper.CorrelationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {mapper.CorrelationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
             }
         }
 
