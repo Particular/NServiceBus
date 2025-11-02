@@ -13,8 +13,7 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
     {
         AssertMessageCanBeMapped<TMessage>("property mapping");
 
-        var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-        var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
+        var sagaProp = GetSagaProperty(sagaEntityProperty);
 
         ValidatePropertyMapping(messageExpression, sagaProp);
 
@@ -43,8 +42,7 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
     {
         AssertMessageCanBeMapped<TMessage>("header mapping");
 
-        var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
-        var sagaProp = sagaMember as PropertyInfo ?? throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
+        var sagaProp = GetSagaProperty(sagaEntityProperty);
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
@@ -133,6 +131,13 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
                 throw new ArgumentException($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
             }
         }
+    }
+
+    static PropertyInfo GetSagaProperty<TSagaEntity>(Expression<Func<TSagaEntity, object>> sagaEntityProperty)
+    {
+        var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
+        var sagaProp = sagaMember as PropertyInfo ?? throw new ArgumentException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
+        return sagaProp;
     }
 
     void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp)
