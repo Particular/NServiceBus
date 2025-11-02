@@ -161,35 +161,35 @@ public class SagaMetadataCreationTests
     [Test]
     public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageProps()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
         Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnSagaIdFromStringToGuidForMessagePropsThrowsException()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
         Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnNonSagaIdGuidPropertyFromStringToGuidForMessagePropsThrowsException()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
         Assert.That(ex.Message, Does.Contain(typeof(SomeMessage).FullName));
     }
 
     [Test]
     public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
         Assert.That(ex.Message, Does.Contain(nameof(SomeMessage)));
     }
 
     [Test]
     public void ValidateThatSagaPropertyIsNotAField()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty)));
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty)));
         Assert.That(ex.Message, Does.Contain(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData).FullName));
     }
 
