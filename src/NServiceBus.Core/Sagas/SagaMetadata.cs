@@ -14,18 +14,16 @@ public class SagaMetadata
     /// <summary>
     /// Initializes a new instance of the <see cref="SagaMetadata" /> class.
     /// </summary>
-    /// <param name="name">The name of the saga.</param>
     /// <param name="sagaType">The type for this saga.</param>
-    /// <param name="entityName">The name of the saga data entity.</param>
     /// <param name="sagaEntityType">The type of the related saga entity.</param>
     /// <param name="correlationProperty">The property this saga is correlated on if any.</param>
     /// <param name="messages">The messages collection that a saga handles.</param>
     /// <param name="finders">The finder definition collection that can find this saga.</param>
-    public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
+    public SagaMetadata(Type sagaType, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
     {
         this.correlationProperty = correlationProperty;
-        Name = name;
-        EntityName = entityName;
+        Name = sagaType.FullName;
+        EntityName = sagaEntityType.FullName;
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
 
@@ -170,7 +168,7 @@ public class SagaMetadata
             }
         }
 
-        return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, mapper.CorrelationProperty, associatedMessages, mapper.Finders);
+        return new SagaMetadata(sagaType, sagaEntityType, mapper.CorrelationProperty, associatedMessages, mapper.Finders);
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
