@@ -6,19 +6,14 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
+using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class HeaderPropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, IContainSagaData
+class HeaderPropertySagaFinder<TSagaData> : ICoreSagaFinder
+    where TSagaData : class, IContainSagaData
 {
-    readonly ISagaPersister persister;
-
-    public HeaderPropertySagaFinder(ISagaPersister persister)
-    {
-        this.persister = persister;
-    }
-
-    public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+    public async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var headerName = (string)finderDefinition.Properties["message-header-name"];
 
@@ -61,6 +56,7 @@ class HeaderPropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {correlationPropertyName}. Correlation properties cannot be assigned null.");
         }
 
+        var persister = builder.GetRequiredService<ISagaPersister>();
         if (correlationPropertyName.Equals("id", StringComparison.OrdinalIgnoreCase))
         {
             return await persister.Get<TSagaData>((Guid)convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
