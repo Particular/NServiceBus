@@ -40,7 +40,7 @@ public class SagaMetadata
 
         foreach (var finder in finders)
         {
-            sagaFinders[finder.MessageTypeName] = finder;
+            sagaFinders[finder.MessageType.FullName!] = finder;
         }
     }
 
