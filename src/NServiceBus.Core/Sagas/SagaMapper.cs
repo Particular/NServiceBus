@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Sagas;
 
+//TODO: make generic?
 class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
 {
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)

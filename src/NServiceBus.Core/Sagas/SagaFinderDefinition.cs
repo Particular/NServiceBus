@@ -10,15 +10,9 @@ public class SagaFinderDefinition
     internal SagaFinderDefinition(ICoreSagaFinder sagaFinder, Type messageType)
     {
         SagaFinder = sagaFinder;
-        Type = sagaFinder.GetType();
         MessageType = messageType;
         MessageTypeName = messageType.FullName;
     }
-
-    /// <summary>
-    /// The type of the finder.
-    /// </summary>
-    public Type Type { get; }
 
     /// <summary>
     /// The type of message this finder is associated with.

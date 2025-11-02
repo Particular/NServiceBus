@@ -57,7 +57,7 @@ public class SagaMetadataCreationTests
     {
         var metadata = SagaMetadata.Create(typeof(SagaWithFinderOnly));
         Assert.That(metadata.Finders.Count, Is.EqualTo(1));
-        Assert.That(metadata.Finders.First().Type, Is.EqualTo(typeof(CustomFinderAdapter<SagaWithFinderOnly.Finder, SagaWithFinderOnly.SagaData, SagaWithFinderOnly.StartSagaMessage>)));
+        Assert.That(metadata.Finders.First().SagaFinder.GetType(), Is.EqualTo(typeof(CustomFinderAdapter<SagaWithFinderOnly.Finder, SagaWithFinderOnly.SagaData, SagaWithFinderOnly.StartSagaMessage>)));
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
+        Assert.That(finder.SagaFinder.GetType(), Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
     }
 
     [Test]
@@ -144,7 +144,7 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.That(finder.Type, Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
+        Assert.That(finder.SagaFinder.GetType(), Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
     }
 
     [Test]
