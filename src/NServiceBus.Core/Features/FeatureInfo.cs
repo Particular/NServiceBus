@@ -82,13 +82,29 @@ sealed class FeatureInfo
         return Diagnostics.PrerequisiteStatus.IsSatisfied;
     }
 
-    public void Enable() => State = FeatureStateInfo.Enabled;
+    public void Enable()
+    {
+        InvalidOperationException.ThrowIf(State == FeatureStateInfo.Active, "Cannot transition from Active state to Enabled state.");
+        State = FeatureStateInfo.Enabled;
+    }
 
-    public void Disable() => State = FeatureStateInfo.Disabled;
+    public void Disable()
+    {
+        InvalidOperationException.ThrowIf(State == FeatureStateInfo.Active, "Cannot transition from Active state to Disabled state.");
+        State = FeatureStateInfo.Disabled;
+    }
 
-    public void EnableByDefault() => State = FeatureStateInfo.EnabledByDefault;
+    public void EnableByDefault()
+    {
+        InvalidOperationException.ThrowIf(State == FeatureStateInfo.Active, "Cannot transition from Active state to EnabledByDefault state.");
+        State = FeatureStateInfo.EnabledByDefault;
+    }
 
-    public void Activate() => State = FeatureStateInfo.Active;
+    public void Activate()
+    {
+        InvalidOperationException.ThrowIf(State == FeatureStateInfo.Active, "Cannot transition from Active state to Active state.");
+        State = FeatureStateInfo.Active;
+    }
 
     public void Deactivate() => State = FeatureStateInfo.Deactivated;
 
