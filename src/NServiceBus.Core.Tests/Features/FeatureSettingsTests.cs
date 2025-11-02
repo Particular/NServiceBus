@@ -86,31 +86,3 @@ public class FeatureSettingsTests
     }
 
 }
-
-public abstract class TestFeature : Feature
-{
-    protected TestFeature() =>
-        Defaults(s =>
-        {
-            OnDefaults?.Invoke(this);
-        });
-
-    public bool Enabled
-    {
-        get => IsEnabledByDefault;
-        set
-        {
-            if (value)
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                EnableByDefault();
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
-        }
-    }
-
-    public Action<Feature> OnActivation;
-    public Action<Feature> OnDefaults;
-
-    protected override void Setup(FeatureConfigurationContext context) => OnActivation?.Invoke(this);
-}

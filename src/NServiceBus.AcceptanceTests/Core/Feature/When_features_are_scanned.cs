@@ -1,3 +1,8 @@
+// This file contains tests that use the obsolete Feature.EnableByDefault() method.
+// EnableByDefault is obsolete and will be treated as an error in NServiceBus 11.0.
+// This file and its tests should be deleted when NServiceBus 11.0 is released.
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace NServiceBus.AcceptanceTests.Core.Feature;
 
 using System.Threading.Tasks;
@@ -39,9 +44,7 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
         {
             FeatureDiscoveredByScanning()
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 EnableByDefault();
-#pragma warning restore CS0618 // Type or member is obsolete
                 EnableByDefault<DependentFeature>();
 
                 DependsOn<DependentFeature>();
@@ -57,3 +60,5 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
         }
     }
 }
+
+#pragma warning restore CS0618 // Type or member is obsolete
