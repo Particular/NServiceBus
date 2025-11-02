@@ -13,8 +13,8 @@ public class When_saga_has_multiple_correlated_properties
     [Test]
     public void Should_throw()
     {
-        var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties)));
-        Approver.Verify(exception.Message);
+        var exception = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties)));
+        Assert.That(exception.Message, Does.Contain("sagas can only have mappings that correlate on a single saga property"));
     }
 
     class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>,
