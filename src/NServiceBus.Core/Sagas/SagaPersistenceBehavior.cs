@@ -246,7 +246,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             return DefaultSagaDataCompletedTask;
         }
 
-        return finderDefinition.InvokeFinder(context.Builder, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders, context.CancellationToken);
+        return finderDefinition.SagaFinder.Find(context.Builder, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled, context.MessageHeaders, context.CancellationToken);
     }
 
     static SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)

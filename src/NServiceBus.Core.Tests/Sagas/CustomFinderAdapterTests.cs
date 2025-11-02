@@ -37,7 +37,7 @@ public class CustomFinderAdapterTests
         var customerFinderAdapter = new CustomFinderAdapter<ReturnsNullFinder, TestSaga.SagaData, StartSagaMessage>();
 
         using var serviceProvider = services.BuildServiceProvider();
-        Assert.That(async () => await customerFinderAdapter.Find(serviceProvider, finderDefinition, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
+        Assert.That(async () => await customerFinderAdapter.Find(serviceProvider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
             Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
     }
 }

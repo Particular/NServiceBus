@@ -134,12 +134,7 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
-            Assert.That(finder.Properties["property-accessor"], Is.Not.Null);
-            Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
-        }
+        Assert.That(finder.Type, Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
     }
 
     [Test]
@@ -149,13 +144,7 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(finder.Type, Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
-            Assert.That(finder.Properties["message-header-name"], Is.EqualTo("CorrelationHeader"));
-            Assert.That(finder.Properties["saga-property-name"], Is.EqualTo("UniqueProperty"));
-            Assert.That(finder.Properties["saga-property-type"], Is.EqualTo(typeof(int)));
-        }
+        Assert.That(finder.Type, Is.EqualTo(typeof(HeaderPropertySagaFinder<MySagaWithMappedHeader.SagaData>)));
     }
 
     [Test]

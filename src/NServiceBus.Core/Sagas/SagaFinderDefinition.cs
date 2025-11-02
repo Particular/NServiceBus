@@ -1,26 +1,18 @@
 namespace NServiceBus.Sagas;
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Extensibility;
-using Persistence;
 
 /// <summary>
 /// Defines a message finder.
 /// </summary>
 public class SagaFinderDefinition
 {
-    readonly ICoreSagaFinder sagaFinder;
-
-    internal SagaFinderDefinition(ICoreSagaFinder sagaFinder, Type messageType, Dictionary<string, object> properties)
+    internal SagaFinderDefinition(ICoreSagaFinder sagaFinder, Type messageType)
     {
-        this.sagaFinder = sagaFinder;
+        SagaFinder = sagaFinder;
         Type = sagaFinder.GetType();
         MessageType = messageType;
         MessageTypeName = messageType.FullName;
-        Properties = properties;
     }
 
     /// <summary>
@@ -38,16 +30,5 @@ public class SagaFinderDefinition
     /// </summary>
     public string MessageTypeName { get; }
 
-    /// <summary>
-    /// Custom properties.
-    /// </summary>
-    public Dictionary<string, object> Properties { get; }
-
-    internal Task<IContainSagaData> InvokeFinder(IServiceProvider serviceProvider,
-        ISynchronizedStorageSession synchronizedStorageSession,
-        ContextBag context,
-        object message,
-        IReadOnlyDictionary<string, string> messageHeaders,
-        CancellationToken cancellationToken = default) =>
-        sagaFinder.Find(serviceProvider, this, synchronizedStorageSession, context, message, messageHeaders, cancellationToken);
+    internal ICoreSagaFinder SagaFinder { get; }
 }
