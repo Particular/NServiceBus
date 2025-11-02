@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,10 @@ public class FeatureStartupTests
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
     }
 
     [Test]
@@ -23,12 +27,14 @@ public class FeatureStartupTests
     {
         var feature = new FeatureWithStartupTask();
 
-        featureSettings.Add(feature);
+        featureFactory.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.EnableFeatureByDefault<FeatureWithStartupTask>();
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         using (Assert.EnterMultipleScope())
         {
@@ -42,13 +48,18 @@ public class FeatureStartupTests
     {
         var orderBuilder = new StringBuilder();
 
-        featureSettings.Add(new FeatureWithStartupTaskWithDependency(orderBuilder));
-        featureSettings.Add(new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder));
+        var featureWithStartupTaskWithDependency = new FeatureWithStartupTaskWithDependency(orderBuilder);
+        var featureWithStartupThatAnotherFeatureDependsOn = new FeatureWithStartupThatAnotherFeatureDependsOn(orderBuilder);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        featureSettings.EnableFeatureByDefault<FeatureWithStartupTaskWithDependency>();
+        featureSettings.EnableFeatureByDefault<FeatureWithStartupThatAnotherFeatureDependsOn>();
+
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         var expectedOrderBuilder = new StringBuilder();
         expectedOrderBuilder.AppendLine("FeatureWithStartupThatAnotherFeatureDependsOn.Start");
@@ -64,12 +75,14 @@ public class FeatureStartupTests
     {
         var feature = new FeatureWithStartupTaskWhichIsDisposable();
 
-        featureSettings.Add(feature);
+        featureFactory.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.EnableFeatureByDefault<FeatureWithStartupTaskWhichIsDisposable>();
 
-        await featureSettings.StartFeatures(null, null);
-        await featureSettings.StopFeatures(null);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
 
         Assert.That(feature.TaskDisposed, Is.True);
     }
@@ -85,9 +98,9 @@ public class FeatureStartupTests
         featureSettings.Add(feature2);
         featureSettings.Add(feature3);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureComponent.StartFeatures(null, null));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.Message, Is.EqualTo("feature2"));
@@ -109,11 +122,11 @@ public class FeatureStartupTests
         featureSettings.Add(feature1);
         featureSettings.Add(feature2);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(null));
+        Assert.DoesNotThrowAsync(async () => await featureComponent.StopFeatures(null));
 
         using (Assert.EnterMultipleScope())
         {
@@ -128,31 +141,29 @@ public class FeatureStartupTests
         var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        await featureSettings.StartFeatures(null, null);
+        await featureComponent.StartFeatures(null, null);
 
-        await featureSettings.StopFeatures(null);
+        await featureComponent.StopFeatures(null);
         Assert.That(feature.TaskDisposed, Is.True);
     }
 
-    FeatureActivator featureSettings;
+    FeatureComponent.Settings featureSettings;
     SettingsHolder settings;
+    FakeFeatureFactory featureFactory;
+    FeatureComponent featureComponent;
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {
         public FeatureWithStartupTaskWithDependency(StringBuilder orderBuilder)
         {
-            EnableByDefault();
             DependsOn<FeatureWithStartupThatAnotherFeatureDependsOn>();
 
             this.orderBuilder = orderBuilder;
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.RegisterStartupTask(new Runner(orderBuilder));
-        }
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
         class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
@@ -172,16 +183,9 @@ public class FeatureStartupTests
         readonly StringBuilder orderBuilder;
     }
 
-    class FeatureWithStartupThatAnotherFeatureDependsOn : TestFeature
+    class FeatureWithStartupThatAnotherFeatureDependsOn(StringBuilder orderBuilder) : TestFeature
     {
-        public FeatureWithStartupThatAnotherFeatureDependsOn(StringBuilder orderBuilder)
-        {
-            EnableByDefault();
-
-            this.orderBuilder = orderBuilder;
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
         class Runner(StringBuilder orderBuilder) : FeatureStartupTask
         {
@@ -197,18 +201,14 @@ public class FeatureStartupTests
                 return Task.CompletedTask;
             }
         }
-
-        readonly StringBuilder orderBuilder;
     }
 
     class FeatureWithStartupTask : TestFeature
     {
-        public FeatureWithStartupTask() => EnableByDefault();
-
         public bool TaskStarted { get; private set; }
         public bool TaskStopped { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
         public class Runner(FeatureWithStartupTask parentFeature) : FeatureStartupTask
         {
@@ -228,13 +228,16 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskThatThrows : TestFeature
     {
-        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null)
+        public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false, Func<Exception> createException = null, [CallerArgumentExpression(nameof(throwOnStart))] string throwOnStartExpression = null, [CallerArgumentExpression(nameof(throwOnStop))] string throwOnStopExpression = null)
         {
             this.throwOnStart = throwOnStart;
             this.throwOnStop = throwOnStop;
             this.createException = createException ?? (() => new InvalidOperationException());
 
-            EnableByDefault();
+            Enabled = true;
+
+            // This is a hack to bypass the restriction that the same feature type can't be added twice
+            Name = $"{GetType().FullName}.{throwOnStartExpression}.{throwOnStopExpression}";
         }
 
         public bool TaskStartCalled { get; private set; }
@@ -243,14 +246,11 @@ public class FeatureStartupTests
         public bool TaskStopped { get; private set; }
         public bool TaskDisposed { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.RegisterStartupTask(new Runner(this));
-        }
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
-        bool throwOnStart;
-        bool throwOnStop;
-        Func<Exception> createException;
+        readonly bool throwOnStart;
+        readonly bool throwOnStop;
+        readonly Func<Exception> createException;
 
         public class Runner(FeatureWithStartupTaskThatThrows parentFeature) : FeatureStartupTask, IDisposable
         {
@@ -292,11 +292,9 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskWhichIsDisposable : TestFeature
     {
-        public FeatureWithStartupTaskWhichIsDisposable() => EnableByDefault();
-
         public bool TaskDisposed { get; private set; }
 
-        protected internal override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
         public class Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature) : FeatureStartupTask, IDisposable
         {

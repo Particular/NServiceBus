@@ -4,9 +4,9 @@ using System;
 using System.Transactions;
 using ConsistencyGuarantees;
 
-class TransactionScopeUnitOfWork : Feature
+sealed class TransactionScopeUnitOfWork : Feature
 {
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
         {

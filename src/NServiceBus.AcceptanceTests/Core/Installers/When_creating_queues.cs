@@ -116,6 +116,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
         {
             EndpointSetup<DefaultServer, Context>((c, t) =>
             {
+                c.EnableFeature<MySatellite>();
                 var fakeTransport = new FakeTransport
                 {
                     OnTransportInitialize = queues =>
@@ -137,19 +138,12 @@ public class When_creating_queues : NServiceBusAcceptanceTest
 
         class MySatellite : Feature
         {
-            public MySatellite()
-            {
-                EnableByDefault();
-            }
-
-            protected override void Setup(FeatureConfigurationContext context)
-            {
+            protected override void Setup(FeatureConfigurationContext context) =>
                 context.AddSatelliteReceiver("MySatellite",
                     new QueueAddress("MySatelliteAddress"),
                     PushRuntimeSettings.Default,
                     (_, __) => throw new NotImplementedException(),
                     (_, __, ___) => throw new NotImplementedException());
-            }
         }
     }
 }

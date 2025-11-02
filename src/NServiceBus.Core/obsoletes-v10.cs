@@ -259,6 +259,19 @@ namespace NServiceBus
         [Obsolete("Use 'PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null)' instead. Will be removed in version 11.0.0.", true)]
         protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(settings) => throw new NotImplementedException();
     }
+
+    public static partial class EndpointConfigurationExtensions
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "EnableFeature<T>(this EndpointConfiguration config)", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'EnableFeature<T>(this EndpointConfiguration config)' instead. Will be removed in version 11.0.0.", true)]
+        public static void EnableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "DisableFeature<T>(this EndpointConfiguration config)", RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'DisableFeature<T>(this EndpointConfiguration config)' instead. Will be removed in version 11.0.0.", true)]
+        public static void DisableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.DataBus
@@ -393,14 +406,54 @@ namespace NServiceBus.Features
 {
     using System;
     using Particular.Obsoletes;
+    using Settings;
 
     [ObsoleteMetadata(
         Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
         RemoveInVersion = "11",
         TreatAsErrorFromVersion = "10")]
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
-    public class DataBus
+    public class DataBus;
+
+    public static partial class SettingsExtensions
     {
+        [ObsoleteMetadata(
+            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor. Will be removed in version 11.0.0.", true)]
+        public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature => throw new NotImplementedException();
+
+        [ObsoleteMetadata(
+            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor. Will be removed in version 11.0.0.", true)]
+        public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "IsFeatureActive<T>(this IReadOnlySettings settings)",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'IsFeatureActive<T>(this IReadOnlySettings settings)' instead. Will be removed in version 11.0.0.", true)]
+        public static bool IsFeatureActive(this IReadOnlySettings settings, Type featureType) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "IsFeatureEnabled<T>(this IReadOnlySettings settings)",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'IsFeatureEnabled<T>(this IReadOnlySettings settings)' instead. Will be removed in version 11.0.0.", true)]
+        public static bool IsFeatureEnabled(this IReadOnlySettings settings, Type featureType) => throw new NotImplementedException();
+    }
+
+    public abstract partial class Feature
+    {
+        [ObsoleteMetadata(
+            ReplacementTypeOrMember = "DependsOnOptionally<T>()",
+            RemoveInVersion = "11",
+            TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'DependsOnOptionally<T>()' instead. Will be removed in version 11.0.0.", true)]
+        protected void DependsOnOptionally(Type featureType) => throw new NotImplementedException();
     }
 }
 

@@ -13,13 +13,12 @@ using Unicast.Subscriptions.MessageDrivenSubscriptions;
 // The goal is to remove feature classes that implement functionality far beyond what features are "supposed" to be.
 // Many of those features have been moved into components instead.
 // Now that NSB 10 has made the class internal, refactoring can occur.
-class MessageDrivenSubscriptions : Feature
+sealed class MessageDrivenSubscriptions : Feature
 {
     internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
     internal MessageDrivenSubscriptions()
     {
-        EnableByDefault();
         Defaults(s =>
         {
             // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
@@ -32,7 +31,7 @@ class MessageDrivenSubscriptions : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         // The MessageDrivenSubscriptions feature needs to be activated when using the subscription migration mode as some persister packages check this feature before enabling the subscription storage.
         if (SubscriptionMigrationMode.IsMigrationModeEnabled(context.Settings))

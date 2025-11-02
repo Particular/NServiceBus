@@ -67,7 +67,7 @@ public class When_persistence_has_been_configured
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 
@@ -78,7 +78,7 @@ public class When_persistence_has_been_configured
 
         class FakeStorage : Feature
         {
-            protected internal override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
+            protected override void Setup(FeatureConfigurationContext context) => throw new System.NotImplementedException();
         }
     }
 }

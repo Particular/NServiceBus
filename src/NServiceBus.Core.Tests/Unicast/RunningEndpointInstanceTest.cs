@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Features;
 using NUnit.Framework;
 using Settings;
 using Testing;
@@ -17,7 +18,7 @@ public class RunningEndpointInstanceTest
         var testInstance = new RunningEndpointInstance(
             settings,
             null,
-            new FeatureComponent(settings),
+            new FeatureComponent(new FeatureComponent.Settings()),
             new TestableMessageSession(),
             null,
             new CancellationTokenSource(),

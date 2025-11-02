@@ -28,32 +28,20 @@ public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTes
 
     public class EndpointThatThrowsOnInfrastructureStop : EndpointConfigurationBuilder
     {
-        public EndpointThatThrowsOnInfrastructureStop()
-        {
+        public EndpointThatThrowsOnInfrastructureStop() =>
             EndpointSetup<DefaultServer>(builder =>
             {
+                builder.EnableFeature<CustomFeature>();
                 builder.UseTransport(new FakeTransport());
             });
-        }
 
         class CustomFeature : Feature
         {
-            public CustomFeature()
-            {
-                EnableByDefault();
-            }
-
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.RegisterStartupTask(new CustomTask());
-            }
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new CustomTask());
 
             class CustomTask : FeatureStartupTask
             {
-                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                {
-                    return Task.CompletedTask;
-                }
+                protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
                 protected override async Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                 {

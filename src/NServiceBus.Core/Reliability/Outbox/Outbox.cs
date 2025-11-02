@@ -15,7 +15,6 @@ public class Outbox : Feature
         Defaults(s =>
         {
             s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5));
-            s.EnableFeatureByDefault<SynchronizedStorage>();
         });
 
         Prerequisite(context => ReceivingEnabled(context.Settings) || AllowUseWithoutReceiving(context.Settings),
@@ -23,6 +22,8 @@ public class Outbox : Feature
 
         Prerequisite(context => !ReceivingEnabled(context.Settings) || TransactionsEnabled(context.Settings),
             "Outbox isn't needed since the receive transactions have been turned off");
+
+        EnableByDefault<SynchronizedStorage>();
 
         DependsOn<SynchronizedStorage>();
     }
@@ -36,7 +37,7 @@ public class Outbox : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         if (!context.Settings.HasSupportFor<StorageType.Outbox>())
         {

@@ -3,8 +3,9 @@ namespace NServiceBus.AcceptanceTests.Outbox;
 using System;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Persistence;
+using Features;
 using NUnit.Framework;
+using Persistence;
 
 public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAcceptanceTest
 {
@@ -34,6 +35,14 @@ public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAc
 
     class FakeNoOutboxSupportPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeNoOutboxSupportPersistence>
     {
+        FakeNoOutboxSupportPersistence() => Supports<StorageType.Subscriptions, SubscriptionStorage>();
+
         public static FakeNoOutboxSupportPersistence Create() => new();
+
+        // This storage type is required because Core acceptance tests run with message-driven pub sub
+        sealed class SubscriptionStorage : Feature
+        {
+            protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+        }
     }
 }

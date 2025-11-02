@@ -10,5 +10,5 @@ sealed class LearningSynchronizedStorage : Feature
 {
     public LearningSynchronizedStorage() => DependsOn<SynchronizedStorage>();
 
-    protected internal override void Setup(FeatureConfigurationContext context) => context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
+    protected override void Setup(FeatureConfigurationContext context) => context.Services.AddScoped<ICompletableSynchronizedStorageSession, LearningSynchronizedStorageSession>();
 }

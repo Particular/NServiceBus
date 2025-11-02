@@ -5,10 +5,12 @@
 /// </summary>
 public class PlatformRetryNotifications : Feature
 {
-    PlatformRetryNotifications() => EnableByDefault();
+    PlatformRetryNotifications()
+    {
+    }
 
     /// <inheritdoc />
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var forkBehavior = new RetryAcknowledgementBehavior();
         context.Pipeline.Register(forkBehavior, "Provides retry notifications to ServiceControl");

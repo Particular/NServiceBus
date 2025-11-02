@@ -9,14 +9,19 @@ using Settings;
 [TestFixture]
 public class FeatureSettingsTests
 {
-    FeatureActivator featureSettings;
+    FeatureComponent.Settings featureSettings;
+    FeatureComponent featureComponent;
     SettingsHolder settings;
+    FakeFeatureFactory featureFactory;
 
     [SetUp]
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
     }
 
     [Test]
@@ -25,16 +30,18 @@ public class FeatureSettingsTests
         var featureWithTrueCondition = new MyFeatureWithSatisfiedPrerequisite();
         var featureWithFalseCondition = new MyFeatureWithUnsatisfiedPrerequisite();
 
-        featureSettings.Add(featureWithTrueCondition);
-        featureSettings.Add(featureWithFalseCondition);
+        featureFactory.Add(featureWithTrueCondition, featureWithFalseCondition);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureSettings.EnableFeatureByDefault<MyFeatureWithSatisfiedPrerequisite>();
+        featureSettings.EnableFeatureByDefault<MyFeatureWithUnsatisfiedPrerequisite>();
+
+        var status = featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(featureWithTrueCondition.IsActive, Is.True);
             Assert.That(featureWithFalseCondition.IsActive, Is.False);
-            Assert.That(featureSettings.Status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
+            Assert.That(status.Single(s => s.Name == featureWithFalseCondition.Name).PrerequisiteStatus.Reasons.First(),
                 Is.EqualTo("The description"));
         }
     }
@@ -42,56 +49,27 @@ public class FeatureSettingsTests
     [Test]
     public void Should_register_defaults_if_feature_is_activated()
     {
-        featureSettings.Add(new MyFeatureWithDefaults());
+        featureSettings.EnableFeatureByDefault<MyFeatureWithDefaults>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(settings.HasSetting("Test1"), Is.True);
     }
 
-    [Test]
-    [Ignore("Discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
-    public void Should_not_register_defaults_if_feature_is_not_activated()
-    {
-        featureSettings.Add(new MyFeatureWithDefaultsNotActive());
-        featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
-
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(settings.HasSetting("Test1"), Is.False);
-            Assert.That(settings.HasSetting("Test2"), Is.False);
-        }
-    }
-
-
-    public class MyFeature : TestFeature
-    {
-    }
-
     public class MyFeatureWithDefaults : TestFeature
     {
-        public MyFeatureWithDefaults()
-        {
-            EnableByDefault();
-            Defaults(s => s.SetDefault("Test1", true));
-        }
+        public MyFeatureWithDefaults() => Defaults(s => s.SetDefault("Test1", true));
     }
 
     public class MyFeatureWithDefaultsNotActive : TestFeature
     {
-        public MyFeatureWithDefaultsNotActive()
-        {
-            Defaults(s => s.SetDefault("Test1", true));
-        }
+        public MyFeatureWithDefaultsNotActive() => Defaults(s => s.SetDefault("Test1", true));
     }
 
     public class MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite : TestFeature
     {
         public MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite()
         {
-            EnableByDefault();
             Defaults(s => s.SetDefault("Test2", true));
             Prerequisite(c => false, "Not to be activated");
         }
@@ -99,51 +77,12 @@ public class FeatureSettingsTests
 
     public class MyFeatureWithSatisfiedPrerequisite : TestFeature
     {
-        public MyFeatureWithSatisfiedPrerequisite()
-        {
-            EnableByDefault();
-            Prerequisite(c => true, "Wont be used");
-        }
+        public MyFeatureWithSatisfiedPrerequisite() => Prerequisite(c => true, "Wont be used");
     }
 
     public class MyFeatureWithUnsatisfiedPrerequisite : TestFeature
     {
-        public MyFeatureWithUnsatisfiedPrerequisite()
-        {
-            EnableByDefault();
-            Prerequisite(c => false, "The description");
-        }
+        public MyFeatureWithUnsatisfiedPrerequisite() => Prerequisite(c => false, "The description");
     }
 
-}
-
-public abstract class TestFeature : Feature
-{
-    protected TestFeature()
-    {
-        Defaults(s =>
-        {
-            OnDefaults?.Invoke(this);
-        });
-    }
-
-    public bool Enabled
-    {
-        get { return IsEnabledByDefault; }
-        set
-        {
-            if (value)
-            {
-                EnableByDefault();
-            }
-        }
-    }
-
-    public Action<Feature> OnActivation;
-    public Action<Feature> OnDefaults;
-
-    protected internal override void Setup(FeatureConfigurationContext context)
-    {
-        OnActivation?.Invoke(this);
-    }
 }

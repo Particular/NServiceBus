@@ -10,42 +10,57 @@ using Settings;
 [TestFixture]
 public class FeatureDependencyTests
 {
+    SettingsHolder settings;
+    FakeFeatureFactory featureFactory;
+    FeatureComponent featureComponent;
+    FeatureComponent.Settings featureSettings;
+
+    [SetUp]
+    public void SetUp()
+    {
+        settings = new SettingsHolder();
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
+    }
+
     static IEnumerable<FeatureCombinations> FeatureCombinationsForTests
     {
         get
         {
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2(), new MyFeature3() },
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
+                AvailableFeatures = [new MyFeature1(), new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3() },
+                DependingFeature = new DependsOnOne_Feature { Enabled = true },
+                AvailableFeatures = [new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAtLeastOne_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                DependingFeature = new DependsOnAtLeastOne_Feature { Enabled = true },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAll_Feature(),
-                AvailableFeatures = new Feature[] { new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3() },
+                DependingFeature = new DependsOnAll_Feature { Enabled = true },
+                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
         }
@@ -54,12 +69,14 @@ public class FeatureDependencyTests
     [TestCaseSource(nameof(FeatureCombinationsForTests))]
     public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
     {
-        var featureSettings = new FeatureActivator(new SettingsHolder());
         var dependingFeature = setup.DependingFeature;
+
+        Array.ForEach(setup.AvailableFeatures, featureFactory.Add);
+
         featureSettings.Add(dependingFeature);
         Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(dependingFeature.IsActive, Is.EqualTo(setup.ShouldBeActive));
     }
@@ -78,15 +95,12 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(dependingFeature, feature);
 
-        featureSettings.Add(dependingFeature);
-        featureSettings.Add(feature);
+        featureSettings.EnableFeature<MyFeature1>();
+        featureSettings.EnableFeature<DependsOnOne_Feature>();
 
-        settings.EnableFeatureByDefault<MyFeature1>();
-
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -110,15 +124,12 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(dependingFeature, feature);
 
-        featureSettings.Add(dependingFeature);
-        featureSettings.Add(feature);
+        featureSettings.EnableFeature<DependsOnOneByName_Feature>();
+        featureSettings.EnableFeature<MyFeature2>();
 
-        settings.EnableFeatureByDefault<MyFeature2>();
-
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -141,13 +152,12 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(dependingFeature, feature);
 
         featureSettings.Add(dependingFeature);
         featureSettings.Add(feature);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -178,19 +188,14 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(dependingFeature, feature, feature2, feature3);
 
-        featureSettings.Add(dependingFeature);
-        featureSettings.Add(feature);
-        featureSettings.Add(feature2);
-        featureSettings.Add(feature3);
+        featureSettings.EnableFeature<MyFeature1>();
+        featureSettings.EnableFeature<MyFeature2>();
+        featureSettings.EnableFeature<MyFeature3>();
+        featureSettings.EnableFeature<DependsOnAtLeastOne_Feature>();
 
-        settings.EnableFeatureByDefault<MyFeature1>();
-        settings.EnableFeatureByDefault<MyFeature2>();
-        settings.EnableFeatureByDefault<MyFeature3>();
-
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -207,7 +212,6 @@ public class FeatureDependencyTests
     {
         var order = new List<Feature>();
 
-
         var level1 = new Level1
         {
             OnActivation = f => order.Add(f)
@@ -221,15 +225,14 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(level1, level2, level3);
 
         //the orders matter here to expose a bug
-        featureSettings.Add(level3);
-        featureSettings.Add(level2);
-        featureSettings.Add(level1);
+        featureSettings.EnableFeatureByDefault<Level3>();
+        featureSettings.EnableFeatureByDefault<Level2>();
+        featureSettings.EnableFeatureByDefault<Level1>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -248,7 +251,6 @@ public class FeatureDependencyTests
     {
         var order = new List<Feature>();
 
-
         var level1 = new CycleLevel1
         {
             OnActivation = f => order.Add(f)
@@ -258,97 +260,60 @@ public class FeatureDependencyTests
             OnActivation = f => order.Add(f)
         };
 
-        var settings = new SettingsHolder();
-        var featureSettings = new FeatureActivator(settings);
+        featureFactory.Add(level1, level2);
 
-        featureSettings.Add(level1);
-        featureSettings.Add(level2);
+        featureSettings.EnableFeatureByDefault<CycleLevel1>();
+        featureSettings.EnableFeatureByDefault<CycleLevel2>();
 
-        Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext()));
-    }
-
-    public class Level1 : TestFeature
-    {
-        public Level1()
+        using (Assert.EnterMultipleScope())
         {
-            EnableByDefault();
+            Assert.Throws<ArgumentException>(() => featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings));
+            Assert.That(order, Is.Empty);
         }
     }
+
+    public class Level1 : TestFeature;
 
     public class Level2 : TestFeature
     {
-        public Level2()
-        {
-            EnableByDefault();
-            DependsOn<Level1>();
-        }
+        public Level2() => DependsOn<Level1>();
     }
 
     public class Level3 : TestFeature
     {
-        public Level3()
-        {
-            EnableByDefault();
-            DependsOn<Level2>();
-        }
+        public Level3() => DependsOn<Level2>();
     }
 
     public class CycleLevel1 : TestFeature
     {
-        public CycleLevel1()
-        {
-            EnableByDefault();
-            DependsOn<CycleLevel2>();
-        }
+        public CycleLevel1() => DependsOn<CycleLevel2>();
     }
 
     public class CycleLevel2 : TestFeature
     {
-        public CycleLevel2()
-        {
-            EnableByDefault();
-            DependsOn<CycleLevel1>();
-        }
+        public CycleLevel2() => DependsOn<CycleLevel1>();
     }
 
-    public class MyFeature1 : TestFeature
-    {
+    public class MyFeature1 : TestFeature;
 
-    }
+    public class MyFeature2 : TestFeature;
 
-    public class MyFeature2 : TestFeature
-    {
-
-    }
-
-    public class MyFeature3 : TestFeature
-    {
-
-    }
+    public class MyFeature3 : TestFeature;
 
     public class DependsOnOne_Feature : TestFeature
     {
-        public DependsOnOne_Feature()
-        {
-            EnableByDefault();
-            DependsOn<MyFeature1>();
-        }
+        public DependsOnOne_Feature() => DependsOn<MyFeature1>();
     }
 
     public class DependsOnOneByName_Feature : TestFeature
     {
-        public DependsOnOneByName_Feature()
-        {
-            EnableByDefault();
-            DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
-        }
+        public DependsOnOneByName_Feature() => DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
     }
 
     public class DependsOnAll_Feature : TestFeature
     {
         public DependsOnAll_Feature()
         {
-            EnableByDefault();
             DependsOn<MyFeature1>();
             DependsOn<MyFeature2>();
             DependsOn<MyFeature3>();
@@ -357,11 +322,7 @@ public class FeatureDependencyTests
 
     public class DependsOnAtLeastOne_Feature : TestFeature
     {
-        public DependsOnAtLeastOne_Feature()
-        {
-            EnableByDefault();
-            DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
-        }
+        public DependsOnAtLeastOne_Feature() => DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
     }
 
     public class FeatureCombinations

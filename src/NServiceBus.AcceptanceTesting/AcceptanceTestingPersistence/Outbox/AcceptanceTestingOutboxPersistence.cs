@@ -11,12 +11,13 @@ class AcceptanceTestingOutboxPersistence : Feature
 {
     public AcceptanceTestingOutboxPersistence()
     {
+        EnableByDefault<AcceptanceTestingTransactionalStorageFeature>();
+
         DependsOn<Outbox>();
         DependsOn<AcceptanceTestingTransactionalStorageFeature>();
-        Defaults(s => s.EnableFeatureByDefault<AcceptanceTestingTransactionalStorageFeature>());
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         var outboxStorage = new AcceptanceTestingOutboxStorage();
 

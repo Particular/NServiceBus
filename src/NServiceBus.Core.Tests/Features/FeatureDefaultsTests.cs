@@ -11,50 +11,50 @@ public class FeatureDefaultsTests
 {
     public class FeatureThatEnablesAnother : Feature
     {
-        public FeatureThatEnablesAnother()
-        {
-            EnableByDefault();
-            Defaults(s => s.EnableFeatureByDefault<FeatureThatIsEnabledByAnother>());
-        }
+        public FeatureThatEnablesAnother() => EnableByDefault<FeatureThatIsEnabledByAnother>();
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }
 
     public class FeatureThatIsEnabledByAnother : Feature
     {
-        public FeatureThatIsEnabledByAnother()
-        {
-            Defaults(s => DefaultCalled = true);
-        }
+        public FeatureThatIsEnabledByAnother() => Defaults(s => DefaultCalled = true);
 
         public bool DefaultCalled;
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
         }
     }
 
-    FeatureActivator featureSettings;
+    FeatureComponent.Settings featureSettings;
+    FakeFeatureFactory featureFactory;
     SettingsHolder settings;
+    FeatureComponent featureComponent;
 
     [SetUp]
     public void Init()
     {
         settings = new SettingsHolder();
-        featureSettings = new FeatureActivator(settings);
+        featureFactory = new FakeFeatureFactory();
+        featureSettings = new FeatureComponent.Settings(featureFactory);
+        settings.Set(featureSettings);
+        featureComponent = new FeatureComponent(featureSettings);
     }
 
     [Test]
     public void Feature_enabled_by_later_feature_should_have_default_called()
     {
         var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
+        featureFactory.Add(featureThatIsEnabledByAnother, new FeatureThatEnablesAnother());
+
         //the orders matter here to expose a bug
         featureSettings.Add(featureThatIsEnabledByAnother);
-        featureSettings.Add(new FeatureThatEnablesAnother());
+        featureSettings.EnableFeature<FeatureThatIsEnabledByAnother>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         Assert.That(featureThatIsEnabledByAnother.DefaultCalled, Is.True, "FeatureThatIsEnabledByAnother wasn't activated");
     }
@@ -81,12 +81,14 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
+        featureFactory.Add(level1, level2, level3);
+
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
         featureSettings.Add(level2);
-        featureSettings.Add(level1);
+        featureSettings.EnableFeatureByDefault<Activate1>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -116,12 +118,12 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
-        featureSettings.Add(dependingFeature);
-        featureSettings.Add(feature);
+        featureFactory.Add(dependingFeature, feature);
 
-        settings.EnableFeatureByDefault<MyFeature1>();
+        featureSettings.EnableFeature<MyFeature1>();
+        featureSettings.EnableFeatureByDefault<DependsOnOne_Feature>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -153,16 +155,14 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
-        featureSettings.Add(dependingFeature);
-        featureSettings.Add(feature);
-        featureSettings.Add(feature2);
-        featureSettings.Add(feature3);
+        featureFactory.Add(feature, feature2, feature3, dependingFeature);
 
-        settings.EnableFeatureByDefault<MyFeature1>();
-        settings.EnableFeatureByDefault<MyFeature2>();
-        settings.EnableFeatureByDefault<MyFeature3>();
+        featureSettings.EnableFeature<MyFeature1>();
+        featureSettings.EnableFeature<MyFeature2>();
+        featureSettings.EnableFeature<MyFeature3>();
+        featureSettings.EnableFeature<DependsOnAtLeastOne_Feature>();
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -192,12 +192,14 @@ public class FeatureDefaultsTests
             OnDefaults = f => defaultsOrder.Add(f)
         };
 
-        //the orders matter here to expose a bug
-        featureSettings.Add(level3);
-        featureSettings.Add(level2);
-        featureSettings.Add(level1);
+        featureFactory.Add(level1, level2, level3);
 
-        featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+        //the orders matter here to expose a bug
+        featureSettings.EnableFeatureByDefault<Level3>();
+        featureSettings.EnableFeatureByDefault<Level2>();
+        featureSettings.EnableFeatureByDefault<Level1>();
+
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
         using (Assert.EnterMultipleScope())
         {
@@ -211,39 +213,21 @@ public class FeatureDefaultsTests
         }
     }
 
-    public class Level1 : TestFeature
-    {
-        public Level1()
-        {
-            EnableByDefault();
-        }
-    }
+    public class Level1 : TestFeature;
 
     public class Level2 : TestFeature
     {
-        public Level2()
-        {
-            EnableByDefault();
-            DependsOn<Level1>();
-        }
+        public Level2() => DependsOn<Level1>();
     }
 
     public class Level3 : TestFeature
     {
-        public Level3()
-        {
-            EnableByDefault();
-            DependsOn<Level2>();
-        }
+        public Level3() => DependsOn<Level2>();
     }
 
     public class Activate1 : TestFeature
     {
-        public Activate1()
-        {
-            EnableByDefault();
-            Defaults(s => s.EnableFeatureByDefault<Activate2>());
-        }
+        public Activate1() => EnableByDefault<Activate2>();
     }
 
     public class Activate2 : TestFeature
@@ -251,59 +235,28 @@ public class FeatureDefaultsTests
         public Activate2()
         {
             DependsOn<Activate1>();
-            Defaults(s => s.EnableFeatureByDefault<Activate3>());
+            EnableByDefault<Activate3>();
         }
     }
 
     public class Activate3 : TestFeature
     {
-        public Activate3()
-        {
-            DependsOn<Activate2>();
-        }
+        public Activate3() => DependsOn<Activate2>();
     }
 
-    public class MyFeature1 : TestFeature
-    {
+    public class MyFeature1 : TestFeature;
 
-    }
+    public class MyFeature2 : TestFeature;
 
-    public class MyFeature2 : TestFeature
-    {
-
-    }
-
-    public class MyFeature3 : TestFeature
-    {
-
-    }
+    public class MyFeature3 : TestFeature;
 
     public class DependsOnOne_Feature : TestFeature
     {
-        public DependsOnOne_Feature()
-        {
-            EnableByDefault();
-            DependsOn<MyFeature1>();
-        }
-    }
-
-    public class DependsOnAll_Feature : TestFeature
-    {
-        public DependsOnAll_Feature()
-        {
-            EnableByDefault();
-            DependsOn<MyFeature1>();
-            DependsOn<MyFeature2>();
-            DependsOn<MyFeature3>();
-        }
+        public DependsOnOne_Feature() => DependsOn<MyFeature1>();
     }
 
     public class DependsOnAtLeastOne_Feature : TestFeature
     {
-        public DependsOnAtLeastOne_Feature()
-        {
-            EnableByDefault();
-            DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
-        }
+        public DependsOnAtLeastOne_Feature() => DependsOnAtLeastOne(typeof(MyFeature1), typeof(MyFeature2), typeof(MyFeature3));
     }
 }

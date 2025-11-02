@@ -51,17 +51,19 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
     public class EndpointWithOverrides : EndpointConfigurationBuilder
     {
         public EndpointWithOverrides() =>
-            EndpointSetup<DefaultServer>(c => c.RegisterComponents(s =>
+            EndpointSetup<DefaultServer>(c =>
             {
-                s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
-                s.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
-                s.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
-            }));
+                c.EnableFeature<StartupFeature>();
+                c.RegisterComponents(s =>
+                {
+                    s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
+                    s.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
+                    s.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
+                });
+            });
 
         public class StartupFeature : Feature
         {
-            public StartupFeature() => EnableByDefault();
-
             protected override void Setup(FeatureConfigurationContext context)
             {
                 context.Services.AddSingleton<IDependencyFromFeature, OriginallyDefinedDependency>();
@@ -92,29 +94,19 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
         }
     }
 
-    public interface IDependencyFromFeature
-    {
-    }
+    public interface IDependencyFromFeature;
 
-    public interface IDependencyBeforeEndpointConfiguration
-    {
-    }
+    public interface IDependencyBeforeEndpointConfiguration;
 
-    public interface IDependencyBeforeEndpointStart
-    {
-    }
+    public interface IDependencyBeforeEndpointStart;
 
     public class OriginallyDefinedDependency :
         IDependencyFromFeature,
         IDependencyBeforeEndpointConfiguration,
-        IDependencyBeforeEndpointStart
-    {
-    }
+        IDependencyBeforeEndpointStart;
 
     public class OverridenDependency :
         IDependencyFromFeature,
         IDependencyBeforeEndpointConfiguration,
-        IDependencyBeforeEndpointStart
-    {
-    }
+        IDependencyBeforeEndpointStart;
 }

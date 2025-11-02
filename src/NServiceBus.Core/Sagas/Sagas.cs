@@ -13,8 +13,6 @@ public class Sagas : Feature
 {
     internal Sagas()
     {
-        EnableByDefault();
-
         Defaults(s =>
         {
             conventions = s.Get<Conventions>();
@@ -24,9 +22,9 @@ public class Sagas : Feature
             {
                 conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
             }
-
-            s.EnableFeatureByDefault<SynchronizedStorage>();
         });
+
+        EnableByDefault<SynchronizedStorage>();
 
         Defaults(s => s.Set(new SagaMetadataCollection()));
 
@@ -39,7 +37,7 @@ public class Sagas : Feature
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         if (!context.Settings.HasSupportFor<StorageType.Sagas>())
         {

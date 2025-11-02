@@ -7,17 +7,15 @@ using System.Diagnostics;
 using Logging;
 using Particular.Licensing;
 
-class LicenseReminder : Feature
+sealed class LicenseReminder : Feature
 {
     public LicenseReminder()
     {
-        EnableByDefault();
-
         Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
         Defaults(s => s.SetDefault(LicenseFilePathSettingsKey, null));
     }
 
-    protected internal override void Setup(FeatureConfigurationContext context)
+    protected override void Setup(FeatureConfigurationContext context)
     {
         try
         {

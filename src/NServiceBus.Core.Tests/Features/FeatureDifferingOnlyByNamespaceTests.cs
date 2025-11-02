@@ -24,14 +24,17 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            var featureFactory = new FakeFeatureFactory();
+            var featureSettings = new FeatureComponent.Settings(featureFactory);
+            settings.Set(featureSettings);
+            var featureComponent = new FeatureComponent(featureSettings);
 
-            featureSettings.Add(dependingFeature);
-            featureSettings.Add(feature);
+            featureFactory.Add(dependingFeature, feature);
 
-            settings.EnableFeatureByDefault<NamespaceA.MyFeature>();
+            featureSettings.EnableFeature<NamespaceA.MyFeature>();
+            featureSettings.EnableFeature<NamespaceB.MyFeature>();
 
-            featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
+            featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
             using (Assert.EnterMultipleScope())
             {
@@ -47,9 +50,7 @@ namespace NamespaceA
 {
     using NServiceBus.Core.Tests.Features;
 
-    public class MyFeature : TestFeature
-    {
-    }
+    public class MyFeature : TestFeature;
 }
 
 namespace NamespaceB
@@ -58,10 +59,6 @@ namespace NamespaceB
 
     public class MyFeature : TestFeature
     {
-        public MyFeature()
-        {
-            EnableByDefault();
-            DependsOn<NamespaceA.MyFeature>();
-        }
+        public MyFeature() => DependsOn<NamespaceA.MyFeature>();
     }
 }
