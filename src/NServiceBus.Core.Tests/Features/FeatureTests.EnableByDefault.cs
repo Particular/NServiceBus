@@ -22,3 +22,5 @@ public partial class FeatureTests
         public MyEnabledByDefaultFeature() => EnableByDefault();
     }
 }
+
+#pragma warning restore CS0618 // Type or member is obsolete
