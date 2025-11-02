@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
+using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class PropertySagaFinder<TSagaData>(ISagaPersister sagaPersister) : SagaFinder
+class PropertySagaFinder<TSagaData> : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
-    public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+    public async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var propertyAccessor = (Func<object, object>)finderDefinition.Properties["property-accessor"];
         var propertyValue = propertyAccessor(message);
@@ -29,6 +30,8 @@ class PropertySagaFinder<TSagaData>(ISagaPersister sagaPersister) : SagaFinder
 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {sagaPropertyName}. Correlation properties cannot be assigned null.");
         }
+
+        var sagaPersister = builder.GetRequiredService<ISagaPersister>();
 
         if (sagaPropertyName.Equals("id", StringComparison.OrdinalIgnoreCase))
         {

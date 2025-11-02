@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class CustomFinderAdapter<TFinder, TSagaData, TMessage> : SagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : IContainSagaData
+class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : IContainSagaData
 {
-    public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+    public async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var finder = factory.Invoke(builder, []);
 

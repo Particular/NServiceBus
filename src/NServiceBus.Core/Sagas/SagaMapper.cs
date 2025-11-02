@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Sagas;
 
-class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
+class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
 {
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
     {
@@ -25,7 +25,7 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
         var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
         Finders.Add(new SagaFinderDefinition(
-            typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            new PropertySagaFinder<TSagaEntity>(),
             typeof(TMessage),
             new Dictionary<string, object>
             {
@@ -49,7 +49,7 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
         AssignCorrelationProperty<TMessage>(sagaProp);
 
         Finders.Add(new SagaFinderDefinition(
-            typeof(HeaderPropertySagaFinder<>).MakeGenericType(sagaEntityType),
+            new HeaderPropertySagaFinder<TSagaEntity>(),
             typeof(TMessage),
             new Dictionary<string, object>
             {
@@ -68,9 +68,8 @@ class SagaMapper(Type sagaType, Type sagaEntityType, IReadOnlyList<SagaMessage> 
     void IConfigureHowToFindSagaWithFinder.ConfigureMapping<TSagaEntity, TMessage, TFinder>()
     {
         AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
-        var messageType = typeof(TMessage);
 
-        Finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,,>).MakeGenericType(typeof(TFinder), sagaEntityType, messageType), messageType, []));
+        Finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage), []));
     }
 
     void AssertMessageCanBeMapped<TMessage>(string context)
