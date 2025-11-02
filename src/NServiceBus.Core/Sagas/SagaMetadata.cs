@@ -11,17 +11,9 @@ using System.Runtime.CompilerServices;
 /// </summary>
 public class SagaMetadata
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SagaMetadata" /> class.
-    /// </summary>
-    /// <param name="sagaType">The type for this saga.</param>
-    /// <param name="sagaEntityType">The type of the related saga entity.</param>
-    /// <param name="correlationProperty">The property this saga is correlated on if any.</param>
-    /// <param name="messages">The messages collection that a saga handles.</param>
-    /// <param name="finders">The finder definition collection that can find this saga.</param>
-    public SagaMetadata(Type sagaType, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
+    SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping)
     {
-        this.correlationProperty = correlationProperty;
+        correlationProperty = mapping.CorrelationProperty;
         Name = sagaType.FullName;
         EntityName = sagaEntityType.FullName;
         SagaEntityType = sagaEntityType;
@@ -36,7 +28,7 @@ public class SagaMetadata
 
         sagaFinders = [];
 
-        foreach (var finder in finders)
+        foreach (var finder in mapping.Finders)
         {
             sagaFinders[finder.MessageType.FullName!] = finder;
         }
@@ -137,14 +129,16 @@ public class SagaMetadata
         var sagaEntityType = genericArguments.Single();
 
         var mapper = new SagaMapper(sagaType, associatedMessages);
+
         saga.ConfigureHowToFindSaga(mapper);
 
+        var sagaMapping = mapper.FinalizeMapping();
         //TODO: move into a mapper.Finalize();
         foreach (var sagaMessage in associatedMessages)
         {
             if (sagaMessage.IsAllowedToStartSaga)
             {
-                var match = mapper.Finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
+                var match = sagaMapping.Finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
                 if (match == null)
                 {
                     var simpleName = sagaMessage.MessageType.Name;
@@ -158,17 +152,17 @@ public class SagaMetadata
             throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
         }
 
-        if (mapper.CorrelationProperty != null)
+        if (sagaMapping.CorrelationProperty != null)
         {
-            if (!AllowedCorrelationPropertyTypes.Contains(mapper.CorrelationProperty.Type))
+            if (!AllowedCorrelationPropertyTypes.Contains(sagaMapping.CorrelationProperty.Type))
             {
                 var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
 
-                throw new Exception($"{mapper.CorrelationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {mapper.CorrelationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
+                throw new Exception($"{sagaMapping.CorrelationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {sagaMapping.CorrelationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
             }
         }
 
-        return new SagaMetadata(sagaType, sagaEntityType, mapper.CorrelationProperty, associatedMessages, mapper.Finders);
+        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, sagaMapping);
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)

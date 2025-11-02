@@ -129,6 +129,11 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         CorrelationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
     }
 
-    public readonly List<SagaFinderDefinition> Finders = [];
-    public SagaMetadata.CorrelationPropertyMetadata CorrelationProperty { get; private set; }
+    public SagaMapping FinalizeMapping()
+    {
+        return new SagaMapping(Finders, CorrelationProperty);
+    }
+
+    readonly List<SagaFinderDefinition> Finders = [];
+    SagaMetadata.CorrelationPropertyMetadata CorrelationProperty;
 }
