@@ -5,6 +5,7 @@ namespace NServiceBus.Features;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -140,38 +141,41 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         public void EnableFeature<T>() where T : Feature
         {
-            var featureName = Feature.GetFeatureName<T>();
-            if (!added.TryGetValue(featureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(typeof(T)));
-            }
+            var info = GetOrCreate<T>();
             info.Enable();
         }
 
         public void DisableFeature<T>() where T : Feature
         {
-            var featureName = Feature.GetFeatureName<T>();
-            if (!added.TryGetValue(featureName, out var info))
-            {
-                info = AddCore(factory.CreateFeature(typeof(T)));
-            }
+            var info = GetOrCreate<T>();
             info.Disable();
         }
 
         public void EnableFeatureByDefault<T>() where T : Feature
         {
-            var featureName = Feature.GetFeatureName<T>();
-            if (!added.TryGetValue(featureName, out var info))
+            var info = GetOrCreate<T>();
+            info.EnableByDefault();
+        }
+
+        FeatureInfo GetOrCreate<T>() where T : Feature
+        {
+            if (!TryGet<T>(out var info))
             {
                 info = AddCore(factory.CreateFeature(typeof(T)));
             }
-            info.EnableByDefault();
+            return info;
+        }
+
+        bool TryGet<T>([NotNullWhen(true)] out FeatureInfo? info) where T : Feature
+        {
+            var featureName = Feature.GetFeatureName<T>();
+            _ = added.TryGetValue(featureName, out info);
+            return info is not null;
         }
 
         public bool IsFeature<T>(FeatureState state) where T : Feature
         {
-            var featureName = Feature.GetFeatureName<T>();
-            if (added.TryGetValue(featureName, out var info))
+            if (TryGet<T>(out var info))
             {
                 return info.In(state);
             }
