@@ -25,7 +25,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         var compiledMessageExpression = messageExpression.Compile();
         var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
-        Finders.Add(new SagaFinderDefinition(
+        finders.Add(new SagaFinderDefinition(
             new PropertySagaFinder<TSagaEntity>(sagaProp.Name, messageFunc),
             typeof(TMessage)));
     }
@@ -40,7 +40,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
         AssignCorrelationProperty<TMessage>(sagaProp);
 
-        Finders.Add(new SagaFinderDefinition(
+        finders.Add(new SagaFinderDefinition(
             new HeaderPropertySagaFinder<TSagaEntity>(headerName, sagaProp.Name, sagaProp.PropertyType),
             typeof(TMessage)));
     }
@@ -49,7 +49,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
     {
         AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
 
-        Finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage)));
+        finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage)));
     }
 
     void AssertMessageCanBeMapped<TMessage>(string context)
@@ -61,7 +61,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             throw new ArgumentException($"Can't map message type {msgType.FullName} to saga {sagaType.Name} using a {context} since the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
         }
 
-        if (Finders.Any(s => s.MessageType == msgType))
+        if (finders.Any(s => s.MessageType == msgType))
         {
             throw new ArgumentException($"Can't add a {context} mapping for {msgType.FullName} to saga {sagaType.Name} since an existing mapping already exists. Please check your {nameof(Saga.ConfigureHowToFindSaga)}");
         }
@@ -121,19 +121,54 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
     void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp)
     {
-        if (CorrelationProperty != null && CorrelationProperty.Name != sagaProp.Name)
+        if (correlationProperty != null && correlationProperty.Name != sagaProp.Name)
         {
-            throw new ArgumentException($"Saga already have a mapping to property {CorrelationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
+            throw new ArgumentException($"Saga already have a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
         }
 
-        CorrelationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
+        correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
     }
 
     public SagaMapping FinalizeMapping()
     {
-        return new SagaMapping(Finders, CorrelationProperty);
+        foreach (var sagaMessage in sagaMessages)
+        {
+            if (sagaMessage.IsAllowedToStartSaga)
+            {
+                var match = finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
+                if (match == null)
+                {
+                    var simpleName = sagaMessage.MessageType.Name;
+                    throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
+                }
+            }
+        }
+
+        if (!sagaMessages.Any(m => m.IsAllowedToStartSaga))
+        {
+            throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
+        }
+
+        if (correlationProperty != null)
+        {
+            if (!AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
+            {
+                var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
+
+                throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
+            }
+        }
+
+        return new SagaMapping(finders, correlationProperty);
     }
 
-    readonly List<SagaFinderDefinition> Finders = [];
-    SagaMetadata.CorrelationPropertyMetadata CorrelationProperty;
+    readonly List<SagaFinderDefinition> finders = [];
+    SagaMetadata.CorrelationPropertyMetadata correlationProperty;
+
+    // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
+    // but also needs to be enforced at runtime in case the user silences the diagnostic
+    static readonly Type[] AllowedCorrelationPropertyTypes =
+    [
+        typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
+    ];
 }

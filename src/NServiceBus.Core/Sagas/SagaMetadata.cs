@@ -132,37 +132,7 @@ public class SagaMetadata
 
         saga.ConfigureHowToFindSaga(mapper);
 
-        var sagaMapping = mapper.FinalizeMapping();
-        //TODO: move into a mapper.Finalize();
-        foreach (var sagaMessage in associatedMessages)
-        {
-            if (sagaMessage.IsAllowedToStartSaga)
-            {
-                var match = sagaMapping.Finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
-                if (match == null)
-                {
-                    var simpleName = sagaMessage.MessageType.Name;
-                    throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
-                }
-            }
-        }
-
-        if (!associatedMessages.Any(m => m.IsAllowedToStartSaga))
-        {
-            throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
-        }
-
-        if (sagaMapping.CorrelationProperty != null)
-        {
-            if (!AllowedCorrelationPropertyTypes.Contains(sagaMapping.CorrelationProperty.Type))
-            {
-                var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
-
-                throw new Exception($"{sagaMapping.CorrelationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {sagaMapping.CorrelationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
-            }
-        }
-
-        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, sagaMapping);
+        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping());
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
@@ -233,13 +203,6 @@ public class SagaMetadata
     readonly Dictionary<string, SagaMessage> associatedMessages;
     readonly CorrelationPropertyMetadata correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
-
-    // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
-    // but also needs to be enforced at runtime in case the user silences the diagnostic
-    static readonly Type[] AllowedCorrelationPropertyTypes =
-    [
-        typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
-    ];
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
