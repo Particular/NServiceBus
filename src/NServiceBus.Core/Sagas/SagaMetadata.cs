@@ -138,9 +138,10 @@ public class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        var mapper = new SagaMapper(sagaType, sagaEntityType, associatedMessages);
+        var mapper = new SagaMapper(sagaType, associatedMessages);
         saga.ConfigureHowToFindSaga(mapper);
 
+        //TODO: move into a mapper.Finalize();
         foreach (var sagaMessage in associatedMessages)
         {
             if (sagaMessage.IsAllowedToStartSaga)

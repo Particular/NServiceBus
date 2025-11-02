@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
-using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 
 /// <summary>
@@ -13,20 +12,15 @@ using Persistence;
 /// </summary>
 public class SagaFinderDefinition
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SagaFinderDefinition" /> class.
-    /// </summary>
-    /// <param name="type">The type of the finder.</param>
-    /// <param name="messageType">The type of message this finder is associated with.</param>
-    /// <param name="properties">Custom properties.</param>
-    internal SagaFinderDefinition(Type type, Type messageType, Dictionary<string, object> properties)
+    readonly ICoreSagaFinder sagaFinder;
+
+    internal SagaFinderDefinition(ICoreSagaFinder sagaFinder, Type messageType, Dictionary<string, object> properties)
     {
-        Type = type;
+        this.sagaFinder = sagaFinder;
+        Type = sagaFinder.GetType();
         MessageType = messageType;
         MessageTypeName = messageType.FullName;
         Properties = properties;
-
-        finderFactory = ActivatorUtilities.CreateFactory(type, []);
     }
 
     /// <summary>
@@ -54,12 +48,6 @@ public class SagaFinderDefinition
         ContextBag context,
         object message,
         IReadOnlyDictionary<string, string> messageHeaders,
-        CancellationToken cancellationToken = default)
-    {
-        var finder = (SagaFinder)finderFactory.Invoke(serviceProvider, null);
-
-        return finder.Find(serviceProvider, this, synchronizedStorageSession, context, message, messageHeaders, cancellationToken);
-    }
-
-    readonly ObjectFactory finderFactory;
+        CancellationToken cancellationToken = default) =>
+        sagaFinder.Find(serviceProvider, this, synchronizedStorageSession, context, message, messageHeaders, cancellationToken);
 }
