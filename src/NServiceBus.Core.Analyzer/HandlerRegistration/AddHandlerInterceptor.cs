@@ -81,9 +81,14 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             return null;
         }
 
-        var messageTypes = handlerType.AllInterfaces
+        var registrations = handlerType.AllInterfaces
             .Where(IsHandlerInterface)
-            .Select(type => type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+            .Select(type =>
+            {
+                var messageType = type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var addType = type.Name == "IHandleTimeouts" ? "Timeout" : "Message";
+                return new MessageRegistration(addType, messageType);
+            })
             .ToImmutableArray();
 
         if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
@@ -93,7 +98,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
         var methodName = CreateMethodName(handlerType);
         var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, messageTypes);
+        return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, registrations);
     }
 
     static string CreateMethodName(INamedTypeSymbol handlerType)
@@ -193,9 +198,9 @@ public class AddHandlerInterceptor : IIncrementalGenerator
                                         var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                             .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                             """);
-            foreach (var messageType in first.MessageTypes.Items)
+            foreach (var registration in first.Registrations.Items)
             {
-                sb.AppendLine($"            registry.AddHandlerForMessage<{first.HandlerType}, {messageType}>();");
+                sb.AppendLine($"            registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType}>();");
             }
             sb.AppendLine("        }");
         }
@@ -212,7 +217,8 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     const string AddHandlerMethodName = "AddHandler";
 
     record struct InvocationCandidate(string FilePath, TextSpan Span);
-    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<string> MessageTypes);
+    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
+    record struct MessageRegistration(string AddType, string MessageType);
     record struct SafeInterceptionLocation(int Version, string Data, string DisplayLocation)
     {
         public static SafeInterceptionLocation From(InterceptableLocation location) =>
