@@ -34,7 +34,7 @@ public class MessageHandler
     /// </summary>
     public Type HandlerType { get; }
 
-    internal void CreateHandler(IServiceProvider provider)
+    internal void Initialize(IServiceProvider provider)
     {
         if (createHandler is null)
         {

@@ -27,15 +27,11 @@ public class MessageHandlerRegistry
         var messageHandlers = new List<MessageHandler>();
         foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
         {
-            var handlerType = handlersAndMessages.Key;
-            foreach (var handlerDelegate in handlersAndMessages.Value)
+            foreach (var handlerFactory in handlersAndMessages.Value)
             {
-                if (handlerDelegate.MessageType.IsAssignableFrom(messageType))
+                if (handlerFactory.MessageType.IsAssignableFrom(messageType))
                 {
-                    messageHandlers.Add(new MessageHandler(handlerDelegate.CreateHandler, handlerDelegate.Handle, handlerType)
-                    {
-                        IsTimeoutHandler = handlerDelegate.IsTimeoutHandler
-                    });
+                    messageHandlers.Add(handlerFactory.Create());
                 }
             }
         }
@@ -102,27 +98,20 @@ public class MessageHandlerRegistry
             handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = methodList = [];
         }
 
-        foreach (var iface in typeof(THandler).GetInterfaces())
+        if (typeof(IHandleMessages<TMessage>).IsAssignableFrom(typeof(THandler)))
         {
-            if (iface.IsGenericType)
-            {
-                var firstTypeParam = iface.GetGenericArguments()[0];
-                if (firstTypeParam == typeof(TMessage))
-                {
-                    var definition = iface.GetGenericTypeDefinition();
-                    if (definition == typeof(IHandleMessages<>))
-                    {
-                        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-                        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = false });
-                    }
-                    else if (definition == typeof(IHandleTimeouts<>))
-                    {
-                        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-                        methodList.Add(new DelegateHolder<THandler, TMessage> { IsTimeoutHandler = true });
-                    }
-                }
-            }
+            Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+            methodList.Add(new MessageHandlerFactory<THandler, TMessage>());
+            return;
         }
+
+        if (!typeof(IHandleTimeouts<TMessage>).IsAssignableFrom(typeof(THandler)))
+        {
+            return;
+        }
+
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+        methodList.Add(new TimeoutHandlerFactory<THandler, TMessage>());
     }
 
     static readonly MethodInfo AddHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
@@ -174,40 +163,41 @@ public class MessageHandlerRegistry
             .Distinct()
             .ToArray();
 
-    readonly Dictionary<Type, List<IDelegateHolder>> handlerAndMessagesHandledByHandlerCache = [];
+    readonly Dictionary<Type, List<IMessageHandlerFactory>> handlerAndMessagesHandledByHandlerCache = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
-    interface IDelegateHolder
+    interface IMessageHandlerFactory
     {
         Type MessageType { get; }
-        bool IsTimeoutHandler { get; init; }
-        object CreateHandler(IServiceProvider provider);
-        Task Handle(object handler, object message, IMessageHandlerContext context);
+        MessageHandler Create();
     }
 
-    class DelegateHolder<THandler, TMessage> : IDelegateHolder
+    class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
 
-        public bool IsTimeoutHandler { get; init; }
-
-        public object CreateHandler(IServiceProvider provider) => handlerFactory(provider, []);
-
-        public Task Handle(object handler, object message, IMessageHandlerContext context)
+        public MessageHandler Create()
         {
-            if (IsTimeoutHandler && handler is IHandleTimeouts<TMessage> timeoutHandler)
-            {
-                return timeoutHandler.Timeout((TMessage)message, context);
-            }
+            return new MessageHandler(provider => handlerFactory(provider, []), Invocation, typeof(THandler)) { IsTimeoutHandler = true, };
 
-            if (!IsTimeoutHandler && handler is IHandleMessages<TMessage> messageHandler)
-            {
-                return messageHandler.Handle((TMessage)message, context);
-            }
+            static Task Invocation(object arg1, object arg2, IMessageHandlerContext arg3) => ((IHandleTimeouts<TMessage>)arg1).Timeout((TMessage)arg2, arg3);
+        }
 
-            return Task.CompletedTask;
+        static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);
+    }
+
+    class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+        where THandler : class
+    {
+        public Type MessageType { get; } = typeof(TMessage);
+
+        public MessageHandler Create()
+        {
+            return new MessageHandler(provider => handlerFactory(provider, []), Invocation, typeof(THandler)) { IsTimeoutHandler = false, };
+
+            static Task Invocation(object arg1, object arg2, IMessageHandlerContext arg3) => ((IHandleMessages<TMessage>)arg1).Handle((TMessage)arg2, arg3);
         }
 
         static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);

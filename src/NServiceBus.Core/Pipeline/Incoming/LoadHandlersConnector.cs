@@ -48,7 +48,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
             foreach (var messageHandler in handlersToInvoke)
             {
-                messageHandler.CreateHandler(context.Builder);
+                messageHandler.Initialize(context.Builder);
 
                 var handlingContext = this.CreateInvokeHandlerContext(messageHandler, storageSession, context);
 
