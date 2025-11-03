@@ -9,34 +9,35 @@ using System.Threading.Tasks;
 /// <summary>
 /// Non-generic abstraction used by the pipeline.
 /// </summary>
-public abstract class MessageHandler
+public class MessageHandler
 {
     /// <summary>
     /// The actual instance, can be a saga, a timeout or just a plain handler.
     /// </summary>
-    public abstract object? Instance { get; set; }
+    public virtual object? Instance { get; set; }
 
     /// <summary>
     /// The handler type, can be a saga, a timeout or just a plain handler.
     /// </summary>
-    public abstract Type HandlerType { get; }
+    public virtual required Type HandlerType { get; init; }
 
-    internal abstract void Initialize(IServiceProvider provider);
+    internal virtual void Initialize(IServiceProvider provider)
+    {
+    }
 
-    internal abstract bool IsTimeoutHandler { get; }
+    internal virtual bool IsTimeoutHandler { get; } = false;
 
     /// <summary>
     /// Invokes the message handler.
     /// </summary>
     /// <param name="message">the message to pass to the handler.</param>
     /// <param name="handlerContext">the context to pass to the handler.</param>
-    public abstract Task Invoke(object message, IMessageHandlerContext handlerContext);
+    public virtual Task Invoke(object message, IMessageHandlerContext handlerContext) => Task.CompletedTask;
 }
 
 sealed class MessageHandler<THandler, TMessage>(
     Func<IServiceProvider, THandler> createHandler,
     Func<THandler, TMessage, IMessageHandlerContext, Task> invocation,
-    Type handlerType,
     bool isTimeoutHandler)
     : MessageHandler
     where THandler : class
@@ -52,7 +53,7 @@ sealed class MessageHandler<THandler, TMessage>(
                 _ => throw new Exception($"Cannot set instance of type {value.GetType()} to type {typeof(THandler)}.")
             };
     }
-    public override Type HandlerType { get; } = handlerType;
+    public override required Type HandlerType { get; init; }
 
     internal override bool IsTimeoutHandler { get; } = isTimeoutHandler;
 

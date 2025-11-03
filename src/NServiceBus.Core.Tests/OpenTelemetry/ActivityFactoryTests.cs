@@ -243,7 +243,7 @@ public class ActivityFactoryTests
         public void Should_not_start_activity_when_no_parent_activity_exists()
         {
             Type handlerType = typeof(StartHandlerActivity);
-            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType));
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler { HandlerType = handlerType });
 
             Assert.That(activity, Is.Null, "should not start handler activity when no parent activity exists");
         }
@@ -256,7 +256,7 @@ public class ActivityFactoryTests
             using var ambientActivity = new Activity("ambient activity");
             ambientActivity.Start();
 
-            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, handlerType));
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler { HandlerType = handlerType });
 
             Assert.That(activity, Is.Not.Null);
             var tags = activity.Tags.ToImmutableDictionary();
@@ -271,7 +271,7 @@ public class ActivityFactoryTests
             using var ambientActivity = new Activity("ambient activity");
             ambientActivity.Start();
 
-            var activity = activityFactory.StartHandlerActivity(new MessageHandler((_, _, _) => Task.CompletedTask, typeof(StartHandlerActivity)));
+            var activity = activityFactory.StartHandlerActivity(new MessageHandler { HandlerType = typeof(StartHandlerActivity) });
 
             Assert.That(activity, Is.Not.Null);
         }
