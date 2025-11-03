@@ -1,4 +1,5 @@
 [*.cs]
 
 dotnet_diagnostic.RS2008.severity = none  # Enable analyzer release tracking
+dotnet_diagnostic.RS2000.severity = none  # Analyzer not part of any release
 dotnet_diagnostic.RS1032.severity = none  # Diagnostic message sentence structure
