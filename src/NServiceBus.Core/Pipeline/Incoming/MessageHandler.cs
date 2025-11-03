@@ -3,13 +3,14 @@
 namespace NServiceBus.Pipeline;
 
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 
 /// <summary>
 /// Non-generic abstraction used by the pipeline.
 /// </summary>
-public class MessageHandler
+public partial class MessageHandler
 {
     /// <summary>
     /// The actual instance, can be a saga, a timeout or just a plain handler.
