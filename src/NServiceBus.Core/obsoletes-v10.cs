@@ -422,4 +422,24 @@ namespace NServiceBus.Persistence
     }
 }
 
+namespace NServiceBus.Pipeline
+{
+    using System;
+    using System.Threading.Tasks;
+    using Particular.Obsoletes;
+
+    public partial class MessageHandler
+    {
+        public MessageHandler()
+        {
+            // Won't be needed once the obsolete member is removed.
+        }
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "MessageHandler<THandler, TMessage>", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'MessageHandler<THandler, TMessage>' instead. Will be removed in version 11.0.0.", true)]
+        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+            => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
