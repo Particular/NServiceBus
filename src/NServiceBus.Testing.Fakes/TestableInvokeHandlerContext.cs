@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing;
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Persistence;
@@ -41,7 +42,10 @@ public partial class TestableInvokeHandlerContext : TestableIncomingContext, IIn
     /// <summary>
     /// The current <see cref="T:NServiceBus.IHandleMessages`1" /> being executed.
     /// </summary>
-    public MessageHandler MessageHandler { get; set; } = new MessageHandler((instance, message, context) => Task.CompletedTask, typeof(object));
+    public MessageHandler MessageHandler { get; set; } = new MessageHandler
+    {
+        HandlerType = typeof(object)
+    };
 
     /// <summary>
     /// Message headers.
