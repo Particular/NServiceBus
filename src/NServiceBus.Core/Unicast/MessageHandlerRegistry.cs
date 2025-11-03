@@ -77,12 +77,26 @@ public class MessageHandlerRegistry
             return;
         }
 
-        var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
-
-        foreach (var messageType in messageTypes)
+        foreach (var interfaceType in handlerType.GetInterfaces())
         {
-            AddHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
-                .Invoke(this, []);
+            if (!interfaceType.IsGenericType)
+            {
+                continue;
+            }
+
+            var genericTypeDefinition = interfaceType.GetGenericTypeDefinition();
+            var messageType = interfaceType.GetGenericArguments()[0];
+            if (genericTypeDefinition == typeof(IHandleMessages<>))
+            {
+                AddMessageHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
+                    .Invoke(this, []);
+            }
+
+            if (genericTypeDefinition == typeof(IHandleTimeouts<>))
+            {
+                AddTimeoutHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
+                    .Invoke(this, []);
+            }
         }
     }
 
@@ -90,28 +104,38 @@ public class MessageHandlerRegistry
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void AddHandlerForMessage<THandler, TMessage>() where THandler : class
+    public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+    {
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+        AddHandlerFactory<THandler>(new MessageHandlerFactory<THandler, TMessage>());
+    }
+
+    /// <summary>
+    /// Add a handler for a specific timeout type. Should only be called by a source generator.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
+    {
+        Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
+        AddHandlerFactory<THandler>(new TimeoutHandlerFactory<THandler, TMessage>());
+    }
+
+    void AddHandlerFactory<THandler>(IMessageHandlerFactory handlerFactory)
     {
         if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var methodList))
         {
             handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = methodList = [];
         }
 
-        if (typeof(IHandleMessages<TMessage>).IsAssignableFrom(typeof(THandler)))
-        {
-            Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-            methodList.Add(new MessageHandlerFactory<THandler, TMessage>());
-        }
-
-        if (typeof(IHandleTimeouts<TMessage>).IsAssignableFrom(typeof(THandler)))
-        {
-            Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
-            methodList.Add(new TimeoutHandlerFactory<THandler, TMessage>());
-        }
+        methodList.Add(handlerFactory);
     }
 
-    static readonly MethodInfo AddHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddHandlerForMessage));
+    static readonly MethodInfo AddMessageHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+
+    static readonly MethodInfo AddTimeoutHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
+
 
     /// <summary>
     /// Add handlers from types scanned at runtime.
@@ -142,22 +166,6 @@ public class MessageHandlerRegistry
     /// Clears the cache.
     /// </summary>
     public void Clear() => handlerAndMessagesHandledByHandlerCache.Clear();
-
-    static Type[] GetMessageTypesBeingHandledBy(Type type) =>
-        type.GetInterfaces()
-            .Where(t =>
-            {
-                if (!t.IsGenericType)
-                {
-                    return false;
-                }
-
-                var genericTypeDefinition = t.GetGenericTypeDefinition();
-                return genericTypeDefinition == typeof(IHandleMessages<>) || genericTypeDefinition == typeof(IHandleTimeouts<>);
-            })
-            .Select(t => t.GetGenericArguments()[0])
-            .Distinct()
-            .ToArray();
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> handlerAndMessagesHandledByHandlerCache = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
