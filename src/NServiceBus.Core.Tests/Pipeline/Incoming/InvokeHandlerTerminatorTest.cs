@@ -119,28 +119,28 @@ public class InvokeHandlerTerminatorTest
         return sagaInstance;
     }
 
-    static MessageHandler CreateMessageHandler(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+    static TestableHandlerContext CreateMessageHandler(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
     {
-        var messageHandler = new MessageHandler((instance, message, handlerContext) =>
+        var messageHandler = new TestableHandlerContext((instance, message, handlerContext) =>
         {
             invocationAction(instance, message, handlerContext);
             return Task.CompletedTask;
-        }, handlerInstance.GetType())
+        }, handlerInstance)
         {
-            Instance = handlerInstance
+            HandlerType = handlerInstance.GetType()
         };
         return messageHandler;
     }
 
-    static MessageHandler CreateMessageHandlerThatReturnsNull(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+    static TestableHandlerContext CreateMessageHandlerThatReturnsNull(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
     {
-        var messageHandler = new MessageHandler((instance, message, handlerContext) =>
+        var messageHandler = new TestableHandlerContext((instance, message, handlerContext) =>
         {
             invocationAction(instance, message, handlerContext);
             return null;
-        }, handlerInstance.GetType())
+        }, handlerInstance)
         {
-            Instance = handlerInstance
+            HandlerType = handlerInstance.GetType()
         };
         return messageHandler;
     }
@@ -153,6 +153,12 @@ public class InvokeHandlerTerminatorTest
         };
 
         return behaviorContext;
+    }
+
+    class TestableHandlerContext(Func<object, object, IMessageHandlerContext, Task> invocationAction, object handlerInstance) : MessageHandler
+    {
+        public override object Instance { get; set; } = handlerInstance;
+        public override Task Invoke(object message, IMessageHandlerContext handlerContext) => invocationAction(Instance, message, handlerContext);
     }
 
     class FakeSaga : Saga<FakeSaga.FakeSagaData>, IAmStartedByMessages<StartMessage>

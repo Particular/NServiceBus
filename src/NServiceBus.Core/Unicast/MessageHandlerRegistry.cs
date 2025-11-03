@@ -181,8 +181,10 @@ public class MessageHandlerRegistry
             new MessageHandler<IHandleTimeouts<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
                 static (h, state, ctx) => h.Timeout(state, ctx),
-                typeof(THandler),
-                isTimeoutHandler: true);
+                isTimeoutHandler: true)
+            {
+                HandlerType = typeof(THandler)
+            };
 
         static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
             static (sp, args) => (IHandleTimeouts<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
@@ -197,8 +199,10 @@ public class MessageHandlerRegistry
             new MessageHandler<IHandleMessages<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
                 static (h, m, ctx) => h.Handle(m, ctx),
-                typeof(THandler),
-                isTimeoutHandler: false);
+                isTimeoutHandler: false)
+            {
+                HandlerType = typeof(THandler)
+            };
 
         static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
             static (sp, args) => (IHandleMessages<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
