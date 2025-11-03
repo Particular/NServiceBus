@@ -101,16 +101,13 @@ public class MessageHandlerRegistry
         {
             Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
             methodList.Add(new MessageHandlerFactory<THandler, TMessage>());
-            return;
         }
 
-        if (!typeof(IHandleTimeouts<TMessage>).IsAssignableFrom(typeof(THandler)))
+        if (typeof(IHandleTimeouts<TMessage>).IsAssignableFrom(typeof(THandler)))
         {
-            return;
+            Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
+            methodList.Add(new TimeoutHandlerFactory<THandler, TMessage>());
         }
-
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-        methodList.Add(new TimeoutHandlerFactory<THandler, TMessage>());
     }
 
     static readonly MethodInfo AddHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)

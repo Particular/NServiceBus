@@ -3,7 +3,6 @@
 namespace NServiceBus.Pipeline;
 
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 
