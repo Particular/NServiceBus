@@ -36,7 +36,7 @@ public class CustomFinderAdapterTests
         Assert.That(AsyncDisposableFinder.DisposeCalled, Is.True);
     }
 
-    async Task InvokeFinder<TFinder>() where TFinder : ISagaFinder<SagaData, StartSagaMessage>
+    static async Task InvokeFinder<TFinder>(CancellationToken cancellationToken = default) where TFinder : ISagaFinder<SagaData, StartSagaMessage>
     {
         var services = new ServiceCollection();
 
@@ -44,7 +44,7 @@ public class CustomFinderAdapterTests
 
         await using var serviceProvider = services.BuildServiceProvider();
 
-        await customerFinderAdapter.Find(serviceProvider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>());
+        await customerFinderAdapter.Find(serviceProvider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>(), cancellationToken);
     }
 
 
@@ -68,7 +68,9 @@ public class CustomFinderAdapterTests
 
         public static bool DisposeCalled;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async ValueTask DisposeAsync() => DisposeCalled = true;
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 
     class SagaData : ContainSagaData;
