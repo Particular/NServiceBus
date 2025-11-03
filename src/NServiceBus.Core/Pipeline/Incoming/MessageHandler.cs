@@ -5,62 +5,73 @@ namespace NServiceBus.Pipeline;
 using System;
 using System.Threading.Tasks;
 
+
 /// <summary>
-/// Represents a message handler and its invocation.
+/// Non-generic abstraction used by the pipeline.
 /// </summary>
-public class MessageHandler
+public abstract class MessageHandler
 {
-    /// <summary>
-    /// Creates a new instance of the message handler with predefined invocation delegate and handler type.
-    /// </summary>
-    /// <param name="invocation">The invocation with context delegate.</param>
-    /// <param name="handlerType">The handler type.</param>
-    public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
-    {
-        HandlerType = handlerType;
-        this.invocation = invocation;
-    }
-
-    internal MessageHandler(Func<IServiceProvider, object> createHandler, Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
-        : this(invocation, handlerType) => this.createHandler = createHandler;
-
     /// <summary>
     /// The actual instance, can be a saga, a timeout or just a plain handler.
     /// </summary>
-    public object? Instance { get; set; }
+    public abstract object? Instance { get; set; }
 
     /// <summary>
     /// The handler type, can be a saga, a timeout or just a plain handler.
     /// </summary>
-    public Type HandlerType { get; }
+    public abstract Type HandlerType { get; }
 
-    internal void Initialize(IServiceProvider provider)
-    {
-        if (createHandler is null)
-        {
-            throw new Exception("TEMP: Could not create handler from handler delegate");
-        }
+    internal abstract void Initialize(IServiceProvider provider);
 
-        Instance = createHandler(provider);
-    }
-
-    internal bool IsTimeoutHandler { get; init; }
+    internal abstract bool IsTimeoutHandler { get; }
 
     /// <summary>
     /// Invokes the message handler.
     /// </summary>
     /// <param name="message">the message to pass to the handler.</param>
     /// <param name="handlerContext">the context to pass to the handler.</param>
-    public Task Invoke(object message, IMessageHandlerContext handlerContext)
+    public abstract Task Invoke(object message, IMessageHandlerContext handlerContext);
+}
+
+sealed class MessageHandler<THandler, TMessage>(
+    Func<IServiceProvider, THandler> createHandler,
+    Func<THandler, TMessage, IMessageHandlerContext, Task> invocation,
+    Type handlerType,
+    bool isTimeoutHandler)
+    : MessageHandler
+    where THandler : class
+{
+    public override object? Instance
+    {
+        get => instance;
+        set =>
+            instance = value switch
+            {
+                null => null,
+                THandler handler => handler,
+                _ => throw new Exception($"Cannot set instance of type {value.GetType()} to type {typeof(THandler)}.")
+            };
+    }
+    public override Type HandlerType { get; } = handlerType;
+
+    internal override bool IsTimeoutHandler { get; } = isTimeoutHandler;
+
+    internal override void Initialize(IServiceProvider provider)
+    {
+        ArgumentNullException.ThrowIfNull(provider);
+        instance = createHandler(provider);
+    }
+
+    public override Task Invoke(object message, IMessageHandlerContext handlerContext)
     {
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(handlerContext);
 
-        return Instance is null
-            ? throw new Exception("Cannot invoke handler because MessageHandler Instance is not set.")
-            : invocation(Instance, message, handlerContext);
+        return instance is null ? throw new Exception("Cannot invoke handler because MessageHandler Instance is not set.") :
+            invocation(instance, (TMessage)message, handlerContext);
     }
 
-    readonly Func<object, object, IMessageHandlerContext, Task> invocation;
-    readonly Func<IServiceProvider, object>? createHandler;
+    THandler? instance;
+    readonly Func<IServiceProvider, THandler> createHandler = createHandler ?? throw new ArgumentNullException(nameof(createHandler));
+    readonly Func<THandler, TMessage, IMessageHandlerContext, Task> invocation = invocation ?? throw new ArgumentNullException(nameof(invocation));
 }

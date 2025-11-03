@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
@@ -178,14 +177,15 @@ public class MessageHandlerRegistry
     {
         public Type MessageType { get; } = typeof(TMessage);
 
-        public MessageHandler Create()
-        {
-            return new MessageHandler(provider => handlerFactory(provider, []), Invocation, typeof(THandler)) { IsTimeoutHandler = true, };
+        public MessageHandler Create() =>
+            new MessageHandler<IHandleTimeouts<TMessage>, TMessage>(
+                static provider => handlerFactory(provider, []),
+                static (h, state, ctx) => h.Timeout(state, ctx),
+                typeof(THandler),
+                isTimeoutHandler: true);
 
-            static Task Invocation(object arg1, object arg2, IMessageHandlerContext arg3) => ((IHandleTimeouts<TMessage>)arg1).Timeout((TMessage)arg2, arg3);
-        }
-
-        static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);
+        static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
+            static (sp, args) => (IHandleTimeouts<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
     }
 
     class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
@@ -193,13 +193,14 @@ public class MessageHandlerRegistry
     {
         public Type MessageType { get; } = typeof(TMessage);
 
-        public MessageHandler Create()
-        {
-            return new MessageHandler(provider => handlerFactory(provider, []), Invocation, typeof(THandler)) { IsTimeoutHandler = false, };
+        public MessageHandler Create() =>
+            new MessageHandler<IHandleMessages<TMessage>, TMessage>(
+                static provider => handlerFactory(provider, []),
+                static (h, m, ctx) => h.Handle(m, ctx),
+                typeof(THandler),
+                isTimeoutHandler: false);
 
-            static Task Invocation(object arg1, object arg2, IMessageHandlerContext arg3) => ((IHandleMessages<TMessage>)arg1).Handle((TMessage)arg2, arg3);
-        }
-
-        static readonly ObjectFactory<THandler> handlerFactory = ActivatorUtilities.CreateFactory<THandler>([]);
+        static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
+            static (sp, args) => (IHandleMessages<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
     }
 }
