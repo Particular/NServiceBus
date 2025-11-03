@@ -175,7 +175,7 @@ public class MessageHandlerRegistry
         public Type MessageType { get; } = typeof(TMessage);
 
         public MessageHandler Create() =>
-            new MessageHandler<IHandleTimeouts<TMessage>, TMessage>(
+            new MessageHandlerInvoker<IHandleTimeouts<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
                 static (h, state, ctx) => h.Timeout(state, ctx),
                 isTimeoutHandler: true)
@@ -193,7 +193,7 @@ public class MessageHandlerRegistry
         public Type MessageType { get; } = typeof(TMessage);
 
         public MessageHandler Create() =>
-            new MessageHandler<IHandleMessages<TMessage>, TMessage>(
+            new MessageHandlerInvoker<IHandleMessages<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
                 static (h, m, ctx) => h.Handle(m, ctx),
                 isTimeoutHandler: false)
