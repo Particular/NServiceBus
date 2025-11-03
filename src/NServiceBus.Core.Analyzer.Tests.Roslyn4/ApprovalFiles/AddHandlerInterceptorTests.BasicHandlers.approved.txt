@@ -26,7 +26,7 @@ namespace NServiceBus
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
             var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            registry.AddHandlerForMessage<global::Handles1, global::Cmd1>();
+            registry.AddMessageHandlerForMessage<global::Handles1, global::Cmd1>();
         }
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,12)
         [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,12)
@@ -35,9 +35,9 @@ namespace NServiceBus
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
             var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            registry.AddHandlerForMessage<global::Handles3, global::Cmd1>();
-            registry.AddHandlerForMessage<global::Handles3, global::Cmd2>();
-            registry.AddHandlerForMessage<global::Handles3, global::Evt1>();
+            registry.AddMessageHandlerForMessage<global::Handles3, global::Cmd1>();
+            registry.AddMessageHandlerForMessage<global::Handles3, global::Cmd2>();
+            registry.AddMessageHandlerForMessage<global::Handles3, global::Evt1>();
         }
     }
 }
