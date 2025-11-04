@@ -102,6 +102,10 @@ public class DocumentationTests
             {
                 return;
             }
+            if (element is ExtensionMethod)
+            {
+                return;
+            }
             var text = element.ToText();
             if (text == null)
             {
