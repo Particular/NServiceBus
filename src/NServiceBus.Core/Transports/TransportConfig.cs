@@ -15,6 +15,7 @@ public static class TransportConfig
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
+        /// <typeparam name="TTransport">The transport definition eg <see cref="LearningTransport" />, AzureServiceBusTransport etc.</typeparam>
         public RoutingSettings<TTransport> UseTransport<TTransport>(TTransport transportDefinition)
             where TTransport : TransportDefinition
         {
