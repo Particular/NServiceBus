@@ -9,12 +9,11 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
-using Transport;
 
 /// <summary>
 /// Configuration used to create an endpoint instance.
 /// </summary>
-public partial class EndpointConfiguration : ExposeSettings
+public class EndpointConfiguration : ExposeSettings
 {
     /// <summary>
     /// Initializes the endpoint configuration builder.
@@ -96,16 +95,6 @@ public partial class EndpointConfiguration : ExposeSettings
     public ConventionsBuilder Conventions()
     {
         return ConventionsBuilder;
-    }
-
-    /// <summary>
-    /// Configures NServiceBus to use the given transport.
-    /// </summary>
-    public RoutingSettings<TTransport> UseTransport<TTransport>(TTransport transportDefinition)
-        where TTransport : TransportDefinition
-    {
-        Settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
-        return new RoutingSettings<TTransport>(Settings);
     }
 
     //This needs to be here since we have downstreams that use reflection to access this property
