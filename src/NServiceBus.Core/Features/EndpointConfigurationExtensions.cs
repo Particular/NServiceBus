@@ -17,7 +17,7 @@ public static partial class EndpointConfigurationExtensions
     public static void EnableFeature<T>(this EndpointConfiguration config) where T : Feature
     {
         ArgumentNullException.ThrowIfNull(config);
-        config.Settings.Get<FeatureComponent.Settings>().EnableFeature<T>();
+        config.Settings.EnableFeature<T>();
     }
 
     /// <summary>
