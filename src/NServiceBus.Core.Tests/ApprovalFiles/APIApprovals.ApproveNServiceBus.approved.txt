@@ -2143,10 +2143,11 @@ namespace NServiceBus.Transport
     public class DispatchProperties : System.Collections.Generic.Dictionary<string, string>
     {
         public DispatchProperties() { }
-        public DispatchProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
-        public NServiceBus.DelayedDelivery.DelayDeliveryWith DelayDeliveryWith { get; set; }
-        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore DiscardIfNotReceivedBefore { get; set; }
-        public NServiceBus.DelayedDelivery.DoNotDeliverBefore DoNotDeliverBefore { get; set; }
+        public DispatchProperties(NServiceBus.Transport.DispatchProperties properties) { }
+        public NServiceBus.DelayedDelivery.DelayDeliveryWith? DelayDeliveryWith { get; set; }
+        public NServiceBus.Performance.TimeToBeReceived.DiscardIfNotReceivedBefore? DiscardIfNotReceivedBefore { get; set; }
+        public NServiceBus.DelayedDelivery.DoNotDeliverBefore? DoNotDeliverBefore { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> Extensions { get; }
     }
     public class ErrorContext
     {

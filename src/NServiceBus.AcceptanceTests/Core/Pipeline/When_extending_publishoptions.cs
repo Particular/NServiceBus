@@ -8,11 +8,12 @@ using Extensibility;
 using Features;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
+using Transport;
 
-public class When_extending_the_publish_api : NServiceBusAcceptanceTest
+public class When_extending_publishoptions : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_make_the_context_available_to_behaviors()
+    public async Task Should_make_extensions_available_to_pipeline()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b =>
@@ -20,10 +21,12 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
                 {
                     var options = new PublishOptions();
 
-                    options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context
+                    var context = new Publisher.PublishExtensionBehavior.Context
                     {
-                        SomeProperty = "ItWorks"
-                    });
+                        Data = "ItWorks"
+                    };
+                    options.GetExtensions().Set(context);
+                    options.GetDispatchProperties().Extensions.Add("Context", context);
 
                     return session.Publish(new MyEvent(), options);
                 })
@@ -37,78 +40,75 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
+            .Done(c => c.DataReceived is not null)
             .Run();
 
-        Assert.That(context.Subscriber1GotTheEvent, Is.True);
+        Assert.That(context.DataReceived, Is.EqualTo("ItWorksItWorks"));
     }
 
     public class Context : ScenarioContext
     {
-        public bool Subscriber1GotTheEvent { get; set; }
         public bool Subscriber1Subscribed { get; set; }
+
+        public string DataReceived { get; set; }
     }
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscriber1Subscribed = true; });
 
                 b.Pipeline.Register("PublishExtensionBehavior", new PublishExtensionBehavior(), "Testing publish extensions");
             });
-        }
 
         public class PublishExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
         {
             public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
             {
+                var myEvent = new MyEvent();
+
                 if (context.Extensions.TryGet<Context>(out var data))
                 {
-                    Assert.That(data.SomeProperty, Is.EqualTo("ItWorks"));
+                    myEvent.Data = data.Data;
                 }
-                else
+
+                if (context.Extensions.TryGet<DispatchProperties>(out var properties) &&
+                    properties.Extensions.TryGetValue("Context", out var contextAsObject)
+                    && contextAsObject is Context dispatchContext)
                 {
-                    Assert.Fail("Expected to find the data");
+                    myEvent.Data += dispatchContext.Data;
                 }
+
+                context.UpdateMessage(myEvent);
 
                 return next(context);
             }
 
             public class Context
             {
-                public string SomeProperty { get; set; }
+                public string Data { get; set; }
             }
         }
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
     {
-        public Subscriber1()
-        {
-            EndpointSetup<DefaultServer>(builder => builder.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
-        }
+        public Subscriber1() => EndpointSetup<DefaultServer>(builder => builder.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
+            public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
-                testContext = context;
-            }
-
-            public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
-            {
-                testContext.Subscriber1GotTheEvent = true;
+                testContext.DataReceived = message.Data;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class MyEvent : IEvent
     {
+        public string Data { get; set; }
     }
 }
