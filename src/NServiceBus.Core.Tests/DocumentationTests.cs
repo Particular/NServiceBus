@@ -70,42 +70,11 @@ public class DocumentationTests
 
         void AddIfEmpty(Element element)
         {
-            if (element is TypeParamRef)
+            if (SkipElementTypes(element))
             {
                 return;
             }
-            if (element is C)
-            {
-                return;
-            }
-            if (element is SeeAlso)
-            {
-                return;
-            }
-            if (element is UnknownElement)
-            {
-                return;
-            }
-            if (element is Code)
-            {
-                return;
-            }
-            if (element is See)
-            {
-                return;
-            }
-            if (element is Text)
-            {
-                return;
-            }
-            if (element is ParamRef)
-            {
-                return;
-            }
-            if (element is ExtensionMethod)
-            {
-                return;
-            }
+
             var text = element.ToText();
             if (text == null)
             {
@@ -138,6 +107,13 @@ public class DocumentationTests
             }
             BadMembers.Add(currentMember);
         }
+
+        static bool SkipElementTypes(Element element) =>
+            element switch
+            {
+                TypeParamRef or C or SeeAlso or UnknownElement or Code or See or Text or ParamRef or ExtensionMethod => true,
+                _ => false,
+            };
 
         bool IsInheritDoc(Element element)
         {
