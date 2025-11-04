@@ -1329,6 +1329,8 @@ namespace NServiceBus.Features
     }
     public static class SettingsExtensions
     {
+        public static void EnableFeature<T>(this NServiceBus.Settings.SettingsHolder settings)
+            where T : NServiceBus.Features.Feature { }
         [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
             "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
             " be removed in version 11.0.0.", true)]
