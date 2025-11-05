@@ -79,6 +79,8 @@ class EndpointCreator
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
+        settings.ValidateSagaAndOutboxUseSamePersistence();
+
         recoverabilityComponent.Initialize(
             receiveConfiguration,
             hostingConfiguration,
