@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Settings;
 
 /// <summary>
 /// Defines a transport.
@@ -25,10 +26,12 @@ public abstract partial class TransportDefinition
     }
 
     /// <summary>
-    /// Initializes all the factories and supported features for the transport. This method is called right before all features
-    /// are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing
-    /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
-    /// provide information anymore at this stage).
+    /// Provides access to the endpoint settings when hosting in an endpoint.
+    /// </summary>
+    public virtual void ConfigureForEndpointHosting(SettingsHolder settingsHolder) { }
+
+    /// <summary>
+    /// Initializes all the factories and supported features for the transport.
     /// </summary>
     public abstract Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default);
 

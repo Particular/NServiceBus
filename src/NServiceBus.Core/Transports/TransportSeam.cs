@@ -38,6 +38,7 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
             hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
             transportSeamSettings.settings);
 
+        transportDefinition.ConfigureForEndpointHosting(transportSeamSettings.settings);
         var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 
         hostingConfiguration.Services.AddSingleton(_ => transportSeam.transportInfrastructure.Dispatcher);
