@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
 using Features;
+using Installation;
 using Logging;
 
 /// <summary>
@@ -310,6 +311,7 @@ public class AssemblyScanner
         {
             fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
         }
+
         return fileInfo;
     }
 
@@ -332,6 +334,11 @@ public class AssemblyScanner
             if (isParticularAssembly)
             {
                 if (typeToAdd.IsAssignableTo(typeof(Feature)))
+                {
+                    continue;
+                }
+
+                if (typeToAdd.IsAssignableTo(typeof(INeedToInstallSomething)))
                 {
                     continue;
                 }
@@ -415,7 +422,10 @@ public class AssemblyScanner
     const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
     const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
-    static readonly string[] FileSearchPatternsToUse = { "*.dll", "*.exe" };
+    static readonly string[] FileSearchPatternsToUse =
+    {
+        "*.dll", "*.exe"
+    };
 
     static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
     {
