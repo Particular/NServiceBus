@@ -28,7 +28,21 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
     public class Settings
     {
-        public string InstallationUserName { get; set; } = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
+        public const string UsernameSettingsKey = "Installation:Username";
+        public static string DefaultUsername = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
+
+        public Settings(SettingsHolder settings)
+        {
+            this.settings = settings;
+            InstallationUserName = DefaultUsername;
+        }
+
+        public string InstallationUserName
+        {
+            // Some downstreams, like MSMQ, relies on this key being present in the settings
+            get => settings.Get<string>(UsernameSettingsKey);
+            set => settings.Set(UsernameSettingsKey, value);
+        }
 
         public void Add<TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(new Installer<TInstaller>());
 
@@ -44,6 +58,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
         public IReadOnlyCollection<IInstaller> Installers => installers;
 
         readonly HashSet<IInstaller> installers = [];
+        readonly SettingsHolder settings;
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 

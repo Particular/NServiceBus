@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Configuration.AdvancedExtensibility;
 using Installation;
 using NUnit.Framework;
 
@@ -23,6 +24,27 @@ public class InstallerSettingsTests
         settings.AddScannedInstallers([typeof(MyInstaller), typeof(MyInstaller2)]);
 
         Assert.That(settings.Installers.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Should_default_username_to_X()
+    {
+        var endpointConfiguration = new EndpointConfiguration("myendpoint");
+
+        endpointConfiguration.EnableInstallers();
+
+        Assert.That(endpointConfiguration.Settings.Get<InstallerComponent.Settings>().InstallationUserName, Is.EqualTo(InstallerComponent.Settings.DefaultUsername));
+    }
+
+    [Test]
+    public void Should_expose_username_over_settings()
+    {
+        var endpointConfiguration = new EndpointConfiguration("myendpoint");
+
+        var username = "MyUsername";
+        endpointConfiguration.EnableInstallers(username);
+
+        Assert.That(endpointConfiguration.GetSettings().Get(InstallerComponent.Settings.UsernameSettingsKey), Is.EqualTo(username));
     }
 
     class MyInstaller : INeedToInstallSomething
