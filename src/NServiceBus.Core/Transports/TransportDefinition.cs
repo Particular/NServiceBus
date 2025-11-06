@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Defines a transport.
 /// </summary>
-public abstract partial class TransportDefinition
+public abstract class TransportDefinition
 {
     TransportTransactionMode transportTransactionMode;
 
