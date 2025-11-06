@@ -38,7 +38,7 @@ public class When_transport_is_started_send_only : NServiceBusAcceptanceTest
             });
         }
 
-        class FeatureAccessingAddressing : Feature
+        class FeatureAccessingAddressing : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
@@ -50,6 +50,8 @@ public class When_transport_is_started_send_only : NServiceBusAcceptanceTest
                 context.RegisterStartupTask(s => new StartupTask(testContext,
                     (ITransportAddressResolver)s.GetService(typeof(ITransportAddressResolver))));
             }
+
+            static Feature IFeatureFactory.Create() => new FeatureAccessingAddressing();
         }
 
         class StartupTask : FeatureStartupTask

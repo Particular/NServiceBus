@@ -2,7 +2,7 @@ namespace NServiceBus;
 
 using Features;
 
-sealed class OpenTelemetryFeature : Feature
+sealed class OpenTelemetryFeature : Feature, IFeatureFactory
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
@@ -16,4 +16,6 @@ sealed class OpenTelemetryFeature : Feature
             "Manages the depth of the trace for sends"
         );
     }
+
+    static Feature IFeatureFactory.Create() => new OpenTelemetryFeature();
 }

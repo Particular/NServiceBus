@@ -4,7 +4,7 @@ using System;
 using System.Transactions;
 using ConsistencyGuarantees;
 
-sealed class TransactionScopeUnitOfWork : Feature
+sealed class TransactionScopeUnitOfWork : Feature, IFeatureFactory
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
@@ -47,4 +47,6 @@ sealed class TransactionScopeUnitOfWork : Feature
 
         public TransactionOptions TransactionOptions { get; }
     }
+
+    static Feature IFeatureFactory.Create() => new TransactionScopeUnitOfWork();
 }

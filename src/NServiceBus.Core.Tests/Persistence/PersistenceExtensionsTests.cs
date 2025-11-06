@@ -22,9 +22,11 @@ public class When_configuring_storage_type_not_supported_by_persistence
 
         public static PartialPersistence Create() => new();
 
-        class FakeSubscriptionStorage : Feature
+        class FakeSubscriptionStorage : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+
+            static Feature IFeatureFactory.Create() => new FakeSubscriptionStorage();
         }
     }
 }
@@ -44,9 +46,11 @@ public class When_configuring_storage_type_supported_by_persistence
 
         public static PartialPersistence Create() => new();
 
-        class FakeSubscriptionStorage : Feature
+        class FakeSubscriptionStorage : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+
+            static Feature IFeatureFactory.Create() => new FakeSubscriptionStorage();
         }
     }
 }

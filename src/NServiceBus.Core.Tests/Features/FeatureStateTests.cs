@@ -65,22 +65,26 @@ public class FeatureStateTests
         }
     }
 
-    sealed class FeatureThatDependsOnAnother : Feature
+    sealed class FeatureThatDependsOnAnother : Feature, IFeatureFactory
     {
         public FeatureThatDependsOnAnother() => DependsOn<DependentFeature>();
 
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new FeatureThatDependsOnAnother();
     }
 
-    sealed class DependentFeature : Feature
+    sealed class DependentFeature : Feature, IFeatureFactory
     {
         public DependentFeature() => Prerequisite(c => false, "Not to be activated");
 
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new DependentFeature();
     }
 
     [Test]
@@ -119,10 +123,12 @@ public class FeatureStateTests
         Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Disabled), Is.True);
     }
 
-    sealed class FeatureThatGetsToggled : Feature
+    sealed class FeatureThatGetsToggled : Feature, IFeatureFactory
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new FeatureThatGetsToggled();
     }
 }

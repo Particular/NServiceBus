@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using MessageMutator;
 
-sealed class Mutators : Feature
+sealed class Mutators : Feature, IFeatureFactory
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
@@ -23,4 +23,6 @@ sealed class Mutators : Feature
         public readonly HashSet<IMutateIncomingTransportMessages> IncomingTransportMessage = [];
         public readonly HashSet<IMutateOutgoingTransportMessages> OutgoingTransportMessage = [];
     }
+
+    static Feature IFeatureFactory.Create() => new Mutators();
 }

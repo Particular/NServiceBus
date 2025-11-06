@@ -63,7 +63,7 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                 c.EnableFeature<Bootstrapper>();
             });
 
-        public class Bootstrapper : Feature
+        public class Bootstrapper : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetRequiredService<Context>(), b));
 
@@ -95,6 +95,8 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
+
+            static Feature IFeatureFactory.Create() => new Bootstrapper();
         }
     }
 }

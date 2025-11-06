@@ -7,7 +7,7 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Outbox;
 
-class AcceptanceTestingOutboxPersistence : Feature
+class AcceptanceTestingOutboxPersistence : Feature, IFeatureFactory
 {
     public AcceptanceTestingOutboxPersistence()
     {
@@ -62,4 +62,6 @@ class AcceptanceTestingOutboxPersistence : Feature
 
         Timer cleanupTimer;
     }
+
+    static Feature IFeatureFactory.Create() => new AcceptanceTestingOutboxPersistence();
 }

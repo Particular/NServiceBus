@@ -36,7 +36,7 @@ public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
             });
         }
 
-        public class FeatureEnabledByUser : Feature
+        public class FeatureEnabledByUser : Feature, IFeatureFactory
         {
             public Context TestContext { get; set; }
 
@@ -44,6 +44,8 @@ public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
             {
                 context.Settings.Get<Context>().TransactionModeFromSettingsExtensions = context.Settings.GetRequiredTransactionModeForReceives();
             }
+
+            static Feature IFeatureFactory.Create() => new FeatureEnabledByUser();
         }
     }
 }

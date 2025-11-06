@@ -4,7 +4,7 @@ using Features;
 using Sagas;
 using Microsoft.Extensions.DependencyInjection;
 
-class AcceptanceTestingSagaPersistence : Feature
+class AcceptanceTestingSagaPersistence : Feature, IFeatureFactory
 {
     public AcceptanceTestingSagaPersistence()
     {
@@ -15,4 +15,6 @@ class AcceptanceTestingSagaPersistence : Feature
     }
 
     protected override void Setup(FeatureConfigurationContext context) => context.Services.AddSingleton<ISagaPersister, AcceptanceTestingSagaPersister>();
+
+    static Feature IFeatureFactory.Create() => new AcceptanceTestingSagaPersistence();
 }

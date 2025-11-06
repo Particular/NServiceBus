@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Unicast.Messages;
 using Transport;
 
-sealed class NativePublishSubscribeFeature : Feature
+sealed class NativePublishSubscribeFeature : Feature, IFeatureFactory
 {
     public NativePublishSubscribeFeature()
     {
@@ -35,4 +35,6 @@ sealed class NativePublishSubscribeFeature : Feature
             context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
         }
     }
+
+    static Feature IFeatureFactory.Create() => new NativePublishSubscribeFeature();
 }

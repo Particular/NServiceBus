@@ -9,7 +9,7 @@ using NServiceBus.Sagas;
 /// <summary>
 /// Used to configure saga.
 /// </summary>
-public class Sagas : Feature
+public class Sagas : Feature, IFeatureFactory
 {
     internal Sagas()
     {
@@ -116,4 +116,6 @@ public class Sagas : Feature
     }
 
     Conventions conventions;
+
+    static Feature IFeatureFactory.Create() => new Sagas();
 }

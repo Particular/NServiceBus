@@ -6,7 +6,7 @@ using System;
 using Pipeline;
 using Settings;
 
-class MessageCausation : Feature
+class MessageCausation : Feature, IFeatureFactory
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
@@ -46,4 +46,6 @@ class MessageCausation : Feature
 
             return customConversationId.Value;
         };
+
+    static Feature IFeatureFactory.Create() => new MessageCausation();
 }

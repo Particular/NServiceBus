@@ -139,23 +139,23 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         public IReadOnlyCollection<FeatureInfo> Features => added;
 
-        public void EnableFeature<TFeature>() where TFeature : Feature
+        public void EnableFeature<TFeature>() where TFeature : Feature, IFeatureFactory
         {
             var info = GetOrCreate<TFeature>();
             info.Enable();
         }
 
-        public void DisableFeature<TFeature>() where TFeature : Feature
+        public void DisableFeature<TFeature>() where TFeature : Feature, IFeatureFactory
         {
             var info = GetOrCreate<TFeature>();
             info.Disable();
         }
 
-        FeatureInfo GetOrCreate<TFeature>() where TFeature : Feature
+        FeatureInfo GetOrCreate<TFeature>() where TFeature : Feature, IFeatureFactory
         {
             if (!TryGet<TFeature>(out var info))
             {
-                info = AddCore(factory.CreateFeature(typeof(TFeature)));
+                info = AddCore(factory.CreateFeature<TFeature>());
             }
             return info;
         }

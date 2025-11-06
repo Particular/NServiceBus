@@ -35,7 +35,7 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
         public MyEndpoint() => EndpointSetup<DefaultServer>();
     }
 
-    public class MyFeatureThatOverridesHostInformationDefaults : Feature
+    public class MyFeatureThatOverridesHostInformationDefaults : Feature, IFeatureFactory
     {
         public MyFeatureThatOverridesHostInformationDefaults() =>
             Defaults(s =>
@@ -52,6 +52,8 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new MyFeatureThatOverridesHostInformationDefaults();
     }
 
     public class Context : ScenarioContext

@@ -62,7 +62,7 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
                 });
             });
 
-        public class StartupFeature : Feature
+        public class StartupFeature : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
@@ -91,6 +91,8 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
                     => Task.CompletedTask;
             }
+
+            static Feature IFeatureFactory.Create() => new StartupFeature();
         }
     }
 

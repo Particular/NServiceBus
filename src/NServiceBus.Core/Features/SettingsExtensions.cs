@@ -15,7 +15,7 @@ public static partial class SettingsExtensions
     /// </summary>
     /// <remarks>Enabling features is intended to be used for downstream components that only have access to settings. Features that need to enable other features should use <see cref="Feature.Enable{TFeature}"/>.</remarks>
     /// <typeparam name="TFeature">The feature to enable.</typeparam>
-    public static void EnableFeature<TFeature>(this SettingsHolder settings) where TFeature : Feature
+    public static void EnableFeature<TFeature>(this SettingsHolder settings) where TFeature : Feature, IFeatureFactory
         => settings.Get<FeatureComponent.Settings>().EnableFeature<TFeature>();
 
     /// <summary>
@@ -36,7 +36,7 @@ public static partial class SettingsExtensions
         return settings.Get<FeatureComponent.Settings>().IsFeature<TFeature>(FeatureState.Enabled);
     }
 
-    internal static void DisableFeature<TFeature>(this IReadOnlySettings settings) where TFeature : Feature
+    internal static void DisableFeature<TFeature>(this IReadOnlySettings settings) where TFeature : Feature, IFeatureFactory
     {
         ArgumentNullException.ThrowIfNull(settings);
         settings.Get<FeatureComponent.Settings>().DisableFeature<TFeature>();

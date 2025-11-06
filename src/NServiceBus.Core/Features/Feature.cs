@@ -87,8 +87,8 @@ public abstract partial class Feature
     /// Marks that this feature enables another feature.
     /// </summary>
     /// <remarks>This method should be called inside the constructor of the feature.</remarks>
-    protected void Enable<TFeature>() where TFeature : Feature =>
-        toBeEnabled.Add(Enables<TFeature>());
+    protected void Enable<TFeature>() where TFeature : Feature, IFeatureFactory
+        => toBeEnabled.Add(Enables<TFeature>());
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -96,8 +96,8 @@ public abstract partial class Feature
     /// This also causes this feature to be activated after the other feature.
     /// </summary>
     /// <typeparam name="TFeature">Feature that this feature depends on.</typeparam>
-    protected void DependsOn<TFeature>() where TFeature : Feature =>
-        dependencies.Add([Depends<TFeature>()]);
+    protected void DependsOn<TFeature>() where TFeature : Feature, IFeatureFactory
+        => dependencies.Add([Depends<TFeature>()]);
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless

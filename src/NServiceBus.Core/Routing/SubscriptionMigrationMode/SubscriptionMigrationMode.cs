@@ -6,7 +6,7 @@ using Transport;
 using Unicast.Messages;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-sealed class SubscriptionMigrationMode : Feature
+sealed class SubscriptionMigrationMode : Feature, IFeatureFactory
 {
     public SubscriptionMigrationMode()
     {
@@ -90,4 +90,6 @@ sealed class SubscriptionMigrationMode : Feature
         // this key can be set by transports once they provide native support for pub/sub.
         return settings.TryGet("NServiceBus.Subscriptions.EnableMigrationMode", out bool enabled) && enabled;
     }
+
+    static Feature IFeatureFactory.Create() => new SubscriptionMigrationMode();
 }

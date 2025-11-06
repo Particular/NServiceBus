@@ -13,7 +13,7 @@ using Unicast.Queuing;
 /// <summary>
 /// Used to configure auto subscriptions.
 /// </summary>
-public class AutoSubscribe : Feature
+public class AutoSubscribe : Feature, IFeatureFactory
 {
     internal AutoSubscribe() => Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
 
@@ -126,4 +126,6 @@ public class AutoSubscribe : Feature
 
         public HashSet<Type> ExcludedTypes { get; set; } = [];
     }
+
+    static Feature IFeatureFactory.Create() => new AutoSubscribe();
 }

@@ -75,7 +75,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             }
         }
 
-        class CustomFeature : Feature
+        class CustomFeature : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
@@ -102,6 +102,8 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
+
+            static Feature IFeatureFactory.Create() => new CustomFeature();
         }
     }
 }

@@ -136,7 +136,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
             });
         }
 
-        class MySatellite : Feature
+        class MySatellite : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) =>
                 context.AddSatelliteReceiver("MySatellite",
@@ -144,6 +144,8 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                     PushRuntimeSettings.Default,
                     (_, __) => throw new NotImplementedException(),
                     (_, __, ___) => throw new NotImplementedException());
+
+            static Feature IFeatureFactory.Create() => new MySatellite();
         }
     }
 }

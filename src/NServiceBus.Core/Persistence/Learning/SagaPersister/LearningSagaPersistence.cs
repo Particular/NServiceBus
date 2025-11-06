@@ -5,7 +5,7 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
 
-class LearningSagaPersistence : Feature
+class LearningSagaPersistence : Feature, IFeatureFactory
 {
     internal LearningSagaPersistence()
     {
@@ -32,4 +32,6 @@ class LearningSagaPersistence : Feature
     }
 
     internal static string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
+
+    static Feature IFeatureFactory.Create() => new LearningSagaPersistence();
 }

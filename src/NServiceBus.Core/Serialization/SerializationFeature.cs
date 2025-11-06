@@ -12,7 +12,7 @@ using Serialization;
 using Settings;
 using Unicast.Messages;
 
-sealed class SerializationFeature : Feature
+sealed class SerializationFeature : Feature, IFeatureFactory
 {
 
     protected override void Setup(FeatureConfigurationContext context)
@@ -106,4 +106,6 @@ sealed class SerializationFeature : Feature
     }
 
     static readonly ILog Logger = LogManager.GetLogger<SerializationFeature>();
+
+    static Feature IFeatureFactory.Create() => new SerializationFeature();
 }

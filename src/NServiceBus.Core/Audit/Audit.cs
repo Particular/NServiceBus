@@ -8,7 +8,7 @@ using Transport;
 /// <summary>
 /// Enabled message auditing for this endpoint.
 /// </summary>
-public class Audit : Feature
+public class Audit : Feature, IFeatureFactory
 {
     internal Audit()
     {
@@ -44,4 +44,6 @@ public class Audit : Feature
     }
 
     static readonly ILog Logger = LogManager.GetLogger<Audit>();
+
+    static Feature IFeatureFactory.Create() => new Audit();
 }

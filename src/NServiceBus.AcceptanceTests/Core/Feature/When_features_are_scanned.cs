@@ -40,7 +40,7 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>()
                 .IncludeType<FeatureDiscoveredByScanning>(); //simulate that the feature is included in scanning
 
-        sealed class FeatureDiscoveredByScanning : Feature
+        sealed class FeatureDiscoveredByScanning : Feature, IFeatureFactory
         {
             FeatureDiscoveredByScanning()
             {
@@ -51,12 +51,16 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
             }
 
             protected override void Setup(FeatureConfigurationContext context) => context.Settings.Get<Context>().RootFeatureCalled = true;
+
+            static Feature IFeatureFactory.Create() => new FeatureDiscoveredByScanning();
         }
 
-        sealed class DependentFeature : Feature
+        sealed class DependentFeature : Feature, IFeatureFactory
         {
             DependentFeature() { }
             protected override void Setup(FeatureConfigurationContext context) => context.Settings.Get<Context>().DependentFeatureCalled = true;
+
+            static Feature IFeatureFactory.Create() => new DependentFeature();
         }
     }
 }

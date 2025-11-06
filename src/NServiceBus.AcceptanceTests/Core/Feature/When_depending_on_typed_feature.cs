@@ -51,7 +51,7 @@ public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
         }
     }
 
-    public class TypedDependentFeature : Feature
+    public class TypedDependentFeature : Feature, IFeatureFactory
     {
         public TypedDependentFeature()
         {
@@ -63,12 +63,16 @@ public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
             var testContext = (Context)context.Settings.Get<ScenarioContext>();
             testContext.TypedDependencyFeatureSetUp = true;
         }
+
+        static Feature IFeatureFactory.Create() => new TypedDependentFeature();
     }
 
-    public class DependencyFeature : Feature
+    public class DependencyFeature : Feature, IFeatureFactory
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new DependencyFeature();
     }
 }

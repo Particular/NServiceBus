@@ -25,12 +25,14 @@ public class When_feature_startup_task_fails : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureWithStartupTask>());
         }
 
-        class FeatureWithStartupTask : Feature
+        class FeatureWithStartupTask : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
                 context.RegisterStartupTask(new FailingStartupTask());
             }
+
+            static Feature IFeatureFactory.Create() => new FeatureWithStartupTask();
         }
 
         class FailingStartupTask : FeatureStartupTask

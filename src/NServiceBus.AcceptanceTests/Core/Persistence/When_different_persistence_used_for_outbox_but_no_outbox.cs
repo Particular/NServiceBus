@@ -56,21 +56,25 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
 
                 static FakePersistence IPersistenceDefinitionFactory<FakePersistence>.Create() => new();
 
-                sealed class FakeOutboxStorage : Feature
+                sealed class FakeOutboxStorage : Feature, IFeatureFactory
                 {
                     public FakeOutboxStorage() => DependsOn<Outbox>();
 
                     protected override void Setup(FeatureConfigurationContext context)
                     {
                     }
+
+                    static Feature IFeatureFactory.Create() => new FakeOutboxStorage();
                 }
 
-                sealed class FakeSagaStorage : Feature
+                sealed class FakeSagaStorage : Feature, IFeatureFactory
                 {
                     public FakeSagaStorage() => DependsOn<Sagas>();
                     protected override void Setup(FeatureConfigurationContext context)
                     {
                     }
+
+                    static Feature IFeatureFactory.Create() => new FakeSagaStorage();
                 }
             }
         }

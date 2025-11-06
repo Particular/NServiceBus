@@ -116,9 +116,11 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
     {
         FakePersistence() => Supports<StorageType.Subscriptions, SubscriptionStorageFeature>();
 
-        class SubscriptionStorageFeature : Feature
+        class SubscriptionStorageFeature : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => context.Services.AddSingleton<ISubscriptionStorage>(new FakeSubscriptionStorage());
+
+            static Feature IFeatureFactory.Create() => new SubscriptionStorageFeature();
         }
 
         public class FakeSubscriptionStorage : ISubscriptionStorage

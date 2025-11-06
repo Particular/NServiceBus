@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Features;
 using System;
 using NServiceBus.Features;
 
-public abstract partial class TestFeature : Feature
+public abstract partial class TestFeature : Feature, IFeatureFactory
 {
     protected TestFeature() =>
         Defaults(s =>
@@ -15,4 +15,6 @@ public abstract partial class TestFeature : Feature
     public Action<Feature> OnDefaults;
 
     protected override void Setup(FeatureConfigurationContext context) => OnActivation?.Invoke(this);
+
+    static Feature IFeatureFactory.Create() => throw new NotImplementedException("TestFeature is abstract and should not be instantiated directly");
 }

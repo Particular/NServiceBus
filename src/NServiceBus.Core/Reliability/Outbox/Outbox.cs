@@ -8,9 +8,9 @@ using Transport;
 /// <summary>
 /// Configure the Outbox.
 /// </summary>
-public class Outbox : Feature
+public sealed class Outbox : Feature, IFeatureFactory
 {
-    internal Outbox()
+    Outbox()
     {
         Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
@@ -30,6 +30,8 @@ public class Outbox : Feature
     static bool TransactionsEnabled(IReadOnlySettings settings) => settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
 
     static bool AllowUseWithoutReceiving(IReadOnlySettings settings) => settings.GetOrDefault<bool>("Outbox.AllowUseWithoutReceiving");
+
+    static Feature IFeatureFactory.Create() => new Outbox();
 
     /// <summary>
     /// See <see cref="Feature.Setup" />.

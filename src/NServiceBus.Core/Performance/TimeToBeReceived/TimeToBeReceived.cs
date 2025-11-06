@@ -4,7 +4,7 @@ using Transport;
 using System.Linq;
 using Unicast.Messages;
 
-sealed class TimeToBeReceived : Feature
+sealed class TimeToBeReceived : Feature, IFeatureFactory
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
@@ -28,4 +28,6 @@ sealed class TimeToBeReceived : Feature
         var doesTransportSupportDiscardIfNotReceivedBefore = context.Settings.Get<TransportDefinition>().SupportsTTBR;
         return new TimeToBeReceivedMappings(knownMessages, convention, doesTransportSupportDiscardIfNotReceivedBefore);
     }
+
+    static Feature IFeatureFactory.Create() => new TimeToBeReceived();
 }

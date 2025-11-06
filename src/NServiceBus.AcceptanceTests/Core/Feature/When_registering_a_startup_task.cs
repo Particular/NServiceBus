@@ -39,7 +39,7 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
                 c.EnableFeature<Bootstrapper>();
             });
 
-        public class Bootstrapper : Feature
+        public class Bootstrapper : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetService<Context>()));
 
@@ -53,6 +53,8 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
+
+            static Feature IFeatureFactory.Create() => new Bootstrapper();
         }
     }
 }

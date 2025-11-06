@@ -35,11 +35,13 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
 
         public static FakeNoSynchronizedStorageSupportPersistence Create() => new();
 
-        sealed class FakeStorage : Feature
+        sealed class FakeStorage : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
             }
+
+            static Feature IFeatureFactory.Create() => new FakeStorage();
         }
     }
 

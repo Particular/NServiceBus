@@ -13,7 +13,7 @@ using Unicast.Subscriptions.MessageDrivenSubscriptions;
 // The goal is to remove feature classes that implement functionality far beyond what features are "supposed" to be.
 // Many of those features have been moved into components instead.
 // Now that NSB 10 has made the class internal, refactoring can occur.
-sealed class MessageDrivenSubscriptions : Feature
+sealed class MessageDrivenSubscriptions : Feature, IFeatureFactory
 {
     internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
@@ -116,4 +116,6 @@ sealed class MessageDrivenSubscriptions : Feature
             context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
         }
     }
+
+    static Feature IFeatureFactory.Create() => new MessageDrivenSubscriptions();
 }

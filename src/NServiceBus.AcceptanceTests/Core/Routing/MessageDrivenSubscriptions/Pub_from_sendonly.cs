@@ -74,10 +74,12 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
         public static HardCodedPersistence Create() => new();
     }
 
-    class HardCodedPersistenceFeature : Feature
+    class HardCodedPersistenceFeature : Feature, IFeatureFactory
     {
         protected override void Setup(FeatureConfigurationContext context) =>
             context.Services.AddSingleton<ISubscriptionStorage, HardcodedSubscriptionManager>();
+
+        static Feature IFeatureFactory.Create() => new HardCodedPersistenceFeature();
     }
 
     class HardcodedSubscriptionManager : ISubscriptionStorage

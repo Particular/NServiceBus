@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Logging;
 using Particular.Licensing;
 
-sealed class LicenseReminder : Feature
+sealed class LicenseReminder : Feature, IFeatureFactory
 {
     public LicenseReminder()
     {
@@ -62,4 +62,6 @@ sealed class LicenseReminder : Feature
     public const string LicenseFilePathSettingsKey = "LicenseFilePath";
 
     static readonly ILog Logger = LogManager.GetLogger<LicenseReminder>();
+
+    static Feature IFeatureFactory.Create() => new LicenseReminder();
 }

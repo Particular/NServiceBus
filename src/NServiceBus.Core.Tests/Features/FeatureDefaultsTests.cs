@@ -9,16 +9,18 @@ using Settings;
 [TestFixture]
 public class FeatureDefaultsTests
 {
-    public class FeatureThatEnablesAnother : Feature
+    public class FeatureThatEnablesAnother : Feature, IFeatureFactory
     {
         public FeatureThatEnablesAnother() => Enable<FeatureThatIsEnabledByAnother>();
 
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new FeatureThatEnablesAnother();
     }
 
-    public class FeatureThatIsEnabledByAnother : Feature
+    public class FeatureThatIsEnabledByAnother : Feature, IFeatureFactory
     {
         public FeatureThatIsEnabledByAnother() => Defaults(s => DefaultCalled = true);
 
@@ -27,6 +29,8 @@ public class FeatureDefaultsTests
         protected override void Setup(FeatureConfigurationContext context)
         {
         }
+
+        static Feature IFeatureFactory.Create() => new FeatureThatIsEnabledByAnother();
     }
 
     FeatureComponent.Settings featureSettings;

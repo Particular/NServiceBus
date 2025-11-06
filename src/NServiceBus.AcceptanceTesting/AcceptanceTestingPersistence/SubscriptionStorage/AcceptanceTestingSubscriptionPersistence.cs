@@ -4,7 +4,7 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-class AcceptanceTestingSubscriptionPersistence : Feature
+class AcceptanceTestingSubscriptionPersistence : Feature, IFeatureFactory
 {
     public AcceptanceTestingSubscriptionPersistence()
     {
@@ -15,4 +15,6 @@ class AcceptanceTestingSubscriptionPersistence : Feature
     {
         context.Services.AddSingleton<ISubscriptionStorage, AcceptanceTestingSubscriptionStorage>();
     }
+
+    static Feature IFeatureFactory.Create() => new AcceptanceTestingSubscriptionPersistence();
 }

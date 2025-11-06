@@ -41,7 +41,7 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>(c => c.EnableFeature<MySatelliteFeature>());
 
-        public class MySatelliteFeature : Feature
+        public class MySatelliteFeature : Feature, IFeatureFactory
         {
             public static string SatelliteReceiveAddress;
 
@@ -74,6 +74,8 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
             }
+
+            static Feature IFeatureFactory.Create() => new MySatelliteFeature();
         }
     }
 

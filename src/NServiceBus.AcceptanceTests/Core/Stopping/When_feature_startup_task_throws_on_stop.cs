@@ -35,7 +35,7 @@ public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTes
                 builder.UseTransport(new FakeTransport());
             });
 
-        class CustomFeature : Feature
+        class CustomFeature : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new CustomTask());
 
@@ -50,6 +50,8 @@ public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTes
                     throw new InvalidOperationException("CustomTaskThrows");
                 }
             }
+
+            static Feature IFeatureFactory.Create() => new CustomFeature();
         }
     }
 }

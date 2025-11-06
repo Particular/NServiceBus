@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides notifications to ServiceControl about successfully retried messages.
 /// </summary>
-public class PlatformRetryNotifications : Feature
+public class PlatformRetryNotifications : Feature, IFeatureFactory
 {
     PlatformRetryNotifications()
     {
@@ -16,4 +16,6 @@ public class PlatformRetryNotifications : Feature
         context.Pipeline.Register(forkBehavior, "Provides retry notifications to ServiceControl");
         context.Pipeline.Register(new MarkAsAcknowledgedBehavior(), "Adds audit information about direct retry acknowledgement");
     }
+
+    static Feature IFeatureFactory.Create() => new PlatformRetryNotifications();
 }

@@ -40,9 +40,11 @@ public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAc
         public static FakeNoOutboxSupportPersistence Create() => new();
 
         // This storage type is required because Core acceptance tests run with message-driven pub sub
-        sealed class SubscriptionStorage : Feature
+        sealed class SubscriptionStorage : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context) => throw new NotImplementedException();
+
+            static Feature IFeatureFactory.Create() => new SubscriptionStorage();
         }
     }
 }

@@ -32,13 +32,15 @@ public class When_configuring_transport : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureAccessingInfrastructure>());
         }
 
-        class FeatureAccessingInfrastructure : Feature
+        class FeatureAccessingInfrastructure : Feature, IFeatureFactory
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
                 var testContext = (Context)context.Settings.Get<ScenarioContext>();
                 testContext.TransportDefinition = context.Settings.Get<TransportDefinition>();
             }
+
+            static Feature IFeatureFactory.Create() => new FeatureAccessingInfrastructure();
         }
     }
 }
