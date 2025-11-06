@@ -11,7 +11,7 @@ class AcceptanceTestingOutboxPersistence : Feature
 {
     public AcceptanceTestingOutboxPersistence()
     {
-        EnableByDefault<AcceptanceTestingTransactionalStorageFeature>();
+        Enable<AcceptanceTestingTransactionalStorageFeature>();
 
         DependsOn<Outbox>();
         DependsOn<AcceptanceTestingTransactionalStorageFeature>();

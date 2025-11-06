@@ -139,43 +139,37 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         public IReadOnlyCollection<FeatureInfo> Features => added;
 
-        public void EnableFeature<T>() where T : Feature
+        public void EnableFeature<TFeature>() where TFeature : Feature
         {
-            var info = GetOrCreate<T>();
+            var info = GetOrCreate<TFeature>();
             info.Enable();
         }
 
-        public void DisableFeature<T>() where T : Feature
+        public void DisableFeature<TFeature>() where TFeature : Feature
         {
-            var info = GetOrCreate<T>();
+            var info = GetOrCreate<TFeature>();
             info.Disable();
         }
 
-        public void EnableFeatureByDefault<T>() where T : Feature
+        FeatureInfo GetOrCreate<TFeature>() where TFeature : Feature
         {
-            var info = GetOrCreate<T>();
-            info.EnableByDefault();
-        }
-
-        FeatureInfo GetOrCreate<T>() where T : Feature
-        {
-            if (!TryGet<T>(out var info))
+            if (!TryGet<TFeature>(out var info))
             {
-                info = AddCore(factory.CreateFeature(typeof(T)));
+                info = AddCore(factory.CreateFeature(typeof(TFeature)));
             }
             return info;
         }
 
-        bool TryGet<T>([NotNullWhen(true)] out FeatureInfo? info) where T : Feature
+        bool TryGet<TFeature>([NotNullWhen(true)] out FeatureInfo? info) where TFeature : Feature
         {
-            var featureName = Feature.GetFeatureName<T>();
+            var featureName = Feature.GetFeatureName<TFeature>();
             _ = added.TryGetValue(featureName, out info);
             return info is not null;
         }
 
-        public bool IsFeature<T>(FeatureState state) where T : Feature
+        public bool IsFeature<TFeature>(FeatureState state) where TFeature : Feature
         {
-            if (TryGet<T>(out var info))
+            if (TryGet<TFeature>(out var info))
             {
                 return info.In(state);
             }
@@ -215,8 +209,8 @@ class FeatureComponent(FeatureComponent.Settings settings)
             featureInfo = new FeatureInfo(feature, feature.Dependencies.Select(d => d.Select(x => x.FeatureName).ToList().AsReadOnly()).ToList().AsReadOnly());
             added.Add(featureInfo);
 
-            var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabledByDefault.Count);
-            foreach (var toEnableByDefault in feature.ToBeEnabledByDefault)
+            var featuresToEnableByDefault = new List<FeatureInfo>(feature.ToBeEnabled.Count);
+            foreach (var toEnableByDefault in feature.ToBeEnabled)
             {
                 if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
                 {

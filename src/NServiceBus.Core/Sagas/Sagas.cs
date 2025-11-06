@@ -24,7 +24,7 @@ public class Sagas : Feature
             }
         });
 
-        EnableByDefault<SynchronizedStorage>();
+        Enable<SynchronizedStorage>();
 
         Defaults(s => s.Set(new SagaMetadataCollection()));
 

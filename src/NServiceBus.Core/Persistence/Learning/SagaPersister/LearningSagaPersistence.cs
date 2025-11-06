@@ -15,7 +15,7 @@ class LearningSagaPersistence : Feature
             s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas"));
         });
 
-        EnableByDefault<LearningSynchronizedStorage>();
+        Enable<LearningSynchronizedStorage>();
 
         DependsOn<Sagas>();
         DependsOn<LearningSynchronizedStorage>();

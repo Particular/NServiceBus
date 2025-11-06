@@ -31,36 +31,36 @@ public class FeatureDependencyTests
         {
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature { Enabled = true },
+                DependingFeature = new DependsOnOne_Feature { IsEnabled = true },
                 AvailableFeatures = [new MyFeature1(), new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature { Enabled = true },
-                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
+                DependingFeature = new DependsOnOne_Feature { IsEnabled = true },
+                AvailableFeatures = [new MyFeature1 { IsEnabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnOne_Feature { Enabled = true },
-                AvailableFeatures = [new MyFeature1(), new MyFeature2 { Enabled = true }, new MyFeature3()],
+                DependingFeature = new DependsOnOne_Feature { IsEnabled = true },
+                AvailableFeatures = [new MyFeature1(), new MyFeature2 { IsEnabled = true }, new MyFeature3()],
                 ShouldBeActive = false,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAtLeastOne_Feature { Enabled = true },
-                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
+                DependingFeature = new DependsOnAtLeastOne_Feature { IsEnabled = true },
+                AvailableFeatures = [new MyFeature1 { IsEnabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = true,
             };
 
             yield return new FeatureCombinations
             {
-                DependingFeature = new DependsOnAll_Feature { Enabled = true },
-                AvailableFeatures = [new MyFeature1 { Enabled = true }, new MyFeature2(), new MyFeature3()],
+                DependingFeature = new DependsOnAll_Feature { IsEnabled = true },
+                AvailableFeatures = [new MyFeature1 { IsEnabled = true }, new MyFeature2(), new MyFeature3()],
                 ShouldBeActive = false,
             };
         }
@@ -228,9 +228,9 @@ public class FeatureDependencyTests
         featureFactory.Add(level1, level2, level3);
 
         //the orders matter here to expose a bug
-        featureSettings.EnableFeatureByDefault<Level3>();
-        featureSettings.EnableFeatureByDefault<Level2>();
-        featureSettings.EnableFeatureByDefault<Level1>();
+        featureSettings.EnableFeature<Level3>();
+        featureSettings.EnableFeature<Level2>();
+        featureSettings.EnableFeature<Level1>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -262,8 +262,8 @@ public class FeatureDependencyTests
 
         featureFactory.Add(level1, level2);
 
-        featureSettings.EnableFeatureByDefault<CycleLevel1>();
-        featureSettings.EnableFeatureByDefault<CycleLevel2>();
+        featureSettings.EnableFeature<CycleLevel1>();
+        featureSettings.EnableFeature<CycleLevel2>();
 
         using (Assert.EnterMultipleScope())
         {

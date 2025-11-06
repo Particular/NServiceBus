@@ -41,25 +41,25 @@ public class EndpointConfiguration : ExposeSettings
 
         var featureSettings = new FeatureComponent.Settings();
 
-        featureSettings.EnableFeatureByDefault<ReceiveStatisticsFeature>();
-        featureSettings.EnableFeatureByDefault<SerializationFeature>();
-        featureSettings.EnableFeatureByDefault<StaticHeaders>();
-        featureSettings.EnableFeatureByDefault<Features.Audit>();
-        featureSettings.EnableFeatureByDefault<MessageCausation>();
-        featureSettings.EnableFeatureByDefault<MessageCorrelation>();
-        featureSettings.EnableFeatureByDefault<DelayedDeliveryFeature>();
-        featureSettings.EnableFeatureByDefault<RootFeature>();
-        featureSettings.EnableFeatureByDefault<LicenseReminder>();
-        featureSettings.EnableFeatureByDefault<Mutators>();
-        featureSettings.EnableFeatureByDefault<TimeToBeReceived>();
-        featureSettings.EnableFeatureByDefault<Features.Sagas>();
-        featureSettings.EnableFeatureByDefault<AutoSubscribe>();
-        featureSettings.EnableFeatureByDefault<InferredMessageTypeEnricherFeature>();
-        featureSettings.EnableFeatureByDefault<MessageDrivenSubscriptions>();
-        featureSettings.EnableFeatureByDefault<NativePublishSubscribeFeature>();
-        featureSettings.EnableFeatureByDefault<SubscriptionMigrationMode>();
-        featureSettings.EnableFeatureByDefault<AutoCorrelationFeature>();
-        featureSettings.EnableFeatureByDefault<PlatformRetryNotifications>();
+        featureSettings.EnableFeature<ReceiveStatisticsFeature>();
+        featureSettings.EnableFeature<SerializationFeature>();
+        featureSettings.EnableFeature<StaticHeaders>();
+        featureSettings.EnableFeature<Features.Audit>();
+        featureSettings.EnableFeature<MessageCausation>();
+        featureSettings.EnableFeature<MessageCorrelation>();
+        featureSettings.EnableFeature<DelayedDeliveryFeature>();
+        featureSettings.EnableFeature<RootFeature>();
+        featureSettings.EnableFeature<LicenseReminder>();
+        featureSettings.EnableFeature<Mutators>();
+        featureSettings.EnableFeature<TimeToBeReceived>();
+        featureSettings.EnableFeature<Features.Sagas>();
+        featureSettings.EnableFeature<AutoSubscribe>();
+        featureSettings.EnableFeature<InferredMessageTypeEnricherFeature>();
+        featureSettings.EnableFeature<MessageDrivenSubscriptions>();
+        featureSettings.EnableFeature<NativePublishSubscribeFeature>();
+        featureSettings.EnableFeature<SubscriptionMigrationMode>();
+        featureSettings.EnableFeature<AutoCorrelationFeature>();
+        featureSettings.EnableFeature<PlatformRetryNotifications>();
 
         Settings.Set(featureSettings);
 
