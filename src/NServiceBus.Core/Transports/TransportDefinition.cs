@@ -4,7 +4,6 @@ namespace NServiceBus.Transport;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -86,10 +85,20 @@ public abstract class TransportDefinition
     /// </summary>
     public bool SupportsTTBR { get; }
 
-    internal IReadOnlyCollection<IEnabledFeature> FeaturesToEnable =>
-        featuresToEnable is not null ? featuresToEnable : ReadOnlyCollection<IEnabledFeature>.Empty;
+    internal void Configure(SettingsHolder settings)
+    {
+        if (featuresToEnable is null)
+        {
+            return;
+        }
 
-    internal interface IEnabledFeature
+        foreach (var featureToEnable in featuresToEnable)
+        {
+            featureToEnable.Apply(settings);
+        }
+    }
+
+    interface IEnabledFeature
     {
         void Apply(SettingsHolder settings);
     }

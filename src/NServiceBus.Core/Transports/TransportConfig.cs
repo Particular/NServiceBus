@@ -21,10 +21,7 @@ public static class TransportConfig
         {
             var settings = endpointConfiguration.GetSettings();
             settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
-            foreach (var featureToEnable in transportDefinition.FeaturesToEnable)
-            {
-                featureToEnable.Apply(settings);
-            }
+            transportDefinition.Configure(settings);
             return new RoutingSettings<TTransport>(settings);
         }
     }
