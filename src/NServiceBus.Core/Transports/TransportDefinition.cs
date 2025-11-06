@@ -31,10 +31,10 @@ public abstract class TransportDefinition
     }
 
     /// <summary>
-    /// Allows a transport to enable a specific feature that will be applied only when the transport is hosted inside a full NServiceBus endpoint.
-    /// This allows providing reacher functionality that extend the hosted scenarios if needed.
+    /// Allows a transport to enable a specific feature that will be applied only when the transport is hosted inside an NServiceBus endpoint.
+    /// This allows providing richer functionality that extends the hosted scenarios if needed.
     /// </summary>
-    /// <remarks>This method needs to be called within the constructor of the transport definition</remarks>
+    /// <remarks>This method needs to be called within the constructor(s) of the transport definition.</remarks>
     /// <typeparam name="T">The feature to enable.</typeparam>
     protected void EnableHostFeature<T>() where T : Feature
     {
