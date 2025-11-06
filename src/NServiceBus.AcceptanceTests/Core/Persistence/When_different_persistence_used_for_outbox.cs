@@ -35,21 +35,36 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 FakePersistence()
                 {
-                    Supports<StorageType.Outbox, Outbox>();
-                    Supports<StorageType.Sagas, Sagas>();
+                    Supports<StorageType.Outbox, FakeOutboxSTorage>();
+                    Supports<StorageType.Sagas, FakeSagaStorage>();
                 }
 
                 static FakePersistence IPersistenceDefinitionFactory<FakePersistence>.Create() => new();
+
+                sealed class FakeOutboxSTorage : Feature
+                {
+                    public FakeOutboxSTorage() => DependsOn<Outbox>();
+
+                    protected override void Setup(FeatureConfigurationContext context)
+                    {
+                    }
+                }
+
+                sealed class FakeSagaStorage : Feature
+                {
+                    public FakeSagaStorage() => DependsOn<Sagas>();
+                    protected override void Setup(FeatureConfigurationContext context)
+                    {
+                    }
+                }
             }
 
-            public class DifferentPersistenceSaga : Saga<DifferentPersistenceSaga.DifferentPersistenceSagaData>,
+            public class DifferentPersistenceSaga(Context testContext) : Saga<DifferentPersistenceSaga.DifferentPersistenceSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    TestContext.MessageReceived = true;
+                    testContext.MessageReceived = true;
                     MarkAsComplete();
                     return Task.CompletedTask;
                 }
