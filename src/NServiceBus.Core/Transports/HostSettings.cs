@@ -45,4 +45,3 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// </summary>
     public bool SetupInfrastructure { get; } = setupInfrastructure;
 }
-
