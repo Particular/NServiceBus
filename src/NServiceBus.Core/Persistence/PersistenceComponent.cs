@@ -20,8 +20,6 @@ static class PersistenceComponent
 
         var enabledPersistences = persistenceRegistry.Merge();
 
-        settings.ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
-
         var resultingSupportedStorages = new List<StorageType>();
         var diagnostics = new Dictionary<string, object>();
 
@@ -45,20 +43,27 @@ static class PersistenceComponent
         }
 
         settings.Set<IReadOnlyCollection<StorageType>>(resultingSupportedStorages);
+        settings.Set(enabledPersistences);
 
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
-    static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences)
+    public static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings)
     {
+        if (!settings.TryGet<PersistenceRegistry>(out _))
+        {
+            return;
+        }
+
+        var enabledPersistences = settings.Get<IReadOnlyCollection<EnabledPersistence>>();
         var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
         var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
-        var bothFeaturesEnabled = settings.IsFeatureEnabled<Features.Sagas>() && settings.IsFeatureEnabled<Features.Outbox>();
+        var bothFeaturesActive = settings.IsFeatureActive<Features.Sagas>() && settings.IsFeatureActive<Features.Outbox>();
 
         if (sagaPersisterDefinition != null
             && outboxPersisterDefinition != null
             && sagaPersisterDefinition != outboxPersisterDefinition
-            && bothFeaturesEnabled)
+            && bothFeaturesActive)
         {
             throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
         }

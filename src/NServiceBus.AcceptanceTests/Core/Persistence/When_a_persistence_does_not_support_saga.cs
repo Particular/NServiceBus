@@ -9,8 +9,7 @@ using NUnit.Framework;
 public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_exception()
-    {
+    public void Should_throw_exception() =>
         Assert.That(async () =>
         {
             await Scenario.Define<Context>()
@@ -18,21 +17,18 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
                 .Done(c => c.MessageReceived)
                 .Run();
         }, Throws.Exception.With.Message.Contains("DisableFeature<Sagas>()"));
-    }
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
             {
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
             });
-        }
     }
 
-    public class PersistenceSaga : Saga<PersistenceSaga.PersistenceSagaData>,
+    public class SagaWithPersistenceNotSupportingIt : Saga<SagaWithPersistenceNotSupportingIt.SagaWithPersistenceNotSupportingItSagaData>,
         IAmStartedByMessages<StartSaga>
     {
         public Context TestContext { get; set; }
@@ -44,11 +40,11 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
             return Task.CompletedTask;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PersistenceSagaData> mapper)
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithPersistenceNotSupportingItSagaData> mapper)
         {
         }
 
-        public class PersistenceSagaData : ContainSagaData
+        public class SagaWithPersistenceNotSupportingItSagaData : ContainSagaData
         {
             public virtual Guid DataId { get; set; }
         }
@@ -59,7 +55,5 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
         public bool MessageReceived { get; set; }
     }
 
-    public class StartSaga : ICommand
-    {
-    }
+    public class StartSaga : ICommand;
 }
