@@ -23,7 +23,7 @@ public class TransportDefinitionTests
     class MyTransportDefinition : TransportDefinition
     {
         public MyTransportDefinition() : base(TransportTransactionMode.None, false, false, false)
-            => EnableHostFeature<MyFeature>();
+            => EnableEndpointFeature<MyFeature>();
 
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
             CancellationToken cancellationToken = default) =>

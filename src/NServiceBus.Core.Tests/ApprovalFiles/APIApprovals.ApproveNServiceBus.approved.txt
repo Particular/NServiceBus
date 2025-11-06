@@ -2294,7 +2294,7 @@ namespace NServiceBus.Transport
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
-        protected void EnableHostFeature<T>()
+        protected void EnableEndpointFeature<T>()
             where T : NServiceBus.Features.Feature { }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);

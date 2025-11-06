@@ -36,7 +36,7 @@ public abstract class TransportDefinition
     /// </summary>
     /// <remarks>This method needs to be called within the constructor(s) of the transport definition.</remarks>
     /// <typeparam name="T">The feature to enable.</typeparam>
-    protected void EnableHostFeature<T>() where T : Feature
+    protected void EnableEndpointFeature<T>() where T : Feature
     {
         featuresToEnable ??= [];
         featuresToEnable.Add(new EnabledFeature<T>());
