@@ -12,10 +12,7 @@ public class Outbox : Feature
 {
     internal Outbox()
     {
-        Defaults(s =>
-        {
-            s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5));
-        });
+        Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
         Prerequisite(context => ReceivingEnabled(context.Settings) || AllowUseWithoutReceiving(context.Settings),
             "Outbox is only relevant for endpoints receiving messages.");
