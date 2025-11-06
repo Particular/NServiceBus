@@ -5,9 +5,9 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
 
-class LearningSagaPersistence : Feature
+sealed class LearningSagaPersistence : Feature
 {
-    internal LearningSagaPersistence()
+    public LearningSagaPersistence()
     {
         Defaults(s =>
         {

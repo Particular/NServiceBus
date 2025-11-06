@@ -35,7 +35,7 @@ public abstract class TransportDefinition
     /// </summary>
     /// <remarks>This method needs to be called within the constructor(s) of the transport definition.</remarks>
     /// <typeparam name="T">The feature to enable.</typeparam>
-    protected void EnableEndpointFeature<T>() where T : Feature
+    protected void EnableEndpointFeature<T>() where T : Feature, new()
     {
         featuresToEnable ??= [];
         featuresToEnable.Add(EnabledFeature<T>.Instance);
@@ -106,7 +106,7 @@ public abstract class TransportDefinition
     }
 
     sealed class EnabledFeature<TFeature> : IEnabledFeature
-        where TFeature : Feature
+        where TFeature : Feature, new()
     {
         EnabledFeature()
         {

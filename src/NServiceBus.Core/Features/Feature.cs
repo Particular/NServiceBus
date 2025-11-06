@@ -31,12 +31,12 @@ public abstract partial class Feature
     /// <summary>
     /// The list of features that this feature is depending on.
     /// </summary>
-    internal IReadOnlyCollection<IReadOnlyCollection<Dependency>> Dependencies => dependencies;
+    internal IReadOnlyCollection<IReadOnlyCollection<IDependency>> Dependencies => dependencies;
 
     /// <summary>
     /// The list of features that this feature enables.
     /// </summary>
-    internal IReadOnlyCollection<Enabled> ToBeEnabled => toBeEnabled;
+    internal IReadOnlyCollection<IEnabled> ToBeEnabled => toBeEnabled;
 
     /// <summary>
     /// Tells if this feature is enabled by default.
@@ -87,7 +87,7 @@ public abstract partial class Feature
     /// Marks that this feature enables another feature.
     /// </summary>
     /// <remarks>This method should be called inside the constructor of the feature.</remarks>
-    protected void Enable<TFeature>() where TFeature : Feature =>
+    protected void Enable<TFeature>() where TFeature : Feature, new() =>
         toBeEnabled.Add(Enables<TFeature>());
 
     /// <summary>
@@ -96,7 +96,7 @@ public abstract partial class Feature
     /// This also causes this feature to be activated after the other feature.
     /// </summary>
     /// <typeparam name="TFeature">Feature that this feature depends on.</typeparam>
-    protected void DependsOn<TFeature>() where TFeature : Feature =>
+    protected void DependsOn<TFeature>() where TFeature : Feature, new() =>
         dependencies.Add([Depends<TFeature>()]);
 
     /// <summary>
@@ -105,7 +105,7 @@ public abstract partial class Feature
     /// </summary>
     /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
     protected void DependsOn(string featureTypeName) =>
-        dependencies.Add([new Dependency(featureTypeName)]);
+        dependencies.Add([Depends(featureTypeName)]);
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -134,7 +134,7 @@ public abstract partial class Feature
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
     /// <typeparam name="TFeature">The type of the feature that this feature depends on.</typeparam>
-    protected void DependsOnOptionally<TFeature>() where TFeature : Feature => dependencies.Add([rootFeature, Depends<TFeature>()]);
+    protected void DependsOnOptionally<TFeature>() where TFeature : Feature, new() => dependencies.Add([rootFeature, Depends<TFeature>()]);
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -146,7 +146,7 @@ public abstract partial class Feature
     {
         ArgumentNullException.ThrowIfNull(featureNames);
 
-        dependencies.Add([.. featureNames.Select(n => new Dependency(n))]);
+        dependencies.Add([.. featureNames.Select(Depends)]);
     }
 
     /// <summary>
@@ -189,23 +189,57 @@ public abstract partial class Feature
 
     internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
-    static Enabled Enables<TFeature>() where TFeature : Feature => new(GetFeatureName<TFeature>(), typeof(TFeature));
-
-    static Dependency Depends<TFeature>() where TFeature : Feature => new(GetFeatureName<TFeature>(), typeof(TFeature));
-
-    static Dependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new Dependency(GetFeatureName(featureType), featureType);
+#pragma warning disable CA1859 // performance doesn't matter here
+    static IEnabled Enables<TFeature>() where TFeature : Feature, new() => new Enabled<TFeature>();
+    static IDependency Depends<TFeature>() where TFeature : Feature, new() => new Dependency<TFeature>();
+    static IDependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
+    static IDependency Depends(string featureName) => new WeakDependency(featureName);
+#pragma warning restore CA1859
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
-    readonly List<List<Dependency>> dependencies = [];
-    readonly List<Enabled> toBeEnabled = [];
+    readonly List<List<IDependency>> dependencies = [];
+    readonly List<IEnabled> toBeEnabled = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
 
-    static readonly Dependency rootFeature = Depends<RootFeature>();
+    static readonly IDependency rootFeature = Depends<RootFeature>();
 
-    internal readonly record struct Dependency(string FeatureName, Type? FeatureType = null);
-    internal readonly record struct Enabled(string FeatureName, Type FeatureType);
+    internal interface IDependency
+    {
+        string FeatureName { get; }
+        Feature? Create(FeatureFactory factory);
+    }
+
+    record Dependency<TFeature> : IDependency where TFeature : Feature, new()
+    {
+        public string FeatureName { get; } = GetFeatureName<TFeature>();
+        public Feature Create(FeatureFactory factory) => factory.CreateFeature<TFeature>();
+    }
+
+    record TypeDependency(Type FeatureType) : IDependency
+    {
+        public string FeatureName { get; } = GetFeatureName(FeatureType);
+        public Feature Create(FeatureFactory factory) => factory.CreateFeature(FeatureType);
+    }
+
+    record WeakDependency(string FeatureName) : IDependency
+    {
+        public Feature? Create(FeatureFactory factory) => null;
+    }
+
+    internal interface IEnabled
+    {
+        string FeatureName { get; }
+        Feature Create(FeatureFactory factory);
+    }
+
+    record Enabled<TFeature> : IEnabled
+        where TFeature : Feature, new()
+    {
+        public string FeatureName { get; } = GetFeatureName<TFeature>();
+        public Feature Create(FeatureFactory factory) => factory.CreateFeature<TFeature>();
+    }
 
     class SetupPrerequisite
     {

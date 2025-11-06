@@ -6,12 +6,8 @@ using Persistence;
 /// <summary>
 /// Configures the synchronized storage.
 /// </summary>
-public class SynchronizedStorage : Feature
+public sealed class SynchronizedStorage : Feature
 {
-    internal SynchronizedStorage()
-    {
-    }
-
     /// <summary>
     /// See <see cref="Feature.Setup" />.
     /// </summary>

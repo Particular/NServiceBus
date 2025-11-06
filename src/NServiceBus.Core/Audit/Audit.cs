@@ -8,9 +8,12 @@ using Transport;
 /// <summary>
 /// Enabled message auditing for this endpoint.
 /// </summary>
-public class Audit : Feature
+public sealed class Audit : Feature
 {
-    internal Audit()
+    /// <summary>
+    /// Creates a new instance of the audit feature.
+    /// </summary>
+    public Audit()
     {
         Defaults(settings =>
         {

@@ -9,9 +9,12 @@ using NServiceBus.Sagas;
 /// <summary>
 /// Used to configure saga.
 /// </summary>
-public class Sagas : Feature
+public sealed class Sagas : Feature
 {
-    internal Sagas()
+    /// <summary>
+    /// Creates a new instance of the saga feature.
+    /// </summary>
+    public Sagas()
     {
         Defaults(s =>
         {

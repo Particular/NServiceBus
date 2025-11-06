@@ -156,6 +156,10 @@ public class FeatureStartupTests
 
     class FeatureWithStartupTaskWithDependency : TestFeature
     {
+        public FeatureWithStartupTaskWithDependency() : this(new StringBuilder())
+        {
+        }
+
         public FeatureWithStartupTaskWithDependency(StringBuilder orderBuilder)
         {
             DependsOn<FeatureWithStartupThatAnotherFeatureDependsOn>();
@@ -185,6 +189,10 @@ public class FeatureStartupTests
 
     class FeatureWithStartupThatAnotherFeatureDependsOn(StringBuilder orderBuilder) : TestFeature
     {
+        public FeatureWithStartupThatAnotherFeatureDependsOn() : this(new StringBuilder())
+        {
+        }
+
         protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(orderBuilder));
 
         class Runner(StringBuilder orderBuilder) : FeatureStartupTask

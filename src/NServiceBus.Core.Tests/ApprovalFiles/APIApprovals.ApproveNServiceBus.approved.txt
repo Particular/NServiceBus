@@ -281,12 +281,12 @@ namespace NServiceBus
             "ed in version 11.0.0.", true)]
         public static void DisableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
         public static void DisableFeature<TFeature>(this NServiceBus.EndpointConfiguration config)
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
         [System.Obsolete("Use \'EnableFeature<T>(this EndpointConfiguration config)\' instead. Will be remove" +
             "d in version 11.0.0.", true)]
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
         public static void EnableFeature<TFeature>(this NServiceBus.EndpointConfiguration config)
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
     }
     public static class EndpointInstanceExtensions
     {
@@ -1249,12 +1249,14 @@ namespace NServiceBus.Faults
 }
 namespace NServiceBus.Features
 {
-    public class Audit : NServiceBus.Features.Feature
+    public sealed class Audit : NServiceBus.Features.Feature
     {
+        public Audit() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class AutoSubscribe : NServiceBus.Features.Feature
+    public sealed class AutoSubscribe : NServiceBus.Features.Feature
     {
+        public AutoSubscribe() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
@@ -1273,16 +1275,16 @@ namespace NServiceBus.Features
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> settings) { }
         protected void DependsOn(string featureTypeName) { }
         protected void DependsOn<TFeature>()
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
         [System.Obsolete("Use \'DependsOnOptionally<T>()\' instead. Will be removed in version 11.0.0.", true)]
         protected void DependsOnOptionally(System.Type featureType) { }
         protected void DependsOnOptionally(string featureName) { }
         protected void DependsOnOptionally<TFeature>()
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
         protected void Enable<TFeature>()
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
         [System.Obsolete(@"In a future version of NServiceBus, Feature classes will not be automatically discovered by runtime assembly scanning. Instead, create an extension method on EndpointConfiguration and enable the feature within the extension method using EnableFeature<T>(). Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
@@ -1315,22 +1317,25 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
-    public class Outbox : NServiceBus.Features.Feature
+    public sealed class Outbox : NServiceBus.Features.Feature
     {
+        public Outbox() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class PlatformRetryNotifications : NServiceBus.Features.Feature
+    public sealed class PlatformRetryNotifications : NServiceBus.Features.Feature
     {
+        public PlatformRetryNotifications() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class Sagas : NServiceBus.Features.Feature
+    public sealed class Sagas : NServiceBus.Features.Feature
     {
+        public Sagas() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public static class SettingsExtensions
     {
         public static void EnableFeature<TFeature>(this NServiceBus.Settings.SettingsHolder settings)
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
         [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
             "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
             " be removed in version 11.0.0.", true)]
@@ -1351,8 +1356,9 @@ namespace NServiceBus.Features
         public static bool IsFeatureEnabled<TFeature>(this NServiceBus.Settings.IReadOnlySettings settings)
             where TFeature : NServiceBus.Features.Feature { }
     }
-    public class SynchronizedStorage : NServiceBus.Features.Feature
+    public sealed class SynchronizedStorage : NServiceBus.Features.Feature
     {
+        public SynchronizedStorage() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
 }
@@ -1616,7 +1622,7 @@ namespace NServiceBus.Persistence
             where T : NServiceBus.StorageType { }
         protected void Supports<TStorage, TFeature>()
             where TStorage : NServiceBus.StorageType
-            where TFeature : NServiceBus.Features.Feature { }
+            where TFeature : NServiceBus.Features.Feature, new () { }
     }
 }
 namespace NServiceBus.Pipeline
@@ -2295,7 +2301,7 @@ namespace NServiceBus.Transport
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
         protected void EnableEndpointFeature<T>()
-            where T : NServiceBus.Features.Feature { }
+            where T : NServiceBus.Features.Feature, new () { }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
     }

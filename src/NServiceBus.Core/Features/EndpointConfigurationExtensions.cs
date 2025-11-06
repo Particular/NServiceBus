@@ -14,7 +14,7 @@ public static partial class EndpointConfigurationExtensions
     /// Enables the given feature.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    public static void EnableFeature<TFeature>(this EndpointConfiguration config) where TFeature : Feature
+    public static void EnableFeature<TFeature>(this EndpointConfiguration config) where TFeature : Feature, new()
     {
         ArgumentNullException.ThrowIfNull(config);
         config.Settings.EnableFeature<TFeature>();
@@ -24,7 +24,7 @@ public static partial class EndpointConfigurationExtensions
     /// Disables the given feature.
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-    public static void DisableFeature<TFeature>(this EndpointConfiguration config) where TFeature : Feature
+    public static void DisableFeature<TFeature>(this EndpointConfiguration config) where TFeature : Feature, new()
     {
         ArgumentNullException.ThrowIfNull(config);
         config.Settings.DisableFeature<TFeature>();

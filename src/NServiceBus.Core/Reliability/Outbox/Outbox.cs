@@ -8,9 +8,12 @@ using Transport;
 /// <summary>
 /// Configure the Outbox.
 /// </summary>
-public class Outbox : Feature
+public sealed class Outbox : Feature
 {
-    internal Outbox()
+    /// <summary>
+    /// Creates a new instance of the outbox feature.
+    /// </summary>
+    public Outbox()
     {
         Defaults(s => s.SetDefault(TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 

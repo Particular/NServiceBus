@@ -13,9 +13,12 @@ using Unicast.Queuing;
 /// <summary>
 /// Used to configure auto subscriptions.
 /// </summary>
-public class AutoSubscribe : Feature
+public sealed class AutoSubscribe : Feature
 {
-    internal AutoSubscribe() => Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
+    /// <summary>
+    /// Creates a new instance of the auto subscribe feature.
+    /// </summary>
+    public AutoSubscribe() => Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
 
     /// <summary>
     /// See <see cref="Feature.Setup" />.
