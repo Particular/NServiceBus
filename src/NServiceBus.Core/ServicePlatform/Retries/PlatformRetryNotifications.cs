@@ -3,12 +3,8 @@
 /// <summary>
 /// Provides notifications to ServiceControl about successfully retried messages.
 /// </summary>
-public class PlatformRetryNotifications : Feature
+public sealed class PlatformRetryNotifications : Feature
 {
-    PlatformRetryNotifications()
-    {
-    }
-
     /// <inheritdoc />
     protected override void Setup(FeatureConfigurationContext context)
     {

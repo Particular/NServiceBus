@@ -55,7 +55,6 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
 
         sealed class DependentFeature : Feature
         {
-            DependentFeature() { }
             protected override void Setup(FeatureConfigurationContext context) => context.Settings.Get<Context>().DependentFeatureCalled = true;
         }
     }

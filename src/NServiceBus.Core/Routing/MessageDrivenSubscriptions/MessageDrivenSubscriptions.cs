@@ -17,7 +17,7 @@ sealed class MessageDrivenSubscriptions : Feature
 {
     internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
 
-    internal MessageDrivenSubscriptions()
+    public MessageDrivenSubscriptions()
     {
         Defaults(s =>
         {

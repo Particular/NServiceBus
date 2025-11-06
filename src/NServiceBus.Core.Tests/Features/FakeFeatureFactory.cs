@@ -23,4 +23,6 @@ class FakeFeatureFactory : FeatureFactory
         features.TryGetValue(featureType, out var feature);
         return (feature ?? (Feature)Activator.CreateInstance(featureType)) ?? throw new InvalidOperationException("Feature not found");
     }
+
+    public override Feature CreateFeature<TFeature>() => CreateFeature(typeof(TFeature));
 }

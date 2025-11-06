@@ -22,11 +22,6 @@ public class StandardsTests
                 Assert.That(featureType.Namespace, Is.EqualTo("NServiceBus.Features"), "Features should be in the NServiceBus.Features namespace. " + featureType.FullName);
                 Assert.That(featureType.Name, Does.Not.EndWith("Feature"), "Features should not be suffixed with 'Feature'. " + featureType.FullName);
             }
-            if (featureType.IsPublic)
-            {
-                var constructorInfo = featureType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, [], null);
-                Assert.That(constructorInfo.IsPublic, Is.False, "Features should have an internal constructor. " + featureType.FullName);
-            }
         }
     }
 

@@ -9,4 +9,6 @@ class FeatureFactory
         ? throw new ArgumentException(
             $"The provided type '{featureType.FullName}' is not a valid feature. All features must inherit from '{typeof(Feature).FullName}'.")
         : featureType.Construct<Feature>();
+
+    public virtual Feature CreateFeature<TFeature>() where TFeature : Feature, new() => new TFeature();
 }

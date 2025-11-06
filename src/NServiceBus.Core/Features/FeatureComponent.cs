@@ -139,23 +139,23 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         public IReadOnlyCollection<FeatureInfo> Features => added;
 
-        public void EnableFeature<TFeature>() where TFeature : Feature
+        public void EnableFeature<TFeature>() where TFeature : Feature, new()
         {
             var info = GetOrCreate<TFeature>();
             info.Enable();
         }
 
-        public void DisableFeature<TFeature>() where TFeature : Feature
+        public void DisableFeature<TFeature>() where TFeature : Feature, new()
         {
             var info = GetOrCreate<TFeature>();
             info.Disable();
         }
 
-        FeatureInfo GetOrCreate<TFeature>() where TFeature : Feature
+        FeatureInfo GetOrCreate<TFeature>() where TFeature : Feature, new()
         {
             if (!TryGet<TFeature>(out var info))
             {
-                info = AddCore(factory.CreateFeature(typeof(TFeature)));
+                info = AddCore(factory.CreateFeature<TFeature>());
             }
             return info;
         }
@@ -214,7 +214,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
             {
                 if (!added.TryGetValue(toEnableByDefault.FeatureName, out var info))
                 {
-                    info = AddCore(factory.CreateFeature(toEnableByDefault.FeatureType));
+                    info = AddCore(toEnableByDefault.Create(factory));
                 }
 
                 featuresToEnableByDefault.Add(info);
@@ -224,18 +224,18 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
             foreach (var dependencies in feature.Dependencies)
             {
-                foreach ((string featureName, Type? dependentFeatureType) in dependencies)
+                foreach (var dependency in dependencies)
                 {
-                    if (added.Contains(featureName))
+                    if (added.Contains(dependency.FeatureName))
                     {
                         continue;
                     }
 
-                    // when the feature type is null we assume there is a weak dependency to a feature that was only referenced by
+                    // when the feature is null, we assume there is a weak dependency to a feature that was only referenced by
                     // the name but must have been or will be added later to be taken into account by the dependency walking
-                    if (dependentFeatureType is not null)
+                    if (dependency.Create(factory) is { } dependFeature)
                     {
-                        _ = AddCore(factory.CreateFeature(dependentFeatureType));
+                        _ = AddCore(dependFeature);
                     }
                 }
             }

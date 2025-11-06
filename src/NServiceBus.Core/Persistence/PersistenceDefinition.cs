@@ -19,7 +19,7 @@ public abstract partial class PersistenceDefinition
     /// </summary>
     protected void Supports<TStorage, TFeature>()
         where TStorage : StorageType
-        where TFeature : Feature
+        where TFeature : Feature, new()
     {
         var storageType = StorageType.Get<TStorage>();
         if (storageToFeature.TryGetValue(storageType, out var feature))
@@ -80,7 +80,7 @@ public abstract partial class PersistenceDefinition
         void Apply(FeatureComponent.Settings settings);
     }
     class StorageFeature<TFeature>(StorageType storageType) : IStorageFeature
-        where TFeature : Feature
+        where TFeature : Feature, new()
     {
         public string SupportedBy { get; } = Feature.GetFeatureName<TFeature>();
         public StorageType StorageType { get; } = storageType;
