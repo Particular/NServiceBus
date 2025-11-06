@@ -111,6 +111,33 @@ public class SagaMetadataCollection : IEnumerable<SagaMetadata>
         }
     }
 
+    /// <summary>
+    /// Registers saga metadata manually. Should only be called by generated code.
+    /// </summary>
+    /// <param name="metadata">The saga metadata to register.</param>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public void RegisterManual(SagaMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+
+        if (byEntity.ContainsKey(metadata.SagaEntityType))
+        {
+            throw new InvalidOperationException(
+                $"Saga metadata for entity type '{metadata.SagaEntityType.FullName}' is already registered. " +
+                "Each saga entity type can only be registered once.");
+        }
+
+        if (byType.ContainsKey(metadata.SagaType))
+        {
+            throw new InvalidOperationException(
+                $"Saga metadata for saga type '{metadata.SagaType.FullName}' is already registered. " +
+                "Each saga type can only be registered once.");
+        }
+
+        byEntity[metadata.SagaEntityType] = metadata;
+        byType[metadata.SagaType] = metadata;
+    }
+
     readonly Dictionary<Type, SagaMetadata> byEntity = [];
     readonly Dictionary<Type, SagaMetadata> byType = [];
 }

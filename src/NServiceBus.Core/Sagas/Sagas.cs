@@ -19,10 +19,14 @@ public class Sagas : Feature
         {
             conventions = s.Get<Conventions>();
 
-            var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
-            if (sagas.Count > 0)
+            var scannedSagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
+            var collection = s.GetOrDefault<SagaMetadataCollection>();
+            var manuallyRegisteredSagas = collection?.Select(m => m.SagaType).ToList() ?? [];
+
+            var allSagas = scannedSagas.Concat(manuallyRegisteredSagas).Distinct().ToList();
+            if (allSagas.Count > 0)
             {
-                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, allSagas));
             }
 
             s.EnableFeatureByDefault<SynchronizedStorage>();
@@ -31,7 +35,7 @@ public class Sagas : Feature
         Defaults(s => s.Set(new SagaMetadataCollection()));
 
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
-        Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
+        Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType) || HasManuallyRegisteredSagas(config), "No sagas were found in the scanned types or manually registered");
 
         DependsOn<SynchronizedStorage>();
     }
@@ -49,7 +53,14 @@ public class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+
+        // Only initialize from scanned types if there are any scanned saga types
+        // Manually registered sagas are already in the collection
+        var availableTypes = context.Settings.GetAvailableTypes().ToList();
+        if (availableTypes.Any(IsSagaType))
+        {
+            sagaMetaModel.Initialize(availableTypes, conventions);
+        }
 
         var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
 
@@ -115,6 +126,12 @@ public class Sagas : Feature
         var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
         return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
+    }
+
+    static bool HasManuallyRegisteredSagas(FeatureConfigurationContext config)
+    {
+        var collection = config.Settings.GetOrDefault<SagaMetadataCollection>();
+        return collection != null && collection.Any();
     }
 
     Conventions conventions;
