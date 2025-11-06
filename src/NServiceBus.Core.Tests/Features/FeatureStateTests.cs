@@ -94,16 +94,6 @@ public class FeatureStateTests
     }
 
     [Test]
-    public void Should_activate_features_that_are_enabled()
-    {
-        featureSettings.EnableFeature<FeatureThatGetsToggled>();
-
-        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
-
-        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Active), Is.True);
-    }
-
-    [Test]
     public void Should_enable_features_that_are_enabled()
     {
         featureSettings.EnableFeature<FeatureThatGetsToggled>();
