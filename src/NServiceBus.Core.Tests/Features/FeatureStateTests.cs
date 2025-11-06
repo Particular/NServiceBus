@@ -94,7 +94,7 @@ public class FeatureStateTests
     }
 
     [Test]
-    public void Should_activate_features_that_are_enabled_by_default()
+    public void Should_activate_features_that_are_enabled()
     {
         featureSettings.EnableFeature<FeatureThatGetsToggled>();
 
