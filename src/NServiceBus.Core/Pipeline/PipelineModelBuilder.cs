@@ -13,7 +13,7 @@ class PipelineModelBuilder
         this.rootContextType = rootContextType;
         this.additions = additions;
         this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
+        this.addOrReplaceSteps = addOrReplaceSteps.GroupBy(x => x.StepId).Select(g => g.Last()).ToList();
     }
 
     public List<RegisterStep> Build()

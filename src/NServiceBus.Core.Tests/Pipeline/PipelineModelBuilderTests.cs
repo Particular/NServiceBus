@@ -69,6 +69,23 @@ public class PipelineModelBuilderTests
     }
 
     [Test]
+    public void ShouldReplaceWhenRegisteringOrReplacingABehaviorThatHasAlreadyBeenRegisteredOrReplaced()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
+            .RegisterOrReplace(RegisterOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
+            .RegisterOrReplace(RegisterOrReplaceStep.Create("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc"))
+            .Build(typeof(IParentContext));
+
+        var model = builder.Build();
+
+        Assert.That(model.Count, Is.EqualTo(2));
+        var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
+        Assert.That(overriddenBehavior, Is.Not.Null);
+        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
+    }
+
+    [Test]
     public void ShouldDetectMissingBehaviorForRootContext()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
