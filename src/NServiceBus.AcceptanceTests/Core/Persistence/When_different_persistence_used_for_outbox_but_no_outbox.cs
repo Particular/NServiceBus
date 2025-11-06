@@ -50,15 +50,15 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 FakePersistence()
                 {
-                    Supports<StorageType.Outbox, FakeOutboxSTorage>();
+                    Supports<StorageType.Outbox, FakeOutboxStorage>();
                     Supports<StorageType.Sagas, FakeSagaStorage>();
                 }
 
                 static FakePersistence IPersistenceDefinitionFactory<FakePersistence>.Create() => new();
 
-                sealed class FakeOutboxSTorage : Feature
+                sealed class FakeOutboxStorage : Feature
                 {
-                    public FakeOutboxSTorage() => DependsOn<Outbox>();
+                    public FakeOutboxStorage() => DependsOn<Outbox>();
 
                     protected override void Setup(FeatureConfigurationContext context)
                     {
