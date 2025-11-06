@@ -84,6 +84,6 @@ public abstract partial class PersistenceDefinition
     {
         public string SupportedBy { get; } = Feature.GetFeatureName<TFeature>();
         public StorageType StorageType { get; } = storageType;
-        public void Apply(FeatureComponent.Settings settings) => settings.EnableFeatureByDefault<TFeature>();
+        public void Apply(FeatureComponent.Settings settings) => settings.EnableFeature<TFeature>();
     }
 }

@@ -7,7 +7,7 @@ namespace NServiceBus.Core.Tests.Features;
 
 public abstract partial class TestFeature
 {
-    public bool Enabled
+    public bool IsEnabled
     {
         get => IsEnabledByDefault;
         set

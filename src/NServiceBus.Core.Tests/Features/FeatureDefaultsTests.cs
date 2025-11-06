@@ -11,7 +11,7 @@ public class FeatureDefaultsTests
 {
     public class FeatureThatEnablesAnother : Feature
     {
-        public FeatureThatEnablesAnother() => EnableByDefault<FeatureThatIsEnabledByAnother>();
+        public FeatureThatEnablesAnother() => Enable<FeatureThatIsEnabledByAnother>();
 
         protected override void Setup(FeatureConfigurationContext context)
         {
@@ -86,7 +86,7 @@ public class FeatureDefaultsTests
         //the orders matter here to expose a bug
         featureSettings.Add(level3);
         featureSettings.Add(level2);
-        featureSettings.EnableFeatureByDefault<Activate1>();
+        featureSettings.EnableFeature<Activate1>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -121,7 +121,7 @@ public class FeatureDefaultsTests
         featureFactory.Add(dependingFeature, feature);
 
         featureSettings.EnableFeature<MyFeature1>();
-        featureSettings.EnableFeatureByDefault<DependsOnOne_Feature>();
+        featureSettings.EnableFeature<DependsOnOne_Feature>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -195,9 +195,9 @@ public class FeatureDefaultsTests
         featureFactory.Add(level1, level2, level3);
 
         //the orders matter here to expose a bug
-        featureSettings.EnableFeatureByDefault<Level3>();
-        featureSettings.EnableFeatureByDefault<Level2>();
-        featureSettings.EnableFeatureByDefault<Level1>();
+        featureSettings.EnableFeature<Level3>();
+        featureSettings.EnableFeature<Level2>();
+        featureSettings.EnableFeature<Level1>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -227,7 +227,7 @@ public class FeatureDefaultsTests
 
     public class Activate1 : TestFeature
     {
-        public Activate1() => EnableByDefault<Activate2>();
+        public Activate1() => Enable<Activate2>();
     }
 
     public class Activate2 : TestFeature
@@ -235,7 +235,7 @@ public class FeatureDefaultsTests
         public Activate2()
         {
             DependsOn<Activate1>();
-            EnableByDefault<Activate3>();
+            Enable<Activate3>();
         }
     }
 

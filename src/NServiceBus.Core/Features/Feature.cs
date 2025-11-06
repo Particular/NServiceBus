@@ -34,9 +34,9 @@ public abstract partial class Feature
     internal IReadOnlyCollection<IReadOnlyCollection<Dependency>> Dependencies => dependencies;
 
     /// <summary>
-    /// The list of features that this feature enables by default.
+    /// The list of features that this feature enables.
     /// </summary>
-    internal IReadOnlyCollection<EnabledByDefault> ToBeEnabledByDefault => toBeEnabledByDefault;
+    internal IReadOnlyCollection<Enabled> ToBeEnabled => toBeEnabled;
 
     /// <summary>
     /// Tells if this feature is enabled by default.
@@ -84,19 +84,20 @@ public abstract partial class Feature
     protected void EnableByDefault() => IsEnabledByDefault = true;
 
     /// <summary>
-    /// Marks that this feature enables another feature by default.
+    /// Marks that this feature enables another feature.
     /// </summary>
-    protected void EnableByDefault<T>() where T : Feature =>
-        toBeEnabledByDefault.Add(Default<T>());
+    /// <remarks>This method should be called inside the constructor of the feature.</remarks>
+    protected void Enable<TFeature>() where TFeature : Feature =>
+        toBeEnabled.Add(Enables<TFeature>());
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
     /// the dependent feature is active.
     /// This also causes this feature to be activated after the other feature.
     /// </summary>
-    /// <typeparam name="T">Feature that this feature depends on.</typeparam>
-    protected void DependsOn<T>() where T : Feature =>
-        dependencies.Add([Depends<T>()]);
+    /// <typeparam name="TFeature">Feature that this feature depends on.</typeparam>
+    protected void DependsOn<TFeature>() where TFeature : Feature =>
+        dependencies.Add([Depends<TFeature>()]);
 
     /// <summary>
     /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
@@ -132,8 +133,8 @@ public abstract partial class Feature
     /// <see cref="Setup" /> method will be called
     /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
     /// </summary>
-    /// <typeparam name="T">The type of the feature that this feature depends on.</typeparam>
-    protected void DependsOnOptionally<T>() where T : Feature => dependencies.Add([rootFeature, Depends<T>()]);
+    /// <typeparam name="TFeature">The type of the feature that this feature depends on.</typeparam>
+    protected void DependsOnOptionally<TFeature>() where TFeature : Feature => dependencies.Add([rootFeature, Depends<TFeature>()]);
 
     /// <summary>
     /// Register this feature as depending on at least on of the given features. This means that this feature won't be
@@ -188,23 +189,23 @@ public abstract partial class Feature
 
     internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
-    static EnabledByDefault Default<T>() where T : Feature => new(GetFeatureName<T>(), typeof(T));
+    static Enabled Enables<TFeature>() where TFeature : Feature => new(GetFeatureName<TFeature>(), typeof(TFeature));
 
-    static Dependency Depends<T>() where T : Feature => new(GetFeatureName<T>(), typeof(T));
+    static Dependency Depends<TFeature>() where TFeature : Feature => new(GetFeatureName<TFeature>(), typeof(TFeature));
 
     static Dependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new Dependency(GetFeatureName(featureType), featureType);
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
     readonly List<List<Dependency>> dependencies = [];
-    readonly List<EnabledByDefault> toBeEnabledByDefault = [];
+    readonly List<Enabled> toBeEnabled = [];
 
     static readonly Type baseFeatureType = typeof(Feature);
 
     static readonly Dependency rootFeature = Depends<RootFeature>();
 
     internal readonly record struct Dependency(string FeatureName, Type? FeatureType = null);
-    internal readonly record struct EnabledByDefault(string FeatureName, Type FeatureType);
+    internal readonly record struct Enabled(string FeatureName, Type FeatureType);
 
     class SetupPrerequisite
     {

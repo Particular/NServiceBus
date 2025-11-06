@@ -45,7 +45,7 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
             FeatureDiscoveredByScanning()
             {
                 EnableByDefault();
-                EnableByDefault<DependentFeature>();
+                Enable<DependentFeature>();
 
                 DependsOn<DependentFeature>();
             }

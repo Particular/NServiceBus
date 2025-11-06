@@ -96,7 +96,7 @@ public class FeatureStateTests
     [Test]
     public void Should_activate_features_that_are_enabled_by_default()
     {
-        featureSettings.EnableFeatureByDefault<FeatureThatGetsToggled>();
+        featureSettings.EnableFeature<FeatureThatGetsToggled>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -109,14 +109,6 @@ public class FeatureStateTests
         featureSettings.EnableFeature<FeatureThatGetsToggled>();
 
         Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.True);
-    }
-
-    [Test]
-    public void Should_not_enable_features_that_are_enabled_by_default()
-    {
-        featureSettings.EnableFeatureByDefault<FeatureThatGetsToggled>();
-
-        Assert.That(featureSettings.IsFeature<FeatureThatGetsToggled>(FeatureState.Enabled), Is.False);
     }
 
     [Test]

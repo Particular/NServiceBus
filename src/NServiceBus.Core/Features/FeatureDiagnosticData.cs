@@ -8,7 +8,7 @@ class FeatureDiagnosticData
 {
     public required string Name { get; set; }
 
-    public bool EnabledByDefault { get; set; }
+    public bool Enabled { get; set; }
 
     public bool Active { get; set; }
 

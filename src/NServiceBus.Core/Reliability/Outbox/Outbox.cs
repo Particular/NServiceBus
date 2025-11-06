@@ -20,7 +20,7 @@ public class Outbox : Feature
         Prerequisite(context => !ReceivingEnabled(context.Settings) || TransactionsEnabled(context.Settings),
             "Outbox isn't needed since the receive transactions have been turned off");
 
-        EnableByDefault<SynchronizedStorage>();
+        Enable<SynchronizedStorage>();
 
         DependsOn<SynchronizedStorage>();
     }

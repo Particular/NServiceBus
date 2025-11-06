@@ -29,7 +29,7 @@ public class FeatureStartupTests
 
         featureFactory.Add(feature);
 
-        featureSettings.EnableFeatureByDefault<FeatureWithStartupTask>();
+        featureSettings.EnableFeature<FeatureWithStartupTask>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -53,8 +53,8 @@ public class FeatureStartupTests
 
         featureFactory.Add(featureWithStartupTaskWithDependency, featureWithStartupThatAnotherFeatureDependsOn);
 
-        featureSettings.EnableFeatureByDefault<FeatureWithStartupTaskWithDependency>();
-        featureSettings.EnableFeatureByDefault<FeatureWithStartupThatAnotherFeatureDependsOn>();
+        featureSettings.EnableFeature<FeatureWithStartupTaskWithDependency>();
+        featureSettings.EnableFeature<FeatureWithStartupThatAnotherFeatureDependsOn>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -77,7 +77,7 @@ public class FeatureStartupTests
 
         featureFactory.Add(feature);
 
-        featureSettings.EnableFeatureByDefault<FeatureWithStartupTaskWhichIsDisposable>();
+        featureSettings.EnableFeature<FeatureWithStartupTaskWhichIsDisposable>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -234,7 +234,7 @@ public class FeatureStartupTests
             this.throwOnStop = throwOnStop;
             this.createException = createException ?? (() => new InvalidOperationException());
 
-            Enabled = true;
+            IsEnabled = true;
 
             // This is a hack to bypass the restriction that the same feature type can't be added twice
             Name = $"{GetType().FullName}.{throwOnStartExpression}.{throwOnStopExpression}";

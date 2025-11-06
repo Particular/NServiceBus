@@ -32,8 +32,8 @@ public class FeatureSettingsTests
 
         featureFactory.Add(featureWithTrueCondition, featureWithFalseCondition);
 
-        featureSettings.EnableFeatureByDefault<MyFeatureWithSatisfiedPrerequisite>();
-        featureSettings.EnableFeatureByDefault<MyFeatureWithUnsatisfiedPrerequisite>();
+        featureSettings.EnableFeature<MyFeatureWithSatisfiedPrerequisite>();
+        featureSettings.EnableFeature<MyFeatureWithUnsatisfiedPrerequisite>();
 
         var status = featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
@@ -49,7 +49,7 @@ public class FeatureSettingsTests
     [Test]
     public void Should_register_defaults_if_feature_is_activated()
     {
-        featureSettings.EnableFeatureByDefault<MyFeatureWithDefaults>();
+        featureSettings.EnableFeature<MyFeatureWithDefaults>();
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 

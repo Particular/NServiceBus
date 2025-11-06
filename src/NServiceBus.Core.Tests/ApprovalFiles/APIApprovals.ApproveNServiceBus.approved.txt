@@ -280,13 +280,13 @@ namespace NServiceBus
         [System.Obsolete("Use \'DisableFeature<T>(this EndpointConfiguration config)\' instead. Will be remov" +
             "ed in version 11.0.0.", true)]
         public static void DisableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
-        public static void DisableFeature<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.Features.Feature { }
+        public static void DisableFeature<TFeature>(this NServiceBus.EndpointConfiguration config)
+            where TFeature : NServiceBus.Features.Feature { }
         [System.Obsolete("Use \'EnableFeature<T>(this EndpointConfiguration config)\' instead. Will be remove" +
             "d in version 11.0.0.", true)]
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
-        public static void EnableFeature<T>(this NServiceBus.EndpointConfiguration config)
-            where T : NServiceBus.Features.Feature { }
+        public static void EnableFeature<TFeature>(this NServiceBus.EndpointConfiguration config)
+            where TFeature : NServiceBus.Features.Feature { }
     }
     public static class EndpointInstanceExtensions
     {
@@ -1272,19 +1272,19 @@ namespace NServiceBus.Features
         public string Version { get; }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> settings) { }
         protected void DependsOn(string featureTypeName) { }
-        protected void DependsOn<T>()
-            where T : NServiceBus.Features.Feature { }
+        protected void DependsOn<TFeature>()
+            where TFeature : NServiceBus.Features.Feature { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
         [System.Obsolete("Use \'DependsOnOptionally<T>()\' instead. Will be removed in version 11.0.0.", true)]
         protected void DependsOnOptionally(System.Type featureType) { }
         protected void DependsOnOptionally(string featureName) { }
-        protected void DependsOnOptionally<T>()
-            where T : NServiceBus.Features.Feature { }
+        protected void DependsOnOptionally<TFeature>()
+            where TFeature : NServiceBus.Features.Feature { }
+        protected void Enable<TFeature>()
+            where TFeature : NServiceBus.Features.Feature { }
         [System.Obsolete(@"In a future version of NServiceBus, Feature classes will not be automatically discovered by runtime assembly scanning. Instead, create an extension method on EndpointConfiguration and enable the feature within the extension method using EnableFeature<T>(). Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         protected void EnableByDefault() { }
-        protected void EnableByDefault<T>()
-            where T : NServiceBus.Features.Feature { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
         protected abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
         public override string ToString() { }
@@ -1329,8 +1329,8 @@ namespace NServiceBus.Features
     }
     public static class SettingsExtensions
     {
-        public static void EnableFeature<T>(this NServiceBus.Settings.SettingsHolder settings)
-            where T : NServiceBus.Features.Feature { }
+        public static void EnableFeature<TFeature>(this NServiceBus.Settings.SettingsHolder settings)
+            where TFeature : NServiceBus.Features.Feature { }
         [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
             "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
             " be removed in version 11.0.0.", true)]
@@ -1343,13 +1343,13 @@ namespace NServiceBus.Features
         [System.Obsolete("Use \'IsFeatureActive<T>(this IReadOnlySettings settings)\' instead. Will be remove" +
             "d in version 11.0.0.", true)]
         public static bool IsFeatureActive(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
-        public static bool IsFeatureActive<T>(this NServiceBus.Settings.IReadOnlySettings settings)
-            where T : NServiceBus.Features.Feature { }
+        public static bool IsFeatureActive<TFeature>(this NServiceBus.Settings.IReadOnlySettings settings)
+            where TFeature : NServiceBus.Features.Feature { }
         [System.Obsolete("Use \'IsFeatureEnabled<T>(this IReadOnlySettings settings)\' instead. Will be remov" +
             "ed in version 11.0.0.", true)]
         public static bool IsFeatureEnabled(this NServiceBus.Settings.IReadOnlySettings settings, System.Type featureType) { }
-        public static bool IsFeatureEnabled<T>(this NServiceBus.Settings.IReadOnlySettings settings)
-            where T : NServiceBus.Features.Feature { }
+        public static bool IsFeatureEnabled<TFeature>(this NServiceBus.Settings.IReadOnlySettings settings)
+            where TFeature : NServiceBus.Features.Feature { }
     }
     public class SynchronizedStorage : NServiceBus.Features.Feature
     {
