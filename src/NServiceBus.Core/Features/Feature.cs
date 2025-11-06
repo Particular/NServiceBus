@@ -189,12 +189,10 @@ public abstract partial class Feature
 
     internal static string GetFeatureName(Type featureType) => featureType.FullName!;
 
-#pragma warning disable CA1859 // performance doesn't matter here
-    static IEnabled Enables<TFeature>() where TFeature : Feature, new() => new Enabled<TFeature>();
-    static IDependency Depends<TFeature>() where TFeature : Feature, new() => new Dependency<TFeature>();
+    static IEnabled Enables<TFeature>() where TFeature : Feature, new() => Enabled<TFeature>.Instance;
+    static IDependency Depends<TFeature>() where TFeature : Feature, new() => Dependency<TFeature>.Instance;
     static IDependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
     static IDependency Depends(string featureName) => new WeakDependency(featureName);
-#pragma warning restore CA1859
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
     readonly List<SetupPrerequisite> setupPrerequisites = [];
@@ -211,19 +209,25 @@ public abstract partial class Feature
         Feature? Create(FeatureFactory factory);
     }
 
-    record Dependency<TFeature> : IDependency where TFeature : Feature, new()
+    sealed class Dependency<TFeature> : IDependency where TFeature : Feature, new()
     {
+        Dependency()
+        {
+        }
+
         public string FeatureName { get; } = GetFeatureName<TFeature>();
         public Feature Create(FeatureFactory factory) => factory.CreateFeature<TFeature>();
+
+        public static readonly IDependency Instance = new Dependency<TFeature>();
     }
 
-    record TypeDependency(Type FeatureType) : IDependency
+    sealed class TypeDependency(Type featureType) : IDependency
     {
-        public string FeatureName { get; } = GetFeatureName(FeatureType);
-        public Feature Create(FeatureFactory factory) => factory.CreateFeature(FeatureType);
+        public string FeatureName { get; } = GetFeatureName(featureType);
+        public Feature Create(FeatureFactory factory) => factory.CreateFeature(featureType);
     }
 
-    record WeakDependency(string FeatureName) : IDependency
+    sealed record WeakDependency(string FeatureName) : IDependency
     {
         public Feature? Create(FeatureFactory factory) => null;
     }
@@ -234,11 +238,17 @@ public abstract partial class Feature
         Feature Create(FeatureFactory factory);
     }
 
-    record Enabled<TFeature> : IEnabled
+    sealed class Enabled<TFeature> : IEnabled
         where TFeature : Feature, new()
     {
+        Enabled()
+        {
+        }
+
         public string FeatureName { get; } = GetFeatureName<TFeature>();
         public Feature Create(FeatureFactory factory) => factory.CreateFeature<TFeature>();
+
+        public static readonly IEnabled Instance = new Enabled<TFeature>();
     }
 
     class SetupPrerequisite

@@ -16,7 +16,7 @@ using Settings;
 public abstract class TransportDefinition
 {
     TransportTransactionMode transportTransactionMode;
-    List<IEnabledFeature>? featuresToEnable;
+    List<IEnabled>? featuresToEnable;
 
     /// <summary>
     /// Creates a new transport definition.
@@ -38,7 +38,7 @@ public abstract class TransportDefinition
     protected void EnableEndpointFeature<T>() where T : Feature, new()
     {
         featuresToEnable ??= [];
-        featuresToEnable.Add(EnabledFeature<T>.Instance);
+        featuresToEnable.Add(Enabled<T>.Instance);
     }
 
     /// <summary>
@@ -100,19 +100,19 @@ public abstract class TransportDefinition
         }
     }
 
-    interface IEnabledFeature
+    interface IEnabled
     {
         void Apply(SettingsHolder settings);
     }
 
-    sealed class EnabledFeature<TFeature> : IEnabledFeature
+    sealed class Enabled<TFeature> : IEnabled
         where TFeature : Feature, new()
     {
-        EnabledFeature()
+        Enabled()
         {
         }
 
-        public static readonly IEnabledFeature Instance = new EnabledFeature<TFeature>();
+        public static readonly IEnabled Instance = new Enabled<TFeature>();
 
         public void Apply(SettingsHolder settingsHolder) => settingsHolder.EnableFeature<TFeature>();
     }
