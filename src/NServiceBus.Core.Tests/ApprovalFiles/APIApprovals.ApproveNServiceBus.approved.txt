@@ -2178,8 +2178,8 @@ namespace NServiceBus.Transport
     }
     public class HostSettings
     {
-        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings coreSettings = null) { }
-        public NServiceBus.Settings.IReadOnlySettings CoreSettings { get; }
+        public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings? coreSettings = null) { }
+        public NServiceBus.Settings.IReadOnlySettings? CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
@@ -2294,6 +2294,8 @@ namespace NServiceBus.Transport
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
+        protected void EnableEndpointFeature<T>()
+            where T : NServiceBus.Features.Feature { }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
         public abstract System.Threading.Tasks.Task<NServiceBus.Transport.TransportInfrastructure> Initialize(NServiceBus.Transport.HostSettings hostSettings, NServiceBus.Transport.ReceiveSettings[] receivers, string[] sendingAddresses, System.Threading.CancellationToken cancellationToken = default);
     }

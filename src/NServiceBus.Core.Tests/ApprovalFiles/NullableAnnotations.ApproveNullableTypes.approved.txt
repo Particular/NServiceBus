@@ -182,7 +182,6 @@ NServiceBus.Transport.PushRuntimeSettings
 NServiceBus.Transport.QueueAddress
 NServiceBus.Transport.QueueBindings
 NServiceBus.Transport.ReceiveSettings
-NServiceBus.Transport.TransportDefinition
 NServiceBus.Transport.TransportInfrastructure
 NServiceBus.Transport.TransportOperation
 NServiceBus.Transport.TransportOperations

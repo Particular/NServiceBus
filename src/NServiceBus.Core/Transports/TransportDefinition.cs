@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Transport;
 
 using System;
@@ -5,13 +7,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Features;
+using Settings;
 
 /// <summary>
 /// Defines a transport.
 /// </summary>
-public abstract partial class TransportDefinition
+public abstract class TransportDefinition
 {
     TransportTransactionMode transportTransactionMode;
+    List<IEnabledFeature>? featuresToEnable;
 
     /// <summary>
     /// Creates a new transport definition.
@@ -25,10 +30,24 @@ public abstract partial class TransportDefinition
     }
 
     /// <summary>
-    /// Initializes all the factories and supported features for the transport. This method is called right before all features
-    /// are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing
-    /// default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot
-    /// provide information anymore at this stage).
+    /// Allows a transport to enable a specific feature that will be applied only when the transport is hosted inside an NServiceBus endpoint.
+    /// This allows providing richer functionality that extends the hosted scenarios if needed.
+    /// </summary>
+    /// <remarks>This method needs to be called within the constructor(s) of the transport definition.</remarks>
+    /// <typeparam name="T">The feature to enable.</typeparam>
+    protected void EnableEndpointFeature<T>() where T : Feature
+    {
+        featuresToEnable ??= [];
+        featuresToEnable.Add(EnabledFeature<T>.Instance);
+    }
+
+    /// <summary>
+    /// Initializes transport factories and transport-specific behavior.
+    /// This method is invoked after transport-provided endpoint features have been registered
+    /// and after features have been configured, but before feature
+    /// activation/initialization completes and before feature startup tasks run. At this point
+    /// the settings holder is finalized with user-provided settings and may be
+    /// used for providing transport defaults or reading finalized settings when hosted in an endpoint.
     /// </summary>
     public abstract Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default);
 
@@ -67,4 +86,34 @@ public abstract partial class TransportDefinition
     /// Indicates whether this transport supports time-to-be-received settings for messages.
     /// </summary>
     public bool SupportsTTBR { get; }
+
+    internal void Configure(SettingsHolder settings)
+    {
+        if (featuresToEnable is null)
+        {
+            return;
+        }
+
+        foreach (var featureToEnable in featuresToEnable)
+        {
+            featureToEnable.Apply(settings);
+        }
+    }
+
+    interface IEnabledFeature
+    {
+        void Apply(SettingsHolder settings);
+    }
+
+    sealed class EnabledFeature<TFeature> : IEnabledFeature
+        where TFeature : Feature
+    {
+        EnabledFeature()
+        {
+        }
+
+        public static readonly IEnabledFeature Instance = new EnabledFeature<TFeature>();
+
+        public void Apply(SettingsHolder settingsHolder) => settingsHolder.EnableFeature<TFeature>();
+    }
 }

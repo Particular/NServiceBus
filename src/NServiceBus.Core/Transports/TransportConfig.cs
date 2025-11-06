@@ -21,6 +21,7 @@ public static class TransportConfig
         {
             var settings = endpointConfiguration.GetSettings();
             settings.Get<TransportSeam.Settings>().TransportDefinition = transportDefinition;
+            transportDefinition.Configure(settings);
             return new RoutingSettings<TTransport>(settings);
         }
     }
