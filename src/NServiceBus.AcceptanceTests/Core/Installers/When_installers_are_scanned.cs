@@ -3,22 +3,21 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Installation;
 using NUnit.Framework;
 
-public class When_installers_not_enabled : NServiceBusAcceptanceTest
+public class When_installers_are_scanned : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_run_installers()
+    public async Task Should_run_installers()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithInstaller>()
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.InstallerCalled, Is.False);
+        Assert.That(context.InstallerCalled, Is.True);
     }
 
     class Context : ScenarioContext
@@ -29,10 +28,11 @@ public class When_installers_not_enabled : NServiceBusAcceptanceTest
     class EndpointWithInstaller : EndpointConfigurationBuilder
     {
         public EndpointWithInstaller() =>
-            // disable installers as installers are enabled by default in DefaultServer
-            EndpointSetup<DefaultServer>(c => c.GetSettings().Set("Installers.Enable", false));
+            // installers are enabled by default but this makes it more clear that they need to be on
+            EndpointSetup<DefaultServer>(c => c.EnableInstallers())
+                .IncludeType<ScannedInstaller>(); //simulate that the installer is included in scanning
 
-        public class CustomInstaller(Context testContext) : INeedToInstallSomething
+        class ScannedInstaller(Context testContext) : INeedToInstallSomething
         {
             public Task Install(string identity, CancellationToken cancellationToken = default)
             {

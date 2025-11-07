@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using Features;
 using Installation;
 
 /// <summary>
@@ -18,11 +19,32 @@ public static class InstallConfigExtensions
     public static void EnableInstallers(this EndpointConfiguration config, string? username = null)
     {
         ArgumentNullException.ThrowIfNull(config);
+
         if (username != null)
         {
-            config.Settings.Set("Installers.UserName", username);
+            config.Settings.Get<InstallerComponent.Settings>().InstallationUserName = username;
         }
 
         config.Settings.Set("Installers.Enable", true);
+    }
+
+    /// <summary>
+    /// Adds the installer type.
+    /// </summary>
+    public static void AddInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        config.Settings.Get<InstallerComponent.Settings>().Add<TInstaller>();
+    }
+
+    /// <summary>
+    /// Adds the installer type.
+    /// </summary>
+    public static void AddInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        context.Settings.Get<InstallerComponent.Settings>().Add<TInstaller>();
     }
 }

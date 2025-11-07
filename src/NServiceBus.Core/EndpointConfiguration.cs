@@ -32,6 +32,7 @@ public class EndpointConfiguration : ExposeSettings
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
         Settings.Set(new HostingComponent.Settings(Settings));
+        Settings.Set(new InstallerComponent.Settings(Settings));
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
         Settings.Set(new ReceiveComponent.Settings(Settings));

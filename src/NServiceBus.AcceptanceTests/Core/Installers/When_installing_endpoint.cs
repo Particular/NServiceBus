@@ -7,7 +7,6 @@ using EndpointTemplates;
 using FakeTransport;
 using Features;
 using Installation;
-using Configuration.AdvancedExtensibility;
 using NUnit.Framework;
 using Transport;
 
@@ -26,10 +25,10 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
             Assert.That(context.FeatureStartupTaskCalled, Is.False, "Should not start FeatureStartupTasks");
         }
-        Assert.That(new string[]
+
+        Assert.That(new[]
         {
-            $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-            $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
+            $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}", $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
         }, Is.EqualTo(context.TransportStartupSequence).AsCollection, "Should not start the receivers");
     }
 
@@ -43,13 +42,9 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
 
     class EndpointWithInstaller : EndpointConfigurationBuilder
     {
-        public EndpointWithInstaller()
-        {
+        public EndpointWithInstaller() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
-                // Disable installers (enabled by default in DefaultServer)
-                c.GetSettings().Set("Installers.Enable", true);
-
                 c.EnableFeature<CustomFeature>();
 
                 // Register FakeTransport to track transport seam usage during installation
@@ -57,17 +52,9 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
                 c.UseTransport(fakeTransport);
                 ((Context)r.ScenarioContext).TransportStartupSequence = fakeTransport.StartupSequence;
             });
-        }
 
-        class CustomInstaller : INeedToInstallSomething
+        class CustomInstaller(Context testContext) : INeedToInstallSomething
         {
-            Context testContext;
-
-            public CustomInstaller(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Install(string identity, CancellationToken cancellationToken = default)
             {
                 testContext.InstallerCalled = true;
@@ -79,21 +66,16 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
+                context.AddInstaller<CustomInstaller>();
+
                 var testContext = context.Settings.Get<Context>();
                 testContext.FeatureSetupCalled = true;
 
                 context.RegisterStartupTask(new CustomFeatureStartupTask(testContext));
             }
 
-            class CustomFeatureStartupTask : FeatureStartupTask
+            class CustomFeatureStartupTask(Context testContext) : FeatureStartupTask
             {
-                readonly Context testContext;
-
-                public CustomFeatureStartupTask(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     testContext.FeatureStartupTaskCalled = true;
