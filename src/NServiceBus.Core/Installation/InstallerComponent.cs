@@ -29,7 +29,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
     public class Settings
     {
         public const string UsernameSettingsKey = "Installation:Username";
-        public static string DefaultUsername = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
+        public static readonly string DefaultUsername = Environment.OSVersion.Platform == PlatformID.Win32NT ? $"{Environment.UserDomainName}\\{Environment.UserName}" : Environment.UserName;
 
         public Settings(SettingsHolder settings)
         {
