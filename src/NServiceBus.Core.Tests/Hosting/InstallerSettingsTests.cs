@@ -23,11 +23,11 @@ public class InstallerSettingsTests
 
         settings.AddScannedInstallers([typeof(MyInstaller), typeof(MyInstaller2)]);
 
-        Assert.That(settings.Installers.Count, Is.EqualTo(2));
+        Assert.That(settings.Installers, Has.Count.EqualTo(2));
     }
 
     [Test]
-    public void Should_default_username_to_X()
+    public void Should_default_to_username()
     {
         var endpointConfiguration = new EndpointConfiguration("myendpoint");
 
