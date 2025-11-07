@@ -28,7 +28,7 @@ public class When_installers_are_scanned : NServiceBusAcceptanceTest
     class EndpointWithInstaller : EndpointConfigurationBuilder
     {
         public EndpointWithInstaller() =>
-            // installers are enabled by default by but this makes it more clear that they need to be on
+            // installers are enabled by default but this makes it more clear that they need to be on
             EndpointSetup<DefaultServer>(c => c.EnableInstallers())
                 .IncludeType<ScannedInstaller>(); //simulate that the installer is included in scanning
 
