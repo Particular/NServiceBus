@@ -51,11 +51,11 @@ class InstallerComponent(InstallerComponent.Settings settings)
             foreach (var installerType in scannedTypes.Where(IsINeedToInstallSomething))
             {
                 var installerWrapperType = typeof(Installer<>).MakeGenericType(installerType);
-                installers.Add(((IInstaller)Activator.CreateInstance(installerWrapperType)!)!);
+                installers.Add((IInstaller)Activator.CreateInstance(installerWrapperType)!);
             }
         }
 
-        public IReadOnlyCollection<IInstaller> Installers => installers;
+        internal IReadOnlyCollection<IInstaller> Installers => installers;
 
         readonly HashSet<IInstaller> installers = [];
         readonly SettingsHolder settings;
