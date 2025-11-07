@@ -62,7 +62,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        class Installer<T> : IInstaller where T : class, INeedToInstallSomething
+        sealed class Installer<T> : IInstaller where T : class, INeedToInstallSomething
         {
             public async Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
             {
@@ -93,7 +93,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
             public override int GetHashCode() => InstallerType.GetHashCode();
         }
 
-        public interface IInstaller : IEquatable<IInstaller>
+        internal interface IInstaller : IEquatable<IInstaller>
         {
             Type InstallerType { get; }
 
