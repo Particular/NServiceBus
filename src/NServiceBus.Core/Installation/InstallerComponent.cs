@@ -39,7 +39,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
         public string InstallationUserName
         {
-            // Some downstreams, like MSMQ, relies on this key being present in the settings
+            // Some downstreams, like MSMQ, rely on this key being present in the settings
             get => settings.Get<string>(UsernameSettingsKey);
             set => settings.Set(UsernameSettingsKey, value);
         }

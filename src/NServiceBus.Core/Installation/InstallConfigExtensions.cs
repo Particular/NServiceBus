@@ -39,7 +39,7 @@ public static class InstallConfigExtensions
     }
 
     /// <summary>
-    /// Add the installer type.
+    /// Adds the installer type.
     /// </summary>
     public static void AddInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
     {
