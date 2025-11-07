@@ -55,7 +55,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
             }
         }
 
-        internal IReadOnlyCollection<IInstaller> Installers => installers;
+        public IReadOnlyCollection<IInstaller> Installers => installers;
 
         readonly HashSet<IInstaller> installers = [];
         readonly SettingsHolder settings;
