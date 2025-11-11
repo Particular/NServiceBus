@@ -17,10 +17,7 @@ public static class EndpointConfigurationExtensions
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
     /// <param name="typesToScan">Override the types to scan.</param>
-    public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan)
-    {
-        config.TypesToScanInternal(typesToScan);
-    }
+    public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan) => config.TypesToScanInternal(typesToScan);
 
     /// <summary>
     /// Uses <see cref="TypesToIncludeInScan"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
