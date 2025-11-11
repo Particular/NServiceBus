@@ -11,9 +11,7 @@ using Sagas;
 public interface IConfigureHowToFindSagaWithFinder
 {
     /// <summary>
-    /// Specify that when the infrastructure is handling a message
-    /// of the given type, which message header should be matched to
-    /// which saga entity property in the persistent saga store.
+    /// Specify the custom saga finder to match the given message to a saga instance.
     /// </summary>
     void ConfigureMapping<TSagaEntity, TMessage, TFinder>() where TFinder : ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : IContainSagaData;
 }
