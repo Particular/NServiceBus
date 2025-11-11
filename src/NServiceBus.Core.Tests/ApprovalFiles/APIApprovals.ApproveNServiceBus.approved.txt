@@ -2055,7 +2055,6 @@ namespace NServiceBus.Sagas
     public class SagaFinderDefinition
     {
         public System.Type MessageType { get; }
-        public string MessageTypeName { get; }
     }
     public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
     {
@@ -2072,7 +2071,6 @@ namespace NServiceBus.Sagas
     }
     public class SagaMetadata
     {
-        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata correlationProperty, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> AssociatedMessages { get; }
         public string EntityName { get; }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> Finders { get; }
