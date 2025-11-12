@@ -79,11 +79,26 @@ static class AssemblyValidator
             _ => new InspectedAssembly(true, null),
         };
 
-    readonly struct InspectedAssembly(bool shouldLoad, string? reason)
+    readonly struct InspectedAssembly
     {
-        [MemberNotNullWhen(false, nameof(Reason))]
-        public bool ShouldLoad { get; } = shouldLoad;
+        public InspectedAssembly(bool shouldLoad, string? reason)
+        {
+            if (!shouldLoad && reason is null)
+            {
+                ThrowIfReasonIsNull();
+            }
 
-        public string? Reason { get; } = reason;
+            ShouldLoad = shouldLoad;
+            Reason = reason;
+            return;
+
+            [DoesNotReturn]
+            static void ThrowIfReasonIsNull() => throw new ArgumentNullException(nameof(reason), "Reason must not be null when ShouldLoad is false.");
+        }
+
+        [MemberNotNullWhen(false, nameof(Reason))]
+        public bool ShouldLoad { get; }
+
+        public string? Reason { get; }
     }
 }
