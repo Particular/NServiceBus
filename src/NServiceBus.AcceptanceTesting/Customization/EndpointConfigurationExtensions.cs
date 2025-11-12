@@ -7,6 +7,7 @@ using System.Reflection;
 using Features;
 using Hosting.Helpers;
 using Installation;
+using Sagas;
 using Support;
 
 public static class EndpointConfigurationExtensions
@@ -40,10 +41,11 @@ public static class EndpointConfigurationExtensions
             .. assemblyScanner.GetScannableAssemblies().Types
                 .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
                 .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
-                .Where(t => !t.IsAssignableTo(typeof(Feature))) //remove once we default the tests to not use scanning
-                .Where(t => !t.IsAssignableTo(typeof(INeedToInstallSomething))) //remove once we default the tests to not use scanning
+                .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
+                            || t.IsAssignableTo(typeof(IFinder))
+                            || t.IsAssignableTo(typeof(IHandleSagaNotFound))
+                            || t.IsAssignableTo(typeof(Saga)))
                 .Union(customizationConfiguration.TypesToInclude)
-                .Except(customizationConfiguration.TypesToExclude)
         ]);
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)

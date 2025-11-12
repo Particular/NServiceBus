@@ -37,7 +37,7 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
 
                 var routing = new RoutingSettings(c.GetSettings());
                 routing.RouteToEndpoint(typeof(SomeCommand).Assembly, Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint)));
-            }).ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
+            });
         }
     }
 

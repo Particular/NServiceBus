@@ -49,17 +49,18 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Conventions()
-                .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName)
-                .DefiningTimeToBeReceivedAs(messageType =>
-                {
-                    if (messageType == typeof(MyCommand))
+                    .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName)
+                    .DefiningTimeToBeReceivedAs(messageType =>
                     {
-                        return TimeSpan.FromSeconds(2);
-                    }
-                    return TimeSpan.MaxValue;
-                });
+                        if (messageType == typeof(MyCommand))
+                        {
+                            return TimeSpan.FromSeconds(2);
+                        }
+
+                        return TimeSpan.MaxValue;
+                    });
                 c.RegisterStartupTask(new SendMessageAndDelayStartTask());
-            }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            });
         }
 
         public class MyMessageHandler : IHandleMessages<MyCommand>

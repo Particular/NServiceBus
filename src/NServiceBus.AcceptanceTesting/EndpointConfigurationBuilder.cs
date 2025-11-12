@@ -103,22 +103,11 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
         return this;
     }
 
+    EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get() => CreateScenario();
 
-    EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
-    {
-        return CreateScenario();
-    }
     public ScenarioContext ScenarioContext { get; set; }
 
-
-    EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
-
-    public EndpointConfigurationBuilder ExcludeType<T>()
-    {
-        configuration.TypesToExclude.Add(typeof(T));
-
-        return this;
-    }
+    readonly EndpointCustomizationConfiguration configuration = new();
 
     public EndpointConfigurationBuilder IncludeType<T>()
     {

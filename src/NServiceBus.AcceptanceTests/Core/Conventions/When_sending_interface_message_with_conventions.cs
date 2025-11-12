@@ -38,7 +38,7 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
             {
                 b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message"));
                 b.ConfigureRouting().RouteToEndpoint(typeof(IMyInterfaceMessage), typeof(Receiver));
-            }).ExcludeType<IMyInterfaceMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            });
         }
     }
 

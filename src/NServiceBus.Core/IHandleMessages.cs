@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 /// Defines a message handler.
 /// </summary>
 /// <typeparam name="T">The type of message to be handled.</typeparam>
-public interface IHandleMessages<T>
+public interface IHandleMessages<T> : IHandleMessages
 {
     /// <summary>
     /// Handles a message.
@@ -21,4 +21,11 @@ public interface IHandleMessages<T>
     /// </remarks>
     /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
     Task Handle(T message, IMessageHandlerContext context);
+}
+
+/// <summary>
+/// tofo.
+/// </summary>
+public interface IHandleMessages
+{
 }
