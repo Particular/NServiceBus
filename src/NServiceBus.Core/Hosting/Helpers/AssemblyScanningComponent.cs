@@ -40,11 +40,6 @@ class AssemblyScanningComponent
         assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
         assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
 
-        if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
-        {
-            throw new Exception($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality from loading correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to resolve this error.");
-        }
-
         var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
         availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
 
