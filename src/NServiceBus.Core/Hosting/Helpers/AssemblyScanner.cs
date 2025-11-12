@@ -296,15 +296,12 @@ public class AssemblyScanner
 
     static List<FileInfo> ScanDirectoryForAssemblyFiles(string directoryToScan, bool scanNestedDirectories)
     {
-        var fileInfo = new List<FileInfo>();
         var baseDir = new DirectoryInfo(directoryToScan);
         var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-        foreach (var searchPattern in FileSearchPatternsToUse)
-        {
-            fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
-        }
-
-        return fileInfo;
+        var files = FileSearchPatternsToUse
+            .SelectMany(pattern => baseDir.EnumerateFiles(pattern, searchOption))
+            .ToList();
+        return files;
     }
 
     bool IsExcluded(string assemblyName) => assembliesToSkip.Contains(assemblyName) || DefaultAssemblyExclusions.Contains(assemblyName);
