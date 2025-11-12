@@ -24,7 +24,7 @@ public interface IHandleMessages<T> : IHandleMessages
 }
 
 /// <summary>
-/// tofo.
+/// Defines a message handler.
 /// </summary>
 public interface IHandleMessages
 {
