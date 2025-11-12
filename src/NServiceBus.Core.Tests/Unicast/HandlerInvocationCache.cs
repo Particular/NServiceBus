@@ -16,8 +16,8 @@ public class HandlerInvocationCachePerformanceTests
     public async Task RunNew()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubMessageHandler));
-        cache.RegisterHandler(typeof(StubTimeoutHandler));
+        cache.AddHandler<StubMessageHandler>();
+        cache.AddHandler<StubTimeoutHandler>();
         var stubMessage = new StubMessage();
         var stubTimeout = new StubTimeoutState();
         var messageHandler = cache.GetCachedHandlerForMessage<StubMessage>();
@@ -50,7 +50,8 @@ public class HandlerInvocationCachePerformanceTests
     {
     }
 
-    public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
+    public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>,
+        IHandleMessages // Required to match generic constraint on AddHandler<THandler>()
     {
         public Task Timeout(StubTimeoutState state, IMessageHandlerContext context)
         {
@@ -70,7 +71,7 @@ public class When_invoking_a_cached_message_handler
     public async Task Should_invoke_handle_method()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var handler = cache.GetCachedHandlerForMessage<StubMessage>();
         var handlerContext = new TestableMessageHandlerContext();
@@ -83,7 +84,7 @@ public class When_invoking_a_cached_message_handler
     public async Task Should_have_passed_through_correct_message()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var handler = cache.GetCachedHandlerForMessage<StubMessage>();
         var stubMessage = new StubMessage();
@@ -97,7 +98,7 @@ public class When_invoking_a_cached_message_handler
     public async Task Should_have_passed_through_correct_context()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var handler = cache.GetCachedHandlerForMessage<StubMessage>();
         var handlerContext = new TestableMessageHandlerContext();
@@ -133,7 +134,7 @@ public class When_invoking_a_cached_timeout_handler
     public async Task Should_invoke_timeout_method()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
         var handlerContext = new TestableMessageHandlerContext();
@@ -146,7 +147,7 @@ public class When_invoking_a_cached_timeout_handler
     public async Task Should_have_passed_through_correct_state()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var stubState = new StubTimeoutState();
         var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
@@ -160,7 +161,7 @@ public class When_invoking_a_cached_timeout_handler
     public async Task Should_have_passed_through_correct_context()
     {
         var cache = new MessageHandlerRegistry();
-        cache.RegisterHandler(typeof(StubHandler));
+        cache.AddHandler<StubHandler>();
 
         var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
         var handlerContext = new TestableMessageHandlerContext();
@@ -169,7 +170,8 @@ public class When_invoking_a_cached_timeout_handler
         Assert.That(((StubHandler)handler.Instance).HandlerContext, Is.SameAs(handlerContext));
     }
 
-    public class StubHandler : IHandleTimeouts<StubTimeoutState>
+    public class StubHandler : IHandleTimeouts<StubTimeoutState>,
+        IHandleMessages // Needed to meet generic constraint for AddHandler<THandler>()
     {
         public Task Timeout(StubTimeoutState state, IMessageHandlerContext context)
         {

@@ -251,27 +251,9 @@ partial class ReceiveComponent
 
         types.InsertRange(0, orderedTypes);
 
-        foreach (var t in types.Where(IsMessageHandler))
-        {
-            serviceCollection.AddScoped(t);
-
-            handlerRegistry.RegisterHandler(t);
-        }
+        handlerRegistry.AddScannedHandlers(types);
 
         serviceCollection.AddSingleton(handlerRegistry);
-    }
-
-    public static bool IsMessageHandler(Type type)
-    {
-        if (type.IsAbstract || type.IsGenericTypeDefinition)
-        {
-            return false;
-        }
-
-        return type.GetInterfaces()
-            .Where(@interface => @interface.IsGenericType)
-            .Select(@interface => @interface.GetGenericTypeDefinition())
-            .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
     }
 
     static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
@@ -291,6 +273,5 @@ partial class ReceiveComponent
     const string MainReceiverId = "Main";
     const string InstanceSpecificReceiverId = "InstanceSpecific";
 
-    static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
 }

@@ -386,7 +386,7 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
-    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
+    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages, NServiceBus.IHandleMessages<T> { }
     public interface ICancellableContext
     {
         System.Threading.CancellationToken CancellationToken { get; }
@@ -441,7 +441,8 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface IHandleMessages<T>
+    public interface IHandleMessages { }
+    public interface IHandleMessages<T> : NServiceBus.IHandleMessages
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
     }
@@ -596,6 +597,11 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+    }
+    public static class MessageHandlerRegistrationExtensions
+    {
+        public static void AddHandler<THandler>(this NServiceBus.EndpointConfiguration config)
+            where THandler : NServiceBus.IHandleMessages { }
     }
     public static class MessageIdExtensions
     {
@@ -1784,10 +1790,13 @@ namespace NServiceBus.Pipeline
     }
     public class MessageHandler
     {
+        public MessageHandler() { }
+        [System.Obsolete("Use \'MessageHandler<THandler, TMessage>\' instead. Will be removed in version 11.0" +
+            ".0.", true)]
         public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
-        public System.Type HandlerType { get; }
-        public object Instance { get; set; }
-        public System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext) { }
+        public virtual required System.Type HandlerType { get; init; }
+        public virtual object? Instance { get; set; }
+        public virtual System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext) { }
     }
     public class OutgoingLogicalMessage
     {
@@ -2354,9 +2363,19 @@ namespace NServiceBus.Unicast
     public class MessageHandlerRegistry
     {
         public MessageHandlerRegistry() { }
+        public void AddHandler<THandler>()
+            where THandler : NServiceBus.IHandleMessages { }
+        public void AddMessageHandlerForMessage<THandler, TMessage>()
+            where THandler :  class, NServiceBus.IHandleMessages<TMessage> { }
+        public void AddScannedHandlers(System.Collections.Generic.IEnumerable<System.Type> orderedTypes) { }
+        public void AddTimeoutHandlerForMessage<THandler, TMessage>()
+            where THandler :  class, NServiceBus.IHandleTimeouts<TMessage> { }
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'AddHandler<THandler>()\'" +
+            " instead. Will be treated as an error from version 11.0.0. Will be removed in ve" +
+            "rsion 12.0.0.", false)]
         public void RegisterHandler(System.Type handlerType) { }
     }
     public class MessagesEventArgs : System.EventArgs
