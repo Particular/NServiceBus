@@ -47,10 +47,6 @@ public class AssemblyScanner
     /// </summary>
     public bool ScanFileSystemAssemblies { get; set; } = true;
 
-    internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
-
-    internal string MessageInterfacesAssemblyName { get; set; } = NServiceBusMessageInterfacesAssemblyName;
-
     internal IReadOnlyCollection<string> AssembliesToSkip
     {
         set => assembliesToSkip = new HashSet<string>(value.Select(RemoveExtension), StringComparer.OrdinalIgnoreCase);
@@ -385,8 +381,6 @@ public class AssemblyScanner
     readonly string? baseDirectoryToScan;
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
-    const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
-    const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
     static readonly string[] FileSearchPatternsToUse =
     {
