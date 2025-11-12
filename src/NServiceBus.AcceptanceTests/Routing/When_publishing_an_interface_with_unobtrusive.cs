@@ -57,7 +57,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                         context.Subscribed = true;
                     }
                 });
-            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this)).ExcludeType<IMyEvent>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
         }
 
         class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
@@ -82,11 +82,11 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
         public Subscriber()
         {
             EndpointSetup<DefaultServer>(c =>
-            {
-                c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
-                c.DisableFeature<AutoSubscribe>();
-            },
-            metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
+                {
+                    c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
+                    c.DisableFeature<AutoSubscribe>();
+                },
+                metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
         }
 
         public class MyHandler : IHandleMessages<IMyEvent>

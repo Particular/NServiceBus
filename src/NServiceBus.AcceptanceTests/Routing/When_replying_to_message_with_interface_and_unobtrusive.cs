@@ -88,8 +88,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
     {
         public ReplyingEndpoint()
         {
-            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))))
-                .ExcludeType<IMyReply>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
         }
 
         public class MessageHandler : IHandleMessages<MyMessage>

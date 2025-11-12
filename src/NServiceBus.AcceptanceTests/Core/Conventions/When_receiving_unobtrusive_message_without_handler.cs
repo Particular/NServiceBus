@@ -27,7 +27,7 @@ public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcc
         }
     }
 
-    public class Context : ScenarioContext { }
+    public class Context : ScenarioContext;
 
     public class Sender : EndpointConfigurationBuilder
     {
@@ -38,7 +38,7 @@ public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcc
                 c.Conventions()
                     .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName);
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
-            }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            });
         }
     }
 
@@ -50,8 +50,7 @@ public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcc
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Conventions().DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName);
-            })
-                .ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+            });
         }
     }
 

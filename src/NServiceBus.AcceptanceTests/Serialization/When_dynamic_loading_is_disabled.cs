@@ -42,7 +42,7 @@ public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
                  var serializerSettings = cfg.UseSerialization<XmlSerializer>();
                  serializerSettings.DisableDynamicTypeLoading();
                  serializerSettings.DisableMessageTypeInference(); // just throw when we can't find the message type
-             }).ExcludeType<PatchMessage>();
+             });
         }
 
         class PatchEnclosedMessageTypeHeader : Behavior<IIncomingPhysicalMessageContext>

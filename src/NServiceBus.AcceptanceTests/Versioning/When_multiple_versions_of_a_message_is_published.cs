@@ -83,8 +83,7 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
         public V1Subscriber()
         {
             EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
-                metadata => metadata.RegisterPublisherFor<V1Event, V2Publisher>())
-                .ExcludeType<V2Event>();
+                metadata => metadata.RegisterPublisherFor<V1Event, V2Publisher>());
         }
 
         class V1Handler : IHandleMessages<V1Event>

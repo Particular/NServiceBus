@@ -2,13 +2,14 @@
 
 namespace NServiceBus;
 
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 /// <summary>
 /// Defines a message handler.
 /// </summary>
 /// <typeparam name="T">The type of message to be handled.</typeparam>
-public interface IHandleMessages<T>
+public interface IHandleMessages<T> : IHandleMessages
 {
     /// <summary>
     /// Handles a message.
@@ -22,3 +23,10 @@ public interface IHandleMessages<T>
     /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
     Task Handle(T message, IMessageHandlerContext context);
 }
+
+/// <summary>
+/// This interface is meant only to provide a common non-generic base type to identify all NServiceBus message handlers.
+/// Message handlers must implement <see cref="IHandleMessages&lt;T&gt;" /> instead.
+/// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
+public interface IHandleMessages;
