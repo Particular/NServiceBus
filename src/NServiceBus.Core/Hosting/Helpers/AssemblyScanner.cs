@@ -373,12 +373,6 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
-        // TODO how do we solve this?
-        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
-        {
-            return false;
-        }
-
         if (AssemblyValidator.IsAssemblyToSkip(assemblyName))
         {
             return false;
