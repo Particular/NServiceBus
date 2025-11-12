@@ -2076,16 +2076,25 @@ namespace NServiceBus.Sagas
     }
     public class SagaMetadata
     {
+        [System.Obsolete("Use SagaMetadata.Create to crate meta data objects.. Will be removed in version 1" +
+            "1.0.0.", true)]
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata correlationProperty, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> AssociatedMessages { get; }
         public string EntityName { get; }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> Finders { get; }
         public string Name { get; }
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
+        [System.Obsolete("Use the overload without available types and conventions.. Will be removed in ver" +
+            "sion 11.0.0.", true)]
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetCorrelationProperty(out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata property) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
+        [System.Obsolete("Use the overload without available types and conventions.. Will be removed in ver" +
+            "sion 11.0.0.", true)]
+        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public class CorrelationPropertyMetadata
         {
             public CorrelationPropertyMetadata(string name, System.Type type) { }

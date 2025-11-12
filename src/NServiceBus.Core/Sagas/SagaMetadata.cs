@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 /// <summary>
 /// Contains metadata for known sagas.
 /// </summary>
-public class SagaMetadata
+public partial class SagaMetadata
 {
     SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping)
     {
