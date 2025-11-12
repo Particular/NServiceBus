@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -24,8 +25,8 @@ public interface IHandleMessages<T> : IHandleMessages
 }
 
 /// <summary>
-/// Defines a message handler.
+/// This interface is meant only to provide a common non-generic base type to identify all NServiceBus message handlers.
+/// Message handlers must implement <see cref="IHandleMessages&lt;T&gt;" /> instead.
 /// </summary>
-public interface IHandleMessages
-{
-}
+[EditorBrowsable(EditorBrowsableState.Never)]
+public interface IHandleMessages;
