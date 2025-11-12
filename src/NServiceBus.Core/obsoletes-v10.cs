@@ -537,6 +537,7 @@ namespace NServiceBus.Sagas
         [ObsoleteMetadata(Message = "Use SagaMetadata.Create to crate meta data objects.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use SagaMetadata.Create to crate meta data objects.. Will be removed in version 11.0.0.", true)]
         public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata correlationProperty, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
+
         [ObsoleteMetadata(Message = "Use the overload without available types and conventions.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use the overload without available types and conventions.. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) => throw new NotImplementedException();
