@@ -10,8 +10,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
-using Features;
-using Installation;
 using Logging;
 
 /// <summary>
@@ -319,7 +317,7 @@ public class AssemblyScanner
 
     // The parameter and return types of this method are deliberately using the most concrete types
     // to avoid unnecessary allocations
-    List<Type> FilterAllowedTypes(Type[] types, bool isParticularAssembly)
+    List<Type> FilterAllowedTypes(Type[] types)
     {
         // assume the majority of types will be allowed to preallocate the list
         var allowedTypes = new List<Type>(types.Length);
@@ -328,20 +326,6 @@ public class AssemblyScanner
             if (!IsAllowedType(typeToAdd))
             {
                 continue;
-            }
-
-            // This section below contains temporary exclusions from scanning until we stop scanning particular assemblies completely
-            if (isParticularAssembly)
-            {
-                if (typeToAdd.IsAssignableTo(typeof(Feature)))
-                {
-                    continue;
-                }
-
-                if (typeToAdd.IsAssignableTo(typeof(INeedToInstallSomething)))
-                {
-                    continue;
-                }
             }
 
             allowedTypes.Add(typeToAdd);
@@ -357,13 +341,11 @@ public class AssemblyScanner
 
     void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
     {
-        var isParticularAssembly = assembly.IsParticularAssembly();
-
         try
         {
             //will throw if assembly cannot be loaded
             var types = assembly.GetTypes();
-            results.Types.AddRange(FilterAllowedTypes(types, isParticularAssembly));
+            results.Types.AddRange(FilterAllowedTypes(types));
         }
         catch (ReflectionTypeLoadException e)
         {
@@ -376,7 +358,7 @@ public class AssemblyScanner
             }
 
             LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!, isParticularAssembly));
+            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!));
         }
 
         results.Assemblies.Add(assembly);
@@ -391,12 +373,13 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
+        // TODO how do we solve this?
         if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
             return false;
         }
 
-        if (AssemblyValidator.IsRuntimeAssembly(assemblyName))
+        if (AssemblyValidator.IsAssemblyToSkip(assemblyName))
         {
             return false;
         }

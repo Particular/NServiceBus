@@ -2,6 +2,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -37,10 +38,12 @@ static class AssemblyValidator
             var publicKey = reader.GetBlobBytes(assemblyDefinition.PublicKey);
             var publicKeyToken = GetPublicKeyToken(publicKey);
 
-            if (IsRuntimeAssembly(publicKeyToken))
+            var inspect = InspectAssembly(publicKeyToken);
+
+            if (!inspect.ShouldLoad)
             {
                 shouldLoad = false;
-                reason = "File is a .NET runtime assembly.";
+                reason = inspect.Reason;
                 return;
             }
         }
@@ -49,10 +52,12 @@ static class AssemblyValidator
         reason = "File is a .NET assembly.";
     }
 
-    public static bool IsRuntimeAssembly(AssemblyName assemblyName)
+    public static bool IsAssemblyToSkip(AssemblyName assemblyName) => InspectAssembly(assemblyName) is { ShouldLoad: false };
+
+    static InspectedAssembly InspectAssembly(AssemblyName assemblyName)
     {
-        var tokenString = Convert.ToHexString(assemblyName.GetPublicKeyToken() ?? Array.Empty<byte>());
-        return IsRuntimeAssembly(tokenString);
+        var tokenString = Convert.ToHexString(assemblyName.GetPublicKeyToken() ?? []);
+        return InspectAssembly(tokenString);
     }
 
     static string GetPublicKeyToken(byte[] publicKey)
@@ -64,11 +69,21 @@ static class AssemblyValidator
         return Convert.ToHexString(lastEightBytes);
     }
 
-    static bool IsRuntimeAssembly(string tokenString) =>
+    static InspectedAssembly InspectAssembly(string tokenString) =>
         tokenString switch
         {
             // Microsoft tokens
-            "B77A5C561934E089" or "7CEC85D7BEA7798E" or "B03F5F7F11D50A3A" or "31BF3856AD364E35" or "CC7B13FFCD2DDD51" or "ADB9793829DDAE60" or "7E34167DCC6D6D8C" or "23EC7FC2D6EAA4A5" => true,
-            _ => false,
+            "B77A5C561934E089" or "7CEC85D7BEA7798E" or "B03F5F7F11D50A3A" or "31BF3856AD364E35" or "CC7B13FFCD2DDD51" or "ADB9793829DDAE60" or "7E34167DCC6D6D8C" or "23EC7FC2D6EAA4A5" => new InspectedAssembly(false, "File is a .NET runtime assembly."),
+            // Particular tokens
+            "9FC386479F8A226C" => new InspectedAssembly(false, "File is a Particular assembly."),
+            _ => new InspectedAssembly(true, null),
         };
+
+    readonly struct InspectedAssembly(bool shouldLoad, string? reason)
+    {
+        [MemberNotNullWhen(false, nameof(Reason))]
+        public bool ShouldLoad { get; } = shouldLoad;
+
+        public string? Reason { get; } = reason;
+    }
 }
