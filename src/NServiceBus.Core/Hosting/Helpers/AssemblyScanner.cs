@@ -2,6 +2,7 @@
 namespace NServiceBus.Hosting.Helpers;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -384,7 +385,7 @@ public class AssemblyScanner
         "*.dll", "*.exe"
     };
 
-    static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
+    static readonly FrozenSet<string> DefaultAssemblyExclusions = new[]
     {
         // NSB Build-Dependencies
         "nunit",
@@ -409,5 +410,5 @@ public class AssemblyScanner
 
         // And other windows azure stuff
         "Microsoft.WindowsAzure"
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 }
