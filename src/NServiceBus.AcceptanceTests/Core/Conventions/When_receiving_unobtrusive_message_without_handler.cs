@@ -27,9 +27,7 @@ public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcc
         }
     }
 
-    public class Context : ScenarioContext
-    {
-    }
+    public class Context : ScenarioContext;
 
     public class Sender : EndpointConfigurationBuilder
     {
