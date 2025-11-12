@@ -48,9 +48,9 @@ namespace NServiceBus
     }
 
     [ObsoleteMetadata(
-       Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-       RemoveInVersion = "11",
-       TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBusProperty<T> : IDataBusProperty where T : class
     {
@@ -115,9 +115,9 @@ namespace NServiceBus
     }
 
     [ObsoleteMetadata(
-       Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-       RemoveInVersion = "11",
-       TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class FileShareDataBus : DataBusDefinition
     {
@@ -475,4 +475,21 @@ namespace NServiceBus.Persistence
     }
 }
 
+namespace NServiceBus.Sagas
+{
+    using System;
+    using System.Collections.Generic;
+    using Particular.Obsoletes;
+
+    public partial class SagaFinderDefinition
+    {
+        [ObsoleteMetadata(Message = "Use MessageType.FullName instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use MessageType.FullName instead. Will be removed in version 11.0.0.", true)]
+        public string MessageTypeName { get; }
+
+        [ObsoleteMetadata(Message = "Finder properties are no longer used", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Finder properties are no longer used. Will be removed in version 11.0.0.", true)]
+        public Dictionary<string, object> Properties { get; }
+    }
+}
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

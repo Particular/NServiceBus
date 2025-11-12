@@ -2045,6 +2045,11 @@ namespace NServiceBus.Sagas
     public class SagaFinderDefinition
     {
         public System.Type MessageType { get; }
+        [System.Obsolete("Use MessageType.FullName instead. Will be removed in version 11.0.0.", true)]
+        public string MessageTypeName { get; }
+        [System.Obsolete("Finder properties are no longer used. Will be removed in version 11.0.0.", true)]
+        public System.Collections.Generic.Dictionary<string, object> Properties { get; }
+        public System.Type Type { get; }
     }
     public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
     {

@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Defines a message finder.
 /// </summary>
-public class SagaFinderDefinition
+public partial class SagaFinderDefinition
 {
     internal SagaFinderDefinition(ICoreSagaFinder sagaFinder, Type messageType)
     {
