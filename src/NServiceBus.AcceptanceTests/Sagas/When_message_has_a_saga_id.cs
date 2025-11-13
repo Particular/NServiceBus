@@ -48,21 +48,13 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public SagaEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
+        public class MessageWithSagaIdSaga(Context testContext) : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
             IAmStartedByMessages<MessageWithSagaId>,
             IHandleTimeouts<MessageWithSagaId>,
-            IHandleSagaNotFound
+            ISagaNotFoundHandler
         {
-            public MessageWithSagaIdSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.MessageHandlerCalled = true;
@@ -91,25 +83,16 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
 
-        class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
+        class MessageWithSagaIdHandler(Context testContext) : IHandleMessages<MessageWithSagaId>
         {
-            public MessageWithSagaIdHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.Done = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
