@@ -39,7 +39,6 @@ public static class EndpointConfigurationExtensions
                 .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
                 .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
                 .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
-                            || t.IsAssignableTo(typeof(IFinder))
                             || t.IsAssignableTo(typeof(IHandleSagaNotFound))
                             || t.IsAssignableTo(typeof(Saga)))
                 .Union(customizationConfiguration.TypesToInclude)
