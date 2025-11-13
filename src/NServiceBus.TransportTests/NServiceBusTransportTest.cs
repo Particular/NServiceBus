@@ -69,7 +69,7 @@ public abstract class NServiceBusTransportTest
         onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
         onError = onError ?? throw new ArgumentNullException(nameof(onError));
 
-        configurer = TransportTestSuiteConstraints.Current.CreateTransportConfiguration();
+        configurer = TransportTestsConfiguration.Current.CreateTransportConfiguration();
 
         var testName = GetTestName();
 

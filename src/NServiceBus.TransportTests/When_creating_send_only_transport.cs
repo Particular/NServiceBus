@@ -9,7 +9,7 @@ public class When_creating_send_only_transport : NServiceBusTransportTest
     [Test]
     public async Task Should_have_empty_receivers()
     {
-        var configurer = TransportTestSuiteConstraints.Current.CreateTransportConfiguration();
+        var configurer = TransportTestsConfiguration.Current.CreateTransportConfiguration();
         var transportDefinition = configurer.CreateTransportDefinition();
 
         var hostSettings = new HostSettings(
