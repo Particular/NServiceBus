@@ -36,32 +36,6 @@ public abstract class NServiceBusTransportTest
         CustomizeTransportDefinition = _ => { };
     }
 
-    protected static IConfigureTransportInfrastructure CreateConfigurer()
-    {
-        var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport_UseSpecific");
-
-        if (string.IsNullOrWhiteSpace(transportToUse))
-        {
-            var coreAssembly = typeof(IEndpointInstance).Assembly;
-
-            var nonCoreTransport = TransportDefinitions.Value.FirstOrDefault(t => t.Assembly != coreAssembly);
-
-            transportToUse = nonCoreTransport?.Name ?? DefaultTransportDescriptorKey;
-        }
-
-        var typeName = $"Configure{transportToUse}Infrastructure";
-
-        var configurerType = Type.GetType(typeName, false) ?? throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {nameof(IConfigureTransportInfrastructure)}.");
-
-
-        if (Activator.CreateInstance(configurerType) is not IConfigureTransportInfrastructure configurer)
-        {
-            throw new InvalidOperationException($"{typeName} does not implement {nameof(IConfigureTransportInfrastructure)}.");
-        }
-
-        return configurer;
-    }
-
     [TearDown]
     public async Task TearDown()
     {
@@ -95,7 +69,7 @@ public abstract class NServiceBusTransportTest
         onMessage = onMessage ?? throw new ArgumentNullException(nameof(onMessage));
         onError = onError ?? throw new ArgumentNullException(nameof(onError));
 
-        configurer = CreateConfigurer();
+        configurer = TransportTestSuiteConstraints.Current.CreateTransportConfiguration();
 
         var testName = GetTestName();
 
@@ -271,18 +245,5 @@ public abstract class NServiceBusTransportTest
     List<CancellationTokenRegistration> registrations;
     TransportInfrastructure transportInfrastructure;
 
-    const string DefaultTransportDescriptorKey = "LearningTransport";
     const string TestIdHeaderName = "TransportTest.TestId";
-
-    static readonly Lazy<List<Type>> TransportDefinitions = new(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
-
-    static class EnvironmentHelper
-    {
-        public static string GetEnvironmentVariable(string variable)
-        {
-            var candidate = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
-
-            return string.IsNullOrWhiteSpace(candidate) ? Environment.GetEnvironmentVariable(variable) : candidate;
-        }
-    }
 }
