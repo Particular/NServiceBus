@@ -43,7 +43,7 @@ public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTe
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
         {
-            // no mapping provided
+            mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
         }
 
         public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)

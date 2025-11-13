@@ -25,11 +25,7 @@ public class When_running_saga_tests : NServiceBusAcceptanceTest
         {
             foreach (var property in entity.GetProperties())
             {
-                if (property.GetGetMethod().IsVirtual)
-                {
-                    Console.WriteLine("OK: {0}.{1}", entity.FullName, property.Name);
-                }
-                else
+                if (!property.GetGetMethod().IsVirtual)
                 {
                     offenders++;
                     Console.WriteLine("ERROR: {0}.{1} must be marked as virtual for NHibernate tests to succeed.", entity.FullName, property.Name);

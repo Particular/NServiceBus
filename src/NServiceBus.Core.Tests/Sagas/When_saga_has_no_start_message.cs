@@ -12,7 +12,7 @@ public class When_saga_has_no_start_message
     [Test]
     public void Should_throw()
     {
-        var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage), [], new Conventions()));
+        var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage)));
 
         Assert.That(ex.Message, Does.Contain("Sagas must have at least one message that is allowed to start the saga"));
     }

@@ -17,58 +17,63 @@ public class CustomFinderAdapterTests
     [Test]
     public void Throws_friendly_exception_when_ISagaFinder_FindBy_returns_null()
     {
-        var availableTypes = new List<Type>
-        {
-            typeof(ReturnsNullFinder)
-        };
+        Assert.That(async () => await InvokeFinder<ReturnsNullFinder>(), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+    }
 
-        var messageType = typeof(StartSagaMessage);
+    [Test]
+    public async Task Should_dispose_finders()
+    {
+        await InvokeFinder<DisposableFinder>();
 
-        var messageConventions = new Conventions();
+        Assert.That(DisposableFinder.DisposeCalled, Is.True);
+    }
 
-        messageConventions.DefineCommandTypeConventions(t => t == messageType);
+    [Test]
+    public async Task Should_async_dispose_finders()
+    {
+        await InvokeFinder<AsyncDisposableFinder>();
 
-        var sagaMetadata = SagaMetadata.Create(typeof(TestSaga), availableTypes, messageConventions);
+        Assert.That(AsyncDisposableFinder.DisposeCalled, Is.True);
+    }
 
-        if (!sagaMetadata.TryGetFinder(messageType.FullName, out var finderDefinition))
-        {
-            throw new Exception("Finder not found");
-        }
-
+    static async Task InvokeFinder<TFinder>(CancellationToken cancellationToken = default) where TFinder : ISagaFinder<SagaData, StartSagaMessage>
+    {
         var services = new ServiceCollection();
-        services.AddTransient(sp => new ReturnsNullFinder());
 
-        var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
+        var customerFinderAdapter = new CustomFinderAdapter<TFinder, SagaData, StartSagaMessage>();
 
-        using var serviceProvider = services.BuildServiceProvider();
-        Assert.That(async () => await customerFinderAdapter.Find(serviceProvider, finderDefinition, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>()),
-            Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        await using var serviceProvider = services.BuildServiceProvider();
+
+        await customerFinderAdapter.Find(serviceProvider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartSagaMessage(), new Dictionary<string, string>(), cancellationToken);
     }
-}
 
-class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessage>
-{
-    internal class SagaData : ContainSagaData
+
+    class ReturnsNullFinder : ISagaFinder<SagaData, StartSagaMessage>
     {
+        public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => null;
     }
 
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+    class DisposableFinder : ISagaFinder<SagaData, StartSagaMessage>, IDisposable
     {
+        public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(new SagaData());
+
+        public void Dispose() => DisposeCalled = true;
+
+        public static bool DisposeCalled;
     }
 
-    public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+    class AsyncDisposableFinder : ISagaFinder<SagaData, StartSagaMessage>, IAsyncDisposable
     {
-        return Task.CompletedTask;
-    }
-}
+        public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(new SagaData());
 
-class StartSagaMessage
-{ }
+        public static bool DisposeCalled;
 
-class ReturnsNullFinder : ISagaFinder<TestSaga.SagaData, StartSagaMessage>
-{
-    public Task<TestSaga.SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-    {
-        return null;
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async ValueTask DisposeAsync() => DisposeCalled = true;
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
+
+    class SagaData : ContainSagaData;
+
+    class StartSagaMessage;
 }

@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
+using Sagas;
 
 /// <summary>
 /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga" />.
@@ -50,6 +51,21 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
         }
 
         return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
+    }
+
+    /// <summary>
+    /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a custom finder.
+    /// </summary>
+    /// <typeparam name="TMessage">The message type to map to.</typeparam>
+    /// <typeparam name="TFinder">The saga finder that will return the saga.</typeparam>
+    public void ConfigureFinderMapping<TMessage, TFinder>() where TFinder : ISagaFinder<TSagaData, TMessage>
+    {
+        if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
+        {
+            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
+        }
+
+        sagaMapperFindingConfiguration.ConfigureMapping<TSagaData, TMessage, TFinder>();
     }
 
     /// <summary>
