@@ -2,6 +2,7 @@
 namespace NServiceBus.Hosting.Helpers;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -10,8 +11,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
-using Features;
-using Installation;
 using Logging;
 
 /// <summary>
@@ -49,10 +48,6 @@ public class AssemblyScanner
     /// </summary>
     public bool ScanFileSystemAssemblies { get; set; } = true;
 
-    internal string CoreAssemblyName { get; set; } = NServiceBusCoreAssemblyName;
-
-    internal string MessageInterfacesAssemblyName { get; set; } = NServiceBusMessageInterfacesAssemblyName;
-
     internal IReadOnlyCollection<string> AssembliesToSkip
     {
         set => assembliesToSkip = new HashSet<string>(value.Select(RemoveExtension), StringComparer.OrdinalIgnoreCase);
@@ -77,7 +72,11 @@ public class AssemblyScanner
     public AssemblyScannerResults GetScannableAssemblies()
     {
         var results = new AssemblyScannerResults();
-        var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
+        {
+            { GetType().Assembly.FullName!, true },
+            { typeof(ICommand).Assembly.FullName!, true },
+        };
 
         if (assemblyToScan is not null)
         {
@@ -215,12 +214,6 @@ public class AssemblyScanner
 
         processed[assembly.FullName] = false;
 
-        var assemblyName = assembly.GetName();
-        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
-        {
-            return processed[assembly.FullName] = true;
-        }
-
         if (ShouldScanDependencies(assembly))
         {
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
@@ -304,22 +297,19 @@ public class AssemblyScanner
 
     static List<FileInfo> ScanDirectoryForAssemblyFiles(string directoryToScan, bool scanNestedDirectories)
     {
-        var fileInfo = new List<FileInfo>();
         var baseDir = new DirectoryInfo(directoryToScan);
         var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-        foreach (var searchPattern in FileSearchPatternsToUse)
-        {
-            fileInfo.AddRange(baseDir.GetFiles(searchPattern, searchOption));
-        }
-
-        return fileInfo;
+        var files = FileSearchPatternsToUse
+            .SelectMany(pattern => baseDir.EnumerateFiles(pattern, searchOption))
+            .ToList();
+        return files;
     }
 
     bool IsExcluded(string assemblyName) => assembliesToSkip.Contains(assemblyName) || DefaultAssemblyExclusions.Contains(assemblyName);
 
     // The parameter and return types of this method are deliberately using the most concrete types
     // to avoid unnecessary allocations
-    List<Type> FilterAllowedTypes(Type[] types, bool isParticularAssembly)
+    List<Type> FilterAllowedTypes(Type[] types)
     {
         // assume the majority of types will be allowed to preallocate the list
         var allowedTypes = new List<Type>(types.Length);
@@ -328,20 +318,6 @@ public class AssemblyScanner
             if (!IsAllowedType(typeToAdd))
             {
                 continue;
-            }
-
-            // This section below contains temporary exclusions from scanning until we stop scanning particular assemblies completely
-            if (isParticularAssembly)
-            {
-                if (typeToAdd.IsAssignableTo(typeof(Feature)))
-                {
-                    continue;
-                }
-
-                if (typeToAdd.IsAssignableTo(typeof(INeedToInstallSomething)))
-                {
-                    continue;
-                }
             }
 
             allowedTypes.Add(typeToAdd);
@@ -357,13 +333,11 @@ public class AssemblyScanner
 
     void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
     {
-        var isParticularAssembly = assembly.IsParticularAssembly();
-
         try
         {
             //will throw if assembly cannot be loaded
             var types = assembly.GetTypes();
-            results.Types.AddRange(FilterAllowedTypes(types, isParticularAssembly));
+            results.Types.AddRange(FilterAllowedTypes(types));
         }
         catch (ReflectionTypeLoadException e)
         {
@@ -376,7 +350,7 @@ public class AssemblyScanner
             }
 
             LogManager.GetLogger<AssemblyScanner>().Warn(errorMessage);
-            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!, isParticularAssembly));
+            results.Types.AddRange(FilterAllowedTypes(e.Types.Where(t => t is not null).ToArray()!));
         }
 
         results.Assemblies.Add(assembly);
@@ -391,12 +365,7 @@ public class AssemblyScanner
 
         var assemblyName = assembly.GetName();
 
-        if (IsCoreOrMessageInterfaceAssembly(assemblyName))
-        {
-            return false;
-        }
-
-        if (AssemblyValidator.IsRuntimeAssembly(assemblyName))
+        if (AssemblyValidator.IsAssemblyToSkip(assemblyName))
         {
             return false;
         }
@@ -405,29 +374,18 @@ public class AssemblyScanner
         return !IsExcluded(assemblyName.Name ?? string.Empty);
     }
 
-    // We are deliberately checking here against the MessageInterfaces assembly name because
-    // the command, event, and message interfaces have been moved there by using type forwarding.
-    // While it would be possible to read the type forwarding information from the assembly, that imposes
-    // some performance overhead, and we don't expect that the assembly name will change nor that we will add many
-    // more type forwarding cases. Should that be the case we might want to revisit the idea of reading the metadata
-    // information from the assembly.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    bool IsCoreOrMessageInterfaceAssembly(AssemblyName assemblyName) => string.Equals(assemblyName.Name, CoreAssemblyName, StringComparison.Ordinal) || string.Equals(assemblyName.Name, MessageInterfacesAssemblyName, StringComparison.Ordinal);
-
     internal bool ScanNestedDirectories;
     readonly Assembly? assemblyToScan;
     readonly string? baseDirectoryToScan;
     HashSet<Type> typesToSkip = [];
     HashSet<string> assembliesToSkip = new(StringComparer.OrdinalIgnoreCase);
-    const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
-    const string NServiceBusMessageInterfacesAssemblyName = "NServiceBus.MessageInterfaces";
 
     static readonly string[] FileSearchPatternsToUse =
     {
         "*.dll", "*.exe"
     };
 
-    static readonly HashSet<string> DefaultAssemblyExclusions = new(StringComparer.OrdinalIgnoreCase)
+    static readonly FrozenSet<string> DefaultAssemblyExclusions = new[]
     {
         // NSB Build-Dependencies
         "nunit",
@@ -452,5 +410,5 @@ public class AssemblyScanner
 
         // And other windows azure stuff
         "Microsoft.WindowsAzure"
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 }

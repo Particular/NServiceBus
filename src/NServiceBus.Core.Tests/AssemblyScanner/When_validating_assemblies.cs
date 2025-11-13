@@ -25,14 +25,14 @@ public class When_validating_assemblies
     }
 
     [Test]
-    public void Should_validate_NServiceBus_Core_assembly()
+    public void Should_not_validate_NServiceBus_Core_assembly()
     {
         AssemblyValidator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(shouldLoad, Is.True);
-            Assert.That(reason, Is.EqualTo("File is a .NET assembly."));
+            Assert.That(shouldLoad, Is.False);
+            Assert.That(reason, Is.EqualTo("File is a Particular assembly."));
         }
     }
 
