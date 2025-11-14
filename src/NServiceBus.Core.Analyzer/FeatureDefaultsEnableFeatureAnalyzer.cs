@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class FeatureDefaultsEnableFeatureAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [diagnostic];
 
         public override void Initialize(AnalysisContext context)
         {
@@ -57,14 +57,14 @@ namespace NServiceBus.Core.Analyzer
             }
 
             var lambda = invocation.Ancestors().OfType<AnonymousFunctionExpressionSyntax>().FirstOrDefault();
-            if (lambda == null)
-            {
-                return;
-            }
 
-            if (lambda.Parent is not ArgumentSyntax argument ||
-                argument.Parent is not ArgumentListSyntax argumentList ||
-                argumentList.Parent is not InvocationExpressionSyntax defaultsInvocation)
+            if (lambda?.Parent is not ArgumentSyntax
+                {
+                    Parent: ArgumentListSyntax
+                    {
+                        Parent: InvocationExpressionSyntax defaultsInvocation
+                    }
+                })
             {
                 return;
             }
@@ -90,8 +90,7 @@ namespace NServiceBus.Core.Analyzer
 
             var featureSymbol = context.SemanticModel.GetDeclaredSymbol(featureDeclaration, context.CancellationToken);
 
-            if (featureSymbol == null ||
-                !featureSymbol.BaseTypesAndSelf().Any(candidate => candidate.Equals(featureType, SymbolEqualityComparer.IncludeNullability)))
+            if (featureSymbol?.BaseTypesAndSelf().Any(candidate => candidate.Equals(featureType, SymbolEqualityComparer.IncludeNullability)) != true)
             {
                 return;
             }

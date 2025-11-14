@@ -18,7 +18,7 @@
     public class FeatureDefaultsEnableFeatureFixer : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
-            ImmutableArray.Create(DiagnosticIds.DoNotEnableFeaturesInDefaults);
+            [DiagnosticIds.DoNotEnableFeaturesInDefaults];
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -54,19 +54,14 @@
             var semanticModel = editor.SemanticModel;
 
             var lambda = enableInvocation.FirstAncestorOrSelf<AnonymousFunctionExpressionSyntax>();
-            if (lambda == null)
-            {
-                return document;
-            }
-
-            if (lambda.Parent is not ArgumentSyntax argument ||
-                argument.Parent is not ArgumentListSyntax argumentList ||
-                argumentList.Parent is not InvocationExpressionSyntax defaultsInvocation)
-            {
-                return document;
-            }
-
-            if (semanticModel.GetSymbolInfo(defaultsInvocation, cancellationToken).Symbol is not IMethodSymbol defaultsSymbol)
+            if (lambda is not
+                {
+                    Parent: ArgumentSyntax
+                    {
+                        Parent: ArgumentListSyntax { Parent: InvocationExpressionSyntax defaultsInvocation }
+                    }
+                } ||
+                semanticModel.GetSymbolInfo(defaultsInvocation, cancellationToken).Symbol is not IMethodSymbol defaultsSymbol)
             {
                 return document;
             }
@@ -96,7 +91,7 @@
                 return document;
             }
 
-            var removeDefaultsInvocation = false;
+            bool removeDefaultsInvocation;
             var lambdaBodyBlock = GetLambdaBodyBlock(lambda);
             var invocationStatement = enableInvocation.FirstAncestorOrSelf<StatementSyntax>();
 
@@ -152,9 +147,9 @@
         static BlockSyntax GetLambdaBodyBlock(AnonymousFunctionExpressionSyntax lambda) =>
             lambda switch
             {
-                SimpleLambdaExpressionSyntax simple when simple.Body is BlockSyntax block => block,
-                ParenthesizedLambdaExpressionSyntax parenthesized when parenthesized.Body is BlockSyntax block => block,
-                AnonymousMethodExpressionSyntax anonymous => anonymous.Block ?? anonymous.Body as BlockSyntax,
+                SimpleLambdaExpressionSyntax { Body: BlockSyntax block } => block,
+                ParenthesizedLambdaExpressionSyntax { Body: BlockSyntax block } => block,
+                AnonymousMethodExpressionSyntax anonymous => anonymous.Block,
                 _ => null,
             };
 
