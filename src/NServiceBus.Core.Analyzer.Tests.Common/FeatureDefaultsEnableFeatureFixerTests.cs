@@ -14,40 +14,44 @@ public class FeatureDefaultsEnableFeatureFixerTests : CodeFixTestFixture<Feature
     public Task ExpressionLambdaIsMovedToConstructor()
     {
         var original =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings => settings.EnableFeature<AnotherFeature>());
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings => settings.EnableFeature<AnotherFeature>());
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         var expected =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Enable<AnotherFeature>();
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Enable<AnotherFeature>();
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(original, expected);
     }
@@ -56,57 +60,59 @@ class AnotherFeature : Feature
     public Task MultipleAreMoved()
     {
         var original =
-            @"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings => 
-        {
-            settings.EnableFeature<AnotherFeature>();
-            settings.EnableFeature<YetAnotherFeature>();
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings => 
+                    {
+                        settings.EnableFeature<AnotherFeature>();
+                        settings.EnableFeature<YetAnotherFeature>();
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class YetAnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
-";
+            class YetAnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         var expected =
-            @"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Enable<AnotherFeature>();
-        Enable<YetAnotherFeature>();
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Enable<AnotherFeature>();
+                    Enable<YetAnotherFeature>();
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class YetAnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
-";
+            class YetAnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(original, expected);
     }
@@ -115,50 +121,54 @@ class YetAnotherFeature : Feature
     public Task BlockLambdaKeepsRemainingStatements()
     {
         var original =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings =>
-        {
-            settings.Set(""Key1"", 7);
-            settings.EnableFeature<AnotherFeature>();
-            settings.Set(""Key2"", 5);
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings =>
+                    {
+                        settings.Set("Key1", 7);
+                        settings.EnableFeature<AnotherFeature>();
+                        settings.Set("Key2", 5);
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         var expected =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Enable<AnotherFeature>();
-        Defaults(settings =>
-        {
-            settings.Set(""Key1"", 7);
-            settings.Set(""Key2"", 5);
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Enable<AnotherFeature>();
+                    Defaults(settings =>
+                    {
+                        settings.Set("Key1", 7);
+                        settings.Set("Key2", 5);
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(original, expected);
     }

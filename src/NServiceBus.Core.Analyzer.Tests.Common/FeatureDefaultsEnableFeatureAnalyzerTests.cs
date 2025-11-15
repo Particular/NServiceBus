@@ -13,22 +13,24 @@ public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<Fea
     public Task DiagnosticIsReportedForExpressionLambda()
     {
         var source =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings => [|settings.EnableFeature<AnotherFeature>()|]);
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings => [|settings.EnableFeature<AnotherFeature>()|]);
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
     }
@@ -37,31 +39,33 @@ class AnotherFeature : Feature
     public Task DiagnosticIsReportedForMultiple()
     {
         var source =
-            @"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings =>
-        {
-            [|settings.EnableFeature<AnotherFeature>()|];
-            [|settings.EnableFeature<YetAnotherFeature>()|];
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings =>
+                    {
+                        [|settings.EnableFeature<AnotherFeature>()|];
+                        [|settings.EnableFeature<YetAnotherFeature>()|];
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class YetAnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class YetAnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
     }
@@ -70,27 +74,29 @@ class YetAnotherFeature : Feature
     public Task DiagnosticIsReportedForBlockLambda()
     {
         var source =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Defaults(settings =>
-        {
-            settings.Set(""Key1"", 7);
-            [|settings.EnableFeature<AnotherFeature>()|];
-            settings.Set(""Key2"", 5);
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Defaults(settings =>
+                    {
+                        settings.Set("Key1", 7);
+                        [|settings.EnableFeature<AnotherFeature>()|];
+                        settings.Set("Key2", 5);
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
     }
@@ -99,34 +105,35 @@ class AnotherFeature : Feature
     public Task DiagnosticIsReportedForMixedMode()
     {
         var source =
-            @"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Enable<AnotherFeature>();
-        Defaults(settings =>
-        {
-            settings.Set(""Key1"", 7);
-            [|settings.EnableFeature<YetAnotherFeature>()|];
-            settings.Set(""Key2"", 5);
-        });
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Enable<AnotherFeature>();
+                    Defaults(settings =>
+                    {
+                        settings.Set("Key1", 7);
+                        [|settings.EnableFeature<YetAnotherFeature>()|];
+                        settings.Set("Key2", 5);
+                    });
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class YetAnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
-";
+            class YetAnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
     }
@@ -135,23 +142,25 @@ class YetAnotherFeature : Feature
     public Task DiagnosticIsNotReportedWhenCallingEnable()
     {
         var source =
-@"using NServiceBus.Features;
+            """
+            using NServiceBus.Features;
 
-class SampleFeature : Feature
-{
-    public SampleFeature()
-    {
-        Enable<AnotherFeature>();
-        Defaults(settings => settings.Set(""Key"", 5));
-    }
+            class SampleFeature : Feature
+            {
+                public SampleFeature()
+                {
+                    Enable<AnotherFeature>();
+                    Defaults(settings => settings.Set("Key", 5));
+                }
 
-    protected override void Setup(FeatureConfigurationContext context) { }
-}
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
 
-class AnotherFeature : Feature
-{
-    protected override void Setup(FeatureConfigurationContext context) { }
-}";
+            class AnotherFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context) { }
+            }
+            """;
 
         return Assert(source);
     }
