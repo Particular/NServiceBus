@@ -43,19 +43,21 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is not IMethodSymbol methodSymbol)
+            // Check identifier name before expensive semantic model lookup
+            var methodName = invocation.Expression switch
+            {
+                MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
+                IdentifierNameSyntax { Identifier.Text: var name } => name,
+                GenericNameSyntax { Identifier.Text: var name } => name,
+                _ => null
+            };
+
+            if (methodName != "EnableFeature")
             {
                 return;
             }
 
-            var methodDefinition = methodSymbol.ReducedFrom?.OriginalDefinition ?? methodSymbol.OriginalDefinition;
-
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(methodDefinition.ContainingType, settingsExtensionsType) ||
-                methodDefinition.Name != "EnableFeature")
-            {
-                return;
-            }
-
+            // Check if invocation is inside a lambda that's an argument to a method call
             var lambda = invocation.Ancestors().OfType<AnonymousFunctionExpressionSyntax>().FirstOrDefault();
 
             if (lambda?.Parent is not ArgumentSyntax
@@ -69,6 +71,40 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
+            // Check if the containing method is named "Defaults" before semantic lookup
+            var defaultsMethodName = defaultsInvocation.Expression switch
+            {
+                MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
+                IdentifierNameSyntax { Identifier.Text: var name } => name,
+                _ => null
+            };
+
+            if (defaultsMethodName != "Defaults")
+            {
+                return;
+            }
+
+            // Check if we're inside a class declaration before semantic lookup
+            var featureDeclaration = defaultsInvocation.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+            if (featureDeclaration == null)
+            {
+                return;
+            }
+
+            // Now perform semantic model lookups
+            if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is not IMethodSymbol methodSymbol)
+            {
+                return;
+            }
+
+            var methodDefinition = methodSymbol.ReducedFrom?.OriginalDefinition ?? methodSymbol.OriginalDefinition;
+
+            if (!SymbolEqualityComparer.IncludeNullability.Equals(methodDefinition.ContainingType, settingsExtensionsType) ||
+                methodDefinition.Name != "EnableFeature")
+            {
+                return;
+            }
+
             if (context.SemanticModel.GetSymbolInfo(defaultsInvocation, context.CancellationToken).Symbol is not IMethodSymbol defaultsSymbol)
             {
                 return;
@@ -78,12 +114,6 @@ namespace NServiceBus.Core.Analyzer
 
             if (!SymbolEqualityComparer.IncludeNullability.Equals(defaultsDefinition.ContainingType, featureType) ||
                 defaultsDefinition.Name != "Defaults")
-            {
-                return;
-            }
-
-            var featureDeclaration = defaultsInvocation.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-            if (featureDeclaration == null)
             {
                 return;
             }
