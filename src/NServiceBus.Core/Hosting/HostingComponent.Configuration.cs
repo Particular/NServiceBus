@@ -10,7 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 partial class HostingComponent
 {
-    public static Configuration PrepareConfiguration(Settings settings, List<Type> availableTypes, InstallerComponent installerComponent, IServiceCollection serviceCollection)
+    public static Configuration PrepareConfiguration(Settings settings, List<Type> availableTypes,
+        PersistenceComponent persistenceComponent, InstallerComponent installerComponent,
+        IServiceCollection serviceCollection)
     {
         var configuration = new Configuration(settings,
             availableTypes,
@@ -23,6 +25,7 @@ partial class HostingComponent
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
             settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
+            persistenceComponent,
             installerComponent);
 
         return configuration;
@@ -41,6 +44,7 @@ partial class HostingComponent
             bool shouldRunInstallers,
             List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory,
+            PersistenceComponent persistenceComponent,
             InstallerComponent installerComponent)
         {
             AvailableTypes = availableTypes;
@@ -53,6 +57,7 @@ partial class HostingComponent
             ShouldRunInstallers = shouldRunInstallers;
             UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
+            PersistenceComponent = persistenceComponent;
             InstallerComponent = installerComponent;
 
             settings.ApplyHostIdDefaultIfNeeded();
@@ -83,6 +88,7 @@ partial class HostingComponent
 
         public IActivityFactory ActivityFactory { get; set; }
 
+        public PersistenceComponent PersistenceComponent { get; }
         public InstallerComponent InstallerComponent { get; }
     }
 }

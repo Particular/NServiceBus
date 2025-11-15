@@ -14,8 +14,7 @@ public class When_no_storage_persistence_overrides_are_enabled
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence>();
 
-        var registry = config.Settings.Get<PersistenceRegistry>();
-        var enabledPersistences = registry.Merge();
+        var enabledPersistences = config.Settings.Get<PersistenceComponent.Settings>().Enabled;
 
         using (Assert.EnterMultipleScope())
         {
@@ -53,8 +52,7 @@ public class When_storage_overrides_are_provided
         config.UsePersistence<FakePersistence2, StorageType.Sagas>();
         config.UsePersistence<FakePersistence2, StorageType.Subscriptions>();
 
-        var registry = config.Settings.Get<PersistenceRegistry>();
-        var enabledPersistences = registry.Merge();
+        var enabledPersistences = config.Settings.Get<PersistenceComponent.Settings>().Enabled;
 
         using (Assert.EnterMultipleScope())
         {
@@ -107,8 +105,7 @@ public class When_explicitly_enabling_selected_storage
         var config = new EndpointConfiguration("MyEndpoint");
         config.UsePersistence<FakePersistence, StorageType.Sagas>();
 
-        var registry = config.Settings.Get<PersistenceRegistry>();
-        var enabledPersistences = registry.Merge();
+        var enabledPersistences = config.Settings.Get<PersistenceComponent.Settings>().Enabled;
 
         Assert.That(enabledPersistences.Any(p => p.SelectedStorages.Contains(StorageType.Subscriptions.Instance)), Is.False);
     }

@@ -28,7 +28,9 @@ class EndpointCreator
 
         endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
-        endpointConfiguration.Settings.ConfigurePersistence();
+        var persistenceSettings = settings.GetOrCreate<PersistenceComponent.Settings>();
+        var persistenceComponent = new PersistenceComponent(persistenceSettings);
+        persistenceComponent.Initialize(settings);
 
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
@@ -40,7 +42,7 @@ class EndpointCreator
 
         installerComponent.Initialize(settings);
 
-        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, installerComponent, serviceCollection);
+        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, persistenceComponent, installerComponent, serviceCollection);
 
         var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
         endpointCreator.Configure();
@@ -89,7 +91,7 @@ class EndpointCreator
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
-        settings.ValidateSagaAndOutboxUseSamePersistence();
+        hostingConfiguration.PersistenceComponent.AssertSagaAndOutboxUseSamePersistence(settings);
 
         recoverabilityComponent.Initialize(
             receiveConfiguration,
