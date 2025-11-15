@@ -44,13 +44,9 @@ namespace NServiceBus.Core.Analyzer
             }
 
             // Check identifier name before expensive semantic model lookup
-            var methodName = invocation.Expression switch
-            {
-                MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
-                IdentifierNameSyntax { Identifier.Text: var name } => name,
-                GenericNameSyntax { Identifier.Text: var name } => name,
-                _ => null
-            };
+            var methodName = invocation.Expression is MemberAccessExpressionSyntax { Name.Identifier.Text: var maybeEnableFeature }
+                ? maybeEnableFeature
+                : null;
 
             if (methodName != "EnableFeature")
             {
@@ -72,12 +68,9 @@ namespace NServiceBus.Core.Analyzer
             }
 
             // Check if the containing method is named "Defaults" before semantic lookup
-            var defaultsMethodName = defaultsInvocation.Expression switch
-            {
-                MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
-                IdentifierNameSyntax { Identifier.Text: var name } => name,
-                _ => null
-            };
+            var defaultsMethodName = defaultsInvocation.Expression is SimpleNameSyntax { Identifier.Text: var maybeDefaults }
+                ? maybeDefaults
+                : null;
 
             if (defaultsMethodName != "Defaults")
             {
