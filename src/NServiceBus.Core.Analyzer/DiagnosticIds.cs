@@ -24,5 +24,6 @@
         public const string CorrelationPropertyTypeMustMatchMessageMappingExpressions = "NSB0016";
         public const string ToSagaMappingMustBeToAProperty = "NSB0017";
         public const string SagaMappingExpressionCanBeRewritten = "NSB0018";
+        public const string DoNotEnableFeaturesInDefaults = "NSB0019";
     }
 }
