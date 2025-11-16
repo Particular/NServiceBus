@@ -13,7 +13,8 @@
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SagaAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+        [
             SagaDiagnostics.NonMappingExpressionUsedInConfigureHowToFindSaga,
             SagaDiagnostics.SagaMappingExpressionCanBeSimplified,
             SagaDiagnostics.MultipleCorrelationIdValues,
@@ -29,7 +30,8 @@
             SagaDiagnostics.SagaShouldNotImplementNotFoundHandler,
             SagaDiagnostics.ToSagaMappingMustBeToAProperty,
             SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions,
-            SagaDiagnostics.SagaMappingExpressionCanBeRewritten);
+            SagaDiagnostics.SagaMappingExpressionCanBeRewritten
+        ];
 
         public override void Initialize(AnalysisContext context)
         {
@@ -89,19 +91,16 @@
 
             // Checking for the saga to not have an intermediate base class. Remembering partial classes => separate class declarations, want to find
             // the declaration that has the base type in its inheritance list
-            if (classDeclaration.BaseList != null && !sagaType.BaseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
+            if (classDeclaration.BaseList != null && sagaType.BaseType != null && !sagaType.BaseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
             {
                 foreach (var baseTypeSyntax in classDeclaration.BaseList.Types)
                 {
                     var baseType = context.SemanticModel.GetTypeInfo(baseTypeSyntax.Type, context.CancellationToken).Type as INamedTypeSymbol;
 
-                    if (baseType?.IsAssignableTo(knownTypes.BaseSaga) ?? false)
+                    if ((baseType?.IsAssignableTo(knownTypes.BaseSaga) ?? false) && !baseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
                     {
-                        if (!baseType.ConstructedFrom.Equals(knownTypes.GenericSaga, SymbolEqualityComparer.IncludeNullability))
-                        {
-                            var diagnostic = Diagnostic.Create(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass, baseTypeSyntax.GetLocation());
-                            context.ReportDiagnostic(diagnostic);
-                        }
+                        var diagnostic = Diagnostic.Create(SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass, baseTypeSyntax.GetLocation());
+                        context.ReportDiagnostic(diagnostic);
                     }
                 }
             }
@@ -122,7 +121,11 @@
                 {
                     var badSyntaxes = classDeclaration.BaseList.Types
                         .Where(baseType => baseType.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(idName => idName.Identifier.ValueText == "IHandleSagaNotFound"))
-                        .Where(baseType => context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type.Equals(knownTypes.IHandleSagaNotFound, SymbolEqualityComparer.IncludeNullability));
+                        .Where(baseType =>
+                        {
+                            ITypeSymbol typeSymbol = context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
+                            return typeSymbol != null && typeSymbol.Equals(knownTypes.IHandleSagaNotFound, SymbolEqualityComparer.IncludeNullability);
+                        });
 
                     foreach (var badSyntax in badSyntaxes)
                     {
@@ -280,7 +283,7 @@
             // while saga.ReplyToOriginator(object message) is the only overload for that.
             foreach (var invocationExpression in classDeclaration.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
-                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccess && memberAccess.Name.Identifier.ValueText == "Reply")
+                if (invocationExpression.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Reply" } memberAccess)
                 {
                     var expressionSymbol = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken);
                     if (expressionSymbol.Type?.IsAssignableTo(knownTypes.IMessageHandlerContext) ?? false)
@@ -305,11 +308,11 @@
             {
                 // Get the SagaData type from Saga<TSagaData>
                 var sagaDataType = GetSagaDataType(sagaType, knownTypes);
-                if (sagaDataType != null)
+                if (sagaDataType != null && !builder.ContainsKey(sagaDataType))
                 {
-                    // Use TryAdd to handle the case where multiple sagas might use the same saga data
+                    // Use "TryAdd" to handle the case where multiple sagas might use the same saga data
                     // (unlikely but possible). We'll just use the first one found.
-                    builder.TryAdd(sagaDataType, sagaType);
+                    builder.Add(sagaDataType, sagaType);
                 }
             }
 
@@ -338,16 +341,20 @@
             // Note we don't need to check for a public parameterless constructor, the constraint on Saga `where TSagaData : class, IContainSagaData, new()` ensures that
             foreach (var memberSyntax in sagaDataClass.Members)
             {
-                if (memberSyntax is PropertyDeclarationSyntax property)
+                if (memberSyntax is not PropertyDeclarationSyntax property)
                 {
-                    var propertyName = property.Identifier.ValueText;
-                    var propertySymbol = context.SemanticModel.GetDeclaredSymbol(property, context.CancellationToken);
-                    if (propertySymbol.IsReadOnly || propertySymbol.SetMethod.DeclaredAccessibility != Accessibility.Public)
-                    {
-                        var diagnostic = Diagnostic.Create(SagaDiagnostics.SagaDataPropertyNotWriteable, property.Identifier.GetLocation(), sagaDataType.Name, propertyName);
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                    continue;
                 }
+
+                var propertyName = property.Identifier.ValueText;
+                var propertySymbol = context.SemanticModel.GetDeclaredSymbol(property, context.CancellationToken);
+                if (propertySymbol is null || (!propertySymbol.IsReadOnly && propertySymbol.SetMethod is { DeclaredAccessibility: Accessibility.Public }))
+                {
+                    continue;
+                }
+
+                var diagnostic = Diagnostic.Create(SagaDiagnostics.SagaDataPropertyNotWriteable, property.Identifier.GetLocation(), sagaDataType.Name, propertyName);
+                context.ReportDiagnostic(diagnostic);
             }
 
             // Use the compilation-level cache to find the saga instead of walking the symbol tree
@@ -371,26 +378,34 @@
             // So we don't need to call `context.ContainsSyntax(memberSyntax)` here
             foreach (var memberSyntax in sagaDataClass.Members)
             {
-                if (memberSyntax is PropertyDeclarationSyntax property)
+                if (memberSyntax is not PropertyDeclarationSyntax property)
                 {
-                    var propertyName = property.Identifier.ValueText;
-                    var propertySymbol = context.SemanticModel.GetDeclaredSymbol(property, context.CancellationToken);
-                    var propertyType = propertySymbol.Type;
-
-                    // Just stuffing a message type into saga data is bad.
-                    if (TypeContainsMessageType(propertyType, saga, knownTypes))
-                    {
-                        var diagnostic = Diagnostic.Create(SagaDiagnostics.DoNotUseMessageTypeAsSagaDataProperty, property.Type.GetLocation(), propertySymbol.Type.Name);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-
-                    // Hint that it's best practice for the correlation id to be a string
-                    if (propertyName == assumedCorrelationId && !IsSupportedCorrelationPropertyType(propertySymbol.Type))
-                    {
-                        var diagnostic = Diagnostic.Create(SagaDiagnostics.CorrelationIdMustBeSupportedType, property.Type.GetLocation());
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                    continue;
                 }
+
+                var propertyName = property.Identifier.ValueText;
+                var propertySymbol = context.SemanticModel.GetDeclaredSymbol(property, context.CancellationToken);
+                var propertyType = propertySymbol?.Type;
+                if (propertyType is null)
+                {
+                    continue;
+                }
+
+                // Just stuffing a message type into saga data is bad.
+                if (TypeContainsMessageType(propertyType, saga, knownTypes))
+                {
+                    var diagnostic1 = Diagnostic.Create(SagaDiagnostics.DoNotUseMessageTypeAsSagaDataProperty, property.Type.GetLocation(), propertySymbol.Type.Name);
+                    context.ReportDiagnostic(diagnostic1);
+                }
+
+                // Hint that it's best practice for the correlation id to be a string
+                if (propertyName != assumedCorrelationId || IsSupportedCorrelationPropertyType(propertySymbol.Type))
+                {
+                    continue;
+                }
+
+                var diagnostic2 = Diagnostic.Create(SagaDiagnostics.CorrelationIdMustBeSupportedType, property.Type.GetLocation());
+                context.ReportDiagnostic(diagnostic2);
             }
         }
 
@@ -420,30 +435,34 @@
                 return true;
             }
 
-            if (type is INamedTypeSymbol asNamedType)
+            if (type is not INamedTypeSymbol asNamedType)
             {
-                var enumerableType = asNamedType.ConstructedFrom.Equals(knownTypes.IEnumerableT, SymbolEqualityComparer.IncludeNullability)
+                return false;
+            }
+
+            var enumerableType = asNamedType.ConstructedFrom.Equals(knownTypes.IEnumerableT, SymbolEqualityComparer.IncludeNullability)
                 ? asNamedType
                 : asNamedType.AllInterfaces.FirstOrDefault(i => i.IsGenericType && i.ConstructedFrom.Equals(knownTypes.IEnumerableT, SymbolEqualityComparer.IncludeNullability));
 
-                if (enumerableType != null)
+            if (enumerableType != null)
+            {
+                if (enumerableType.TypeArguments.Any(typeArg => saga.MessageTypesHandled.Contains(typeArg)))
                 {
-                    if (enumerableType.TypeArguments.Any(typeArg => saga.MessageTypesHandled.Contains(typeArg)))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+            }
 
-                // Traverse into nested generics
-                if (asNamedType.TypeArguments != null)
+            // Traverse into nested generics
+            if (asNamedType.TypeArguments == null)
+            {
+                return false;
+            }
+
+            foreach (var typeArg in asNamedType.TypeArguments)
+            {
+                if (TypeContainsMessageType(typeArg, saga, knownTypes))
                 {
-                    foreach (var typeArg in asNamedType.TypeArguments)
-                    {
-                        if (TypeContainsMessageType(typeArg, saga, knownTypes))
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
 
@@ -542,8 +561,8 @@
             // From all the base lists on all partials, find the methods that are one of our IAmStarted/IHandle methods, then get
             // the TypeSymbol so we have both the syntax and type available
             var handlerDeclarations = classDeclarations
-                .Where(cls => cls.BaseList != null)
-                .SelectMany(cls => cls.BaseList.Types)
+                .Where(cls => cls.BaseList is not null)
+                .SelectMany(cls => cls.BaseList!.Types)
                 .Where(s => s.DescendantNodes().OfType<SimpleNameSyntax>().Any(n => IsHandlerInterfaceName(n.Identifier.ValueText)))
                 .Select(syntax =>
                 {
@@ -657,7 +676,7 @@
             var firstInvoke = invokeChain.FirstOrDefault();
 
             // Expression needs to be a member access to be mapper.Something()
-            if (firstInvoke == null || firstInvoke.Expression is not MemberAccessExpressionSyntax memberAccess)
+            if (firstInvoke is not { Expression: MemberAccessExpressionSyntax memberAccess })
             {
                 return false;
             }
@@ -795,34 +814,19 @@
                 _ => false,
             };
 
-        class KnownTypes
+        class KnownTypes(Compilation compilation)
         {
-            public INamedTypeSymbol BaseSaga { get; }
-            public INamedTypeSymbol GenericSaga { get; }
-            public INamedTypeSymbol SagaPropertyMapper { get; }
-            public INamedTypeSymbol IAmStartedByMessages { get; }
-            public INamedTypeSymbol IHandleMessages { get; }
-            public INamedTypeSymbol IHandleTimeouts { get; }
-            public INamedTypeSymbol IContainSagaData { get; }
-            public INamedTypeSymbol ContainSagaData { get; }
-            public INamedTypeSymbol IMessageHandlerContext { get; }
-            public INamedTypeSymbol IHandleSagaNotFound { get; }
-            public INamedTypeSymbol IEnumerableT { get; }
-
-            public KnownTypes(Compilation compilation)
-            {
-                BaseSaga = compilation.GetTypeByMetadataName("NServiceBus.Saga");
-                GenericSaga = compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
-                SagaPropertyMapper = compilation.GetTypeByMetadataName("NServiceBus.SagaPropertyMapper`1");
-                IAmStartedByMessages = compilation.GetTypeByMetadataName("NServiceBus.IAmStartedByMessages`1");
-                IHandleMessages = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
-                IHandleTimeouts = compilation.GetTypeByMetadataName("NServiceBus.IHandleTimeouts`1");
-                IContainSagaData = compilation.GetTypeByMetadataName("NServiceBus.IContainSagaData");
-                ContainSagaData = compilation.GetTypeByMetadataName("NServiceBus.ContainSagaData");
-                IMessageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-                IHandleSagaNotFound = compilation.GetTypeByMetadataName("NServiceBus.Sagas.IHandleSagaNotFound");
-                IEnumerableT = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
-            }
+            public INamedTypeSymbol BaseSaga { get; } = compilation.GetTypeByMetadataName("NServiceBus.Saga");
+            public INamedTypeSymbol GenericSaga { get; } = compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
+            public INamedTypeSymbol SagaPropertyMapper { get; } = compilation.GetTypeByMetadataName("NServiceBus.SagaPropertyMapper`1");
+            public INamedTypeSymbol IAmStartedByMessages { get; } = compilation.GetTypeByMetadataName("NServiceBus.IAmStartedByMessages`1");
+            public INamedTypeSymbol IHandleMessages { get; } = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
+            public INamedTypeSymbol IHandleTimeouts { get; } = compilation.GetTypeByMetadataName("NServiceBus.IHandleTimeouts`1");
+            public INamedTypeSymbol IContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.IContainSagaData");
+            public INamedTypeSymbol ContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.ContainSagaData");
+            public INamedTypeSymbol IMessageHandlerContext { get; } = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
+            public INamedTypeSymbol IHandleSagaNotFound { get; } = compilation.GetTypeByMetadataName("NServiceBus.Sagas.IHandleSagaNotFound");
+            public INamedTypeSymbol IEnumerableT { get; } = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
 
             public bool IsValid() =>
                 BaseSaga != null &&
