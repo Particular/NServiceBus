@@ -54,18 +54,33 @@ static class ContextPropagation
 
         if (headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
         {
-            var baggageItems = baggageValue.Split(',');
+            var baggageSpan = baggageValue.AsSpan();
             // HINT: Iterate in reverse order because Activity baggage is LIFO
-            for (var i = baggageItems.Length - 1; i >= 0; i--)
+            while (!baggageSpan.IsEmpty)
             {
-                var baggageItem = baggageItems[i].AsSpan();
-                var firstEquals = baggageItem.IndexOf('=');
-                if (firstEquals >= 0 && firstEquals < baggageItem.Length)
+                var lastComma = baggageSpan.LastIndexOf(',');
+                ReadOnlySpan<char> baggageItem;
+
+                if (lastComma >= 0)
                 {
-                    var key = baggageItem[..firstEquals].Trim();
-                    var value = baggageItem[(firstEquals + 1)..];
-                    activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
+                    baggageItem = baggageSpan[(lastComma + 1)..];
+                    baggageSpan = baggageSpan[..lastComma];
                 }
+                else
+                {
+                    baggageItem = baggageSpan;
+                    baggageSpan = [];
+                }
+
+                var firstEquals = baggageItem.IndexOf('=');
+                if (firstEquals < 0 || firstEquals >= baggageItem.Length)
+                {
+                    continue;
+                }
+
+                var key = baggageItem[..firstEquals].Trim();
+                var value = baggageItem[(firstEquals + 1)..];
+                activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
             }
         }
     }

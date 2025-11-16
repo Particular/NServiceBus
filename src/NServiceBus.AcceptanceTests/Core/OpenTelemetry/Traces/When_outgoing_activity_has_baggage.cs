@@ -21,32 +21,27 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
                     var activityTraceContext = new ActivityContext(ActivityTraceId.CreateRandom(),
                         ActivitySpanId.CreateRandom(), ActivityTraceFlags.Recorded);
 
-                    using (var wrapperActivity = externalActivitySource.StartActivity("ambient span", ActivityKind.Server, activityTraceContext))
-                    {
-                        wrapperActivity
-                            ?.AddBaggage("key1", "value1")
-                            ?.AddBaggage("key2", "value2");
+                    using var wrapperActivity = externalActivitySource.StartActivity("ambient span", ActivityKind.Server, activityTraceContext);
+                    wrapperActivity
+                        ?.AddBaggage("key1", "value1")
+                        .AddBaggage("key2", "value2")
+                        .AddBaggage("key3", null);
 
-                        await session.SendLocal(new SomeMessage());
-                    }
+                    await session.SendLocal(new SomeMessage());
                 })
             )
             .Done(ctx => ctx.MessageReceived)
             .Run();
 
-        Assert.That(context.BaggageHeader, Is.EqualTo("key2=value2,key1=value1"));
+        Assert.That(context.BaggageHeader, Is.EqualTo("key3=,key2=value2,key1=value1"));
     }
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(Context scenarioContext) : IHandleMessages<SomeMessage>
         {
-            Context scenarioContext;
-
-            public SomeMessageHandler(Context scenarioContext) => this.scenarioContext = scenarioContext;
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 if (context.MessageHeaders.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
