@@ -42,9 +42,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
             }
         }
 
-        // The relationship between the component, it's settings and the settings holder are still slightly
-        // messy.
-        settingsHolder.Set<IReadOnlyCollection<StorageType>>(resultingSupportedStorages);
+        SupportedStorages = resultingSupportedStorages;
         settingsHolder.AddStartupDiagnosticsSection("Persistence", diagnostics);
     }
 
@@ -79,6 +77,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
                 {
                     return [];
                 }
+
                 field ??= persistenceRegistry.Merge();
                 return field;
             }
@@ -94,4 +93,6 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
             }
         }
     }
+
+    public IReadOnlyCollection<StorageType> SupportedStorages { get; private set; }
 }

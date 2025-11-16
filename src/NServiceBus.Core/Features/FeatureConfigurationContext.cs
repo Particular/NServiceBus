@@ -14,13 +14,17 @@ using Transport;
 /// </summary>
 public class FeatureConfigurationContext
 {
+    readonly PersistenceComponent persistenceComponent;
+
     internal FeatureConfigurationContext(
         IReadOnlySettings settings,
         IServiceCollection container,
         PipelineSettings pipelineSettings,
         RoutingComponent.Configuration routing,
-        ReceiveComponent.Configuration receiveConfiguration)
+        ReceiveComponent.Configuration receiveConfiguration,
+        PersistenceComponent persistenceComponent)
     {
+        this.persistenceComponent = persistenceComponent;
         Settings = settings;
         Services = container;
         Pipeline = pipelineSettings;
@@ -50,6 +54,8 @@ public class FeatureConfigurationContext
     internal ReceiveComponent.Configuration Receiving => field ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
     internal List<FeatureStartupTaskController> TaskControllers { get; }
+
+    internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType => persistenceComponent.SupportedStorages.Contains<TStorage>();
 
     /// <summary>
     /// Adds a new satellite receiver.

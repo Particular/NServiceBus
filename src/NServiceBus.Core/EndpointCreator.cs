@@ -88,7 +88,7 @@ class EndpointCreator
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         featureComponent = new FeatureComponent(featureSettings);
-        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
+        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceComponent);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
         hostingConfiguration.PersistenceComponent.AssertSagaAndOutboxUseSamePersistence(settings);
