@@ -15,22 +15,22 @@ class Notification<TEvent> : INotificationSubscriptions<TEvent>
     {
         int count = subscriptions.Count;
 
-        if (count == 0)
+        return count switch
         {
-            return Task.CompletedTask;
-        }
+            0 => Task.CompletedTask,
+            1 => subscriptions[0].Invoke(@event, cancellationToken),
+            _ => Task.WhenAll(NotifyMultiple(subscriptions, count, @event, cancellationToken))
+        };
 
-        if (count == 1)
+        static Task[] NotifyMultiple(List<Func<TEvent, CancellationToken, Task>> subscriptions, int count, TEvent @event, CancellationToken cancellationToken)
         {
-            return subscriptions[0].Invoke(@event, cancellationToken);
+            var tasks = new Task[count];
+            for (int i = 0; i < count; i++)
+            {
+                tasks[i] = subscriptions[i].Invoke(@event, cancellationToken);
+            }
+            return tasks;
         }
-
-        var tasks = new Task[count];
-        for (int i = 0; i < count; i++)
-        {
-            tasks[i] = subscriptions[i].Invoke(@event, cancellationToken);
-        }
-        return Task.WhenAll(tasks);
     }
 
     readonly List<Func<TEvent, CancellationToken, Task>> subscriptions = [];
