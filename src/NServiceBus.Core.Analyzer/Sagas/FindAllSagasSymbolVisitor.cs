@@ -3,16 +3,9 @@ namespace NServiceBus.Core.Analyzer
     using System.Collections.Generic;
     using Microsoft.CodeAnalysis;
 
-    class FindAllSagasSymbolVisitor : SymbolVisitor
+    class FindAllSagasSymbolVisitor(INamedTypeSymbol genericBaseSaga) : SymbolVisitor
     {
-        INamedTypeSymbol genericBaseSaga;
-
-        public List<INamedTypeSymbol> FoundSagas { get; } = new List<INamedTypeSymbol>();
-
-        public FindAllSagasSymbolVisitor(INamedTypeSymbol genericBaseSaga)
-        {
-            this.genericBaseSaga = genericBaseSaga;
-        }
+        public List<INamedTypeSymbol> FoundSagas { get; } = [];
 
         public override void VisitNamespace(INamespaceSymbol symbol)
         {
@@ -32,14 +25,15 @@ namespace NServiceBus.Core.Analyzer
             // Check if this type inherits from Saga<TSagaData>
             for (var baseType = symbol.BaseType; baseType != null; baseType = baseType.BaseType)
             {
-                if (baseType.IsGenericType && baseType.ConstructedFrom.Equals(genericBaseSaga, SymbolEqualityComparer.IncludeNullability))
+                if (!baseType.IsGenericType ||
+                    !baseType.ConstructedFrom.Equals(genericBaseSaga, SymbolEqualityComparer.IncludeNullability) ||
+                    baseType.TypeArguments.Length != 1)
                 {
-                    if (baseType.TypeArguments.Length == 1)
-                    {
-                        FoundSagas.Add(symbol);
-                        return;
-                    }
+                    continue;
                 }
+
+                FoundSagas.Add(symbol);
+                return;
             }
         }
     }
