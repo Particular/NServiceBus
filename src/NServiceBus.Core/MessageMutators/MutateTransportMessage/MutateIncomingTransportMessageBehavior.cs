@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -8,22 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement GetHashCode", Justification = "Mutators are registered based on reference equality")]
-class MutateIncomingTransportMessageBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
+class MutateIncomingTransportMessageBehavior(HashSet<IMutateIncomingTransportMessages> mutators)
+    : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
 {
-    public MutateIncomingTransportMessageBehavior(HashSet<IMutateIncomingTransportMessages> mutators)
-    {
-        this.mutators = mutators;
-    }
-
-    public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
-    {
-        if (hasIncomingTransportMessageMutators)
-        {
-            return InvokeIncomingTransportMessagesMutators(context, next);
-        }
-
-        return next(context);
-    }
+    public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next) => hasIncomingTransportMessageMutators ? InvokeIncomingTransportMessagesMutators(context, next) : next(context);
 
     async Task InvokeIncomingTransportMessagesMutators(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
@@ -62,5 +52,4 @@ class MutateIncomingTransportMessageBehavior : IBehavior<IIncomingPhysicalMessag
     }
 
     volatile bool hasIncomingTransportMessageMutators = true;
-    readonly HashSet<IMutateIncomingTransportMessages> mutators;
 }
