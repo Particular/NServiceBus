@@ -14,17 +14,15 @@ using Transport;
 /// </summary>
 public class FeatureConfigurationContext
 {
-    readonly PersistenceComponent persistenceComponent;
-
     internal FeatureConfigurationContext(
         IReadOnlySettings settings,
         IServiceCollection container,
         PipelineSettings pipelineSettings,
         RoutingComponent.Configuration routing,
         ReceiveComponent.Configuration receiveConfiguration,
-        PersistenceComponent persistenceComponent)
+        PersistenceComponent.Configuration persistenceConfiguration)
     {
-        this.persistenceComponent = persistenceComponent;
+        this.persistenceConfiguration = persistenceConfiguration;
         Settings = settings;
         Services = container;
         Pipeline = pipelineSettings;
@@ -55,7 +53,7 @@ public class FeatureConfigurationContext
 
     internal List<FeatureStartupTaskController> TaskControllers { get; }
 
-    internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType => persistenceComponent.SupportedStorages.Contains<TStorage>();
+    internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
 
     /// <summary>
     /// Adds a new satellite receiver.
@@ -106,4 +104,6 @@ public class FeatureConfigurationContext
         ArgumentNullException.ThrowIfNull(startupTaskFactory);
         TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
     }
+
+    readonly PersistenceComponent.Configuration persistenceConfiguration;
 }

@@ -13,11 +13,11 @@ using Settings;
 
 sealed class PersistenceComponent(PersistenceComponent.Settings settings)
 {
-    public void Initialize(SettingsHolder settingsHolder)
+    public Configuration Initialize(SettingsHolder settingsHolder)
     {
         if (settings.Enabled.Count == 0)
         {
-            return;
+            return new Configuration(settings.Enabled, []);
         }
 
         var resultingSupportedStorages = new List<StorageType>();
@@ -42,24 +42,9 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
             }
         }
 
-        SupportedStorages = resultingSupportedStorages;
         settingsHolder.AddStartupDiagnosticsSection("Persistence", diagnostics);
-    }
 
-    public void AssertSagaAndOutboxUseSamePersistence(IReadOnlySettings readOnlySettings)
-    {
-        var enabledPersistences = settings.Enabled;
-        var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
-        var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
-        var bothFeaturesActive = readOnlySettings.IsFeatureActive<Features.Sagas>() && readOnlySettings.IsFeatureActive<Features.Outbox>();
-
-        if (sagaPersisterDefinition != null
-            && outboxPersisterDefinition != null
-            && sagaPersisterDefinition != outboxPersisterDefinition
-            && bothFeaturesActive)
-        {
-            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
-        }
+        return new Configuration(settings.Enabled, resultingSupportedStorages);
     }
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
@@ -94,5 +79,23 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
         }
     }
 
-    public IReadOnlyCollection<StorageType> SupportedStorages { get; private set; }
+    internal class Configuration(IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<StorageType> supportedPersistences)
+    {
+        public IReadOnlyCollection<StorageType> SupportedPersistences { get; } = supportedPersistences;
+
+        public void AssertSagaAndOutboxUseSamePersistence(IReadOnlySettings readOnlySettings)
+        {
+            var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
+            var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
+            var bothFeaturesActive = readOnlySettings.IsFeatureActive<Features.Sagas>() && readOnlySettings.IsFeatureActive<Features.Outbox>();
+
+            if (sagaPersisterDefinition != null
+                && outboxPersisterDefinition != null
+                && sagaPersisterDefinition != outboxPersisterDefinition
+                && bothFeaturesActive)
+            {
+                throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
+            }
+        }
+    }
 }
