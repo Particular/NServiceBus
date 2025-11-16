@@ -1,7 +1,9 @@
-﻿namespace NServiceBus.MessageMutator;
+﻿#nullable enable
 
-using Features;
+namespace NServiceBus.MessageMutator;
+
 using System;
+using Features;
 
 /// <summary>
 /// Provides extension methods to register message mutators.
