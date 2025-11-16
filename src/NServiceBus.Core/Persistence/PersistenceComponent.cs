@@ -11,27 +11,27 @@ using Logging;
 using Persistence;
 using Settings;
 
-sealed class PersistenceComponent(PersistenceComponent.Settings settings)
+sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSettings)
 {
-    public Configuration Initialize(SettingsHolder settingsHolder)
+    public Configuration Initialize(SettingsHolder settings)
     {
-        if (settings.Enabled.Count == 0)
+        if (persistenceSettings.Enabled.Count == 0)
         {
-            return new Configuration(settings.Enabled, []);
+            return new Configuration(settings, persistenceSettings.Enabled, []);
         }
 
         var resultingSupportedStorages = new List<StorageType>();
         var diagnostics = new Dictionary<string, object>();
 
-        foreach (var enabledPersistence in settings.Enabled)
+        foreach (var enabledPersistence in persistenceSettings.Enabled)
         {
             var persistenceDefinition = enabledPersistence.Definition;
-            persistenceDefinition.ApplyDefaults(settingsHolder);
+            persistenceDefinition.ApplyDefaults(settings);
 
             foreach (var storageType in enabledPersistence.SelectedStorages)
             {
                 Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", persistenceDefinition.Name, storageType);
-                persistenceDefinition.Apply(storageType, settingsHolder.Get<FeatureComponent.Settings>());
+                persistenceDefinition.Apply(storageType, settings.Get<FeatureComponent.Settings>());
                 resultingSupportedStorages.Add(storageType);
 
                 diagnostics.Add(storageType.ToString(), new
@@ -42,9 +42,9 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
             }
         }
 
-        settingsHolder.AddStartupDiagnosticsSection("Persistence", diagnostics);
+        settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
 
-        return new Configuration(settings.Enabled, resultingSupportedStorages);
+        return new Configuration(settings, persistenceSettings.Enabled, resultingSupportedStorages);
     }
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
@@ -79,15 +79,15 @@ sealed class PersistenceComponent(PersistenceComponent.Settings settings)
         }
     }
 
-    internal class Configuration(IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<StorageType> supportedPersistences)
+    internal class Configuration(IReadOnlySettings settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<StorageType> supportedPersistences)
     {
         public IReadOnlyCollection<StorageType> SupportedPersistences { get; } = supportedPersistences;
 
-        public void AssertSagaAndOutboxUseSamePersistence(IReadOnlySettings readOnlySettings)
+        public void AssertSagaAndOutboxUseSamePersistence()
         {
             var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
             var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
-            var bothFeaturesActive = readOnlySettings.IsFeatureActive<Features.Sagas>() && readOnlySettings.IsFeatureActive<Features.Outbox>();
+            var bothFeaturesActive = settings.IsFeatureActive<Features.Sagas>() && settings.IsFeatureActive<Features.Outbox>();
 
             if (sagaPersisterDefinition != null
                 && outboxPersisterDefinition != null
