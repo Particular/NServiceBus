@@ -47,10 +47,14 @@
                 return;
             }
 
-            startContext.RegisterSyntaxNodeAction(context => Analyze(context, knownTypes), SyntaxKind.ClassDeclaration);
+            // Build a compilation-level cache mapping SagaData types to their Saga types
+            // This avoids walking the entire symbol tree repeatedly for each SagaData class
+            var sagaDataToSagaMap = BuildSagaDataToSagaMap(startContext.Compilation, knownTypes);
+
+            startContext.RegisterSyntaxNodeAction(context => Analyze(context, knownTypes, sagaDataToSagaMap), SyntaxKind.ClassDeclaration);
         }
 
-        static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
+        static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes, ImmutableDictionary<INamedTypeSymbol, INamedTypeSymbol> sagaDataToSagaMap)
         {
             // Casting what should be guaranteed by the analyzer anyway
             if (context.Node is not ClassDeclarationSyntax classDeclaration || context.ContainingSymbol is not INamedTypeSymbol classType)
@@ -61,7 +65,7 @@
             // You can't make a red squiggly outside of the node you said you were going to analyze, so we have to analyze Saga/SagaData separately
             if (classType.Implements(knownTypes.IContainSagaData))
             {
-                AnalyzeSagaDataClass(context, classDeclaration, classType, knownTypes);
+                AnalyzeSagaDataClass(context, classDeclaration, classType, knownTypes, sagaDataToSagaMap);
             }
             else if (classType.BaseTypesAndSelf().Contains(knownTypes.BaseSaga, SymbolEqualityComparer.IncludeNullability))
             {
@@ -288,7 +292,31 @@
             }
         }
 
-        static void AnalyzeSagaDataClass(SyntaxNodeAnalysisContext context, ClassDeclarationSyntax sagaDataClass, INamedTypeSymbol sagaDataType, KnownTypes knownTypes)
+        static ImmutableDictionary<INamedTypeSymbol, INamedTypeSymbol> BuildSagaDataToSagaMap(Compilation compilation, KnownTypes knownTypes)
+        {
+            // Build a mapping of SagaData types to their corresponding Saga types
+            // This is done once per compilation to avoid repeated expensive symbol tree walks
+            var builder = ImmutableDictionary.CreateBuilder<INamedTypeSymbol, INamedTypeSymbol>(SymbolEqualityComparer.IncludeNullability);
+
+            var sagaFinder = new FindAllSagasSymbolVisitor(knownTypes.GenericSaga);
+            sagaFinder.Visit(compilation.GlobalNamespace);
+
+            foreach (var sagaType in sagaFinder.FoundSagas)
+            {
+                // Get the SagaData type from Saga<TSagaData>
+                var sagaDataType = GetSagaDataType(sagaType, knownTypes);
+                if (sagaDataType != null)
+                {
+                    // Use TryAdd to handle the case where multiple sagas might use the same saga data
+                    // (unlikely but possible). We'll just use the first one found.
+                    builder.TryAdd(sagaDataType, sagaType);
+                }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        static void AnalyzeSagaDataClass(SyntaxNodeAnalysisContext context, ClassDeclarationSyntax sagaDataClass, INamedTypeSymbol sagaDataType, KnownTypes knownTypes, ImmutableDictionary<INamedTypeSymbol, INamedTypeSymbol> sagaDataToSagaMap)
         {
             // First we can do some analysis without needing to look at semantic model
 
@@ -322,12 +350,8 @@
                 }
             }
 
-            // The only way to get saga metadata is to find the saga, and for that we unfortunately have to "visit" all symbols
-            var sagaFinder = new FindSagaByDataSymbolVisitor(sagaDataType, knownTypes.GenericSaga);
-            sagaFinder.Visit(context.Compilation.GlobalNamespace);
-            var sagaType = sagaFinder.FoundSaga;
-
-            if (sagaType == null)
+            // Use the compilation-level cache to find the saga instead of walking the symbol tree
+            if (!sagaDataToSagaMap.TryGetValue(sagaDataType, out var sagaType))
             {
                 return;
             }
