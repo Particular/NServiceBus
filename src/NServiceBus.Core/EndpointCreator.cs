@@ -30,7 +30,8 @@ class EndpointCreator
 
         var persistenceSettings = settings.GetOrCreate<PersistenceComponent.Settings>();
         var persistenceComponent = new PersistenceComponent(persistenceSettings);
-        persistenceComponent.Initialize(settings);
+
+        var persistenceConfiguration = persistenceComponent.Initialize(settings);
 
         var availableTypes = assemblyScanningComponent.AvailableTypes.Where(t => !t.IsAbstract && !t.IsInterface).ToList();
 
@@ -42,7 +43,7 @@ class EndpointCreator
 
         installerComponent.Initialize(settings);
 
-        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, persistenceComponent, installerComponent, serviceCollection);
+        var hostingConfiguration = HostingComponent.PrepareConfiguration(settings.Get<HostingComponent.Settings>(), availableTypes, persistenceConfiguration, installerComponent, serviceCollection);
 
         var endpointCreator = new EndpointCreator(settings, hostingConfiguration, settings.Get<Conventions>());
         endpointCreator.Configure();
@@ -88,10 +89,10 @@ class EndpointCreator
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         featureComponent = new FeatureComponent(featureSettings);
-        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration);
+        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
-        hostingConfiguration.PersistenceComponent.AssertSagaAndOutboxUseSamePersistence(settings);
+        hostingConfiguration.PersistenceConfiguration.AssertSagaAndOutboxUseSamePersistence();
 
         recoverabilityComponent.Initialize(
             receiveConfiguration,
