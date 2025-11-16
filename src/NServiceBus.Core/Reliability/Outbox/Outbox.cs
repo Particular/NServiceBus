@@ -39,7 +39,7 @@ public sealed class Outbox : Feature
     /// </summary>
     protected override void Setup(FeatureConfigurationContext context)
     {
-        if (!context.Settings.HasSupportFor<StorageType.Outbox>())
+        if (!context.HasSupportForStorage<StorageType.Outbox>())
         {
             throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
         }

@@ -2,4 +2,4 @@
 
 using NServiceBus.Features;
 
-public class FakeFeatureConfigurationContext() : FeatureConfigurationContext(null, null, null, null, null);
+public class FakeFeatureConfigurationContext() : FeatureConfigurationContext(null, null, null, null, null, null);

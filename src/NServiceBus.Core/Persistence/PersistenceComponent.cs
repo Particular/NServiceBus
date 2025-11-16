@@ -4,26 +4,26 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Features;
 using Logging;
+using Persistence;
 using Settings;
 
-static class PersistenceComponent
+sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSettings)
 {
-    public static void ConfigurePersistence(this SettingsHolder settings)
+    public Configuration Initialize(SettingsHolder settings)
     {
-        if (!settings.TryGet<PersistenceRegistry>(out var persistenceRegistry))
+        if (persistenceSettings.Enabled.Count == 0)
         {
-            return;
+            return new Configuration(settings, persistenceSettings.Enabled, []);
         }
-
-        var enabledPersistences = persistenceRegistry.Merge();
 
         var resultingSupportedStorages = new List<StorageType>();
         var diagnostics = new Dictionary<string, object>();
 
-        foreach (var enabledPersistence in enabledPersistences)
+        foreach (var enabledPersistence in persistenceSettings.Enabled)
         {
             var persistenceDefinition = enabledPersistence.Definition;
             persistenceDefinition.ApplyDefaults(settings);
@@ -42,39 +42,60 @@ static class PersistenceComponent
             }
         }
 
-        settings.Set<IReadOnlyCollection<StorageType>>(resultingSupportedStorages);
-        settings.Set(enabledPersistences);
-
         settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
-    }
 
-    public static void ValidateSagaAndOutboxUseSamePersistence(this SettingsHolder settings)
-    {
-        if (!settings.TryGet<PersistenceRegistry>(out _))
-        {
-            return;
-        }
-
-        var enabledPersistences = settings.Get<IReadOnlyCollection<EnabledPersistence>>();
-        var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
-        var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
-        var bothFeaturesActive = settings.IsFeatureActive<Features.Sagas>() && settings.IsFeatureActive<Features.Outbox>();
-
-        if (sagaPersisterDefinition != null
-            && outboxPersisterDefinition != null
-            && sagaPersisterDefinition != outboxPersisterDefinition
-            && bothFeaturesActive)
-        {
-            throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
-        }
-    }
-
-    internal static bool HasSupportFor<T>(this IReadOnlySettings settings) where T : StorageType
-    {
-        _ = settings.TryGet(out IReadOnlyCollection<StorageType> supportedStorages);
-
-        return supportedStorages.Contains<T>();
+        return new Configuration(settings, persistenceSettings.Enabled, resultingSupportedStorages);
     }
 
     static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
+
+    public class Settings
+    {
+        PersistenceRegistry? persistenceRegistry;
+
+        [field: AllowNull, MaybeNull]
+        public IReadOnlyCollection<EnabledPersistence> Enabled
+        {
+            get
+            {
+                if (persistenceRegistry == null)
+                {
+                    return [];
+                }
+
+                field ??= persistenceRegistry.Merge();
+                return field;
+            }
+        }
+
+        public void Enable<T>(StorageType? storageType) where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
+        {
+            persistenceRegistry ??= new PersistenceRegistry();
+            var enable = persistenceRegistry.Enable<T>();
+            if (storageType is not null)
+            {
+                enable.WithStorage(storageType);
+            }
+        }
+    }
+
+    internal class Configuration(IReadOnlySettings settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<StorageType> supportedPersistences)
+    {
+        public IReadOnlyCollection<StorageType> SupportedPersistences { get; } = supportedPersistences;
+
+        public void AssertSagaAndOutboxUseSamePersistence()
+        {
+            var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
+            var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
+            var bothFeaturesActive = settings.IsFeatureActive<Features.Sagas>() && settings.IsFeatureActive<Features.Outbox>();
+
+            if (sagaPersisterDefinition != null
+                && outboxPersisterDefinition != null
+                && sagaPersisterDefinition != outboxPersisterDefinition
+                && bothFeaturesActive)
+            {
+                throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use '{sagaPersisterDefinition.Name}'. Outbox persistence is configured to use '{outboxPersisterDefinition.Name}'.");
+            }
+        }
+    }
 }
