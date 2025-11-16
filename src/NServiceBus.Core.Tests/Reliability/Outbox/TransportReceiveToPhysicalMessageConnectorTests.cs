@@ -11,7 +11,6 @@ using NServiceBus.Pipeline;
 using NServiceBus.Routing;
 using NUnit.Framework;
 using OpenTelemetry;
-using Settings;
 using Testing;
 using Transport;
 using TransportOperation = Transport.TransportOperation;
@@ -143,12 +142,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context, c =>
         {
             var batchedSends = c.Extensions.Get<PendingTransportOperations>();
-            batchedSends.AddRange(new TransportOperation[]
-            {
+            batchedSends.AddRange([
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"))
-            });
+            ]);
             return Task.CompletedTask;
         });
 
@@ -204,24 +202,13 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     FakeBatchPipeline fakeBatchPipeline;
     FakeOutboxStorage fakeOutbox;
 
-    class MyEvent
-    {
-    }
+    class MyEvent;
 
-    class FakePipelineCache : IPipelineCache
+    class FakePipelineCache(IPipeline<IBatchDispatchContext> pipeline) : IPipelineCache
     {
-        public FakePipelineCache(IPipeline<IBatchDispatchContext> pipeline)
-        {
-            this.pipeline = pipeline;
-        }
-
         public IPipeline<TContext> Pipeline<TContext>()
-            where TContext : IBehaviorContext
-        {
-            return (IPipeline<TContext>)pipeline;
-        }
-
-        IPipeline<IBatchDispatchContext> pipeline;
+            where TContext : IBehaviorContext =>
+            (IPipeline<TContext>)pipeline;
     }
 
     class FakeBatchPipeline : IPipeline<IBatchDispatchContext>

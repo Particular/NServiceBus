@@ -54,9 +54,7 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 
     class Context : ScenarioContext
     {
