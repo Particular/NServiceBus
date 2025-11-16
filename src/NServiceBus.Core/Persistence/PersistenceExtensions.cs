@@ -34,9 +34,6 @@ public partial class PersistenceExtensions<T> : ExposeSettings
     {
     }
 
-    internal PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings)
-    {
-        var registry = settings.GetOrCreate<PersistenceComponent.Settings>();
-        registry.Enable<T>(storageType);
-    }
+    internal PersistenceExtensions(SettingsHolder settings, StorageType? storageType = null) : base(settings) => settings.GetOrCreate<PersistenceComponent.Settings>()
+        .Enable<T>(storageType);
 }

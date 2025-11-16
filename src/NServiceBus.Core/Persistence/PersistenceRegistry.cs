@@ -66,8 +66,6 @@ sealed class PersistenceRegistry
 
         public IReadOnlyCollection<StorageType> EnabledStorageTypes => enabledStorageTypes;
 
-        public void WithStorage<TStorage>() where TStorage : StorageType => WithStorage(StorageType.Get<TStorage>());
-
         public void WithStorage(StorageType storageType)
         {
             if (!Persistence.HasSupportFor(storageType))
