@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System.Collections.Generic;
@@ -7,11 +9,6 @@ static class ActivityDecorator
 {
     public static void PromoteHeadersToTags(Activity activity, Dictionary<string, string> headers)
     {
-        if (activity == null)
-        {
-            return;
-        }
-
         foreach (var header in headers)
         {
             if (HeaderMapping.TryGetValue(header.Key, out var tagName))

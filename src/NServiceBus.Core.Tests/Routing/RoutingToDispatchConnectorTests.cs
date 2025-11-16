@@ -197,7 +197,7 @@ public class RoutingToDispatchConnectorTests
         routingContext.Message.Headers[Headers.ContentType] = "test content type"; // one of the headers that will be mapped to tags
 
         using var pipelineActivity = new Activity("pipeline activity");
-        routingContext.Extensions.SetOutgoingPipelineActitvity(pipelineActivity);
+        routingContext.Extensions.SetOutgoingPipelineActivity(pipelineActivity);
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.Start();
 
@@ -241,7 +241,5 @@ public class RoutingToDispatchConnectorTests
         }
     }
 
-    class MyMessage : IMessage
-    {
-    }
+    class MyMessage : IMessage;
 }

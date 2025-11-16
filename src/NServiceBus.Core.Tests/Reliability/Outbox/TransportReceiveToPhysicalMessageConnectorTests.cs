@@ -124,7 +124,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         using var pipelineActivity = new Activity("test activity");
         pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
+        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
 
         await Invoke(context);
 
@@ -138,7 +138,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         using var pipelineActivity = new Activity("test activity");
         pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
+        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
 
         await Invoke(context, c =>
         {
@@ -165,7 +165,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         using var pipelineActivity = new Activity("test activity");
         pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActitvity(pipelineActivity);
+        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
 
         await Invoke(context);
 

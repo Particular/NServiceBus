@@ -53,7 +53,7 @@ class ActivityFactory : IActivityFactory
             activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
         }
 
-        if (activity != null)
+        if (activity is not null)
         {
             ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
@@ -79,7 +79,7 @@ class ActivityFactory : IActivityFactory
             activity.DisplayName = displayName;
             activity.Start();
 
-            outgoingContext.Extensions.SetOutgoingPipelineActitvity(activity);
+            outgoingContext.Extensions.SetOutgoingPipelineActivity(activity);
         }
 
         return activity;
@@ -95,7 +95,7 @@ class ActivityFactory : IActivityFactory
 
         var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
-        if (activity != null)
+        if (activity is not null)
         {
             activity.DisplayName = messageHandler.HandlerType.Name;
             activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);

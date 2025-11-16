@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
@@ -7,9 +9,9 @@ using Pipeline;
 
 static class TracingExtensions
 {
-    public static Task Invoke<TContext>(this IPipeline<TContext> pipeline, TContext context, Activity activity) where TContext : IBehaviorContext
+    public static Task Invoke<TContext>(this IPipeline<TContext> pipeline, TContext context, Activity? activity) where TContext : IBehaviorContext
     {
-        return activity == null ? pipeline.Invoke(context) : TracePipelineStatus(pipeline, context, activity);
+        return activity is null ? pipeline.Invoke(context) : TracePipelineStatus(pipeline, context, activity);
 
         static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity)
         {
