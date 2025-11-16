@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections;
@@ -81,5 +83,5 @@ class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IReco
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     bool locked;
-    List<object> notifications;
+    List<object>? notifications;
 }
