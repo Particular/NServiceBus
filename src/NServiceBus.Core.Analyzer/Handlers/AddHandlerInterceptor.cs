@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
@@ -25,7 +27,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         var withCompilation = locations.Combine(context.CompilationProvider)
             .Select(GetInterceptsFromCompilation)
             .Where(static m => m is not null)
-            .Select(static (x, _) => x!.Value)
+            .Select(static (x, _) => x!)
             .WithTrackingName("WithCompilation");
 
         var collected = withCompilation.Collect()
@@ -222,7 +224,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     const string AddHandlerMethodName = "AddHandler";
 
     readonly record struct InvocationCandidate(string FilePath, TextSpan Span);
-    readonly record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
+    record InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
     readonly record struct MessageRegistration(string AddType, string MessageType);
     readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
     {
