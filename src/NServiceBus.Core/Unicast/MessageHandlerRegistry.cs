@@ -108,7 +108,7 @@ public class MessageHandlerRegistry
     public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
     {
         Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-        AddHandlerFactory<THandler>(new MessageHandlerFactory<THandler, TMessage>());
+        AddHandlerFactory<THandler, TMessage>(static () => new MessageHandlerFactory<THandler, TMessage>());
     }
 
     /// <summary>
@@ -118,17 +118,22 @@ public class MessageHandlerRegistry
     public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
-        AddHandlerFactory<THandler>(new TimeoutHandlerFactory<THandler, TMessage>());
+        AddHandlerFactory<THandler, TMessage>(static () => new TimeoutHandlerFactory<THandler, TMessage>());
     }
 
-    void AddHandlerFactory<THandler>(IMessageHandlerFactory handlerFactory)
+    void AddHandlerFactory<THandler, TMessage>(Func<IMessageHandlerFactory> handlerFactoryCreator)
     {
         if (!messageHandlerFactories.TryGetValue(typeof(THandler), out var handlerFactories))
         {
             messageHandlerFactories[typeof(THandler)] = handlerFactories = [];
         }
 
-        handlerFactories.Add(handlerFactory);
+        // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
+        // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
+        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
+        {
+            handlerFactories.Add(handlerFactoryCreator());
+        }
     }
 
     static readonly MethodInfo AddMessageHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
@@ -166,11 +171,22 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Clears the cache.
     /// </summary>
-    public void Clear() => messageHandlerFactories.Clear();
+    public void Clear()
+    {
+        messageHandlerFactories.Clear();
+        deduplicationSet.Clear();
+    }
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
+    readonly HashSet<HandlerAndMessage> deduplicationSet = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
+
+    readonly record struct HandlerAndMessage(Type HandlerType, Type MessageType)
+    {
+        public static HandlerAndMessage New<THandler, TMessage>() =>
+            new(HandlerType: typeof(THandler), MessageType: typeof(TMessage));
+    }
 
     interface IMessageHandlerFactory
     {

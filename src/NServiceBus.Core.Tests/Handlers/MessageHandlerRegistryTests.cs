@@ -65,6 +65,20 @@ public class MessageHandlerRegistryTests
         }
     }
 
+    [Test]
+    public void ShouldDeduplicate()
+    {
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<HandlerForMultipleMessages>();
+        registry.AddHandler<HandlerForMultipleMessages>();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(1));
+            Assert.That(registry.GetHandlersFor(typeof(AnotherMessage)), Has.Count.EqualTo(1));
+        }
+    }
+
     class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
