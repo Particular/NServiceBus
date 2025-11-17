@@ -52,9 +52,7 @@ public class MessageHandlerRegistryTests
         }
     }
 
-    class MyMessage : IMessage
-    {
-    }
+    class MyMessage : IMessage;
 
     class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
     {
@@ -65,10 +63,7 @@ public class MessageHandlerRegistryTests
             return Task.CompletedTask;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) => throw new NotImplementedException();
 
         public Task Timeout(MyMessage state, IMessageHandlerContext context)
         {
@@ -79,9 +74,7 @@ public class MessageHandlerRegistryTests
         public bool HandlerCalled { get; set; }
         public bool TimeoutCalled { get; set; }
 
-        public class MySagaData : ContainSagaData
-        {
-        }
+        public class MySagaData : ContainSagaData;
     }
 
 }
