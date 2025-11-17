@@ -24,7 +24,7 @@ public class MessageHandlerRegistry
         ArgumentNullException.ThrowIfNull(messageType);
 
         var messageHandlers = new List<MessageHandler>();
-        foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
+        foreach (var handlersAndMessages in messageHandlerFactories)
         {
             foreach (var handlerFactory in handlersAndMessages.Value)
             {
@@ -43,7 +43,7 @@ public class MessageHandlerRegistry
     /// <remarks>This method should not be called on a hot path.</remarks>
     public IEnumerable<Type> GetMessageTypes()
     {
-        return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
+        return (from messagesBeingHandled in messageHandlerFactories.Values
                 from typeHandled in messagesBeingHandled
                 let messageType = typeHandled.MessageType
                 select messageType).Distinct();
@@ -122,12 +122,12 @@ public class MessageHandlerRegistry
 
     void AddHandlerFactory<THandler>(IMessageHandlerFactory handlerFactory)
     {
-        if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeof(THandler), out var methodList))
+        if (!messageHandlerFactories.TryGetValue(typeof(THandler), out var handlerFactories))
         {
-            handlerAndMessagesHandledByHandlerCache[typeof(THandler)] = methodList = [];
+            messageHandlerFactories[typeof(THandler)] = handlerFactories = [];
         }
 
-        methodList.Add(handlerFactory);
+        handlerFactories.Add(handlerFactory);
     }
 
     static readonly MethodInfo AddMessageHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
@@ -165,9 +165,9 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Clears the cache.
     /// </summary>
-    public void Clear() => handlerAndMessagesHandledByHandlerCache.Clear();
+    public void Clear() => messageHandlerFactories.Clear();
 
-    readonly Dictionary<Type, List<IMessageHandlerFactory>> handlerAndMessagesHandledByHandlerCache = [];
+    readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
