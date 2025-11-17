@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -104,21 +104,26 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     static string CreateMethodName(INamedTypeSymbol handlerType)
     {
         const string NamePrefix = "AddHandler_";
-        const int HashBytesToUse = 10;
 
         var sb = new StringBuilder(NamePrefix, 50)
             .Append(handlerType.Name)
             .Append('_');
 
-        using var sha = SHA256.Create();
+        var handlerFullName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-        var clearBytes = Encoding.UTF8.GetBytes(handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-        var hashBytes = sha.ComputeHash(clearBytes);
+        // 64-bit FNV-1a over chars, https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+        // This is a fast-enough, non-cryptographic hash function. Unfortunately, we can't use the built-in one because it's not available in netstandard2.0
+        const ulong offsetBasis = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
 
-        for (var i = 0; i < HashBytesToUse; i++)
+        ulong hash = offsetBasis;
+        foreach (var ch in handlerFullName.AsSpan())
         {
-            _ = sb.Append(hashBytes[i].ToString("x2"));
+            hash ^= ch;
+            hash *= prime;
         }
+
+        sb.Append(hash.ToString("x16"));
 
         return sb.ToString();
     }
