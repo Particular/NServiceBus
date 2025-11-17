@@ -132,7 +132,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     {
         Name: AddHandlerMethodName,
         IsGenericMethod: true,
-        TypeArguments: { Length: 1 },
+        TypeArguments.Length: 1,
         ContainingType:
         {
             Name: AddHandlerClassName,
@@ -151,7 +151,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         ContainingNamespace:
         {
             Name: "NServiceBus",
-            ContainingNamespace: { IsGlobalNamespace: true }
+            ContainingNamespace.IsGlobalNamespace: true
         }
     };
 
@@ -192,7 +192,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         {
             foreach (var location in group)
             {
-                sb.AppendLine($"""        {location.Location.Attribute} // {location.Location.DisplayLocation}""");
+                sb.AppendLine($"        {location.Location.Attribute} // {location.Location.DisplayLocation}");
             }
 
             var first = group.First();
