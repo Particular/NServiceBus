@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.HandlerRegistration;
+namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Immutable;
 using System.Linq;

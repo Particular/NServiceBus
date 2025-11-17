@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 
 using System.Threading.Tasks;
+using Analyzer.Handlers;
 using Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;

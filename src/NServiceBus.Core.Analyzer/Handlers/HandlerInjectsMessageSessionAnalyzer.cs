@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus.Core.Analyzer;
+namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
 using System.Collections.Immutable;
