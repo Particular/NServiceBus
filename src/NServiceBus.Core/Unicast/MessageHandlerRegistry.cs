@@ -185,7 +185,7 @@ public class MessageHandlerRegistry
         public MessageHandler Create() =>
             new MessageHandlerInvoker<IHandleTimeouts<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
-                static (h, state, ctx) => h.Timeout(state, ctx),
+                static (handler, message, handlerContext) => handler.Timeout(message, handlerContext),
                 isTimeoutHandler: true)
             {
                 HandlerType = typeof(THandler)
