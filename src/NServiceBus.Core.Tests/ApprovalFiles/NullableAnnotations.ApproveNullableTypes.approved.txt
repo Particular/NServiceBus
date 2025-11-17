@@ -41,7 +41,6 @@ NServiceBus.LoadMessageHandlersExtensions
 NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions
-NServiceBus.MessageMutator.MutatorRegistrationExtensions
 NServiceBus.MessageProcessingContextExtensions
 NServiceBus.MessageProcessingOptimizationExtensions
 NServiceBus.MessageSessionExtensions
@@ -137,7 +136,6 @@ NServiceBus.TimeToBeReceivedAttribute
 NServiceBus.TimeToBeReceivedConventionExtensions
 NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
-NServiceBus.Transport.HostSettings
 NServiceBus.Transport.IMessageDispatcher
 NServiceBus.Transport.IMessageReceiver
 NServiceBus.Transport.IncomingMessage
@@ -154,7 +152,6 @@ NServiceBus.Transport.PushRuntimeSettings
 NServiceBus.Transport.QueueAddress
 NServiceBus.Transport.QueueBindings
 NServiceBus.Transport.ReceiveSettings
-NServiceBus.Transport.TransportDefinition
 NServiceBus.Transport.TransportInfrastructure
 NServiceBus.Transport.TransportOperation
 NServiceBus.Transport.TransportOperations
