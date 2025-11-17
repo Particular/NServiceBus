@@ -195,7 +195,7 @@ public class MessageHandlerRegistry
             static (sp, args) => (IHandleTimeouts<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
     }
 
-    class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
