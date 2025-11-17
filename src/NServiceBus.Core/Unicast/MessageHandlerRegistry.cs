@@ -191,8 +191,10 @@ public class MessageHandlerRegistry
                 HandlerType = typeof(THandler)
             };
 
+        static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
+
         static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
-            static (sp, args) => (IHandleTimeouts<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
+            static (sp, args) => (IHandleTimeouts<TMessage>)factory(sp, args);
     }
 
     sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
@@ -209,7 +211,9 @@ public class MessageHandlerRegistry
                 HandlerType = typeof(THandler)
             };
 
+        static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
+
         static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
-            static (sp, args) => (IHandleMessages<TMessage>)ActivatorUtilities.CreateFactory<THandler>([])(sp, args);
+            static (sp, args) => (IHandleMessages<TMessage>)factory(sp, args);
     }
 }
