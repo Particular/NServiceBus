@@ -357,7 +357,7 @@ public partial class SourceGeneratorTest
         }
     }
 
-    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocation\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
