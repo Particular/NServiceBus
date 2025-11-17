@@ -203,7 +203,7 @@ public class MessageHandlerRegistry
         public MessageHandler Create() =>
             new MessageHandlerInvoker<IHandleMessages<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
-                static (h, m, ctx) => h.Handle(m, ctx),
+                static (handler, message, handlerContext) => handler.Handle(message, handlerContext),
                 isTimeoutHandler: false)
             {
                 HandlerType = typeof(THandler)
