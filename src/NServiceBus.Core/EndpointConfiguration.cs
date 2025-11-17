@@ -64,7 +64,7 @@ public class EndpointConfiguration : ExposeSettings
 
         Settings.Set(featureSettings);
 
-        ConventionsBuilder = new ConventionsBuilder(Settings);
+        conventionsBuilder = new ConventionsBuilder(Settings);
     }
 
     /// <summary>
@@ -85,34 +85,25 @@ public class EndpointConfiguration : ExposeSettings
     /// <summary>
     /// Configures the endpoint to be send-only.
     /// </summary>
-    public void SendOnly()
-    {
-        Settings.Set("Endpoint.SendOnly", true);
-    }
+    public void SendOnly() => Settings.Set("Endpoint.SendOnly", true);
 
     /// <summary>
     /// Defines the conventions to use for this endpoint.
     /// </summary>
-    public ConventionsBuilder Conventions()
-    {
-        return ConventionsBuilder;
-    }
+    public ConventionsBuilder Conventions() => conventionsBuilder;
 
     //This needs to be here since we have downstreams that use reflection to access this property
-    internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
-    {
-        Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
-    }
+    internal void TypesToScanInternal(IEnumerable<Type> typesToScan) => Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
 
     internal void FinalizeConfiguration(IList<Type> availableTypes)
     {
-        Settings.SetDefault(ConventionsBuilder.Conventions);
+        Settings.SetDefault(conventionsBuilder.Conventions);
 
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
     }
 
-    internal ConventionsBuilder ConventionsBuilder;
+    readonly ConventionsBuilder conventionsBuilder;
 
     static void ValidateEndpointName(string endpointName)
     {
@@ -127,8 +118,7 @@ public class EndpointConfiguration : ExposeSettings
         }
     }
 
-    static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
-    {
+    static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class =>
         ForAllTypes<T>(types, t =>
         {
             if (!HasDefaultConstructor(t))
@@ -139,7 +129,6 @@ public class EndpointConfiguration : ExposeSettings
             var instanceToInvoke = (T)Activator.CreateInstance(t);
             action(instanceToInvoke);
         });
-    }
 
     static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
 
