@@ -177,7 +177,7 @@ public class MessageHandlerRegistry
         MessageHandler Create();
     }
 
-    class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
