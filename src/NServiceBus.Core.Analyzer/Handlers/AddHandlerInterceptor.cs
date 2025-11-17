@@ -205,7 +205,6 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     const string AddHandlerClassName = "MessageHandlerRegistrationExtensions";
     const string AddHandlerMethodName = "AddHandler";
 
-    readonly record struct InvocationCandidate(string FilePath, TextSpan Span);
     record InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
     readonly record struct MessageRegistration(string AddType, string MessageType);
     readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
