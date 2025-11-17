@@ -10,7 +10,7 @@ using Support;
 public static class EndpointConfigurationExtensions
 {
     /// <summary>
-    /// Finds all nested types related to a given acceptance test and includes them in assembly scanning.
+    /// Finds all nested types related to a given acceptance test that hasn't yet been converted to being added via an explicit API.
     /// </summary>
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
