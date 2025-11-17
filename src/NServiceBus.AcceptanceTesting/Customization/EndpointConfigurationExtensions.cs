@@ -4,15 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Hosting.Helpers;
 using Sagas;
 using Support;
 
 public static class EndpointConfigurationExtensions
 {
     /// <summary>
-    /// Uses <see cref="EndpointConfiguration.T"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
-    /// Additionally, this method excludes all types on the same assembly that not relevant to the specific test case. All types that should be scanned by default must be nested classes of the test class.
+    /// Finds all nested types related to a given acceptance test and includes them in assembly scanning.
     /// </summary>
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
