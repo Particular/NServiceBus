@@ -79,6 +79,16 @@ public class MessageHandlerRegistryTests
         }
     }
 
+    [Test]
+    public void ShouldNotDeduplicateTimeoutHandlersWithTheSameType()
+    {
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
+
+        Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(2));
+    }
+
     class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
