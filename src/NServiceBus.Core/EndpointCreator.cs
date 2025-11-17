@@ -24,7 +24,10 @@ class EndpointCreator
         var settings = endpointConfiguration.Settings;
         CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
-        var assemblyScanningComponent = AssemblyScanningComponent.Initialize(settings.Get<AssemblyScanningComponent.Configuration>(), settings);
+        var assemblyScanningConfiguration = settings.Get<AssemblyScanningComponent.Configuration>();
+        var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
+
+        assemblyScanningConfiguration.SetDefaultAvailableTypes(assemblyScanningComponent.AvailableTypes);
 
         endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 

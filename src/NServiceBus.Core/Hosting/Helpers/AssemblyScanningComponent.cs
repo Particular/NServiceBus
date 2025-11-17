@@ -4,7 +4,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Hosting.Helpers;
 using Settings;
 
@@ -12,23 +11,15 @@ class AssemblyScanningComponent
 {
     public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
     {
-        var shouldScanAssemblies = configuration.UserProvidedTypes == null;
-
-        List<Type> availableTypes;
-        AssemblyScanner assemblyScanner;
-
-        if (shouldScanAssemblies)
+        if (configuration.UserProvidedTypes != null)
         {
-            var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+            return new AssemblyScanningComponent(configuration.UserProvidedTypes);
+        }
 
-            assemblyScanner = new AssemblyScanner(directoryToScan);
-            availableTypes = [];
-        }
-        else
-        {
-            assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly());
-            availableTypes = configuration.UserProvidedTypes ?? [];
-        }
+        var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+        var assemblyScanner = new AssemblyScanner(directoryToScan);
+        var availableTypes = new List<Type>();
 
         var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
 
@@ -48,29 +39,24 @@ class AssemblyScanningComponent
         var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
         availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
 
-        configuration.SetDefaultAvailableTypes(availableTypes);
-
-        if (shouldScanAssemblies)
+        settings.AddStartupDiagnosticsSection("AssemblyScanning", new
         {
-            settings.AddStartupDiagnosticsSection("AssemblyScanning", new
+            Assemblies = scannableAssemblies.Assemblies.Select(a => new
             {
-                Assemblies = scannableAssemblies.Assemblies.Select(a => new
-                {
-                    a.FullName,
-                    FileVersion = FileVersionRetriever.GetFileVersion(a)
-                }),
-                scannableAssemblies.ErrorsThrownDuringScanning,
-                scannableAssemblies.SkippedFiles,
-                Settings = assemblyScannerSettings
-            });
-        }
+                a.FullName,
+                FileVersion = FileVersionRetriever.GetFileVersion(a)
+            }),
+            scannableAssemblies.ErrorsThrownDuringScanning,
+            scannableAssemblies.SkippedFiles,
+            Settings = assemblyScannerSettings
+        });
 
         return new AssemblyScanningComponent(availableTypes);
     }
 
-    AssemblyScanningComponent(List<Type> availableTypes) => AvailableTypes = availableTypes;
+    AssemblyScanningComponent(IList<Type> availableTypes) => AvailableTypes = availableTypes;
 
-    public List<Type> AvailableTypes { get; }
+    public IList<Type> AvailableTypes { get; }
 
     public class Configuration(SettingsHolder settings)
     {

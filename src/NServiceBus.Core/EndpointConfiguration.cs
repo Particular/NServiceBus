@@ -104,7 +104,7 @@ public class EndpointConfiguration : ExposeSettings
         Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
     }
 
-    internal void FinalizeConfiguration(List<Type> availableTypes)
+    internal void FinalizeConfiguration(IList<Type> availableTypes)
     {
         Settings.SetDefault(ConventionsBuilder.Conventions);
 
