@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.Config;
+namespace NServiceBus.Core.Tests.AssemblyScanner;
 
 using System.Collections.Generic;
 using System.Linq;
