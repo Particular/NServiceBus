@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
@@ -194,7 +195,7 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
-            static (sp, args) => (IHandleTimeouts<TMessage>)factory(sp, args);
+            static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
     sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
@@ -214,6 +215,6 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
-            static (sp, args) => (IHandleMessages<TMessage>)factory(sp, args);
+            static (sp, args) => Unsafe.As<IHandleMessages<TMessage>>(factory(sp, args));
     }
 }
