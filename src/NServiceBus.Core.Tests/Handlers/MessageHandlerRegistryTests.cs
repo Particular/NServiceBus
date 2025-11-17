@@ -52,7 +52,29 @@ public class MessageHandlerRegistryTests
         }
     }
 
+    [Test]
+    public void ShouldRegisterMultipleHandlerInterfaces()
+    {
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<HandlerForMultipleMessages>();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(1));
+            Assert.That(registry.GetHandlersFor(typeof(AnotherMessage)), Has.Count.EqualTo(1));
+        }
+    }
+
+    class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
+    {
+        public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+        public Task Handle(AnotherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+    }
+
     class MyMessage : IMessage;
+
+    class AnotherMessage : IMessage;
 
     class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
     {
