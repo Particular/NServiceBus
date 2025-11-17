@@ -18,19 +18,15 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var locations = context.SyntaxProvider
+        var addHandlers = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: SyntaxLooksLikeAddHandlerMethod,
-                transform: static (ctx, _) => new InvocationCandidate(ctx.Node.SyntaxTree.FilePath, ctx.Node.Span))
+                transform: TransformInvocation)
+            .Where(static d => d is not null)
+            .Select(static (d, _) => d!)
             .WithTrackingName("InterceptCandidates");
 
-        var withCompilation = locations.Combine(context.CompilationProvider)
-            .Select(GetInterceptsFromCompilation)
-            .Where(static m => m is not null)
-            .Select(static (x, _) => x!)
-            .WithTrackingName("WithCompilation");
-
-        var collected = withCompilation.Collect()
+        var collected = addHandlers.Collect()
             .WithTrackingName("Collected");
 
         context.RegisterSourceOutput(collected, GenerateInterceptorCode);
@@ -49,25 +45,11 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         ArgumentList.Arguments.Count: 0
     };
 
-    static InterceptDetails? GetInterceptsFromCompilation((InvocationCandidate, Compilation) tuple, CancellationToken cancellationToken)
+    static InterceptDetails? TransformInvocation(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
     {
-        var (candidate, compilation) = tuple;
+        var invocation = (InvocationExpressionSyntax)ctx.Node;
 
-        var syntaxTree = compilation.SyntaxTrees.FirstOrDefault(t => t.FilePath == candidate.FilePath);
-        if (syntaxTree is null)
-        {
-            return null;
-        }
-
-        // Fairly expensive
-        var root = syntaxTree.GetRoot(cancellationToken);
-        if (root.FindNode(candidate.Span) is not InvocationExpressionSyntax invocation)
-        {
-            return null;
-        }
-
-        var semanticModel = compilation.GetSemanticModel(syntaxTree, ignoreAccessibility: true);
-        if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+        if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
         {
             return null;
         }
@@ -93,7 +75,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             })
             .ToImmutableArray();
 
-        if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+        if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
         {
             return null;
         }

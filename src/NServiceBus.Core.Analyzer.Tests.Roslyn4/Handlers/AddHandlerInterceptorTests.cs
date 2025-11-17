@@ -42,7 +42,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "WithCompilation", "Collected")
+            .WithGeneratorStages("InterceptCandidates", "Collected")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -96,7 +96,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "WithCompilation", "Collected")
+            .WithGeneratorStages("InterceptCandidates", "Collected")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
