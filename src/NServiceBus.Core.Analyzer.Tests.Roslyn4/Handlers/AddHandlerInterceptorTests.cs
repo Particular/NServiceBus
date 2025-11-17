@@ -1,6 +1,6 @@
 namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 
-using HandlerRegistration;
+using Analyzer.Handlers;
 using Helpers;
 using NUnit.Framework;
 
