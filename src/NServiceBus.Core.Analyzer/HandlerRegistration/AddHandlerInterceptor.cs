@@ -187,7 +187,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         {
             foreach (var location in group)
             {
-                sb.AppendLine($"""        [global::System.Runtime.CompilerServices.InterceptsLocation({location.Location.Version}, "{location.Location.Data}")] // {location.Location.DisplayLocation}""");
+                sb.AppendLine($"""        {location.Location.Attribute} // {location.Location.DisplayLocation}""");
             }
 
             var first = group.First();
@@ -216,12 +216,12 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     const string AddHandlerClassName = "MessageHandlerRegistrationExtensions";
     const string AddHandlerMethodName = "AddHandler";
 
-    record struct InvocationCandidate(string FilePath, TextSpan Span);
-    record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
-    record struct MessageRegistration(string AddType, string MessageType);
-    record struct SafeInterceptionLocation(int Version, string Data, string DisplayLocation)
+    readonly record struct InvocationCandidate(string FilePath, TextSpan Span);
+    readonly record struct InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
+    readonly record struct MessageRegistration(string AddType, string MessageType);
+    readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
     {
         public static SafeInterceptionLocation From(InterceptableLocation location) =>
-            new(location.Version, location.Data, location.GetDisplayLocation());
+            new(location.GetInterceptsLocationAttributeSyntax(), location.GetDisplayLocation());
     }
 }

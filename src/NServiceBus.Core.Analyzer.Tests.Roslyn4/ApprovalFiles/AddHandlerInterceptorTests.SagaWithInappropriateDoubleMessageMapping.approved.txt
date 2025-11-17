@@ -20,7 +20,7 @@ namespace NServiceBus
 {
     static file class InterceptionsOfAddHandlerMethod
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
         public static void AddHandler_OrderPolicy_96ea9a4d3c77b82372b0(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);

@@ -20,7 +20,7 @@ namespace NServiceBus
 {
     static file class InterceptionsOfAddHandlerMethod
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
         public static void AddHandler_Handles1_a4af3e165a8c7ce9ada5(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -28,8 +28,8 @@ namespace NServiceBus
                 .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
             registry.AddMessageHandlerForMessage<global::Handles1, global::Cmd1>();
         }
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
-        [global::System.Runtime.CompilerServices.InterceptsLocation(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
+        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
+        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
         public static void AddHandler_Handles3_6d6995e632136e5f858c(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
