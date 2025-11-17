@@ -63,19 +63,11 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                             ctx.EventSubscribed = true;
                         }
                     });
-                }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))))
-                .ExcludeType<ManuallyRegisteredHandler>();
+                }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
         }
 
-        class RegularHandler : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+        class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
         {
-            Context testContext;
-
-            public RegularHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.RegularCommandHandlerInvoked = true;
@@ -90,15 +82,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class ManuallyRegisteredHandler : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+    class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
     {
-        Context testContext;
-
-        public ManuallyRegisteredHandler(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Handle(SomeCommand message, IMessageHandlerContext context)
         {
             testContext.ManuallyRegisteredCommandHandlerInvoked = true;
