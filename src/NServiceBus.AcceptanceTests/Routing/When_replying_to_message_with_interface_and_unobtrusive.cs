@@ -37,7 +37,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
         public SendingEndpoint() =>
             EndpointSetup<DefaultPublisher>(c =>
             {
-                c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy")));
+                c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My"));
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
             });
 
