@@ -2,19 +2,12 @@
 {
     using Microsoft.CodeAnalysis;
 
-    class FindSagaByDataSymbolVisitor : SymbolVisitor
+    class FindSagaByDataSymbolVisitor(INamedTypeSymbol sagaDataType, INamedTypeSymbol genericBaseSaga)
+        : SymbolVisitor
     {
-        INamedTypeSymbol sagaDataType;
-        INamedTypeSymbol genericBaseSaga;
         bool done;
 
         public INamedTypeSymbol FoundSaga { get; private set; }
-
-        public FindSagaByDataSymbolVisitor(INamedTypeSymbol sagaDataType, INamedTypeSymbol genericBaseSaga)
-        {
-            this.sagaDataType = sagaDataType;
-            this.genericBaseSaga = genericBaseSaga;
-        }
 
         public override void VisitNamespace(INamespaceSymbol symbol)
         {
@@ -43,15 +36,16 @@
 
             for (var baseType = symbol.BaseType; baseType != null; baseType = baseType.BaseType)
             {
-                if (baseType.IsAbstract && baseType.IsGenericType && baseType.ConstructedFrom.Equals(genericBaseSaga, SymbolEqualityComparer.IncludeNullability))
+                if (!baseType.IsAbstract || !baseType.IsGenericType ||
+                    !baseType.ConstructedFrom.Equals(genericBaseSaga, SymbolEqualityComparer.IncludeNullability) ||
+                    baseType.TypeArguments.Length != 1 || !baseType.TypeArguments[0].Equals(sagaDataType, SymbolEqualityComparer.IncludeNullability))
                 {
-                    if (baseType.TypeArguments.Length == 1 && baseType.TypeArguments[0].Equals(sagaDataType, SymbolEqualityComparer.IncludeNullability))
-                    {
-                        FoundSaga = symbol;
-                        done = true;
-                        return;
-                    }
+                    continue;
                 }
+
+                FoundSaga = symbol;
+                done = true;
+                return;
             }
         }
     }
