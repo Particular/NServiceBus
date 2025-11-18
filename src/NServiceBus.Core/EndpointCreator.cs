@@ -9,7 +9,6 @@ using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
-using Unicast;
 using Unicast.Messages;
 
 class EndpointCreator
@@ -67,7 +66,7 @@ class EndpointCreator
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
 
-        RegisterMessageHandlers(receiveSettings.MessageHandlerRegistry, receiveSettings.ExecuteTheseHandlersFirst, hostingConfiguration.AvailableTypes);
+        receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
 
         ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
@@ -144,20 +143,6 @@ class EndpointCreator
         _ = hostingConfiguration.Services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
-    }
-
-    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, ICollection<Type> availableTypes)
-    {
-        var types = new List<Type>(availableTypes);
-
-        foreach (var t in orderedTypes)
-        {
-            types.Remove(t);
-        }
-
-        types.InsertRange(0, orderedTypes);
-
-        handlerRegistry.AddScannedHandlers(types);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesViaHandlers)
