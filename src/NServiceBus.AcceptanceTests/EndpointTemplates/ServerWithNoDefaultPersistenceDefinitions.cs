@@ -1,17 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates;
 
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using AcceptanceTesting.Customization;
 using AcceptanceTesting.Support;
-using NServiceBus.Sagas;
-using Unicast;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
-    public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
+    public IConfigureEndpointTestExecution TransportConfiguration { get; init; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
 
     public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
     {
