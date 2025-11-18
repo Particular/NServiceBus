@@ -45,7 +45,7 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
                 context.OutgoingHeaders["HeaderSetByMutator"] = "some value";
-                context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
+                context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).AssemblyQualifiedName;
                 context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo><SomeProperty>SomeValue</SomeProperty></MessageThatMutatorChangesTo>");
                 return Task.CompletedTask;
             }
