@@ -36,17 +36,23 @@ public static class EndpointConfigurationExtensions
             ScanFileSystemAssemblies = false
         };
 
+        var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
         config.TypesToIncludeInScan(
         [
             .. assemblyScanner.GetScannableAssemblies().Types
                 .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
-                .Union(GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType))
-                .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
-                            || t.IsAssignableTo(typeof(IFinder))
+                .Union(testTypes)
+                .Where(t => t.IsAssignableTo(typeof(IFinder))
                             || t.IsAssignableTo(typeof(IHandleSagaNotFound))
                             || t.IsAssignableTo(typeof(Saga)))
                 .Union(customizationConfiguration.TypesToInclude)
         ]);
+
+        //auto-register handlers for now
+        foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+        {
+            AddHandlerWithReflection(messageHandler, config);
+        }
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
@@ -94,4 +100,10 @@ public static class EndpointConfigurationExtensions
         config.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
             "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
     }
+
+    static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
+        typeof(MessageHandlerRegistrationExtensions)
+            .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!
+            .MakeGenericMethod(handlerType)
+            .Invoke(null, [endpointConfiguration]);
 }

@@ -57,7 +57,7 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
         }
     }
 
-    public class MyMessage
+    public class MyMessage :IMessage
     {
 #nullable enable
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
