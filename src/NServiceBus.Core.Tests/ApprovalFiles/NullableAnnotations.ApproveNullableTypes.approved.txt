@@ -37,7 +37,6 @@ NServiceBus.IPipelineContext
 NServiceBus.IToSagaExpression`1
 NServiceBus.LearningTransport
 NServiceBus.LearningTransportConfigurationExtensions
-NServiceBus.LoadMessageHandlersExtensions
 NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions
