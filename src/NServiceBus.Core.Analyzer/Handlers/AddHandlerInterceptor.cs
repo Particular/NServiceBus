@@ -172,14 +172,14 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
         var groups = intercepts.GroupBy(i => i.MethodName)
             .OrderBy(g => g.Key, StringComparer.Ordinal);
-        foreach (var group in groups)
+        foreach (IGrouping<string, InterceptDetails> group in groups)
         {
-            foreach (var location in group)
+            foreach (InterceptDetails location in group)
             {
                 sb.AppendLine($"        {location.Location.Attribute} // {location.Location.DisplayLocation}");
             }
 
-            var first = group.First();
+            InterceptDetails first = group.First();
             sb.AppendLine($$"""
                                     public static void {{first.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
                                     {
