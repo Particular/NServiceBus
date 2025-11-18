@@ -63,7 +63,7 @@ class EndpointCreator
 
     void Configure()
     {
-        ConfigureMessageTypes();
+        var messageMetadataRegistry = ConfigureMessageTypes();
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
@@ -116,6 +116,9 @@ class EndpointCreator
             pipelineSettings);
         receiveComponent.AddManifest(hostingConfiguration, settings);
 
+        // add the message types we have handlers for as well
+        messageMetadataRegistry.RegisterMessageTypes(receiveConfiguration.MessageHandlerRegistry.GetMessageTypes());
+
         pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration, receiveConfiguration);
 
         // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
@@ -141,7 +144,7 @@ class EndpointCreator
     }
 
 
-    void ConfigureMessageTypes()
+    MessageMetadataRegistry ConfigureMessageTypes()
     {
         var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, settings.IsDynamicTypeLoadingEnabled());
 
@@ -158,6 +161,8 @@ class EndpointCreator
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
             Messages = foundMessages.Select(m => m.MessageType.FullName)
         });
+
+        return messageMetadataRegistry;
     }
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)

@@ -40,7 +40,7 @@ public class MessageHandlerRegistry
     }
 
     /// <summary>
-    /// Lists all message type for which we have handlers.
+    /// Lists all message types for which we have handlers.
     /// </summary>
     /// <remarks>This method should not be called on a hot path.</remarks>
     public IEnumerable<Type> GetMessageTypes()

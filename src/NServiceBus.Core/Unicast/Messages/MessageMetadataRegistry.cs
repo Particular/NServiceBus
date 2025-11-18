@@ -19,7 +19,6 @@ using NServiceBus;
 /// at runtime and all types must be explicitly loaded beforehand.</param>
 public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
 {
-
     /// <summary>
     /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
     /// </summary>
@@ -145,6 +144,14 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
             {
                 RegisterMessageType(messageType);
             }
+        }
+    }
+
+    internal void RegisterMessageTypes(IEnumerable<Type> messageTypes)
+    {
+        foreach (var messageType in messageTypes)
+        {
+            RegisterMessageType(messageType);
         }
     }
 
