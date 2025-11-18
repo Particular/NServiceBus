@@ -43,13 +43,8 @@ public class MessageHandlerRegistry
     /// Lists all message types for which we have handlers.
     /// </summary>
     /// <remarks>This method should not be called on a hot path.</remarks>
-    public IEnumerable<Type> GetMessageTypes()
-    {
-        return (from messagesBeingHandled in messageHandlerFactories.Values
-            from typeHandled in messagesBeingHandled
-            let messageType = typeHandled.MessageType
-            select messageType).Distinct();
-    }
+    public IEnumerable<Type> GetMessageTypes() =>
+        (from messagesBeingHandled in messageHandlerFactories.Values from typeHandled in messagesBeingHandled let messageType = typeHandled.MessageType select messageType).Distinct();
 
     /// <summary>
     /// Registers the given potential handler type.
@@ -136,11 +131,7 @@ public class MessageHandlerRegistry
         }
     }
 
-    /// <summary>
-    /// Sorts the message handlers with handlers in the provided list being first.
-    /// </summary>
-    /// <param name="handlersToExecuteFirst">Handlers to invoke first.</param>
-    public void SortHandlers(IList<Type> handlersToExecuteFirst)
+    internal void SortHandlers(IList<Type> handlersToExecuteFirst)
     {
         var sortedFactories = new Dictionary<Type, List<IMessageHandlerFactory>>();
         foreach (var handlerType in handlersToExecuteFirst)
