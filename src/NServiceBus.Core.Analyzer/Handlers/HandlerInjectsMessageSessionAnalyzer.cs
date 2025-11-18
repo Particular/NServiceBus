@@ -20,12 +20,23 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         context.RegisterCompilationStartAction(Analyze);
     }
 
-    static void Analyze(CompilationStartAnalysisContext startContext)
-    {
-        var knownTypes = new KnownTypes(startContext.Compilation);
+    static void Analyze(CompilationStartAnalysisContext startContext) =>
+        startContext.RegisterSymbolAction(static context =>
+        {
+            var iHandleMessages = context.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
+            var iMessageSession = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageSession");
 
-        startContext.RegisterSymbolAction(context => Analyze(context, knownTypes), SymbolKind.NamedType);
-    }
+            // because this is an analyzer, we want to be a bit more defensive and bail out if types are missing
+            if (iHandleMessages is null || iMessageSession is null)
+            {
+                return;
+            }
+
+
+            var knownTypes = new KnownTypes(iHandleMessages, iMessageSession);
+
+            Analyze(context, knownTypes);
+        }, SymbolKind.NamedType);
 
     static void Analyze(SymbolAnalysisContext context, KnownTypes knownTypes)
     {
@@ -106,13 +117,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    class KnownTypes(Compilation compilation)
-    {
-        public INamedTypeSymbol IHandleMessages { get; } = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1")
-                                                           ?? throw new InvalidOperationException("Missing type IHandleMessages<T>");
-        public INamedTypeSymbol IMessageSession { get; } = compilation.GetTypeByMetadataName("NServiceBus.IMessageSession")
-                                                           ?? throw new InvalidOperationException("Missing type IMessageSession");
-    }
+    readonly record struct KnownTypes(INamedTypeSymbol IHandleMessages, INamedTypeSymbol IMessageSession);
 
     public static readonly DiagnosticDescriptor HandlerInjectsMessageSession = new(
         id: DiagnosticIds.HandlerInjectsMessageSession,
