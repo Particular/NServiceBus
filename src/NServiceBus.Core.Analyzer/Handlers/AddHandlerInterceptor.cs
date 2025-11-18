@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+using Utility;
 
 [Generator]
 public class AddHandlerInterceptor : IIncrementalGenerator
@@ -93,18 +94,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             .Append('_');
 
         var handlerFullName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        // 64-bit FNV-1a over chars, https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-        // This is a fast-enough, non-cryptographic hash function. Unfortunately, we can't use the built-in one because it's not available in netstandard2.0
-        const ulong offsetBasis = 14695981039346656037UL;
-        const ulong prime = 1099511628211UL;
-
-        ulong hash = offsetBasis;
-        foreach (var ch in handlerFullName.AsSpan())
-        {
-            hash ^= ch;
-            hash *= prime;
-        }
+        var hash = NonCryptographicHash.GetHash(handlerFullName);
 
         sb.Append(hash.ToString("x16"));
 
