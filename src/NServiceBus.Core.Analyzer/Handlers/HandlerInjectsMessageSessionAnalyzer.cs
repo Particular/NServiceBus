@@ -17,11 +17,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterCompilationStartAction(Analyze);
-    }
-
-    static void Analyze(CompilationStartAnalysisContext startContext) =>
-        startContext.RegisterSymbolAction(static context =>
+        context.RegisterSymbolAction(static context =>
         {
             var iHandleMessages = context.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
             var iMessageSession = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageSession");
@@ -37,6 +33,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
 
             Analyze(context, knownTypes);
         }, SymbolKind.NamedType);
+    }
 
     static void Analyze(SymbolAnalysisContext context, KnownTypes knownTypes)
     {
