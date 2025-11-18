@@ -170,7 +170,8 @@ public class AddHandlerInterceptor : IIncrementalGenerator
                           {
                       """);
 
-        var groups = intercepts.GroupBy(i => i.MethodName);
+        var groups = intercepts.GroupBy(i => i.MethodName)
+            .OrderBy(g => g.Key, StringComparer.Ordinal);
         foreach (var group in groups)
         {
             foreach (var location in group)
