@@ -61,13 +61,13 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in ctor.Parameters)
             {
-                RaiseDiagnosticIfMatching<ParameterSyntax>(parameter, parameter.Type, "constructor", s => s.Type);
+                RaiseDiagnosticIfMatching<ParameterSyntax>(parameter, parameter.Type, "constructor", static s => s.Type);
             }
         }
 
         foreach (var prop in classType.GetMembers().OfType<IPropertySymbol>())
         {
-            RaiseDiagnosticIfMatching<PropertyDeclarationSyntax>(prop, prop.Type, "property", p => p.Type);
+            RaiseDiagnosticIfMatching<PropertyDeclarationSyntax>(prop, prop.Type, "property", static p => p.Type);
         }
 
         return;
