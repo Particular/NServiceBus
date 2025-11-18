@@ -10,7 +10,18 @@ using NUnit.Framework;
 public class PipelineModelBuilderTests
 {
     [Test]
-    public void ShouldDetectConflictingStepRegistrations()
+    public void ShouldReturnEmptyStepListWhenNoRegistrations()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Build(typeof(IParentContext));
+
+        var model = builder.Build();
+
+        Assert.That(model.Count, Is.Zero);
+    }
+
+    [Test]
+    public void ShouldDetectConflictingStepRegistrationsFromRegisterSteps()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
             .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
@@ -23,6 +34,20 @@ public class PipelineModelBuilderTests
     }
 
     [Test]
+    public void ShouldOnlyAllowOneReplaceStepPerStepId()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
+            .Replace(new ReplaceStep("Root1", typeof(RootBehavior), "desc"))
+            .Replace(new ReplaceStep("Root1", typeof(RootBehavior), "desc"))
+            .Build(typeof(IParentContext));
+
+        var ex = Assert.Throws<Exception>(() => builder.Build());
+
+        Assert.That(ex.Message, Is.EqualTo("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'Root1'."));
+    }
+
+    [Test]
     public void ShouldOnlyAllowReplacementOfExistingRegistrations()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
@@ -32,7 +57,24 @@ public class PipelineModelBuilderTests
 
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
-        Assert.That(ex.Message, Is.EqualTo("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'DoesNotExist'."));
+        Assert.That(ex.Message, Is.EqualTo("'DoesNotExist' cannot be replaced because it does not exist. Make sure that you only register a replacement for existing pipeline behaviors."));
+    }
+
+    [Test]
+    public void ShouldReplaceExistingRegistrations()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
+            .Register(RegisterStep.Create("SomeBehaviorOfParentContext", typeof(SomeBehaviorOfParentContext), "desc"))
+            .Replace(new ReplaceStep("SomeBehaviorOfParentContext", typeof(AnotherBehaviorOfParentContext), "desc"))
+            .Build(typeof(IParentContext));
+
+        var model = builder.Build();
+
+        Assert.That(model.Count, Is.EqualTo(2));
+        var replacedBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
+        Assert.That(replacedBehavior, Is.Not.Null);
+        Assert.That(replacedBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
     }
 
     [Test]
@@ -69,7 +111,7 @@ public class PipelineModelBuilderTests
     }
 
     [Test]
-    public void ShouldReplaceWhenRegisteringOrReplacingABehaviorThatHasAlreadyBeenRegisteredOrReplaced()
+    public void ShouldReplaceWithLastRegisterReplaceStepWhenMultipleRegisterOrReplaceStepsExistForTheSameStepId()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
             .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
@@ -109,6 +151,19 @@ public class PipelineModelBuilderTests
         var ex = Assert.Throws<Exception>(() => builder.Build());
 
         Assert.That(ex.Message, Is.EqualTo("Multiple stage connectors found for stage 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext'. Remove one of: 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextConnector', 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+ParentContextToChildContextNotInheritedFromParentContextConnector'"));
+    }
+
+    [Test]
+    public void ShouldDetectMissingStageConnectors()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
+            .Register(RegisterStep.Create("ChildContextToChildContextNotInheritedFromParentContextConnector", typeof(ChildContextToChildContextNotInheritedFromParentContextConnector), "desc"))
+            .Build(typeof(IParentContext));
+
+        var ex = Assert.Throws<Exception>(() => builder.Build());
+
+        Assert.That(ex.Message, Is.EqualTo("No stage connector found for stage 'NServiceBus.Core.Tests.Pipeline.PipelineModelBuilderTests+IParentContext'."));
     }
 
     [Test]
@@ -274,6 +329,14 @@ public class PipelineModelBuilderTests
     class ParentContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IParentContext, IChildContextNotInheritedFromParentContext>
     {
         public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    class ChildContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IChildContext, IChildContextNotInheritedFromParentContext>
+    {
+        public override Task Invoke(IChildContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
         {
             throw new NotImplementedException();
         }
