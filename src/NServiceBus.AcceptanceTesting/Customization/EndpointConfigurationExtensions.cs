@@ -26,8 +26,7 @@ public static class EndpointConfigurationExtensions
         var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
 
         var typesToIncludeInScanning = testTypes
-            .Where(t => t.IsAssignableTo(typeof(IFinder))
-                        || t.IsAssignableTo(typeof(IHandleSagaNotFound))
+            .Where(t => t.IsAssignableTo(typeof(IHandleSagaNotFound))
                         || t.IsAssignableTo(typeof(Saga)))
             .Union(customizationConfiguration.TypesToInclude);
 
