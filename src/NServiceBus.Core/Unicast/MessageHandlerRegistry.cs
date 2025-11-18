@@ -35,6 +35,7 @@ public class MessageHandlerRegistry
                 }
             }
         }
+
         return messageHandlers;
     }
 
@@ -45,9 +46,9 @@ public class MessageHandlerRegistry
     public IEnumerable<Type> GetMessageTypes()
     {
         return (from messagesBeingHandled in messageHandlerFactories.Values
-                from typeHandled in messagesBeingHandled
-                let messageType = typeHandled.MessageType
-                select messageType).Distinct();
+            from typeHandled in messagesBeingHandled
+            let messageType = typeHandled.MessageType
+            select messageType).Distinct();
     }
 
     /// <summary>
@@ -135,12 +136,39 @@ public class MessageHandlerRegistry
         }
     }
 
+    /// <summary>
+    /// Sorts the message handlers with handlers in the provided list being first.
+    /// </summary>
+    /// <param name="handlersToExecuteFirst">Handlers to invoke first.</param>
+    public void SortHandlers(IList<Type> handlersToExecuteFirst)
+    {
+        var sortedFactories = new Dictionary<Type, List<IMessageHandlerFactory>>();
+        foreach (var handlerType in handlersToExecuteFirst)
+        {
+            if (messageHandlerFactories.TryGetValue(handlerType, out var handlerFactory))
+            {
+                sortedFactories[handlerType] = handlerFactory;
+            }
+        }
+
+        foreach (var entry in messageHandlerFactories)
+        {
+            if (!sortedFactories.ContainsKey(entry.Key))
+            {
+                sortedFactories.Add(entry.Key, entry.Value);
+            }
+        }
+
+        messageHandlerFactories = sortedFactories;
+    }
+
     List<IMessageHandlerFactory> GetOrCreate<THandler>()
     {
         if (!messageHandlerFactories.TryGetValue(typeof(THandler), out var handlerFactories))
         {
             messageHandlerFactories[typeof(THandler)] = handlerFactories = [];
         }
+
         return handlerFactories;
     }
 
@@ -185,7 +213,7 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
-    readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
+    Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();

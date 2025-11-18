@@ -73,7 +73,11 @@ partial class ReceiveComponent
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
         var messageHandlerRegistry = configuration.MessageHandlerRegistry;
-        RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
+
+        messageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+
+        messageHandlerRegistry.SortHandlers(configuration.ExecuteTheseHandlersFirst);
+        hostingConfiguration.Services.AddSingleton(messageHandlerRegistry);
 
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
@@ -238,22 +242,6 @@ partial class ReceiveComponent
         });
 
         return Task.WhenAll(receiverStopTasks);
-    }
-
-    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
-    {
-        var types = new List<Type>(availableTypes);
-
-        foreach (var t in orderedTypes)
-        {
-            types.Remove(t);
-        }
-
-        types.InsertRange(0, orderedTypes);
-
-        handlerRegistry.AddScannedHandlers(types);
-
-        serviceCollection.AddSingleton(handlerRegistry);
     }
 
     static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
