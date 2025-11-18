@@ -131,28 +131,6 @@ public class MessageHandlerRegistry
         }
     }
 
-    internal void SortHandlers(IList<Type> handlersToExecuteFirst)
-    {
-        var sortedFactories = new Dictionary<Type, List<IMessageHandlerFactory>>();
-        foreach (var handlerType in handlersToExecuteFirst)
-        {
-            if (messageHandlerFactories.TryGetValue(handlerType, out var handlerFactory))
-            {
-                sortedFactories[handlerType] = handlerFactory;
-            }
-        }
-
-        foreach (var entry in messageHandlerFactories)
-        {
-            if (!sortedFactories.ContainsKey(entry.Key))
-            {
-                sortedFactories.Add(entry.Key, entry.Value);
-            }
-        }
-
-        messageHandlerFactories = sortedFactories;
-    }
-
     List<IMessageHandlerFactory> GetOrCreate<THandler>()
     {
         if (!messageHandlerFactories.TryGetValue(typeof(THandler), out var handlerFactories))
@@ -204,7 +182,7 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
-    Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
+    readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();

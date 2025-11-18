@@ -31,7 +31,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(InterceptingHandler)));
+        public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.AddHandler<InterceptingHandler>());
 
         public class TestSaga13(SagaEndpointContext testContext) : Saga<TestSaga13.TestSagaData13>, IAmStartedByMessages<StartSagaMessage>
         {

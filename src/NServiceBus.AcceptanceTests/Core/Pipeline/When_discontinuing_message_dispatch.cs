@@ -35,7 +35,7 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(InterceptingHandler)));
+        public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.AddHandler<InterceptingHandler>());
 
         public class TestSaga03(SagaEndpointContext testContext) : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
         {
