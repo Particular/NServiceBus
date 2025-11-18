@@ -35,16 +35,20 @@ public class MessageHandlerRegistry
                 }
             }
         }
-
         return messageHandlers;
     }
 
     /// <summary>
-    /// Lists all message types for which we have handlers.
+    /// Lists all message type for which we have handlers.
     /// </summary>
     /// <remarks>This method should not be called on a hot path.</remarks>
-    public IEnumerable<Type> GetMessageTypes() =>
-        (from messagesBeingHandled in messageHandlerFactories.Values from typeHandled in messagesBeingHandled let messageType = typeHandled.MessageType select messageType).Distinct();
+    public IEnumerable<Type> GetMessageTypes()
+    {
+        return (from messagesBeingHandled in messageHandlerFactories.Values
+                from typeHandled in messagesBeingHandled
+                let messageType = typeHandled.MessageType
+                select messageType).Distinct();
+    }
 
     /// <summary>
     /// Registers the given potential handler type.
@@ -137,7 +141,6 @@ public class MessageHandlerRegistry
         {
             messageHandlerFactories[typeof(THandler)] = handlerFactories = [];
         }
-
         return handlerFactories;
     }
 
