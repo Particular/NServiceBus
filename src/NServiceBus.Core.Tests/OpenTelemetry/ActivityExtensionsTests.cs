@@ -46,7 +46,7 @@ public class ActivityExtensionsTests
         recordingActivity.Start();
 
         var contextBag = new ContextBag();
-        contextBag.SetOutgoingPipelineActitvity(recordingActivity);
+        contextBag.SetOutgoingPipelineActivity(recordingActivity);
 
         using (Assert.EnterMultipleScope())
         {

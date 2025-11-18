@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -10,7 +12,7 @@ class UnsubscribeDiagnosticsBehavior : IBehavior<IUnsubscribeContext, IUnsubscri
     {
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            activity?.SetTag(ActivityTags.EventTypes, context.EventType.FullName);
+            activity.SetTag(ActivityTags.EventTypes, context.EventType.FullName);
         }
 
         return next(context);

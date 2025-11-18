@@ -42,7 +42,7 @@ class MainPipelineExecutor(
 
             if (activity != null)
             {
-                transportReceiveContext.SetIncomingPipelineActitvity(activity);
+                transportReceiveContext.SetIncomingPipelineActivity(activity);
             }
 
             try

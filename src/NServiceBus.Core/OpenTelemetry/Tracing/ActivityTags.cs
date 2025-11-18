@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 static class ActivityTags
