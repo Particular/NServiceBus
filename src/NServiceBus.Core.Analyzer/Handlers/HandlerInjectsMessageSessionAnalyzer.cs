@@ -2,10 +2,8 @@
 
 namespace NServiceBus.Core.Analyzer.Handlers;
 
-using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -18,20 +16,27 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterCompilationStartAction(Analyze);
+        context.RegisterSymbolAction(static context =>
+        {
+            var iHandleMessages = context.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
+            var iMessageSession = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageSession");
+
+            // because this is an analyzer, we want to be a bit more defensive and bail out if types are missing
+            if (iHandleMessages is null || iMessageSession is null)
+            {
+                return;
+            }
+
+
+            var knownTypes = new KnownTypes(iHandleMessages, iMessageSession);
+
+            Analyze(context, knownTypes);
+        }, SymbolKind.NamedType);
     }
 
-    static void Analyze(CompilationStartAnalysisContext startContext)
+    static void Analyze(SymbolAnalysisContext context, KnownTypes knownTypes)
     {
-        var knownTypes = new KnownTypes(startContext.Compilation);
-
-        startContext.RegisterSyntaxNodeAction(context => Analyze(context, knownTypes), SyntaxKind.ClassDeclaration);
-    }
-
-    static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
-    {
-        // Casting what should be guaranteed by the analyzer anyway
-        if (context.ContainingSymbol is not INamedTypeSymbol classType)
+        if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class } classType)
         {
             return;
         }
@@ -57,54 +62,58 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    static void AnalyzeMessageHandlerClass(SyntaxNodeAnalysisContext context, INamedTypeSymbol classType, KnownTypes knownTypes)
+    static void AnalyzeMessageHandlerClass(SymbolAnalysisContext context, INamedTypeSymbol classType, KnownTypes knownTypes)
     {
         foreach (var ctor in classType.Constructors)
         {
             foreach (var parameter in ctor.Parameters)
             {
-                RaiseDiagnosticIfMatching<ParameterSyntax>(parameter, parameter.Type, "constructor", s => s.Type);
+                RaiseDiagnosticIfMatching(context, classType, parameter, knownTypes, "constructor");
             }
         }
 
         foreach (var prop in classType.GetMembers().OfType<IPropertySymbol>())
         {
-            RaiseDiagnosticIfMatching<PropertyDeclarationSyntax>(prop, prop.Type, "property", p => p.Type);
+            RaiseDiagnosticIfMatching(context, classType, prop, knownTypes, "property");
         }
 
         return;
 
-        void RaiseDiagnosticIfMatching<TSyntaxType>(ISymbol symbol, ITypeSymbol focusType, string injectionType, Func<TSyntaxType, TypeSyntax?> getTypeSyntaxNode)
-            where TSyntaxType : SyntaxNode
+        static void RaiseDiagnosticIfMatching(SymbolAnalysisContext context, INamedTypeSymbol classType, ISymbol symbol, KnownTypes knownTypes, string injectionKind)
         {
-            if (!focusType.IsAssignableTo(knownTypes.IMessageSession))
+            var focusType = symbol.GetTypeSymbolOrDefault();
+            if (focusType is null || !focusType.IsAssignableTo(knownTypes.IMessageSession))
             {
                 return;
             }
 
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.SyntaxTree != context.Node.SyntaxTree ||
-                    syntaxRef.GetSyntax(context.CancellationToken) is not TSyntaxType syntaxNode ||
-                    getTypeSyntaxNode(syntaxNode) is not { } typeSyntax)
+                if (syntaxRef.GetSyntax(context.CancellationToken) is not { } syntaxNode)
+                {
+                    continue;
+                }
+
+                var typeSyntax = syntaxNode switch
+                {
+                    ParameterSyntax p => p.Type,
+                    PropertyDeclarationSyntax p => p.Type,
+                    _ => null
+                };
+
+                if (typeSyntax is null)
                 {
                     continue;
                 }
 
                 var diagnostic = Diagnostic.Create(HandlerInjectsMessageSession, typeSyntax.GetLocation(),
-                    classType.ToDisplayString(), focusType.ToDisplayString(), injectionType);
+                    classType.ToDisplayString(), focusType.ToDisplayString(), injectionKind);
                 context.ReportDiagnostic(diagnostic);
             }
         }
     }
 
-    class KnownTypes(Compilation compilation)
-    {
-        public INamedTypeSymbol IHandleMessages { get; } = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1")
-                                                           ?? throw new InvalidOperationException("Missing type IHandleMessages<T>");
-        public INamedTypeSymbol IMessageSession { get; } = compilation.GetTypeByMetadataName("NServiceBus.IMessageSession")
-                                                           ?? throw new InvalidOperationException("Missing type IMessageSession");
-    }
+    readonly record struct KnownTypes(INamedTypeSymbol IHandleMessages, INamedTypeSymbol IMessageSession);
 
     public static readonly DiagnosticDescriptor HandlerInjectsMessageSession = new(
         id: DiagnosticIds.HandlerInjectsMessageSession,
