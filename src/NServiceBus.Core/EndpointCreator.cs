@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Features;
 using MessageInterfaces;
@@ -8,6 +9,7 @@ using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
+using Unicast;
 using Unicast.Messages;
 
 class EndpointCreator
@@ -63,7 +65,11 @@ class EndpointCreator
 
     void Configure()
     {
-        var messageMetadataRegistry = ConfigureMessageTypes();
+        var receiveSettings = settings.Get<ReceiveComponent.Settings>();
+
+        RegisterMessageHandlers(receiveSettings.MessageHandlerRegistry, receiveSettings.ExecuteTheseHandlersFirst, hostingConfiguration.AvailableTypes);
+
+        ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
@@ -116,9 +122,6 @@ class EndpointCreator
             pipelineSettings);
         receiveComponent.AddManifest(hostingConfiguration, settings);
 
-        // add the message types we have handlers for as well
-        messageMetadataRegistry.RegisterMessageTypes(receiveConfiguration.MessageHandlerRegistry.GetMessageTypes());
-
         pipelineComponent = PipelineComponent.Initialize(pipelineSettings, hostingConfiguration, receiveConfiguration);
 
         // The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
@@ -143,12 +146,26 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
     }
 
+    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, ICollection<Type> availableTypes)
+    {
+        var types = new List<Type>(availableTypes);
 
-    MessageMetadataRegistry ConfigureMessageTypes()
+        foreach (var t in orderedTypes)
+        {
+            types.Remove(t);
+        }
+
+        types.InsertRange(0, orderedTypes);
+
+        handlerRegistry.AddScannedHandlers(types);
+    }
+
+    void ConfigureMessageTypes(IEnumerable<Type> messageTypesViaHandlers)
     {
         var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, settings.IsDynamicTypeLoadingEnabled());
 
         messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+        messageMetadataRegistry.RegisterMessageTypes(messageTypesViaHandlers);
 
         settings.Set(messageMetadataRegistry);
 
@@ -161,8 +178,6 @@ class EndpointCreator
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
             Messages = foundMessages.Select(m => m.MessageType.FullName)
         });
-
-        return messageMetadataRegistry;
     }
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)
