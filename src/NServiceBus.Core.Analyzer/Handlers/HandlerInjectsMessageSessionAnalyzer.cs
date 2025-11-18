@@ -59,27 +59,6 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
 
     static void AnalyzeMessageHandlerClass(SyntaxNodeAnalysisContext context, INamedTypeSymbol classType, KnownTypes knownTypes)
     {
-        void RaiseDiagnosticIfMatching<TSyntaxType>(ISymbol symbol, ITypeSymbol focusType, string injectionType, Func<TSyntaxType, TypeSyntax?> getTypeSyntaxNode)
-            where TSyntaxType : SyntaxNode
-        {
-            if (focusType.IsAssignableTo(knownTypes.IMessageSession))
-            {
-                foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
-                {
-                    if (syntaxRef.SyntaxTree == context.Node.SyntaxTree && syntaxRef.GetSyntax(context.CancellationToken) is TSyntaxType syntaxNode)
-                    {
-                        var typeSyntax = getTypeSyntaxNode(syntaxNode);
-                        if (typeSyntax is not null)
-                        {
-                            var diagnostic = Diagnostic.Create(HandlerInjectsMessageSession, typeSyntax.GetLocation(),
-                                classType.ToDisplayString(), focusType.ToDisplayString(), injectionType);
-                            context.ReportDiagnostic(diagnostic);
-                        }
-                    }
-                }
-            }
-        }
-
         foreach (var ctor in classType.Constructors)
         {
             foreach (var parameter in ctor.Parameters)
@@ -91,6 +70,31 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         foreach (var prop in classType.GetMembers().OfType<IPropertySymbol>())
         {
             RaiseDiagnosticIfMatching<PropertyDeclarationSyntax>(prop, prop.Type, "property", p => p.Type);
+        }
+
+        return;
+
+        void RaiseDiagnosticIfMatching<TSyntaxType>(ISymbol symbol, ITypeSymbol focusType, string injectionType, Func<TSyntaxType, TypeSyntax?> getTypeSyntaxNode)
+            where TSyntaxType : SyntaxNode
+        {
+            if (!focusType.IsAssignableTo(knownTypes.IMessageSession))
+            {
+                return;
+            }
+
+            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.SyntaxTree != context.Node.SyntaxTree ||
+                    syntaxRef.GetSyntax(context.CancellationToken) is not TSyntaxType syntaxNode ||
+                    getTypeSyntaxNode(syntaxNode) is not { } typeSyntax)
+                {
+                    continue;
+                }
+
+                var diagnostic = Diagnostic.Create(HandlerInjectsMessageSession, typeSyntax.GetLocation(),
+                    classType.ToDisplayString(), focusType.ToDisplayString(), injectionType);
+                context.ReportDiagnostic(diagnostic);
+            }
         }
     }
 
