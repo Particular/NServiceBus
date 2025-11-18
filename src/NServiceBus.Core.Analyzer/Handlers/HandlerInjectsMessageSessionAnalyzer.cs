@@ -61,25 +61,21 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in ctor.Parameters)
             {
-                RaiseDiagnosticIfMatching(context, classType, parameter, parameter.Type, knownTypes, "constructor");
+                RaiseDiagnosticIfMatching(context, classType, parameter, knownTypes, "constructor");
             }
         }
 
         foreach (var prop in classType.GetMembers().OfType<IPropertySymbol>())
         {
-            RaiseDiagnosticIfMatching(context, classType, prop, prop.Type, knownTypes, "property");
+            RaiseDiagnosticIfMatching(context, classType, prop, knownTypes, "property");
         }
 
         return;
 
-        static void RaiseDiagnosticIfMatching(SymbolAnalysisContext context,
-            INamedTypeSymbol classType,
-            ISymbol symbol,
-            ITypeSymbol focusType,
-            KnownTypes knownTypes,
-            string injectionKind)
+        static void RaiseDiagnosticIfMatching(SymbolAnalysisContext context, INamedTypeSymbol classType, ISymbol symbol, KnownTypes knownTypes, string injectionKind)
         {
-            if (!focusType.IsAssignableTo(knownTypes.IMessageSession))
+            var focusType = symbol.GetTypeSymbolOrDefault();
+            if (focusType is null || !focusType.IsAssignableTo(knownTypes.IMessageSession))
             {
                 return;
             }
