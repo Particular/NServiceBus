@@ -61,19 +61,23 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in ctor.Parameters)
             {
-                RaiseDiagnosticIfMatching<ParameterSyntax>(parameter, parameter.Type, "constructor", static s => s.Type);
+                RaiseDiagnosticIfMatching(context, classType, parameter, parameter.Type, knownTypes, "constructor");
             }
         }
 
         foreach (var prop in classType.GetMembers().OfType<IPropertySymbol>())
         {
-            RaiseDiagnosticIfMatching<PropertyDeclarationSyntax>(prop, prop.Type, "property", static p => p.Type);
+            RaiseDiagnosticIfMatching(context, classType, prop, prop.Type, knownTypes, "property");
         }
 
         return;
 
-        void RaiseDiagnosticIfMatching<TSyntaxType>(ISymbol symbol, ITypeSymbol focusType, string injectionType, Func<TSyntaxType, TypeSyntax?> getTypeSyntaxNode)
-            where TSyntaxType : SyntaxNode
+        static void RaiseDiagnosticIfMatching(SymbolAnalysisContext context,
+            INamedTypeSymbol classType,
+            ISymbol symbol,
+            ITypeSymbol focusType,
+            KnownTypes knownTypes,
+            string injectionKind)
         {
             if (!focusType.IsAssignableTo(knownTypes.IMessageSession))
             {
@@ -82,14 +86,25 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
 
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax(context.CancellationToken) is not TSyntaxType syntaxNode ||
-                    getTypeSyntaxNode(syntaxNode) is not { } typeSyntax)
+                if (syntaxRef.GetSyntax(context.CancellationToken) is not { } syntaxNode)
+                {
+                    continue;
+                }
+
+                var typeSyntax = syntaxNode switch
+                {
+                    ParameterSyntax p => p.Type,
+                    PropertyDeclarationSyntax p => p.Type,
+                    _ => null
+                };
+
+                if (typeSyntax is null)
                 {
                     continue;
                 }
 
                 var diagnostic = Diagnostic.Create(HandlerInjectsMessageSession, typeSyntax.GetLocation(),
-                    classType.ToDisplayString(), focusType.ToDisplayString(), injectionType);
+                    classType.ToDisplayString(), focusType.ToDisplayString(), injectionKind);
                 context.ReportDiagnostic(diagnostic);
             }
         }
