@@ -36,6 +36,17 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        // fast path: check directly implemented interfaces first
+        var directlyDeclared = classType.Interfaces;
+        foreach (var iface in directlyDeclared)
+        {
+            if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, knownTypes.IHandleMessages))
+            {
+                AnalyzeMessageHandlerClass(context, classType, knownTypes);
+                return;
+            }
+        }
+
         foreach (var iface in classType.AllInterfaces)
         {
             if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, knownTypes.IHandleMessages))
