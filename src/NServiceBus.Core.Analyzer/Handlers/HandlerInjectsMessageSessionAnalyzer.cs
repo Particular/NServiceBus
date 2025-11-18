@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -25,13 +24,12 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
     {
         var knownTypes = new KnownTypes(startContext.Compilation);
 
-        startContext.RegisterSyntaxNodeAction(context => Analyze(context, knownTypes), SyntaxKind.ClassDeclaration);
+        startContext.RegisterSymbolAction(context => Analyze(context, knownTypes), SymbolKind.NamedType);
     }
 
-    static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
+    static void Analyze(SymbolAnalysisContext context, KnownTypes knownTypes)
     {
-        // Casting what should be guaranteed by the analyzer anyway
-        if (context.ContainingSymbol is not INamedTypeSymbol classType)
+        if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class } classType)
         {
             return;
         }
@@ -57,7 +55,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    static void AnalyzeMessageHandlerClass(SyntaxNodeAnalysisContext context, INamedTypeSymbol classType, KnownTypes knownTypes)
+    static void AnalyzeMessageHandlerClass(SymbolAnalysisContext context, INamedTypeSymbol classType, KnownTypes knownTypes)
     {
         foreach (var ctor in classType.Constructors)
         {
@@ -84,8 +82,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
 
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.SyntaxTree != context.Node.SyntaxTree ||
-                    syntaxRef.GetSyntax(context.CancellationToken) is not TSyntaxType syntaxNode ||
+                if (syntaxRef.GetSyntax(context.CancellationToken) is not TSyntaxType syntaxNode ||
                     getTypeSyntaxNode(syntaxNode) is not { } typeSyntax)
                 {
                     continue;
