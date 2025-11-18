@@ -24,7 +24,6 @@ public static class EndpointConfigurationExtensions
     {
         var typesToIncludeInScanning = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType)
             .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
-                        || t.IsAssignableTo(typeof(IFinder))
                         || t.IsAssignableTo(typeof(IHandleSagaNotFound))
                         || t.IsAssignableTo(typeof(Saga)))
             .Union(customizationConfiguration.TypesToInclude);
