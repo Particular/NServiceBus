@@ -35,18 +35,10 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(InterceptingHandler)));
-        }
+        public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(InterceptingHandler)));
 
-        public class TestSaga03 : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
+        public class TestSaga03(SagaEndpointContext testContext) : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
         {
-            public TestSaga03(SagaEndpointContext context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SagaStarted = true;
@@ -54,13 +46,9 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper)
-            {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper) =>
                 mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                     .ToSaga(s => s.SomeId);
-            }
-
-            SagaEndpointContext testContext;
 
             public class TestSagaData03 : ContainSagaData
             {
@@ -68,13 +56,8 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             }
         }
 
-        public class InterceptingHandler : IHandleMessages<StartSagaMessage>
+        public class InterceptingHandler(SagaEndpointContext testContext) : IHandleMessages<StartSagaMessage>
         {
-            public InterceptingHandler(SagaEndpointContext context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.InterceptingHandlerCalled = true;
@@ -82,8 +65,6 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
 
                 return Task.CompletedTask;
             }
-
-            SagaEndpointContext testContext;
         }
     }
 
