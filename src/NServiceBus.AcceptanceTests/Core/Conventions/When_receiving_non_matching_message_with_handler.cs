@@ -27,36 +27,21 @@ public class When_receiving_non_matching_message_with_handler : NServiceBusAccep
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
-            EndpointSetup<DefaultServer>(c =>
-            {
-                c.ConfigureRouting().RouteToEndpoint(typeof(NonMatchingMessageWithHandler), typeof(Receiver));
-            });
-        }
+        public Sender() =>
+            EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(NonMatchingMessageWithHandler), typeof(Receiver)));
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => false));
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => false));
 
-        class MyHandler : IHandleMessages<NonMatchingMessageWithHandler>
+        class MyHandler(Context testContext) : IHandleMessages<NonMatchingMessageWithHandler>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
                 return Task.CompletedTask;
             }
-
-            readonly Context testContext;
         }
     }
 
