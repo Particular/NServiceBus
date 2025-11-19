@@ -15,7 +15,7 @@ public class When_outbox_enabled_with_transaction_mode_above_receive_only : NSer
             .Done(_ => false)
             .Run());
 
-        Assert.That(exception.Message, Does.Contain($"Outbox requires transport to be running in `{nameof(TransportTransactionMode.ReceiveOnly)}` mode"));
+        Assert.That(exception.Message, Does.Contain($"The `{nameof(TransportTransactionMode.SendsAtomicWithReceive)}` mode of Outbox has not been enabled."));
     }
 
     public class Context : ScenarioContext

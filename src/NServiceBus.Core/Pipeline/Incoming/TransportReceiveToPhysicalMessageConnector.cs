@@ -12,9 +12,9 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
-    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IncomingPipelineMetrics incomingPipelineMetrics)
+    public TransportReceiveToPhysicalMessageConnector(IOutboxSeam outboxSeam, IncomingPipelineMetrics incomingPipelineMetrics)
     {
-        this.outboxStorage = outboxStorage;
+        this.outboxSeam = outboxSeam;
         this.incomingPipelineMetrics = incomingPipelineMetrics;
     }
 
@@ -24,19 +24,19 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
-        var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+        var deduplicationEntry = await outboxSeam.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
         var pendingTransportOperations = new PendingTransportOperations();
         if (deduplicationEntry == null)
         {
             physicalMessageContext.Extensions.Set(pendingTransportOperations);
 
-            using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions, context.CancellationToken).ConfigureAwait(false))
+            using (var outboxTransaction = await outboxSeam.BeginTransaction(context.Extensions, context.CancellationToken).ConfigureAwait(false))
             {
                 context.Extensions.Set(outboxTransaction);
                 await next(physicalMessageContext).ConfigureAwait(false);
 
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
-                await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                await outboxSeam.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
@@ -68,7 +68,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
             activity?.AddEvent(new ActivityEvent("Finished dispatching"));
         }
 
-        await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+        await outboxSeam.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
         if (pendingTransportOperations.HasOperations || deduplicationEntry == null)
         {
@@ -138,6 +138,6 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
         throw new Exception("Could not find routing strategy to deserialize");
     }
 
-    readonly IOutboxStorage outboxStorage;
+    readonly IOutboxSeam outboxSeam;
     readonly IncomingPipelineMetrics incomingPipelineMetrics;
 }
