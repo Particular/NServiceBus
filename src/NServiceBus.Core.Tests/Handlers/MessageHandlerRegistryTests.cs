@@ -80,13 +80,18 @@ public class MessageHandlerRegistryTests
     }
 
     [Test]
-    public void ShouldNotDeduplicateTimeoutHandlersWithTheSameType()
+    public void ShouldAddBothMessageAndTimeoutHandlersForSagas()
     {
         var registry = new MessageHandlerRegistry();
         registry.AddHandler<SagaWithTimeoutOfMessage>();
+
+        //call add twice to make sure deduplication works across both types of handlers
         registry.AddHandler<SagaWithTimeoutOfMessage>();
 
-        Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(2));
+        var handlersForMessage = registry.GetHandlersFor(typeof(MyMessage));
+
+        Assert.That(handlersForMessage, Has.Count.EqualTo(2));
+        Assert.That(handlersForMessage.Count(h => h.IsTimeoutHandler), Is.EqualTo(1));
     }
 
     class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
@@ -102,7 +107,6 @@ public class MessageHandlerRegistryTests
 
     class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
     {
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             HandlerCalled = true;
@@ -122,5 +126,4 @@ public class MessageHandlerRegistryTests
 
         public class MySagaData : ContainSagaData;
     }
-
 }
