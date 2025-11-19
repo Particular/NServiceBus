@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Outbox;
+﻿namespace NServiceBus;
 
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
+using Outbox;
 
 interface IOutboxSeam
 {
