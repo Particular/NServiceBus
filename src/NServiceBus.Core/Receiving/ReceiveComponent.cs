@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Outbox;
 using Pipeline;
 using Transport;
 using Unicast;
