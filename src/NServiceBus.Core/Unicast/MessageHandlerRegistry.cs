@@ -17,8 +17,7 @@ using Pipeline;
 public class MessageHandlerRegistry
 {
     /// <summary>
-    /// Gets the list of handlers <see cref="Type" />s for the given
-    /// <paramref name="messageType" />.
+    /// Gets the list of message handlers for the given message type.
     /// </summary>
     public List<MessageHandler> GetHandlersFor(Type messageType)
     {
@@ -67,7 +66,7 @@ public class MessageHandlerRegistry
             .Invoke(this, []);
 
     /// <summary>
-    /// Registers the given potential handler type.
+    /// Registers the handler type.
     /// </summary>
     public void AddHandler<THandler>() where THandler : IHandleMessages
     {
