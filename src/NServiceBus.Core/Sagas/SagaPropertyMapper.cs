@@ -26,7 +26,6 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga" /> to link <paramref name="messageProperty" /> with
     /// <typeparamref name="TSagaData" />.
     /// </returns>
-    [OverloadResolutionPriority(1)]
     public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
     {
         ArgumentNullException.ThrowIfNull(messageProperty);
@@ -39,7 +38,6 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <returns>
     /// TBD
     /// </returns>
-    [OverloadResolutionPriority(0)]
     public ToFinderExpression<TSagaData, TMessage> ConfigureMapping<TMessage>()
     {
         if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
