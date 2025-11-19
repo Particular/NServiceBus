@@ -14,11 +14,10 @@ public class When_atomic_outbox_failure_after_dispatch : NServiceBusAcceptanceTe
     [Test]
     public async Task Messages_are_dispatched_after_retry()
     {
-        //HINT: The test scenario simulates a failure just before the incoming message is ACKed
+        //HINT: The test scenario simulates a failure just before the incoming message is ACKed.
         //      This triggers a retry after which the outgoing messages stored in the outbox are dispatched
         //      It can happen because in the AtomicSendsWithReceive mode the removal of stored outbox messages
-        //      happens not in the outbox behavior but via a separate control message.
-
+        //      does not happen in the outbox behavior but via a separate control message.
         Requires.OutboxPersistence();
 
         var context = await Scenario.Define<Context>()
@@ -94,14 +93,14 @@ public class When_atomic_outbox_failure_after_dispatch : NServiceBusAcceptanceTe
 
         class AfterDispatchFailureSimulatorBehavior : Behavior<ITransportReceiveContext>
         {
-            bool failedTriggered;
+            bool failureTriggered;
 
             public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
                 await next();
-                if (!failedTriggered)
+                if (!failureTriggered)
                 {
-                    failedTriggered = true;
+                    failureTriggered = true;
                     throw new SimulatedException("Simulated failure after dispatch");
                 }
             }
@@ -109,18 +108,12 @@ public class When_atomic_outbox_failure_after_dispatch : NServiceBusAcceptanceTe
 
         class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
-            public Task Handle(PlaceOrder message, IMessageHandlerContext context)
-            {
-                return context.Send(new SendOrderAcknowledgement());
-            }
+            public Task Handle(PlaceOrder message, IMessageHandlerContext context) => context.Send(new SendOrderAcknowledgement());
         }
 
         class PlaceOrderFollowUpHandler : IHandleMessages<PlaceOrderFollowUp>
         {
-            public Task Handle(PlaceOrderFollowUp message, IMessageHandlerContext context)
-            {
-                return context.Send(new SendOrderAcknowledgementFollowUp());
-            }
+            public Task Handle(PlaceOrderFollowUp message, IMessageHandlerContext context) => context.Send(new SendOrderAcknowledgementFollowUp());
         }
     }
 

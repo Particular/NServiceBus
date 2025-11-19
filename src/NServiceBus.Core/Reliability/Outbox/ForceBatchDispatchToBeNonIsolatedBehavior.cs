@@ -11,8 +11,8 @@ class ForceBatchDispatchToBeNonIsolatedBehavior : IBehavior<IBatchDispatchContex
     {
         foreach (var operation in context.Operations)
         {
-            // Changing the dispatch consistency to be non-isolated to make sure the transport 
-            // enlists the operations in the receive transaction.
+            // Making sure that dispatch consistency is non-isolated to make sure the transport 
+            // enlists the outgoing operations in the current receive transaction.
             operation.RequiredDispatchConsistency = DispatchConsistency.Default;
         }
         return next(context);

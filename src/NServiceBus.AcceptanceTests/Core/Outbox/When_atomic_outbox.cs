@@ -29,11 +29,10 @@ public class When_atomic_outbox : NServiceBusAcceptanceTest
     public async Task Should_mark_outbox_record_as_dispatched()
     {
         //HINT: The test scenario sends a duplicate of the PlaceOrder message once the first
-        //      copy has been fully processed, followed by a marker PlaceOrderFollowUp.
+        //      copy has been fully processed, followed by a marker PlaceOrderFollowUp message.
         //      Because the outbox has been marked as Dispatched via a control message
         //      the duplicate copy does not trigger re-sending SendOrderAcknowledgement.
         //      If it did, the re-sent message would arrive before the final SendOrderAcknowledgementFollowUp
-
         Requires.OutboxPersistence();
 
         var messageId = Guid.NewGuid().ToString();
@@ -88,7 +87,7 @@ public class When_atomic_outbox : NServiceBusAcceptanceTest
             }
         }
 
-        class SendOrderAcknowledgementHandler(Context testContext) 
+        class SendOrderAcknowledgementHandler(Context testContext)
             : IHandleMessages<SendOrderAcknowledgement>
         {
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
@@ -117,12 +116,13 @@ public class When_atomic_outbox : NServiceBusAcceptanceTest
 
         class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
-            public Task Handle(PlaceOrder message, IMessageHandlerContext context) 
+            public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 => context.Send(new SendOrderAcknowledgement());
         }
+
         class PlaceOrderFollowUpHandler : IHandleMessages<PlaceOrderFollowUp>
         {
-            public Task Handle(PlaceOrderFollowUp message, IMessageHandlerContext context) 
+            public Task Handle(PlaceOrderFollowUp message, IMessageHandlerContext context)
                 => context.Send(new SendOrderAcknowledgementFollowUp());
         }
     }

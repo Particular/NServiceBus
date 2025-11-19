@@ -9,8 +9,6 @@ using Pipeline;
 class SetAsDispatchedBehavior(IOutboxStorage outboxStorage)
     : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
 {
-    IOutboxStorage outboxStorage = outboxStorage;
-
     public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
     {
         if (!context.Message.Headers.TryGetValue("NServiceBus.Outbox.SetAsDispatched", out var messageId))

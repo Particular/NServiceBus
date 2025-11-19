@@ -14,7 +14,6 @@ class SendSetAsDispatchedMessageBehavior(
 {
     readonly string localAddress = transportAddressResolver.ToTransportAddress(localQueueAddress);
 
-
     public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
     {
         var pendingOps = context.Extensions.Get<PendingTransportOperations>();
@@ -22,7 +21,7 @@ class SendSetAsDispatchedMessageBehavior(
         {
             ["NServiceBus.Outbox.SetAsDispatched"] = context.MessageId
         };
-        var cleanupMessage = new OutgoingMessage(Guid.NewGuid().ToString(), headers, Array.Empty<byte>());
+        var cleanupMessage = new OutgoingMessage(CombGuid.Generate().ToString(), headers, Array.Empty<byte>());
         pendingOps.Add(new TransportOperation(cleanupMessage, new UnicastAddressTag(localAddress)));
 
         return next(context);

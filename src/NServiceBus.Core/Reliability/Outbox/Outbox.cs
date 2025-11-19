@@ -60,7 +60,7 @@ public class Outbox : Feature
                     $"The `{nameof(TransportTransactionMode.SendsAtomicWithReceive)}` mode of Outbox has not been enabled.");
             }
 
-            //In the SendsAtomicWithReceive mode the component the outbox operations are marked as dispatched via a control
+            //In SendsAtomicWithReceive mode the component the outbox operations are marked as dispatched via a control
             //message processed by SetAsDispatchedBehavior
             context.Services.AddTransient<IOutboxSeam>(provider =>
                 new OutboxSeam(provider.GetRequiredService<IOutboxStorage>(), false));
