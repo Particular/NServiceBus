@@ -252,8 +252,8 @@ class LearningTransportMessagePump : IMessageReceiver
             fileInfos = fileInfos.OrderBy(x => x.CreationTimeUtc);
         }
 
-        return fileInfos.Select(x => x.DirectoryName != null 
-            ? Path.Combine(x.DirectoryName, x.Name) 
+        return fileInfos.Select(x => x.DirectoryName != null
+            ? Path.Combine(x.DirectoryName, x.Name)
             : x.Name);
     }
 
