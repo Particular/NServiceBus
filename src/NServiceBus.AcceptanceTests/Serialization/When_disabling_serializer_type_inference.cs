@@ -30,6 +30,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             Assert.That(context.HandlerInvoked, Is.False);
             Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
         }
+
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
         Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
@@ -50,6 +51,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             Assert.That(context.HandlerInvoked, Is.False);
             Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
         }
+
         Exception exception = context.FailedMessages.Single().Value.Single().Exception;
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
         Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
@@ -71,12 +73,8 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
                 serializerSettings.DisableMessageTypeInference();
             });
 
-        public class MessageHandler : IHandleMessages<MessageWithoutTypeHeader>
+        public class MessageHandler(Context testContext) : IHandleMessages<MessageWithoutTypeHeader>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MessageWithoutTypeHeader message, IMessageHandlerContext context)
             {
                 testContext.HandlerInvoked = true;
@@ -84,12 +82,8 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             }
         }
 
-        class TypeHeaderManipulationBehavior : Behavior<IIncomingPhysicalMessageContext>
+        class TypeHeaderManipulationBehavior(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            Context testContext;
-
-            public TypeHeaderManipulationBehavior(Context testContext) => this.testContext = testContext;
-
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.IncomingMessageReceived = true;
@@ -108,22 +102,11 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         }
     }
 
-    public class MessageWithoutTypeHeader : IMessage
-    {
-    }
-
-    public class UnknownMessage : IMessage
-    {
-    }
-
     class CustomSerializer : SerializationDefinition, IMessageSerializer
     {
         public string ContentType { get; } = "CustomSerializer";
 
-        public void Serialize(object message, Stream stream)
-        {
-            stream.WriteByte(42); // need to write some byte for message serialization to work
-        }
+        public void Serialize(object message, Stream stream) => stream.WriteByte(42); // need to write some byte for message serialization to work
 
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
         {
@@ -137,5 +120,13 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
 
 
         public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) => _ => this;
+    }
+
+    public class MessageWithoutTypeHeader : IMessage
+    {
+    }
+
+    public class UnknownMessage : IMessage
+    {
     }
 }
