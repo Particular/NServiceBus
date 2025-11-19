@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -65,13 +66,40 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             return null;
         }
 
+        var iMessage = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessage");
+        var iCommand = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.ICommand");
+        var iEvent = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IEvent");
+
         var registrations = handlerType.AllInterfaces
             .Where(IsHandlerInterface)
             .Select(type =>
             {
-                var messageType = type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var builder = ImmutableArray.CreateBuilder<MessageMetadata>();
+
+                ITypeSymbol messageType = type.TypeArguments[0];
+
+                var candidateTypes = Enumerable
+                    .Repeat(messageType, 1)
+                    .Concat(GetParentTypes((INamedTypeSymbol)messageType))
+                    .OfType<INamedTypeSymbol>()
+                    .Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)
+                    .OrderByDescending(PlaceInMessageHierarchy)
+                    .ThenBy(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), StringComparer.Ordinal);
+
+                foreach (var candidate in candidateTypes)
+                {
+                    if (SymbolEqualityComparer.Default.Equals(candidate, iMessage) ||
+                        SymbolEqualityComparer.Default.Equals(candidate, iCommand) ||
+                        SymbolEqualityComparer.Default.Equals(candidate, iEvent))
+                    {
+                        continue;
+                    }
+                    builder.Add(new MessageMetadata(candidate.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), IsProbablyMessageType(candidate, iMessage, iCommand, iEvent)));
+                }
+
+                var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 var addType = type.Name == "IHandleTimeouts" ? "Timeout" : "Message";
-                return new MessageRegistration(addType, messageType);
+                return new MessageRegistration(addType, new MessageMetadata(messageTypeName, IsProbablyMessageType(type, iMessage, iCommand, iEvent)), builder.ToImmutable());
             })
             .ToImmutableArray();
 
@@ -83,6 +111,18 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         var methodName = CreateMethodName(handlerType);
         var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         return new InterceptDetails(SafeInterceptionLocation.From(location), methodName, handlerFullyQualifiedName, registrations);
+    }
+
+    // We approximate conventions by checking the core marker interfaces.
+    static bool IsProbablyMessageType(INamedTypeSymbol type, INamedTypeSymbol? iMessage, INamedTypeSymbol? iCommand, INamedTypeSymbol? iEvent)
+    {
+        return (iMessage is not null && Implements(type, iMessage)) ||
+               (iCommand is not null && Implements(type, iCommand)) ||
+               (iEvent is not null && Implements(type, iEvent));
+
+        static bool Implements(INamedTypeSymbol t, INamedTypeSymbol marker) =>
+            SymbolEqualityComparer.Default.Equals(t, marker) ||
+            t.AllInterfaces.Contains(marker, SymbolEqualityComparer.Default);
     }
 
     static string CreateMethodName(INamedTypeSymbol handlerType)
@@ -127,6 +167,46 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             ContainingNamespace.IsGlobalNamespace: true
         }
     };
+
+    static IEnumerable<INamedTypeSymbol> GetParentTypes(INamedTypeSymbol type)
+    {
+        // All interfaces implemented by the type (includes inherited interfaces)
+        foreach (var iface in type.AllInterfaces)
+        {
+            yield return iface;
+        }
+
+        // All base types up to but excluding System.Object
+        var currentBase = type.BaseType;
+        while (currentBase is { SpecialType: not SpecialType.System_Object })
+        {
+            if (currentBase is { } named)
+            {
+                yield return named;
+            }
+
+            currentBase = currentBase.BaseType;
+        }
+    }
+
+    static int PlaceInMessageHierarchy(INamedTypeSymbol type)
+    {
+        if (type.TypeKind == TypeKind.Interface)
+        {
+            // Approximate: number of interfaces implemented by this interface
+            return type.AllInterfaces.Length;
+        }
+
+        var result = 0;
+        var current = type.BaseType;
+        while (current is not null)
+        {
+            result++;
+            current = current.BaseType;
+        }
+
+        return result;
+    }
 
     static void GenerateInterceptorCode(SourceProductionContext context, ImmutableArray<InterceptDetails> intercepts)
     {
@@ -174,12 +254,19 @@ public class AddHandlerInterceptor : IIncrementalGenerator
                                     public static void {{first.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
                                     {
                                         System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                                        var messageMetadataRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                                            .Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                         var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                             .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                             """);
             foreach (var registration in first.Registrations.Items)
             {
-                sb.AppendLine($"            registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType}>();");
+                sb.AppendLine($"            registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType.MessageType}>();");
+                var hierarchyItems = registration.Hierarchy.Items
+                    .Select(h => $"typeof({h.MessageType})");
+
+                var hierarchyLiteral = $"[{string.Join(", ", hierarchyItems)}]";
+                sb.AppendLine($"            messageMetadataRegistry.RegisterMetadata(typeof({registration.MessageType.MessageType}), {hierarchyLiteral});");
             }
             sb.AppendLine("        }");
         }
@@ -196,7 +283,8 @@ public class AddHandlerInterceptor : IIncrementalGenerator
     const string AddHandlerMethodName = "AddHandler";
 
     record InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
-    readonly record struct MessageRegistration(string AddType, string MessageType);
+    readonly record struct MessageRegistration(string AddType, MessageMetadata MessageType, EquatableArray<MessageMetadata> Hierarchy);
+    readonly record struct MessageMetadata(string MessageType, bool ProbablyMessageType);
     readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
     {
         public static SafeInterceptionLocation From(InterceptableLocation location) =>

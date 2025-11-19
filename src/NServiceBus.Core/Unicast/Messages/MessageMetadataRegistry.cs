@@ -109,6 +109,21 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
     public MessageMetadata[] GetAllMessages() => [.. messages.Values];
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="messageType"></param>
+    /// <param name="parentMessages"></param>
+    /// <returns></returns>
+    public MessageMetadata RegisterMetadata(Type messageType, IEnumerable<Type> parentMessages)
+    {
+        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages.Where(isMessageType)]);
+
+        messages[messageType.TypeHandle] = metadata;
+        cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
+        return metadata;
+    }
+
     Type GetType(string messageTypeIdentifier)
     {
         if (allowDynamicTypeLoading)
@@ -151,12 +166,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
             .Where(isMessageType)
             .OrderByDescending(PlaceInMessageHierarchy);
 
-        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
-
-        messages[messageType.TypeHandle] = metadata;
-        cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
-
-        return metadata;
+        return RegisterMetadata(messageType, parentMessages);
     }
 
     static int PlaceInMessageHierarchy(Type type)
