@@ -59,7 +59,5 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 }

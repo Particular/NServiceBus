@@ -122,11 +122,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) => _ => this;
     }
 
-    public class MessageWithoutTypeHeader : IMessage
-    {
-    }
+    public class MessageWithoutTypeHeader : IMessage;
 
-    public class UnknownMessage : IMessage
-    {
-    }
+    public class UnknownMessage : IMessage;
 }

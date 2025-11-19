@@ -62,11 +62,7 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
         }
     }
 
-    public class Message : BaseMessage
-    {
-    }
+    public class Message : BaseMessage;
 
-    public class BaseMessage : IMessage
-    {
-    }
+    public class BaseMessage : IMessage;
 }
