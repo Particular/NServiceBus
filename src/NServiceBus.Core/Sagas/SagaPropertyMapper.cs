@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Sagas;
 
 /// <summary>
@@ -25,10 +26,28 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga" /> to link <paramref name="messageProperty" /> with
     /// <typeparamref name="TSagaData" />.
     /// </returns>
+    [OverloadResolutionPriority(1)]
     public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
     {
         ArgumentNullException.ThrowIfNull(messageProperty);
         return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
+    }
+
+    /// <summary>
+    /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a custom finder.
+    /// </summary>
+    /// <returns>
+    /// TBD
+    /// </returns>
+    [OverloadResolutionPriority(0)]
+    public ToFinderExpression<TSagaData, TMessage> ConfigureMapping<TMessage>()
+    {
+        if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
+        {
+            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
+        }
+
+        return new ToFinderExpression<TSagaData, TMessage>(sagaMapperFindingConfiguration);
     }
 
     /// <summary>
@@ -51,21 +70,6 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
         }
 
         return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
-    }
-
-    /// <summary>
-    /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a custom finder.
-    /// </summary>
-    /// <typeparam name="TMessage">The message type to map to.</typeparam>
-    /// <typeparam name="TFinder">The saga finder that will return the saga.</typeparam>
-    public void ConfigureFinderMapping<TMessage, TFinder>() where TFinder : ISagaFinder<TSagaData, TMessage>
-    {
-        if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
-        {
-            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
-        }
-
-        sagaMapperFindingConfiguration.ConfigureMapping<TSagaData, TMessage, TFinder>();
     }
 
     /// <summary>

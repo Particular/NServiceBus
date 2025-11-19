@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
+using Sagas;
 
 /// <summary>
 /// Allows a more fluent way to map sagas.
@@ -21,7 +22,6 @@ public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, ICon
         this.messageProperty = messageProperty;
     }
 
-
     /// <summary>
     /// Defines the property on the saga data to which the message property should be mapped.
     /// </summary>
@@ -34,4 +34,32 @@ public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, ICon
 
     readonly Expression<Func<TMessage, object?>> messageProperty;
     readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <typeparam name="TSagaData"></typeparam>
+/// <typeparam name="TMessage"></typeparam>
+public class ToFinderExpression<TSagaData, TMessage> where TSagaData : class, IContainSagaData
+{
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="sagaMapperFindingConfiguration"></param>
+    public ToFinderExpression(IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
+    {
+        ArgumentNullException.ThrowIfNull(sagaMapperFindingConfiguration);
+
+        this.sagaMapperFindingConfiguration = sagaMapperFindingConfiguration;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TFinder"></typeparam>
+    public void ToFinder<TFinder>() where TFinder : class, ISagaFinder<TSagaData, TMessage> => sagaMapperFindingConfiguration.ConfigureMapping<TSagaData, TMessage, TFinder>();
+
+    readonly IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration;
 }
