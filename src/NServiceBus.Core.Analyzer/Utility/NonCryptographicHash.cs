@@ -15,10 +15,13 @@ public static class NonCryptographicHash
     {
         ulong hash = offsetBasis;
 
-        foreach (var part in parts)
+        for (int index = 0; index < parts.Length; index++)
         {
-            foreach (var ch in part.AsSpan())
+            string part = parts[index];
+            ReadOnlySpan<char> span = part.AsSpan();
+            for (int i = 0; i < span.Length; i++)
             {
+                char ch = span[i];
                 hash ^= ch;
                 hash *= prime;
             }
