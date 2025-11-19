@@ -74,6 +74,7 @@ public class When_atomic_outbox : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(b =>
             {
                 b.LimitMessageProcessingConcurrencyTo(1);
+                b.ConfigureTransport<AcceptanceTestingTransport>().FifoMode = true;
             });
         }
 
@@ -106,6 +107,7 @@ public class When_atomic_outbox : NServiceBusAcceptanceTest
             {
                 b.EnableOutbox();
                 b.LimitMessageProcessingConcurrencyTo(1);
+                b.ConfigureTransport<AcceptanceTestingTransport>().FifoMode = true;
                 b.GetSettings().Set("Outbox.AllowSendsAtomicWithReceive", true);
                 b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
                 var routing = b.ConfigureRouting();

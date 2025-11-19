@@ -38,6 +38,8 @@ public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSub
 
     string storageLocation;
 
+    public bool FifoMode { get; set; }
+
     public string StorageLocation
     {
         get => storageLocation;

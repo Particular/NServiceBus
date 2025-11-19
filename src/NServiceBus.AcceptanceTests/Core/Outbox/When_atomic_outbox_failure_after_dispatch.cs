@@ -80,6 +80,7 @@ public class When_atomic_outbox_failure_after_dispatch : NServiceBusAcceptanceTe
             {
                 b.EnableOutbox();
                 b.LimitMessageProcessingConcurrencyTo(1);
+                b.ConfigureTransport<AcceptanceTestingTransport>().FifoMode = true;
                 b.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 b.GetSettings().Set("Outbox.AllowSendsAtomicWithReceive", true);
                 b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
@@ -124,6 +125,7 @@ public class When_atomic_outbox_failure_after_dispatch : NServiceBusAcceptanceTe
             EndpointSetup<DefaultServer>(b =>
             {
                 b.LimitMessageProcessingConcurrencyTo(1);
+                b.ConfigureTransport<AcceptanceTestingTransport>().FifoMode = true;
             });
         }
 

@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -18,7 +20,8 @@ class LearningTransportMessagePump : IMessageReceiver
         Action<string, Exception, CancellationToken> criticalErrorAction,
         ISubscriptionManager subscriptionManager,
         ReceiveSettings receiveSettings,
-        TransportTransactionMode transactionMode)
+        TransportTransactionMode transactionMode,
+        bool fifoMode)
     {
         Id = id;
         ReceiveAddress = receiveAddress;
@@ -27,6 +30,7 @@ class LearningTransportMessagePump : IMessageReceiver
         Subscriptions = subscriptionManager;
         this.receiveSettings = receiveSettings;
         this.transactionMode = transactionMode;
+        this.fifoMode = fifoMode;
     }
 
     public void Init()
@@ -34,6 +38,7 @@ class LearningTransportMessagePump : IMessageReceiver
         PathChecker.ThrowForBadPath(ReceiveAddress, "InputQueue");
 
         messagePumpBasePath = Path.Combine(basePath, ReceiveAddress);
+        messagePumpBasePathInfo = new DirectoryInfo(messagePumpBasePath);
         bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
         delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 
@@ -194,8 +199,7 @@ class LearningTransportMessagePump : IMessageReceiver
     async Task PumpMessages(CancellationToken messagePumpCancellationToken)
     {
         var filesFound = false;
-
-        foreach (var filePath in Directory.EnumerateFiles(messagePumpBasePath, "*.*"))
+        foreach (var filePath in EnumerateMessageFiles())
         {
             filesFound = true;
 
@@ -237,6 +241,20 @@ class LearningTransportMessagePump : IMessageReceiver
         {
             await Task.Delay(10, messagePumpCancellationToken).ConfigureAwait(false);
         }
+    }
+
+    IEnumerable<string> EnumerateMessageFiles()
+    {
+        var fileInfos = messagePumpBasePathInfo.EnumerateFiles("*.*");
+
+        if (fifoMode)
+        {
+            fileInfos = fileInfos.OrderBy(x => x.CreationTimeUtc);
+        }
+
+        return fileInfos.Select(x => x.DirectoryName != null 
+            ? Path.Combine(x.DirectoryName, x.Name) 
+            : x.Name);
     }
 
     ILearningTransportTransaction GetTransaction()
@@ -389,6 +407,7 @@ class LearningTransportMessagePump : IMessageReceiver
     SemaphoreSlim concurrencyLimiter;
     Task messagePumpTask;
     string messagePumpBasePath;
+    DirectoryInfo messagePumpBasePathInfo;
     DelayedMessagePoller delayedMessagePoller;
     int maxConcurrency;
     string bodyDir;
@@ -403,6 +422,7 @@ class LearningTransportMessagePump : IMessageReceiver
     readonly Action<string, Exception, CancellationToken> criticalErrorAction;
     readonly ReceiveSettings receiveSettings;
     readonly TransportTransactionMode transactionMode;
+    readonly bool fifoMode;
 
     static readonly ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 
