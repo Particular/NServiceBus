@@ -18,30 +18,20 @@ public static class EndpointConfigurationExtensions
     public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan) => config.TypesToScanInternal(typesToScan);
 
     /// <summary>
-    /// Uses <see cref="TypesToIncludeInScan"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
-    /// Additionally, this method excludes all types on the same assembly that not relevant to the specific test case. All types that should be scanned by default must be nested classes of the test class.
+    /// Finds all nested types related to a given acceptance test that hasn't yet been converted to being added via an explicit API.
     /// </summary>
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
     {
-        // disable file system scanning for better performance
-        // note that this might cause issues when required assemblies are only being loaded at endpoint startup time
-        var assemblyScanner = new AssemblyScanner
-        {
-            ScanFileSystemAssemblies = false
-        };
-
         var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
-        config.TypesToIncludeInScan(
-        [
-            .. assemblyScanner.GetScannableAssemblies().Types
-                .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
-                .Union(testTypes)
-                .Where(t => t.IsAssignableTo(typeof(IFinder))
-                            || t.IsAssignableTo(typeof(IHandleSagaNotFound))
-                            || t.IsAssignableTo(typeof(Saga)))
-                .Union(customizationConfiguration.TypesToInclude)
-        ]);
+
+        var typesToIncludeInScanning = testTypes
+            .Where(t => t.IsAssignableTo(typeof(IFinder))
+                        || t.IsAssignableTo(typeof(IHandleSagaNotFound))
+                        || t.IsAssignableTo(typeof(Saga)))
+            .Union(customizationConfiguration.TypesToInclude);
+
+        config.TypesToIncludeInScan(typesToIncludeInScanning);
 
         //auto-register handlers for now
         if (customizationConfiguration.AutoRegisterHandlers)
