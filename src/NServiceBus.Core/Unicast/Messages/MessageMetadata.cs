@@ -24,7 +24,7 @@ public class MessageMetadata
     public MessageMetadata(Type messageType, Type[] messageHierarchy)
     {
         MessageType = messageType;
-        MessageHierarchy = messageHierarchy ?? Array.Empty<Type>();
+        MessageHierarchy = messageHierarchy ?? [];
         MessageHierarchySerialized = SerializeMessageHierarchy(MessageHierarchy);
     }
 
@@ -33,14 +33,13 @@ public class MessageMetadata
     /// </summary>
     public Type MessageType { get; }
 
-
     /// <summary>
     /// The message instance hierarchy.
     /// </summary>
     public Type[] MessageHierarchy { get; }
 
     /// <summary>
-    /// The message instance hierarchy serialized into a semicolon seperated string.
+    /// The message instance hierarchy serialized into a semicolon separated string.
     /// </summary>
     public string MessageHierarchySerialized { get; }
 

@@ -20,7 +20,7 @@ public class IncomingPipelineMetricTagsTests
     {
         var registry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
 
-        registry.RegisterMessageTypesFoundIn(
+        registry.RegisterMessageTypes(
         [
             typeof(MyMessage)
         ]);

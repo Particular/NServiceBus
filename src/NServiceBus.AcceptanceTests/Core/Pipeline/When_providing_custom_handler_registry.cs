@@ -49,32 +49,25 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public EndpointWithRegularHandler()
         {
             EndpointSetup<DefaultServer>(c =>
-            {
-                var registry = new MessageHandlerRegistry();
-                registry.RegisterHandler(typeof(ManuallyRegisteredHandler));
-                c.GetSettings().Set(registry);
-                // the handler isn't registered for DI automatically
-                c.RegisterComponents(components => components
-                    .AddTransient<ManuallyRegisteredHandler>());
-                c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
-                    if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
+                    var registry = new MessageHandlerRegistry();
+                    registry.AddHandler<ManuallyRegisteredHandler>();
+                    c.GetSettings().Set(registry);
+                    // the handler isn't registered for DI automatically
+                    c.RegisterComponents(components => components
+                        .AddTransient<ManuallyRegisteredHandler>());
+                    c.OnEndpointSubscribed<Context>((t, ctx) =>
                     {
-                        ctx.EventSubscribed = true;
-                    }
-                });
-            }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
+                        if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
+                        {
+                            ctx.EventSubscribed = true;
+                        }
+                    });
+                }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
         }
 
-        class RegularHandler : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+        class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
         {
-            Context testContext;
-
-            public RegularHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.RegularCommandHandlerInvoked = true;
@@ -89,15 +82,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class ManuallyRegisteredHandler : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+    class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
     {
-        Context testContext;
-
-        public ManuallyRegisteredHandler(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Handle(SomeCommand message, IMessageHandlerContext context)
         {
             testContext.ManuallyRegisteredCommandHandlerInvoked = true;

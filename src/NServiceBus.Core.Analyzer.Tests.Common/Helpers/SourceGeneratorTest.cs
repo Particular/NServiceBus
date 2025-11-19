@@ -6,15 +6,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 using Particular.Approvals;
 
-public class SourceGeneratorTest
+public partial class SourceGeneratorTest
 {
     readonly List<(string Filename, string Source)> sources;
     readonly List<ISourceGenerator> generators;
@@ -23,12 +25,14 @@ public class SourceGeneratorTest
     string? scenarioName;
     Compilation? initialCompilation;
     Build? build;
+    Build? clonedBuild;
     ImmutableArray<Diagnostic> compilationDiagnostics;
     bool suppressDiagnosticErrors;
     bool suppressCompilationErrors;
     bool wroteToConsole;
     GeneratorTestOutput outputType;
-    HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
+    readonly HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
+    readonly List<string> generatorStagesList = [];
 
     SourceGeneratorTest(string? outputAssemblyName = null)
     {
@@ -124,7 +128,10 @@ public class SourceGeneratorTest
     {
         foreach (var stage in stages)
         {
-            generatorStages.Add(stage);
+            if (generatorStages.Add(stage))
+            {
+                generatorStagesList.Add(stage);
+            }
         }
         return this;
     }
@@ -193,6 +200,17 @@ public class SourceGeneratorTest
         }
     }
 
+    [MemberNotNull(nameof(clonedBuild)), MemberNotNull(nameof(build))]
+    void RunClonedBuild()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        clonedBuild ??= build.Clone();
+    }
+
     public SourceGeneratorTest AssertRunsAreEqual()
     {
         if (generatorStages.Count == 0)
@@ -200,19 +218,14 @@ public class SourceGeneratorTest
             throw new Exception("Must add GeneratorStages first.");
         }
 
-        if (build is null)
-        {
-            _ = Run();
-        }
-
-        var clone = build.Clone();
+        RunClonedBuild();
 
         Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>> GetTracked(GeneratorDriverRunResult result)
             => result.Results.SelectMany(r => r.TrackedSteps.Where(step => generatorStages.Contains(step.Key)))
                 .ToDictionary();
 
         var trackedSteps1 = GetTracked(build.RunResult);
-        var trackedSteps2 = GetTracked(clone.RunResult);
+        var trackedSteps2 = GetTracked(clonedBuild.RunResult);
 
         Assert.That(trackedSteps1, Is.Not.Empty);
         Assert.That(trackedSteps2.Count, Is.EqualTo(trackedSteps1.Count));
@@ -240,13 +253,15 @@ public class SourceGeneratorTest
             var step1 = steps1[i];
             var step2 = steps2[i];
 
-            var out1 = step1.Outputs.Select(o => o.Value);
-            var out2 = step2.Outputs.Select(o => o.Value);
+            var out1 = step1.Outputs.Select(o => o.Value).ToArray();
+            var out2 = step2.Outputs.Select(o => o.Value).ToArray();
 
-            Assert.That(out1, Is.EquivalentTo(out2), $"Step '{trackingName}' outputs are not the same between runs, but should be cacheable results.");
+            Assert.That(out1, Is.EqualTo(out2).UsingPropertiesComparer(), $"Step '{trackingName}' outputs are not the same between runs, but should be cacheable results.");
 
-            Assert.That(step2.Outputs.Select(o => o.Reason)
-                .All(reason => reason is IncrementalStepRunReason.Cached or IncrementalStepRunReason.Unchanged));
+            var outputReasons = step2.Outputs.Select(o => o.Reason).ToArray();
+            var badReasons = outputReasons.Where(reason => reason is not IncrementalStepRunReason.Cached and not IncrementalStepRunReason.Unchanged).ToArray();
+
+            Assert.That(badReasons.Length, Is.EqualTo(0), $"Step '{trackingName}' outputs contain reasons: {string.Join(',', badReasons)}. Should all be Cached or Unchanged to be memoizable.");
 
             // Not doing anything here to explicitly assert that types are not Compilation, ISymbol, SyntaxNode or other
             // types known to be bad ideas, but that would require nasty reflection to traverse an object graph
@@ -301,7 +316,7 @@ public class SourceGeneratorTest
 
         foreach (var syntaxTree in FilteredSyntaxTrees())
         {
-            WriteHeading(syntaxTree.FilePath);
+            WriteHeading(syntaxTree.FilePath.Replace('\\', '/'));
 
             if (withLineNumbers)
             {
@@ -331,7 +346,8 @@ public class SourceGeneratorTest
         try
         {
             var output = GetCompilationOutput();
-            Approver.Verify(output, scrubber, scenarioName, callerFilePath, callerMemberName);
+            var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+            Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
             return this;
         }
         catch (Exception)
@@ -340,6 +356,9 @@ public class SourceGeneratorTest
             throw;
         }
     }
+
+    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
     {
@@ -355,6 +374,51 @@ public class SourceGeneratorTest
         var output = GetCompilationOutput(true);
         Console.WriteLine(output);
         wroteToConsole = true;
+        return this;
+    }
+
+    public SourceGeneratorTest OutputSteps(params string[] specificStages)
+    {
+        RunClonedBuild();
+
+        var stagesToTrack = specificStages.Length != 0 ? specificStages : generatorStagesList.ToArray();
+        var wrapperType = typeof(ISourceGenerator).Assembly.GetType("Microsoft.CodeAnalysis.IncrementalGeneratorWrapper", throwOnError: true);
+        var generatorPropertyGetter = wrapperType!.GetProperty("Generator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetMethod!;
+
+        foreach (var result in clonedBuild.RunResult.Results)
+        {
+            var generatorType = result.Generator.GetType();
+            if (generatorType == wrapperType)
+            {
+                var innerGenerator = generatorPropertyGetter.Invoke(result.Generator, []);
+                if (innerGenerator is not null)
+                {
+                    generatorType = innerGenerator.GetType();
+                }
+            }
+            Console.WriteLine($"## {generatorType.Name} Results");
+            Console.WriteLine();
+
+            foreach (var stepName in stagesToTrack)
+            {
+                var namedStep = result.TrackedSteps[stepName];
+                var outputs = namedStep.SelectMany(runStep => runStep.Outputs).ToArray();
+                var outputCount = outputs.Length;
+                var reasons = outputs.Select(o => o.Reason).GroupBy(reason => reason)
+                    .Select(g => $"{g.Count()} {g.Key}")
+                    .ToArray();
+
+                Console.WriteLine($"Step {stepName} -  {outputCount} total outputs, {string.Join(", ", reasons)}");
+
+                foreach (var output in outputs)
+                {
+                    Console.WriteLine($"- [{output.Reason}] {output.Value}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
         return this;
     }
 
@@ -418,7 +482,7 @@ public class SourceGeneratorTest
 
 public enum GeneratorTestOutput
 {
-    All = 0,
-    GeneratedOnly = 1,
-    SourceOnly = 2
+    GeneratedOnly = 0,
+    SourceOnly = 1,
+    All = 2
 }

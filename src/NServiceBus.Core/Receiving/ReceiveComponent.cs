@@ -73,8 +73,8 @@ partial class ReceiveComponent
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
         var messageHandlerRegistry = configuration.MessageHandlerRegistry;
-        RegisterMessageHandlers(messageHandlerRegistry, configuration.ExecuteTheseHandlersFirst, hostingConfiguration.Services, hostingConfiguration.AvailableTypes);
 
+        hostingConfiguration.Services.AddSingleton(messageHandlerRegistry);
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
             handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
@@ -240,40 +240,6 @@ partial class ReceiveComponent
         return Task.WhenAll(receiverStopTasks);
     }
 
-    static void RegisterMessageHandlers(MessageHandlerRegistry handlerRegistry, List<Type> orderedTypes, IServiceCollection serviceCollection, ICollection<Type> availableTypes)
-    {
-        var types = new List<Type>(availableTypes);
-
-        foreach (var t in orderedTypes)
-        {
-            types.Remove(t);
-        }
-
-        types.InsertRange(0, orderedTypes);
-
-        foreach (var t in types.Where(IsMessageHandler))
-        {
-            serviceCollection.AddScoped(t);
-
-            handlerRegistry.RegisterHandler(t);
-        }
-
-        serviceCollection.AddSingleton(handlerRegistry);
-    }
-
-    public static bool IsMessageHandler(Type type)
-    {
-        if (type.IsAbstract || type.IsGenericTypeDefinition)
-        {
-            return false;
-        }
-
-        return type.GetInterfaces()
-            .Where(@interface => @interface.IsGenericType)
-            .Select(@interface => @interface.GetGenericTypeDefinition())
-            .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
-    }
-
     static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
     {
         if (consecutiveFailuresConfiguration.RateLimitSettings != null)
@@ -291,6 +257,5 @@ partial class ReceiveComponent
     const string MainReceiverId = "Main";
     const string InstanceSpecificReceiverId = "InstanceSpecific";
 
-    static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<ReceiveComponent>();
 }

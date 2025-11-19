@@ -10,25 +10,12 @@ using Unicast;
 [TestFixture]
 public class MessageHandlerRegistryTests
 {
-    [TestCase(typeof(HandlerWithIMessageSessionProperty))]
-    [TestCase(typeof(HandlerWithIEndpointInstanceProperty))]
-    [TestCase(typeof(HandlerWithIMessageSessionCtorDep))]
-    [TestCase(typeof(HandlerWithIEndpointInstanceCtorDep))]
-    [TestCase(typeof(HandlerWithInheritedIMessageSessionPropertyDep))]
-    [TestCase(typeof(SagaWithIllegalDep))]
-    public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
-    {
-        var registry = new MessageHandlerRegistry();
-
-        Assert.Throws<Exception>(() => registry.RegisterHandler(handlerType));
-    }
-
     [Test]
     public async Task ShouldIndicateWhetherAHandlerIsATimeoutHandler()
     {
         var registry = new MessageHandlerRegistry();
 
-        registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
 
         var handlers = registry.GetHandlersFor(typeof(MyMessage));
 
@@ -65,116 +52,68 @@ public class MessageHandlerRegistryTests
         }
     }
 
-    class HandlerWithIMessageSessionProperty : IHandleMessages<MyMessage>
+    [Test]
+    public void ShouldRegisterMultipleHandlerInterfaces()
     {
-        public IMessageSession MessageSession { get; set; }
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<HandlerForMultipleMessages>();
 
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
+        using (Assert.EnterMultipleScope())
         {
-            throw new NotImplementedException();
+            Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(1));
+            Assert.That(registry.GetHandlersFor(typeof(AnotherMessage)), Has.Count.EqualTo(1));
         }
     }
 
-    class HandlerWithIEndpointInstanceProperty : IHandleMessages<MyMessage>
+    [Test]
+    public void ShouldDeduplicate()
     {
-        public IEndpointInstance EndpointInstance { get; set; }
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<HandlerForMultipleMessages>();
+        registry.AddHandler<HandlerForMultipleMessages>();
 
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
+        using (Assert.EnterMultipleScope())
         {
-            throw new NotImplementedException();
+            Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(1));
+            Assert.That(registry.GetHandlersFor(typeof(AnotherMessage)), Has.Count.EqualTo(1));
         }
     }
 
-    class HandlerWithIMessageSessionCtorDep : IHandleMessages<MyMessage>
+    [Test]
+    public void ShouldAddBothMessageAndTimeoutHandlersForSagas()
     {
-        public HandlerWithIMessageSessionCtorDep(IMessageSession messageSession)
-        {
-            MessageSession = messageSession;
-        }
+        var registry = new MessageHandlerRegistry();
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
 
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        //call add twice to make sure deduplication works across both types of handlers
+        registry.AddHandler<SagaWithTimeoutOfMessage>();
 
-#pragma warning disable IDE0052 // Remove unread private members
-        IMessageSession MessageSession;
-#pragma warning restore IDE0052 // Remove unread private members
+        var handlersForMessage = registry.GetHandlersFor(typeof(MyMessage));
+
+        Assert.That(handlersForMessage, Has.Count.EqualTo(2));
+        Assert.That(handlersForMessage.Count(h => h.IsTimeoutHandler), Is.EqualTo(1));
     }
 
-    class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
+    class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
     {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+        public Task Handle(AnotherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
     }
 
-    class HandlerWithIEndpointInstanceCtorDep : IHandleMessages<MyMessage>
-    {
-        public HandlerWithIEndpointInstanceCtorDep(IEndpointInstance endpointInstance)
-        {
-            this.endpointInstance = endpointInstance;
-        }
+    class MyMessage : IMessage;
 
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        IEndpointInstance endpointInstance;
-#pragma warning restore IDE0052 // Remove unread private members
-    }
-
-    class SagaWithIllegalDep : Saga<SagaWithIllegalDep.MySagaData>, IAmStartedByMessages<MyMessage>
-    {
-        public SagaWithIllegalDep(IEndpointInstance endpointInstance)
-        {
-            this.endpointInstance = endpointInstance;
-        }
-
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
-        {
-            throw new NotImplementedException();
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        IEndpointInstance endpointInstance;
-#pragma warning restore IDE0052 // Remove unread private members
-
-        public class MySagaData : ContainSagaData
-        {
-        }
-    }
-
-    class HandlerBaseWithIMessageSessionDep
-    {
-        public IMessageSession MessageSession { get; set; }
-    }
-
-    class MyMessage : IMessage
-    {
-    }
+    class AnotherMessage : IMessage;
 
     class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
     {
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             HandlerCalled = true;
             return Task.CompletedTask;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) => throw new NotImplementedException();
 
         public Task Timeout(MyMessage state, IMessageHandlerContext context)
         {
@@ -185,9 +124,6 @@ public class MessageHandlerRegistryTests
         public bool HandlerCalled { get; set; }
         public bool TimeoutCalled { get; set; }
 
-        public class MySagaData : ContainSagaData
-        {
-        }
+        public class MySagaData : ContainSagaData;
     }
-
 }

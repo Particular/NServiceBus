@@ -25,5 +25,6 @@
         public const string ToSagaMappingMustBeToAProperty = "NSB0017";
         public const string SagaMappingExpressionCanBeRewritten = "NSB0018";
         public const string DoNotEnableFeaturesInDefaults = "NSB0019";
+        public const string HandlerInjectsMessageSession = "NSB0020";
     }
 }

@@ -1,27 +1,13 @@
 namespace NServiceBus;
 
-using System;
-using System.Collections.Generic;
 using Settings;
 using Transport;
 using Unicast;
 
 partial class ReceiveComponent
 {
-    public class Settings
+    public class Settings(SettingsHolder settings)
     {
-        public Settings(SettingsHolder settings)
-        {
-            this.settings = settings;
-            ExecuteTheseHandlersFirst = [];
-        }
-
-        public List<Type> ExecuteTheseHandlersFirst
-        {
-            get => settings.Get<List<Type>>("NServiceBus.ExecuteTheseHandlersFirst");
-            private init => settings.Set("NServiceBus.ExecuteTheseHandlersFirst", value);
-        }
-
         public MessageHandlerRegistry MessageHandlerRegistry => settings.GetOrCreate<MessageHandlerRegistry>();
 
         public bool CustomQueueNameBaseProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
@@ -51,8 +37,6 @@ partial class ReceiveComponent
         public void RegisterReceiveConfigurationForBackwardsCompatibility(Configuration configuration) =>
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set(configuration);
-
-        readonly SettingsHolder settings;
 
         const string EndpointInstanceDiscriminatorSettingsKey = "EndpointInstanceDiscriminator";
         const string TransportPurgeOnStartupSettingsKey = "Transport.PurgeOnStartup";

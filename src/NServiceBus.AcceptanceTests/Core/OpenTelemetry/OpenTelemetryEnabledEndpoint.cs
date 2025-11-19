@@ -8,9 +8,9 @@ using EndpointTemplates;
 public class OpenTelemetryEnabledEndpoint : DefaultServer
 {
     public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor,
-        EndpointCustomizationConfiguration endpointConfiguration,
+        EndpointCustomizationConfiguration endpointCustomizationConfiguration,
         Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
-        base.GetConfiguration(runDescriptor, endpointConfiguration, configuration =>
+        base.GetConfiguration(runDescriptor, endpointCustomizationConfiguration, configuration =>
         {
             configuration.EnableOpenTelemetry();
             return configurationBuilderCustomization(configuration);

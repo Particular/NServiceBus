@@ -33,14 +33,12 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.UseSerialization<XmlSerializer>();
                 c.RegisterMessageMutator(new MyTransportMessageMutator());
             });
-        }
 
         class MyTransportMessageMutator : IMutateOutgoingTransportMessages
         {
@@ -53,13 +51,8 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
             }
         }
 
-        class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
+        class MessageToBeMutatedHandler(Context testContext) : IHandleMessages<MessageThatMutatorChangesTo>
         {
-            public MessageToBeMutatedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context)
             {
                 testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
@@ -67,8 +60,6 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
                 testContext.MessageProcessed = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

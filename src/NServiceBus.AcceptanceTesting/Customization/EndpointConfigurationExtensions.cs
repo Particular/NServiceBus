@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Hosting.Helpers;
 using Sagas;
 using Support;
 
@@ -22,14 +23,24 @@ public static class EndpointConfigurationExtensions
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
     {
-        var typesToIncludeInScanning = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType)
-            .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
-                        || t.IsAssignableTo(typeof(IFinder))
+        var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
+
+        var typesToIncludeInScanning = testTypes
+            .Where(t => t.IsAssignableTo(typeof(IFinder))
                         || t.IsAssignableTo(typeof(IHandleSagaNotFound))
                         || t.IsAssignableTo(typeof(Saga)))
             .Union(customizationConfiguration.TypesToInclude);
 
         config.TypesToIncludeInScan(typesToIncludeInScanning);
+
+        //auto-register handlers for now
+        if (customizationConfiguration.AutoRegisterHandlers)
+        {
+            foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+            {
+                AddHandlerWithReflection(messageHandler, config);
+            }
+        }
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
@@ -77,4 +88,10 @@ public static class EndpointConfigurationExtensions
         config.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
             "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
     }
+
+    static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
+        typeof(MessageHandlerRegistrationExtensions)
+            .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!
+            .MakeGenericMethod(handlerType)
+            .Invoke(null, [endpointConfiguration]);
 }
