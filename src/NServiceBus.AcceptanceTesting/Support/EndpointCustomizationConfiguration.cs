@@ -25,4 +25,6 @@ public class EndpointCustomizationConfiguration
     public string CustomEndpointName { get; set; }
 
     public bool DisableStartupDiagnostics { get; set; } = true;
+
+    public bool AutoRegisterHandlers { get; set; } = true;
 }

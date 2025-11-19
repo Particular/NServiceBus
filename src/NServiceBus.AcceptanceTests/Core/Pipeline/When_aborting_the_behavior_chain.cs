@@ -28,24 +28,16 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
         public bool SecondHandlerInvoked { get; set; }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
-
     public class MyEndpoint : EndpointConfigurationBuilder
     {
-        public MyEndpoint()
+        public MyEndpoint() => EndpointSetup<DefaultServer>(c =>
         {
-            EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
-        }
+            c.AddHandler<FirstHandler>();
+            c.AddHandler<SecondHandler>();
+        });
 
-        class FirstHandler : IHandleMessages<SomeMessage>
+        class FirstHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public FirstHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.FirstHandlerInvoked = true;
@@ -54,27 +46,18 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
-
         }
 
-        class SecondHandler : IHandleMessages<SomeMessage>
+        class SecondHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public SecondHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondHandlerInvoked = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
-
         }
     }
+
+    public class SomeMessage : IMessage;
 }

@@ -6,6 +6,6 @@ using AcceptanceTesting.Support;
 
 public class DefaultPublisher : IEndpointSetupTemplate
 {
-    public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
-        new DefaultServer().GetConfiguration(runDescriptor, endpointConfiguration, configurationBuilderCustomization);
+    public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
+        new DefaultServer().GetConfiguration(runDescriptor, endpointCustomizationConfiguration, configurationBuilderCustomization);
 }

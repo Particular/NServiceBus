@@ -14,9 +14,9 @@ class AcceptanceTestingTransportServer : IEndpointSetupTemplate
         this.useNativePubSub = useNativePubSub;
     }
 
-    public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
+    public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
     {
-        var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
+        var configuration = new EndpointConfiguration(endpointCustomizationConfiguration.EndpointName);
         configuration.EnableInstallers();
 
         var recoverability = configuration.Recoverability();
@@ -25,11 +25,11 @@ class AcceptanceTestingTransportServer : IEndpointSetupTemplate
         configuration.SendFailedMessagesTo("error");
 
         var transportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(useNativePubSub, true);
-        await transportConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
+        await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
         runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
 
         var persistenceConfiguration = new ConfigureEndpointAcceptanceTestingPersistence();
-        await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
+        await persistenceConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
         runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
 
         configuration.UseSerialization<SystemJsonSerializer>();
@@ -37,7 +37,7 @@ class AcceptanceTestingTransportServer : IEndpointSetupTemplate
         await configurationBuilderCustomization(configuration);
 
         // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
-        configuration.ScanTypesForTest(endpointConfiguration);
+        configuration.ScanTypesForTest(endpointCustomizationConfiguration);
 
         return configuration;
     }

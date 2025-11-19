@@ -7,27 +7,26 @@ using AcceptanceTesting.Support;
 
 public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
 {
-    public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
+    public IConfigureEndpointTestExecution TransportConfiguration { get; init; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
 
-    public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
+    public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization)
     {
-        var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
-        builder.EnableInstallers();
+        var endpointConfiguration = new EndpointConfiguration(endpointCustomizationConfiguration.EndpointName);
+        endpointConfiguration.EnableInstallers();
 
-        builder.Recoverability()
+        endpointConfiguration.Recoverability()
             .Delayed(delayed => delayed.NumberOfRetries(0))
             .Immediate(immediate => immediate.NumberOfRetries(0));
-        builder.SendFailedMessagesTo("error");
+        endpointConfiguration.SendFailedMessagesTo("error");
 
-        await builder.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
+        await endpointConfiguration.DefineTransport(TransportConfiguration, runDescriptor, endpointCustomizationConfiguration).ConfigureAwait(false);
 
-        builder.UseSerialization<SystemJsonSerializer>();
+        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
 
-        await configurationBuilderCustomization(builder).ConfigureAwait(false);
+        await configurationBuilderCustomization(endpointConfiguration).ConfigureAwait(false);
 
-        // scan types at the end so that all types used by the configuration have been loaded into the AppDomain
-        builder.ScanTypesForTest(endpointConfiguration);
+        endpointConfiguration.ScanTypesForTest(endpointCustomizationConfiguration);
 
-        return builder;
+        return endpointConfiguration;
     }
 }

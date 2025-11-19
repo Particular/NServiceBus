@@ -41,25 +41,18 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
+                c.AddHandler<CatchAllMessageHandler>();
                 c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
             });
-        }
 
-        public class MultiTimeoutsSaga1 : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
+        public class MultiTimeoutsSaga1(Context testContext) : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
             IAmStartedByMessages<StartSaga1>,
             IHandleTimeouts<Saga1Timeout>,
             IHandleTimeouts<Saga2Timeout>
         {
-            public MultiTimeoutsSaga1(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
             {
                 if (message.ContextId != testContext.Id)
@@ -107,18 +100,14 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
-            {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper) =>
                 mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                     .ToSaga(s => s.ContextId);
-            }
 
             public class MultiTimeoutsSaga1Data : ContainSagaData
             {
                 public virtual Guid ContextId { get; set; }
             }
-
-            Context testContext;
         }
 
         public class SagaNotFound : IHandleSagaNotFound
@@ -140,13 +129,9 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 
         public class CatchAllMessageHandler : IHandleMessages<object>
         {
-            public Task Handle(object message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(object message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
-
 
     public class StartSaga1 : ICommand
     {

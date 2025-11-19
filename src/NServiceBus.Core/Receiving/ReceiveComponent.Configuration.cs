@@ -14,31 +14,28 @@ partial class ReceiveComponent
         var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
         var conventions = settings.Get<Conventions>();
 
-        var handledMessages = messageTypes.Select(
-                    type => new
-                    {
-                        MessageType = type,
-                        IsMessage = conventions.IsMessageType(type),
-                        IsCommand = conventions.IsCommandType(type),
-                        IsEvent = conventions.IsEventType(type),
-                    });
+        var handledMessages = messageTypes.Select(type => new
+        {
+            MessageType = type,
+            IsMessage = conventions.IsMessageType(type),
+            IsCommand = conventions.IsCommandType(type),
+            IsEvent = conventions.IsEventType(type),
+        });
 
         hostingConfiguration.AddStartupDiagnosticsSection("Manifest-MessageTypes",
-            () => handledMessages.Select(
-                handledMessage => new ReceiveComponentManifestMessageType
+            () => handledMessages.Select(handledMessage => new ReceiveComponentManifestMessageType
+            {
+                Name = handledMessage.MessageType.Name,
+                FullName = handledMessage.MessageType.FullName,
+                IsMessage = handledMessage.IsMessage,
+                IsEvent = handledMessage.IsEvent,
+                IsCommand = handledMessage.IsCommand,
+                Schema = handledMessage.MessageType.GetProperties().Select(prop => new ReceiveComponentManifestMessageType.SchemaProperty
                 {
-                    Name = handledMessage.MessageType.Name,
-                    FullName = handledMessage.MessageType.FullName,
-                    IsMessage = handledMessage.IsMessage,
-                    IsEvent = handledMessage.IsEvent,
-                    IsCommand = handledMessage.IsCommand,
-                    Schema = handledMessage.MessageType.GetProperties().Select(
-                        prop => new ReceiveComponentManifestMessageType.SchemaProperty
-                        {
-                            Name = prop.Name,
-                            Type = prop.PropertyType.Name,
-                        }).ToArray()
-                }).ToArray());
+                    Name = prop.Name,
+                    Type = prop.PropertyType.Name,
+                }).ToArray()
+            }).ToArray());
     }
 
     record ReceiveComponentManifestMessageType
@@ -87,7 +84,6 @@ partial class ReceiveComponent
             purgeOnStartup,
             settings.PipelineCompletedSubscribers ?? new Notification<ReceivePipelineCompleted>(),
             isSendOnlyEndpoint,
-            settings.ExecuteTheseHandlersFirst,
             settings.MessageHandlerRegistry,
             transportSeam);
 
@@ -102,7 +98,6 @@ partial class ReceiveComponent
         bool purgeOnStartup,
         Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
         bool isSendOnlyEndpoint,
-        List<Type> executeTheseHandlersFirst,
         MessageHandlerRegistry messageHandlerRegistry,
         TransportSeam transportSeam)
     {
@@ -117,8 +112,6 @@ partial class ReceiveComponent
         public bool PurgeOnStartup { get; } = purgeOnStartup;
 
         public bool IsSendOnlyEndpoint { get; } = isSendOnlyEndpoint;
-
-        public List<Type> ExecuteTheseHandlersFirst { get; } = executeTheseHandlersFirst;
 
         public MessageHandlerRegistry MessageHandlerRegistry { get; } = messageHandlerRegistry;
 

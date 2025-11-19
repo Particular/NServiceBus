@@ -571,9 +571,15 @@ namespace NServiceBus
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.LearningTransport { }
     }
+    [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
+        "instead. Will be removed in version 11.0.0.", true)]
     public static class LoadMessageHandlersExtensions
     {
+        [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
+            "instead. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
+        [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
+            "instead. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
     }
     public static class MessageCausationConfigurationExtensions

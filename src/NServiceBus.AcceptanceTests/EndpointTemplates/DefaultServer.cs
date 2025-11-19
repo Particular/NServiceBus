@@ -8,10 +8,10 @@ public class DefaultServer : ServerWithNoDefaultPersistenceDefinitions
 {
     public IConfigureEndpointTestExecution PersistenceConfiguration { get; set; } = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
 
-    public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
-        base.GetConfiguration(runDescriptor, endpointConfiguration, async configuration =>
+    public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Func<EndpointConfiguration, Task> configurationBuilderCustomization) =>
+        base.GetConfiguration(runDescriptor, endpointCustomizationConfiguration, async configuration =>
         {
-            await configuration.DefinePersistence(PersistenceConfiguration, runDescriptor, endpointConfiguration);
+            await configuration.DefinePersistence(PersistenceConfiguration, runDescriptor, endpointCustomizationConfiguration);
 
             await configurationBuilderCustomization(configuration);
         });

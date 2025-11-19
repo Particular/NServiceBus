@@ -34,62 +34,40 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
 
     public class SendingEndpoint : EndpointConfigurationBuilder
     {
-        public SendingEndpoint()
-        {
+        public SendingEndpoint() =>
             EndpointSetup<DefaultPublisher>(c =>
             {
                 c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My"));
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
             });
-        }
 
-        public class ResponseHandler : IHandleMessages<IMyReply>
+        public class ResponseHandler(Context testContext) : IHandleMessages<IMyReply>
         {
-            public ResponseHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SendingEndpointGotResponse = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class OtherEndpoint : EndpointConfigurationBuilder
     {
-        public OtherEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
-        }
+        public OtherEndpoint() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
 
-        public class ResponseHandler : IHandleMessages<IMyReply>
+        public class ResponseHandler(Context testContext) : IHandleMessages<IMyReply>
         {
-            public ResponseHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.OtherEndpointGotResponse = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class ReplyingEndpoint : EndpointConfigurationBuilder
     {
-        public ReplyingEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
-        }
+        public ReplyingEndpoint() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
 
         public class MessageHandler : IHandleMessages<MyMessage>
         {

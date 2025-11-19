@@ -17,19 +17,39 @@ public static class EndpointConfigurationExtensions
     public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan) => config.TypesToScanInternal(typesToScan);
 
     /// <summary>
-    /// Finds all nested types related to a given acceptance test that hasn't yet been converted to being added via an explicit API.
+    /// Uses <see cref="TypesToIncludeInScan"/> to scan all types via the <see cref="AssemblyScanner"/> that are currently loaded, filtering by customizations defined in <see cref="EndpointCustomizationConfiguration"/>.
+    /// Additionally, this method excludes all types on the same assembly that not relevant to the specific test case. All types that should be scanned by default must be nested classes of the test class.
     /// </summary>
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
     {
-        var typesToIncludeInScanning = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType)
-            .Where(t => t.IsAssignableTo(typeof(IHandleMessages))
-                        || t.IsAssignableTo(typeof(IFinder))
-                        || t.IsAssignableTo(typeof(IHandleSagaNotFound))
-                        || t.IsAssignableTo(typeof(Saga)))
-            .Union(customizationConfiguration.TypesToInclude);
+        // disable file system scanning for better performance
+        // note that this might cause issues when required assemblies are only being loaded at endpoint startup time
+        var assemblyScanner = new AssemblyScanner
+        {
+            ScanFileSystemAssemblies = false
+        };
 
-        config.TypesToIncludeInScan(typesToIncludeInScanning);
+        var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
+        config.TypesToIncludeInScan(
+        [
+            .. assemblyScanner.GetScannableAssemblies().Types
+                .Except(customizationConfiguration.BuilderType.Assembly.GetTypes()) // exclude all types from test assembly by default
+                .Union(testTypes)
+                .Where(t => t.IsAssignableTo(typeof(IFinder))
+                            || t.IsAssignableTo(typeof(IHandleSagaNotFound))
+                            || t.IsAssignableTo(typeof(Saga)))
+                .Union(customizationConfiguration.TypesToInclude)
+        ]);
+
+        //auto-register handlers for now
+        if (customizationConfiguration.AutoRegisterHandlers)
+        {
+            foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+            {
+                AddHandlerWithReflection(messageHandler, config);
+            }
+        }
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
@@ -77,4 +97,10 @@ public static class EndpointConfigurationExtensions
         config.Pipeline.Register(new EnforceSubscriptionPublisherMetadataBehavior(endpointName, publisherMetadata),
             "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
     }
+
+    static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
+        typeof(MessageHandlerRegistrationExtensions)
+            .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!
+            .MakeGenericMethod(handlerType)
+            .Invoke(null, [endpointConfiguration]);
 }

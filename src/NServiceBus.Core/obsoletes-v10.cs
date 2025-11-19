@@ -3,6 +3,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using System.Text.Json.Serialization;
@@ -48,9 +49,9 @@ namespace NServiceBus
     }
 
     [ObsoleteMetadata(
-       Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-       RemoveInVersion = "11",
-       TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class DataBusProperty<T> : IDataBusProperty where T : class
     {
@@ -115,9 +116,9 @@ namespace NServiceBus
     }
 
     [ObsoleteMetadata(
-       Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
-       RemoveInVersion = "11",
-       TreatAsErrorFromVersion = "10")]
+        Message = "The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'",
+        RemoveInVersion = "11",
+        TreatAsErrorFromVersion = "10")]
     [Obsolete("The DataBus feature has been released as a dedicated package, 'NServiceBus.ClaimCheck'. Will be removed in version 11.0.0.", true)]
     public class FileShareDataBus : DataBusDefinition
     {
@@ -271,6 +272,19 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "10")]
         [Obsolete("Use 'DisableFeature<T>(this EndpointConfiguration config)' instead. Will be removed in version 11.0.0.", true)]
         public static void DisableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
+    }
+
+    [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+    public static class LoadMessageHandlersExtensions
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+        public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, IEnumerable<Type> handlerTypes) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+        public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, params Type[] handlerTypes) => throw new NotImplementedException();
     }
 }
 

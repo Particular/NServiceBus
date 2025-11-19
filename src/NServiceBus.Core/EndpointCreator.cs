@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Features;
 using MessageInterfaces;
@@ -66,7 +67,11 @@ class EndpointCreator
 
     void Configure()
     {
-        ConfigureMessageTypes();
+        var receiveSettings = settings.Get<ReceiveComponent.Settings>();
+
+        receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+
+        ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
@@ -143,12 +148,13 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
     }
 
-
-    void ConfigureMessageTypes()
+    void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
-        var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, settings.IsDynamicTypeLoadingEnabled());
+        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, allowDynamicTypeLoading);
 
-        messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes().Where(t => conventions.IsMessageType(t)));
+        messageMetadataRegistry.RegisterMessageTypes(messageTypesHandled);
 
         settings.Set(messageMetadataRegistry);
 
@@ -159,7 +165,8 @@ class EndpointCreator
             CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
             MessageConventions = conventions.RegisteredConventions,
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
-            Messages = foundMessages.Select(m => m.MessageType.FullName)
+            Messages = foundMessages.Select(m => m.MessageType.FullName),
+            AllowDynamicTypeLoading = allowDynamicTypeLoading
         });
     }
 

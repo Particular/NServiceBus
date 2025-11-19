@@ -46,7 +46,6 @@ sealed class SerializationFeature : Feature
         }
 
         var allowMessageTypeInference = settings.IsMessageTypeInferenceEnabled();
-        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
         var resolver = new MessageDeserializerResolver(mainSerializer, additionalDeserializers);
         var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
         context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
@@ -68,8 +67,7 @@ sealed class SerializationFeature : Feature
                 mainSerializer.ContentType
             },
             AdditionalDeserializers = additionalDeserializerDiagnostics,
-            AllowMessageTypeInference = allowMessageTypeInference,
-            AllowDynamicTypeLoading = allowDynamicTypeLoading
+            AllowMessageTypeInference = allowMessageTypeInference
         });
     }
 

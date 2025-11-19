@@ -115,4 +115,11 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
         return this;
     }
+
+    public EndpointConfigurationBuilder DoNotAutoRegisterHandlers()
+    {
+        configuration.AutoRegisterHandlers = false;
+
+        return this;
+    }
 }
