@@ -191,7 +191,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     [SetUp]
     public void SetUp()
     {
-        fakeOutbox = new FakeOutboxStorage();
+        fakeOutbox = new FakeOutboxSeam();
         fakeBatchPipeline = new FakeBatchPipeline();
 
         behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
@@ -202,7 +202,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     TransportReceiveToPhysicalMessageConnector behavior;
 
     FakeBatchPipeline fakeBatchPipeline;
-    FakeOutboxStorage fakeOutbox;
+    FakeOutboxSeam fakeOutbox;
 
     class MyEvent
     {

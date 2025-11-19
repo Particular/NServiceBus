@@ -62,8 +62,8 @@ partial class ReceiveComponent
 
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
         {
-            var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>());
+            var outboxSeam = b.GetService<IOutboxSeam>() ?? new NoOpOutboxSeam();
+            return new TransportReceiveToPhysicalMessageConnector(outboxSeam, b.GetRequiredService<IncomingPipelineMetrics>());
         }, "Allows to abort processing the message");
 
         pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");

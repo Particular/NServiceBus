@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 
-class NoOpOutboxStorage : IOutboxStorage
+class NoOpOutboxSeam : IOutboxSeam
 {
     public Task<OutboxMessage> Get(string messageId, ContextBag options, CancellationToken cancellationToken = default) => NoOutboxMessageTask;
 
