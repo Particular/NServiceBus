@@ -130,8 +130,6 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         return null;
     }
 
-    internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes) => RegisterMessageTypes(availableTypes.Where(isMessageType));
-
     internal void RegisterMessageTypes(IEnumerable<Type> messageTypes)
     {
         foreach (var messageType in messageTypes)

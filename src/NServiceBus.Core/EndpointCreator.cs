@@ -145,13 +145,13 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
     }
 
-    void ConfigureMessageTypes(IEnumerable<Type> messageTypesViaHandlers)
+    void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
         var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
         var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, allowDynamicTypeLoading);
 
-        messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
-        messageMetadataRegistry.RegisterMessageTypes(messageTypesViaHandlers);
+        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes().Where(t => conventions.IsMessageType(t)));
+        messageMetadataRegistry.RegisterMessageTypes(messageTypesHandled);
 
         settings.Set(messageMetadataRegistry);
 
