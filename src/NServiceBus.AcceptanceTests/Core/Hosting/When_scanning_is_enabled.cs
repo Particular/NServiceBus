@@ -41,5 +41,5 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
         }
     }
 
-    class MyMessage : IMessage;
+    public class MyMessage : IMessage;
 }
