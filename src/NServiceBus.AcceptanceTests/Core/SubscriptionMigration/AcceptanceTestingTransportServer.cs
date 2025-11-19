@@ -15,7 +15,6 @@ class AcceptanceTestingTransportServer(bool useNativePubSub) : IEndpointSetupTem
         var recoverability = endpointConfiguration.Recoverability();
         recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
         recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
-        endpointConfiguration.SendFailedMessagesTo("error");
 
         var transportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(useNativePubSub, true);
         await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, endpointConfiguration, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
