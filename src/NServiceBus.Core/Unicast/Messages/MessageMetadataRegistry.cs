@@ -130,44 +130,13 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         return null;
     }
 
-    internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes)
-    {
-        foreach (var type in availableTypes)
-        {
-            if (isMessageType(type))
-            {
-                RegisterMessageType(type);
-                continue;
-            }
-
-            foreach (var messageType in GetHandledMessageTypes(type))
-            {
-                RegisterMessageType(messageType);
-            }
-        }
-    }
+    internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes) => RegisterMessageTypes(availableTypes.Where(isMessageType));
 
     internal void RegisterMessageTypes(IEnumerable<Type> messageTypes)
     {
         foreach (var messageType in messageTypes)
         {
             RegisterMessageType(messageType);
-        }
-    }
-
-    static IEnumerable<Type> GetHandledMessageTypes(Type messageHandlerType)
-    {
-        if (messageHandlerType.IsAbstract || messageHandlerType.IsGenericTypeDefinition)
-        {
-            yield break;
-        }
-
-        foreach (var handlerInterface in messageHandlerType.GetInterfaces())
-        {
-            if (handlerInterface.IsGenericType && handlerInterface.GetGenericTypeDefinition() == IHandleMessagesType)
-            {
-                yield return handlerInterface.GetGenericArguments()[0];
-            }
         }
     }
 
@@ -181,7 +150,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
 
         //get the parent types
         var parentMessages = GetParentTypes(messageType)
-            .Where(t => isMessageType(t))
+            .Where(isMessageType)
             .OrderByDescending(PlaceInMessageHierarchy);
 
         var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
@@ -231,6 +200,5 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();
     readonly ConcurrentDictionary<string, Type> cachedTypes = new();
 
-    static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
 }
