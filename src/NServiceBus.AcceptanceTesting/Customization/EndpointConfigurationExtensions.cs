@@ -49,9 +49,12 @@ public static class EndpointConfigurationExtensions
         ]);
 
         //auto-register handlers for now
-        foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+        if (customizationConfiguration.AutoRegisterHandlers)
         {
-            AddHandlerWithReflection(messageHandler, config);
+            foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+            {
+                AddHandlerWithReflection(messageHandler, config);
+            }
         }
 
         IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
