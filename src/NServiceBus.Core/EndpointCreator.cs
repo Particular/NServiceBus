@@ -147,7 +147,8 @@ class EndpointCreator
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesViaHandlers)
     {
-        var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, settings.IsDynamicTypeLoadingEnabled());
+        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, allowDynamicTypeLoading);
 
         messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
         messageMetadataRegistry.RegisterMessageTypes(messageTypesViaHandlers);
@@ -161,7 +162,8 @@ class EndpointCreator
             CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
             MessageConventions = conventions.RegisteredConventions,
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
-            Messages = foundMessages.Select(m => m.MessageType.FullName)
+            Messages = foundMessages.Select(m => m.MessageType.FullName),
+            AllowDynamicTypeLoading = allowDynamicTypeLoading
         });
     }
 
