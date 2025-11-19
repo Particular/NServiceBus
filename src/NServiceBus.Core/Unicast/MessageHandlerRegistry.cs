@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -103,7 +102,6 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
     {
         Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
@@ -120,7 +118,6 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific timeout type. Should only be called by a source generator.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
