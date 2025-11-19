@@ -11,15 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider)
+    : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
-    public SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection)
-    {
-        this.sagaIdGenerator = sagaIdGenerator;
-        sagaPersister = persister;
-        this.sagaMetadataCollection = sagaMetadataCollection;
-    }
-
     public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
     {
         var isTimeoutMessage = IsTimeoutMessage(context.Headers);
@@ -81,7 +75,6 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
         {
             if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
             {
-                context.Extensions.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(currentSagaMetadata, context));
             }
             else
@@ -96,19 +89,23 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
                 //we don't invoke not found handlers for timeouts
                 if (isTimeoutMessage)
                 {
-                    context.Extensions.Get<SagaInvocationResult>().SagaFound();
                     logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
                 }
                 else
                 {
-                    context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
                     logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
+
+                    foreach (var notFoundHandlerType in currentSagaMetadata.NotFoundHandlers)
+                    {
+                        var handler = (ISagaNotFoundHandler)ActivatorUtilities.CreateInstance(serviceProvider, notFoundHandlerType);
+
+                        await handler.Handle(context.MessageBeingHandled, context).ConfigureAwait(false);
+                    }
                 }
             }
         }
         else
         {
-            context.Extensions.Get<SagaInvocationResult>().SagaFound();
             sagaInstanceState.AttachExistingEntity(loadedEntity);
         }
 
@@ -125,7 +122,7 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
         {
             if (!sagaInstanceState.IsNew)
             {
-                await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                await persister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
             }
 
             logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -145,11 +142,11 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
                     sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.PropertyInfo.GetValue(sagaInstanceState.Instance.Entity));
                 }
 
-                await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                await persister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                await persister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
             }
 
             sagaInstanceState.Updated();
@@ -242,7 +239,7 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
 
             var loader = (ISagaLoader)Activator.CreateInstance(loaderType);
 
-            return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
+            return loader.Load(persister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
         }
 
         var finderDefinition = GetSagaFinder(metadata, context);
@@ -311,10 +308,6 @@ class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerC
 
         return sagaEntity;
     }
-
-    readonly SagaMetadataCollection sagaMetadataCollection;
-    readonly ISagaPersister sagaPersister;
-    readonly ISagaIdGenerator sagaIdGenerator;
 
     static readonly Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
     static readonly ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();

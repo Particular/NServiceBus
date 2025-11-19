@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
+using Sagas;
 
 /// <summary>
 /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga" />.
@@ -51,6 +52,12 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
 
         return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
     }
+
+    /// <summary>
+    /// Registers a ISagaNotFoundHandler for this saga.
+    /// </summary>
+    /// <typeparam name="TNotFoundHandler">The type of the saga not found handler.</typeparam>
+    public void ConfigureNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler => ((SagaMetadata.SagaMapper)sagaMessageFindingConfiguration).NotFoundHandlers.Add(typeof(TNotFoundHandler));
 
     /// <summary>
     /// Specify the correlation property for instances of <typeparamref name="TSagaData"/>.

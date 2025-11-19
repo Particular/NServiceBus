@@ -22,13 +22,15 @@ public class SagaMetadata
     /// <param name="correlationProperty">The property this saga is correlated on if any.</param>
     /// <param name="messages">The messages collection that a saga handles.</param>
     /// <param name="finders">The finder definition collection that can find this saga.</param>
-    public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
+    /// <param name="notFoundHandlers">SagaNotFound handlers registered for this saga.</param>
+    public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders, IReadOnlyCollection<Type> notFoundHandlers)
     {
         this.correlationProperty = correlationProperty;
         Name = name;
         EntityName = entityName;
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
+        NotFoundHandlers = notFoundHandlers;
 
 
         if (!messages.Any(m => m.IsAllowedToStartSaga))
@@ -62,6 +64,11 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             sagaFinders[finder.MessageTypeName] = finder;
         }
     }
+
+    /// <summary>
+    /// Returns the list of SagaNotFound handlers for this saga.
+    /// </summary>
+    public IReadOnlyCollection<Type> NotFoundHandlers { get; private set; }
 
     /// <summary>
     /// Returns the list of messages that is associated with this saga.
@@ -118,6 +125,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         {
             return false;
         }
+
         return sagaMessage.IsAllowedToStartSaga;
     }
 
@@ -218,7 +226,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             }
         }
 
-        return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
+        return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders, [.. mapper.NotFoundHandlers]);
     }
 
     static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
@@ -256,6 +264,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     var bothMappingAndFinder = $"A custom ISagaFinder and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
                     throw new Exception(bothMappingAndFinder);
                 }
+
                 mapper.ConfigureCustomFinder(finderType, messageType);
             }
         }
@@ -272,6 +281,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             {
                 continue;
             }
+
             result.Add(new SagaMessage(messageType, false));
         }
 
@@ -281,6 +291,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             {
                 continue;
             }
+
             result.Add(new SagaMessage(messageType, false));
         }
 
@@ -299,6 +310,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 {
                     continue;
                 }
+
                 yield return argument;
             }
         }
@@ -329,19 +341,9 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic
-    static readonly Type[] AllowedCorrelationPropertyTypes =
-    {
-        typeof(Guid),
-        typeof(string),
-        typeof(long),
-        typeof(ulong),
-        typeof(int),
-        typeof(uint),
-        typeof(short),
-        typeof(ushort)
-    };
+    static readonly Type[] AllowedCorrelationPropertyTypes = { typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort) };
 
-    class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders
+    internal class SagaMapper : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders
     {
         void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
         {
@@ -434,6 +436,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             });
         }
 
+        public readonly HashSet<Type> NotFoundHandlers = [];
         public readonly List<SagaToMessageMap> Mappings = [];
     }
 

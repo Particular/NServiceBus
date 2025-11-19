@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus.Sagas;
+namespace NServiceBus;
 
 using System.Threading.Tasks;
 
@@ -9,12 +9,10 @@ using System.Threading.Tasks;
 /// by a saga, but no existing saga was found. This does not include the scenario when
 /// a saga will be created for the given message type.
 /// </summary>
-public interface IHandleSagaNotFound
+public interface ISagaNotFoundHandler
 {
     /// <summary>
-    /// Implementations will implement this method, likely using an injected IBus
-    /// to send responses to the client who sent the message.
+    /// Handler for the case when a saga was not found be a message that wasn't allowed to start the saga.
     /// </summary>
-    /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
     Task Handle(object message, IMessageProcessingContext context);
 }
