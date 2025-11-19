@@ -11,7 +11,7 @@ public static class NonCryptographicHash
     const ulong offsetBasis = 14695981039346656037UL;
     const ulong prime = 1099511628211UL;
 
-    public static ulong GetHash(params string[] parts)
+    public static ulong GetHash(params ReadOnlySpan<string> parts)
     {
         ulong hash = offsetBasis;
 
