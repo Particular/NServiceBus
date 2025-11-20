@@ -25,7 +25,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
 
         finders.Add(new SagaFinderDefinition(
-            new PropertySagaFinder<TSagaEntity>(sagaProp.Name, messageFunc),
+            new PropertySagaFinder<TSagaEntity>(sagaProp.Name, messageFunc, typeof(TMessage)),
             typeof(TMessage)));
     }
 
