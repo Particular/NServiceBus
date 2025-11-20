@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
+using Particular.Obsoletes;
 
 /// <summary>
 /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga" />.
@@ -24,6 +25,8 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga" /> to link <paramref name="messageProperty" /> with
     /// <typeparamref name="TSagaData" />.
     /// </returns>
+    [ObsoleteMetadata(Message = "Begin the saga mapping with mapper.MapSaga(...) to avoid duplicated .ToSaga(...) expressions", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("Begin the saga mapping with mapper.MapSaga(...) to avoid duplicated .ToSaga(...) expressions. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
     {
         ArgumentNullException.ThrowIfNull(messageProperty);
@@ -40,6 +43,9 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// <see cref="IToSagaExpression{TSagaData}.ToSaga" /> to link <typeparamref name="TMessage"/> with
     /// <typeparamref name="TSagaData"/> using <paramref name="headerName"/>.
     /// </returns>
+    [ObsoleteMetadata(Message = "Begin the saga mapping with mapper.MapSaga(...) to avoid duplicated .ToSaga(...) expressions", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("Begin the saga mapping with mapper.MapSaga(...) to avoid duplicated .ToSaga(...) expressions. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+
     public IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName)
     {
         ArgumentNullException.ThrowIfNull(headerName);
