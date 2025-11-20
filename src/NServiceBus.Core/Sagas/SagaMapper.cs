@@ -40,7 +40,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         AssignCorrelationProperty<TMessage>(sagaProp);
 
         finders.Add(new SagaFinderDefinition(
-            new HeaderPropertySagaFinder<TSagaEntity>(headerName, sagaProp.Name, sagaProp.PropertyType),
+            new HeaderPropertySagaFinder<TSagaEntity>(headerName, sagaProp.Name, sagaProp.PropertyType, typeof(TMessage)),
             typeof(TMessage)));
     }
 

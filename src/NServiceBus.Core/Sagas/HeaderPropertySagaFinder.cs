@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationPropertyName, Type correlationPropertyType) : ICoreSagaFinder
+class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationPropertyName, Type correlationPropertyType, Type messageType) : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
     public async Task<IContainSagaData> Find(IServiceProvider builder, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
@@ -22,7 +22,7 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
         {
             var saga = context.Get<ActiveSagaInstance>();
             var sagaEntityName = saga.Metadata.Name;
-            var messageName = message.GetType().FullName;
+            var messageName = messageType.FullName;
 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} is missing a header used for correlation: {headerName}.");
         }
@@ -37,7 +37,7 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
         {
             var saga = context.Get<ActiveSagaInstance>();
             var sagaEntityName = saga.Metadata.Name;
-            var messageName = message.GetType().FullName;
+            var messageName = messageType.FullName;
 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} contains correlation header {headerName} value that cannot be cast to correlation property type {correlationPropertyType}: {messageHeaderValue}", exception);
         }
