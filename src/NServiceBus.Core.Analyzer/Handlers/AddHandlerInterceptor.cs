@@ -171,7 +171,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
             InterceptDetails first = group.First();
             sb.AppendLine($$"""
-                                    public static void {{first.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
+                                    public static void {{first.MethodName}}(this NServiceBus.EndpointConfiguration endpointConfiguration)
                                     {
                                         System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                                         var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
