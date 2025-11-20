@@ -394,7 +394,7 @@ namespace NServiceBus
     public interface IConfigureHowToFindSagaWithFinder
     {
         void ConfigureMapping<TSagaEntity, TMessage, TFinder>()
-            where TSagaEntity : NServiceBus.IContainSagaData
+            where TSagaEntity :  class, NServiceBus.IContainSagaData
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaEntity, TMessage>;
     }
     public interface IConfigureHowToFindSagaWithMessage
