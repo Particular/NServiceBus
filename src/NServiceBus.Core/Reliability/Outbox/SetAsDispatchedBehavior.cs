@@ -16,6 +16,6 @@ class SetAsDispatchedBehavior(IOutboxStorage outboxStorage)
             return next(context);
         }
 
-        return outboxStorage.SetAsDispatched(messageId, new ContextBag(), context.CancellationToken);
+        return outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken);
     }
 }
