@@ -62,6 +62,28 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
 
     internal bool TryFind(Type sagaType, out SagaMetadata targetSagaMetaData) => byType.TryGetValue(sagaType, out targetSagaMetaData);
 
+    /// <summary>
+    /// Registers a saga metadata instance explicitly.
+    /// </summary>
+    /// <param name="metadata">The saga metadata to register.</param>
+    public void Register(SagaMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+
+        if (byType.ContainsKey(metadata.SagaType))
+        {
+            throw new Exception($"Saga type '{metadata.SagaType.FullName}' is already registered.");
+        }
+
+        if (byEntity.ContainsKey(metadata.SagaEntityType))
+        {
+            throw new Exception($"Saga entity type '{metadata.SagaEntityType.FullName}' is already registered.");
+        }
+
+        byEntity[metadata.SagaEntityType] = metadata;
+        byType[metadata.SagaType] = metadata;
+    }
+
     internal void VerifyIfEntitiesAreShared()
     {
         var violations = new List<string>();
