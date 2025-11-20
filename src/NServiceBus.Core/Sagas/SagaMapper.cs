@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using FastExpressionCompiler;
 using Sagas;
 
 class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
@@ -21,11 +22,10 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
         AssignCorrelationProperty<TMessage>(sagaProp);
 
-        var compiledMessageExpression = messageExpression.Compile();
-        var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
+        var messageFunc = messageExpression.CompileFast();
 
         finders.Add(new SagaFinderDefinition(
-            new PropertySagaFinder<TSagaEntity>(sagaProp.Name, messageFunc, typeof(TMessage)),
+            new PropertySagaFinder<TSagaEntity, TMessage>(sagaProp.Name, messageFunc),
             typeof(TMessage)));
     }
 

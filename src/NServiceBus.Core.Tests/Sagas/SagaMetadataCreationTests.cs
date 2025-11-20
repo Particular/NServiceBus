@@ -133,7 +133,7 @@ public class SagaMetadataCreationTests
 
         var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
 
-        Assert.That(finder.SagaFinder.GetType(), Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData>)));
+        Assert.That(finder.SagaFinder.GetType(), Is.EqualTo(typeof(PropertySagaFinder<MySagaWithMappedProperty.SagaData, SomeMessage>)));
     }
 
     [Test]
