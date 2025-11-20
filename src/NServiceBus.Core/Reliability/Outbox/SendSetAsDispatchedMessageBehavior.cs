@@ -19,7 +19,8 @@ class SendSetAsDispatchedMessageBehavior(
         var pendingOps = context.Extensions.Get<PendingTransportOperations>();
         var headers = new Dictionary<string, string>
         {
-            ["NServiceBus.Outbox.SetAsDispatched"] = context.MessageId
+            ["NServiceBus.Outbox.SetAsDispatched"] = context.MessageId,
+            [Headers.ControlMessageHeader] = bool.TrueString
         };
         var cleanupMessage = new OutgoingMessage(CombGuid.Generate().ToString(), headers, Array.Empty<byte>());
         pendingOps.Add(new TransportOperation(cleanupMessage, new UnicastAddressTag(localAddress)));
