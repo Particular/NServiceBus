@@ -404,7 +404,7 @@ namespace NServiceBus
     }
     public interface IConfigureHowToFindSagaWithMessageHeaders
     {
-        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
+        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object?>> sagaEntityProperty, string headerName)
             where TSagaEntity :  class, NServiceBus.IContainSagaData;
     }
     public interface IContainSagaData

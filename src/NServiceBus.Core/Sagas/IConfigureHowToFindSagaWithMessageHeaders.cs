@@ -17,5 +17,5 @@ public interface IConfigureHowToFindSagaWithMessageHeaders
     /// of the given type, which message header should be matched to
     /// which saga entity property in the persistent saga store.
     /// </summary>
-    void ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName) where TSagaEntity : class, IContainSagaData;
+    void ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty, string headerName) where TSagaEntity : class, IContainSagaData;
 }

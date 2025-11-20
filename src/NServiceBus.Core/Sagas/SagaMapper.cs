@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -10,7 +12,7 @@ using Sagas;
 
 class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
 {
-    void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
+    void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty, Expression<Func<TMessage, object?>> messageExpression)
     {
         AssertMessageCanBeMapped<TMessage>("property mapping");
 
@@ -29,7 +31,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             typeof(TMessage)));
     }
 
-    void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, string headerName)
+    void IConfigureHowToFindSagaWithMessageHeaders.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty, string headerName)
     {
         AssertMessageCanBeMapped<TMessage>("header mapping");
 
@@ -66,7 +68,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         }
     }
 
-    static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
+    static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object?>> expression, PropertyInfo propertyInfo)
     {
         if (propertyInfo == null)
         {
@@ -74,7 +76,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         }
     }
 
-    static void ValidatePropertyMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
+    static void ValidatePropertyMapping<TMessage>(Expression<Func<TMessage, object?>> messageExpression, PropertyInfo sagaProp)
     {
         var memberExpr = messageExpression.Body as MemberExpression;
 
@@ -94,7 +96,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         {
             if (propertyInfo.PropertyType != sagaProp.PropertyType)
             {
-                throw new ArgumentException($"When mapping a message to a saga, the member type on the message and the saga property must match. {propertyInfo.DeclaringType.FullName}.{propertyInfo.Name} is of type {propertyInfo.PropertyType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
+                throw new ArgumentException($"When mapping a message to a saga, the member type on the message and the saga property must match. {propertyInfo.DeclaringType!.FullName}.{propertyInfo.Name} is of type {propertyInfo.PropertyType.Name} and {sagaProp.DeclaringType!.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
             }
 
             return;
@@ -106,12 +108,12 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
         {
             if (fieldInfo.FieldType != sagaProp.PropertyType)
             {
-                throw new ArgumentException($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
+                throw new ArgumentException($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType!.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType!.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
             }
         }
     }
 
-    static PropertyInfo GetSagaProperty<TSagaEntity>(Expression<Func<TSagaEntity, object>> sagaEntityProperty)
+    static PropertyInfo GetSagaProperty<TSagaEntity>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty)
     {
         var sagaMember = Inspect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
         var sagaProp = sagaMember as PropertyInfo ?? throw new ArgumentException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
@@ -144,7 +146,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
         }
 
-        if (correlationProperty != null && !AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
+        if (correlationProperty is not null && !AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
         {
             var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
 
@@ -155,7 +157,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
     }
 
     readonly List<SagaFinderDefinition> finders = [];
-    SagaMetadata.CorrelationPropertyMetadata correlationProperty;
+    SagaMetadata.CorrelationPropertyMetadata? correlationProperty;
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic

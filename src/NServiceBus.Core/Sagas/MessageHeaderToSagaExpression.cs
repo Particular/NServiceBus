@@ -18,7 +18,7 @@ class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSa
         this.headerName = headerName;
     }
 
-    public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
+    public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty)
     {
         ArgumentNullException.ThrowIfNull(sagaEntityProperty);
         sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaEntityProperty, headerName);
