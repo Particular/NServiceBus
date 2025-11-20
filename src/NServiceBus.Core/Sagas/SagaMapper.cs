@@ -132,14 +132,10 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
     {
         foreach (var sagaMessage in sagaMessages)
         {
-            if (sagaMessage.IsAllowedToStartSaga)
+            if (sagaMessage.IsAllowedToStartSaga && finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType)) is null)
             {
-                var match = finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType));
-                if (match == null)
-                {
-                    var simpleName = sagaMessage.MessageType.Name;
-                    throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
-                }
+                var simpleName = sagaMessage.MessageType.Name;
+                throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
             }
         }
 
@@ -148,14 +144,11 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             throw new Exception($"Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {sagaType.Name} saga.");
         }
 
-        if (correlationProperty != null)
+        if (correlationProperty != null && !AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
         {
-            if (!AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
-            {
-                var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
+            var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
 
-                throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
-            }
+            throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
         }
 
         return new SagaMapping(finders, correlationProperty);
@@ -166,7 +159,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic
-    static readonly Type[] AllowedCorrelationPropertyTypes =
+    static readonly HashSet<Type> AllowedCorrelationPropertyTypes =
     [
         typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
     ];
