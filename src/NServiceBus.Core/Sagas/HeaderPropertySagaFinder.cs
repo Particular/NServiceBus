@@ -1,8 +1,11 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -24,11 +27,11 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} is missing a header used for correlation: {headerName}.");
         }
 
-        object convertedHeaderValue;
+        object? convertedHeaderValue;
 
         try
         {
-            convertedHeaderValue = TypeDescriptor.GetConverter(correlationPropertyType).ConvertFromInvariantString(messageHeaderValue);
+            convertedHeaderValue = ConvertCorrelationHeaderValue(correlationPropertyType, messageHeaderValue);
         }
         catch (Exception exception)
         {
@@ -59,4 +62,44 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
 
         return await persister.Get<TSagaData>(correlationPropertyName, convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
     }
+
+    static object? ConvertCorrelationHeaderValue(Type correlationPropertyType, string? headerValue)
+    {
+        if (correlationPropertyType == typeof(string))
+        {
+            return headerValue ?? string.Empty; // backward compatibility: treat null header as empty string for string correlation properties
+        }
+
+        if (string.IsNullOrWhiteSpace(headerValue))
+        {
+            ThrowNotSupportedExceptionForNullOrEmptyHeaderValue(correlationPropertyType);
+        }
+
+        return correlationPropertyType switch
+        {
+            _ when correlationPropertyType == typeof(Guid) =>
+                Guid.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(long) =>
+                long.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(ulong) =>
+                ulong.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(int) =>
+                int.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(uint) =>
+                uint.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(short) =>
+                int.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ when correlationPropertyType == typeof(ushort) =>
+                uint.Parse(headerValue, CultureInfo.InvariantCulture),
+            _ => ThrowUnsupportedExceptionForCorrelationPropertyType(correlationPropertyType)
+        };
+    }
+
+    [DoesNotReturn]
+    static void ThrowNotSupportedExceptionForNullOrEmptyHeaderValue(Type correlationPropertyType)
+        => throw new NotSupportedException($"Cannot convert null or empty header value to non-string correlation type {correlationPropertyType}.");
+
+    [DoesNotReturn]
+    static object ThrowUnsupportedExceptionForCorrelationPropertyType(Type correlationPropertyType)
+        => throw new NotSupportedException($"Unsupported correlation property type: {correlationPropertyType}");
 }
