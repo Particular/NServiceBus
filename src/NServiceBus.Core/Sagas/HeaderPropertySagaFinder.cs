@@ -27,7 +27,7 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} is missing a header used for correlation: {headerName}.");
         }
 
-        object? convertedHeaderValue;
+        object convertedHeaderValue;
 
         try
         {
@@ -45,15 +45,6 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
         var lookupValues = context.GetOrCreate<SagaLookupValues>();
         lookupValues.Add<TSagaData>(correlationPropertyName, convertedHeaderValue);
 
-        if (convertedHeaderValue == null)
-        {
-            var saga = context.Get<ActiveSagaInstance>();
-            var sagaEntityName = saga.Metadata.Name;
-            var messageName = message.GetType().FullName;
-
-            throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {correlationPropertyName}. Correlation properties cannot be assigned null.");
-        }
-
         var persister = builder.GetRequiredService<ISagaPersister>();
         if (correlationPropertyName.Equals("id", StringComparison.OrdinalIgnoreCase))
         {
@@ -63,7 +54,7 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
         return await persister.Get<TSagaData>(correlationPropertyName, convertedHeaderValue, storageSession, context, cancellationToken).ConfigureAwait(false);
     }
 
-    static object? ConvertCorrelationHeaderValue(Type correlationPropertyType, string? headerValue)
+    static object ConvertCorrelationHeaderValue(Type correlationPropertyType, string? headerValue)
     {
         if (correlationPropertyType == typeof(string))
         {
