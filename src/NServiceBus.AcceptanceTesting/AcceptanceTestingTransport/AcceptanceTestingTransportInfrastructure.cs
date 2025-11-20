@@ -17,6 +17,7 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         this.receiverSettings = receiverSettings;
 
         storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
+        fifoMode = transportSettings.FifoMode;
     }
 
     static string FindSolutionRoot()
@@ -62,7 +63,7 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         {
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
+        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode, fifoMode);
         return Task.FromResult<IMessageReceiver>(pump);
     }
 
@@ -106,4 +107,5 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     readonly HostSettings settings;
     readonly AcceptanceTestingTransport transportSettings;
     readonly ReceiveSettings[] receiverSettings;
+    readonly bool fifoMode;
 }
