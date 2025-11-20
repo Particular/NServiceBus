@@ -147,6 +147,16 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
+    /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
+    /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
+    public static SagaMetadata Create<TSagaType>() where TSagaType : Saga
+    {
+        return Create(typeof(TSagaType));
+    }
+
+    /// <summary>
+    /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
+    /// </summary>
     /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</param>
     /// <param name="availableTypes">Additional available types, used to locate saga finders and other related classes.</param>
     /// <param name="conventions">Custom conventions to use while scanning types.</param>
