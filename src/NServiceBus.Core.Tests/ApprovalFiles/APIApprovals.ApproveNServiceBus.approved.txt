@@ -997,14 +997,10 @@ namespace NServiceBus
     }
     public static class TransportConfig
     {
-        public static NServiceBus.RoutingSettings<TTransport> UseTransport<TTransport>(this NServiceBus.EndpointConfiguration endpointConfiguration, TTransport transportDefinition)
-            where TTransport :  notnull, NServiceBus.Transport.TransportDefinition { }
-        public sealed class <G>$AA4D0E78385CDABA9697E12267F940F2
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [System.Runtime.CompilerServices.ExtensionMarker("<M>$B2E337D1C9DAD3813FD51F2C3BF89066")]
             public NServiceBus.RoutingSettings<TTransport> UseTransport<TTransport>(TTransport transportDefinition)
                 where TTransport : NServiceBus.Transport.TransportDefinition { }
-            public static class <M>$B2E337D1C9DAD3813FD51F2C3BF89066 { }
         }
     }
     public class TransportExtensions<T>
