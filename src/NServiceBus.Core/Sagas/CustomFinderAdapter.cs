@@ -13,7 +13,7 @@ class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where 
 {
     public async Task<IContainSagaData> Find(IServiceProvider serviceProvider, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
-        var finder = factory.Invoke(serviceProvider, []);
+        var finder = factory(serviceProvider, []);
 
         try
         {
@@ -35,5 +35,5 @@ class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where 
         }
     }
 
-    readonly ObjectFactory<TFinder> factory = ActivatorUtilities.CreateFactory<TFinder>([]);
+    static readonly ObjectFactory<TFinder> factory = ActivatorUtilities.CreateFactory<TFinder>([]);
 }
