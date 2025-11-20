@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Helpers;
-using Microsoft.CodeAnalysis.CSharp;
 using NServiceBus.Core.Analyzer.Fixes;
 using NUnit.Framework;
 
@@ -320,19 +319,4 @@ public class Foo
 
         return Assert(original, expected);
     }
-}
-
-public class ForwardCancellationTokenFixerTestsCSharp8 : ForwardCancellationTokenFixerTests
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-}
-
-public class ForwardCancellationTokenFixerTestsCSharp9 : ForwardCancellationTokenFixerTestsCSharp8
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-}
-
-public class ForwardCancellationTokenFixerTestsCSharp10 : ForwardCancellationTokenFixerTestsCSharp9
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

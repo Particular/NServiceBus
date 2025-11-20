@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 using Helpers;
-using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 
 [TestFixture]
@@ -924,11 +923,6 @@ public interface ISecondMessage : IMessageBase { }
 
         return Assert(source);
     }
-}
-
-public class SagaAnalyzerTestsCSharp8 : SagaAnalyzerTests
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
 
     [Test]
     public Task NullableReferenceTypes()
@@ -1179,14 +1173,4 @@ public class SagaStep3 : SagaStartMessage
 
         return Assert(source);
     }
-}
-
-public class SagaAnalyzerTestsCSharp9 : SagaAnalyzerTestsCSharp8
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-}
-
-public class SagaAnalyzerTestsCSharp10 : SagaAnalyzerTestsCSharp9
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

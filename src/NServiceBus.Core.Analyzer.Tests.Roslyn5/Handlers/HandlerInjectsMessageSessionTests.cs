@@ -3,14 +3,11 @@ namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 using System.Threading.Tasks;
 using Analyzer.Handlers;
 using Helpers;
-using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 
 [TestFixture]
 public class HandlerInjectsMessageSessionTests : AnalyzerTestFixture<HandlerInjectsMessageSessionAnalyzer>
 {
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp12;
-
     [TestCase("IMessageSession")]
     [TestCase("IEndpointInstance")]
     public Task MultiTest(string injectedType)

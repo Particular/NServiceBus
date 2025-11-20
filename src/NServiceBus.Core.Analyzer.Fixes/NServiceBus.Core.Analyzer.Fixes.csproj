@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- this package can only be upgraded when we drop support for older versions of Visual Studio -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" PrivateAssets="All" />
+    <!-- Package needs to stay on 5.0.x to ensure we run on the 10.0.10x SDK and Visual Studio 18.0 -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 

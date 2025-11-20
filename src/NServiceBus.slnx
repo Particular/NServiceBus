@@ -13,7 +13,7 @@
   <Folder Name="/Tests/">
     <Project Path="NServiceBus.AcceptanceTests/NServiceBus.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.ContainerTests/NServiceBus.ContainerTests.csproj" />
-    <Project Path="NServiceBus.Core.Analyzer.Tests.Roslyn4/NServiceBus.Core.Analyzer.Tests.Roslyn4.csproj" />
+    <Project Path="NServiceBus.Core.Analyzer.Tests.Roslyn5/NServiceBus.Core.Analyzer.Tests.Roslyn5.csproj" />
     <Project Path="NServiceBus.Core.Tests/NServiceBus.Core.Tests.csproj" />
     <Project Path="NServiceBus.Learning.AcceptanceTests/NServiceBus.Learning.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />

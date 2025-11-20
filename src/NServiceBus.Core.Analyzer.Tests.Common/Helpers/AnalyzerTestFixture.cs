@@ -18,7 +18,7 @@ using NUnit.Framework;
 
 public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer, new()
 {
-    protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp7;
+    protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp14;
 
     protected Task Assert(string markupCode, CancellationToken cancellationToken = default) =>
         Assert([], markupCode, [], cancellationToken);

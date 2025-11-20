@@ -67,7 +67,8 @@ public partial class SourceGeneratorTest
         => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>();
 
     public List<MetadataReference> References { get; } = [];
-    public LanguageVersion LangVersion { get; set; } = LanguageVersion.LatestMajor;
+
+    public LanguageVersion LangVersion { get; set; } = LanguageVersion.CSharp14;
 
     public SourceGeneratorTest WithSource(string source, string? filename = null)
     {

@@ -37,8 +37,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
-    <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn4.14/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn5.0/cs/NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn5.0/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddPropsFileToPackage">
