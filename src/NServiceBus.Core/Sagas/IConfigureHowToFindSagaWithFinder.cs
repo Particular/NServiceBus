@@ -13,5 +13,5 @@ public interface IConfigureHowToFindSagaWithFinder
     /// <summary>
     /// Specify the custom saga finder to match the given message to a saga instance.
     /// </summary>
-    void ConfigureMapping<TSagaEntity, TMessage, TFinder>() where TFinder : ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : IContainSagaData;
+    void ConfigureMapping<TSagaEntity, TMessage, TFinder>() where TFinder : class, ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : IContainSagaData;
 }

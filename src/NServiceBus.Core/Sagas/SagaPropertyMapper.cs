@@ -58,7 +58,7 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     /// </summary>
     /// <typeparam name="TMessage">The message type to map to.</typeparam>
     /// <typeparam name="TFinder">The saga finder that will return the saga.</typeparam>
-    public void ConfigureFinderMapping<TMessage, TFinder>() where TFinder : ISagaFinder<TSagaData, TMessage>
+    public void ConfigureFinderMapping<TMessage, TFinder>() where TFinder : class, ISagaFinder<TSagaData, TMessage>
     {
         if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
         {
