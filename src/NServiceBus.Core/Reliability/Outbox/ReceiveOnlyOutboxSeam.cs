@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 
-class OutboxSeam(IOutboxStorage outboxStorage, bool executeSetAsDispatched) : IOutboxSeam
+class ReceiveOnlyOutboxSeam(IOutboxStorage outboxStorage) : IOutboxSeam
 {
     public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
         => outboxStorage.Get(messageId, context, cancellationToken);
@@ -15,7 +15,7 @@ class OutboxSeam(IOutboxStorage outboxStorage, bool executeSetAsDispatched) : IO
         => outboxStorage.Store(message, transaction, context, cancellationToken);
 
     public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default)
-        => executeSetAsDispatched ? outboxStorage.SetAsDispatched(messageId, context, cancellationToken) : Task.CompletedTask;
+        => outboxStorage.SetAsDispatched(messageId, context, cancellationToken);
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
         => outboxStorage.BeginTransaction(context, cancellationToken);

@@ -2,7 +2,6 @@ namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
-using Extensibility;
 using Outbox;
 using Pipeline;
 

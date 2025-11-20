@@ -63,7 +63,7 @@ public class Outbox : Feature
             //In SendsAtomicWithReceive mode the component the outbox operations are marked as dispatched via a control
             //message processed by SetAsDispatchedBehavior
             context.Services.AddTransient<IOutboxSeam>(provider =>
-                new OutboxSeam(provider.GetRequiredService<IOutboxStorage>(), false));
+                new SendsAtomicWithReceiveOutboxSeam(provider.GetRequiredService<IOutboxStorage>()));
 
             context.Pipeline.Register("ForceBatchDispatchToBeNonIsolated", new ForceBatchDispatchToBeNonIsolatedBehavior(), "Makes sure that the outbox operations are enlisted in the receive transaction.");
             context.Pipeline.Register("SetAsDispatchedBehavior", sp => new SetAsDispatchedBehavior(sp.GetRequiredService<IOutboxStorage>()), "Marks the outbox record as dispatched after all messages have been sent out.");
@@ -71,6 +71,11 @@ public class Outbox : Feature
         }
         else if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.ReceiveOnly)
         {
+            // In the ReceiveOnly mode the SetAsDispatched operation is executed right after the messages
+            // are dispatched to the transport to minimize the likelihood of duplicate dispatch and conserve space
+            context.Services.AddTransient<IOutboxSeam>(provider =>
+                new ReceiveOnlyOutboxSeam(provider.GetRequiredService<IOutboxStorage>()));
+
             // ForceBatchDispatchToBeIsolatedBehavior set the dispatch consistency to isolated which instructs
             // the transport to not enlist the outgoing operation in the incoming message transaction. Unfortunately
             // this is not enough. We cannot allow the transport to operate in SendsWithAtomicReceive because a transport
@@ -80,11 +85,6 @@ public class Outbox : Feature
             // the incoming operation fail and the message be retried we would already have cleared the outbox record's
             // transport operations leading to outgoing message loss.
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched once the dispatch pipeline returns.");
-
-            // In the ReceiveOnly mode the SetAsDispatched operation is executed right after the messages
-            // are dispatched to the transport to minimize the likelihood of duplicate dispatch and conserve space
-            context.Services.AddTransient<IOutboxSeam>(provider =>
-                new OutboxSeam(provider.GetRequiredService<IOutboxStorage>(), true));
         }
         else
         {
