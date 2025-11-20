@@ -82,12 +82,7 @@ public partial class SagaMetadata
     public bool IsMessageAllowedToStartTheSaga(string messageType)
     {
         ArgumentNullException.ThrowIfNull(messageType);
-        if (!associatedMessages.TryGetValue(messageType, out var sagaMessage))
-        {
-            return false;
-        }
-
-        return sagaMessage.IsAllowedToStartSaga;
+        return associatedMessages.TryGetValue(messageType, out var sagaMessage) && sagaMessage.IsAllowedToStartSaga;
     }
 
     /// <summary>
@@ -95,7 +90,7 @@ public partial class SagaMetadata
     /// </summary>
     /// <param name="messageType">The message <see cref="MemberInfo.Name" />.</param>
     /// <param name="finderDefinition">The finder if present.</param>
-    /// <returns>True if finder exists.</returns>
+    /// <returns>True if a finder exists.</returns>
     public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageType);
