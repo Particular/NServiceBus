@@ -1793,8 +1793,7 @@ namespace NServiceBus.Pipeline
     public class MessageHandler
     {
         public MessageHandler() { }
-        [System.Obsolete("Use \'MessageHandler<THandler, TMessage>\' instead. Will be removed in version 11.0" +
-            ".0.", true)]
+        [System.Obsolete("Use \'MessageHandler()\' instead. Will be removed in version 11.0.0.", true)]
         public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
         public virtual required System.Type HandlerType { get; init; }
         public virtual object? Instance { get; set; }
