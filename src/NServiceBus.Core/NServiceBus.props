@@ -4,4 +4,8 @@
     <Using Include="NServiceBus" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
+  </PropertyGroup>
+
 </Project>
