@@ -158,6 +158,8 @@ public class AddHandlerInterceptor : IIncrementalGenerator
                       {
                           static file class InterceptionsOfAddHandlerMethod
                           {
+                              extension(EndpointConfiguration endpointConfiguration)
+                              {
                       """);
 
         var groups = intercepts.GroupBy(i => i.MethodName)
@@ -166,28 +168,28 @@ public class AddHandlerInterceptor : IIncrementalGenerator
         {
             foreach (InterceptDetails location in group)
             {
-                sb.AppendLine($"        {location.Location.Attribute} // {location.Location.DisplayLocation}");
+                sb.AppendLine($"            {location.Location.Attribute} // {location.Location.DisplayLocation}");
             }
 
             InterceptDetails first = group.First();
             sb.AppendLine($$"""
-                                    public static void {{first.MethodName}}(NServiceBus.EndpointConfiguration endpointConfiguration)
-                                    {
-                                        System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                                        var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                                            .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                                        public void {{first.MethodName}}()
+                                        {
+                                            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                                            var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                                                .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                             """);
             foreach (var registration in first.Registrations.Items)
             {
-                sb.AppendLine($"            registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType}>();");
+                sb.AppendLine($"                registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType}>();");
             }
-            sb.AppendLine("        }");
+            sb.AppendLine("            }");
+            sb.AppendLine("");
         }
 
-        sb.AppendLine("""
-                          }
-                      }
-                      """);
+        sb.AppendLine("        }");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
 
         context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sb.ToString());
     }
