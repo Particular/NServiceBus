@@ -113,7 +113,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
 
     static PropertyInfo GetSagaProperty<TSagaEntity>(Expression<Func<TSagaEntity, object>> sagaEntityProperty)
     {
-        var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
+        var sagaMember = Inspect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
         var sagaProp = sagaMember as PropertyInfo ?? throw new ArgumentException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
         return sagaProp;
     }

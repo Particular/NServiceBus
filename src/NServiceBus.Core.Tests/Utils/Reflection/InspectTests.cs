@@ -4,7 +4,7 @@ using System;
 using NUnit.Framework;
 
 [TestFixture]
-public class ReflectTests
+public class InspectTests
 {
     [TestFixture]
     public class When_is_a_simple_property
@@ -13,7 +13,7 @@ public class ReflectTests
         [Test]
         public void Should_return_property_name()
         {
-            var propertyInfo = Reflect<Target>.GetProperty(target => target.Property);
+            var propertyInfo = Inspect<Target>.GetProperty(target => target.Property);
             Assert.That(propertyInfo.Name, Is.EqualTo("Property"));
         }
 
@@ -30,7 +30,7 @@ public class ReflectTests
         [Test]
         public void Should_throw()
         {
-            var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target>.GetProperty(target => target.Field));
+            var argumentException = Assert.Throws<ArgumentException>(() => Inspect<Target>.GetProperty(target => target.Field));
             Assert.That(argumentException.Message, Is.EqualTo("Member is not a property"));
         }
 
@@ -47,14 +47,14 @@ public class ReflectTests
         [Test]
         public void Should_return_property_name()
         {
-            var propertyInfo = Reflect<Target1>.GetProperty(target => target.Property1.Property2);
+            var propertyInfo = Inspect<Target1>.GetProperty(target => target.Property1.Property2);
             Assert.That(propertyInfo.Name, Is.EqualTo("Property2"));
         }
 
         [Test]
         public void Should_throw_when_dots_not_allowed()
         {
-            var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target1>.GetProperty(target => target.Property1.Property2, true));
+            var argumentException = Assert.Throws<ArgumentException>(() => Inspect<Target1>.GetProperty(target => target.Property1.Property2, true));
             Assert.That(argumentException.Message, Does.StartWith("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2"));
             Assert.That(argumentException.ParamName, Is.EqualTo("member"));
         }
