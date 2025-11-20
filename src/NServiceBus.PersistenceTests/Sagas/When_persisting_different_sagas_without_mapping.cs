@@ -54,7 +54,9 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
     }
 
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
+#pragma warning disable NSB0006 // Saga implements IAmStartedByMessages<T> but does not provide a mapping for that message type
         IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
+#pragma warning restore NSB0006
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
         {
@@ -88,7 +90,9 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
     }
 
     class AnotherSagaWithoutCorrelationProperty : Saga<AnotherSagaWithoutCorrelationPropertyData>,
+#pragma warning disable NSB0006 // Saga implements IAmStartedByMessages<T> but does not provide a mapping for that message type
         IAmStartedByMessages<AnotherSagaWithoutCorrelationPropertyStartingMessage>
+#pragma warning restore NSB0006
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnotherSagaWithoutCorrelationPropertyData> mapper)
         {

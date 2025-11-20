@@ -152,8 +152,9 @@ public class SagaModelTests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
         {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+            mapper.MapSaga(saga => saga.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
         }
     }
     public class MyEntity : ContainSagaData
@@ -182,8 +183,9 @@ public class SagaModelTests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
         {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+            mapper.MapSaga(saga => saga.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
         }
     }
 
@@ -202,8 +204,9 @@ public class SagaModelTests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyPartialEntity> mapper)
         {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+            mapper.MapSaga(saga => saga.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
         }
     }
 

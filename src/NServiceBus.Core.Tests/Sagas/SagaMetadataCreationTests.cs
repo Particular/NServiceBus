@@ -262,7 +262,9 @@ public class SagaMetadataCreationTests
         return finder;
     }
 
+#pragma warning disable NSB0014
     class MyNonGenericSaga : Saga
+#pragma warning restore NSB0014
     {
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
@@ -514,10 +516,9 @@ public class SagaMetadataCreationTests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
-            mapper.ConfigureMapping<StartMessage1>(m => m.SomeId)
-                .ToSaga(s => s.SomeId);
-            mapper.ConfigureMapping<StartMessage2>(m => m.SomeId)
-                .ToSaga(s => s.SomeId);
+            mapper.MapSaga(saga => saga.SomeId)
+                .ToMessage<StartMessage1>(m => m.SomeId)
+                .ToMessage<StartMessage2>(m => m.SomeId);
         }
 
         public class StartMessage1 : IMessage
@@ -666,7 +667,9 @@ public class SagaMetadataCreationTests
         }
     }
 
+#pragma warning disable NSB0014
     class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>, IAmStartedByMessages<SomeMessageWithStringProperty>
+#pragma warning restore NSB0014
     {
         public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
         {
@@ -695,8 +698,9 @@ public class SagaMetadataCreationTests
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
-            mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-            mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+            mapper.MapSaga(saga => saga.SomeProperty)
+                .ToMessage<SomeMessage>(msg => msg.SomeProperty)
+                .ToMessage<OtherMessage>(msg => msg.SomeProperty);
         }
 
         public Task Handle(SomeMessage message, IMessageHandlerContext context)
@@ -720,8 +724,9 @@ public class SagaMetadataCreationTests
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
-            mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-            mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+            mapper.MapSaga(saga => saga.SomeProperty)
+                .ToMessage<SomeMessage>(msg => msg.SomeProperty)
+                .ToMessage<OtherMessage>(msg => msg.SomeProperty);
         }
 
         public Task Handle(SomeMessage message, IMessageHandlerContext context)

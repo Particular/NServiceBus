@@ -39,7 +39,9 @@ public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTe
     }
 
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
+#pragma warning disable NSB0006 // Saga implements IAmStartedByMessages<T> but does not provide a mapping for that message type
         IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
+#pragma warning restore NSB0006
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
         {
