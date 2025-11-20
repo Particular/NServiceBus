@@ -9,7 +9,7 @@ using NUnit.Framework;
 [TestFixture]
 public class HandlerInjectsMessageSessionTests : AnalyzerTestFixture<HandlerInjectsMessageSessionAnalyzer>
 {
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp12;
+    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp14;
 
     [TestCase("IMessageSession")]
     [TestCase("IEndpointInstance")]
