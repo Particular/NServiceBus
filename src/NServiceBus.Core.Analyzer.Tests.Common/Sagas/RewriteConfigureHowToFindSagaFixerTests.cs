@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Helpers;
-using Microsoft.CodeAnalysis.CSharp;
 using NServiceBus.Core.Analyzer.Fixes;
 using NUnit.Framework;
 
@@ -622,19 +621,4 @@ public class Notification
 
         return Assert(original, expected);
     }
-}
-
-public class RewriteConfigureHowToFindSagaFixerTestsCSharp8 : RewriteConfigureHowToFindSagaFixerTests
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-}
-
-public class RewriteConfigureHowToFindSagaFixerTestsCSharp9 : RewriteConfigureHowToFindSagaFixerTestsCSharp8
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-}
-
-public class RewriteConfigureHowToFindSagaFixerTestsCSharp10 : RewriteConfigureHowToFindSagaFixerTestsCSharp9
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

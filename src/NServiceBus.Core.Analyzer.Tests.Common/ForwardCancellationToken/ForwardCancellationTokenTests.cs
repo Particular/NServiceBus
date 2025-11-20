@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Helpers;
-using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 
 [TestFixture]
@@ -476,11 +475,7 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}
 public class Bar {}");
-}
 
-public class ForwardCancellationTokenTestsCSharp8 : ForwardCancellationTokenTests
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
 
     [TestCase("default(CancellationToken)")]
     [TestCase("default")]
@@ -551,14 +546,4 @@ public class Foo : IHandleMessages<TestMessage>
 }
 public class TestMessage : ICommand {}
 ");
-}
-
-public class ForwardCancellationTokenTestsCSharp9 : ForwardCancellationTokenTestsCSharp8
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-}
-
-public class ForwardCancellationTokenTestsCSharp10 : ForwardCancellationTokenTestsCSharp9
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
 }

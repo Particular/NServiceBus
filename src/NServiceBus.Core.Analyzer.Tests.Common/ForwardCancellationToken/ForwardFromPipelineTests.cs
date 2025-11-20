@@ -141,18 +141,3 @@ public class TestTimeout {}";
         return false;
     }
 }
-
-public class ForwardFromPipelineTestsCSharp8 : ForwardFromPipelineTests
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp8;
-}
-
-public class ForwardFromPipelineTestsCSharp9 : ForwardFromPipelineTestsCSharp8
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp9;
-}
-
-public class ForwardFromPipelineTestsCSharp10 : ForwardFromPipelineTestsCSharp9
-{
-    protected override LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp10;
-}
