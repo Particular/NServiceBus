@@ -9,6 +9,7 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <LangVersion>14.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
