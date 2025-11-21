@@ -334,7 +334,7 @@ public partial class SourceGeneratorTest
             }
         }
 
-        return sb.ToString();
+        return sb.ToString().TrimEnd();
     }
 
     public SourceGeneratorTest Approve(Func<string, string>? scrubber = null, [CallerFilePath] string? callerFilePath = null, [CallerMemberName] string? callerMemberName = null)

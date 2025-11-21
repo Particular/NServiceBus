@@ -65,7 +65,7 @@ sealed class SourceWriter
     public SourceText ToSourceText()
     {
         Debug.Assert(_indentation == 0 && _sb.Length > 0);
-        return SourceText.From(_sb.ToString(), Encoding.UTF8);
+        return SourceText.From(_sb.ToString().TrimEnd(), Encoding.UTF8);
     }
 
     public void Reset()
