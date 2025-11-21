@@ -124,7 +124,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
     {
         if (correlationProperty != null && correlationProperty.Name != sagaProp.Name)
         {
-            throw new ArgumentException($"Saga already have a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
+            throw new ArgumentException($"The saga already has a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
         }
 
         correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
