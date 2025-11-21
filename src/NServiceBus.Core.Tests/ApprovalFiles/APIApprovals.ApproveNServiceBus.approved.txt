@@ -2085,9 +2085,6 @@ namespace NServiceBus.Sagas
         public string Name { get; }
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
-        [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
-            "ion 11.0.0.", true)]
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetCorrelationProperty(out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata property) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
@@ -2109,6 +2106,9 @@ namespace NServiceBus.Sagas
         public NServiceBus.Sagas.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
+        [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
+            "ion 11.0.0.", true)]
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
     }
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {

@@ -8,7 +8,7 @@ using System.Linq;
 /// <summary>
 /// Sagas metamodel.
 /// </summary>
-public class SagaMetadataCollection : IEnumerable<SagaMetadata>
+public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
 {
     /// <summary>
     /// Returns an enumerator that iterates through the collection.
