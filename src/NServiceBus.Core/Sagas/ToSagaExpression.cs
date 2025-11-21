@@ -21,7 +21,6 @@ public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, ICon
         this.messageProperty = messageProperty;
     }
 
-
     /// <summary>
     /// Defines the property on the saga data to which the message property should be mapped.
     /// </summary>

@@ -509,4 +509,46 @@ namespace NServiceBus.Pipeline
     }
 }
 
+namespace NServiceBus.Sagas
+{
+    using System;
+    using System.Collections.Generic;
+    using Particular.Obsoletes;
+
+    public partial class SagaFinderDefinition
+    {
+        [ObsoleteMetadata(Message = "Use MessageType.FullName instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use MessageType.FullName instead. Will be removed in version 11.0.0.", true)]
+        public string MessageTypeName { get; }
+
+        [ObsoleteMetadata(Message = "Finder properties are no longer used", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Finder properties are no longer used. Will be removed in version 11.0.0.", true)]
+        public Dictionary<string, object> Properties { get; }
+    }
+}
+
+namespace NServiceBus.Sagas
+{
+    using System;
+    using Particular.Obsoletes;
+
+    public partial class SagaMetadata
+    {
+        [ObsoleteMetadata(Message = "Use SagaMetadata.Create to create metadata objects", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use SagaMetadata.Create to create metadata objects. Will be removed in version 11.0.0.", true)]
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata correlationProperty, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
+
+        [ObsoleteMetadata(Message = "Use the overload without available types and conventions", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use the overload without available types and conventions. Will be removed in version 11.0.0.", true)]
+        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) => throw new NotImplementedException();
+    }
+
+    public partial class SagaMetadataCollection
+    {
+        [ObsoleteMetadata(Message = "Use the overload without available types and conventions", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use the overload without available types and conventions. Will be removed in version 11.0.0.", true)]
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) => throw new NotImplementedException();
+    }
+}
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

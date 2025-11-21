@@ -1,11 +1,9 @@
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus.Sagas;
 using NUnit.Framework;
-using Particular.Approvals;
 
 [TestFixture]
 public class When_saga_has_multiple_correlated_properties
@@ -13,22 +11,17 @@ public class When_saga_has_multiple_correlated_properties
     [Test]
     public void Should_throw()
     {
-        var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), [], new Conventions()));
-        Approver.Verify(exception.Message);
+        var exception = Assert.Throws<ArgumentException>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties)));
+        Assert.That(exception.Message, Does.Contain("sagas can only have mappings that correlate on a single saga property"));
     }
 
     class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>,
         IAmStartedByMessages<Message1>,
         IAmStartedByMessages<Message2>
     {
-        public Task Handle(Message1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
-        public Task Handle(Message2 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        public Task Handle(Message2 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
         {

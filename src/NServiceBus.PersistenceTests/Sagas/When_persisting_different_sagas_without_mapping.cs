@@ -56,23 +56,14 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
         IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
-        {
-            // no mapping defined since this saga uses a custom finder
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper) => mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
 
-        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }
 
     public class CustomFinder : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
     {
-        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 
     public class SagaWithoutCorrelationPropertyData : ContainSagaData
@@ -84,7 +75,6 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
 
     public class SagaWithoutCorrelationPropertyStartingMessage : IMessage
     {
-        public string FoundByFinderProperty { get; set; }
     }
 
     class AnotherSagaWithoutCorrelationProperty : Saga<AnotherSagaWithoutCorrelationPropertyData>,
@@ -92,7 +82,7 @@ public class When_persisting_different_sagas_without_mapping : SagaPersisterTest
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnotherSagaWithoutCorrelationPropertyData> mapper)
         {
-            // no mapping defined since this saga uses a custom finder
+            mapper.ConfigureFinderMapping<AnotherSagaWithoutCorrelationPropertyStartingMessage, AnotherCustomFinder>();
         }
 
         public Task Handle(AnotherSagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)

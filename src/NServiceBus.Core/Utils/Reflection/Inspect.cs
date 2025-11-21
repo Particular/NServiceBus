@@ -1,24 +1,17 @@
-//http://netfx.googlecode.com/svn/trunk/Source/Reflection/Reflect.cs
+#nullable enable
 
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-static class Reflect<TTarget>
+static class Inspect<TTarget>
 {
     public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         => GetMemberInfo(property, false) as PropertyInfo ?? throw new ArgumentException("Member is not a property");
 
-    internal static List<TTarget> GetEnumValues() =>
-        Enum.GetValues(typeof(TTarget))
-            .Cast<TTarget>()
-            .ToList();
-
-    public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
+    public static PropertyInfo? GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
         => GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
 
     public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
@@ -30,7 +23,7 @@ static class Reflect<TTarget>
             throw new ArgumentException("Not a lambda expression", nameof(member));
         }
 
-        MemberExpression memberExpr = null;
+        MemberExpression? memberExpr = null;
 
         // The Func<TTarget, object> we use returns an object, so first statement can be either
         // a cast (if the field/property does not return an object) or the direct member access.
@@ -52,11 +45,7 @@ static class Reflect<TTarget>
 
         if (checkForSingleDot)
         {
-            if (memberExpr.Expression is ParameterExpression)
-            {
-                return memberExpr.Member;
-            }
-            throw new ArgumentException("Argument passed contains more than a single dot which is not allowed: " + member, nameof(member));
+            return memberExpr.Expression is ParameterExpression ? memberExpr.Member : throw new ArgumentException("Argument passed contains more than a single dot which is not allowed: " + member, nameof(member));
         }
 
         return memberExpr.Member;

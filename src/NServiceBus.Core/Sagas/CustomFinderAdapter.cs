@@ -9,17 +9,31 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class CustomFinderAdapter<TSagaData, TMessage> : SagaFinder where TSagaData : IContainSagaData
+class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : class, IContainSagaData
 {
-    public override async Task<IContainSagaData> Find(IServiceProvider builder, SagaFinderDefinition finderDefinition, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
+    public async Task<IContainSagaData> Find(IServiceProvider serviceProvider, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
-        var customFinderType = (Type)finderDefinition.Properties["custom-finder-clr-type"];
+        var finder = factory(serviceProvider, []);
 
-        var finder = (ISagaFinder<TSagaData, TMessage>)builder.GetRequiredService(customFinderType);
-
-        return await finder
-            .FindBy((TMessage)message, storageSession, context, cancellationToken)
-            .ThrowIfNull()
-            .ConfigureAwait(false);
+        try
+        {
+            return await finder
+                .FindBy((TMessage)message, storageSession, context, cancellationToken)
+                .ThrowIfNull()
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            if (finder is IAsyncDisposable asyncDisposableInstaller)
+            {
+                await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
+            }
+            else if (finder is IDisposable disposableInstaller)
+            {
+                disposableInstaller.Dispose();
+            }
+        }
     }
+
+    static readonly ObjectFactory<TFinder> factory = ActivatorUtilities.CreateFactory<TFinder>([]);
 }

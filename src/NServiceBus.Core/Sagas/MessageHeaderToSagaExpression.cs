@@ -5,7 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Linq.Expressions;
 
-class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
+class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSagaData> where TSagaData : class, IContainSagaData
 {
     readonly IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration;
     readonly string headerName;
@@ -18,7 +18,7 @@ class MessageHeaderToSagaExpression<TSagaData, TMessage> : IToSagaExpression<TSa
         this.headerName = headerName;
     }
 
-    public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
+    public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty)
     {
         ArgumentNullException.ThrowIfNull(sagaEntityProperty);
         sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaEntityProperty, headerName);

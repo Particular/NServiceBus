@@ -50,7 +50,7 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
 
         var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
 
@@ -58,8 +58,6 @@ public sealed class Sagas : Feature
         {
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
-
-        RegisterCustomFindersInContainer(context.Services, sagaMetaModel);
 
         foreach (var t in context.Settings.GetAvailableTypes())
         {
@@ -75,33 +73,11 @@ public sealed class Sagas : Feature
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }
 
-    static void RegisterCustomFindersInContainer(IServiceCollection container, IEnumerable<SagaMetadata> sagaMetaModel)
-    {
-        foreach (var finder in sagaMetaModel.SelectMany(m => m.Finders))
-        {
-            container.AddTransient(finder.Type);
+    static bool IsSagaType(Type t) => IsCompatible(t, typeof(Saga));
 
-            if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
-            {
-                container.AddTransient((Type)customFinderType);
-            }
-        }
-    }
+    static bool IsSagaNotFoundHandler(Type t) => IsCompatible(t, typeof(IHandleSagaNotFound));
 
-    static bool IsSagaType(Type t)
-    {
-        return IsCompatible(t, typeof(Saga));
-    }
-
-    static bool IsSagaNotFoundHandler(Type t)
-    {
-        return IsCompatible(t, typeof(IHandleSagaNotFound));
-    }
-
-    static bool IsCompatible(Type t, Type source)
-    {
-        return source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
-    }
+    static bool IsCompatible(Type t, Type source) => source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
 
     static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
     {

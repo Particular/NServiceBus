@@ -1,0 +1,17 @@
+#nullable enable
+namespace NServiceBus;
+
+using Sagas;
+
+/// <summary>
+/// Implementation provided by the infrastructure - don't implement this
+/// or register implementations of it in the container unless you intend
+/// to substantially change the way sagas work.
+/// </summary>
+public interface IConfigureHowToFindSagaWithFinder
+{
+    /// <summary>
+    /// Specify the custom saga finder to match the given message to a saga instance.
+    /// </summary>
+    void ConfigureMapping<TSagaEntity, TMessage, TFinder>() where TFinder : class, ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : class, IContainSagaData;
+}
