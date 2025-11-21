@@ -62,7 +62,7 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     {
         if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
         {
-            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
+            throw new Exception($"Unable to configure saga mapping using a custom saga finder. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
         }
 
         sagaMapperFindingConfiguration.ConfigureMapping<TSagaData, TMessage, TFinder>();
