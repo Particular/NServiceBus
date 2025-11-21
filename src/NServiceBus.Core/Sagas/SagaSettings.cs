@@ -9,6 +9,7 @@
     public class SagaSettings : ExposeSettings
     {
         internal const string DisableVerifyingIfEntitiesAreShared = "Sagas.DisableVerifyingIfEntitiesAreShared";
+        internal const string DisableSagaScanningKey = "Sagas.DisableSagaScanning";
 
         internal SagaSettings(SettingsHolder settings) : base(settings)
         {
@@ -20,6 +21,14 @@
         public void DisableBestPracticeValidation()
         {
             Settings.Set(DisableVerifyingIfEntitiesAreShared, true);
+        }
+
+        /// <summary>
+        /// Disables assembly scanning for sagas. When disabled, sagas must be manually registered using <see cref="SagaRegistrationExtensions.AddSaga{TSaga}" />.
+        /// </summary>
+        public void DisableSagaScanning()
+        {
+            Settings.Set(DisableSagaScanningKey, true);
         }
     }
 }

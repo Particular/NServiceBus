@@ -28,9 +28,13 @@ namespace NServiceBus
             var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
             
-            var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga>();
+            var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
+            .WithHeaderMapping<global::OrderCreated>("OrderId", typeof(string), "NServiceBus.CorrelationId")
+            .WithMessage<global::OrderCreated>(true)
+            .Build();
             sagaMetadataCollection.Register(metadata);
         }
     }
 }
+
 

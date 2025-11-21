@@ -30,6 +30,7 @@ namespace NServiceBus
             
             var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
             .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
+            .WithHeaderMapping<global::OrderShipped>("OrderId", typeof(string), "NServiceBus.CorrelationId")
             .WithMessage<global::OrderCreated>(true)
             .WithMessage<global::OrderShipped>(false)
             .Build();

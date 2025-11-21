@@ -31,7 +31,7 @@ namespace NServiceBus
             var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
             .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
             .WithMessage<global::OrderCreated>(true)
-            .WithMessage<global::OrderShipped>(false)
+            .WithMessage<global::OrderTimeout>(false)
             .Build();
             sagaMetadataCollection.Register(metadata);
         }

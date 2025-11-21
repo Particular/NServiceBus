@@ -20,10 +20,14 @@ public sealed class Sagas : Feature
         {
             conventions = s.Get<Conventions>();
 
-            var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
-            if (sagas.Count > 0)
+            var sagaScanningDisabled = s.GetOrDefault<bool>(SagaSettings.DisableSagaScanningKey);
+            if (!sagaScanningDisabled)
             {
-                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+                var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
+                if (sagas.Count > 0)
+                {
+                    conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+                }
             }
         });
 
@@ -32,7 +36,18 @@ public sealed class Sagas : Feature
         Defaults(s => s.Set(new SagaMetadataCollection()));
 
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
-        Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
+        Prerequisite(config =>
+        {
+            var sagaScanningDisabled = config.Settings.GetOrDefault<bool>(SagaSettings.DisableSagaScanningKey);
+            if (sagaScanningDisabled)
+            {
+                // If scanning is disabled, check if any sagas have been manually registered
+                var sagaMetadataCollection = config.Settings.GetOrDefault<SagaMetadataCollection>();
+                return sagaMetadataCollection != null && sagaMetadataCollection.Any();
+            }
+            // If scanning is enabled, check for scanned sagas
+            return config.Settings.GetAvailableTypes().Any(IsSagaType);
+        }, "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
 
         DependsOn<SynchronizedStorage>();
     }
@@ -50,7 +65,22 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
+        var sagaScanningDisabled = context.Settings.GetOrDefault<bool>(SagaSettings.DisableSagaScanningKey);
+
+        // Only initialize from scanning if scanning is enabled
+        if (!sagaScanningDisabled)
+        {
+            sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+        }
+        else
+        {
+            // When scanning is disabled, add timeout system message convention from manually registered sagas
+            var sagas = sagaMetaModel.Select(m => m.SagaType).ToList();
+            if (sagas.Count > 0)
+            {
+                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+            }
+        }
 
         if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
         {
@@ -74,11 +104,15 @@ public sealed class Sagas : Feature
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
 
-        foreach (var t in context.Settings.GetAvailableTypes())
+        // Register saga not found handlers (only from scanning if scanning is enabled)
+        if (!sagaScanningDisabled)
         {
-            if (IsSagaNotFoundHandler(t))
+            foreach (var t in context.Settings.GetAvailableTypes())
             {
-                context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
+                if (IsSagaNotFoundHandler(t))
+                {
+                    context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
+                }
             }
         }
 
