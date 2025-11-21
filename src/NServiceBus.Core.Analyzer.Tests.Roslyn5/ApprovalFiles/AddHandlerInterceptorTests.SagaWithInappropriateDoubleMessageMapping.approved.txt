@@ -18,18 +18,21 @@ namespace System.Runtime.CompilerServices
 
 namespace NServiceBus
 {
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
     static file class InterceptionsOfAddHandlerMethod
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
-        public static void AddHandler_OrderPolicy_df58223eb7801b4c(this NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
-            registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
-            registry.AddTimeoutHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+            public void AddHandler_OrderPolicy_df58223eb7801b4c()
+            {
+                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
+                registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
+                registry.AddTimeoutHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
+            }
         }
     }
 }
-
