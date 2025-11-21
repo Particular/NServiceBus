@@ -52,7 +52,7 @@ public sealed class Sagas : Feature
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
         sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
 
-        if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: true })
+        if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
         {
             var customerFinders = (from s in sagaMetaModel
                                    from finder in s.Finders
