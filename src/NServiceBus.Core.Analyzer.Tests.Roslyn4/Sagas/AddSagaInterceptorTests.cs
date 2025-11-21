@@ -225,5 +225,174 @@ public class AddSagaInterceptorTests
             .ToConsole()
             .AssertRunsAreEqual();
     }
-}
 
+    [Test]
+    public void SagaWithMixedPropertyAndHeaderMappings()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddSaga<OrderSaga>();
+                         }
+                     }
+
+                     public class OrderSaga : Saga<OrderSagaData>,
+                         IAmStartedByMessages<OrderCreated>,
+                         IHandleMessages<OrderShipped>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
+                         {
+                             mapper.ConfigureMapping<OrderCreated>(m => m.OrderId).ToSaga(s => s.OrderId);
+                             mapper.ConfigureHeaderMapping<OrderShipped>("NServiceBus.CorrelationId").ToSaga(s => s.OrderId);
+                         }
+
+                         public Task Handle(OrderCreated message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Handle(OrderShipped message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class OrderSagaData : ContainSagaData
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderCreated : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderShipped : IEvent
+                     {
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .Approve()
+            .ToConsole()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void SagaWithTimeoutHandling()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddSaga<OrderSaga>();
+                         }
+                     }
+
+                     public class OrderSaga : Saga<OrderSagaData>,
+                         IAmStartedByMessages<OrderCreated>,
+                         IHandleTimeouts<OrderTimeout>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
+                         {
+                             mapper.ConfigureMapping<OrderCreated>(m => m.OrderId).ToSaga(s => s.OrderId);
+                         }
+
+                         public Task Handle(OrderCreated message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Timeout(OrderTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class OrderSagaData : ContainSagaData
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderCreated : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderTimeout
+                     {
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .Approve()
+            .ToConsole()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void SagaWithMultipleMessageTypes()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddSaga<OrderSaga>();
+                         }
+                     }
+
+                     public class OrderSaga : Saga<OrderSagaData>,
+                         IAmStartedByMessages<OrderCreated>,
+                         IHandleMessages<OrderShipped>,
+                         IHandleMessages<OrderCancelled>,
+                         IHandleTimeouts<OrderTimeout>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
+                         {
+                             mapper.ConfigureMapping<OrderCreated>(m => m.OrderId).ToSaga(s => s.OrderId);
+                             mapper.ConfigureMapping<OrderShipped>(m => m.OrderId).ToSaga(s => s.OrderId);
+                             mapper.ConfigureMapping<OrderCancelled>(m => m.OrderId).ToSaga(s => s.OrderId);
+                         }
+
+                         public Task Handle(OrderCreated message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Handle(OrderShipped message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Handle(OrderCancelled message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Timeout(OrderTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class OrderSagaData : ContainSagaData
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderCreated : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderShipped : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderCancelled : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderTimeout
+                     {
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .Approve()
+            .ToConsole()
+            .AssertRunsAreEqual();
+    }
+}

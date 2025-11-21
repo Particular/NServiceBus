@@ -29,7 +29,10 @@ namespace NServiceBus
             var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
             
-            var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga>();
+            var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
+            .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
+            .WithMessage<global::OrderCreated>(true)
+            .Build();
             sagaMetadataCollection.Register(metadata);
         }
         [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
@@ -40,9 +43,13 @@ namespace NServiceBus
             var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                 .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
             
-            var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga>();
+            var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::PaymentSaga, global::PaymentSagaData>()
+            .WithPropertyMapping<global::PaymentRequested>("PaymentId", typeof(string), "PaymentId")
+            .WithMessage<global::PaymentRequested>(true)
+            .Build();
             sagaMetadataCollection.Register(metadata);
         }
     }
 }
+
 
