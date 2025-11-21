@@ -34,17 +34,37 @@ public class PipelineModelBuilderTests
     }
 
     [Test]
-    public void ShouldOnlyAllowOneReplaceStepPerStepId()
+    public void ShouldReplaceWithLastReplaceStepWhenMultipleReplaceStepsExistForTheSameStepId()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
             .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
-            .Replace(new ReplaceStep("Root1", typeof(RootBehavior), "desc"))
-            .Replace(new ReplaceStep("Root1", typeof(RootBehavior), "desc"))
+            .Replace(new ReplaceStep("Root1", typeof(SomeBehaviorOfParentContext), "desc"))
+            .Replace(new ReplaceStep("Root1", typeof(AnotherBehaviorOfParentContext), "desc"))
             .Build(typeof(IParentContext));
 
-        var ex = Assert.Throws<Exception>(() => builder.Build());
+        var model = builder.Build();
 
-        Assert.That(ex.Message, Is.EqualTo("Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for 'Root1'."));
+        Assert.That(model.Count, Is.EqualTo(1));
+        var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "Root1");
+        Assert.That(overriddenBehavior, Is.Not.Null);
+        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
+    }
+
+    [Test]
+    public void ShouldPrioritizeReplaceCallsOverRegisterOrReplaceCallsWhenMixed()
+    {
+        var builder = ConfigurePipelineModelBuilder.Setup()
+            .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
+            .Replace(new ReplaceStep("Root1", typeof(SomeBehaviorOfParentContext), "desc"))
+            .RegisterOrReplace(RegisterOrReplaceStep.Create("Root1", typeof(AnotherBehaviorOfParentContext), "desc"))
+            .Build(typeof(IParentContext));
+
+        var model = builder.Build();
+
+        Assert.That(model.Count, Is.EqualTo(1));
+        var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "Root1");
+        Assert.That(overriddenBehavior, Is.Not.Null);
+        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(SomeBehaviorOfParentContext)));
     }
 
     [Test]
