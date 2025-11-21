@@ -698,7 +698,7 @@ namespace NServiceBus
             where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T> { }
         public static NServiceBus.PersistenceExtensions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T>
-            where S : NServiceBus.StorageType { }
+            where S : NServiceBus.StorageType, new () { }
     }
     [System.Obsolete("Use \'PersistenceExtensions<T>\' instead. Will be removed in version 11.0.0.", true)]
     public class PersistenceExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -715,7 +715,7 @@ namespace NServiceBus
     }
     public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
         where T : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<T>
-        where S : NServiceBus.StorageType
+        where S : NServiceBus.StorageType, new ()
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
@@ -945,10 +945,30 @@ namespace NServiceBus
     {
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
+        protected virtual bool Supports(NServiceBus.StorageType.Options options) { }
         public override string ToString() { }
-        public sealed class Outbox : NServiceBus.StorageType { }
-        public sealed class Sagas : NServiceBus.StorageType { }
-        public sealed class Subscriptions : NServiceBus.StorageType { }
+        public class Options : System.IEquatable<NServiceBus.StorageType.Options>
+        {
+            public Options() { }
+        }
+        public sealed class Outbox : NServiceBus.StorageType
+        {
+            public Outbox() { }
+        }
+        public sealed class Sagas : NServiceBus.StorageType
+        {
+            public Sagas() { }
+            protected override bool Supports(NServiceBus.StorageType.Options options) { }
+        }
+        public sealed class SagasOptions : NServiceBus.StorageType.Options, System.IEquatable<NServiceBus.StorageType.SagasOptions>
+        {
+            public SagasOptions() { }
+            public bool SupportsFinders { get; init; }
+        }
+        public sealed class Subscriptions : NServiceBus.StorageType
+        {
+            public Subscriptions() { }
+        }
     }
     public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1636,12 +1656,12 @@ namespace NServiceBus.Persistence
         [System.Obsolete("Use \'HasSupportFor<T>()\' instead. Will be removed in version 11.0.0.", true)]
         public bool HasSupportFor(System.Type storageType) { }
         public bool HasSupportFor<T>()
-            where T : NServiceBus.StorageType { }
+            where T : NServiceBus.StorageType, new () { }
         [System.Obsolete("Use \'Supports<TStorage, TFeature>()\' instead. Will be removed in version 11.0.0.", true)]
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
             where T : NServiceBus.StorageType { }
-        protected void Supports<TStorage, TFeature>()
-            where TStorage : NServiceBus.StorageType
+        protected void Supports<TStorage, TFeature>(NServiceBus.StorageType.Options? options = null)
+            where TStorage : NServiceBus.StorageType, new ()
             where TFeature : NServiceBus.Features.Feature, new () { }
     }
 }

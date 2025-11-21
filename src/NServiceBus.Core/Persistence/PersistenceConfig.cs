@@ -30,7 +30,7 @@ public static partial class PersistenceConfig
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     public static PersistenceExtensions<T, S> UsePersistence<T, S>(this EndpointConfiguration config)
         where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
-        where S : StorageType
+        where S : StorageType, new()
     {
         ArgumentNullException.ThrowIfNull(config);
         return new PersistenceExtensions<T, S>(config.Settings);

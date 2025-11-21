@@ -17,17 +17,22 @@ public abstract partial class PersistenceDefinition
     /// <summary>
     /// Used by the storage definitions to declare what they support.
     /// </summary>
-    protected void Supports<TStorage, TFeature>()
-        where TStorage : StorageType
+    protected void Supports<TStorage, TFeature>(StorageType.Options? options = null)
+        where TStorage : StorageType, new()
         where TFeature : Feature, new()
     {
-        var storageType = StorageType.Get<TStorage>();
+        var storageType = new TStorage();
         if (storageToFeature.TryGetValue(storageType, out var feature))
         {
             throw new Exception($"Storage {storageType} is already supported by {feature.SupportedBy}");
         }
 
-        storageToFeature.Add(new StorageFeature<TFeature>(storageType));
+        if (options is not null && !storageType.Supports(options))
+        {
+            throw new Exception($"Storage {storageType} does not support the options {options}");
+        }
+
+        storageToFeature.Add(new StorageFeature<TFeature>(storageType, options));
     }
 
     /// <summary>
@@ -42,7 +47,7 @@ public abstract partial class PersistenceDefinition
     /// <summary>
     /// True if supplied storage is supported.
     /// </summary>
-    public bool HasSupportFor<T>() where T : StorageType => HasSupportFor(StorageType.Get<T>());
+    public bool HasSupportFor<T>() where T : StorageType, new() => HasSupportFor(new T());
 
     internal string Name => GetType().Name;
     internal string FullName => GetType().FullName ?? Name;
@@ -60,8 +65,27 @@ public abstract partial class PersistenceDefinition
         }
     }
 
-    internal IReadOnlyCollection<StorageType> GetSupportedStorages(IReadOnlyCollection<StorageType> selectedStorages) =>
-        selectedStorages.Count > 0 ? selectedStorages : [.. storageToFeature.Select(x => x.StorageType)];
+    internal IReadOnlyCollection<(StorageType Storage, StorageType.Options Options)> GetSupportedStorages(IReadOnlyCollection<StorageType> selectedStorages)
+    {
+        if (selectedStorages.Count > 0)
+        {
+            var storages = new List<(StorageType Storage, StorageType.Options Options)>();
+            foreach (var selectedStorage in selectedStorages)
+            {
+                var storageFeature = storageToFeature.SingleOrDefault(s => s.StorageType.Equals(selectedStorage));
+                if (storageFeature is not null)
+                {
+                    storages.Add((storageFeature.StorageType, storageFeature.Options));
+                    continue;
+                }
+
+                storages.Add((selectedStorage, selectedStorage.Defaults));
+            }
+            return storages;
+        }
+
+        return [.. storageToFeature.Select(x => (x.StorageType, x.Options))];
+    }
 
     readonly List<Action<SettingsHolder>> defaults = [];
     readonly StorageTypeToFeatureMap storageToFeature = [];
@@ -74,16 +98,18 @@ public abstract partial class PersistenceDefinition
     interface IStorageFeature
     {
         StorageType StorageType { get; }
+        StorageType.Options Options { get; }
 
         string SupportedBy { get; }
 
         void Apply(FeatureComponent.Settings settings);
     }
-    class StorageFeature<TFeature>(StorageType storageType) : IStorageFeature
+    class StorageFeature<TFeature>(StorageType storageType, StorageType.Options? options) : IStorageFeature
         where TFeature : Feature, new()
     {
         public string SupportedBy { get; } = Feature.GetFeatureName<TFeature>();
         public StorageType StorageType { get; } = storageType;
+        public StorageType.Options Options { get; } = options ?? storageType.Defaults;
         public void Apply(FeatureComponent.Settings settings) => settings.EnableFeature<TFeature>();
     }
 }

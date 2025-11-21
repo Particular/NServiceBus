@@ -20,7 +20,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
             return new Configuration(settings, persistenceSettings.Enabled, []);
         }
 
-        var resultingSupportedStorages = new List<StorageType>();
+        var resultingSupportedStorages = new List<(StorageType Storage, StorageType.Options Options)>();
         var diagnostics = new Dictionary<string, object>();
 
         foreach (var enabledPersistence in persistenceSettings.Enabled)
@@ -30,11 +30,11 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
 
             foreach (var storageType in enabledPersistence.SelectedStorages)
             {
-                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", persistenceDefinition.Name, storageType);
-                persistenceDefinition.Apply(storageType, settings.Get<FeatureComponent.Settings>());
+                Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", persistenceDefinition.Name, storageType.Storage);
+                persistenceDefinition.Apply(storageType.Storage, settings.Get<FeatureComponent.Settings>());
                 resultingSupportedStorages.Add(storageType);
 
-                diagnostics.Add(storageType.ToString(), new
+                diagnostics.Add(storageType.Storage.ToString(), new
                 {
                     Type = persistenceDefinition.FullName,
                     Version = FileVersionRetriever.GetFileVersion(persistenceDefinition.GetType())
@@ -79,9 +79,9 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
         }
     }
 
-    internal class Configuration(IReadOnlySettings settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<StorageType> supportedPersistences)
+    internal class Configuration(IReadOnlySettings settings, IReadOnlyCollection<EnabledPersistence> enabledPersistences, IReadOnlyCollection<(StorageType Storage, StorageType.Options Options)> supportedPersistences)
     {
-        public IReadOnlyCollection<StorageType> SupportedPersistences { get; } = supportedPersistences;
+        public IReadOnlyCollection<(StorageType Storage, StorageType.Options Options)> SupportedPersistences { get; } = supportedPersistences;
 
         public void AssertSagaAndOutboxUseSamePersistence()
         {

@@ -37,17 +37,17 @@ sealed class PersistenceRegistry
         {
             var supportedStorages = persistence.GetSupportedStorages(enabledStorageTypes);
 
-            var selectedStorages = new List<StorageType>();
+            var selectedStorages = new List<(StorageType, StorageType.Options)>();
 
             foreach (var storageType in supportedStorages)
             {
-                if (!availableStorages.Contains(storageType))
+                if (!availableStorages.Contains(storageType.Storage))
                 {
                     continue;
                 }
 
                 selectedStorages.Add(storageType);
-                availableStorages.Remove(storageType);
+                availableStorages.Remove(storageType.Storage);
             }
 
             if (selectedStorages.Count != 0)

@@ -53,7 +53,8 @@ public class FeatureConfigurationContext
 
     internal List<FeatureStartupTaskController> TaskControllers { get; }
 
-    internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
+    internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType, new() => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
+    internal TOptions? GetStorageOptions<TOptions>() where TOptions : StorageType.Options => persistenceConfiguration.SupportedPersistences.Get<TOptions>();
 
     /// <summary>
     /// Adds a new satellite receiver.
