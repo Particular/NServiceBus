@@ -146,6 +146,12 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
         sourceWriter.Indentation++;
 
+        sourceWriter.WriteLine("""
+                               extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+                               {
+                               """);
+        sourceWriter.Indentation++;
+
         var groups = intercepts.GroupBy(i => i.MethodName).OrderBy(g => g.Key, StringComparer.Ordinal);
         foreach (IGrouping<string, InterceptDetails> group in groups)
         {
@@ -156,7 +162,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
             InterceptDetails first = group.First();
             sourceWriter.WriteLine($$"""
-                                    public static void {{first.MethodName}}(this NServiceBus.EndpointConfiguration endpointConfiguration)
+                                    public void {{first.MethodName}}()
                                     {
                                     """);
             sourceWriter.Indentation++;
