@@ -51,7 +51,7 @@ public class PipelineModelBuilderTests
     }
 
     [Test]
-    public void ShouldPrioritizeReplaceCallsOverRegisterOrReplaceCallsWhenMixed()
+    public void ShouldUseLastRegistrationWhenReplaceAndRegisterOrReplaceCallsAreMixed()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
             .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
@@ -64,7 +64,7 @@ public class PipelineModelBuilderTests
         Assert.That(model.Count, Is.EqualTo(1));
         var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "Root1");
         Assert.That(overriddenBehavior, Is.Not.Null);
-        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(SomeBehaviorOfParentContext)));
+        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
     }
 
     [Test]
@@ -270,6 +270,7 @@ public class PipelineModelBuilderTests
         List<RegisterStep> registrations = [];
         List<RegisterOrReplaceStep> registerOrReplacements = [];
         List<ReplaceStep> replacements = [];
+        int nextInsertionOrder;
 
         public static ConfigurePipelineModelBuilder Setup()
         {
@@ -278,18 +279,23 @@ public class PipelineModelBuilderTests
 
         public ConfigurePipelineModelBuilder Register(RegisterStep registration)
         {
+            registration.RegistrationOrder = GetNextInsertionOrder();
             registrations.Add(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder Replace(ReplaceStep registration)
         {
+            registration.RegistrationOrder = GetNextInsertionOrder();
             replacements.Add(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder RegisterOrReplace(RegisterOrReplaceStep registration)
         {
+            var order = GetNextInsertionOrder();
+            registration.RegisterStep.RegistrationOrder = order;
+            registration.ReplaceStep.RegistrationOrder = order;
             registerOrReplacements.Add(registration);
             return this;
         }
@@ -297,6 +303,12 @@ public class PipelineModelBuilderTests
         public PipelineModelBuilder Build(Type parentContextType)
         {
             return new PipelineModelBuilder(parentContextType, registrations, replacements, registerOrReplacements);
+        }
+
+        int GetNextInsertionOrder()
+        {
+            nextInsertionOrder++;
+            return nextInsertionOrder;
         }
     }
 
