@@ -5,4 +5,4 @@ namespace NServiceBus;
 using System.Collections.Generic;
 using Persistence;
 
-record EnabledPersistence(IReadOnlyCollection<StorageType> SelectedStorages, PersistenceDefinition Definition);
+record EnabledPersistence(IReadOnlyCollection<(StorageType Storage, StorageType.Options Options)> SelectedStorages, PersistenceDefinition Definition);

@@ -15,9 +15,9 @@ using Settings;
 /// <remarks>
 /// Initializes a new instance of <see cref="PersistenceExtensions" />.
 /// </remarks>
-public class PersistenceExtensions<T, S>(SettingsHolder settings) : PersistenceExtensions<T>(settings, StorageType.Get<S>())
+public class PersistenceExtensions<T, S>(SettingsHolder settings) : PersistenceExtensions<T>(settings, new S())
     where T : PersistenceDefinition, IPersistenceDefinitionFactory<T>
-    where S : StorageType;
+    where S : StorageType, new();
 
 /// <summary>
 /// This class provides implementers of persisters with an extension mechanism for custom settings via extension

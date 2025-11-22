@@ -12,6 +12,8 @@ using Sagas;
 class PropertySagaFinder<TSagaData, TMessage>(string sagaPropertyName, Func<TMessage, object> propertyAccessor) : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
+    public bool IsCustomFinder => false;
+
     public async Task<IContainSagaData> Find(IServiceProvider builder, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var propertyValue = propertyAccessor((TMessage)message);

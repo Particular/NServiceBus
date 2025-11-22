@@ -2,7 +2,6 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -29,25 +28,34 @@ public abstract class StorageType
     /// <inheritdoc />
     public override int GetHashCode() => storage.GetHashCode();
 
-    internal static IReadOnlyCollection<StorageType> GetAvailableStorageTypes() =>
-        [Subscriptions.Instance, Sagas.Instance, Outbox.Instance];
+    internal virtual Options Defaults { get; } = new Options();
 
-    internal static StorageType Get<TStorage>() where TStorage : StorageType => typeof(TStorage) switch
-    {
-        { } t when t == typeof(Subscriptions) => Subscriptions.Instance,
-        { } t when t == typeof(Sagas) => Sagas.Instance,
-        { } t when t == typeof(Outbox) => Outbox.Instance,
-        _ => throw new InvalidOperationException($"The storage type '{typeof(TStorage)}' is not supported.")
-    };
+    /// <summary>
+    /// Checks whether the storage type supports the given options.
+    /// </summary>
+    /// <param name="options">The options to verify.</param>
+    /// <returns>Returns true if the storage type supports the given options. Otherwise false.</returns>
+    protected internal virtual bool Supports(Options options) => false;
+
+    internal static IReadOnlyCollection<StorageType> GetAvailableStorageTypes() =>
+        [new Subscriptions(), new Sagas(), new Outbox()];
 
     readonly string storage;
+
+    /// <summary>
+    /// Options for storage types.
+    /// </summary>
+    public record Options;
 
     /// <summary>
     /// Storage for subscriptions.
     /// </summary>
     public sealed class Subscriptions : StorageType
     {
-        Subscriptions() : base("Subscriptions")
+        /// <summary>
+        /// Creates a new instance of the subscriptions storage type.
+        /// </summary>
+        public Subscriptions() : base("Subscriptions")
         {
         }
 
@@ -59,11 +67,30 @@ public abstract class StorageType
     /// </summary>
     public sealed class Sagas : StorageType
     {
-        Sagas() : base("Sagas")
+        /// <summary>
+        /// Creates a new instance of the sagas storage type.
+        /// </summary>
+        public Sagas() : base("Sagas")
         {
         }
 
+        /// <inheritdoc />.
+        protected internal override bool Supports(Options options) => options is SagasOptions;
+
+        internal override Options Defaults { get; } = new SagasOptions();
+
         internal static readonly StorageType Instance = new Sagas();
+    }
+
+    /// <summary>
+    /// Options for sagas storage.
+    /// </summary>
+    public sealed record SagasOptions : Options
+    {
+        /// <summary>
+        /// Indicates whether the storage supports finders.
+        /// </summary>
+        public bool SupportsFinders { get; init; } = false;
     }
 
     /// <summary>
@@ -71,7 +98,10 @@ public abstract class StorageType
     /// </summary>
     public sealed class Outbox : StorageType
     {
-        Outbox() : base("Outbox")
+        /// <summary>
+        /// Creates a new instance of the outbox storage type.
+        /// </summary>
+        public Outbox() : base("Outbox")
         {
         }
 

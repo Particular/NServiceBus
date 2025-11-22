@@ -16,6 +16,8 @@ using Sagas;
 class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationPropertyName, Type correlationPropertyType, Type messageType) : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
+    public bool IsCustomFinder => false;
+
     public async Task<IContainSagaData> Find(IServiceProvider builder, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         if (!messageHeaders.TryGetValue(headerName, out var messageHeaderValue))

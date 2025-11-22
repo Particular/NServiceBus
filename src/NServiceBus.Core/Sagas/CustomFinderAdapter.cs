@@ -11,6 +11,8 @@ using Sagas;
 
 class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : class, IContainSagaData
 {
+    public bool IsCustomFinder => true;
+
     public async Task<IContainSagaData> Find(IServiceProvider serviceProvider, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var finder = factory(serviceProvider, []);

@@ -52,6 +52,21 @@ public sealed class Sagas : Feature
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
         sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
 
+        if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
+        {
+            var customerFinders = (from s in sagaMetaModel
+                                   from finder in s.Finders
+                                   where finder.SagaFinder.IsCustomFinder
+                                   group s by s.SagaType).ToArray();
+
+            if (customerFinders.Length != 0)
+            {
+                throw new Exception(
+                    "The selected persistence doesn't support custom sagas finders. The following sagas use custom finders: " +
+                    string.Join(", ", customerFinders.Select(g => g.Key.FullName)) + ".");
+            }
+        }
+
         var verifyIfEntitiesAreShared = !context.Settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
 
         if (verifyIfEntitiesAreShared)
