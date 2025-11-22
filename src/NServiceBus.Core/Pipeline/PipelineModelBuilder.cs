@@ -13,7 +13,7 @@ class PipelineModelBuilder
         this.rootContextType = rootContextType;
         this.additions = additions;
         this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
+        this.addOrReplaceSteps = addOrReplaceSteps.GroupBy(x => x.StepId).Select(g => g.Last()).ToList();
     }
 
     public List<RegisterStep> Build()
@@ -56,20 +56,11 @@ class PipelineModelBuilder
         }
 
         //  Step 2: validate and apply replacements
-        var groupedReplacements = replacements.GroupBy(x => x.ReplaceId).ToList();
-        if (groupedReplacements.Any(x => x.Count() > 1))
-        {
-            var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => $"'{x.Key}'");
-            var duplicateIdentifiersList = string.Join(", ", duplicateReplaceIdentifiers);
-            var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}.";
-            throw new Exception(message);
-        }
-
         foreach (var metadata in totalReplacements)
         {
             if (!registrations.TryGetValue(metadata.ReplaceId, out RegisterStep value))
             {
-                var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}'.";
+                var message = $"'{metadata.ReplaceId}' cannot be replaced because it does not exist. Make sure that you only register a replacement for existing pipeline behaviors.";
                 throw new Exception(message);
             }
 
@@ -111,7 +102,7 @@ class PipelineModelBuilder
             {
                 if (stageNumber < stages.Count)
                 {
-                    throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");
+                    throw new Exception($"No stage connector found for stage '{currentStage.Key.FullName}'.");
                 }
 
                 currentStage = null;
