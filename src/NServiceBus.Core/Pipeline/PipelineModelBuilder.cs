@@ -34,13 +34,14 @@ class PipelineModelBuilder(
             }
         }
 
-        var totalAdditions = additionsFromRegisterOrReplace.Values.ToList();
+        var totalAdditions = new List<RegisterStep>(additionsFromRegisterOrReplace.Count + additions.Count);
+        totalAdditions.AddRange(additionsFromRegisterOrReplace.Values);
         totalAdditions.AddRange(additions);
 
-        var totalReplacements = replacementsFromRegisterOrReplace.Values
-            .Concat(replacements)
-            .OrderBy(replaceStep => replaceStep.RegistrationOrder)
-            .ToList();
+        var totalReplacements = new List<ReplaceStep>(replacementsFromRegisterOrReplace.Count + replacements.Count);
+        totalReplacements.AddRange(replacementsFromRegisterOrReplace.Values);
+        totalReplacements.AddRange(replacements);
+        totalReplacements.Sort(static (x, y) => x.RegistrationOrder.CompareTo(y.RegistrationOrder));
 
         //Step 1: validate that additions are unique
         foreach (var metadata in totalAdditions)
@@ -69,41 +70,67 @@ class PipelineModelBuilder(
             registerStep.Replace(metadata);
         }
 
-        var stages = registrations.Values.GroupBy(r => r.GetInputContext()).ToList();
+        var stages = new Dictionary<Type, List<RegisterStep>>();
+        foreach (var registration in registrations.Values)
+        {
+            var inputContext = registration.GetInputContext();
+            if (!stages.TryGetValue(inputContext, out var list))
+            {
+                list = [];
+                stages[inputContext] = list;
+            }
+            list.Add(registration);
+        }
 
-        var finalOrder = new List<RegisterStep>();
+        var finalOrder = new List<RegisterStep>(registrations.Count);
 
         if (registrations.Count == 0)
         {
             return finalOrder;
         }
 
-        var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType) ?? throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
+        if (!stages.TryGetValue(rootContextType, out var currentStage))
+        {
+            throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
+        }
 
+        var currentStageContextType = rootContextType;
         var stageNumber = 1;
+        var totalStages = stages.Count;
 
         while (currentStage != null)
         {
-            var stageSteps = currentStage.Where(stageStep => !IsStageConnector(stageStep)).ToList();
+            var stageSteps = new List<RegisterStep>(currentStage.Count);
+            List<RegisterStep> stageConnectors = null;
 
-            //add the stage connector
-            finalOrder.AddRange(Sort(stageSteps));
-
-            var stageConnectors = currentStage.Where(IsStageConnector).ToList();
-
-            if (stageConnectors.Count > 1)
+            foreach (var step in currentStage)
             {
-                var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
-                throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Remove one of: {connectors}");
+                if (IsStageConnector(step))
+                {
+                    stageConnectors ??= [];
+                    stageConnectors.Add(step);
+                }
+                else
+                {
+                    stageSteps.Add(step);
+                }
             }
 
-            var stageConnector = stageConnectors.FirstOrDefault();
+            finalOrder.AddRange(Sort(stageSteps));
+
+            if (stageConnectors != null && stageConnectors.Count > 1)
+            {
+                var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
+                throw new Exception($"Multiple stage connectors found for stage '{currentStageContextType.FullName}'. Remove one of: {connectors}");
+            }
+
+            var stageConnector = stageConnectors?[0];
 
             if (stageConnector == null)
             {
-                if (stageNumber < stages.Count)
+                if (stageNumber < totalStages)
                 {
-                    throw new Exception($"No stage connector found for stage '{currentStage.Key.FullName}'.");
+                    throw new Exception($"No stage connector found for stage '{currentStageContextType.FullName}'.");
                 }
 
                 currentStage = null;
@@ -119,7 +146,8 @@ class PipelineModelBuilder(
                 else
                 {
                     var stageEndType = stageConnector.GetOutputContext();
-                    currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
+                    currentStageContextType = stageEndType;
+                    currentStage = stages.TryGetValue(stageEndType, out var nextStage) ? nextStage : null;
                 }
             }
 
@@ -139,8 +167,9 @@ class PipelineModelBuilder(
         }
 
         // Step 1: create nodes for graph
-        var nameToNode = new Dictionary<string, Node>();
-        var allNodes = new List<Node>();
+        var count = registrations.Count;
+        var nameToNode = new Dictionary<string, Node>(count);
+        var allNodes = new List<Node>(count);
         foreach (var rego in registrations)
         {
             // create entries to preserve order within
@@ -157,7 +186,7 @@ class PipelineModelBuilder(
         }
 
         // Step 3: Perform Topological Sort
-        var output = new List<RegisterStep>();
+        var output = new List<RegisterStep>(count);
         foreach (var node in allNodes)
         {
             node.Visit(output);
