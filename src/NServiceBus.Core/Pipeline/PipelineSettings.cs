@@ -29,12 +29,9 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
         EnsureWriteEnabled(stepId, nameof(Replace));
 
-        var replaceStep = new ReplaceStep(stepId, newBehavior, description)
-        {
-            RegistrationOrder = modifications.GetNextInsertionOrder()
-        };
+        var replaceStep = new ReplaceStep(stepId, newBehavior, description);
 
-        modifications.Replacements.Add(replaceStep);
+        modifications.AddReplacement(replaceStep);
     }
 
     /// <summary>
@@ -51,12 +48,9 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
         EnsureWriteEnabled(stepId, nameof(Replace));
 
-        var replaceStep = new ReplaceStep(stepId, typeof(T), description, builder => newBehavior)
-        {
-            RegistrationOrder = modifications.GetNextInsertionOrder()
-        };
+        var replaceStep = new ReplaceStep(stepId, typeof(T), description, builder => newBehavior);
 
-        modifications.Replacements.Add(replaceStep);
+        modifications.AddReplacement(replaceStep);
     }
 
     /// <summary>
@@ -73,12 +67,9 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
         EnsureWriteEnabled(stepId, nameof(Replace));
 
-        var replaceStep = new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b))
-        {
-            RegistrationOrder = modifications.GetNextInsertionOrder()
-        };
+        var replaceStep = new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b));
 
-        modifications.Replacements.Add(replaceStep);
+        modifications.AddReplacement(replaceStep);
     }
 
     /// <summary>
@@ -94,13 +85,9 @@ public partial class PipelineSettings : ExposeSettings
         EnsureWriteEnabled(stepId, nameof(Replace));
         EnsureWriteEnabled(stepId, nameof(Register));
 
-        var order = modifications.GetNextInsertionOrder();
         var step = RegisterOrReplaceStep.Create(stepId, behavior, description);
 
-        step.RegisterStep.RegistrationOrder = order;
-        step.ReplaceStep.RegistrationOrder = order;
-
-        modifications.AdditionsOrReplacements.Add(step);
+        modifications.AddAdditionOrReplacement(step);
     }
 
     /// <summary>
@@ -117,13 +104,9 @@ public partial class PipelineSettings : ExposeSettings
         EnsureWriteEnabled(stepId, nameof(Replace));
         EnsureWriteEnabled(stepId, nameof(Register));
 
-        var order = modifications.GetNextInsertionOrder();
         var step = RegisterOrReplaceStep.Create(stepId, typeof(T), description, builder => behavior);
 
-        step.RegisterStep.RegistrationOrder = order;
-        step.ReplaceStep.RegistrationOrder = order;
-
-        modifications.AdditionsOrReplacements.Add(step);
+        modifications.AddAdditionOrReplacement(step);
     }
 
     /// <summary>
@@ -140,13 +123,9 @@ public partial class PipelineSettings : ExposeSettings
         EnsureWriteEnabled(stepId, nameof(Replace));
         EnsureWriteEnabled(stepId, nameof(Register));
 
-        var order = modifications.GetNextInsertionOrder();
         var step = RegisterOrReplaceStep.Create(stepId, typeof(T), description, b => factoryMethod(b));
 
-        step.RegisterStep.RegistrationOrder = order;
-        step.ReplaceStep.RegistrationOrder = order;
-
-        modifications.AdditionsOrReplacements.Add(step);
+        modifications.AddAdditionOrReplacement(step);
     }
 
     /// <summary>
@@ -178,9 +157,8 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         var registerStep = RegisterStep.Create(stepId, behavior, description);
-        registerStep.RegistrationOrder = modifications.GetNextInsertionOrder();
 
-        modifications.Additions.Add(registerStep);
+        modifications.AddAddition(registerStep);
     }
 
     /// <summary>
@@ -214,9 +192,8 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         var registerStep = RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b));
-        registerStep.RegistrationOrder = modifications.GetNextInsertionOrder();
 
-        modifications.Additions.Add(registerStep);
+        modifications.AddAddition(registerStep);
     }
 
     /// <summary>
@@ -250,9 +227,8 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         var registerStep = RegisterStep.Create(stepId, typeof(T), description, _ => behavior);
-        registerStep.RegistrationOrder = modifications.GetNextInsertionOrder();
 
-        modifications.Additions.Add(registerStep);
+        modifications.AddAddition(registerStep);
     }
 
     /// <summary>
@@ -263,12 +239,9 @@ public partial class PipelineSettings : ExposeSettings
     {
         EnsureWriteEnabled(nameof(TRegisterStep), "register");
 
-        var registerStep = new TRegisterStep
-        {
-            RegistrationOrder = modifications.GetNextInsertionOrder()
-        };
+        var registerStep = new TRegisterStep();
 
-        modifications.Additions.Add(registerStep);
+        modifications.AddAddition(registerStep);
     }
 
     /// <summary>
@@ -281,9 +254,7 @@ public partial class PipelineSettings : ExposeSettings
         ArgumentNullException.ThrowIfNull(registration);
         EnsureWriteEnabled(nameof(registration), "register");
 
-        registration.RegistrationOrder = modifications.GetNextInsertionOrder();
-
-        modifications.Additions.Add(registration);
+        modifications.AddAddition(registration);
     }
 
     /// <summary>
