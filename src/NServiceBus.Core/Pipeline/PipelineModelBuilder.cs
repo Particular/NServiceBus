@@ -118,7 +118,7 @@ class PipelineModelBuilder(
 
             finalOrder.AddRange(Sort(stageSteps));
 
-            if (stageConnectors != null && stageConnectors.Count > 1)
+            if (stageConnectors is { Count: > 1 })
             {
                 var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
                 throw new Exception($"Multiple stage connectors found for stage '{currentStageContextType.FullName}'. Remove one of: {connectors}");
@@ -147,7 +147,7 @@ class PipelineModelBuilder(
                 {
                     var stageEndType = stageConnector.GetOutputContext();
                     currentStageContextType = stageEndType;
-                    currentStage = stages.TryGetValue(stageEndType, out var nextStage) ? nextStage : null;
+                    currentStage = stages.GetValueOrDefault(stageEndType);
                 }
             }
 
@@ -255,8 +255,6 @@ class PipelineModelBuilder(
 
     class Node(RegisterStep registerStep)
     {
-        public Type OutputContext { get; } = registerStep.GetOutputContext();
-
         internal void Visit(List<RegisterStep> output)
         {
             if (visited)
