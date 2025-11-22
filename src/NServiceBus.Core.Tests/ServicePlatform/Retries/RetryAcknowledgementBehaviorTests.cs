@@ -115,7 +115,7 @@ public class RetryAcknowledgementBehaviorTests
         //setup fork pipeline
         var serviceCollection = new ServiceCollection();
         var pipelineModifications = new PipelineModifications();
-        pipelineModifications.Additions.Add(
+        pipelineModifications.AddAddition(
             RegisterStep.Create("routingFork", typeof(RoutingPipeline), "for testing", _ => routingPipeline));
         var serviceProvider = serviceCollection.BuildServiceProvider(); // TODO: Does not get disposed
         var pipelineCache = new PipelineCache(serviceProvider, pipelineModifications);

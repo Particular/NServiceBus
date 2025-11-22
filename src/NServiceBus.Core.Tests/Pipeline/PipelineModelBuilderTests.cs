@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Pipeline;
@@ -44,14 +43,14 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(1));
+        Assert.That(model, Has.Count.EqualTo(1));
         var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "Root1");
         Assert.That(overriddenBehavior, Is.Not.Null);
         Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
     }
 
     [Test]
-    public void ShouldPrioritizeReplaceCallsOverRegisterOrReplaceCallsWhenMixed()
+    public void ShouldUseLastRegistrationWhenReplaceAndRegisterOrReplaceCallsAreMixed()
     {
         var builder = ConfigurePipelineModelBuilder.Setup()
             .Register(RegisterStep.Create("Root1", typeof(RootBehavior), "desc"))
@@ -61,10 +60,10 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(1));
+        Assert.That(model, Has.Count.EqualTo(1));
         var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "Root1");
         Assert.That(overriddenBehavior, Is.Not.Null);
-        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(SomeBehaviorOfParentContext)));
+        Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
     }
 
     [Test]
@@ -91,7 +90,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(2));
+        Assert.That(model, Has.Count.EqualTo(2));
         var replacedBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
         Assert.That(replacedBehavior, Is.Not.Null);
         Assert.That(replacedBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
@@ -107,7 +106,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(2));
+        Assert.That(model, Has.Count.EqualTo(2));
         var addedBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
         Assert.That(addedBehavior, Is.Not.Null);
         Assert.That(addedBehavior.BehaviorType, Is.EqualTo(typeof(SomeBehaviorOfParentContext)));
@@ -124,7 +123,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(2));
+        Assert.That(model, Has.Count.EqualTo(2));
         var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
         Assert.That(overriddenBehavior, Is.Not.Null);
         Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
@@ -141,7 +140,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(2));
+        Assert.That(model, Has.Count.EqualTo(2));
         var overriddenBehavior = model.FirstOrDefault(x => x.StepId == "SomeBehaviorOfParentContext");
         Assert.That(overriddenBehavior, Is.Not.Null);
         Assert.That(overriddenBehavior.BehaviorType, Is.EqualTo(typeof(AnotherBehaviorOfParentContext)));
@@ -233,7 +232,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(3));
+        Assert.That(model, Has.Count.EqualTo(3));
     }
 
     [Test]
@@ -247,7 +246,7 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(2));
+        Assert.That(model, Has.Count.EqualTo(2));
     }
 
     [Test]
@@ -262,49 +261,39 @@ public class PipelineModelBuilderTests
 
         var model = builder.Build();
 
-        Assert.That(model.Count, Is.EqualTo(3));
+        Assert.That(model, Has.Count.EqualTo(3));
     }
 
-    class ConfigurePipelineModelBuilder
+    class ConfigurePipelineModelBuilder(PipelineModifications pipelineModifications)
     {
-        List<RegisterStep> registrations = [];
-        List<RegisterOrReplaceStep> registerOrReplacements = [];
-        List<ReplaceStep> replacements = [];
-
-        public static ConfigurePipelineModelBuilder Setup()
-        {
-            return new ConfigurePipelineModelBuilder();
-        }
+        public static ConfigurePipelineModelBuilder Setup() => new(new PipelineModifications());
 
         public ConfigurePipelineModelBuilder Register(RegisterStep registration)
         {
-            registrations.Add(registration);
+            pipelineModifications.AddAddition(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder Replace(ReplaceStep registration)
         {
-            replacements.Add(registration);
+            pipelineModifications.AddReplacement(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder RegisterOrReplace(RegisterOrReplaceStep registration)
         {
-            registerOrReplacements.Add(registration);
+            pipelineModifications.AddAdditionOrReplacement(registration);
             return this;
         }
 
-        public PipelineModelBuilder Build(Type parentContextType)
-        {
-            return new PipelineModelBuilder(parentContextType, registrations, replacements, registerOrReplacements);
-        }
+        public PipelineModelBuilder Build(Type parentContextType) => new(parentContextType, pipelineModifications.Additions, pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
     }
 
     interface IParentContext : IBehaviorContext { }
 
     class ParentContext : BehaviorContext, IParentContext
     {
-        public ParentContext(IBehaviorContext parentContext)
+        protected ParentContext(IBehaviorContext parentContext)
             : base(parentContext)
         {
         }
@@ -312,93 +301,54 @@ public class PipelineModelBuilderTests
 
     interface IChildContext : IParentContext { }
 
-    class ChildContext : ParentContext, IChildContext
-    {
-        public ChildContext(IBehaviorContext parentContext)
-            : base(parentContext)
-        {
-        }
-    }
+    class ChildContext(IBehaviorContext parentContext) : ParentContext(parentContext), IChildContext;
 
     interface IChildContextNotInheritedFromParentContext : IBehaviorContext { }
 
-    class ChildContextNotInheritedFromParentContext : BehaviorContext
-    {
-        public ChildContextNotInheritedFromParentContext(IBehaviorContext parentContext)
-            : base(parentContext)
-        {
-        }
-    }
+    class ChildContextNotInheritedFromParentContext(IBehaviorContext parentContext) : BehaviorContext(parentContext);
 
     class ParentContextToChildContextConnector : StageConnector<IParentContext, IChildContext>
     {
-        public override Task Invoke(IParentContext context, Func<IChildContext, Task> stage)
-        {
-            throw new NotImplementedException();
-        }
+        public override Task Invoke(IParentContext context, Func<IChildContext, Task> stage) => throw new NotImplementedException();
     }
 
     class Terminator : PipelineTerminator<IChildContext>
     {
-        protected override Task Terminate(IChildContext context)
-        {
-            throw new NotImplementedException();
-        }
+        protected override Task Terminate(IChildContext context) => throw new NotImplementedException();
     }
 
     class ParentContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IParentContext, IChildContextNotInheritedFromParentContext>
     {
-        public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
-        {
-            throw new NotImplementedException();
-        }
+        public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage) => throw new NotImplementedException();
     }
 
     class ChildContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IChildContext, IChildContextNotInheritedFromParentContext>
     {
-        public override Task Invoke(IChildContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
-        {
-            throw new NotImplementedException();
-        }
+        public override Task Invoke(IChildContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage) => throw new NotImplementedException();
     }
 
     class SomeBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
     {
-        public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Invoke(IParentContext context, Func<IParentContext, Task> next) => throw new NotImplementedException();
     }
 
     class AnotherBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
     {
-        public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Invoke(IParentContext context, Func<IParentContext, Task> next) => throw new NotImplementedException();
     }
 
     class RootBehavior : IBehavior<IParentContext, IParentContext>
     {
-        public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Invoke(IParentContext context, Func<IParentContext, Task> next) => throw new NotImplementedException();
     }
 
     class ChildBehaviorOfChildContext : IBehavior<IChildContext, IChildContext>
     {
-        public Task Invoke(IChildContext context, Func<IChildContext, Task> next)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Invoke(IChildContext context, Func<IChildContext, Task> next) => throw new NotImplementedException();
     }
 
     class ChildBehaviorOfChildContextNotInheritedFromParentContext : IBehavior<IChildContextNotInheritedFromParentContext, IChildContextNotInheritedFromParentContext>
     {
-        public Task Invoke(IChildContextNotInheritedFromParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> next)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Invoke(IChildContextNotInheritedFromParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> next) => throw new NotImplementedException();
     }
 }
