@@ -19,7 +19,6 @@ class PipelineModelBuilder
     public List<RegisterStep> Build()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
-        var listOfBeforeAndAfterIds = new List<string>();
 
         var additionsFromRegisterOrReplace = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
         var replacementsFromRegisterOrReplace = new Dictionary<string, ReplaceStep>(StringComparer.CurrentCultureIgnoreCase);
@@ -53,16 +52,6 @@ class PipelineModelBuilder
             if (!registrations.TryGetValue(metadata.StepId, out RegisterStep existingValue))
             {
                 registrations.Add(metadata.StepId, metadata);
-
-                if (metadata.Afters != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a => a.DependsOnId));
-                }
-
-                if (metadata.Befores != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Befores.Select(b => b.DependsOnId));
-                }
 
                 continue;
             }
