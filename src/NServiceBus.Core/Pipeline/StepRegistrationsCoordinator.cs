@@ -8,7 +8,7 @@ class StepRegistrationsCoordinator(
     IReadOnlyCollection<ReplaceStep> replacements,
     IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
+    public IReadOnlyCollection<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
     {
         var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, replacements, addOrReplaceSteps);
         return pipelineModelBuilder.Build();

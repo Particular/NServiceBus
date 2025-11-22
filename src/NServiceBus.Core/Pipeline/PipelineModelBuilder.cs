@@ -12,7 +12,7 @@ class PipelineModelBuilder(
     IReadOnlyCollection<ReplaceStep> replacements,
     IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public List<RegisterStep> Build()
+    public IReadOnlyCollection<RegisterStep> Build()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -129,10 +129,7 @@ class PipelineModelBuilder(
         return finalOrder;
     }
 
-    static bool IsStageConnector(RegisterStep stageStep)
-    {
-        return typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
-    }
+    static bool IsStageConnector(RegisterStep stageStep) => typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
 
     static List<RegisterStep> Sort(List<RegisterStep> registrations)
     {
@@ -227,19 +224,9 @@ class PipelineModelBuilder(
 
     static readonly ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
-    class Node
+    class Node(RegisterStep registerStep)
     {
-        public Node(RegisterStep registerStep)
-        {
-            rego = registerStep;
-            Befores = registerStep.Befores;
-            Afters = registerStep.Afters;
-            StepId = registerStep.StepId;
-
-            OutputContext = registerStep.GetOutputContext();
-        }
-
-        public Type OutputContext { get; }
+        public Type OutputContext { get; } = registerStep.GetOutputContext();
 
         internal void Visit(List<RegisterStep> output)
         {
@@ -252,18 +239,17 @@ class PipelineModelBuilder(
             {
                 n.Visit(output);
             }
-            if (rego != null)
+            if (registerStep != null)
             {
-                output.Add(rego);
+                output.Add(registerStep);
             }
         }
 
-        public readonly List<Dependency> Afters;
-        public readonly List<Dependency> Befores;
+        public readonly List<Dependency> Afters = registerStep.Afters;
+        public readonly List<Dependency> Befores = registerStep.Befores;
 
-        public readonly string StepId;
+        public readonly string StepId = registerStep.StepId;
         internal readonly List<Node> previous = [];
-        readonly RegisterStep rego;
         bool visited;
     }
 }
