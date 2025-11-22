@@ -39,19 +39,11 @@ public class When_no_finder_support : NServiceBusAcceptanceTest
         public class TestSaga09 : Saga<TestSaga09.SagaData09>,
             IAmStartedByMessages<StartSagaMessage>
         {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-            {
-                Data.CorrelationProperty = "some value";
-
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData09> mapper) => mapper.ConfigureFinderMapping<StartSagaMessage, CustomFinder>();
 
-            public class SagaData09 : ContainSagaData
-            {
-                public virtual string CorrelationProperty { get; set; }
-            }
+            public class SagaData09 : ContainSagaData;
         }
     }
 
