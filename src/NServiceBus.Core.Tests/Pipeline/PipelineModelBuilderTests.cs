@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Pipeline;
@@ -265,51 +264,29 @@ public class PipelineModelBuilderTests
         Assert.That(model.Count, Is.EqualTo(3));
     }
 
-    class ConfigurePipelineModelBuilder
+    class ConfigurePipelineModelBuilder(PipelineModifications pipelineModifications)
     {
-        List<RegisterStep> registrations = [];
-        List<RegisterOrReplaceStep> registerOrReplacements = [];
-        List<ReplaceStep> replacements = [];
-        int nextInsertionOrder;
-
-        public static ConfigurePipelineModelBuilder Setup()
-        {
-            return new ConfigurePipelineModelBuilder();
-        }
+        public static ConfigurePipelineModelBuilder Setup() => new(new PipelineModifications());
 
         public ConfigurePipelineModelBuilder Register(RegisterStep registration)
         {
-            registration.RegistrationOrder = GetNextInsertionOrder();
-            registrations.Add(registration);
+            pipelineModifications.AddAddition(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder Replace(ReplaceStep registration)
         {
-            registration.RegistrationOrder = GetNextInsertionOrder();
-            replacements.Add(registration);
+            pipelineModifications.AddReplacement(registration);
             return this;
         }
 
         public ConfigurePipelineModelBuilder RegisterOrReplace(RegisterOrReplaceStep registration)
         {
-            var order = GetNextInsertionOrder();
-            registration.RegisterStep.RegistrationOrder = order;
-            registration.ReplaceStep.RegistrationOrder = order;
-            registerOrReplacements.Add(registration);
+            pipelineModifications.AddAdditionOrReplacement(registration);
             return this;
         }
 
-        public PipelineModelBuilder Build(Type parentContextType)
-        {
-            return new PipelineModelBuilder(parentContextType, registrations, replacements, registerOrReplacements);
-        }
-
-        int GetNextInsertionOrder()
-        {
-            nextInsertionOrder++;
-            return nextInsertionOrder;
-        }
+        public PipelineModelBuilder Build(Type parentContextType) => new(parentContextType, pipelineModifications.Additions, pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
     }
 
     interface IParentContext : IBehaviorContext { }
