@@ -5,20 +5,20 @@ using Pipeline;
 
 class PipelineModifications
 {
-    public List<RegisterStep> Additions = [];
-    public List<ReplaceStep> Replacements = [];
-    public List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
+    public IReadOnlyCollection<RegisterStep> Additions => additions;
+    public IReadOnlyCollection<ReplaceStep> Replacements => replacements;
+    public IReadOnlyCollection<RegisterOrReplaceStep> AdditionsOrReplacements => additionsOrReplacements;
 
     internal void AddAddition(RegisterStep step)
     {
         step.RegistrationOrder = GetNextInsertionOrder();
-        Additions.Add(step);
+        additions.Add(step);
     }
 
     internal void AddReplacement(ReplaceStep step)
     {
         step.RegistrationOrder = GetNextInsertionOrder();
-        Replacements.Add(step);
+        replacements.Add(step);
     }
 
     internal void AddAdditionOrReplacement(RegisterOrReplaceStep step)
@@ -27,7 +27,7 @@ class PipelineModifications
         step.RegisterStep.RegistrationOrder = order;
         step.ReplaceStep.RegistrationOrder = order;
 
-        AdditionsOrReplacements.Add(step);
+        additionsOrReplacements.Add(step);
     }
 
     int GetNextInsertionOrder()
@@ -37,4 +37,7 @@ class PipelineModifications
     }
 
     int nextInsertionOrder;
+    readonly List<RegisterStep> additions = [];
+    readonly List<ReplaceStep> replacements = [];
+    readonly List<RegisterOrReplaceStep> additionsOrReplacements = [];
 }

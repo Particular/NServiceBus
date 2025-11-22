@@ -6,16 +6,12 @@ using System.Linq;
 using Logging;
 using Pipeline;
 
-class PipelineModelBuilder
+class PipelineModelBuilder(
+    Type rootContextType,
+    IReadOnlyCollection<RegisterStep> additions,
+    IReadOnlyCollection<ReplaceStep> replacements,
+    IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
-    {
-        this.rootContextType = rootContextType;
-        this.additions = additions;
-        this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
-    }
-
     public List<RegisterStep> Build()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
@@ -227,16 +223,8 @@ class PipelineModelBuilder
         }
     }
 
-    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict)
-    {
-        return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
-    }
+    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict) => $"'{string.Join("', '", nameToNodeDict.Keys)}'";
 
-    readonly List<RegisterStep> additions;
-    readonly List<ReplaceStep> replacements;
-    readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
-
-    readonly Type rootContextType;
     static readonly ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
     class Node
