@@ -12,12 +12,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
 {
     public Pipeline(IServiceProvider builder, PipelineModifications pipelineModifications)
     {
-        var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
-
-        foreach (var rego in pipelineModifications.Additions)
-        {
-            coordinator.Register(rego);
-        }
+        var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Additions, pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
 
         // Important to keep a reference
         behaviors = coordinator.BuildPipelineModelFor<TContext>()
