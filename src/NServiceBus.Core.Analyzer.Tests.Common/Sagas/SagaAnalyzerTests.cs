@@ -14,7 +14,7 @@ public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
     public Task InfoDiagnosticForSingleOldMapping()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -42,7 +42,7 @@ public class Msg1 : ICommand
     public Task IAmStartedBySagaNotMappedMsg1()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, [|IAmStartedByMessages<Msg1>|], NServiceBus.IAmStartedByMessages<Msg2>
@@ -76,7 +76,7 @@ public class Msg2 : ICommand
     public Task IAmStartedBySagaNotMappedMsg2()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, [|NServiceBus.IAmStartedByMessages<Msg2>|]
@@ -107,10 +107,47 @@ public class Msg2 : ICommand
     }
 
     [Test]
+    public Task IAmStartedBySagaWithFinderMapping()
+    {
+        var source =
+            @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using NServiceBus;
+using NServiceBus.Sagas;
+using NServiceBus.Persistence;
+using NServiceBus.Extensibility;
+
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureFinderMapping<Msg1,MyFinder>();
+    }
+
+    public class MyFinder :ISagaFinder<MyData, Msg1>
+    {
+        public Task<MyData> FindBy(Msg1 message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData;
+public class Msg1 : ICommand;
+";
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task SagaDataPropertyHasNonPublicSetter()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>
@@ -141,7 +178,7 @@ partial class MyData
     public Task MessageMappingNotNeededForTimeouts()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 using MyNS;
@@ -189,7 +226,7 @@ public class Timeout3
     public Task CannotMapToSagasIdPropertyNewSyntax(string propertyName)
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, NServiceBus.IAmStartedByMessages<Msg2>
@@ -227,7 +264,7 @@ public class Msg2 : ICommand
     public Task CannotMapToSagasIdPropertyOldSyntax(string propertyName)
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, NServiceBus.IAmStartedByMessages<Msg2>
@@ -266,7 +303,7 @@ public class Msg2 : ICommand
     public Task DoNotUseMessageTypeAsSagaDataProperty(string propertyType)
     {
         var source =
-@"using System;
+            @"using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -311,7 +348,7 @@ public class Msg1 : ICommand
         var typeNoBrackets = correlationPropertyType.Replace("[|", "").Replace("|]", "");
 
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -339,7 +376,7 @@ public class Msg1 : ICommand
     public Task EasierToInheritContainSagaData()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -370,12 +407,11 @@ public class Msg1 : ICommand
     }
 
 
-
     [Test]
     public Task RidiculousPartialClassExample()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public partial class MySaga : Saga<MyData>
@@ -421,7 +457,7 @@ public class Msg2
     public Task ShouldUseReplyToOriginator()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
@@ -463,7 +499,7 @@ public class ReplyMsg : IMessage {}";
     public Task IntermediateBaseClass1()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : [|IntermediateAbstractSaga<MyData>|], IAmStartedByMessages<Msg1>
@@ -501,7 +537,7 @@ public class ReplyMsg : IMessage {}";
     public Task IntermediateBaseClass2()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : [|IntermediateAbstractSaga|], IAmStartedByMessages<Msg1>
@@ -538,7 +574,7 @@ public class ReplyMsg : IMessage {}";
     public Task SagaShouldNotImplementNotFoundHandler()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Sagas;
@@ -560,7 +596,7 @@ public class MyData : ContainSagaData
     public Task ToSagaMappingsMustPointToProperties()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
@@ -594,7 +630,7 @@ public class Msg2 : ICommand
     public Task CorrelationExpressionsMustMatchTypeOldSyntax()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>, IAmStartedByMessages<Msg3>
@@ -622,8 +658,14 @@ public class Msg2 : ICommand
     public Guid CorrId { get; set; }
 }
 public class Msg3 : ICommand {}";
-        var expected = new[] { DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions };
-        var ignore = new[] { DiagnosticIds.SagaMappingExpressionCanBeSimplified };
+        var expected = new[]
+        {
+            DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions
+        };
+        var ignore = new[]
+        {
+            DiagnosticIds.SagaMappingExpressionCanBeSimplified
+        };
 
         return Assert(expected, source, ignore);
     }
@@ -632,7 +674,7 @@ public class Msg3 : ICommand {}";
     public Task CorrelationExpressionsMustMatchTypeNewSyntax()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>, IAmStartedByMessages<Msg3>
@@ -669,7 +711,7 @@ public class Msg3 : ICommand {}";
     public Task MessageTypeMappedToHandlerAndTimeout()
     {
         var source =
-@"using System;
+            @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 public class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
@@ -701,7 +743,7 @@ public class MessageWithSagaId : IMessage
     public Task StayAwayFromAbstractSagaConstructions()
     {
         var source =
-@"
+            @"
 using System;
 using NServiceBus;
 public abstract class AbstractSaga<TSagaData> : Saga
@@ -717,7 +759,7 @@ public abstract class AbstractSaga<TSagaData> : Saga
     public Task IgnoreSqlPersistenceSqlSaga()
     {
         var source =
-@"
+            @"
 using System;
 using NServiceBus;
 namespace MyCode
@@ -748,7 +790,7 @@ namespace NServiceBus.Persistence.Sql
     public Task ClassesInSeparateFilesAnalyzeSaga()
     {
         var source =
-@"----- Saga code to validate
+            @"----- Saga code to validate
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -781,7 +823,7 @@ public class Msg1 : ICommand
     public Task ClassesInSeparateFilesAnalyzeSagaWithDiagnostic()
     {
         var source =
-@"----- Saga code to validate
+            @"----- Saga code to validate
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -821,7 +863,7 @@ public class Msg2 : ICommand
     public Task ClassesInSeparateFilesAnalyzeData()
     {
         var source =
-@"using NServiceBus;
+            @"using NServiceBus;
 public class MyData : ContainSagaData
 {
     public string CorrId { get; set; }
@@ -853,7 +895,7 @@ public class Msg1 : ICommand
     public Task ClassesInSeparateFilesAnalyzeMessage()
     {
         var source =
-@"using NServiceBus;
+            @"using NServiceBus;
 public class Msg1 : ICommand
 {
     public string CorrId { get; set; }
@@ -887,7 +929,7 @@ public class MyData : ContainSagaData
     public Task WhenUsingBaseMessageInterface()
     {
         var source =
-@"
+            @"
 using System.Threading.Tasks;
 using NServiceBus;
 
@@ -928,7 +970,7 @@ public interface ISecondMessage : IMessageBase { }
     public Task NullableReferenceTypes()
     {
         var source =
-@"#nullable enable
+            @"#nullable enable
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -1037,7 +1079,7 @@ public class StartSaga : ICommand
         }
 
         var source =
-@"#nullable enable
+            @"#nullable enable
 using System;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -1070,7 +1112,7 @@ public class MySaga : Saga<Data>,
     public Task SagaHandlersInPartialClasses()
     {
         var source =
-@"
+            @"
 using System.Threading.Tasks;
 using NServiceBus;
 
