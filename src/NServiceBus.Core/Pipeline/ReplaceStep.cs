@@ -17,4 +17,5 @@ class ReplaceStep
     public string Description { get; }
     public Type BehaviorType { get; }
     public Func<IServiceProvider, IBehavior> FactoryMethod { get; }
+    internal int RegistrationOrder { get; set; }
 }

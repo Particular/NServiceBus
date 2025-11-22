@@ -14,11 +14,16 @@ class StepRegistrationsCoordinator
 
     public void Register(string pipelineStep, Type behavior, string description)
     {
-        additions.Add(RegisterStep.Create(pipelineStep, behavior, description));
+        var registerStep = RegisterStep.Create(pipelineStep, behavior, description);
+        registerStep.RegistrationOrder = GetNextInsertionOrder();
+
+        additions.Add(registerStep);
     }
 
     public void Register(RegisterStep rego)
     {
+        rego.RegistrationOrder = GetNextInsertionOrder();
+
         additions.Add(rego);
     }
 
@@ -31,4 +36,12 @@ class StepRegistrationsCoordinator
     readonly List<RegisterStep> additions = [];
     readonly List<ReplaceStep> replacements;
     readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
+
+    int nextInsertionOrder;
+
+    int GetNextInsertionOrder()
+    {
+        nextInsertionOrder++;
+        return nextInsertionOrder;
+    }
 }

@@ -13,7 +13,7 @@ class PipelineModelBuilder
         this.rootContextType = rootContextType;
         this.additions = additions;
         this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps.GroupBy(x => x.StepId).Select(g => g.Last()).ToList();
+        this.addOrReplaceSteps = addOrReplaceSteps;
     }
 
     public List<RegisterStep> Build()
@@ -21,15 +21,31 @@ class PipelineModelBuilder
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
         var listOfBeforeAndAfterIds = new List<string>();
 
-        var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
-            .Select(x => x.RegisterStep)
-            .ToList();
-        var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
-            .Select(x => x.ReplaceStep)
-            .ToList();
+        var additionsFromRegisterOrReplace = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
+        var replacementsFromRegisterOrReplace = new Dictionary<string, ReplaceStep>(StringComparer.CurrentCultureIgnoreCase);
 
+        foreach (var addOrReplaceStep in addOrReplaceSteps)
+        {
+            var stepId = addOrReplaceStep.StepId;
+            var hasExistingAddition = additions.Any(addition => addition.StepId == stepId);
+
+            if (hasExistingAddition)
+            {
+                replacementsFromRegisterOrReplace[stepId] = addOrReplaceStep.ReplaceStep;
+            }
+            else
+            {
+                additionsFromRegisterOrReplace[stepId] = addOrReplaceStep.RegisterStep;
+            }
+        }
+
+        var totalAdditions = additionsFromRegisterOrReplace.Values.ToList();
         totalAdditions.AddRange(additions);
-        totalReplacements.AddRange(replacements);
+
+        var totalReplacements = replacementsFromRegisterOrReplace.Values
+            .Concat(replacements)
+            .OrderBy(replaceStep => replaceStep.RegistrationOrder)
+            .ToList();
 
         //Step 1: validate that additions are unique
         foreach (var metadata in totalAdditions)
