@@ -131,7 +131,7 @@
                 }
             }
 
-            var nonCustomFinderMapping = saga.MessageMappings.Where(m => !m.IsCustomFinder).ToArray();
+            var nonCustomFinderMapping = saga.MessageMappings.Where(m => !m.IsCustomFinderMapping).ToArray();
 
             // Is the user trying to map to more than one correlation id?
             var correlationIdGroups = nonCustomFinderMapping.GroupBy(m => m.CorrelationId).ToImmutableArray();

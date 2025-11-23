@@ -38,7 +38,7 @@
         SagaMessageMapping(INamedTypeSymbol messageType)
         {
             MessageType = messageType;
-            IsCustomFinder = true;
+            IsCustomFinderMapping = true;
         }
 
         public static SagaMessageMapping CreateNewMapping(TypeSyntax messageTypeSyntax, string propertyName, string correlationId) => new(messageTypeSyntax, propertyName, correlationId);
@@ -47,7 +47,7 @@
         public TypeSyntax MessageTypeSyntax { get; }
         public INamedTypeSymbol MessageType { get; }
         public bool IsHeaderMapping { get; }
-        public bool IsCustomFinder { get; }
+        public bool IsCustomFinderMapping { get; }
         public ArgumentSyntax MessageMappingExpression { get; }
         public LambdaExpressionSyntax ToSagaSyntax { get; }
         public string CorrelationId { get; }
