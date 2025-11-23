@@ -33,7 +33,9 @@
         public static readonly DiagnosticDescriptor MessageStartsSagaButNoMapping = new DiagnosticDescriptor(
             id: DiagnosticIds.MessageStartsSagaButNoMapping,
             title: "Message that starts the saga does not have a message mapping",
-            messageFormat: "Saga {0} implements IAmStartedByMessages<{1}> but does not provide a mapping for that message type. In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.CorrelationPropertyName), add .ToMessage<{1}>(msg => msg.PropertyName) to map a message property to the saga correlation ID, or .ToMessageHeader<{1}>(\"HeaderName\") to map a header value that will contain the correlation ID.",
+            messageFormat: @"Saga {0} implements IAmStartedByMessages<{1}> but does not provide a mapping for that message type. 
+In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.CorrelationPropertyName), add .ToMessage<{1}>(msg => msg.PropertyName) to map a message property to the saga correlation ID,
+ or use one of the advanced saga mapping methods described in the saga documentation.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
