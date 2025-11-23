@@ -131,8 +131,10 @@
                 }
             }
 
+            var nonCustomFinderMapping = saga.MessageMappings.Where(m => !m.IsCustomFinder).ToArray();
+
             // Is the user trying to map to more than one correlation id?
-            var correlationIdGroups = saga.MessageMappings.GroupBy(m => m.CorrelationId).ToImmutableArray();
+            var correlationIdGroups = nonCustomFinderMapping.GroupBy(m => m.CorrelationId).ToImmutableArray();
             var assumedCorrelationId = correlationIdGroups.FirstOrDefault()?.FirstOrDefault()?.CorrelationId ?? "CorrelationPropertyName";
 
             // Does this partial class contain the ConfigureHowToFind method?
@@ -140,7 +142,7 @@
             {
                 if (correlationIdGroups.Length > 1)
                 {
-                    // In the case of multiple corrleation ids, want to pick one (first) as the "legit" one and then
+                    // In the case of multiple correlation ids, want to pick one (first) as the "legit" one and then
                     // warn on all the others
                     foreach (var group in correlationIdGroups.Skip(1))
                     {
@@ -151,7 +153,7 @@
                         }
                     }
                 }
-                else if (saga.MessageMappings.Select(m => m.ToSagaSyntax).Distinct().Count() > 1)
+                else if (nonCustomFinderMapping.Select(m => m.ToSagaSyntax).Distinct().Count() > 1)
                 {
                     Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
                         fixerTitle: "Simplify saga mapping expression",
@@ -164,7 +166,7 @@
                 }
                 else
                 {
-                    var mappingMethodNames = saga.MessageMappings.Select(m => (m.MessageTypeSyntax?.Parent?.Parent as GenericNameSyntax)?.Identifier.ValueText);
+                    var mappingMethodNames = nonCustomFinderMapping.Select(m => (m.MessageTypeSyntax?.Parent?.Parent as GenericNameSyntax)?.Identifier.ValueText);
                     if (mappingMethodNames.Any(name => name is "ConfigureMapping" or "ConfigureHeaderMapping"))
                     {
                         Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
@@ -195,13 +197,13 @@
 
                 // Looking for ToSaga mappings. If using new syntax, while there's only one MapSaga expression, it is copied
                 // to each message mapping represented here, so we need to dedupe them by grouping on the ToSaga syntax
-                foreach (var toSagaSyntaxGroup in saga.MessageMappings.GroupBy(mapping => mapping.ToSagaSyntax))
+                foreach (var toSagaSyntaxGroup in nonCustomFinderMapping.GroupBy(mapping => mapping.ToSagaSyntax))
                 {
                     var toSagaSyntax = toSagaSyntaxGroup.Key;
                     var firstMapping = toSagaSyntaxGroup.First();
 
                     // Looking for ToSaga mappings mapped to an Id property
-                    // We don't care about case, becuase for example SQL persistence is case insensitive on the column name
+                    // We don't care about case, because for example SQL persistence is case-insensitive on the column name
                     if (string.Equals("Id", firstMapping.CorrelationId, StringComparison.OrdinalIgnoreCase))
                     {
                         var diagnostic = Diagnostic.Create(SagaDiagnostics.CannotMapToSagasIdProperty, toSagaSyntax.GetLocation());
@@ -212,7 +214,7 @@
                     var toSagaSymbol = context.SemanticModel.GetSymbolInfo(toSagaSyntax.Body, context.CancellationToken).Symbol;
                     if (toSagaSymbol is IPropertySymbol toSagaPropertySymbol)
                     {
-                        foreach (var mapping in toSagaSyntaxGroup.Where(m => !m.IsHeader))
+                        foreach (var mapping in toSagaSyntaxGroup.Where(m => !m.IsHeaderMapping))
                         {
                             if (mapping.MessageMappingExpression.Expression is LambdaExpressionSyntax toMessageLambdaSyntax)
                             {
@@ -223,8 +225,8 @@
                                     if (!toSagaPropertySymbol.Type.TypeCanAcceptWithNullability(toMessagePropertySymbol.Type))
                                     {
                                         var diagnostic = Diagnostic.Create(SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions, mapping.MessageMappingExpression.GetLocation(),
-                                        toMessagePropertySymbol.ContainingType.Name, toMessagePropertySymbol.Name, toMessagePropertySymbol.Type.ToString(),
-                                        toSagaPropertySymbol.ContainingType.Name, toSagaPropertySymbol.Name, toSagaPropertySymbol.Type.ToString());
+                                            toMessagePropertySymbol.ContainingType.Name, toMessagePropertySymbol.Name, toMessagePropertySymbol.Type.ToString(),
+                                            toSagaPropertySymbol.ContainingType.Name, toSagaPropertySymbol.Name, toSagaPropertySymbol.Type.ToString());
                                         context.ReportDiagnostic(diagnostic);
                                     }
                                 }
@@ -243,6 +245,11 @@
             var mappedMessageTypes = saga.MessageMappings
                 .Select(m =>
                 {
+                    if (m.MessageType is not null)
+                    {
+                        return m.MessageType;
+                    }
+
                     var semanticModel = semanticModels.GetFor(m.MessageTypeSyntax);
                     return semanticModel.GetTypeInfo(m.MessageTypeSyntax).Type;
                 })
@@ -468,13 +475,23 @@
             // Note: All properties should be prefixed with `_` because we'll also be storing whether each message mapping is
             // a header mapping by using keys that are index integers converted to strings. (See below.)
             var properties = new Dictionary<string, string>
+            {
                 {
-                    { "_FixerTitle", fixerTitle },
-                    { "_CorrelationId", correlationId },
-                    { "_MapperParamName", saga.MapperParameterSyntax.Identifier.ValueText },
-                    { "_MappingCount", saga.MessageMappings.Count.ToString() },
-                    { "_ConfigureHowToFindLocation", saga.ConfigureHowToFindMethod.GetLocation().SourceSpan.Start.ToString() },
-                };
+                    "_FixerTitle", fixerTitle
+                },
+                {
+                    "_CorrelationId", correlationId
+                },
+                {
+                    "_MapperParamName", saga.MapperParameterSyntax.Identifier.ValueText
+                },
+                {
+                    "_MappingCount", saga.MessageMappings.Count.ToString()
+                },
+                {
+                    "_ConfigureHowToFindLocation", saga.ConfigureHowToFindMethod.GetLocation().SourceSpan.Start.ToString()
+                },
+            };
 
             // If we are generating a new mapping for a message type, we get the message type out of the IAmStartedByMessages<T>
             // that is in the primary location (it will be under the red squiggly) and we can extract the T parameter and use that.
@@ -499,7 +516,7 @@
                 // we just shove a stringified boolean into the string properties, i.e. { "0" => "True" } means that the first
                 // message mapping is a ToMessageHeader mapping. The rest of the properties are prefixed with `_` to keep things
                 // clear.
-                properties[i.ToString()] = mapping.IsHeader.ToString();
+                properties[i.ToString()] = mapping.IsHeaderMapping.ToString();
             }
 
             var diagnostic = Diagnostic.Create(descriptor, location, expressionLocations, properties.ToImmutableDictionary(), messageArgs);
@@ -635,7 +652,7 @@
                 statement = expression.Expression;
             }
 
-            // All mapping expressions will be an invocation, either mapper.MapSaga() or mapper.ConfigureMapping(), etc.
+            // All mapping expressions will be an invocation, either mapper.MapSaga(), mapper.ConfigureMapping() or mapper.ConfigureFinderMapping(), etc.
             if (statement is not InvocationExpressionSyntax invocation)
             {
                 return false;
@@ -666,7 +683,7 @@
             // either old syntax ConfigureMapping/ConfigureHeaderMapping, or newer MapSaga
             var firstInvocationMethodName = memberAccess.Name.Identifier.ValueText;
 
-            if (firstInvocationMethodName is "ConfigureMapping" or "ConfigureHeaderMapping") // if old syntax
+            if (firstInvocationMethodName is "ConfigureMapping" or "ConfigureHeaderMapping" or "ConfigureFinderMapping") // if old syntax
             {
                 // Method has to be generic so we can get the generic type, which is the message type
                 if (memberAccess.Name is not GenericNameSyntax genericTypeName)
@@ -686,6 +703,13 @@
                 if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
                 {
                     return false;
+                }
+
+                if (firstInvocationMethodName is "ConfigureFinderMapping")
+                {
+                    saga.MessageMappings.Add(SagaMessageMapping.CreateFinderMapping(messageType));
+
+                    return true;
                 }
 
                 // Whether the argument is a literal string for a header, or a `msg => msg.PropertyName`, we don't care we just want the argument in its entirety

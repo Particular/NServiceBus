@@ -6,11 +6,11 @@
 
     class SagaMessageMapping
     {
-        public SagaMessageMapping(TypeSyntax messageTypeSyntax, INamedTypeSymbol messageType, bool isHeader, ArgumentSyntax messageMappingExpression, LambdaExpressionSyntax toSagaSyntax)
+        public SagaMessageMapping(TypeSyntax messageTypeSyntax, INamedTypeSymbol messageType, bool isHeaderMapping, ArgumentSyntax messageMappingExpression, LambdaExpressionSyntax toSagaSyntax)
         {
             MessageTypeSyntax = messageTypeSyntax;
             MessageType = messageType;
-            IsHeader = isHeader;
+            IsHeaderMapping = isHeaderMapping;
             MessageMappingExpression = messageMappingExpression;
             ToSagaSyntax = toSagaSyntax;
             if (toSagaSyntax != null)
@@ -22,36 +22,36 @@
         SagaMessageMapping(TypeSyntax messageTypeSyntax, string propertyName, string correlationId)
         {
             MessageTypeSyntax = messageTypeSyntax;
-            IsHeader = false;
             CorrelationId = correlationId;
 
             var parameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("msg"));
             var body = SyntaxFactory.MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName("msg"),
-                        SyntaxFactory.IdentifierName(propertyName));
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.IdentifierName("msg"),
+                SyntaxFactory.IdentifierName(propertyName));
 
             var lambda = SyntaxFactory.SimpleLambdaExpression(parameter, body);
 
             MessageMappingExpression = SyntaxFactory.Argument(lambda).NormalizeWhitespace();
         }
 
-        public static SagaMessageMapping CreateNewMapping(TypeSyntax messageTypeSyntax, string propertyName, string correlationId)
+        SagaMessageMapping(INamedTypeSymbol messageType)
         {
-            return new SagaMessageMapping(messageTypeSyntax, propertyName, correlationId);
+            MessageType = messageType;
+            IsCustomFinder = true;
         }
+
+        public static SagaMessageMapping CreateNewMapping(TypeSyntax messageTypeSyntax, string propertyName, string correlationId) => new(messageTypeSyntax, propertyName, correlationId);
+        public static SagaMessageMapping CreateFinderMapping(INamedTypeSymbol messageType) => new(messageType);
 
         public TypeSyntax MessageTypeSyntax { get; }
         public INamedTypeSymbol MessageType { get; set; }
-        public bool IsHeader { get; }
+        public bool IsHeaderMapping { get; }
+        public bool IsCustomFinder { get; }
         public ArgumentSyntax MessageMappingExpression { get; }
         public LambdaExpressionSyntax ToSagaSyntax { get; }
         public string CorrelationId { get; }
-        public string NewMappingPropertyName { get; }
 
-        public override string ToString()
-        {
-            return $"{nameof(SagaMessageMapping)}: {MessageMappingExpression.ToFullString()}, maps to sagaData.{CorrelationId}";
-        }
+        public override string ToString() => $"{nameof(SagaMessageMapping)}: {MessageMappingExpression.ToFullString()}, maps to sagaData.{CorrelationId}";
     }
 }
