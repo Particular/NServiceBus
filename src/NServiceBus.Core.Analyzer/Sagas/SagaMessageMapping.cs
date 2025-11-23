@@ -45,7 +45,7 @@
         public static SagaMessageMapping CreateFinderMapping(INamedTypeSymbol messageType) => new(messageType);
 
         public TypeSyntax MessageTypeSyntax { get; }
-        public INamedTypeSymbol MessageType { get; set; }
+        public INamedTypeSymbol MessageType { get; }
         public bool IsHeaderMapping { get; }
         public bool IsCustomFinder { get; }
         public ArgumentSyntax MessageMappingExpression { get; }
