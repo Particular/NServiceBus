@@ -10,13 +10,13 @@ using Testing;
 using Transport;
 
 [TestFixture]
-public class CloudEventJsonStructuredUnmarshalerTests
+public class CloudEventJsonStructuredEnvelopeHandlerTests
 {
     string NativeMessageId;
     Dictionary<string, string> NativeHeaders;
     Dictionary<string, object> Payload;
     ReadOnlyMemory<byte> Body;
-    CloudEventJsonStructuredUnmarshaler Unmarshaler;
+    CloudEventJsonStructuredEnvelopeHandler envelopeHandler;
 
     [SetUp]
     public void SetUp()
@@ -37,7 +37,7 @@ public class CloudEventJsonStructuredUnmarshalerTests
             [Headers.ContentType] = "application/cloudevents+json",
         };
         Body = new ReadOnlyMemory<byte>();
-        Unmarshaler = new CloudEventJsonStructuredUnmarshaler();
+        envelopeHandler = new CloudEventJsonStructuredEnvelopeHandler();
     }
 
     [Test]
@@ -93,7 +93,7 @@ public class CloudEventJsonStructuredUnmarshalerTests
     [Test]
     public void Should_support_message_with_correct_content_type()
     {
-        var actual = Unmarshaler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
+        var actual = envelopeHandler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
         Assert.That(actual, Is.True);
     }
 
@@ -101,7 +101,7 @@ public class CloudEventJsonStructuredUnmarshalerTests
     public void Should_not_support_message_with_incorrect_content_type()
     {
         NativeHeaders[Headers.ContentType] = "wrong_content";
-        var actual = Unmarshaler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
+        var actual = envelopeHandler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
         Assert.That(actual, Is.False);
     }
 
@@ -156,7 +156,8 @@ public class CloudEventJsonStructuredUnmarshalerTests
         string serializedBody = JsonSerializer.Serialize(Payload);
         var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(serializedBody));
         var context = new TestableMessageContext(NativeMessageId, NativeHeaders, fullBody);
-        return Unmarshaler.CreateIncomingMessage(context);
+        (Dictionary<string, string> convertedHeader, ReadOnlyMemory<byte> convertedBody) = envelopeHandler.CreateIncomingMessage(NativeMessageId, NativeHeaders, null, fullBody);
+        return new IncomingMessage(NativeMessageId, convertedHeader, convertedBody);
     }
 
     void AssertTypicalFields(IncomingMessage actual)
