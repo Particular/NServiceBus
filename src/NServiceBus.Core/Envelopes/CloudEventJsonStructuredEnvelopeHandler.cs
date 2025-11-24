@@ -23,7 +23,7 @@
             PropertyNameCaseInsensitive = true
         };
 
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) CreateIncomingMessage(
+        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) UnwrapEnvelope(
             string nativeMessageId, IDictionary<string, string> incomingHeaders,
             ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
         {
@@ -132,7 +132,7 @@
             }
         }
 
-        public bool IsValidMessage(MessageContext messageContext) =>
-            messageContext.Headers.TryGetValue(Headers.ContentType, out string value) && value == SUPPORTED_CONTENT_TYPE;
+        public bool CanUnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
+            incomingHeaders.TryGetValue(Headers.ContentType, out string value) && value == SUPPORTED_CONTENT_TYPE;
     }
 }

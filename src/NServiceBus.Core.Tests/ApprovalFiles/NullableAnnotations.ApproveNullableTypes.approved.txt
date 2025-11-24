@@ -27,6 +27,7 @@ NServiceBus.Features.FeatureConfigurationContext
 NServiceBus.HeaderOptionExtensions
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
+NServiceBus.IEnvelopeHandler
 NServiceBus.IMessageHandlerContext
 NServiceBus.IMessageProcessingContext
 NServiceBus.ImmediateRetriesSettings

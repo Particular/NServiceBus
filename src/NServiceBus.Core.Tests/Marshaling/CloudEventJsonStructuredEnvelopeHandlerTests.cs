@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Text;
 using System.Text.Json;
+using Extensibility;
 using NServiceBus;
-using Testing;
 using Transport;
 
 [TestFixture]
@@ -93,7 +93,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
     [Test]
     public void Should_support_message_with_correct_content_type()
     {
-        var actual = envelopeHandler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
+        var actual = envelopeHandler.CanUnwrapEnvelope(NativeMessageId, NativeHeaders, new ContextBag(), Body);
         Assert.That(actual, Is.True);
     }
 
@@ -101,7 +101,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
     public void Should_not_support_message_with_incorrect_content_type()
     {
         NativeHeaders[Headers.ContentType] = "wrong_content";
-        var actual = envelopeHandler.IsValidMessage(new TestableMessageContext(NativeMessageId, NativeHeaders, Body));
+        var actual = envelopeHandler.CanUnwrapEnvelope(NativeMessageId, NativeHeaders, new ContextBag(), Body);
         Assert.That(actual, Is.False);
     }
 
@@ -147,7 +147,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
     {
         string serializedBody = JsonSerializer.Serialize(Payload);
         var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(serializedBody));
-        (Dictionary<string, string> convertedHeader, ReadOnlyMemory<byte> convertedBody) = envelopeHandler.CreateIncomingMessage(NativeMessageId, NativeHeaders, null, fullBody);
+        (Dictionary<string, string> convertedHeader, ReadOnlyMemory<byte> convertedBody) = envelopeHandler.UnwrapEnvelope(NativeMessageId, NativeHeaders, null, fullBody);
         return new IncomingMessage(NativeMessageId, convertedHeader, convertedBody);
     }
 
