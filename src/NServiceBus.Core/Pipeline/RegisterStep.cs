@@ -135,10 +135,18 @@ public abstract class RegisterStep
         return behavior;
     }
 
-    internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null) => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
+    internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
+    {
+        return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
+    }
 
     Func<IServiceProvider, IBehavior> factoryMethod;
 
-    class DefaultRegisterStep(Type behavior, string stepId, string description, Func<IServiceProvider, IBehavior> factoryMethod)
-        : RegisterStep(stepId, behavior, description, factoryMethod);
+    class DefaultRegisterStep : RegisterStep
+    {
+        public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IServiceProvider, IBehavior> factoryMethod)
+            : base(stepId, behavior, description, factoryMethod)
+        {
+        }
+    }
 }
