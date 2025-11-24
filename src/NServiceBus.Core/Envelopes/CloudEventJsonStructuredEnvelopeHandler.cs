@@ -6,7 +6,6 @@
     using System.Text;
     using System.Text.Json;
     using Extensibility;
-    using Transport;
 
     class CloudEventJsonStructuredEnvelopeHandler : IEnvelopeHandler
     {
