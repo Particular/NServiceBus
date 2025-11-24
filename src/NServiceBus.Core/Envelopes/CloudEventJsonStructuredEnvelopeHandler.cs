@@ -29,7 +29,7 @@
         {
             ThrowIfInvalidMessage(incomingHeaders);
             JsonDocument receivedCloudEvent = DeserializeOrThrow(incomingBody);
-            var headers = ExtractHeaders(incomingHeaders,  receivedCloudEvent);
+            var headers = ExtractHeaders(incomingHeaders, receivedCloudEvent);
             var body = ExtractBody(receivedCloudEvent);
             return (headers, body);
         }
