@@ -32,20 +32,12 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
 
     public class EndpointThatHostsASaga : EndpointConfigurationBuilder
     {
-        public EndpointThatHostsASaga()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHostsASaga() => EndpointSetup<DefaultServer>();
 
-        public class MySaga : Saga<MySaga.MySagaData>,
+        public class MySaga(Context testContext) : Saga<MySaga.MySagaData>,
             IAmStartedByMessages<StartSaga>,
             IHandleTimeouts<MySaga.TimeHasPassed>
         {
-            public MySaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -60,21 +52,16 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
 
             public class MySagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
 
-            public class TimeHasPassed
-            {
-            }
-
-            Context testContext;
+            public class TimeHasPassed;
         }
     }
 

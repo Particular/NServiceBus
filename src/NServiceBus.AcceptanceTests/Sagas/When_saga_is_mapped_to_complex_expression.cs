@@ -48,14 +48,9 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
             EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
         }
 
-        public class TestSaga02 : Saga<TestSagaData02>,
+        public class TestSaga02(Context testContext) : Saga<TestSagaData02>,
             IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
         {
-            public TestSaga02(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(OtherMessage message, IMessageHandlerContext context)
             {
                 testContext.SagaIdWhenOtherMessageReceived = Data.Id;
@@ -70,24 +65,15 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.Key)
-                    .ToSaga(s => s.KeyValue);
-
-                mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
-                    .ToSaga(s => s.KeyValue);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper) =>
+                mapper.MapSaga(s => s.KeyValue)
+                    .ToMessage<StartSagaMessage>(m => m.Key)
+                    .ToMessage<OtherMessage>(m => m.Part1 + "_" + m.Part2);
         }
 
-        public class TestSagaData02 : IContainSagaData
+        public class TestSagaData02 : ContainSagaData
         {
             public virtual string KeyValue { get; set; }
-            public virtual Guid Id { get; set; }
-            public virtual string Originator { get; set; }
-            public virtual string OriginalMessageId { get; set; }
         }
     }
 

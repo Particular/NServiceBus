@@ -28,10 +28,7 @@ class When_correlation_property_is_null : NServiceBusAcceptanceTest
 
     public class SagaWithCorrelationPropertyEndpoint : EndpointConfigurationBuilder
     {
-        public SagaWithCorrelationPropertyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public SagaWithCorrelationPropertyEndpoint() => EndpointSetup<DefaultServer>();
 
         public class SagaDataWithCorrelatedProperty : ContainSagaData
         {
@@ -40,15 +37,11 @@ class When_correlation_property_is_null : NServiceBusAcceptanceTest
 
         public class SagaWithCorrelatedProperty : Saga<SagaDataWithCorrelatedProperty>, IAmStartedByMessages<MessageWithNullCorrelationProperty>
         {
-            public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithCorrelatedProperty> mapper)
-            {
-                mapper.ConfigureMapping<MessageWithNullCorrelationProperty>(m => m.CorrelationProperty).ToSaga(s => s.CorrelatedProperty);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithCorrelatedProperty> mapper) =>
+                mapper.MapSaga(s => s.CorrelatedProperty)
+                    .ToMessage<MessageWithNullCorrelationProperty>(m => m.CorrelationProperty);
         }
     }
 

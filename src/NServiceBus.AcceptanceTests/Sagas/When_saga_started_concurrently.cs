@@ -48,24 +48,17 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
 
     public class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
     {
-        public ConcurrentHandlerEndpoint()
-        {
+        public ConcurrentHandlerEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 b.LimitMessageProcessingConcurrencyTo(2);
                 b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(3));
             });
-        }
 
-        public class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
+        public class ConcurrentlyStartedSaga(Context testContext) : Saga<ConcurrentlyStartedSagaData>,
             IAmStartedByMessages<StartMessageTwo>,
             IAmStartedByMessages<StartMessageOne>
         {
-            public ConcurrentlyStartedSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartMessageOne message, IMessageHandlerContext context)
             {
                 Data.Placed = true;
@@ -88,11 +81,10 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
                 CheckForCompletion();
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConcurrentlyStartedSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartMessageOne>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
-                mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConcurrentlyStartedSagaData> mapper) =>
+                mapper.MapSaga(s => s.OrderId)
+                    .ToMessage<StartMessageOne>(msg => msg.SomeId)
+                    .ToMessage<StartMessageTwo>(msg => msg.SomeId);
 
             void CheckForCompletion()
             {
@@ -103,8 +95,6 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
                 MarkAsComplete();
                 testContext.SagaCompleted = true;
             }
-
-            Context testContext;
         }
 
         public class ConcurrentlyStartedSagaData : ContainSagaData
@@ -115,13 +105,8 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
         }
 
         // Intercepts the messages sent out by the saga
-        class LogSuccessfulHandler : IHandleMessages<SuccessfulProcessing>
+        class LogSuccessfulHandler(Context testContext) : IHandleMessages<SuccessfulProcessing>
         {
-            public LogSuccessfulHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
             {
                 if (message.Type == nameof(StartMessageOne))
@@ -139,8 +124,6 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

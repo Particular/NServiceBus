@@ -46,8 +46,8 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData13> mapper) =>
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
 
             public class TestSagaData13 : ContainSagaData
             {

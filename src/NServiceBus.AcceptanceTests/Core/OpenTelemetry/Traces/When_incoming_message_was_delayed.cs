@@ -255,12 +255,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
-        public class OtelSaga : Saga<MyOtelSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<TimeoutMessage>, IHandleMessages<CompleteSagaMessage>
+        public class OtelSaga(SagaContext testContext) : Saga<MyOtelSagaData>, IAmStartedByMessages<StartSagaMessage>,
+            IHandleTimeouts<TimeoutMessage>, IHandleMessages<CompleteSagaMessage>
         {
-            SagaContext testContext;
-
-            public OtelSaga(SagaContext testContext) => this.testContext = testContext;
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 Data.SomeId = message.SomeId;
@@ -268,11 +265,11 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 return RequestTimeout<TimeoutMessage>(context, DateTimeOffset.UtcNow.AddMilliseconds(2));
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyOtelSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId).ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId).ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyOtelSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<CompleteSagaMessage>(m => m.SomeId);
+
             public Task Timeout(TimeoutMessage state, IMessageHandlerContext context)
             {
                 testContext.TimeoutReceived = true;
@@ -312,24 +309,16 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
         class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
         {
-            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    public class MessageToBeRetried : IMessage
-    {
-    }
+    public class MessageToBeRetried : IMessage;
 
-    public class DelayedMessage : IMessage
-    {
-    }
+    public class DelayedMessage : IMessage;
 
-    public class IncomingMessage : IMessage
-    {
-    }
+    public class IncomingMessage : IMessage;
+
     public class StartSagaMessage : IMessage
     {
         public string SomeId { get; set; }
@@ -340,7 +329,5 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         public string SomeId { get; set; }
     }
 
-    public class ReplyMessage : IMessage
-    {
-    }
+    public class ReplyMessage : IMessage;
 }

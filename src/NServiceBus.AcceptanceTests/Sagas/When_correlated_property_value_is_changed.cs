@@ -36,19 +36,11 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
+        public class CorrIdChangedSaga(Context testContext) : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
             IAmStartedByMessages<StartSaga>
         {
-            public CorrIdChangedSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = Guid.NewGuid();
@@ -56,17 +48,14 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrIdChangedSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrIdChangedSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
 
             public class CorrIdChangedSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

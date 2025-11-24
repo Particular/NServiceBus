@@ -67,7 +67,8 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
             {
-                mapper.ConfigureMapping<StartSagaMessage>(saga => saga.Property).ToSaga(saga => saga.Property);
+                mapper.MapSaga(s => s.Property)
+                    .ToMessage<StartSagaMessage>(m => m.Property);
                 mapper.ConfigureFinderMapping<SomeOtherMessage, CustomFinder>();
             }
 

@@ -64,7 +64,8 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData06> mapper)
             {
                 mapper.ConfigureFinderMapping<StartSagaMessage, CustomFinder>();
-                mapper.ConfigureMapping<SomeOtherMessage>(m => m.CorrelationProperty).ToSaga(s => s.CorrelationProperty);
+                mapper.MapSaga(s => s.CorrelationProperty)
+                    .ToMessage<SomeOtherMessage>(m => m.CorrelationProperty);
             }
 
             // This additional, unused, message is required to reproduce https://github.com/Particular/NServiceBus/issues/4888
@@ -77,9 +78,7 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
         }
     }
 
-    public class StartSagaMessage : IMessage
-    {
-    }
+    public class StartSagaMessage : IMessage;
 
     public class SomeOtherMessage : IMessage
     {

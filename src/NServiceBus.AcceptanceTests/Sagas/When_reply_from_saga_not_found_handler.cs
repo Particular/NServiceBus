@@ -37,38 +37,26 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MessageToSaga), typeof(ReceiverWithSaga));
             });
-        }
 
-        public class ReplyHandler : IHandleMessages<Reply>
+        public class ReplyHandler(Context testContext) : IHandleMessages<Reply>
         {
-            public ReplyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(Reply message, IMessageHandlerContext context)
             {
                 testContext.ReplyReceived = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class ReceiverWithSaga : EndpointConfigurationBuilder
     {
-        public ReceiverWithSaga()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ReceiverWithSaga() => EndpointSetup<DefaultServer>();
 
         public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
         {
@@ -78,18 +66,12 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
-                    .ToSaga(s => s.ContextId);
-                mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
-                    .ToSaga(s => s.ContextId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper) =>
+                mapper.MapSaga(s => s.ContextId)
+                    .ToMessage<StartSaga1>(m => m.ContextId)
+                    .ToMessage<MessageToSaga>(m => m.ContextId);
 
             public class NotFoundHandlerSaga1Data : ContainSagaData
             {
@@ -105,18 +87,12 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga2Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga2>(m => m.ContextId)
-                    .ToSaga(s => s.ContextId);
-                mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
-                    .ToSaga(s => s.ContextId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga2Data> mapper) =>
+                mapper.MapSaga(s => s.ContextId)
+                    .ToMessage<StartSaga2>(m => m.ContextId)
+                    .ToMessage<MessageToSaga>(m => m.ContextId);
 
             public class NotFoundHandlerSaga2Data : ContainSagaData
             {
@@ -126,10 +102,7 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
 
         public class SagaNotFound : IHandleSagaNotFound
         {
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                return context.Reply(new Reply());
-            }
+            public Task Handle(object message, IMessageProcessingContext context) => context.Reply(new Reply());
         }
     }
 
@@ -148,7 +121,5 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
         public Guid ContextId { get; set; }
     }
 
-    public class Reply : IMessage
-    {
-    }
+    public class Reply : IMessage;
 }

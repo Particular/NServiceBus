@@ -61,15 +61,11 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper)
-            {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper) =>
                 // custom finder used
                 mapper.ConfigureFinderMapping<StartSagaMessage, CustomFinder>();
-            }
 
-            public class SagaData07 : ContainSagaData
-            {
-            }
+            public class SagaData07 : ContainSagaData;
         }
 
         public class BehaviorWhichAddsThingsToTheContext : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
@@ -91,7 +87,5 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
         }
     }
 
-    public class StartSagaMessage : IMessage
-    {
-    }
+    public class StartSagaMessage : IMessage;
 }

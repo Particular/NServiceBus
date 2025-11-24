@@ -42,18 +42,10 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
 
     public class ExistingSagaInstanceEndpoint : EndpointConfigurationBuilder
     {
-        public ExistingSagaInstanceEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
-        }
+        public ExistingSagaInstanceEndpoint() => EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
 
-        public class TestSaga05 : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
+        public class TestSaga05(Context testContext) : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
         {
-            public TestSaga05(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SagaIds.Add(Data.Id);
@@ -61,21 +53,14 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
         }
 
-        public class TestSagaData05 : IContainSagaData
+        public class TestSagaData05 : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
-            public virtual Guid Id { get; set; }
-            public virtual string Originator { get; set; }
-            public virtual string OriginalMessageId { get; set; }
         }
     }
 

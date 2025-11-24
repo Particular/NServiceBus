@@ -36,10 +36,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
 
     public class MutatorEndpoint : EndpointConfigurationBuilder
     {
-        public MutatorEndpoint()
-        {
-            EndpointSetup<DefaultServer>(e => e.RegisterMessageMutator(new MessageMutator()));
-        }
+        public MutatorEndpoint() => EndpointSetup<DefaultServer>(e => e.RegisterMessageMutator(new MessageMutator()));
 
         public class MessageMutator : IMutateIncomingMessages
         {
@@ -51,64 +48,43 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             }
         }
 
-        public class OriginalMessageHandler : IHandleMessages<OriginalMessage>
+        public class OriginalMessageHandler(Context testContext) : IHandleMessages<OriginalMessage>
         {
-            public OriginalMessageHandler(Context testContext)
-            {
-                TestContext = testContext;
-            }
-
             public Task Handle(OriginalMessage message, IMessageHandlerContext context)
             {
-                TestContext.OriginalMessageHandlerCalled = true;
+                testContext.OriginalMessageHandlerCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context TestContext;
         }
 
-        public class NewMessageHandler : IHandleMessages<NewMessage>
+        public class NewMessageHandler(Context testContext) : IHandleMessages<NewMessage>
         {
-            public NewMessageHandler(Context testContext)
-            {
-                TestContext = testContext;
-            }
-
             public Task Handle(NewMessage message, IMessageHandlerContext context)
             {
-                TestContext.NewMessageHandlerCalled = true;
+                testContext.NewMessageHandlerCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context TestContext;
         }
 
-        public class Saga : Saga<SagaData>, IAmStartedByMessages<OriginalMessage>, IAmStartedByMessages<NewMessage>
+        public class Saga(Context testContext)
+            : Saga<SagaData>, IAmStartedByMessages<OriginalMessage>, IAmStartedByMessages<NewMessage>
         {
-            public Saga(Context testContext)
-            {
-                TestContext = testContext;
-            }
-
             public Task Handle(NewMessage message, IMessageHandlerContext context)
             {
-                TestContext.NewMessageSagaHandlerCalled = true;
+                testContext.NewMessageSagaHandlerCalled = true;
                 return Task.CompletedTask;
             }
 
             public Task Handle(OriginalMessage message, IMessageHandlerContext context)
             {
-                TestContext.OriginalMessageSagaHandlerCalled = true;
+                testContext.OriginalMessageSagaHandlerCalled = true;
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-            {
-                mapper.ConfigureMapping<OriginalMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                mapper.ConfigureMapping<NewMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
-
-            Context TestContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<OriginalMessage>(msg => msg.SomeId)
+                    .ToMessage<NewMessage>(msg => msg.SomeId);
         }
 
         public class SagaData : ContainSagaData

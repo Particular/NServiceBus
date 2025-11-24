@@ -38,14 +38,12 @@ public class When_completing_a_saga : NServiceBusAcceptanceTest
 
     public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
     {
-        public ReceiveCompletesSagaEndpoint()
-        {
+        public ReceiveCompletesSagaEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 b.AddHandler<TestSaga10>();
                 b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
             });
-        }
 
         public class TestSaga10(Context testContext) : Saga<TestSagaData10>,
             IAmStartedByMessages<StartSagaMessage>,
@@ -65,13 +63,10 @@ public class When_completing_a_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<CompleteSagaMessage>(m => m.SomeId);
         }
 
         public class TestSagaData10 : ContainSagaData

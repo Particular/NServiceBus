@@ -101,8 +101,8 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper) =>
-                mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
-                    .ToSaga(s => s.ContextId);
+                mapper.MapSaga(s => s.ContextId)
+                    .ToMessage<StartSaga1>(m => m.ContextId);
 
             public class MultiTimeoutsSaga1Data : ContainSagaData
             {

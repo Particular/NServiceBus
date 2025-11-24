@@ -47,8 +47,8 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper) =>
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
 
             public class TestSagaData03 : ContainSagaData
             {

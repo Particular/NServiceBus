@@ -39,53 +39,40 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<GroupPendingEvent>(this));
-        }
 
         class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
         {
-            public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
-            {
-                return context.Publish(new GroupPendingEvent
+            public Task Handle(OpenGroupCommand message, IMessageHandlerContext context) =>
+                context.Publish(new GroupPendingEvent
                 {
                     DataId = message.DataId
                 });
-            }
         }
     }
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
+        public SagaEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.ConfigureRouting().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
                 },
                 metadata => metadata.RegisterPublisherFor<GroupPendingEvent, Publisher>());
-        }
 
-        public class Saga1 : Saga<Saga1.MySaga1Data>,
+        public class Saga1(Context testContext) : Saga<Saga1.MySaga1Data>,
             IAmStartedByMessages<GroupPendingEvent>,
             IHandleMessages<CompleteSaga1Now>
         {
-            public Saga1(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new CompleteSaga1Now
+            public Task Handle(GroupPendingEvent message, IMessageHandlerContext context) =>
+                context.SendLocal(new CompleteSaga1Now
                 {
                     DataId = message.DataId
                 });
-            }
 
             public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
             {
@@ -96,36 +83,26 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
-            {
-                mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
-                mapper.ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<GroupPendingEvent>(m => m.DataId)
+                    .ToMessage<CompleteSaga1Now>(m => m.DataId);
 
             public class MySaga1Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
 
-        public class Saga2 : Saga<Saga2.MySaga2Data>,
+        public class Saga2(Context testContext) : Saga<Saga2.MySaga2Data>,
             IAmStartedByMessages<StartSaga2>,
             IHandleMessages<GroupPendingEvent>
         {
-            public Saga2(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
-            public Task Handle(StartSaga2 message, IMessageHandlerContext context)
-            {
-                return context.Send(new OpenGroupCommand
+            public Task Handle(StartSaga2 message, IMessageHandlerContext context) =>
+                context.Send(new OpenGroupCommand
                 {
                     DataId = Data.DataId
                 });
-            }
 
             public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
             {
@@ -134,18 +111,15 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-                mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga2>(m => m.DataId)
+                    .ToMessage<GroupPendingEvent>(m => m.DataId);
 
             public class MySaga2Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

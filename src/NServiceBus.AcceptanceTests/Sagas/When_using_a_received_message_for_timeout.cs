@@ -36,18 +36,11 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
 
     public class ReceiveMessageForTimeoutEndpoint : EndpointConfigurationBuilder
     {
-        public ReceiveMessageForTimeoutEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ReceiveMessageForTimeoutEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class TestSaga01 : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
+        public class TestSaga01(Context testContext) : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>,
+            IHandleTimeouts<StartSagaMessage>
         {
-            public TestSaga01(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.HandlerCalled++;
@@ -61,21 +54,14 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
         }
 
-        public class TestSagaData01 : IContainSagaData
+        public class TestSagaData01 : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
-            public virtual Guid Id { get; set; }
-            public virtual string Originator { get; set; }
-            public virtual string OriginalMessageId { get; set; }
         }
     }
 

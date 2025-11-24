@@ -79,15 +79,11 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData12> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData12> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<CompleteSagaMessage>(m => m.SomeId)
+                    .ToMessage<AnotherMessage>(m => m.SomeId);
         }
 
         public class TestSagaData12 : ContainSagaData

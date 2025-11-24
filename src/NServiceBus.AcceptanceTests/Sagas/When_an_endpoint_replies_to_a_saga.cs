@@ -62,22 +62,15 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
             });
         }
 
-        public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
+        public class CorrelationTestSaga(Context testContext) : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
             IAmStartedByMessages<StartSaga>,
             IHandleMessages<DoSomethingResponse>
         {
-            public CorrelationTestSaga(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                return context.Send(new DoSomething
+            public Task Handle(StartSaga message, IMessageHandlerContext context) =>
+                context.Send(new DoSomething
                 {
                     RunId = message.RunId
                 });
-            }
 
             public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
             {
@@ -87,18 +80,15 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
-                mapper.ConfigureMapping<DoSomethingResponse>(m => m.RunId).ToSaga(s => s.RunId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper) =>
+                mapper.MapSaga(s => s.RunId)
+                    .ToMessage<StartSaga>(m => m.RunId)
+                    .ToMessage<DoSomethingResponse>(m => m.RunId);
 
             public class CorrelationTestSagaData : ContainSagaData
             {
                 public virtual Guid RunId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

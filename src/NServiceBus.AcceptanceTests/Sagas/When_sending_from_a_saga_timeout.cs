@@ -31,10 +31,7 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
         public class SendFromTimeoutSaga1 : Saga<SendFromTimeoutSaga1.SendFromTimeoutSaga1Data>,
             IAmStartedByMessages<StartSaga1>,
@@ -55,10 +52,9 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
                 MarkAsComplete();
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga1Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga1Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga1>(m => m.DataId);
 
             public class SendFromTimeoutSaga1Data : ContainSagaData
             {
@@ -66,13 +62,9 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
             }
         }
 
-        public class SendFromTimeoutSaga2 : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>, IAmStartedByMessages<StartSaga2>
+        public class SendFromTimeoutSaga2(Context testContext) : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>,
+            IAmStartedByMessages<StartSaga2>
         {
-            public SendFromTimeoutSaga2(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSaga2 message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -80,17 +72,14 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga2Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga2Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga2>(m => m.DataId);
 
             public class SendFromTimeoutSaga2Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 
@@ -104,7 +93,5 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
         public Guid DataId { get; set; }
     }
 
-    public class Saga1Timeout : IMessage
-    {
-    }
+    public class Saga1Timeout : IMessage;
 }

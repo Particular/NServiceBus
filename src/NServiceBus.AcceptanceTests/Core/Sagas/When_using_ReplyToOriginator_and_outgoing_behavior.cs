@@ -62,12 +62,8 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             c.ConfigureRouting().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointB)));
         });
 
-        class MessageHandler : IHandleMessages<ReplyToOriginatorMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<ReplyToOriginatorMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(ReplyToOriginatorMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyToOriginatorReceivedCorrId = context.MessageHeaders[Headers.CorrelationId];
@@ -76,14 +72,10 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             }
         }
 
-        public class TestSaga : Saga<TestSagaData>,
+        public class TestSaga(Context testContext) : Saga<TestSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<ContinueSagaMessage>
         {
-            Context testContext;
-
-            public TestSaga(Context testContext) => this.testContext = testContext;
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.StartingSagaCorrId = context.MessageHeaders[Headers.CorrelationId];
@@ -99,19 +91,17 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
                 return ReplyToOriginator(context, new ReplyToOriginatorMessage());
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<ContinueSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<ContinueSagaMessage>(m => m.SomeId);
         }
 
         public class TestSagaData : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
         }
+
         class OutgoingPipelineBehaviorSendingMessages : Behavior<IOutgoingLogicalMessageContext>
         {
             public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
@@ -130,12 +120,9 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
-        public class BehaviorMessageHandler : IHandleMessages<BehaviorMessage>, IHandleMessages<BehaviorEvent>
+        public class BehaviorMessageHandler(Context testContext)
+            : IHandleMessages<BehaviorMessage>, IHandleMessages<BehaviorEvent>
         {
-            Context testContext;
-
-            public BehaviorMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(BehaviorMessage message, IMessageHandlerContext context)
             {
                 testContext.HandlingBehaviorMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
@@ -162,15 +149,9 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
         public Guid SomeId { get; set; }
     }
 
-    public class BehaviorMessage : IMessage
-    {
-    }
+    public class BehaviorMessage : IMessage;
 
-    public class ReplyToOriginatorMessage : IMessage
-    {
-    }
+    public class ReplyToOriginatorMessage : IMessage;
 
-    public class BehaviorEvent : IEvent
-    {
-    }
+    public class BehaviorEvent : IEvent;
 }

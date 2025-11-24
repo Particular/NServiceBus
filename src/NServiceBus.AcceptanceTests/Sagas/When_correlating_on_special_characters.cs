@@ -31,47 +31,34 @@ class When_correlating_special_chars : NServiceBusAcceptanceTest
 
     public class SpecialCharacterSagaEndpoint : EndpointConfigurationBuilder
     {
-        public SpecialCharacterSagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public SpecialCharacterSagaEndpoint() => EndpointSetup<DefaultServer>();
 
         public class SagaDataSpecialValues : ContainSagaData
         {
             public virtual string SpecialCharacterValues { get; set; }
         }
 
-        public class SagaSpecialValues :
+        public class SagaSpecialValues(Context testContext) :
             Saga<SagaDataSpecialValues>,
             IAmStartedByMessages<MessageWithSpecialPropertyValues>,
             IHandleMessages<FollowupMessageWithSpecialPropertyValues>
         {
-            public SagaSpecialValues(Context testContext)
-            {
-                this.testContext = testContext;
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataSpecialValues> mapper) =>
+                mapper.MapSaga(s => s.SpecialCharacterValues)
+                    .ToMessage<MessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues)
+                    .ToMessage<FollowupMessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues);
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataSpecialValues> mapper)
-            {
-                mapper.ConfigureMapping<MessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
-                mapper.ConfigureMapping<FollowupMessageWithSpecialPropertyValues>(m => m.SpecialCharacterValues).ToSaga(s => s.SpecialCharacterValues);
-            }
-
-            public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new FollowupMessageWithSpecialPropertyValues
+            public Task Handle(MessageWithSpecialPropertyValues message, IMessageHandlerContext context) =>
+                context.SendLocal(new FollowupMessageWithSpecialPropertyValues
                 {
                     SpecialCharacterValues = message.SpecialCharacterValues
                 });
-            }
 
             public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
             {
                 testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
