@@ -17,7 +17,7 @@ public interface IEnvelopeHandler
     /// <param name="incomingHeaders">Headers provided by the transport.</param>
     /// <param name="extensions">ContextBag of extension values provided by the transport.</param>
     /// <param name="incomingBody">The raw body provided by the transport.</param>
-    /// <returns></returns>
+    /// <returns>Dictionary of headers and byte array of message body.</returns>
     (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) CreateIncomingMessage(string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlyMemory<byte> incomingBody);
 
     /// <summary>

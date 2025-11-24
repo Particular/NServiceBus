@@ -453,6 +453,14 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface IEnvelopeHandler
+    {
+        [return: System.Runtime.CompilerServices.TupleElementNames(new string[] {
+                "headers",
+                "body"})]
+        System.ValueTuple<System.Collections.Generic.Dictionary<string, string>, System.ReadOnlyMemory<byte>> CreateIncomingMessage(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, NServiceBus.Extensibility.ContextBag extensions, System.ReadOnlyMemory<byte> incomingBody);
+        bool IsValidMessage(NServiceBus.Transport.MessageContext messageContext);
+    }
     public interface IHandleMessages { }
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages
     {
@@ -528,11 +536,6 @@ namespace NServiceBus
         where TSagaData : NServiceBus.IContainSagaData
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
-    }
-    public interface IUnmarshalMessages
-    {
-        NServiceBus.Transport.IncomingMessage CreateIncomingMessage(NServiceBus.Transport.MessageContext messageContext);
-        bool IsValidMessage(NServiceBus.Transport.MessageContext messageContext);
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
