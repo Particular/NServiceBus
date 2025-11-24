@@ -1,7 +1,7 @@
 namespace NServiceBus;
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Transport;
 
 class EnvelopesRouter(IEnumerable<IEnvelopeHandler> translators)
@@ -16,7 +16,8 @@ class EnvelopesRouter(IEnumerable<IEnvelopeHandler> translators)
         {
             if (translator.IsValidMessage(messageContext))
             {
-                var translatedMessage = translator.CreateIncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
+                (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) = translator.CreateIncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
+                return new IncomingMessage(messageContext.NativeMessageId, headers, body);
             }
         }
 
