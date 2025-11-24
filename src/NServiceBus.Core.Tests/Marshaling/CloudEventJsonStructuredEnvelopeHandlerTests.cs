@@ -109,53 +109,44 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
     [TestCase("type")]
     [TestCase("id")]
     [TestCase("datacontenttype")]
-    public void Should_throw_when_property_is_missing(string property)
-    {
+    public void Should_throw_when_property_is_missing(string property) =>
         Assert.Throws<NotSupportedException>(() =>
         {
             Payload.Remove(property);
             RunEnvelopHandlerTest();
         });
-    }
 
     [Test]
-    public void Should_throw_when_data_properties_are_missing()
-    {
+    public void Should_throw_when_data_properties_are_missing() =>
         Assert.Throws<NotSupportedException>(() =>
         {
             Payload.Remove("data");
             Payload.Remove("data_base64");
             RunEnvelopHandlerTest();
         });
-    }
 
     [Test]
-    public void Should_not_throw_when_data_property_is_present()
-    {
+    public void Should_not_throw_when_data_property_is_present() =>
         Assert.DoesNotThrow(() =>
         {
             Payload["data"] = "{}";
             Payload.Remove("data_base64");
             RunEnvelopHandlerTest();
         });
-    }
 
     [Test]
-    public void Should_not_throw_when_data_base64_property_is_present()
-    {
+    public void Should_not_throw_when_data_base64_property_is_present() =>
         Assert.DoesNotThrow(() =>
         {
             Payload["data_base64"] = "e30=";
             Payload.Remove("data");
             RunEnvelopHandlerTest();
         });
-    }
 
     IncomingMessage RunEnvelopHandlerTest()
     {
         string serializedBody = JsonSerializer.Serialize(Payload);
         var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(serializedBody));
-        var context = new TestableMessageContext(NativeMessageId, NativeHeaders, fullBody);
         (Dictionary<string, string> convertedHeader, ReadOnlyMemory<byte> convertedBody) = envelopeHandler.CreateIncomingMessage(NativeMessageId, NativeHeaders, null, fullBody);
         return new IncomingMessage(NativeMessageId, convertedHeader, convertedBody);
     }
