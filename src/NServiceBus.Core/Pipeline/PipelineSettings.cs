@@ -7,7 +7,7 @@ using Settings;
 /// <summary>
 /// Manages the pipeline configuration.
 /// </summary>
-public partial class PipelineSettings : ExposeSettings
+public class PipelineSettings : ExposeSettings
 {
     /// <summary>
     /// Initializes a new instance of <see cref="PipelineSettings" />.
@@ -260,10 +260,7 @@ public partial class PipelineSettings : ExposeSettings
     /// <summary>
     /// Locks the pipeline settings to prevent further modifications.
     /// </summary>
-    internal void PreventChanges()
-    {
-        locked = true;
-    }
+    internal void PreventChanges() => locked = true;
 
     void EnsureWriteEnabled(string key, string operation)
     {
@@ -274,5 +271,5 @@ public partial class PipelineSettings : ExposeSettings
     }
 
     bool locked;
-    internal PipelineModifications modifications = new PipelineModifications();
+    internal readonly PipelineModifications modifications = new();
 }
