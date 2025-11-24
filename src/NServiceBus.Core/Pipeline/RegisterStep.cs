@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Pipeline;
 
 using System;
@@ -18,7 +20,7 @@ public abstract class RegisterStep
     /// <param name="behavior">The type of <see cref="Behavior{TContext}" /> to register.</param>
     /// <param name="description">A brief description of what this step does.</param>
     /// <param name="factoryMethod">A factory method for creating the behavior.</param>
-    protected RegisterStep(string stepId, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
+    protected RegisterStep(string stepId, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
     {
         this.factoryMethod = factoryMethod;
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
@@ -42,8 +44,8 @@ public abstract class RegisterStep
 
     internal int RegistrationOrder { get; set; }
 
-    internal List<Dependency> Befores { get; private set; }
-    internal List<Dependency> Afters { get; private set; }
+    internal List<Dependency>? Befores { get; private set; }
+    internal List<Dependency>? Afters { get; private set; }
 
     /// <summary>
     /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
@@ -137,15 +139,15 @@ public abstract class RegisterStep
         return behavior;
     }
 
-    internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
+    internal static RegisterStep Create(string pipelineStep, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
         => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
 
-    Func<IServiceProvider, IBehavior> factoryMethod;
+    Func<IServiceProvider, IBehavior>? factoryMethod;
 
     class DefaultRegisterStep(
         Type behavior,
         string stepId,
-        string description,
-        Func<IServiceProvider, IBehavior> factoryMethod)
+        string? description,
+        Func<IServiceProvider, IBehavior>? factoryMethod)
         : RegisterStep(stepId, behavior, description, factoryMethod);
 }
