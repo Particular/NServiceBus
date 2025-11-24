@@ -889,6 +889,11 @@ namespace NServiceBus
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
+    public static class SagaRegistrationExtensions
+    {
+        public static void AddSaga<TSaga>(this NServiceBus.EndpointConfiguration config)
+            where TSaga : NServiceBus.Saga { }
+    }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
     {
@@ -2121,12 +2126,33 @@ namespace NServiceBus.Sagas
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+        public static NServiceBus.Sagas.SagaMetadata Create<TSagaType>()
+            where TSagaType : NServiceBus.Saga { }
+        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages)
+            where TSaga : NServiceBus.Saga<TSagaData>
+            where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
         public class CorrelationPropertyMetadata
         {
             public CorrelationPropertyMetadata(string name, System.Type type) { }
             public string Name { get; }
             public System.Type Type { get; }
         }
+    }
+    public static class SagaMetadataBuilder
+    {
+        public static NServiceBus.Sagas.SagaMetadataBuilder<TSaga, TSagaData> Register<TSaga, TSagaData>()
+            where TSaga : NServiceBus.Saga<TSagaData>
+            where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
+    }
+    public class SagaMetadataBuilder<TSaga, TSagaData>
+        where TSaga : NServiceBus.Saga<TSagaData>
+        where TSagaData :  class, NServiceBus.IContainSagaData, new ()
+    {
+        public SagaMetadataBuilder() { }
+        public NServiceBus.Sagas.SagaMetadata Build() { }
+        public NServiceBus.Sagas.SagaMetadataBuilder<TSaga, TSagaData> WithHeaderMapping<TMessage>(string sagaPropertyName, System.Type sagaPropertyType, string headerName) { }
+        public NServiceBus.Sagas.SagaMetadataBuilder<TSaga, TSagaData> WithMessage<TMessage>(bool canStartSaga) { }
+        public NServiceBus.Sagas.SagaMetadataBuilder<TSaga, TSagaData> WithPropertyMapping<TMessage>(string sagaPropertyName, System.Type sagaPropertyType, string messagePropertyName) { }
     }
     public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata>, System.Collections.IEnumerable
     {
@@ -2138,10 +2164,12 @@ namespace NServiceBus.Sagas
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+        public void Register(NServiceBus.Sagas.SagaMetadata metadata) { }
     }
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void DisableBestPracticeValidation() { }
+        public void DisableSagaScanning() { }
     }
 }
 namespace NServiceBus.Serialization

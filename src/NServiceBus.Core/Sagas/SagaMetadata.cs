@@ -128,7 +128,7 @@ public partial class SagaMetadata
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
-    /// <typeparam name="TSagaData"></typeparam>
+    /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages)
         where TSaga : Saga<TSagaData>
