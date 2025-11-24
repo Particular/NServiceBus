@@ -8,27 +8,29 @@ using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 [TestFixture]
-class BehaviorRegistrationsCoordinatorTests
+class StepRegistrationsCoordinatorTests
 {
     StepRegistrationsCoordinator coordinator;
+    List<RegisterStep> additions;
     List<ReplaceStep> replacements;
     List<RegisterOrReplaceStep> addOrReplacements;
 
     [SetUp]
     public void Setup()
     {
+        additions = [];
         replacements = [];
         addOrReplacements = [];
 
-        coordinator = new StepRegistrationsCoordinator(replacements, addOrReplacements);
+        coordinator = new StepRegistrationsCoordinator(additions, replacements, addOrReplacements);
     }
 
     [Test]
     public void Registrations_Count()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>();
 
@@ -38,9 +40,9 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Order()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -55,9 +57,9 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Replace()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
         replacements.Add(new ReplaceStep("1", typeof(ReplacedBehavior), "new"));
         replacements.Add(new ReplaceStep("2", typeof(ReplacedBehavior)));
@@ -90,7 +92,7 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_AddOrReplace_WhenExists()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
 
         addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
@@ -107,13 +109,13 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Order_with_befores_and_afters()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        coordinator.Register(new MyCustomRegistration("1.5", "2", "1"));
-        coordinator.Register(new MyCustomRegistration("2.5", "3", "2"));
-        coordinator.Register(new MyCustomRegistration("3.5", null, "3"));
+        additions.Add(new MyCustomRegistration("1.5", "2", "1"));
+        additions.Add(new MyCustomRegistration("2.5", "3", "2"));
+        additions.Add(new MyCustomRegistration("3.5", null, "3"));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -131,12 +133,12 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Order_with_befores_only()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        coordinator.Register(new MyCustomRegistration("1.5", "2,3", null));
-        coordinator.Register(new MyCustomRegistration("2.5", "3", null));
+        additions.Add(new MyCustomRegistration("1.5", "2,3", null));
+        additions.Add(new MyCustomRegistration("2.5", "3", null));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -153,13 +155,13 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Order_with_multi_afters()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        coordinator.Register(new MyCustomRegistration("1.5", "2", "1"));
-        coordinator.Register(new MyCustomRegistration("2.5", "3", "2,1"));
-        coordinator.Register(new MyCustomRegistration("3.5", null, "1,2,3"));
+        additions.Add(new MyCustomRegistration("1.5", "2", "1"));
+        additions.Add(new MyCustomRegistration("2.5", "3", "2,1"));
+        additions.Add(new MyCustomRegistration("3.5", null, "1,2,3"));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -177,13 +179,13 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Registrations_Order_with_afters_only()
     {
-        coordinator.Register("1", typeof(FakeBehavior), "1");
-        coordinator.Register("2", typeof(FakeBehavior), "2");
-        coordinator.Register("3", typeof(FakeBehavior), "3");
+        additions.Add(RegisterStep.Create("1", typeof(FakeBehavior), "1"));
+        additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
+        additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        coordinator.Register(new MyCustomRegistration("1.5", "1.6", "1.1"));
-        coordinator.Register(new MyCustomRegistration("1.6", "2", "1.5"));
-        coordinator.Register(new MyCustomRegistration("1.1", "1.5", "1"));
+        additions.Add(new MyCustomRegistration("1.5", "1.6", "1.1"));
+        additions.Add(new MyCustomRegistration("1.6", "2", "1.5"));
+        additions.Add(new MyCustomRegistration("1.1", "1.5", "1"));
 
         var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
 
@@ -201,10 +203,9 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Should_throw_if_behavior_wants_to_go_before_connector()
     {
-        coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
+        additions.Add(RegisterStep.Create("connector", typeof(FakeStageConnector), "Connector"));
 
-        coordinator.Register(new MyCustomRegistration("x", "connector", ""));
-
+        additions.Add(new MyCustomRegistration("x", "connector", ""));
 
         Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>());
     }
@@ -212,10 +213,9 @@ class BehaviorRegistrationsCoordinatorTests
     [Test]
     public void Should_throw_if_behavior_wants_to_go_after_connector()
     {
-        coordinator.Register("connector", typeof(FakeStageConnector), "Connector");
+        additions.Add(RegisterStep.Create("connector", typeof(FakeStageConnector), "Connector"));
 
-        coordinator.Register(new MyCustomRegistration("x", "", "connector"));
-
+        additions.Add(new MyCustomRegistration("x", "", "connector"));
 
         Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>());
     }

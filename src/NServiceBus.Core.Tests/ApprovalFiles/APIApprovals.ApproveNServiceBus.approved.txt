@@ -1870,7 +1870,7 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<System.IServiceProvider, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
+        protected RegisterStep(string stepId, System.Type behavior, string? description, System.Func<System.IServiceProvider, NServiceBus.Pipeline.IBehavior>? factoryMethod = null) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
