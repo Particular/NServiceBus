@@ -29,14 +29,10 @@ namespace NServiceBus
                 .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
             
             var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
-            .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
-            .WithPropertyMapping<global::OrderShipped>("OrderId", typeof(string), "OrderId")
+            .WithHeaderMapping<global::OrderCreated>("OrderId", typeof(string), "NServiceBus.CorrelationId")
             .WithMessage<global::OrderCreated>(true)
-            .WithMessage<global::OrderShipped>(false)
             .Build();
             sagaMetadataCollection.Register(metadata);
         }
     }
 }
-
-

@@ -29,13 +29,15 @@ namespace NServiceBus
                 .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
             
             var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
+            .WithPropertyMapping<global::OrderCancelled>("OrderId", typeof(string), "OrderId")
             .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
+            .WithPropertyMapping<global::OrderShipped>("OrderId", typeof(string), "OrderId")
             .WithMessage<global::OrderCreated>(true)
+            .WithMessage<global::OrderCancelled>(false)
+            .WithMessage<global::OrderShipped>(false)
             .WithMessage<global::OrderTimeout>(false)
             .Build();
             sagaMetadataCollection.Register(metadata);
         }
     }
 }
-
-

@@ -70,7 +70,7 @@ public sealed class Sagas : Feature
         // Only initialize from scanning if scanning is enabled
         if (!sagaScanningDisabled)
         {
-            sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
+            sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
         }
         else
         {

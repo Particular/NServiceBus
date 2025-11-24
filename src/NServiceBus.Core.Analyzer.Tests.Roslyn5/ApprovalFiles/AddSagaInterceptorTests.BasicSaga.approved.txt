@@ -21,7 +21,6 @@ namespace NServiceBus
     static file class InterceptionsOfAddSagaMethod
     {
         [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
-        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
         public static void AddSaga_OrderSaga_e02a35d0173ba1fe(this NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -31,25 +30,11 @@ namespace NServiceBus
             
             var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::OrderSaga, global::OrderSagaData>()
             .WithPropertyMapping<global::OrderCreated>("OrderId", typeof(string), "OrderId")
+            .WithPropertyMapping<global::OrderShipped>("OrderId", typeof(string), "OrderId")
             .WithMessage<global::OrderCreated>(true)
-            .Build();
-            sagaMetadataCollection.Register(metadata);
-        }
-        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
-        public static void AddSaga_PaymentSaga_7fc38895dc05807c(this NServiceBus.EndpointConfiguration endpointConfiguration)
-        {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            
-            var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-            
-            var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<global::PaymentSaga, global::PaymentSagaData>()
-            .WithPropertyMapping<global::PaymentRequested>("PaymentId", typeof(string), "PaymentId")
-            .WithMessage<global::PaymentRequested>(true)
+            .WithMessage<global::OrderShipped>(false)
             .Build();
             sagaMetadataCollection.Register(metadata);
         }
     }
 }
-
-

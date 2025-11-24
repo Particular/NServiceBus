@@ -117,18 +117,23 @@ public partial class SagaMetadata
             throw new Exception($"'{sagaType.Name}' saga type does not implement Saga<T>");
         }
 
-        var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
-        var associatedMessages = GetAssociatedMessages(sagaType)
-            .ToList();
+        var associatedMessages = GetAssociatedMessages(sagaType).ToList();
 
         var sagaEntityType = genericArguments.Single();
 
-        var mapper = new SagaMapper(sagaType, associatedMessages);
-
-        saga.ConfigureHowToFindSaga(mapper);
-
-        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping());
+        return Create(sagaType, sagaEntityType, associatedMessages);
     }
+
+    /// <summary>
+    /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
+    /// </summary>
+    /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
+    /// <typeparam name="TSagaData"></typeparam>
+    /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
+    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages)
+        where TSaga : Saga<TSagaData>
+        where TSagaData : class, IContainSagaData, new() =>
+        Create(typeof(TSaga), typeof(TSagaData), associatedMessages);
 
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
@@ -136,6 +141,17 @@ public partial class SagaMetadata
     /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     public static SagaMetadata Create<TSagaType>() where TSagaType : Saga => Create(typeof(TSagaType));
+
+    static SagaMetadata Create(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> associatedMessages)
+    {
+        var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
+
+        var mapper = new SagaMapper(sagaType, associatedMessages);
+
+        saga.ConfigureHowToFindSaga(mapper);
+
+        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping());
+    }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
     {

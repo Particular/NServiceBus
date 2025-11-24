@@ -14,14 +14,9 @@ public class When_manually_registering_saga_with_scanning_disabled : NServiceBus
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<ManualSagaRegistrationEndpoint>(b =>
             {
-                b.When((session, ctx) => session.SendLocal(new StartSagaMessage
-                {
-                    SomeId = ctx.Id
-                }));
-                b.When(ctx => ctx.StartSagaMessageReceived, (session, c) => session.SendLocal(new CompleteSagaMessage
-                {
-                    SomeId = c.Id
-                }));
+                b.When((session, ctx) => session.SendLocal(new StartSagaMessage { SomeId = ctx.Id }));
+                b.When(ctx => ctx.StartSagaMessageReceived,
+                    (session, c) => session.SendLocal(new CompleteSagaMessage { SomeId = c.Id }));
             })
             .Done(c => c.SagaCompleted)
             .Run();
@@ -38,8 +33,7 @@ public class When_manually_registering_saga_with_scanning_disabled : NServiceBus
 
     public class ManualSagaRegistrationEndpoint : EndpointConfigurationBuilder
     {
-        public ManualSagaRegistrationEndpoint()
-        {
+        public ManualSagaRegistrationEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 // Disable assembly scanning
@@ -50,12 +44,12 @@ public class When_manually_registering_saga_with_scanning_disabled : NServiceBus
                 b.Sagas().DisableSagaScanning();
 
                 // Manually register the saga
-                b.AddSaga<TestSaga11>();
-                b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
+                b.AddSaga<TestSaga14>();
+                b.LimitMessageProcessingConcurrencyTo(
+                    1); // This test only works if the endpoints processes messages sequentially
             });
-        }
 
-        public class TestSaga11(Context testContext) : Saga<TestSagaData11>,
+        public class TestSaga14(Context testContext) : Saga<TestSagaData14>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<CompleteSagaMessage>
         {
@@ -73,16 +67,13 @@ public class When_manually_registering_saga_with_scanning_disabled : NServiceBus
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData14> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<CompleteSagaMessage>(m => m.SomeId);
         }
 
-        public class TestSagaData11 : ContainSagaData
+        public class TestSagaData14 : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
         }
@@ -98,4 +89,3 @@ public class When_manually_registering_saga_with_scanning_disabled : NServiceBus
         public Guid SomeId { get; set; }
     }
 }
-
