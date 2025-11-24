@@ -476,21 +476,11 @@
             // a header mapping by using keys that are index integers converted to strings. (See below.)
             var properties = new Dictionary<string, string>
             {
-                {
-                    "_FixerTitle", fixerTitle
-                },
-                {
-                    "_CorrelationId", correlationId
-                },
-                {
-                    "_MapperParamName", saga.MapperParameterSyntax.Identifier.ValueText
-                },
-                {
-                    "_MappingCount", saga.MessageMappings.Count.ToString()
-                },
-                {
-                    "_ConfigureHowToFindLocation", saga.ConfigureHowToFindMethod.GetLocation().SourceSpan.Start.ToString()
-                },
+                { "_FixerTitle", fixerTitle },
+                { "_CorrelationId", correlationId },
+                { "_MapperParamName", saga.MapperParameterSyntax.Identifier.ValueText },
+                { "_MappingCount", saga.MessageMappings.Count.ToString() },
+                { "_ConfigureHowToFindLocation", saga.ConfigureHowToFindMethod.GetLocation().SourceSpan.Start.ToString() },
             };
 
             // If we are generating a new mapping for a message type, we get the message type out of the IAmStartedByMessages<T>
