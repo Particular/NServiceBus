@@ -7,7 +7,7 @@
     using System.Text.Json;
     using Transport;
 
-    class CloudEventJsonStructuredUnmarshaler : IUnmarshalMessages
+    class CloudEventJsonStructuredUnmarshaler : IEnvelopeHandler
     {
         const string TYPE_PROPERTY = "type";
         const string DATA_CONTENT_TYPE_PROPERTY = "datacontenttype";
