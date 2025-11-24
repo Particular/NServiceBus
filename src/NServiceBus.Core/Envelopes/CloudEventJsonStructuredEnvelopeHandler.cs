@@ -5,9 +5,10 @@
     using System.Linq;
     using System.Text;
     using System.Text.Json;
+    using Extensibility;
     using Transport;
 
-    class CloudEventJsonStructuredUnmarshaler : IEnvelopeHandler
+    class CloudEventJsonStructuredEnvelopeHandler : IEnvelopeHandler
     {
         const string TYPE_PROPERTY = "type";
         const string DATA_CONTENT_TYPE_PROPERTY = "datacontenttype";
@@ -22,13 +23,15 @@
             PropertyNameCaseInsensitive = true
         };
 
-        public IncomingMessage CreateIncomingMessage(MessageContext messageContext)
+        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) CreateIncomingMessage(
+            string nativeMessageId, IDictionary<string, string> incomingHeaders,
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
         {
-            JsonDocument receivedCloudEvent = DeserializeOrThrow(messageContext);
-            var headers = ExtractHeaders(messageContext.Headers, receivedCloudEvent);
+            ThrowIfInvalidMessage(incomingHeaders);
+            JsonDocument receivedCloudEvent = DeserializeOrThrow(incomingBody);
+            var headers = ExtractHeaders(incomingHeaders,  receivedCloudEvent);
             var body = ExtractBody(receivedCloudEvent);
-
-            return new IncomingMessage(messageContext.NativeMessageId, headers, body);
+            return (headers, body);
         }
 
         static ReadOnlyMemory<byte> ExtractBody(JsonDocument receivedCloudEvent)
@@ -56,12 +59,9 @@
                     Encoding.UTF8.GetBytes(receivedCloudEvent.RootElement.GetProperty(DATA_PROPERTY).GetString()!));
         }
 
-        static ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonDocument receivedCloudEvent)
-        {
-            return new ReadOnlyMemory<byte>(Convert.FromBase64String(receivedCloudEvent.RootElement.GetProperty(DATA_BASE64_PROPERTY).GetString()!));
-        }
+        static ReadOnlyMemory<byte> ExtractBodyFromBase64(JsonDocument receivedCloudEvent) => new(Convert.FromBase64String(receivedCloudEvent.RootElement.GetProperty(DATA_BASE64_PROPERTY).GetString()!));
 
-        static Dictionary<string, string> ExtractHeaders(Dictionary<string, string> existingHeaders, JsonDocument receivedCloudEvent)
+        static Dictionary<string, string> ExtractHeaders(IDictionary<string, string> existingHeaders, JsonDocument receivedCloudEvent)
         {
             var propertiesToIgnore = new[] { DATA_PROPERTY, DATA_BASE64_PROPERTY };
 
@@ -109,20 +109,17 @@
             }
         }
 
-        static JsonDocument DeserializeOrThrow(MessageContext messageContext)
+        static JsonDocument DeserializeOrThrow(ReadOnlyMemory<byte> body)
         {
-            ThrowIfInvalidMessage(messageContext);
-            var receivedCloudEvent = JsonSerializer.Deserialize<JsonDocument>(messageContext.Body.Span, options);
-
+            var receivedCloudEvent = JsonSerializer.Deserialize<JsonDocument>(body.Span, options);
             ThrowIfInvalidCloudEvent(receivedCloudEvent);
-
             return receivedCloudEvent;
         }
 
-        static void ThrowIfInvalidMessage(MessageContext messageContext)
+        static void ThrowIfInvalidMessage(IDictionary<string, string> headers)
         {
 
-            if (messageContext.Headers.TryGetValue(Headers.ContentType, out string value))
+            if (headers.TryGetValue(Headers.ContentType, out string value))
             {
                 if (value != SUPPORTED_CONTENT_TYPE)
                 {

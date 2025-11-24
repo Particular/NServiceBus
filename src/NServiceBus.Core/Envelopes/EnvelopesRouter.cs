@@ -16,7 +16,7 @@ class EnvelopesRouter(IEnumerable<IEnvelopeHandler> translators)
         {
             if (translator.IsValidMessage(messageContext))
             {
-                var translatedMessage = translator.CreateIncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+                var translatedMessage = translator.CreateIncomingMessage(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
             }
         }
 

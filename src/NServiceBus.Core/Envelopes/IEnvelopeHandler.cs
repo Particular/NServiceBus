@@ -7,7 +7,7 @@ using Transport;
 
 public interface IEnvelopeHandler
 {
-    (IDictionary<string, string> headers, ReadOnlyMemory<byte> body) CreateIncomingMessage(string nativeMessageId, IDictionary<string, string> headers, ContextBag contextBag, ReadOnlyMemory<byte> body);
+    (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) CreateIncomingMessage(string nativeMessageId, IDictionary<string, string> headers, ContextBag extensions, ReadOnlyMemory<byte> body);
 
     /// <summary>
     /// Validates the given <see cref="MessageContext"/>.
