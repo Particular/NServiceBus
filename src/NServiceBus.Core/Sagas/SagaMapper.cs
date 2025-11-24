@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using FastExpressionCompiler;
 using Sagas;
 
-class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
+class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
 {
+    readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
+
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty, Expression<Func<TMessage, object?>> messageExpression)
     {
         AssertMessageCanBeMapped<TMessage>("property mapping");
@@ -24,10 +25,14 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages) :
 
         AssignCorrelationProperty<TMessage>(sagaProp);
 
-        var messageFunc = messageExpression.CompileFast();
+        if (!mappers.TryGetValue(typeof(TMessage), out var mapper) ||
+            mapper is not MessagePropertyAccessor<TMessage> propertyMapper)
+        {
+            propertyMapper = new ExpressionBasedMessagePropertyAccessor<TMessage>(messageExpression);
+        }
 
         finders.Add(new SagaFinderDefinition(
-            new PropertySagaFinder<TSagaEntity, TMessage>(sagaProp.Name, messageFunc),
+            new PropertySagaFinder<TSagaEntity, TMessage>(sagaProp.Name, propertyMapper),
             typeof(TMessage)));
     }
 

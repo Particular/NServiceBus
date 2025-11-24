@@ -9,14 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class PropertySagaFinder<TSagaData, TMessage>(string sagaPropertyName, Func<TMessage, object> propertyAccessor) : ICoreSagaFinder
+class PropertySagaFinder<TSagaData, TMessage>(string sagaPropertyName, MessagePropertyAccessor<TMessage> messagePropertyAccessor) : ICoreSagaFinder
     where TSagaData : class, IContainSagaData
 {
     public bool IsCustomFinder => false;
 
     public async Task<IContainSagaData> Find(IServiceProvider builder, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
-        var propertyValue = propertyAccessor((TMessage)message);
+        var propertyValue = messagePropertyAccessor.AccessFrom(message);
 
         var lookupValues = context.GetOrCreate<SagaLookupValues>();
         lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);

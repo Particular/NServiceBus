@@ -24,10 +24,7 @@ public static class SagaRegistrationExtensions
             return;
         }
 
-        // Create metadata via the generic method (captures mappings via SagaMapper)
         var metadata = SagaMetadata.Create<TSaga>();
-
-        // Register metadata - the Sagas feature's SagaPersistenceBehavior will handle invocation
         sagaMetadataCollection.Register(metadata);
     }
 }

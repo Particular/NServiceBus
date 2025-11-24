@@ -114,7 +114,6 @@ NServiceBus.Sagas.SagaCorrelationProperty
 NServiceBus.Sagas.SagaFinderDefinition
 NServiceBus.Sagas.SagaIdGeneratorContext
 NServiceBus.Sagas.SagaMessage
-NServiceBus.Sagas.SagaMetadata
 NServiceBus.Sagas.SagaMetadataCollection
 NServiceBus.SagasConfigExtensions
 NServiceBus.Serialization.IMessageSerializer

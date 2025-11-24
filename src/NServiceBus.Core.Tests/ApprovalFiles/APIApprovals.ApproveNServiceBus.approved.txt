@@ -639,6 +639,19 @@ namespace NServiceBus
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
     }
+    public abstract class MessagePropertyAccessor
+    {
+        protected MessagePropertyAccessor() { }
+        public abstract System.Type MessageType { get; }
+        public abstract object? AccessFrom(object message);
+    }
+    public abstract class MessagePropertyAccessor<TMessage> : NServiceBus.MessagePropertyAccessor
+    {
+        protected MessagePropertyAccessor() { }
+        public override sealed System.Type MessageType { get; }
+        protected abstract object? AccessFrom(TMessage message);
+        public override sealed object? AccessFrom(object message) { }
+    }
     public static class MessageSessionExtensions
     {
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
@@ -2120,15 +2133,15 @@ namespace NServiceBus.Sagas
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
-        public bool TryGetCorrelationProperty(out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata property) { }
-        public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
+        public bool TryGetCorrelationProperty([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata? property) { }
+        public bool TryGetFinder(string messageType, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Sagas.SagaFinderDefinition? finderDefinition) { }
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public static NServiceBus.Sagas.SagaMetadata Create<TSagaType>()
             where TSagaType : NServiceBus.Saga { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages)
+        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
         public class CorrelationPropertyMetadata

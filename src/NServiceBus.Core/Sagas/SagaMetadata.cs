@@ -1,7 +1,10 @@
+#nullable enable
+
 namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,8 +17,8 @@ public partial class SagaMetadata
     SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping)
     {
         correlationProperty = mapping.CorrelationProperty;
-        Name = sagaType.FullName;
-        EntityName = sagaEntityType.FullName;
+        Name = sagaType.FullName!;
+        EntityName = sagaEntityType.FullName!;
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
 
@@ -67,7 +70,7 @@ public partial class SagaMetadata
     /// <summary>
     /// Property this saga is correlated on.
     /// </summary>
-    public bool TryGetCorrelationProperty(out CorrelationPropertyMetadata property)
+    public bool TryGetCorrelationProperty([NotNullWhen(true)] out CorrelationPropertyMetadata? property)
     {
         property = correlationProperty;
 
@@ -91,7 +94,7 @@ public partial class SagaMetadata
     /// <param name="messageType">The message <see cref="MemberInfo.Name" />.</param>
     /// <param name="finderDefinition">The finder if present.</param>
     /// <returns>True if a finder exists.</returns>
-    public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
+    public bool TryGetFinder(string messageType, [NotNullWhen(true)] out SagaFinderDefinition? finderDefinition)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageType);
         return sagaFinders.TryGetValue(messageType, out finderDefinition);
@@ -127,13 +130,15 @@ public partial class SagaMetadata
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
+    /// <param name="associatedMessages">The list of associated saga messages.</param>
+    /// <param name="propertyAccessors">An optional list of property accessors.</param>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages)
+    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
         where TSagaData : class, IContainSagaData, new() =>
-        Create(typeof(TSaga), typeof(TSagaData), associatedMessages);
+        Create(typeof(TSaga), typeof(TSagaData), associatedMessages, propertyAccessors);
 
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
@@ -142,11 +147,11 @@ public partial class SagaMetadata
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     public static SagaMetadata Create<TSagaType>() where TSagaType : Saga => Create(typeof(TSagaType));
 
-    static SagaMetadata Create(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> associatedMessages)
+    static SagaMetadata Create(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
     {
         var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
 
-        var mapper = new SagaMapper(sagaType, associatedMessages);
+        var mapper = new SagaMapper(sagaType, associatedMessages, propertyAccessors ?? []);
 
         saga.ConfigureHowToFindSaga(mapper);
 
@@ -219,7 +224,7 @@ public partial class SagaMetadata
     }
 
     readonly Dictionary<string, SagaMessage> associatedMessages;
-    readonly CorrelationPropertyMetadata correlationProperty;
+    readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
     /// <summary>

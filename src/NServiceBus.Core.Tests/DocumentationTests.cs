@@ -24,11 +24,13 @@ public class DocumentationTests
 
         var list = GetListOfMissingDocs(assemblyMembers).ToList();
 
-        if (list.Count != 0)
+        if (list.Count == 0)
         {
-            var errors = string.Join(Environment.NewLine, list);
-            throw new Exception($"Some members have empty documentation or have a sentence that does not end with a period:{Environment.NewLine}{errors}");
+            return;
         }
+
+        var errors = string.Join(Environment.NewLine, list);
+        Assert.Fail($"Some members have empty documentation or have a sentence that does not end with a period:{Environment.NewLine}{errors}");
     }
 
     static IEnumerable<string> GetListOfMissingDocs(AssemblyMembers assemblyMembers)
