@@ -131,7 +131,7 @@ public class MainPipelineExecutorTests
             receivePipeline,
             new ActivityFactory(),
             new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"),
-            new UnmarshalingRouter([]));
+            new EnvelopesRouter([]));
 
         return executor;
     }
