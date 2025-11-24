@@ -1,11 +1,6 @@
 namespace NServiceBus;
 
-class RemoveStep
+sealed class RemoveStep(string removeId)
 {
-    public RemoveStep(string removeId)
-    {
-        RemoveId = removeId;
-    }
-
-    public string RemoveId { get; }
+    public string RemoveId { get; } = removeId;
 }
