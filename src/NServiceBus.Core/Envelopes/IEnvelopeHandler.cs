@@ -3,7 +3,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using Extensibility;
-using Transport;
 
 /// <summary>
 /// Handler for unwrapping incoming message envelope formats.
