@@ -23,12 +23,12 @@ public class PipelineTests
         var stringWriter = new StringWriter();
 
         var pipelineModifications = new PipelineModifications();
-        pipelineModifications.Additions.Add(new Behavior1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new StageFork.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Terminator.Registration(stringWriter));
 
         var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 
@@ -46,12 +46,12 @@ public class PipelineTests
         var stringWriter = new StringWriter();
 
         var pipelineModifications = new PipelineModifications();
-        pipelineModifications.Additions.Add(new Behavior1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new StageFork.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Terminator.Registration(stringWriter));
 
         var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 
@@ -101,10 +101,10 @@ public class PipelineTests
         var stringWriter = new StringWriter();
 
         var pipelineModifications = new PipelineModifications();
-        pipelineModifications.Additions.Add(new Behavior1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
-        pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new StageFork.Registration(stringWriter));
 
         var pipeline = new Pipeline<ITransportReceiveContext>(new ServiceCollection().BuildServiceProvider(), pipelineModifications);
 

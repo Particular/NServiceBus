@@ -6,30 +6,42 @@ using System.Linq;
 using Logging;
 using Pipeline;
 
-class PipelineModelBuilder
+class PipelineModelBuilder(
+    Type rootContextType,
+    IReadOnlyCollection<RegisterStep> additions,
+    IReadOnlyCollection<ReplaceStep> replacements,
+    IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
-    {
-        this.rootContextType = rootContextType;
-        this.additions = additions;
-        this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
-    }
-
-    public List<RegisterStep> Build()
+    public IReadOnlyCollection<RegisterStep> Build()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
-        var listOfBeforeAndAfterIds = new List<string>();
 
-        var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
-            .Select(x => x.RegisterStep)
-            .ToList();
-        var totalReplacements = addOrReplaceSteps.Where(addOrReplaceStep => additions.Any(addition => addition.StepId == addOrReplaceStep.StepId))
-            .Select(x => x.ReplaceStep)
-            .ToList();
+        var additionsFromRegisterOrReplace = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
+        var replacementsFromRegisterOrReplace = new Dictionary<string, ReplaceStep>(StringComparer.CurrentCultureIgnoreCase);
 
+        foreach (var addOrReplaceStep in addOrReplaceSteps)
+        {
+            var stepId = addOrReplaceStep.StepId;
+            var hasExistingAddition = additions.Any(addition => addition.StepId == stepId);
+
+            if (hasExistingAddition)
+            {
+                replacementsFromRegisterOrReplace[stepId] = addOrReplaceStep.ReplaceStep;
+            }
+            else
+            {
+                additionsFromRegisterOrReplace[stepId] = addOrReplaceStep.RegisterStep;
+            }
+        }
+
+        var totalAdditions = new List<RegisterStep>(additionsFromRegisterOrReplace.Count + additions.Count);
+        totalAdditions.AddRange(additionsFromRegisterOrReplace.Values);
         totalAdditions.AddRange(additions);
+
+        var totalReplacements = new List<ReplaceStep>(replacementsFromRegisterOrReplace.Count + replacements.Count);
+        totalReplacements.AddRange(replacementsFromRegisterOrReplace.Values);
         totalReplacements.AddRange(replacements);
+        totalReplacements.Sort(static (x, y) => x.RegistrationOrder.CompareTo(y.RegistrationOrder));
 
         //Step 1: validate that additions are unique
         foreach (var metadata in totalAdditions)
@@ -37,16 +49,6 @@ class PipelineModelBuilder
             if (!registrations.TryGetValue(metadata.StepId, out RegisterStep existingValue))
             {
                 registrations.Add(metadata.StepId, metadata);
-
-                if (metadata.Afters != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a => a.DependsOnId));
-                }
-
-                if (metadata.Befores != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Befores.Select(b => b.DependsOnId));
-                }
 
                 continue;
             }
@@ -56,20 +58,11 @@ class PipelineModelBuilder
         }
 
         //  Step 2: validate and apply replacements
-        var groupedReplacements = replacements.GroupBy(x => x.ReplaceId).ToList();
-        if (groupedReplacements.Any(x => x.Count() > 1))
-        {
-            var duplicateReplaceIdentifiers = groupedReplacements.Where(x => x.Count() > 1).Select(x => $"'{x.Key}'");
-            var duplicateIdentifiersList = string.Join(", ", duplicateReplaceIdentifiers);
-            var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for: {duplicateIdentifiersList}.";
-            throw new Exception(message);
-        }
-
         foreach (var metadata in totalReplacements)
         {
             if (!registrations.TryGetValue(metadata.ReplaceId, out RegisterStep value))
             {
-                var message = $"Multiple replacements of the same pipeline behaviour is not supported. Make sure that you only register a single replacement for '{metadata.ReplaceId}'.";
+                var message = $"'{metadata.ReplaceId}' cannot be replaced because it does not exist. Make sure that you only register a replacement for existing pipeline behaviors.";
                 throw new Exception(message);
             }
 
@@ -77,41 +70,67 @@ class PipelineModelBuilder
             registerStep.Replace(metadata);
         }
 
-        var stages = registrations.Values.GroupBy(r => r.GetInputContext()).ToList();
+        var stages = new Dictionary<Type, List<RegisterStep>>();
+        foreach (var registration in registrations.Values)
+        {
+            var inputContext = registration.GetInputContext();
+            if (!stages.TryGetValue(inputContext, out var list))
+            {
+                list = [];
+                stages[inputContext] = list;
+            }
+            list.Add(registration);
+        }
 
-        var finalOrder = new List<RegisterStep>();
+        var finalOrder = new List<RegisterStep>(registrations.Count);
 
         if (registrations.Count == 0)
         {
             return finalOrder;
         }
 
-        var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType) ?? throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
+        if (!stages.TryGetValue(rootContextType, out var currentStage))
+        {
+            throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
+        }
 
+        var currentStageContextType = rootContextType;
         var stageNumber = 1;
+        var totalStages = stages.Count;
 
         while (currentStage != null)
         {
-            var stageSteps = currentStage.Where(stageStep => !IsStageConnector(stageStep)).ToList();
+            var stageSteps = new List<RegisterStep>(currentStage.Count);
+            List<RegisterStep> stageConnectors = null;
 
-            //add the stage connector
-            finalOrder.AddRange(Sort(stageSteps));
-
-            var stageConnectors = currentStage.Where(IsStageConnector).ToList();
-
-            if (stageConnectors.Count > 1)
+            foreach (var step in currentStage)
             {
-                var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
-                throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Remove one of: {connectors}");
+                if (IsStageConnector(step))
+                {
+                    stageConnectors ??= [];
+                    stageConnectors.Add(step);
+                }
+                else
+                {
+                    stageSteps.Add(step);
+                }
             }
 
-            var stageConnector = stageConnectors.FirstOrDefault();
+            finalOrder.AddRange(Sort(stageSteps));
+
+            if (stageConnectors is { Count: > 1 })
+            {
+                var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
+                throw new Exception($"Multiple stage connectors found for stage '{currentStageContextType.FullName}'. Remove one of: {connectors}");
+            }
+
+            var stageConnector = stageConnectors?[0];
 
             if (stageConnector == null)
             {
-                if (stageNumber < stages.Count)
+                if (stageNumber < totalStages)
                 {
-                    throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");
+                    throw new Exception($"No stage connector found for stage '{currentStageContextType.FullName}'.");
                 }
 
                 currentStage = null;
@@ -127,7 +146,8 @@ class PipelineModelBuilder
                 else
                 {
                     var stageEndType = stageConnector.GetOutputContext();
-                    currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
+                    currentStageContextType = stageEndType;
+                    currentStage = stages.GetValueOrDefault(stageEndType);
                 }
             }
 
@@ -137,10 +157,7 @@ class PipelineModelBuilder
         return finalOrder;
     }
 
-    static bool IsStageConnector(RegisterStep stageStep)
-    {
-        return typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
-    }
+    static bool IsStageConnector(RegisterStep stageStep) => typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
 
     static List<RegisterStep> Sort(List<RegisterStep> registrations)
     {
@@ -150,8 +167,9 @@ class PipelineModelBuilder
         }
 
         // Step 1: create nodes for graph
-        var nameToNode = new Dictionary<string, Node>();
-        var allNodes = new List<Node>();
+        var count = registrations.Count;
+        var nameToNode = new Dictionary<string, Node>(count);
+        var allNodes = new List<Node>(count);
         foreach (var rego in registrations)
         {
             // create entries to preserve order within
@@ -168,7 +186,7 @@ class PipelineModelBuilder
         }
 
         // Step 3: Perform Topological Sort
-        var output = new List<RegisterStep>();
+        var output = new List<RegisterStep>(count);
         foreach (var node in allNodes)
         {
             node.Visit(output);
@@ -231,32 +249,12 @@ class PipelineModelBuilder
         }
     }
 
-    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict)
-    {
-        return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
-    }
+    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict) => $"'{string.Join("', '", nameToNodeDict.Keys)}'";
 
-    readonly List<RegisterStep> additions;
-    readonly List<ReplaceStep> replacements;
-    readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
-
-    readonly Type rootContextType;
     static readonly ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
-    class Node
+    class Node(RegisterStep registerStep)
     {
-        public Node(RegisterStep registerStep)
-        {
-            rego = registerStep;
-            Befores = registerStep.Befores;
-            Afters = registerStep.Afters;
-            StepId = registerStep.StepId;
-
-            OutputContext = registerStep.GetOutputContext();
-        }
-
-        public Type OutputContext { get; }
-
         internal void Visit(List<RegisterStep> output)
         {
             if (visited)
@@ -268,18 +266,17 @@ class PipelineModelBuilder
             {
                 n.Visit(output);
             }
-            if (rego != null)
+            if (registerStep != null)
             {
-                output.Add(rego);
+                output.Add(registerStep);
             }
         }
 
-        public readonly List<Dependency> Afters;
-        public readonly List<Dependency> Befores;
+        public readonly List<Dependency> Afters = registerStep.Afters;
+        public readonly List<Dependency> Befores = registerStep.Befores;
 
-        public readonly string StepId;
+        public readonly string StepId = registerStep.StepId;
         internal readonly List<Node> previous = [];
-        readonly RegisterStep rego;
         bool visited;
     }
 }
