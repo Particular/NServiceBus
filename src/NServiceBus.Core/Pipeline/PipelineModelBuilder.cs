@@ -6,20 +6,11 @@ using System.Linq;
 using Logging;
 using Pipeline;
 
-class PipelineModelBuilder
+class PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
-    {
-        this.rootContextType = rootContextType;
-        this.additions = additions;
-        this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
-    }
-
     public List<RegisterStep> Build()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
-        var listOfBeforeAndAfterIds = new List<string>();
 
         var totalAdditions = addOrReplaceSteps.Where(addOrReplaceStep => additions.All(addition => addition.StepId != addOrReplaceStep.StepId))
             .Select(x => x.RegisterStep)
@@ -37,17 +28,6 @@ class PipelineModelBuilder
             if (!registrations.TryGetValue(metadata.StepId, out RegisterStep existingValue))
             {
                 registrations.Add(metadata.StepId, metadata);
-
-                if (metadata.Afters != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Afters.Select(a => a.DependsOnId));
-                }
-
-                if (metadata.Befores != null)
-                {
-                    listOfBeforeAndAfterIds.AddRange(metadata.Befores.Select(b => b.DependsOnId));
-                }
-
                 continue;
             }
 
@@ -183,6 +163,7 @@ class PipelineModelBuilder
         {
             return;
         }
+
         foreach (var beforeReference in node.Befores)
         {
             if (nameToNode.TryGetValue(beforeReference.DependsOnId, out var referencedNode))
@@ -190,8 +171,9 @@ class PipelineModelBuilder
                 referencedNode.previous.Add(node);
                 continue;
             }
+
             var currentStepIds = GetCurrentIds(nameToNode);
-            var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
+            var message = $"Registration '{beforeReference.DependsOnId}' specified in the InsertBefore of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
 
             if (!beforeReference.Enforce)
             {
@@ -210,6 +192,7 @@ class PipelineModelBuilder
         {
             return;
         }
+
         foreach (var afterReference in node.Afters)
         {
             if (nameToNode.TryGetValue(afterReference.DependsOnId, out var referencedNode))
@@ -217,6 +200,7 @@ class PipelineModelBuilder
                 node.previous.Add(referencedNode);
                 continue;
             }
+
             var currentStepIds = GetCurrentIds(nameToNode);
             var message = $"Registration '{afterReference.DependsOnId}' specified in the insertafter of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
 
@@ -231,55 +215,36 @@ class PipelineModelBuilder
         }
     }
 
-    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict)
-    {
-        return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
-    }
+    static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict) => $"'{string.Join("', '", nameToNodeDict.Keys)}'";
 
-    readonly List<RegisterStep> additions;
-    readonly List<ReplaceStep> replacements;
-    readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
-
-    readonly Type rootContextType;
     static readonly ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
-    class Node
+    class Node(RegisterStep registerStep)
     {
-        public Node(RegisterStep registerStep)
-        {
-            rego = registerStep;
-            Befores = registerStep.Befores;
-            Afters = registerStep.Afters;
-            StepId = registerStep.StepId;
-
-            OutputContext = registerStep.GetOutputContext();
-        }
-
-        public Type OutputContext { get; }
-
         internal void Visit(List<RegisterStep> output)
         {
             if (visited)
             {
                 return;
             }
+
             visited = true;
             foreach (var n in previous)
             {
                 n.Visit(output);
             }
-            if (rego != null)
+
+            if (registerStep != null)
             {
-                output.Add(rego);
+                output.Add(registerStep);
             }
         }
 
-        public readonly List<Dependency> Afters;
-        public readonly List<Dependency> Befores;
+        public readonly List<Dependency> Afters = registerStep.Afters;
+        public readonly List<Dependency> Befores = registerStep.Befores;
+        public readonly string StepId = registerStep.StepId;
 
-        public readonly string StepId;
         internal readonly List<Node> previous = [];
-        readonly RegisterStep rego;
         bool visited;
     }
 }

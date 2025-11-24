@@ -5,7 +5,7 @@ using Pipeline;
 
 class PipelineModifications
 {
-    public List<RegisterStep> Additions = [];
-    public List<ReplaceStep> Replacements = [];
-    public List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
+    public readonly List<RegisterStep> Additions = [];
+    public readonly List<ReplaceStep> Replacements = [];
+    public readonly List<RegisterOrReplaceStep> AdditionsOrReplacements = [];
 }

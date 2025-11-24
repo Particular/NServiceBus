@@ -4,23 +4,11 @@ using System;
 using System.Collections.Generic;
 using Pipeline;
 
-class StepRegistrationsCoordinator
+class StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
-    {
-        this.replacements = replacements;
-        this.addOrReplaceSteps = addOrReplaceSteps;
-    }
+    public void Register(string pipelineStep, Type behavior, string description) => additions.Add(RegisterStep.Create(pipelineStep, behavior, description));
 
-    public void Register(string pipelineStep, Type behavior, string description)
-    {
-        additions.Add(RegisterStep.Create(pipelineStep, behavior, description));
-    }
-
-    public void Register(RegisterStep rego)
-    {
-        additions.Add(rego);
-    }
+    public void Register(RegisterStep rego) => additions.Add(rego);
 
     public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
     {
@@ -29,6 +17,4 @@ class StepRegistrationsCoordinator
     }
 
     readonly List<RegisterStep> additions = [];
-    readonly List<ReplaceStep> replacements;
-    readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
 }
