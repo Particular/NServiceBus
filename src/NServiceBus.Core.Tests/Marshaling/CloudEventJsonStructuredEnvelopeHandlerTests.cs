@@ -50,7 +50,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         Payload["datacontenttype"] = "application/json";
         Payload["data"] = cloudEventBody;
 
-        IncomingMessage actual = RunUnmarshalTest();
+        IncomingMessage actual = RunEnvelopHandlerTest();
 
         Assert.Multiple(() =>
         {
@@ -65,7 +65,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         Payload["datacontenttype"] = "application/xml";
         Payload["data"] = "<much wow=\"xml\"/>";
 
-        IncomingMessage actual = RunUnmarshalTest();
+        IncomingMessage actual = RunEnvelopHandlerTest();
 
         Assert.Multiple(() =>
         {
@@ -81,7 +81,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         Payload["datacontenttype"] = "application/xml";
         Payload["data_base64"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(rawPayload));
 
-        IncomingMessage actual = RunUnmarshalTest();
+        IncomingMessage actual = RunEnvelopHandlerTest();
 
         Assert.Multiple(() =>
         {
@@ -114,7 +114,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         Assert.Throws<NotSupportedException>(() =>
         {
             Payload.Remove(property);
-            RunUnmarshalTest();
+            RunEnvelopHandlerTest();
         });
     }
 
@@ -125,7 +125,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         {
             Payload.Remove("data");
             Payload.Remove("data_base64");
-            RunUnmarshalTest();
+            RunEnvelopHandlerTest();
         });
     }
 
@@ -136,7 +136,7 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         {
             Payload["data"] = "{}";
             Payload.Remove("data_base64");
-            RunUnmarshalTest();
+            RunEnvelopHandlerTest();
         });
     }
 
@@ -147,11 +147,11 @@ public class CloudEventJsonStructuredEnvelopeHandlerTests
         {
             Payload["data_base64"] = "e30=";
             Payload.Remove("data");
-            RunUnmarshalTest();
+            RunEnvelopHandlerTest();
         });
     }
 
-    IncomingMessage RunUnmarshalTest()
+    IncomingMessage RunEnvelopHandlerTest()
     {
         string serializedBody = JsonSerializer.Serialize(Payload);
         var fullBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(serializedBody));
