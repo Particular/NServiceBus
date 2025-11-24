@@ -75,7 +75,6 @@ NServiceBus.Pipeline.LogicalMessageFactory
 NServiceBus.Pipeline.OutgoingLogicalMessage
 NServiceBus.Pipeline.PipelineSettings
 NServiceBus.Pipeline.PipelineTerminator`1
-NServiceBus.Pipeline.RegisterStep
 NServiceBus.Pipeline.StageConnector`2
 NServiceBus.Pipeline.StageForkConnector`3
 NServiceBus.RateLimitSettings
