@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -29,10 +28,10 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.StartReceived, Is.EqualTo(true));
-            Assert.That(context.OutboundReceived, Is.EqualTo(true));
-            Assert.That(context.MappedEchoReceived, Is.EqualTo(true));
-            Assert.That(context.EchoReceived, Is.EqualTo(false));
+            Assert.That(context.StartReceived, Is.True);
+            Assert.That(context.OutboundReceived, Is.True);
+            Assert.That(context.MappedEchoReceived, Is.True);
+            Assert.That(context.EchoReceived, Is.False);
             Assert.That(context.FailedMessages, Has.Count.EqualTo(1));
         }
     }
@@ -47,25 +46,18 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
 
     public class UnmappedMsgEndpoint : EndpointConfigurationBuilder
     {
-        public UnmappedMsgEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public UnmappedMsgEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class UnmappedMsgSaga : Saga<UnmappedMsgSagaData>,
+        public class UnmappedMsgSaga(Context testContext) : Saga<UnmappedMsgSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<MappedEchoMessage>,
             IHandleMessages<EchoMessage>
         {
-            public UnmappedMsgSaga(Context context)
-            {
-                testContext = context;
-            }
-
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<UnmappedMsgSagaData> mapper)
             {
-                mapper.ConfigureMapping<StartSagaMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-                mapper.ConfigureMapping<MappedEchoMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(msg => msg.SomeId)
+                    .ToMessage<MappedEchoMessage>(msg => msg.SomeId);
                 // No mapping for EchoMessage, so saga can't possibly be found
             }
 
@@ -86,8 +78,6 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
                 testContext.EchoReceived = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class UnmappedMsgSagaData : ContainSagaData
@@ -95,21 +85,14 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
             public virtual Guid SomeId { get; set; }
         }
 
-        public class OutboundMessageHandler : IHandleMessages<OutboundMessage>
+        public class OutboundMessageHandler(Context testContext) : IHandleMessages<OutboundMessage>
         {
-            public OutboundMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(OutboundMessage message, IMessageHandlerContext context)
             {
                 testContext.OutboundReceived = true;
                 await context.SendLocal(new EchoMessage { SomeId = message.SomeId });
                 await context.SendLocal(new MappedEchoMessage { SomeId = message.SomeId });
             }
-
-            Context testContext;
         }
     }
 

@@ -25,7 +25,7 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.MessageCorrelated, Is.True);
-            Assert.That(context.CorrelatedId, Is.EqualTo(default(Guid)));
+            Assert.That(context.CorrelatedId, Is.Default);
         }
     }
 
@@ -41,43 +41,28 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
 
     class EndpointWithGuidSaga : EndpointConfigurationBuilder
     {
-        public EndpointWithGuidSaga()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithGuidSaga() => EndpointSetup<DefaultServer>();
 
         public class SagaDataWithGuidCorrelatedProperty : ContainSagaData
         {
             public virtual Guid CorrelatedProperty { get; set; }
         }
 
-        class SagaWithGuidCorrelatedProperty : Saga<SagaDataWithGuidCorrelatedProperty>,
-            IAmStartedByMessages<MessageWithGuidCorrelationProperty>,
-            IHandleMessages<RequestWithGuidCorrelationProperty>
+        class SagaWithGuidCorrelatedProperty(GuidCorrelationIdContext scenarioContext)
+            : Saga<SagaDataWithGuidCorrelatedProperty>,
+                IAmStartedByMessages<MessageWithGuidCorrelationProperty>,
+                IHandleMessages<RequestWithGuidCorrelationProperty>
         {
-            GuidCorrelationIdContext scenarioContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithGuidCorrelatedProperty> mapper) =>
+                mapper.MapSaga(s => s.CorrelatedProperty)
+                    .ToMessage<MessageWithGuidCorrelationProperty>(msg => msg.CorrelationProperty)
+                    .ToMessage<RequestWithGuidCorrelationProperty>(msg => msg.RequestedId);
 
-            public SagaWithGuidCorrelatedProperty(GuidCorrelationIdContext scenarioContext)
-            {
-                this.scenarioContext = scenarioContext;
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithGuidCorrelatedProperty> mapper)
-            {
-                mapper.ConfigureMapping<MessageWithGuidCorrelationProperty>(msg => msg.CorrelationProperty)
-                    .ToSaga(saga => saga.CorrelatedProperty);
-
-                mapper.ConfigureMapping<RequestWithGuidCorrelationProperty>(msg => msg.RequestedId)
-                    .ToSaga(saga => saga.CorrelatedProperty);
-            }
-
-            public Task Handle(MessageWithGuidCorrelationProperty message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new RequestWithGuidCorrelationProperty
+            public Task Handle(MessageWithGuidCorrelationProperty message, IMessageHandlerContext context) =>
+                context.SendLocal(new RequestWithGuidCorrelationProperty
                 {
                     RequestedId = Data.CorrelatedProperty
                 });
-            }
 
             public Task Handle(RequestWithGuidCorrelationProperty message, IMessageHandlerContext context)
             {

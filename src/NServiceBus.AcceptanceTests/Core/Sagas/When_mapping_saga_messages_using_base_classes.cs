@@ -35,20 +35,12 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public SagaEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class BaseClassIsMappedSaga : Saga<BaseClassIsMappedSaga.BaseClassIsMappedSagaData>,
+        public class BaseClassIsMappedSaga(Context testContext) : Saga<BaseClassIsMappedSaga.BaseClassIsMappedSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IAmStartedByMessages<SecondSagaMessage>
         {
-            public BaseClassIsMappedSaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondMessageFoundExistingSaga = true;
@@ -64,28 +56,20 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
                 return context.SendLocal(sagaMessage);
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<BaseClassIsMappedSagaData> mapper)
-            {
-                mapper.ConfigureMapping<SagaMessageBase>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<BaseClassIsMappedSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<SagaMessageBase>(m => m.SomeId);
 
             public class BaseClassIsMappedSagaData : ContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
             }
-
-            Context testContext;
         }
     }
 
-    public class StartSagaMessage : SagaMessageBase
-    {
-    }
+    public class StartSagaMessage : SagaMessageBase;
 
-    public class SecondSagaMessage : SagaMessageBase
-    {
-    }
+    public class SecondSagaMessage : SagaMessageBase;
 
     public class SagaMessageBase : IMessage
     {

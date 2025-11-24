@@ -42,47 +42,34 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
 
     public class ReplyEndpoint : EndpointConfigurationBuilder
     {
-        public ReplyEndpoint()
-        {
-            EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething, SagaEndpoint>());
-        }
+        public ReplyEndpoint() => EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething, SagaEndpoint>());
 
         class DidSomethingHandler : IHandleMessages<DidSomething>
         {
-            public Task Handle(DidSomething message, IMessageHandlerContext context)
-            {
-                return context.Reply(new DidSomethingResponse
+            public Task Handle(DidSomething message, IMessageHandlerContext context) =>
+                context.Reply(new DidSomethingResponse
                 {
                     ReceivedDataId = message.DataId
                 });
-            }
         }
     }
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
+        public SagaEndpoint() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<DidSomething>(this));
-        }
 
-        public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
+        public class ReplyToPubMsgSaga(Context testContext) : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>,
+            IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
         {
-            public ReplyToPubMsgSaga(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                return context.Publish(new DidSomething
+            public Task Handle(StartSaga message, IMessageHandlerContext context) =>
+                context.Publish(new DidSomething
                 {
                     DataId = message.DataId
                 });
-            }
 
             public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
             {
@@ -90,17 +77,14 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
 
             public class ReplyToPubMsgSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

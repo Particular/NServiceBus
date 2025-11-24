@@ -34,21 +34,16 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
 
     public class EndpointThatHostsASaga : EndpointConfigurationBuilder
     {
-        public EndpointThatHostsASaga()
-        {
+        public EndpointThatHostsASaga() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.UsePersistence<AcceptanceTestingPersistence>();
                 config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
             });
-        }
 
         class CustomSagaIdGenerator : ISagaIdGenerator
         {
-            public Guid Generate(SagaIdGeneratorContext context)
-            {
-                return ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationProperty.Name}_{context.CorrelationProperty.Value}");
-            }
+            public Guid Generate(SagaIdGeneratorContext context) => ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationProperty.Name}_{context.CorrelationProperty.Value}");
 
             static Guid ToGuid(string src)
             {
@@ -60,14 +55,9 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
             }
         }
 
-        public class CustomSagaIdSaga : Saga<CustomSagaIdSaga.CustomSagaIdSagaData>,
+        public class CustomSagaIdSaga(Context testContext) : Saga<CustomSagaIdSaga.CustomSagaIdSagaData>,
             IAmStartedByMessages<StartSaga>
         {
-            public CustomSagaIdSaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.CustomerId = message.CustomerId;
@@ -76,17 +66,14 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CustomSagaIdSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.CustomerId).ToSaga(s => s.CustomerId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CustomSagaIdSagaData> mapper) =>
+                mapper.MapSaga(s => s.CustomerId)
+                    .ToMessage<StartSaga>(m => m.CustomerId);
 
             public class CustomSagaIdSagaData : ContainSagaData
             {
                 public virtual string CustomerId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

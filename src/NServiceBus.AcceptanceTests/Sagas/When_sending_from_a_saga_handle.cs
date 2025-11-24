@@ -29,10 +29,7 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
         public class TwoSaga1Saga1 : Saga<TwoSaga1Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
         {
@@ -54,11 +51,10 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
                 MarkAsComplete();
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)
-            {
-                mapper.ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
-                mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<MessageSaga1WillHandle>(m => m.DataId)
+                    .ToMessage<StartSaga1>(m => m.DataId);
         }
 
         public class TwoSaga1Saga1Data : ContainSagaData
@@ -66,13 +62,9 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
             public virtual Guid DataId { get; set; }
         }
 
-        public class TwoSaga1Saga2 : Saga<TwoSaga1Saga2.TwoSaga1Saga2Data>, IAmStartedByMessages<StartSaga2>
+        public class TwoSaga1Saga2(Context testContext)
+            : Saga<TwoSaga1Saga2.TwoSaga1Saga2Data>, IAmStartedByMessages<StartSaga2>
         {
-            public TwoSaga1Saga2(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSaga2 message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -81,17 +73,14 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga2Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga2Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga2>(m => m.DataId);
 
             public class TwoSaga1Saga2Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

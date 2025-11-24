@@ -32,8 +32,7 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
 
     public class DelayedRetryEndpoint : EndpointConfigurationBuilder
     {
-        public DelayedRetryEndpoint()
-        {
+        public DelayedRetryEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 var recoverability = b.Recoverability();
@@ -43,17 +42,11 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
                     settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
                 });
             });
-        }
 
-        public class DelayedRetryTestingSaga : Saga<DelayedRetryTestingSagaData>,
+        public class DelayedRetryTestingSaga(Context testContext) : Saga<DelayedRetryTestingSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<SecondSagaMessage>
         {
-            public DelayedRetryTestingSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 Data.SomeId = message.SomeId;
@@ -78,23 +71,15 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DelayedRetryTestingSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DelayedRetryTestingSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId)
+                    .ToMessage<SecondSagaMessage>(m => m.SomeId);
         }
 
-        public class DelayedRetryTestingSagaData : IContainSagaData
+        public class DelayedRetryTestingSagaData : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
-            public virtual Guid Id { get; set; }
-            public virtual string Originator { get; set; }
-            public virtual string OriginalMessageId { get; set; }
         }
     }
 
@@ -107,9 +92,5 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
     public class SecondSagaMessage : ICommand
     {
         public Guid SomeId { get; set; }
-    }
-
-    public class SomeTimeout
-    {
     }
 }

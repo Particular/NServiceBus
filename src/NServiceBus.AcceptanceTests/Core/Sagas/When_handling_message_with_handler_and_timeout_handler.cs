@@ -34,19 +34,12 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
 
     public class TimeoutSagaEndpoint : EndpointConfigurationBuilder
     {
-        public TimeoutSagaEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public TimeoutSagaEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class HandlerAndTimeoutSaga : Saga<HandlerAndTimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>,
+        public class HandlerAndTimeoutSaga(Context testContext) : Saga<HandlerAndTimeoutSagaData>,
+            IAmStartedByMessages<StartSagaMessage>,
             IHandleTimeouts<StartSagaMessage>
         {
-            public HandlerAndTimeoutSaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.HandlerInvoked = true;
@@ -59,13 +52,9 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HandlerAndTimeoutSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HandlerAndTimeoutSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
         }
 
         public class HandlerAndTimeoutSagaData : ContainSagaData

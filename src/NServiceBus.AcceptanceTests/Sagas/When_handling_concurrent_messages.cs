@@ -51,27 +51,18 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
 
     public class EndpointWithSagaAndOutbox : EndpointConfigurationBuilder
     {
-        public EndpointWithSagaAndOutbox()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithSagaAndOutbox() => EndpointSetup<DefaultServer>();
 
-        class OrderSaga : Saga<OrderSagaData>,
+        class OrderSaga(Context testContext) : Saga<OrderSagaData>,
             IAmStartedByMessages<StartMsg>,
             IHandleMessages<ContinueMsg>,
             IHandleMessages<FinishMsg>
         {
-            public OrderSaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartMsg>(m => m.OrderId).ToSaga(s => s.OrderId);
-                mapper.ConfigureMapping<ContinueMsg>(m => m.OrderId).ToSaga(s => s.OrderId);
-                mapper.ConfigureMapping<FinishMsg>(m => m.OrderId).ToSaga(s => s.OrderId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper) =>
+                mapper.MapSaga(s => s.OrderId)
+                    .ToMessage<StartMsg>(m => m.OrderId)
+                    .ToMessage<ContinueMsg>(m => m.OrderId)
+                    .ToMessage<FinishMsg>(m => m.OrderId);
 
             public async Task Handle(StartMsg message, IMessageHandlerContext context)
             {
@@ -95,12 +86,10 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
 
             public Task Handle(FinishMsg message, IMessageHandlerContext context)
             {
-                this.MarkAsComplete();
+                MarkAsComplete();
                 testContext.SagaData = Data;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class OrderSagaData : ContainSagaData

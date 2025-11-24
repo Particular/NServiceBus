@@ -39,18 +39,11 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
 
     public class ChangePropertyEndpoint : EndpointConfigurationBuilder
     {
-        public ChangePropertyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ChangePropertyEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
+        public class ChangeCorrPropertySaga(Context testContext)
+            : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
         {
-            public ChangeCorrPropertySaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 if (message.SecondMessage)
@@ -67,21 +60,14 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
                 });
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ChangeCorrPropertySagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ChangeCorrPropertySagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
         }
 
-        public class ChangeCorrPropertySagaData : IContainSagaData
+        public class ChangeCorrPropertySagaData : ContainSagaData
         {
             public virtual Guid SomeId { get; set; }
-            public virtual Guid Id { get; set; }
-            public virtual string Originator { get; set; }
-            public virtual string OriginalMessageId { get; set; }
         }
     }
 

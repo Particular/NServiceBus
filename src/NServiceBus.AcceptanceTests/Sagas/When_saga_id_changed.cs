@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Support;
@@ -39,19 +38,11 @@ public class When_saga_id_changed : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
+        public class SagaIdChangedSaga(Context testContext) : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
             IAmStartedByMessages<StartSaga>
         {
-            public SagaIdChangedSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.Id = Guid.NewGuid();
@@ -59,17 +50,14 @@ public class When_saga_id_changed : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
 
             public class SagaIdChangedSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            Context testContext;
         }
     }
 

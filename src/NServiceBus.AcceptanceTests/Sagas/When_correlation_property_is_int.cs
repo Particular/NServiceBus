@@ -24,7 +24,7 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.MessageCorrelated, Is.True);
-            Assert.That(context.CorrelatedId, Is.EqualTo(default(int)));
+            Assert.That(context.CorrelatedId, Is.Zero);
         }
     }
 
@@ -40,43 +40,28 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
 
     class EndpointWithIntSaga : EndpointConfigurationBuilder
     {
-        public EndpointWithIntSaga()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithIntSaga() => EndpointSetup<DefaultServer>();
 
         public class SagaDataWithIntCorrelatedProperty : ContainSagaData
         {
             public virtual int CorrelatedProperty { get; set; }
         }
 
-        class SagaWithIntCorrelatedProperty : Saga<SagaDataWithIntCorrelatedProperty>,
-            IAmStartedByMessages<MessageWithIntCorrelationProperty>,
-            IHandleMessages<RequestWithIntCorrelationProperty>
+        class SagaWithIntCorrelatedProperty(DefaultIntCorrelationIdContext scenarioContext)
+            : Saga<SagaDataWithIntCorrelatedProperty>,
+                IAmStartedByMessages<MessageWithIntCorrelationProperty>,
+                IHandleMessages<RequestWithIntCorrelationProperty>
         {
-            DefaultIntCorrelationIdContext scenarioContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithIntCorrelatedProperty> mapper) =>
+                mapper.MapSaga(s => s.CorrelatedProperty)
+                    .ToMessage<MessageWithIntCorrelationProperty>(msg => msg.CorrelationProperty)
+                    .ToMessage<RequestWithIntCorrelationProperty>(msg => msg.RequestedId);
 
-            public SagaWithIntCorrelatedProperty(DefaultIntCorrelationIdContext scenarioContext)
-            {
-                this.scenarioContext = scenarioContext;
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithIntCorrelatedProperty> mapper)
-            {
-                mapper.ConfigureMapping<MessageWithIntCorrelationProperty>(msg => msg.CorrelationProperty)
-                    .ToSaga(saga => saga.CorrelatedProperty);
-
-                mapper.ConfigureMapping<RequestWithIntCorrelationProperty>(msg => msg.RequestedId)
-                    .ToSaga(saga => saga.CorrelatedProperty);
-            }
-
-            public Task Handle(MessageWithIntCorrelationProperty message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new RequestWithIntCorrelationProperty
+            public Task Handle(MessageWithIntCorrelationProperty message, IMessageHandlerContext context) =>
+                context.SendLocal(new RequestWithIntCorrelationProperty
                 {
                     RequestedId = Data.CorrelatedProperty
                 });
-            }
 
             public Task Handle(RequestWithIntCorrelationProperty message, IMessageHandlerContext context)
             {

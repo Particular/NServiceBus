@@ -26,27 +26,18 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class RequestResponseRequestingSaga2 : Saga<RequestResponseRequestingSaga2.RequestResponseRequestingSagaData2>,
-            IAmStartedByMessages<InitiateRequestingSaga>,
-            IHandleMessages<ResponseFromOtherSaga>
+        public class RequestResponseRequestingSaga2(Context testContext)
+            : Saga<RequestResponseRequestingSaga2.RequestResponseRequestingSagaData2>,
+                IAmStartedByMessages<InitiateRequestingSaga>,
+                IHandleMessages<ResponseFromOtherSaga>
         {
-            public RequestResponseRequestingSaga2(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new RequestToRespondingSaga
+            public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context) =>
+                context.SendLocal(new RequestToRespondingSaga
                 {
                     SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse
                 });
-            }
 
             public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
             {
@@ -57,47 +48,38 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData2> mapper)
-            {
-                mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
-                mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData2> mapper) =>
+                mapper.MapSaga(s => s.CorrIdForResponse)
+                    .ToMessage<InitiateRequestingSaga>(m => m.Id)
+                    .ToMessage<ResponseFromOtherSaga>(m => m.SomeCorrelationId);
 
             public class RequestResponseRequestingSagaData2 : ContainSagaData
             {
                 public virtual Guid CorrIdForResponse { get; set; }
             }
-
-            Context testContext;
         }
 
         public class RequestResponseRespondingSaga2 : Saga<RequestResponseRespondingSaga2.RequestResponseRespondingSagaData2>,
             IAmStartedByMessages<RequestToRespondingSaga>,
             IHandleMessages<SendReplyFromNonInitiatingHandler>
         {
-            public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new SendReplyFromNonInitiatingHandler
+            public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context) =>
+                context.SendLocal(new SendReplyFromNonInitiatingHandler
                 {
                     SagaIdSoWeCanCorrelate = Data.CorrIdForRequest
                 });
-            }
 
-            public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context)
-            {
+            public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context) =>
                 //reply to originator must be used here since the sender of the incoming message is this saga and not the requesting saga
-                return ReplyToOriginator(context, new ResponseFromOtherSaga
+                ReplyToOriginator(context, new ResponseFromOtherSaga
                 {
                     SomeCorrelationId = Data.CorrIdForRequest
                 });
-            }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData2> mapper)
-            {
-                mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
-                //this line is just needed so we can test the non-initiating handler case
-                mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData2> mapper) =>
+                mapper.MapSaga(s => s.CorrIdForRequest)
+                    .ToMessage<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs)
+                    .ToMessage<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate);
 
             public class RequestResponseRespondingSagaData2 : ContainSagaData
             {
@@ -108,12 +90,7 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
 
     public class InitiateRequestingSaga : ICommand
     {
-        public InitiateRequestingSaga()
-        {
-            Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
     }
 
     public class RequestToRespondingSaga : ICommand

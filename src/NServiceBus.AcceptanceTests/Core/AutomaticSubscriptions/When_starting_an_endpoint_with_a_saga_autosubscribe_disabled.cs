@@ -24,18 +24,14 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
 
     class Context : ScenarioContext
     {
-        public Context()
-        {
-            EventsSubscribedTo = [];
-        }
+        public Context() => EventsSubscribedTo = [];
 
         public List<Type> EventsSubscribedTo { get; }
     }
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
@@ -46,14 +42,10 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
                     metadata.RegisterPublisherFor<MyEventWithParent, Subscriber>();
                     metadata.RegisterPublisherFor<MyEvent, Subscriber>();
                 });
-        }
 
         class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public SubscriptionSpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
+            public SubscriptionSpy(Context testContext) => this.testContext = testContext;
 
             public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
@@ -67,15 +59,11 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
 
         public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
-            {
-                mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<MyEvent>(msg => msg.SomeId);
 
             public class NotAutoSubscribedSagaSagaData : ContainSagaData
             {
@@ -86,15 +74,11 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
         public class NotAutoSubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
             IAmStartedByMessages<MyEventBase>
         {
-            public Task Handle(MyEventBase message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEventBase message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
-            {
-                mapper.ConfigureMapping<MyEventBase>(saga => saga.SomeId).ToSaga(saga => saga.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<MyEventBase>(msg => msg.SomeId);
 
             public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
             {
@@ -108,13 +92,9 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
         public string SomeId { get; set; }
     }
 
-    public class MyEventWithParent : MyEventBase
-    {
-    }
+    public class MyEventWithParent : MyEventBase;
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 
     public class MyEvent : IEvent
     {

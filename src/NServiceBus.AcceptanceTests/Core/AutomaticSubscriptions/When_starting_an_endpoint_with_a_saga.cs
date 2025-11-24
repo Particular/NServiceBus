@@ -25,54 +25,36 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public Context()
-        {
-            EventsSubscribedTo = [];
-        }
-
-        public List<Type> EventsSubscribedTo { get; }
+        public List<Type> EventsSubscribedTo { get; } = [];
     }
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made"),
                 metadata =>
                 {
                     metadata.RegisterPublisherFor<MyEventBase, Subscriber>();
                     metadata.RegisterPublisherFor<MyEvent, Subscriber>();
                 });
-        }
 
-        class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
+        class SubscriptionSpy(Context testContext) : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public SubscriptionSpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
                 await next(context).ConfigureAwait(false);
 
                 testContext.EventsSubscribedTo.AddRange(context.EventTypes);
             }
-
-            Context testContext;
         }
 
         public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
-            {
-                mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<MyEvent>(msg => msg.SomeId);
 
             public class AutoSubscriptionSagaData : ContainSagaData
             {
@@ -83,15 +65,11 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
         public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
             IAmStartedByMessages<MyEventBase>
         {
-            public Task Handle(MyEventBase message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEventBase message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
-            {
-                mapper.ConfigureMapping<MyEventBase>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<MyEventBase>(msg => msg.SomeId);
 
             public class SuperClassEventSagaData : ContainSagaData
             {

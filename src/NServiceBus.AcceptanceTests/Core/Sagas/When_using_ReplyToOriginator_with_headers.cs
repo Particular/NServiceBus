@@ -32,12 +32,10 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
                     config.LimitMessageProcessingConcurrencyTo(1) //to avoid race conditions with the start and second message
             );
-        }
 
         public class ReplyingSaga : Saga<ReplyingSaga.ReplyingSagaData>,
             IAmStartedByMessages<InitiateRequestingSaga>
@@ -48,11 +46,9 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
                 return ReplyToOriginator(context, new MyReplyToOriginator(), customHeaders);
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyingSagaData> mapper)
-            {
-                mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.CustomHeaderValue)
-                    .ToSaga(s => s.CustomHeaderValue);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyingSagaData> mapper) =>
+                mapper.MapSaga(s => s.CustomHeaderValue)
+                    .ToMessage<InitiateRequestingSaga>(m => m.CustomHeaderValue);
 
             public class ReplyingSagaData : ContainSagaData
             {
@@ -60,20 +56,13 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             }
         }
 
-        class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
+        class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
         {
-            public MyReplyToOriginatorHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {
                 testContext.CustomHeaderOnReply = context.MessageHeaders["CustomHeader"];
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

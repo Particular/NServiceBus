@@ -28,27 +28,18 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class RequestResponseRequestingSaga3 : Saga<RequestResponseRequestingSaga3.RequestResponseRequestingSagaData3>,
-            IAmStartedByMessages<InitiateRequestingSaga>,
-            IHandleMessages<ResponseFromOtherSaga>
+        public class RequestResponseRequestingSaga3(Context testContext)
+            : Saga<RequestResponseRequestingSaga3.RequestResponseRequestingSagaData3>,
+                IAmStartedByMessages<InitiateRequestingSaga>,
+                IHandleMessages<ResponseFromOtherSaga>
         {
-            public RequestResponseRequestingSaga3(Context context)
-            {
-                testContext = context;
-            }
-
-            public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new RequestToRespondingSaga
+            public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context) =>
+                context.SendLocal(new RequestToRespondingSaga
                 {
                     SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse
                 });
-            }
 
             public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
             {
@@ -59,42 +50,33 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData3> mapper)
-            {
-                mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
-                mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData3> mapper) =>
+                mapper.MapSaga(s => s.CorrIdForResponse)
+                    .ToMessage<InitiateRequestingSaga>(m => m.Id)
+                    .ToMessage<ResponseFromOtherSaga>(m => m.SomeCorrelationId);
 
             public class RequestResponseRequestingSagaData3 : ContainSagaData
             {
                 public virtual Guid CorrIdForResponse { get; set; }
             }
-
-            Context testContext;
         }
 
         public class RequestResponseRespondingSaga3 : Saga<RequestResponseRespondingSaga3.RequestResponseRespondingSagaData3>,
             IAmStartedByMessages<RequestToRespondingSaga>,
             IHandleTimeouts<RequestResponseRespondingSaga3.DelayReply>
         {
-            public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
-            {
-                return RequestTimeout<DelayReply>(context, TimeSpan.FromMilliseconds(1));
-            }
+            public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context) => RequestTimeout<DelayReply>(context, TimeSpan.FromMilliseconds(1));
 
-            public Task Timeout(DelayReply state, IMessageHandlerContext context)
-            {
+            public Task Timeout(DelayReply state, IMessageHandlerContext context) =>
                 //reply to originator must be used here since the sender of the incoming message is the TimeoutManager and not the requesting saga
-                return ReplyToOriginator(context, new ResponseFromOtherSaga
+                ReplyToOriginator(context, new ResponseFromOtherSaga
                 {
                     SomeCorrelationId = Data.CorrIdForRequest
                 });
-            }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData3> mapper)
-            {
-                mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData3> mapper) =>
+                mapper.MapSaga(s => s.CorrIdForRequest)
+                    .ToMessage<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs);
 
 
             public class RequestResponseRespondingSagaData3 : ContainSagaData
@@ -102,20 +84,13 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
                 public virtual Guid CorrIdForRequest { get; set; }
             }
 
-            public class DelayReply
-            {
-            }
+            public class DelayReply;
         }
     }
 
     public class InitiateRequestingSaga : ICommand
     {
-        public InitiateRequestingSaga()
-        {
-            Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
     }
 
     public class RequestToRespondingSaga : ICommand

@@ -48,23 +48,16 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
 
     public class SagaThatPublishesAnEvent : EndpointConfigurationBuilder
     {
-        public SagaThatPublishesAnEvent()
-        {
+        public SagaThatPublishesAnEvent() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) => { context.IsEventSubscriptionReceived = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<ISomethingHappenedEvent>(this));
-        }
 
-        public class EventFromOtherSaga1 : Saga<EventFromOtherSaga1.EventFromOtherSaga1Data>,
+        public class EventFromOtherSaga1(Context testContext) : Saga<EventFromOtherSaga1.EventFromOtherSaga1Data>,
             IAmStartedByMessages<StartSaga>,
             IHandleTimeouts<EventFromOtherSaga1.Timeout1>
         {
-            public EventFromOtherSaga1(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -83,10 +76,9 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga1Data> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga1Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
 
             public class EventFromOtherSaga1Data : ContainSagaData
             {
@@ -96,31 +88,22 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             public class Timeout1
             {
             }
-
-            Context testContext;
         }
     }
 
     public class SagaThatIsStartedByTheEvent : EndpointConfigurationBuilder
     {
-        public SagaThatIsStartedByTheEvent()
-        {
+        public SagaThatIsStartedByTheEvent() =>
             EndpointSetup<DefaultServer>(c =>
-            {
-                c.DisableFeature<AutoSubscribe>();
-            },
-            metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent, SagaThatPublishesAnEvent>());
-        }
+                {
+                    c.DisableFeature<AutoSubscribe>();
+                },
+                metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent, SagaThatPublishesAnEvent>());
 
-        public class EventFromOtherSaga2 : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,
+        public class EventFromOtherSaga2(Context testContext) : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,
             IAmStartedByMessages<ISomethingHappenedEvent>,
             IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
         {
-            public EventFromOtherSaga2(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(ISomethingHappenedEvent message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -135,21 +118,16 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga2Data> mapper)
-            {
-                mapper.ConfigureMapping<ISomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga2Data> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<ISomethingHappenedEvent>(m => m.DataId);
 
             public class EventFromOtherSaga2Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
 
-            public class Saga2Timeout
-            {
-            }
-
-            Context testContext;
+            public class Saga2Timeout;
         }
     }
 
@@ -159,9 +137,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
         public Guid DataId { get; set; }
     }
 
-    public interface ISomethingHappenedEvent : IBaseEvent
-    {
-    }
+    public interface ISomethingHappenedEvent : IBaseEvent;
 
     public interface IBaseEvent : IEvent
     {

@@ -38,17 +38,13 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>();
         }
 
-        public class TimeoutHitsNotFoundSaga : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
-            IAmStartedByMessages<StartSaga>,
-            IHandleSagaNotFound,
-            IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
-            IHandleMessages<SomeOtherMessage>
+        public class TimeoutHitsNotFoundSaga(Context testContext)
+            : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
+                IAmStartedByMessages<StartSaga>,
+                IHandleSagaNotFound,
+                IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
+                IHandleMessages<SomeOtherMessage>
         {
-            public TimeoutHitsNotFoundSaga(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -63,10 +59,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                 MarkAsComplete();
             }
 
-            public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(SomeOtherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
             public Task Handle(object message, IMessageProcessingContext context)
             {
@@ -82,27 +75,19 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Timeout(MyTimeout state, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Timeout(MyTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-                mapper.ConfigureMapping<SomeOtherMessage>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId)
+                    .ToMessage<SomeOtherMessage>(m => m.DataId);
 
             public class TimeoutHitsNotFoundSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
 
-            public class MyTimeout
-            {
-            }
-
-            Context testContext;
+            public class MyTimeout;
         }
     }
 

@@ -42,34 +42,26 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
             {
                 context.AddTrace($"Subscription received for {s.SubscriberEndpoint}");
                 context.IsEventSubscriptionReceived = true;
             }), metadata => metadata.RegisterSelfAsPublisherFor<ISomethingHappenedEvent>(this));
-        }
     }
 
     public class SagaThatIsStartedByABaseEvent : EndpointConfigurationBuilder
     {
-        public SagaThatIsStartedByABaseEvent()
-        {
+        public SagaThatIsStartedByABaseEvent() =>
             EndpointSetup<DefaultServer>(c =>
-            {
-                c.DisableFeature<AutoSubscribe>();
-            },
-            metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
-        }
+                {
+                    c.DisableFeature<AutoSubscribe>();
+                },
+                metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
 
-        public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
+        public class SagaStartedByBaseEvent(SagaContext testContext)
+            : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
         {
-            public SagaStartedByBaseEvent(SagaContext context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IBaseEvent message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
@@ -78,29 +70,23 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
-            {
-                mapper.ConfigureMapping<IBaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<IBaseEvent>(m => m.DataId);
 
             public class SagaStartedByBaseEventSagaData : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
-
-            SagaContext testContext;
         }
     }
-
 
     public class StartSaga : ICommand
     {
         public Guid DataId { get; set; }
     }
 
-    public interface ISomethingHappenedEvent : IBaseEvent
-    {
-    }
+    public interface ISomethingHappenedEvent : IBaseEvent;
 
     public interface IBaseEvent : IEvent
     {

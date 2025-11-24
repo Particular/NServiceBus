@@ -46,22 +46,15 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
                     config.LimitMessageProcessingConcurrencyTo(1) //to avoid race conditions with the start and second message
             );
-        }
 
-        public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,
+        public class RequestingSaga(Context testContext) : Saga<RequestingSaga.RequestingSagaData>,
             IAmStartedByMessages<InitiateRequestingSaga>,
             IHandleMessages<MessageThatWillCauseSagaToReplyToOriginator>
         {
-            public RequestingSaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
             {
                 testContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
@@ -69,42 +62,27 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context)
-            {
-                return ReplyToOriginator(context, new MyReplyToOriginator());
-            }
+            public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context) => ReplyToOriginator(context, new MyReplyToOriginator());
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
-            {
-                mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SagaCorrelationId)
-                    .ToSaga(s => s.SagaCorrelationId);
-                mapper.ConfigureMapping<MessageThatWillCauseSagaToReplyToOriginator>(m => m.SagaCorrelationId)
-                    .ToSaga(s => s.SagaCorrelationId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper) =>
+                mapper.MapSaga(s => s.SagaCorrelationId)
+                    .ToMessage<InitiateRequestingSaga>(m => m.SagaCorrelationId)
+                    .ToMessage<MessageThatWillCauseSagaToReplyToOriginator>(m => m.SagaCorrelationId);
 
             public class RequestingSagaData : ContainSagaData
             {
                 public virtual Guid SagaCorrelationId { get; set; }
             }
-
-            Context testContext;
         }
 
-        class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
+        class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
         {
-            public MyReplyToOriginatorHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {
                 testContext.Intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.MessageHeaders[Headers.MessageIntent]);
                 testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -118,7 +96,5 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
         public Guid SagaCorrelationId { get; set; }
     }
 
-    public class MyReplyToOriginator : IMessage
-    {
-    }
+    public class MyReplyToOriginator : IMessage;
 }

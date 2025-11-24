@@ -31,31 +31,20 @@ public class When_starting_a_new_saga : NServiceBusAcceptanceTest
 
     public class NullPropertyEndpoint : EndpointConfigurationBuilder
     {
-        public NullPropertyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public NullPropertyEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class NullCorrPropertySaga : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
+        public class NullCorrPropertySaga(Context testContext)
+            : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
         {
-            public NullCorrPropertySaga(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SomeId = Data.SomeId;
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                    .ToSaga(s => s.SomeId);
-            }
-
-            Context testContext;
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId)
+                    .ToMessage<StartSagaMessage>(m => m.SomeId);
         }
 
         public class NullCorrPropertySagaData : ContainSagaData
