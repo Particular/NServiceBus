@@ -562,7 +562,7 @@ public class Msg2 : ICommand
     }
 
     [Test]
-    public Task CorrelationExpressionsMustMatchTypeNewSyntax()
+    public Task CorrelationExpressionsMustMatchTypeSyntax()
     {
         var source =
 @"using System;
