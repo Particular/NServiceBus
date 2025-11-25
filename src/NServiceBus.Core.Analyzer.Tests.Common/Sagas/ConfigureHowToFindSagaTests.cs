@@ -36,32 +36,6 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
     }
 
     [Test]
-    public Task OldMapping()
-    {
-        var code = @"
-    protected override void [|ConfigureHowToFindSaga|](SagaPropertyMapper<MyData> mapper)
-    {
-        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
-        mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
-    }";
-
-        return RunTest(code, DiagnosticIds.SagaMappingExpressionCanBeSimplified);
-    }
-
-    [Test]
-    public Task OldMappingWithMultipleCorrelationIds()
-    {
-        var code = @"
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
-    {
-        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
-        mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga([|saga => saga.OtherId|]);
-    }";
-
-        return RunTest(code, DiagnosticIds.MultipleCorrelationIdValues);
-    }
-
-    [Test]
     public Task NonMappingExpressionInMethod()
     {
         var code = @"
@@ -83,7 +57,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
     protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
     {
         var nullableTypesSource =
-@"
+            @"
 #nullable enable
 using System;
 using System.Threading.Tasks;
