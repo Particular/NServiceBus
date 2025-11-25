@@ -12,7 +12,7 @@ public static class SagaRegistrationExtensions
     /// <summary>
     /// Registers a saga.
     /// </summary>
-    public static void AddSaga<TSaga>(this EndpointConfiguration config) where TSaga : Saga
+    public static void AddSaga<TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -25,7 +25,11 @@ public static class SagaRegistrationExtensions
         }
 
         var metadata = SagaMetadata.Create<TSaga>();
+
         sagaMetadataCollection.Register(metadata);
+
+        config.AddHandler<TSaga>();
     }
 }
+
 
