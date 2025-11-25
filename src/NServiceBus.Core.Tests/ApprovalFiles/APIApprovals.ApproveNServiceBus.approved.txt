@@ -512,8 +512,8 @@ namespace NServiceBus
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
-    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead" +
-        "\' instead. Will be removed in version 11.0.0.", true)]
+    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
+        "ad\' instead. Will be removed in version 11.0.0.", true)]
     public interface IToSagaExpression<TSagaData>
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
@@ -879,12 +879,12 @@ namespace NServiceBus
         public void ConfigureFinderMapping<TMessage, TFinder>()
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaData, TMessage> { }
         [System.Obsolete("Use \'The old API for mapping messages to sagas using headers has been obsoleted, " +
-            "use mapper.MapSaga(...).ToMessageHeader<MyMessage>(MyHeader) instead\' instead. W" +
-            "ill be removed in version 11.0.0.", true)]
+            "use \'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)\' instead\' instead. Will" +
+            " be removed in version 11.0.0.", true)]
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
-        [System.Obsolete("Use \'The old API for mapping messages to sagas has been obsoleted, use mapper.Map" +
-            "Saga(...).ToMessage<MyMessage>(...) instead\' instead. Will be removed in version" +
-            " 11.0.0.", true)]
+        [System.Obsolete("Use \'The old API for mapping messages to sagas has been obsoleted, use \'mapper.Ma" +
+            "pSaga(...).ToMessage<MyMessage>(...)\' instead\' instead. Will be removed in versi" +
+            "on 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
@@ -1024,8 +1024,8 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
-    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead" +
-        "\' instead. Will be removed in version 11.0.0.", true)]
+    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
+        "ad\' instead. Will be removed in version 11.0.0.", true)]
     public class ToSagaExpression<TSagaData, TMessage>
     {
         public ToSagaExpression() { }

@@ -289,26 +289,26 @@ namespace NServiceBus
 
     public partial class SagaPropertyMapper<TSagaData>
     {
-        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas using headers has been obsoleted, use mapper.MapSaga(...).ToMessageHeader<MyMessage>(MyHeader) instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'The old API for mapping messages to sagas using headers has been obsoleted, use mapper.MapSaga(...).ToMessageHeader<MyMessage>(MyHeader) instead' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) => throw new NotImplementedException();
 
-        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas has been obsoleted, use mapper.MapSaga(...).ToMessage<MyMessage>(...) instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'The old API for mapping messages to sagas has been obsoleted, use mapper.MapSaga(...).ToMessage<MyMessage>(...) instead' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) => throw new NotImplementedException();
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     }
 
-    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use 'The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead' instead. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
     public interface IToSagaExpression<TSagaData>
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
 
-    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use 'The old saga mapping API has been obsoleted, use mapper.MapSaga(...) instead' instead. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
     public class ToSagaExpression<TSagaData, TMessage>
     {
     }
