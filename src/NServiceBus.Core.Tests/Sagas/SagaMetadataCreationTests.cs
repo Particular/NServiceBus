@@ -99,7 +99,7 @@ public class SagaMetadataCreationTests
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
 
-        Assert.That(ex.Message, Does.Contain("mapper.ConfigureMapping"));
+        Assert.That(ex.Message, Does.Contain("mapper.MapSaga"));
     }
 
     [Test]

@@ -137,7 +137,7 @@ class SagaMapper(Type sagaType, IReadOnlyList<SagaMessage> sagaMessages) : IConf
             if (sagaMessage.IsAllowedToStartSaga && finders.FirstOrDefault(m => m.MessageType.IsAssignableFrom(sagaMessage.MessageType)) is null)
             {
                 var simpleName = sagaMessage.MessageType.Name;
-                throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
+                throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.MapSaga(s => s.MatchingSagaProperty).ToMessage<{simpleName}>(message => message.SomeMessageProperty);");
             }
         }
 
