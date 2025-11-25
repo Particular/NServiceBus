@@ -659,7 +659,7 @@
 
             return firstInvocationMethodName switch
             {
-                "ConfigureFinderMapping" => ProcessCustomerFinderMapping(semanticModel, saga, memberAccess, cancellationToken),
+                "ConfigureFinderMapping" => ProcessCustomFinderMapping(semanticModel, saga, memberAccess, cancellationToken),
                 "MapSaga" => ProcessSagaMapping(semanticModel, saga, firstInvoke, invokeChain, cancellationToken),
                 _ => throw new InvalidOperationException($"Unhandled expression type: {firstInvocationMethodName}"),
             };
@@ -718,7 +718,7 @@
             return true;
         }
 
-        static bool ProcessCustomerFinderMapping(SemanticModel semanticModel, SagaDetails saga, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
+        static bool ProcessCustomFinderMapping(SemanticModel semanticModel, SagaDetails saga, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
         {
             // Method has to be generic so we can get the generic type, which is the message type
             if (memberAccess.Name is not GenericNameSyntax genericTypeName)
