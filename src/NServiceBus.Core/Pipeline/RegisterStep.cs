@@ -40,6 +40,8 @@ public abstract class RegisterStep
     /// </summary>
     public string Description { get; private set; }
 
+    internal int RegistrationOrder { get; set; }
+
     internal List<Dependency> Befores { get; private set; }
     internal List<Dependency> Afters { get; private set; }
 
@@ -136,17 +138,14 @@ public abstract class RegisterStep
     }
 
     internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
-    {
-        return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
-    }
+        => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
 
     Func<IServiceProvider, IBehavior> factoryMethod;
 
-    class DefaultRegisterStep : RegisterStep
-    {
-        public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IServiceProvider, IBehavior> factoryMethod)
-            : base(stepId, behavior, description, factoryMethod)
-        {
-        }
-    }
+    class DefaultRegisterStep(
+        Type behavior,
+        string stepId,
+        string description,
+        Func<IServiceProvider, IBehavior> factoryMethod)
+        : RegisterStep(stepId, behavior, description, factoryMethod);
 }
