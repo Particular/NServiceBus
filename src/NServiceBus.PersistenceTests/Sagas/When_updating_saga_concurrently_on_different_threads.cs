@@ -62,7 +62,7 @@ public class When_updating_saga_concurrently_on_different_threads : SagaPersiste
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        Task IHandleMessages<StartMessage>.Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
