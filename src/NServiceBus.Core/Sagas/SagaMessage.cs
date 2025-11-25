@@ -12,7 +12,7 @@ public class SagaMessage
     /// </summary>
     /// <param name="messageType">Type of the message.</param>
     /// <param name="isAllowedToStart"><code>true</code> if the message can start the saga, <code>false</code> otherwise.</param>
-    internal SagaMessage(Type messageType, bool isAllowedToStart)
+    public SagaMessage(Type messageType, bool isAllowedToStart)
     {
         MessageType = messageType;
         MessageTypeName = messageType.FullName;
