@@ -129,7 +129,7 @@
                         SyntaxKind.SimpleMemberAccessExpression,
                         mapSagaInvocation.WithTrailingTrivia(ElasticCarriageReturnLineFeed),
                         Token(SyntaxKind.DotToken).WithLeadingTrivia(Indent(2)),
-                        CreateGenericMappingMethod(mapping.IsHeader ? "ToMessageHeader" : "ToMessage", mapping.MessageTypeSyntax.ToFullString())
+                        CreateGenericMappingMethod(mapping.IsHeaderMapping ? "ToMessageHeader" : "ToMessage", mapping.MessageTypeSyntax.ToFullString())
                     )
                 )
                 .WithArgumentList(

@@ -107,6 +107,43 @@ public class Msg2 : ICommand
     }
 
     [Test]
+    public Task IAmStartedBySagaWithFinderMapping()
+    {
+        var source =
+@"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using NServiceBus;
+using NServiceBus.Sagas;
+using NServiceBus.Persistence;
+using NServiceBus.Extensibility;
+
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureFinderMapping<Msg1,MyFinder>();
+    }
+
+    public class MyFinder :ISagaFinder<MyData, Msg1>
+    {
+        public Task<MyData> FindBy(Msg1 message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData;
+public class Msg1 : ICommand;
+";
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task SagaDataPropertyHasNonPublicSetter()
     {
         var source =
@@ -370,7 +407,6 @@ public class Msg1 : ICommand
     }
 
 
-
     [Test]
     public Task RidiculousPartialClassExample()
     {
@@ -622,8 +658,14 @@ public class Msg2 : ICommand
     public Guid CorrId { get; set; }
 }
 public class Msg3 : ICommand {}";
-        var expected = new[] { DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions };
-        var ignore = new[] { DiagnosticIds.SagaMappingExpressionCanBeSimplified };
+        var expected = new[]
+        {
+            DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions
+        };
+        var ignore = new[]
+        {
+            DiagnosticIds.SagaMappingExpressionCanBeSimplified
+        };
 
         return Assert(expected, source, ignore);
     }
@@ -1070,8 +1112,7 @@ public class MySaga : Saga<Data>,
     public Task SagaHandlersInPartialClasses()
     {
         var source =
-@"
-using System.Threading.Tasks;
+@"using System.Threading.Tasks;
 using NServiceBus;
 
 public partial class SagaImplementation : Saga<SagaData>, IAmStartedByMessages<SagaStartMessage>
