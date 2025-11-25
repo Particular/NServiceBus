@@ -665,10 +665,10 @@
             };
         }
 
-        static bool ProcessSagaMapping(SemanticModel semanticModel, SagaDetails saga, InvocationExpressionSyntax firstInvoke, ImmutableArray<InvocationExpressionSyntax> invokeChain, CancellationToken cancellationToken)
+        static bool ProcessSagaMapping(SemanticModel semanticModel, SagaDetails saga, InvocationExpressionSyntax invocation, ImmutableArray<InvocationExpressionSyntax> invokeChain, CancellationToken cancellationToken)
         {
             // Looking for the lambda expression `saga => saga.OrderId` inside the argument of MapSaga()
-            if (firstInvoke.ArgumentList.Arguments.FirstOrDefault()?.Expression is not SimpleLambdaExpressionSyntax toSagaSyntax)
+            if (invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is not SimpleLambdaExpressionSyntax toSagaSyntax)
             {
                 return false;
             }
