@@ -57,7 +57,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
     protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
     {
         var nullableTypesSource =
-            @"
+@"
 #nullable enable
 using System;
 using System.Threading.Tasks;
