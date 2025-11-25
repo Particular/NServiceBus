@@ -48,7 +48,7 @@ public class When_persisting_saga_with_same_unique_prop_as_completed_saga : Saga
 
     public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.MapSaga(s => s.CorrelatedProperty).ToMessage<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty);
 
         public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }

@@ -15,10 +15,7 @@ public class When_persisting_a_saga_with_the_same_unique_prop_as_another_saga : 
             CorrelatedProperty = correlationPropertyData,
             DateTimeProperty = DateTime.UtcNow
         };
-        var saga2 = new AnotherSagaWithCorrelatedPropertyData
-        {
-            CorrelatedProperty = correlationPropertyData
-        };
+        var saga2 = new AnotherSagaWithCorrelatedPropertyData { CorrelatedProperty = correlationPropertyData };
 
         var persister = configuration.SagaStorage;
         var savingContextBag = configuration.GetContextBagForSagaStorage();
@@ -53,7 +50,7 @@ public class When_persisting_a_saga_with_the_same_unique_prop_as_another_saga : 
     {
         public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.MapSaga(s => s.CorrelatedProperty).ToMessage<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty);
     }
 
     public class SagaWithCorrelationPropertyData : ContainSagaData
@@ -72,7 +69,7 @@ public class When_persisting_a_saga_with_the_same_unique_prop_as_another_saga : 
     {
         public Task Handle(TwoUniquePropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnotherSagaWithCorrelatedPropertyData> mapper) => mapper.ConfigureMapping<TwoUniquePropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnotherSagaWithCorrelatedPropertyData> mapper) => mapper.MapSaga(s => s.CorrelatedProperty).ToMessage<TwoUniquePropertyStartingMessage>(m => m.CorrelatedProperty);
     }
 
     class TwoUniquePropertyStartingMessage
