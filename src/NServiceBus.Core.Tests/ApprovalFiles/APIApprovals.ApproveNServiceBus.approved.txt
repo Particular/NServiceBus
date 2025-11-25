@@ -512,11 +512,6 @@ namespace NServiceBus
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface IToSagaExpression<TSagaData>
-        where TSagaData : NServiceBus.IContainSagaData
-    {
-        void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
-    }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
@@ -877,8 +872,6 @@ namespace NServiceBus
     {
         public void ConfigureFinderMapping<TMessage, TFinder>()
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaData, TMessage> { }
-        public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
-        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
@@ -1016,12 +1009,6 @@ namespace NServiceBus
     public static class TimeToBeReceivedConventionExtensions
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
-    }
-    public class ToSagaExpression<TSagaData, TMessage>
-        where TSagaData :  class, NServiceBus.IContainSagaData
-    {
-        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
-        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
     }
     public static class TransportConfig
     {

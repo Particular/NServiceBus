@@ -34,7 +34,6 @@ NServiceBus.IMessageProcessingContext
 NServiceBus.ImmediateRetriesSettings
 NServiceBus.ImmediateRetry
 NServiceBus.IPipelineContext
-NServiceBus.IToSagaExpression`1
 NServiceBus.LearningTransport
 NServiceBus.LearningTransportConfigurationExtensions
 NServiceBus.MessageDeserializationException
