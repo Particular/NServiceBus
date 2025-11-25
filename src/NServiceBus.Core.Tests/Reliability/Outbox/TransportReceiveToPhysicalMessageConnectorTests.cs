@@ -11,7 +11,6 @@ using NServiceBus.Pipeline;
 using NServiceBus.Routing;
 using NUnit.Framework;
 using OpenTelemetry;
-using Settings;
 using Testing;
 using Transport;
 using TransportOperation = Transport.TransportOperation;
@@ -33,10 +32,9 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
         options["TimeToBeReceived"] = maxTime.ToString();
 
-        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
-        {
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, [
             new NServiceBus.Outbox.TransportOperation("x", options, Array.Empty<byte>(), [])
-        });
+        ]);
 
         var context = CreateContext(fakeBatchPipeline, messageId);
 
@@ -68,10 +66,9 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         var properties = new DispatchProperties { ["Destination"] = "myEndpoint" };
 
 
-        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
-        {
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, [
             new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
-        });
+        ]);
 
         var context = CreateContext(fakeBatchPipeline, messageId);
 
@@ -97,10 +94,9 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         };
 
 
-        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
-        {
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, [
             new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
-        });
+        ]);
 
         var context = CreateContext(fakeBatchPipeline, messageId);
 
@@ -119,7 +115,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     public async Task Should_add_outbox_span_tag_when_deduplicating()
     {
         string messageId = Guid.NewGuid().ToString();
-        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, []);
         var context = CreateContext(fakeBatchPipeline, messageId);
 
         using var pipelineActivity = new Activity("test activity");
@@ -143,12 +139,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context, c =>
         {
             var batchedSends = c.Extensions.Get<PendingTransportOperations>();
-            batchedSends.AddRange(new TransportOperation[]
-            {
+            batchedSends.AddRange([
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
                 new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"))
-            });
+            ]);
             return Task.CompletedTask;
         });
 
@@ -191,7 +186,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     [SetUp]
     public void SetUp()
     {
-        fakeOutbox = new FakeOutboxStorage();
+        fakeOutbox = new FakeOutboxSeam();
         fakeBatchPipeline = new FakeBatchPipeline();
 
         behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
@@ -202,7 +197,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     TransportReceiveToPhysicalMessageConnector behavior;
 
     FakeBatchPipeline fakeBatchPipeline;
-    FakeOutboxStorage fakeOutbox;
+    FakeOutboxSeam fakeOutbox;
 
     class MyEvent
     {
