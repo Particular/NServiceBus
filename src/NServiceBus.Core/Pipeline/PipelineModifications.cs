@@ -1,12 +1,43 @@
-﻿namespace NServiceBus
-{
-    using System.Collections.Generic;
-    using Pipeline;
+﻿namespace NServiceBus;
 
-    class PipelineModifications
+using System.Collections.Generic;
+using Pipeline;
+
+class PipelineModifications
+{
+    public IReadOnlyCollection<RegisterStep> Additions => additions;
+    public IReadOnlyCollection<ReplaceStep> Replacements => replacements;
+    public IReadOnlyCollection<RegisterOrReplaceStep> AdditionsOrReplacements => additionsOrReplacements;
+
+    internal void AddAddition(RegisterStep step)
     {
-        public List<RegisterStep> Additions = new List<RegisterStep>();
-        public List<ReplaceStep> Replacements = new List<ReplaceStep>();
-        public List<RegisterOrReplaceStep> AdditionsOrReplacements = new List<RegisterOrReplaceStep>();
+        step.RegistrationOrder = GetNextInsertionOrder();
+        additions.Add(step);
     }
+
+    internal void AddReplacement(ReplaceStep step)
+    {
+        step.RegistrationOrder = GetNextInsertionOrder();
+        replacements.Add(step);
+    }
+
+    internal void AddAdditionOrReplacement(RegisterOrReplaceStep step)
+    {
+        var order = GetNextInsertionOrder();
+        step.RegisterStep.RegistrationOrder = order;
+        step.ReplaceStep.RegistrationOrder = order;
+
+        additionsOrReplacements.Add(step);
+    }
+
+    int GetNextInsertionOrder()
+    {
+        nextInsertionOrder++;
+        return nextInsertionOrder;
+    }
+
+    int nextInsertionOrder;
+    readonly List<RegisterStep> additions = new List<RegisterStep>();
+    readonly List<ReplaceStep> replacements = new List<ReplaceStep>();
+    readonly List<RegisterOrReplaceStep> additionsOrReplacements = new List<RegisterOrReplaceStep>();
 }
