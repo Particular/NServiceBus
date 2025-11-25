@@ -68,6 +68,7 @@ public class SagaModelTests
 
             Assert.That(metadata.AssociatedMessages.Count, Is.EqualTo(2));
         }
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga), Is.EqualTo(1));
@@ -78,6 +79,7 @@ public class SagaModelTests
 
             Assert.That(metadata.Finders.Count, Is.EqualTo(2));
         }
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(metadata.Finders.Count(f => f.MessageType == typeof(Message1)), Is.EqualTo(1));
@@ -121,16 +123,10 @@ public class SagaModelTests
 
     class MyHeaderMappedSaga : Saga<MyHeaderMappedSaga.SagaData>, IAmStartedByMessages<Message1>
     {
-        public Task Handle(Message1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message1 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureHeaderMapping<Message1>("CorrelationHeader")
-                .ToSaga(saga => saga.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<Message1>("CorrelationHeader");
 
         public class SagaData : ContainSagaData
         {
@@ -140,71 +136,47 @@ public class SagaModelTests
 
     class MySaga : Saga<MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
     {
-        public Task Handle(Message1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message1 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Handle(Message2 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message2 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
-        {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
     }
+
     public class MyEntity : ContainSagaData
     {
         public int UniqueProperty { get; set; }
     }
 
-
-
     public class MyEntity2 : MyEntity
     {
-
     }
 
     class MySaga2 : Saga<MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
     {
-        public Task Handle(Message1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message1 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Handle(Message2 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message2 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
-        {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
     }
-
 
     class MySaga3 : Saga<MyPartialEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
     {
-        public Task Handle(Message1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message1 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Handle(Message2 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message2 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyPartialEntity> mapper)
-        {
-            mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-            mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyPartialEntity> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty)
+                .ToMessage<Message1>(m => m.UniqueProperty)
+                .ToMessage<Message2>(m => m.UniqueProperty);
     }
 
     abstract class AbstractSaga : Saga<MyEntity>, IAmStartedByMessages<Message1>
@@ -225,5 +197,4 @@ public class SagaModelTests
     {
         public int UniqueProperty { get; set; }
     }
-
 }

@@ -80,13 +80,11 @@ public class TestSaga : Saga<TestSagaData>,
     IHandleMessages<Evt>,
     IHandleTimeouts<TestTimeout>
 {
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-    {
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) =>
         mapper.MapSaga(saga => saga.OrderId)
             .ToMessage<Cmd>(m => m.OrderId)
             .ToMessage<Evt>(m => m.OrderId)
             .ToMessageHeader<Cmd>("HeaderName");
-    }
 
     public async Task Handle(Cmd message, IMessageHandlerContext context)
     {
@@ -109,18 +107,6 @@ public class TestSaga : Saga<TestSagaData>,
         Console.WriteLine(state.TimeoutData);
         return Task.CompletedTask;
     }
-}
-
-public class TestSagaOldMapping : Saga<TestSagaData>,
-    IAmStartedByMessages<Cmd>
-{
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-    {
-        mapper.ConfigureMapping<Cmd>(m => m.OrderId).ToSaga(s => s.OrderId);
-        mapper.ConfigureHeaderMapping<Cmd>("HeaderName");
-    }
-
-    public Task Handle(Cmd message, IMessageHandlerContext context) => throw new NotImplementedException();
 }
 
 public class Cmd : ICommand

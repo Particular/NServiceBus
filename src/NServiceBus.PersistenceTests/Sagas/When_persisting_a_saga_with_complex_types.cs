@@ -23,15 +23,9 @@ public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
 
     public class SagaWithComplexType : Saga<SagaWithComplexTypeEntity>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithComplexTypeEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithComplexTypeEntity> mapper) => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
     }
 
     public class SagaWithComplexTypeEntity : ContainSagaData

@@ -9,7 +9,11 @@ public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
     [Test]
     public async Task Should_delete_the_saga()
     {
-        var saga = new TestSagaData { SomeId = Guid.NewGuid().ToString(), DateTimeProperty = DateTime.UtcNow };
+        var saga = new TestSagaData
+        {
+            SomeId = Guid.NewGuid().ToString(),
+            DateTimeProperty = DateTime.UtcNow
+        };
         await SaveSaga(saga);
 
         var context = configuration.GetContextBagForSagaStorage();
@@ -29,15 +33,9 @@ public class When_completing_a_saga_loaded_by_id : SagaPersisterTests
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(m => m.SomeId);
 
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }
 
     public class TestSagaData : ContainSagaData

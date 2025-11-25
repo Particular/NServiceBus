@@ -19,10 +19,7 @@ public abstract class SagaPersisterTests(TestVariant param)
     }
 
     [OneTimeTearDown]
-    public virtual async Task OneTimeTearDown()
-    {
-        await configuration.Cleanup();
-    }
+    public virtual async Task OneTimeTearDown() => await configuration.Cleanup();
 
     protected async Task SaveSaga<TSagaData>(TSagaData saga, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData, new()
     {

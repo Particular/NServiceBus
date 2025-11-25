@@ -24,11 +24,7 @@ public class When_saga_is_correlated_on_a_unsupported_datetimeoffset_property_ty
             throw new NotImplementedException();
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
-        {
-            mapper.ConfigureMapping<Message1>(m => m.InvalidProp)
-                .ToSaga(s => s.InvalidProp);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper) => mapper.MapSaga(s => s.InvalidProp).ToMessage<Message1>(msg => msg.InvalidProp);
 
         public class MyEntity : ContainSagaData
         {

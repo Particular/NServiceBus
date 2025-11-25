@@ -16,44 +16,6 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
         => this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
 
     /// <summary>
-    /// Specify how to map between <typeparamref name="TSagaData" /> and <typeparamref name="TMessage" />.
-    /// </summary>
-    /// <typeparam name="TMessage">The message type to map to.</typeparam>
-    /// <param name="messageProperty">An <see cref="Expression{TDelegate}" /> that represents the message.</param>
-    /// <returns>
-    /// A <see cref="ToSagaExpression{TSagaData,TMessage}" /> that provides the fluent chained
-    /// <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga" /> to link <paramref name="messageProperty" /> with
-    /// <typeparamref name="TSagaData" />.
-    /// </returns>
-    public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
-    {
-        ArgumentNullException.ThrowIfNull(messageProperty);
-        return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
-    }
-
-    /// <summary>
-    /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a message header.
-    /// </summary>
-    /// <typeparam name="TMessage">The message type to map to.</typeparam>
-    /// <param name="headerName">The name of the header that contains the correlation value.</param>
-    /// <returns>
-    /// A <see cref="IToSagaExpression{TSagaData}" /> that provides the fluent chained
-    /// <see cref="IToSagaExpression{TSagaData}.ToSaga" /> to link <typeparamref name="TMessage"/> with
-    /// <typeparamref name="TSagaData"/> using <paramref name="headerName"/>.
-    /// </returns>
-    public IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName)
-    {
-        ArgumentNullException.ThrowIfNull(headerName);
-
-        if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration)
-        {
-            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithMessageHeaders)}.");
-        }
-
-        return new MessageHeaderToSagaExpression<TSagaData, TMessage>(sagaHeaderFindingConfiguration, headerName);
-    }
-
-    /// <summary>
     /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> using a custom finder.
     /// </summary>
     /// <typeparam name="TMessage">The message type to map to.</typeparam>
@@ -80,7 +42,7 @@ public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSaga
     public CorrelatedSagaPropertyMapper<TSagaData> MapSaga(Expression<Func<TSagaData, object?>> sagaProperty)
     {
         ArgumentNullException.ThrowIfNull(sagaProperty);
-        return new CorrelatedSagaPropertyMapper<TSagaData>(this, sagaProperty);
+        return new CorrelatedSagaPropertyMapper<TSagaData>(sagaMessageFindingConfiguration, sagaProperty);
     }
 
     readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;

@@ -147,10 +147,7 @@ public class InvokeHandlerTerminatorTest
 
     static TestableInvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
     {
-        var behaviorContext = new TestableInvokeHandlerContext
-        {
-            MessageHandler = messageHandler
-        };
+        var behaviorContext = new TestableInvokeHandlerContext { MessageHandler = messageHandler };
 
         return behaviorContext;
     }
@@ -163,15 +160,9 @@ public class InvokeHandlerTerminatorTest
 
     class FakeSaga : Saga<FakeSaga.FakeSagaData>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FakeSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FakeSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
 
         public class FakeSagaData : ContainSagaData
         {

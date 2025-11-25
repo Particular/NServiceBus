@@ -18,7 +18,11 @@ public class When_using_storage_sessions_concurrently(TestVariant param) : SagaP
         Assert.DoesNotThrowAsync(async () =>
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
-            var sagaData = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
+            var sagaData = new TestSagaData
+            {
+                SomeId = correlationPropertyData,
+                DateTimeProperty = DateTime.UtcNow
+            };
             await SaveSaga(sagaData);
             var generatedSagaId = sagaData.Id;
 
@@ -40,7 +44,7 @@ public class When_using_storage_sessions_concurrently(TestVariant param) : SagaP
                 await persister.Update(record, session1StorageSession, session1Context);
                 // 1:  Commit
                 await session1StorageSession.CompleteAsync();
-            }  //dispose session1StorageSession
+            } //dispose session1StorageSession
 
 
             var session2Context = configuration.GetContextBagForSagaStorage();
@@ -61,21 +65,14 @@ public class When_using_storage_sessions_concurrently(TestVariant param) : SagaP
                 await persister.Update(staleRecord, session2StorageSession, session2Context);
                 await session2StorageSession.CompleteAsync();
             } //dispose session2StorageSession 
-
         });
 
     // Needed to satisfy
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotSupportedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotSupportedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class StartMessage

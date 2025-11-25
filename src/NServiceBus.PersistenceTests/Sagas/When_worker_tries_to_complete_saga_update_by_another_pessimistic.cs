@@ -63,15 +63,9 @@ public class When_worker_tries_to_complete_saga_update_by_another_pessimistic : 
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class StartMessage

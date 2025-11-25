@@ -76,15 +76,9 @@ public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : Sa
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class TestSagaData : ContainSagaData

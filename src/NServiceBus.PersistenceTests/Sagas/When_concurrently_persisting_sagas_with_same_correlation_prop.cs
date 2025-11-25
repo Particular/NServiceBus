@@ -45,15 +45,9 @@ public class When_concurrently_persisting_sagas_with_same_correlation_prop : Sag
 
     public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
     {
-        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
-        {
-            mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.MapSaga(s => s.CorrelatedProperty).ToMessage<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty);
     }
 
     public class SagaWithCorrelationPropertyData : ContainSagaData

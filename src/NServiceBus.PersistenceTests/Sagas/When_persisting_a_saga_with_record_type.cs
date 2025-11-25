@@ -43,29 +43,17 @@ public class When_persisting_a_saga_with_record_type : SagaPersisterTests
 
     public class SagaWithRecordType : Saga<SagaWithRecordTypeEntity>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithRecordTypeEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithRecordTypeEntity> mapper) => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
     }
 
     public class SagaWithNestedRecordType : Saga<SagaWithNestedRecordTypeEntity>,
         IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithNestedRecordTypeEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithNestedRecordTypeEntity> mapper) => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
     }
 
     public class SagaWithNestedRecordTypeEntity : ContainSagaData
