@@ -1,35 +1,28 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using Pipeline;
 
     class StepRegistrationsCoordinator
     {
-        public StepRegistrationsCoordinator(List<ReplaceStep> replacements, List<RegisterOrReplaceStep> addOrReplaceSteps)
+        public StepRegistrationsCoordinator(
+            IReadOnlyCollection<RegisterStep> additions,
+            IReadOnlyCollection<ReplaceStep> replacements,
+            IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
         {
+            this.additions = additions;
             this.replacements = replacements;
             this.addOrReplaceSteps = addOrReplaceSteps;
         }
 
-        public void Register(string pipelineStep, Type behavior, string description)
-        {
-            additions.Add(RegisterStep.Create(pipelineStep, behavior, description));
-        }
-
-        public void Register(RegisterStep rego)
-        {
-            additions.Add(rego);
-        }
-
-        public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
+        public IReadOnlyCollection<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
             var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, replacements, addOrReplaceSteps);
             return pipelineModelBuilder.Build();
         }
 
-        readonly List<RegisterStep> additions = new List<RegisterStep>();
-        readonly List<ReplaceStep> replacements;
-        readonly List<RegisterOrReplaceStep> addOrReplaceSteps;
+        readonly IReadOnlyCollection<RegisterStep> additions;
+        readonly IReadOnlyCollection<ReplaceStep> replacements;
+        readonly IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps;
     }
 }

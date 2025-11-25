@@ -17,5 +17,6 @@ namespace NServiceBus
         public string Description { get; }
         public Type BehaviorType { get; }
         public Func<IServiceProvider, IBehavior> FactoryMethod { get; }
+        public int RegistrationOrder { get; set; }
     }
 }

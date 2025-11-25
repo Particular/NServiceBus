@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using Pipeline;
 
-    class RegisterOrReplaceStep
+    sealed class RegisterOrReplaceStep
     {
         RegisterOrReplaceStep(string stepId, RegisterStep registerStep, ReplaceStep replaceStep)
         {

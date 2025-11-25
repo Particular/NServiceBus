@@ -40,6 +40,8 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public string Description { get; private set; }
 
+        internal int RegistrationOrder { get; set; }
+
         internal List<Dependency> Befores { get; private set; }
         internal List<Dependency> Afters { get; private set; }
 
@@ -136,9 +138,7 @@ namespace NServiceBus.Pipeline
         }
 
         internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IServiceProvider, IBehavior> factoryMethod = null)
-        {
-            return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
-        }
+            => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
 
         Func<IServiceProvider, IBehavior> factoryMethod;
 
