@@ -2182,7 +2182,6 @@ namespace NServiceBus.Sagas
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void DisableBestPracticeValidation() { }
-        public void DisableSagaScanning() { }
     }
 }
 namespace NServiceBus.Serialization
