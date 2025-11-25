@@ -44,8 +44,8 @@ public class SagaMetadataCreationTests
     [Test]
     public void When_finder_for_non_message()
     {
-        var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder)); });
-        Assert.That(exception.Message, Does.Contain(nameof(SagaWithNonMessageFinder.StartSagaMessage)));
+        var exception = Assert.Throws<ArgumentException>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder)); });
+        Assert.That(exception.Message, Does.Contain(nameof(SagaWithNonMessageFinder.OtherMessage)));
     }
 
     [Test]
@@ -242,22 +242,18 @@ public class SagaMetadataCreationTests
     {
         public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) => mapper.ConfigureFinderMapping<StartSagaMessage, Finder>();
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) => mapper.ConfigureFinderMapping<OtherMessage, Finder>();
 
-        public class SagaData : ContainSagaData
+        public class SagaData : ContainSagaData;
+
+        public class Finder : ISagaFinder<SagaData, OtherMessage>
         {
-            public string Property { get; set; }
+            public Task<SagaData> FindBy(OtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(SagaData));
         }
 
-        public class Finder : ISagaFinder<SagaData, StartSagaMessage>
-        {
-            public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(SagaData));
-        }
+        public class StartSagaMessage;
 
-        public class StartSagaMessage
-        {
-            public string Property { get; set; }
-        }
+        public class OtherMessage;
     }
 
     public class SagaWithFinderOnly : Saga<SagaWithFinderOnly.SagaData>,
