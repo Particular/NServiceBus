@@ -905,7 +905,7 @@ namespace NServiceBus
     public static class SagaRegistrationExtensions
     {
         public static void AddSaga<TSaga>(this NServiceBus.EndpointConfiguration config)
-            where TSaga : NServiceBus.Saga { }
+            where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
@@ -2117,6 +2117,7 @@ namespace NServiceBus.Sagas
     }
     public class SagaMessage
     {
+        public SagaMessage(System.Type messageType, bool isAllowedToStart) { }
         public bool IsAllowedToStartSaga { get; }
         public System.Type MessageType { get; }
         public string MessageTypeName { get; }

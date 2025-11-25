@@ -362,6 +362,29 @@ public class AddSagaInterceptor : IIncrementalGenerator
 
                       namespace NServiceBus
                       {
+                      """);
+
+        var allPropertyMappings = intercepts
+            .SelectMany(i => i.PropertyMappings.Items)
+            .GroupBy(m => (m.MessageType, m.MessagePropertyName))
+            .Select(g => g.First())
+            .OrderBy(m => m.MessageType, StringComparer.Ordinal)
+            .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal);
+
+        foreach (var mapping in allPropertyMappings)
+        {
+            var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
+            sb.AppendLine($"    file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+            sb.AppendLine("    {");
+            sb.AppendLine($"        protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
+            sb.AppendLine();
+            sb.AppendLine($"        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
+            sb.AppendLine($"        static extern object? AccessFrom_Property({mapping.MessageType} message);");
+            sb.AppendLine("    }");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("""
                           static file class InterceptionsOfAddSagaMethod
                           {
                       """);
@@ -388,8 +411,10 @@ public class AddSagaInterceptor : IIncrementalGenerator
                                         var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                             .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                                         
-                                        {{builderCode}}
+                            {{builderCode}}
                                         sagaMetadataCollection.Register(metadata);
+                                        
+                                        endpointConfiguration.AddHandler<{{first.SagaType}}>();
                                     }
                             """);
         }
@@ -407,53 +432,58 @@ public class AddSagaInterceptor : IIncrementalGenerator
     static string GenerateBuilderCode(InterceptDetails details)
     {
         var sb = new StringBuilder();
-        sb.Append("var metadata = NServiceBus.Sagas.SagaMetadataBuilder.Register<");
-        sb.Append(details.SagaType);
-        sb.Append(", ");
-        sb.Append(details.SagaDataType);
-        sb.AppendLine(">()");
 
-        // Add property mappings
-        foreach (var mapping in (ImmutableArray<PropertyMappingInfo>)details.PropertyMappings)
-        {
-            sb.Append("            .WithPropertyMapping<");
-            sb.Append(mapping.MessageType);
-            sb.Append(">(\"");
-            sb.Append(mapping.SagaPropertyName);
-            sb.Append("\", typeof(");
-            sb.Append(mapping.SagaPropertyType);
-            sb.Append("), \"");
-            sb.Append(mapping.MessagePropertyName);
-            sb.AppendLine("\")");
-        }
-
-        // Add header mappings
-        foreach (var mapping in (ImmutableArray<HeaderMappingInfo>)details.HeaderMappings)
-        {
-            sb.Append("            .WithHeaderMapping<");
-            sb.Append(mapping.MessageType);
-            sb.Append(">(\"");
-            sb.Append(mapping.SagaPropertyName);
-            sb.Append("\", typeof(");
-            sb.Append(mapping.SagaPropertyType);
-            sb.Append("), \"");
-            sb.Append(mapping.HeaderName);
-            sb.AppendLine("\")");
-        }
-
-        // Add messages
+        // Generate associated messages array - match approved file indentation (12 spaces base, 8 for braces)
+        sb.AppendLine("            var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
+        sb.AppendLine("        {");
         foreach (var message in (ImmutableArray<MessageInfo>)details.Messages)
         {
-            sb.Append("            .WithMessage<");
+            sb.Append("            new NServiceBus.Sagas.SagaMessage(typeof(");
             sb.Append(message.MessageType);
-            sb.Append(">(");
+            sb.Append("), ");
             sb.Append(message.CanStartSaga ? "true" : "false");
-            sb.AppendLine(")");
+            sb.AppendLine("),");
+        }
+        sb.AppendLine("        };");
+        sb.AppendLine();
+
+        // Generate property accessors for property mappings
+        if (details.PropertyMappings.Items.Length > 0)
+        {
+            sb.AppendLine("        var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
+            sb.AppendLine("        {");
+            foreach (var mapping in (ImmutableArray<PropertyMappingInfo>)details.PropertyMappings)
+            {
+                var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
+                sb.Append("            new ");
+                sb.Append(accessorClassName);
+                sb.AppendLine("(),");
+            }
+            sb.AppendLine("        };");
+            sb.AppendLine();
+            sb.Append("        var metadata = NServiceBus.Sagas.SagaMetadata.Create<");
+            sb.Append(details.SagaType);
+            sb.Append(", ");
+            sb.Append(details.SagaDataType);
+            sb.AppendLine(">(associatedMessages, propertyAccessors);");
+        }
+        else
+        {
+            sb.Append("        var metadata = NServiceBus.Sagas.SagaMetadata.Create<");
+            sb.Append(details.SagaType);
+            sb.Append(", ");
+            sb.Append(details.SagaDataType);
+            sb.AppendLine(">(associatedMessages);");
         }
 
-        sb.Append("            .Build();");
-
         return sb.ToString();
+    }
+
+    static string CreateAccessorName(string messageType, string propertyName)
+    {
+        var combined = $"{messageType}_{propertyName}";
+        var hash = NonCryptographicHash.GetHash(combined);
+        return hash.ToString("x16");
     }
 
     const string AddSagaClassName = "SagaRegistrationExtensions";
