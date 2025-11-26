@@ -92,8 +92,6 @@ public class AddSagaInterceptor : IIncrementalGenerator
 
         // Analyze ConfigureHowToFindSaga to extract mappings
         var propertyMappings = ExtractPropertyMappings(sagaType, sagaDataType, ctx.SemanticModel, cancellationToken);
-        var headerMappings = ExtractHeaderMappings(sagaType, sagaDataType, ctx.SemanticModel, cancellationToken);
-        var messages = ExtractMessageTypes(sagaType, cancellationToken);
 
         return new InterceptDetails(
             SafeInterceptionLocation.From(location),
@@ -101,8 +99,6 @@ public class AddSagaInterceptor : IIncrementalGenerator
             sagaFullyQualifiedName,
             sagaDataFullyQualifiedName,
             propertyMappings,
-            headerMappings,
-            messages,
             handlerSpec);
     }
 
@@ -147,7 +143,7 @@ public class AddSagaInterceptor : IIncrementalGenerator
         CancellationToken cancellationToken)
     {
         var mappings = ImmutableArray.CreateBuilder<PropertyMappingInfo>();
-        var configureMethod = FindConfigureHowToFindSagaMethod(sagaType, cancellationToken);
+        var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
 
         if (configureMethod == null)
         {
@@ -189,142 +185,13 @@ public class AddSagaInterceptor : IIncrementalGenerator
         return mappings.ToImmutable();
     }
 
-    static EquatableArray<HeaderMappingInfo> ExtractHeaderMappings(
-        INamedTypeSymbol sagaType,
-        INamedTypeSymbol sagaDataType,
-        SemanticModel semanticModel,
-        CancellationToken cancellationToken)
-    {
-        var mappings = ImmutableArray.CreateBuilder<HeaderMappingInfo>();
-        var configureMethod = FindConfigureHowToFindSagaMethod(sagaType, cancellationToken);
-
-        if (configureMethod == null)
-        {
-            return mappings.ToImmutable();
-        }
-
-        // Get syntax node from method symbol
-        // Sort syntax references by file path to ensure deterministic selection
-        var syntaxRefs = configureMethod.DeclaringSyntaxReferences
-            .OrderBy(r => r.SyntaxTree.FilePath, StringComparer.Ordinal)
-            .ThenBy(r => r.Span.Start)
-            .ToArray();
-        if (syntaxRefs.Length == 0)
-        {
-            return mappings.ToImmutable();
-        }
-
-        var methodSyntax = syntaxRefs[0].GetSyntax(cancellationToken);
-        if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
-        {
-            return mappings.ToImmutable();
-        }
-
-        // Get method body (block or expression body)
-        SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
-        if (methodBody == null)
-        {
-            return mappings.ToImmutable();
-        }
-
-        var walker = new ConfigureMappingWalker(semanticModel, sagaDataType, cancellationToken);
-        walker.Visit(methodBody);
-
-        // Sort mappings to ensure deterministic ordering
-        foreach (var headerMappingInfo in walker.HeaderMappings.OrderBy(m => m.MessageType, StringComparer.Ordinal))
-        {
-            mappings.Add(headerMappingInfo);
-        }
-        return mappings.ToImmutable();
-    }
-
-    static EquatableArray<MessageInfo> ExtractMessageTypes(
-        INamedTypeSymbol sagaType,
-        CancellationToken cancellationToken)
-    {
-        var messages = ImmutableArray.CreateBuilder<MessageInfo>();
-        var addedMessageTypes = new HashSet<string>();
-
-        // Sort interfaces to ensure deterministic ordering
-        var interfaces = sagaType.Interfaces.OrderBy(i => i.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), StringComparer.Ordinal)
-            .ToArray();
-
-        // Find IAmStartedByMessages<T> interfaces
-        foreach (var interfaceType in interfaces)
-        {
-            if (interfaceType.IsGenericType &&
-                interfaceType.OriginalDefinition.Name == "IAmStartedByMessages" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.Name == "NServiceBus" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.ContainingNamespace.IsGlobalNamespace)
-            {
-                if (interfaceType.TypeArguments.Length == 1 && interfaceType.TypeArguments[0] is INamedTypeSymbol messageType)
-                {
-                    var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    if (addedMessageTypes.Add(messageTypeName))
-                    {
-                        messages.Add(new MessageInfo(messageTypeName, CanStartSaga: true));
-                    }
-                }
-            }
-        }
-
-        // Find IHandleMessages<T> interfaces
-        foreach (var interfaceType in interfaces)
-        {
-            if (interfaceType.IsGenericType &&
-                interfaceType.OriginalDefinition.Name == "IHandleMessages" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.Name == "NServiceBus" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.ContainingNamespace.IsGlobalNamespace)
-            {
-                if (interfaceType.TypeArguments.Length == 1 && interfaceType.TypeArguments[0] is INamedTypeSymbol messageType)
-                {
-                    var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    // Only add if not already added as startable
-                    if (addedMessageTypes.Add(messageTypeName))
-                    {
-                        messages.Add(new MessageInfo(messageTypeName, CanStartSaga: false));
-                    }
-                }
-            }
-        }
-
-        // Find IHandleTimeouts<T> interfaces
-        foreach (var interfaceType in interfaces)
-        {
-            if (interfaceType.IsGenericType &&
-                interfaceType.OriginalDefinition.Name == "IHandleTimeouts" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.Name == "NServiceBus" &&
-                interfaceType.OriginalDefinition.ContainingNamespace.ContainingNamespace.IsGlobalNamespace)
-            {
-                if (interfaceType.TypeArguments.Length == 1 && interfaceType.TypeArguments[0] is INamedTypeSymbol messageType)
-                {
-                    var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    // Only add if not already added
-                    if (addedMessageTypes.Add(messageTypeName))
-                    {
-                        messages.Add(new MessageInfo(messageTypeName, CanStartSaga: false));
-                    }
-                }
-            }
-        }
-
-        // Sort messages to ensure deterministic ordering (startable messages first, then by type name)
-        return messages.OrderByDescending(m => m.CanStartSaga)
-            .ThenBy(m => m.MessageType, StringComparer.Ordinal)
-            .ToImmutableArray();
-    }
-
     static IMethodSymbol? FindConfigureHowToFindSagaMethod(
-        INamedTypeSymbol sagaType,
-        CancellationToken cancellationToken)
+        INamedTypeSymbol sagaType)
     {
         // Look for protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TSagaData> mapper)
         foreach (var member in sagaType.GetMembers("ConfigureHowToFindSaga"))
         {
-            if (member is IMethodSymbol method &&
-                method.IsOverride &&
-                method.DeclaredAccessibility == Accessibility.Protected &&
-                method.Parameters.Length == 1)
+            if (member is IMethodSymbol { IsOverride: true, DeclaredAccessibility: Accessibility.Protected, Parameters.Length: 1 } method)
             {
                 return method;
             }
@@ -444,7 +311,7 @@ public class AddSagaInterceptor : IIncrementalGenerator
 
         sb.AppendLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
         sb.AppendLine("{");
-        foreach (var message in (ImmutableArray<MessageInfo>)details.Messages)
+        foreach (var message in details.Handler.Registrations.Items.Select(r => new { r.MessageType, CanStartSaga = r.RegistrationType == RegistrationType.StartMessageHandler }))
         {
             sb.Append("    new NServiceBus.Sagas.SagaMessage(typeof(");
             sb.Append(message.MessageType);
@@ -501,12 +368,10 @@ public class AddSagaInterceptor : IIncrementalGenerator
         string SagaType,
         string SagaDataType,
         EquatableArray<PropertyMappingInfo> PropertyMappings,
-        EquatableArray<HeaderMappingInfo> HeaderMappings,
-        EquatableArray<MessageInfo> Messages,
         HandlerSpec Handler);
 
-    record PropertyMappingInfo(string MessageType, string SagaPropertyName, string SagaPropertyType, string MessagePropertyName);
-    record HeaderMappingInfo(string MessageType, string SagaPropertyName, string SagaPropertyType, string HeaderName);
+    record PropertyMappingInfo(string MessageType, string MessagePropertyName);
+    record HeaderMappingInfo(string MessageType);
     record MessageInfo(string MessageType, bool CanStartSaga);
     readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
     {
@@ -582,8 +447,6 @@ public class AddSagaInterceptor : IIncrementalGenerator
                                 var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                                 propertyMappings.Add(new PropertyMappingInfo(
                                     messageTypeName,
-                                    sagaPropertyInfo.Name,
-                                    sagaPropertyInfo.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                                     messagePropertyName));
                             }
                         }
@@ -625,8 +488,6 @@ public class AddSagaInterceptor : IIncrementalGenerator
                                 var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                                 propertyMappings.Add(new PropertyMappingInfo(
                                     messageTypeName,
-                                    sagaPropertyInfo.Name,
-                                    sagaPropertyInfo.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                                     messagePropertyName));
                             }
                         }
@@ -660,10 +521,7 @@ public class AddSagaInterceptor : IIncrementalGenerator
                         {
                             var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                             headerMappings.Add(new HeaderMappingInfo(
-                                messageTypeName,
-                                sagaPropertyInfo.Name,
-                                sagaPropertyInfo.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                                headerName));
+                                messageTypeName));
                         }
                     }
                 }

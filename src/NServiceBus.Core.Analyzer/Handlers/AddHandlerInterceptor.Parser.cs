@@ -2,6 +2,8 @@
 
 namespace NServiceBus.Core.Analyzer.Handlers;
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -82,21 +84,36 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var registrations = handlerType.AllInterfaces
-                .Where(IsHandlerInterface)
-                .Select(type =>
-                {
-                    var messageType = type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    var registrationType = type.Name switch
-                    {
-                        "IHandleMessages" => RegistrationType.MessageHandler,
-                        "IHandleTimeouts" => RegistrationType.TimeoutHandler,
-                        "IAmStartedByMessages" => RegistrationType.StartMessageHandler,
-                        _ => throw new System.NotImplementedException()
-                    };
+            var allRegistrations = new List<RegistrationSpec>();
+            var startedMessageTypes = new HashSet<string>();
 
-                    return new RegistrationSpec(registrationType, messageType);
-                })
+            foreach (var iface in handlerType.AllInterfaces.Where(IsHandlerInterface))
+            {
+                var messageType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var registrationType = iface.Name switch
+                {
+                    "IHandleMessages" => RegistrationType.MessageHandler,
+                    "IHandleTimeouts" => RegistrationType.TimeoutHandler,
+                    "IAmStartedByMessages" => RegistrationType.StartMessageHandler,
+                    _ => throw new NotImplementedException()
+                };
+
+                var spec = new RegistrationSpec(registrationType, messageType);
+                allRegistrations.Add(spec);
+
+                if (registrationType == RegistrationType.StartMessageHandler)
+                {
+                    startedMessageTypes.Add(spec.MessageType);
+                }
+            }
+
+            // If a message type has a StartMessageHandler, drop the plain MessageHandler
+            // but keep TimeoutHandler for that message.
+            var registrations = allRegistrations
+                .Where(r =>
+                    r.RegistrationType != RegistrationType.MessageHandler ||
+                    !startedMessageTypes.Contains(r.MessageType))
+                .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableArray();
 
             if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)

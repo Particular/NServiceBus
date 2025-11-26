@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -98,7 +97,6 @@ public sealed partial class AddHandlerInterceptor
                                    var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                       .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    """);
-            var deduplicateHandlers = new HashSet<string>(StringComparer.Ordinal);
             foreach (var registration in handlerSpec.Registrations.Items)
             {
                 var addType = registration.RegistrationType switch
@@ -108,13 +106,7 @@ public sealed partial class AddHandlerInterceptor
                     _ => "Message"
                 };
 
-                var registry = $"registry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();";
-                if (!deduplicateHandlers.Add(registry))
-                {
-                    continue;
-                }
-
-                sourceWriter.WriteLine(registry);
+                sourceWriter.WriteLine($"registry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
             }
         }
     }

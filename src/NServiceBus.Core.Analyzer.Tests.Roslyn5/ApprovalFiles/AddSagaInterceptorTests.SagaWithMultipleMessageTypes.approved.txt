@@ -55,8 +55,8 @@ namespace NServiceBus
                    .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCancelled), false),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderShipped), false),
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderTimeout), false),
                 };
@@ -70,9 +70,9 @@ namespace NServiceBus
                 sagaMetadataCollection.Register(metadata);
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
-                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
                 registry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
             }
         }
