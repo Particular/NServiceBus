@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
 namespace NServiceBus
 {
@@ -295,9 +296,7 @@ namespace NServiceBus
 
         [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use 'The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) => throw new NotImplementedException();
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     }
 
     [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
@@ -577,4 +576,5 @@ namespace NServiceBus.Sagas
     }
 }
 
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
