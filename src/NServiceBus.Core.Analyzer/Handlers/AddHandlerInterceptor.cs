@@ -136,9 +136,10 @@ public class AddHandlerInterceptor : IIncrementalGenerator
             return;
         }
 
-        var sourceWriter = new SourceWriter().ForInterceptor();
+        var sourceWriter = new SourceWriter()
+            .ForInterceptor()
+            .WithGeneratedCodeAttribute();
 
-        sourceWriter.WriteLine($$"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{{assemblyName.Name}}", "{{assemblyName.Version}}")]""");
         sourceWriter.WriteLine("""
                                static file class InterceptionsOfAddHandlerMethod
                                {
@@ -167,10 +168,10 @@ public class AddHandlerInterceptor : IIncrementalGenerator
                                     """);
             sourceWriter.Indentation++;
             sourceWriter.WriteLine("""
-                                    System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                                    var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                                       .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                    """);
+                                   System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                                   var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                                      .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                                   """);
             foreach (var registration in first.Registrations.Items)
             {
                 sourceWriter.WriteLine($"registry.Add{registration.AddType}HandlerForMessage<{first.HandlerType}, {registration.MessageType}>();");
@@ -187,13 +188,7 @@ public class AddHandlerInterceptor : IIncrementalGenerator
 
     const string AddHandlerClassName = "MessageHandlerRegistrationExtensions";
     const string AddHandlerMethodName = "AddHandler";
-    static readonly AssemblyName assemblyName = typeof(AddHandlerInterceptor).Assembly.GetName();
 
     record InterceptDetails(SafeInterceptionLocation Location, string MethodName, string HandlerType, EquatableArray<MessageRegistration> Registrations);
     readonly record struct MessageRegistration(string AddType, string MessageType);
-    readonly record struct SafeInterceptionLocation(string Attribute, string DisplayLocation)
-    {
-        public static SafeInterceptionLocation From(InterceptableLocation location) =>
-            new(location.GetInterceptsLocationAttributeSyntax(), location.GetDisplayLocation());
-    }
 }

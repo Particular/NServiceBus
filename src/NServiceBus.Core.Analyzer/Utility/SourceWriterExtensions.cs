@@ -1,5 +1,7 @@
 namespace NServiceBus.Core.Analyzer.Utility;
 
+using System.Reflection;
+
 static class SourceWriterExtensions
 {
     extension(SourceWriter writer)
@@ -46,6 +48,14 @@ static class SourceWriterExtensions
             return writer;
         }
 
+        public SourceWriter WithGeneratedCodeAttribute() => writer.WithGeneratedCodeAttribute(AssemblyName);
+
+        public SourceWriter WithGeneratedCodeAttribute(AssemblyName assemblyName)
+        {
+            writer.WriteLine($"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{assemblyName.Name}", "{assemblyName.Version}")]""");
+            return writer;
+        }
+
         public void CloseCurlies()
         {
             while (writer.Indentation > 0)
@@ -55,4 +65,6 @@ static class SourceWriterExtensions
             }
         }
     }
+
+    static readonly AssemblyName AssemblyName = typeof(SourceWriter).Assembly.GetName();
 }

@@ -18,6 +18,7 @@ namespace System.Runtime.CompilerServices
 
 namespace NServiceBus
 {
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
     file sealed class PropertyAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
     {
         protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
@@ -28,30 +29,27 @@ namespace NServiceBus
 
     static file class InterceptionsOfAddSagaMethod
     {
-        [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
-        public static void AddSaga_OrderSaga_e02a35d0173ba1fe(this NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            
-            var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-            
-            var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
-        {
-            new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
-            new NServiceBus.Sagas.SagaMessage(typeof(global::OrderTimeout), false),
-        };
-
-        var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
-        {
-            new PropertyAccessor_16edcde3129fe540(),
-        };
-
-        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
-
-            sagaMetadataCollection.Register(metadata);
-            
-            endpointConfiguration.AddHandler<global::OrderSaga>();
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+            public void AddSaga_OrderSaga_e02a35d0173ba1fe()
+            {
+                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                   .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
+                var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                {
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderTimeout), false),
+                };
+                var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
+                {
+                    new PropertyAccessor_16edcde3129fe540(),
+                };
+                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
+                sagaMetadataCollection.Register(metadata);
+                endpointConfiguration.AddHandler<global::OrderSaga>();
+            }
         }
     }
 }
