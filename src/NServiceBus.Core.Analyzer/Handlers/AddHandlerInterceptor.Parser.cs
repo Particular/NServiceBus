@@ -114,7 +114,7 @@ public sealed partial class AddHandlerInterceptor
                     r.RegistrationType != RegistrationType.MessageHandler ||
                     !startedMessageTypes.Contains(r.MessageType))
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
-                .ToImmutableArray();
+                .ToImmutableEquatableArray();
 
             if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {

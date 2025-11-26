@@ -121,7 +121,7 @@ public sealed partial class AddSagaInterceptor
             return sb.ToString();
         }
 
-        static EquatableArray<PropertyMappingSpec> ExtractPropertyMappings(
+        static ImmutableEquatableArray<PropertyMappingSpec> ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
             INamedTypeSymbol sagaDataType,
             SemanticModel semanticModel,
@@ -132,7 +132,7 @@ public sealed partial class AddSagaInterceptor
 
             if (configureMethod == null)
             {
-                return mappings.ToImmutable();
+                return mappings.ToImmutableEquatableArray();
             }
 
             // Get syntax node from method symbol
@@ -143,20 +143,20 @@ public sealed partial class AddSagaInterceptor
                 .ToArray();
             if (syntaxRefs.Length == 0)
             {
-                return mappings.ToImmutable();
+                return mappings.ToImmutableEquatableArray();
             }
 
             var methodSyntax = syntaxRefs[0].GetSyntax(cancellationToken);
             if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
             {
-                return mappings.ToImmutable();
+                return mappings.ToImmutableEquatableArray();
             }
 
             // Get method body (block or expression body)
             SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
             if (methodBody == null)
             {
-                return mappings.ToImmutable();
+                return mappings.ToImmutableEquatableArray();
             }
 
             var walker = new ConfigureMappingWalker(semanticModel, sagaDataType, cancellationToken);
@@ -167,7 +167,7 @@ public sealed partial class AddSagaInterceptor
             {
                 mappings.Add(propertyMappingInfo);
             }
-            return mappings.ToImmutable();
+            return mappings.ToImmutableEquatableArray();
         }
 
         static IMethodSymbol? FindConfigureHowToFindSagaMethod(
@@ -212,7 +212,7 @@ public sealed partial class AddSagaInterceptor
         {
             readonly List<PropertyMappingSpec> propertyMappings = [];
 
-            public ImmutableArray<PropertyMappingSpec> PropertyMappings => [.. propertyMappings];
+            public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings => propertyMappings.ToImmutableEquatableArray();
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {

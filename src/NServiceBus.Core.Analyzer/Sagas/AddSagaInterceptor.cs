@@ -2,7 +2,6 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
-using Handlers;
 using Microsoft.CodeAnalysis;
 using Utility;
 using static Handlers.AddHandlerInterceptor;
@@ -21,7 +20,7 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
             .WithTrackingName("SagaSpec");
 
         var collected = addSagas.Collect()
-            .Select((sagas, _) => new SagaSpecs(sagas))
+            .Select((sagas, _) => new SagaSpecs(sagas.ToImmutableEquatableArray()))
             .WithTrackingName("SagaSpecs");
 
         context.RegisterSourceOutput(collected,
@@ -32,14 +31,14 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
             });
     }
 
-    internal readonly record struct SagaSpecs(EquatableArray<SagaSpec> Sagas);
+    internal readonly record struct SagaSpecs(ImmutableEquatableArray<SagaSpec> Sagas);
 
     internal record SagaSpec(
         InterceptLocationSpec Location,
         string MethodName,
         string SagaType,
         string SagaDataType,
-        EquatableArray<PropertyMappingSpec> PropertyMappings,
+        ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings,
         HandlerSpec Handler);
 
     internal record PropertyMappingSpec(string MessageType, string MessagePropertyName);

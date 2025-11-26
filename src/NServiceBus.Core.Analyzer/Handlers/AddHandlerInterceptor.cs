@@ -19,7 +19,7 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
             .WithTrackingName("HandlerSpec");
 
         var collected = addHandlers.Collect()
-            .Select((handlers, _) => new HandlerSpecs(handlers))
+            .Select((handlers, _) => new HandlerSpecs(handlers.ToImmutableEquatableArray()))
             .WithTrackingName("HandlerSpecs");
 
         context.RegisterSourceOutput(collected,
@@ -30,9 +30,9 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
             });
     }
 
-    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, string Name, string HandlerType, EquatableArray<RegistrationSpec> Registrations);
+    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, string Name, string HandlerType, ImmutableEquatableArray<RegistrationSpec> Registrations);
 
-    internal readonly record struct HandlerSpecs(EquatableArray<HandlerSpec> Handlers);
+    internal readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
     internal enum RegistrationType
     {

@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Handlers;
@@ -17,8 +16,8 @@ public sealed partial class AddSagaInterceptor
 
         static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs)
         {
-            sagaSpecs.Sagas.Deconstruct(out var sagas);
-            if (sagas.Length == 0)
+            var sagas = sagaSpecs.Sagas;
+            if (sagas.Count == 0)
             {
                 return;
             }
@@ -28,7 +27,7 @@ public sealed partial class AddSagaInterceptor
                 .WithGeneratedCodeAttribute();
 
             var allPropertyMappings = sagas
-                .SelectMany(i => i.PropertyMappings.Items)
+                .SelectMany(i => i.PropertyMappings)
                 .GroupBy(m => (m.MessageType, m.MessagePropertyName))
                 .Select(g => g.First())
                 .OrderBy(m => m.MessageType, StringComparer.Ordinal)
@@ -111,7 +110,7 @@ public sealed partial class AddSagaInterceptor
 
             sb.AppendLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sb.AppendLine("{");
-            foreach (var message in details.Handler.Registrations.Items.Select(r => new { r.MessageType, CanStartSaga = r.RegistrationType == RegistrationType.StartMessageHandler }))
+            foreach (var message in details.Handler.Registrations.Select(r => new { r.MessageType, CanStartSaga = r.RegistrationType == RegistrationType.StartMessageHandler }))
             {
                 sb.Append("    new NServiceBus.Sagas.SagaMessage(typeof(");
                 sb.Append(message.MessageType);
@@ -122,11 +121,11 @@ public sealed partial class AddSagaInterceptor
             sb.AppendLine("};");
 
             // Generate property accessors for property mappings
-            if (details.PropertyMappings.Items.Length > 0)
+            if (details.PropertyMappings.Count > 0)
             {
                 sb.AppendLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
                 sb.AppendLine("{");
-                foreach (var mapping in (ImmutableArray<PropertyMappingSpec>)details.PropertyMappings)
+                foreach (var mapping in details.PropertyMappings)
                 {
                     var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
                     sb.Append("    new ");

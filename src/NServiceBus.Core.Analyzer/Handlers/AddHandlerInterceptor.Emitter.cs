@@ -14,9 +14,7 @@ public sealed partial class AddHandlerInterceptor
 
         static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs)
         {
-            handlerSpecs.Handlers.Deconstruct(out var handlers);
-
-            if (handlers.Length == 0)
+            if (handlerSpecs.Handlers.Count == 0)
             {
                 return;
             }
@@ -38,6 +36,7 @@ public sealed partial class AddHandlerInterceptor
                                    """);
             sourceWriter.Indentation++;
 
+            var handlers = handlerSpecs.Handlers;
             var groups = handlers.Select(h => (MethodName: CreateMethodName(h.Name, h.HandlerType), Handler: h))
                 .GroupBy(i => i.MethodName)
                 .OrderBy(g => g.Key, StringComparer.Ordinal);
@@ -82,7 +81,7 @@ public sealed partial class AddHandlerInterceptor
                                    var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                       .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    """);
-            foreach (var registration in handlerSpec.Registrations.Items)
+            foreach (var registration in handlerSpec.Registrations)
             {
                 var addType = registration.RegistrationType switch
                 {
