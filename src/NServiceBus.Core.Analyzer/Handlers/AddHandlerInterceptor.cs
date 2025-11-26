@@ -16,11 +16,11 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
                 transform: Parser.Parse)
             .Where(static d => d is not null)
             .Select(static (d, _) => d!)
-            .WithTrackingName("InterceptCandidates");
+            .WithTrackingName("HandlerSpec");
 
         var collected = addHandlers.Collect()
-            .Select((handlers, _) => new HandlersSpec(handlers))
-            .WithTrackingName("Collected");
+            .Select((handlers, _) => new HandlerSpecs(handlers))
+            .WithTrackingName("HandlerSpecs");
 
         context.RegisterSourceOutput(collected,
             static (productionContext, spec) =>
@@ -32,7 +32,7 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
 
     internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, string Name, string HandlerType, EquatableArray<RegistrationSpec> Registrations);
 
-    internal readonly record struct HandlersSpec(EquatableArray<HandlerSpec> Handlers);
+    internal readonly record struct HandlerSpecs(EquatableArray<HandlerSpec> Handlers);
 
     internal enum RegistrationType
     {

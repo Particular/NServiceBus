@@ -14,7 +14,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
-using static Handlers.AddHandlerInterceptor;
 
 public sealed partial class AddSagaInterceptor
 {
@@ -33,7 +32,7 @@ public sealed partial class AddSagaInterceptor
             ArgumentList.Arguments.Count: 0
         };
 
-        public static InterceptDetails? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static SagaSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
             var invocation = (InvocationExpressionSyntax)ctx.Node;
 
@@ -79,7 +78,7 @@ public sealed partial class AddSagaInterceptor
             // Analyze ConfigureHowToFindSaga to extract mappings
             var propertyMappings = ExtractPropertyMappings(sagaType, sagaDataType, ctx.SemanticModel, cancellationToken);
 
-            return new InterceptDetails(
+            return new SagaSpec(
                 InterceptLocationSpec.From(location),
                 methodName,
                 sagaFullyQualifiedName,
@@ -369,14 +368,4 @@ public sealed partial class AddSagaInterceptor
             }
         }
     }
-
-    internal record InterceptDetails(
-        InterceptLocationSpec Location,
-        string MethodName,
-        string SagaType,
-        string SagaDataType,
-        EquatableArray<PropertyMappingSpec> PropertyMappings,
-        HandlerSpec Handler);
-
-    internal record PropertyMappingSpec(string MessageType, string MessagePropertyName);
 }

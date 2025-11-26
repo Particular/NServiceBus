@@ -13,11 +13,12 @@ public sealed partial class AddSagaInterceptor
 {
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(ImmutableArray<InterceptDetails> intercepts) => Emit(sourceProductionContext, intercepts);
+        public void Emit(SagaSpecs sagaSpecs) => Emit(sourceProductionContext, sagaSpecs);
 
-        static void Emit(SourceProductionContext context, ImmutableArray<InterceptDetails> intercepts)
+        static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs)
         {
-            if (intercepts.Length == 0)
+            sagaSpecs.Sagas.Deconstruct(out var sagas);
+            if (sagas.Length == 0)
             {
                 return;
             }
@@ -26,7 +27,7 @@ public sealed partial class AddSagaInterceptor
                 .ForInterceptor()
                 .WithGeneratedCodeAttribute();
 
-            var allPropertyMappings = intercepts
+            var allPropertyMappings = sagas
                 .SelectMany(i => i.PropertyMappings.Items)
                 .GroupBy(m => (m.MessageType, m.MessagePropertyName))
                 .Select(g => g.First())
@@ -65,16 +66,16 @@ public sealed partial class AddSagaInterceptor
                                    """);
             sourceWriter.Indentation++;
 
-            var groups = intercepts.GroupBy(i => i.MethodName)
+            var groups = sagas.GroupBy(i => i.MethodName)
                 .OrderBy(g => g.Key, StringComparer.Ordinal);
-            foreach (IGrouping<string, InterceptDetails> group in groups)
+            foreach (IGrouping<string, SagaSpec> group in groups)
             {
-                foreach (InterceptDetails location in group)
+                foreach (SagaSpec location in group)
                 {
                     sourceWriter.WriteLine($"{location.Location.Attribute} // {location.Location.DisplayLocation}");
                 }
 
-                InterceptDetails first = group.First();
+                SagaSpec first = group.First();
 
                 // Generate builder API calls
                 var builderCode = GenerateBuilderCode(first);
@@ -104,7 +105,7 @@ public sealed partial class AddSagaInterceptor
             context.AddSource("InterceptionsOfAddSagaMethod.g.cs", sourceWriter.ToSourceText());
         }
 
-        static string GenerateBuilderCode(InterceptDetails details)
+        static string GenerateBuilderCode(SagaSpec details)
         {
             var sb = new StringBuilder();
 
@@ -159,4 +160,3 @@ public sealed partial class AddSagaInterceptor
         }
     }
 }
-

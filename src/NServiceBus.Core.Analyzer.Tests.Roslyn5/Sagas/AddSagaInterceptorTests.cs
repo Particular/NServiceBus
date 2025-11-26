@@ -53,7 +53,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -122,7 +122,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -166,7 +166,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -220,7 +220,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -272,7 +272,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -323,7 +323,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
@@ -390,7 +390,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("InterceptCandidates", "Collected")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();

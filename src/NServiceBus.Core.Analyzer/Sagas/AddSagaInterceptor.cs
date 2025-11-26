@@ -2,7 +2,10 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
+using Handlers;
 using Microsoft.CodeAnalysis;
+using Utility;
+using static Handlers.AddHandlerInterceptor;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddSagaInterceptor : IIncrementalGenerator
@@ -15,10 +18,11 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
                 transform: Parser.Parse)
             .Where(static d => d is not null)
             .Select(static (d, _) => d!)
-            .WithTrackingName("InterceptCandidates");
+            .WithTrackingName("SagaSpec");
 
         var collected = addSagas.Collect()
-            .WithTrackingName("Collected");
+            .Select((sagas, _) => new SagaSpecs(sagas))
+            .WithTrackingName("SagaSpecs");
 
         context.RegisterSourceOutput(collected,
             static (productionContext, intercepts) =>
@@ -27,4 +31,16 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
                 emitter.Emit(intercepts);
             });
     }
+
+    internal readonly record struct SagaSpecs(EquatableArray<SagaSpec> Sagas);
+
+    internal record SagaSpec(
+        InterceptLocationSpec Location,
+        string MethodName,
+        string SagaType,
+        string SagaDataType,
+        EquatableArray<PropertyMappingSpec> PropertyMappings,
+        HandlerSpec Handler);
+
+    internal record PropertyMappingSpec(string MessageType, string MessagePropertyName);
 }

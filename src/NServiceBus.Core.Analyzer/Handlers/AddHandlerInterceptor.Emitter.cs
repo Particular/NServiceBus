@@ -10,26 +10,11 @@ public sealed partial class AddHandlerInterceptor
 {
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(HandlersSpec handlersSpec) => Emit(sourceProductionContext, handlersSpec);
+        public void Emit(HandlerSpecs handlerSpecs) => Emit(sourceProductionContext, handlerSpecs);
 
-        static string CreateMethodName(string name, string handlerType)
+        static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs)
         {
-            const string NamePrefix = "AddHandler_";
-
-            var sb = new StringBuilder(NamePrefix, 50)
-                .Append(name)
-                .Append('_');
-
-            var hash = NonCryptographicHash.GetHash(handlerType);
-
-            sb.Append(hash.ToString("x16"));
-
-            return sb.ToString();
-        }
-
-        static void Emit(SourceProductionContext context, HandlersSpec handlersSpec)
-        {
-            handlersSpec.Handlers.Deconstruct(out var handlers);
+            handlerSpecs.Handlers.Deconstruct(out var handlers);
 
             if (handlers.Length == 0)
             {
@@ -108,6 +93,21 @@ public sealed partial class AddHandlerInterceptor
 
                 sourceWriter.WriteLine($"registry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
             }
+        }
+
+        static string CreateMethodName(string name, string handlerType)
+        {
+            const string NamePrefix = "AddHandler_";
+
+            var sb = new StringBuilder(NamePrefix, 50)
+                .Append(name)
+                .Append('_');
+
+            var hash = NonCryptographicHash.GetHash(handlerType);
+
+            sb.Append(hash.ToString("x16"));
+
+            return sb.ToString();
         }
     }
 }
