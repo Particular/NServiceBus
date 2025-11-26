@@ -2,7 +2,6 @@
 
 namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Helpers;
 using NServiceBus.Core.Analyzer.Fixes;
