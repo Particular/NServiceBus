@@ -76,9 +76,6 @@ public sealed partial class AddSagaInterceptor
 
                 SagaSpec first = group.First();
 
-                // Generate builder API calls
-                var builderCode = GenerateBuilderCode(first);
-
                 sourceWriter.WriteLine($$"""
                                          public void {{first.MethodName}}()
                                          {
@@ -91,7 +88,8 @@ public sealed partial class AddSagaInterceptor
                                           .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                                        """);
 
-                sourceWriter.WriteLine($"{builderCode}");
+                // Generate builder API calls directly into the source writer
+                GenerateBuilderCode(sourceWriter, first);
                 sourceWriter.WriteLine("sagaMetadataCollection.Register(metadata);");
                 AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, first.Handler);
 
@@ -104,51 +102,33 @@ public sealed partial class AddSagaInterceptor
             context.AddSource("InterceptionsOfAddSagaMethod.g.cs", sourceWriter.ToSourceText());
         }
 
-        static string GenerateBuilderCode(SagaSpec details)
+        static void GenerateBuilderCode(SourceWriter sourceWriter, SagaSpec details)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
-            sb.AppendLine("{");
+            sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
+            sourceWriter.WriteLine("{");
             foreach (var message in details.Handler.Registrations.Select(r => new { r.MessageType, CanStartSaga = r.RegistrationType == RegistrationType.StartMessageHandler }))
             {
-                sb.Append("    new NServiceBus.Sagas.SagaMessage(typeof(");
-                sb.Append(message.MessageType);
-                sb.Append("), ");
-                sb.Append(message.CanStartSaga ? "true" : "false");
-                sb.AppendLine("),");
+                sourceWriter.WriteLine($"    new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.CanStartSaga ? "true" : "false")}),");
             }
-            sb.AppendLine("};");
+            sourceWriter.WriteLine("};");
 
             // Generate property accessors for property mappings
             if (details.PropertyMappings.Count > 0)
             {
-                sb.AppendLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
-                sb.AppendLine("{");
+                sourceWriter.WriteLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
+                sourceWriter.WriteLine("{");
                 foreach (var mapping in details.PropertyMappings)
                 {
                     var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
-                    sb.Append("    new ");
-                    sb.Append(accessorClassName);
-                    sb.AppendLine("(),");
+                    sourceWriter.WriteLine($"    new {accessorClassName}(),");
                 }
-                sb.AppendLine("};");
-                sb.Append("var metadata = NServiceBus.Sagas.SagaMetadata.Create<");
-                sb.Append(details.SagaType);
-                sb.Append(", ");
-                sb.Append(details.SagaDataType);
-                sb.AppendLine(">(associatedMessages, propertyAccessors);");
+                sourceWriter.WriteLine("};");
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
             }
             else
             {
-                sb.Append("var metadata = NServiceBus.Sagas.SagaMetadata.Create<");
-                sb.Append(details.SagaType);
-                sb.Append(", ");
-                sb.Append(details.SagaDataType);
-                sb.AppendLine(">(associatedMessages);");
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages);");
             }
-
-            return sb.ToString().Trim();
         }
 
         static string CreateAccessorName(string messageType, string propertyName)
