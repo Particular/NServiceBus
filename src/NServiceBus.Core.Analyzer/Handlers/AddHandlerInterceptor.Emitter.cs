@@ -58,14 +58,20 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(g => g.Key, StringComparer.Ordinal);
             foreach (var group in groups)
             {
+                (string MethodName, HandlerSpec HandlerSpec) first = default;
                 foreach (var location in group)
                 {
+                    if (first == default)
+                    {
+                        first = location;
+                    }
+
                     var (_, handler) = location;
                     sourceWriter.WriteLine(
                         $"{handler.LocationSpec.Attribute} // {handler.LocationSpec.DisplayLocation}");
                 }
 
-                var (methodName, handlerSpec) = group.First();
+                (string methodName, HandlerSpec handlerSpec) = first;
                 sourceWriter.WriteLine($$"""
                                          public void {{methodName}}()
                                          {
