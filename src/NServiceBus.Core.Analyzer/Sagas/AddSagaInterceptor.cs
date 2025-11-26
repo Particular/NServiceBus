@@ -6,18 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
-using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using Microsoft.CodeAnalysis.Text;
 using Utility;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public class AddSagaInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -517,8 +514,8 @@ public class AddSagaInterceptor : IIncrementalGenerator
         readonly List<PropertyMappingInfo> propertyMappings = [];
         readonly List<HeaderMappingInfo> headerMappings = [];
 
-        public ImmutableArray<PropertyMappingInfo> PropertyMappings => [..propertyMappings];
-        public ImmutableArray<HeaderMappingInfo> HeaderMappings => [..headerMappings];
+        public ImmutableArray<PropertyMappingInfo> PropertyMappings => [.. propertyMappings];
+        public ImmutableArray<HeaderMappingInfo> HeaderMappings => [.. headerMappings];
 
         public override void VisitInvocationExpression(InvocationExpressionSyntax node)
         {

@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -14,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public class AddHandlerInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
