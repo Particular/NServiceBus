@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
+using Utility;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
@@ -28,4 +29,17 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
                 emitter.Emit(spec);
             });
     }
+
+    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, string Name, string HandlerType, EquatableArray<RegistrationSpec> Registrations);
+
+    internal readonly record struct HandlersSpec(EquatableArray<HandlerSpec> Handlers);
+
+    internal enum RegistrationType
+    {
+        MessageHandler,
+        StartMessageHandler,
+        TimeoutHandler,
+    }
+
+    internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType);
 }

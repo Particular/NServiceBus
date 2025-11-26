@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
+using static Handlers.AddHandlerInterceptor;
 
 public sealed partial class AddSagaInterceptor
 {
@@ -379,4 +380,3 @@ public sealed partial class AddSagaInterceptor
 
     internal record PropertyMappingSpec(string MessageType, string MessagePropertyName);
 }
-
