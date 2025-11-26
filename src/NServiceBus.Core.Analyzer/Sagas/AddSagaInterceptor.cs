@@ -102,7 +102,8 @@ public class AddSagaInterceptor : IIncrementalGenerator
             sagaDataFullyQualifiedName,
             propertyMappings,
             headerMappings,
-            messages);
+            messages,
+            handlerSpec);
     }
 
     static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)
@@ -426,7 +427,7 @@ public class AddSagaInterceptor : IIncrementalGenerator
 
             sourceWriter.WriteLine($"{builderCode}");
             sourceWriter.WriteLine("sagaMetadataCollection.Register(metadata);");
-            sourceWriter.WriteLine($"endpointConfiguration.AddHandler<{first.SagaType}>();");
+            AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, first.Handler);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -501,7 +502,8 @@ public class AddSagaInterceptor : IIncrementalGenerator
         string SagaDataType,
         EquatableArray<PropertyMappingInfo> PropertyMappings,
         EquatableArray<HeaderMappingInfo> HeaderMappings,
-        EquatableArray<MessageInfo> Messages);
+        EquatableArray<MessageInfo> Messages,
+        HandlerSpec Handler);
 
     record PropertyMappingInfo(string MessageType, string SagaPropertyName, string SagaPropertyType, string MessagePropertyName);
     record HeaderMappingInfo(string MessageType, string SagaPropertyName, string SagaPropertyType, string HeaderName);

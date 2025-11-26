@@ -56,7 +56,9 @@ namespace NServiceBus
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Register(metadata);
-                endpointConfiguration.AddHandler<global::OrderSaga>();
+                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
             }
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddSaga_PaymentSaga_7fc38895dc05807c()
@@ -74,7 +76,9 @@ namespace NServiceBus
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga, global::PaymentSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Register(metadata);
-                endpointConfiguration.AddHandler<global::PaymentSaga>();
+                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                registry.AddMessageHandlerForMessage<global::PaymentSaga, global::PaymentRequested>();
             }
         }
     }

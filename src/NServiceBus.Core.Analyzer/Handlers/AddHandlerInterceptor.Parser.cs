@@ -46,7 +46,8 @@ public sealed partial class AddHandlerInterceptor
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is
         {
-            Name: "IHandleMessages" or "IHandleTimeouts",
+            // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
+            Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
             IsGenericType: true,
             ContainingNamespace:
             {
@@ -86,8 +87,15 @@ public sealed partial class AddHandlerInterceptor
                 .Select(type =>
                 {
                     var messageType = type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    var addType = type.Name == "IHandleTimeouts" ? "Timeout" : "Message";
-                    return new RegistrationSpec(addType, messageType);
+                    var registrationType = type.Name switch
+                    {
+                        "IHandleMessages" => RegistrationType.MessageHandler,
+                        "IHandleTimeouts" => RegistrationType.TimeoutHandler,
+                        "IAmStartedByMessages" => RegistrationType.StartMessageHandler,
+                        _ => throw new System.NotImplementedException()
+                    };
+
+                    return new RegistrationSpec(registrationType, messageType);
                 })
                 .ToImmutableArray();
 

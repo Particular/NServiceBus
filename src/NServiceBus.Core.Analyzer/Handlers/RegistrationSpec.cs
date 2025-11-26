@@ -1,4 +1,11 @@
 #nullable enable
 namespace NServiceBus.Core.Analyzer.Handlers;
 
-readonly record struct RegistrationSpec(string AddType, string MessageType);
+enum RegistrationType
+{
+    MessageHandler,
+    StartMessageHandler,
+    TimeoutHandler,
+}
+
+readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType);

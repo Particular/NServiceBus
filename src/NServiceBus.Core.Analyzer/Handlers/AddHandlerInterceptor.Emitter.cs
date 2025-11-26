@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -8,9 +9,9 @@ using Utility;
 
 public sealed partial class AddHandlerInterceptor
 {
-    class Emitter(SourceProductionContext sourceProductionContext)
+    internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(HandlersSpec handlersSpec) => GenerateInterceptorCode(sourceProductionContext, handlersSpec);
+        public void Emit(HandlersSpec handlersSpec) => Emit(sourceProductionContext, handlersSpec);
 
         static string CreateMethodName(string name, string handlerType)
         {
@@ -27,7 +28,7 @@ public sealed partial class AddHandlerInterceptor
             return sb.ToString();
         }
 
-        static void GenerateInterceptorCode(SourceProductionContext context, HandlersSpec handlersSpec)
+        static void Emit(SourceProductionContext context, HandlersSpec handlersSpec)
         {
             handlersSpec.Handlers.Deconstruct(out var handlers);
 
@@ -77,16 +78,10 @@ public sealed partial class AddHandlerInterceptor
                                          {
                                          """);
                 sourceWriter.Indentation++;
-                sourceWriter.WriteLine("""
-                                       System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                                       var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                                          .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                       """);
-                foreach (var registration in handlerSpec.Registrations.Items)
-                {
-                    sourceWriter.WriteLine(
-                        $"registry.Add{registration.AddType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
-                }
+
+                sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
+
+                EmitHandlerRegistryCode(sourceWriter, handlerSpec);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -95,6 +90,32 @@ public sealed partial class AddHandlerInterceptor
             sourceWriter.CloseCurlies();
 
             context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
+        }
+
+        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)
+        {
+            sourceWriter.WriteLine("""
+                                   var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                                      .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                                   """);
+            var deduplicateHandlers = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var registration in handlerSpec.Registrations.Items)
+            {
+                var addType = registration.RegistrationType switch
+                {
+                    RegistrationType.MessageHandler or RegistrationType.StartMessageHandler => "Message",
+                    RegistrationType.TimeoutHandler => "Timeout",
+                    _ => "Message"
+                };
+
+                var registry = $"registry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();";
+                if (!deduplicateHandlers.Add(registry))
+                {
+                    continue;
+                }
+
+                sourceWriter.WriteLine(registry);
+            }
         }
     }
 }

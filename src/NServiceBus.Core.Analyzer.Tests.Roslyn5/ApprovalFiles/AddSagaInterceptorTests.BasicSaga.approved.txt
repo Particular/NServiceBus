@@ -57,7 +57,10 @@ namespace NServiceBus
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Register(metadata);
-                endpointConfiguration.AddHandler<global::OrderSaga>();
+                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
+                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
             }
         }
     }
