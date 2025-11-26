@@ -127,12 +127,11 @@ public sealed partial class AddSagaInterceptor
             SemanticModel semanticModel,
             CancellationToken cancellationToken)
         {
-            var mappings = ImmutableArray.CreateBuilder<PropertyMappingSpec>();
             var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
 
             if (configureMethod == null)
             {
-                return mappings.ToImmutableEquatableArray();
+                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
             }
 
             // Get syntax node from method symbol
@@ -143,31 +142,29 @@ public sealed partial class AddSagaInterceptor
                 .ToArray();
             if (syntaxRefs.Length == 0)
             {
-                return mappings.ToImmutableEquatableArray();
+                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
             }
 
             var methodSyntax = syntaxRefs[0].GetSyntax(cancellationToken);
             if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
             {
-                return mappings.ToImmutableEquatableArray();
+                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
             }
 
             // Get method body (block or expression body)
             SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
             if (methodBody == null)
             {
-                return mappings.ToImmutableEquatableArray();
+                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
             }
 
-            var walker = new ConfigureMappingWalker(semanticModel, sagaDataType, cancellationToken);
+            var mappings = new List<PropertyMappingSpec>();
+            var walker = new ConfigureMappingWalker(semanticModel, sagaDataType, mappings, cancellationToken);
             walker.Visit(methodBody);
 
             // Sort mappings to ensure deterministic ordering
-            foreach (var propertyMappingInfo in walker.PropertyMappings.OrderBy(m => m.MessageType, StringComparer.Ordinal))
-            {
-                mappings.Add(propertyMappingInfo);
-            }
-            return mappings.ToImmutableEquatableArray();
+            return mappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
+                .ToImmutableEquatableArray();
         }
 
         static IMethodSymbol? FindConfigureHowToFindSagaMethod(
@@ -204,35 +201,26 @@ public sealed partial class AddSagaInterceptor
         const string AddSagaClassName = "SagaRegistrationExtensions";
         const string AddSagaMethodName = "AddSaga";
 
-        class ConfigureMappingWalker(
+        sealed class ConfigureMappingWalker(
             SemanticModel semanticModel,
             INamedTypeSymbol sagaDataType,
+            List<PropertyMappingSpec> propertyMappings,
             CancellationToken cancellationToken)
             : CSharpSyntaxWalker
         {
-            readonly List<PropertyMappingSpec> propertyMappings = [];
-
-            public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings => propertyMappings.ToImmutableEquatableArray();
-
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
                 base.VisitInvocationExpression(node);
 
                 // Look for .ToSaga(...) calls
-                if (node.Expression is MemberAccessExpressionSyntax memberAccess &&
-                    memberAccess.Name.Identifier.ValueText == "ToSaga")
+                if (node.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "ToSaga", Expression: InvocationExpressionSyntax configureMappingCall })
+                // This is a ToSaga call, now we need to find the ConfigureMapping or ConfigureHeaderMapping call
                 {
-                    // This is a ToSaga call, now we need to find the ConfigureMapping or ConfigureHeaderMapping call
-                    if (memberAccess.Expression is InvocationExpressionSyntax configureMappingCall)
-                    {
-                        AnalyzeConfigureMappingCall(configureMappingCall, node);
-                    }
+                    AnalyzeConfigureMappingCall(configureMappingCall, node);
                 }
 
                 // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
-                if (node.Expression is MemberAccessExpressionSyntax toMessageAccess &&
-                    toMessageAccess.Name is GenericNameSyntax genericName &&
-                    genericName.Identifier.ValueText == "ToMessage")
+                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } } toMessageAccess)
                 {
                     // This is a ToMessage call from MapSaga().ToMessage<TMessage>(...)
                     // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
@@ -245,33 +233,29 @@ public sealed partial class AddSagaInterceptor
             {
                 // The expression structure is: [MapSaga call].ToMessage<TMessage>(...)
                 // We need to find the MapSaga call and extract the saga property
-                if (toMessageAccess.Expression is InvocationExpressionSyntax mapSagaCall)
+                // Extract saga property from MapSaga argument
+                if (toMessageAccess.Expression is InvocationExpressionSyntax { ArgumentList.Arguments.Count: > 0 } mapSagaCall)
                 {
-                    // Extract saga property from MapSaga argument
-                    if (mapSagaCall.ArgumentList.Arguments.Count > 0)
+                    var sagaPropertyArg = mapSagaCall.ArgumentList.Arguments[0].Expression;
+                    var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg);
+
+                    if (sagaPropertyInfo != null && toMessageCall.ArgumentList.Arguments.Count > 0)
                     {
-                        var sagaPropertyArg = mapSagaCall.ArgumentList.Arguments[0].Expression;
-                        var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg, sagaDataType);
+                        // Extract message property and type
+                        var messagePropertyArg = toMessageCall.ArgumentList.Arguments[0].Expression;
+                        var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
 
-                        if (sagaPropertyInfo != null && toMessageCall.ArgumentList.Arguments.Count > 0)
+                        // Get message type from generic argument
+                        if (toMessageAccess.Name is GenericNameSyntax { TypeArgumentList.Arguments.Count: > 0 } genericName)
                         {
-                            // Extract message property and type
-                            var messagePropertyArg = toMessageCall.ArgumentList.Arguments[0].Expression;
-                            var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
+                            var messageTypeSyntax = genericName.TypeArgumentList.Arguments[0];
 
-                            // Get message type from generic argument
-                            if (toMessageAccess.Name is GenericNameSyntax genericName &&
-                                genericName.TypeArgumentList.Arguments.Count > 0)
+                            if (semanticModel.GetSymbolInfo(messageTypeSyntax, cancellationToken).Symbol is INamedTypeSymbol messageTypeSymbol && messagePropertyName != null)
                             {
-                                var messageTypeSyntax = genericName.TypeArgumentList.Arguments[0];
-
-                                if (semanticModel.GetSymbolInfo(messageTypeSyntax, cancellationToken).Symbol is INamedTypeSymbol messageTypeSymbol && messagePropertyName != null)
-                                {
-                                    var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                                    propertyMappings.Add(new PropertyMappingSpec(
-                                        messageTypeName,
-                                        messagePropertyName));
-                                }
+                                var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                propertyMappings.Add(new PropertyMappingSpec(
+                                    messageTypeName,
+                                    messagePropertyName));
                             }
                         }
                     }
@@ -289,7 +273,7 @@ public sealed partial class AddSagaInterceptor
                 var methodName = method.Name;
 
                 // Check if this is ConfigureMapping<TMessage>(...)
-                if (methodName == "ConfigureMapping" && method.IsGenericMethod && method.TypeArguments.Length == 1)
+                if (methodName == "ConfigureMapping" && method is { IsGenericMethod: true, TypeArguments.Length: 1 })
                 {
                     var messageType = method.TypeArguments[0];
                     if (messageType is INamedTypeSymbol messageTypeSymbol)
@@ -304,7 +288,7 @@ public sealed partial class AddSagaInterceptor
                             if (toSagaCall.ArgumentList.Arguments.Count > 0)
                             {
                                 var sagaPropertyArg = toSagaCall.ArgumentList.Arguments[0].Expression;
-                                var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg, sagaDataType);
+                                var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg);
 
                                 if (messagePropertyName != null && sagaPropertyInfo != null)
                                 {
@@ -322,45 +306,48 @@ public sealed partial class AddSagaInterceptor
             static string? ExtractPropertyNameFromExpression(ExpressionSyntax expression)
             {
                 // Handle lambda: message => message.Property
-                if (expression is LambdaExpressionSyntax lambda)
+                if (expression is not LambdaExpressionSyntax lambda)
                 {
-                    if (lambda.Body is MemberAccessExpressionSyntax memberAccess)
-                    {
-                        return memberAccess.Name.Identifier.ValueText;
-                    }
-                    // Handle conversion: message => (object)message.Property
-                    if (lambda.Body is CastExpressionSyntax cast && cast.Expression is MemberAccessExpressionSyntax castMember)
-                    {
-                        return castMember.Name.Identifier.ValueText;
-                    }
+                    return null;
                 }
 
-                return null;
+                return lambda.Body switch
+                {
+                    MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                    // Handle conversion: message => (object)message.Property
+                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember.Name
+                        .Identifier.ValueText,
+                    _ => null
+                };
             }
 
-            IPropertySymbol? ExtractPropertyInfoFromExpression(ExpressionSyntax expression, INamedTypeSymbol sagaDataType)
+            IPropertySymbol? ExtractPropertyInfoFromExpression(ExpressionSyntax expression)
             {
                 // Handle lambda: saga => saga.Property
-                if (expression is LambdaExpressionSyntax lambda)
+                if (expression is not LambdaExpressionSyntax lambda)
                 {
-                    var body = lambda.Body;
+                    return null;
+                }
 
-                    // Handle conversion: saga => (object)saga.Property
-                    if (body is CastExpressionSyntax cast)
-                    {
-                        body = cast.Expression;
-                    }
+                var body = lambda.Body;
 
-                    if (body is MemberAccessExpressionSyntax memberAccess)
+                // Handle conversion: saga => (object)saga.Property
+                if (body is CastExpressionSyntax cast)
+                {
+                    body = cast.Expression;
+                }
+
+                if (body is not MemberAccessExpressionSyntax memberAccess)
+                {
+                    return null;
+                }
+
+                if (semanticModel.GetSymbolInfo(memberAccess, cancellationToken).Symbol is IPropertySymbol property)
+                {
+                    // Verify the property belongs to the saga data type
+                    if (property.ContainingType.Equals(sagaDataType, SymbolEqualityComparer.Default))
                     {
-                        if (semanticModel.GetSymbolInfo(memberAccess, cancellationToken).Symbol is IPropertySymbol property)
-                        {
-                            // Verify the property belongs to the saga data type
-                            if (property.ContainingType.Equals(sagaDataType, SymbolEqualityComparer.Default))
-                            {
-                                return property;
-                            }
-                        }
+                        return property;
                     }
                 }
 
