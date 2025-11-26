@@ -13,7 +13,7 @@ using Utility;
 
 public sealed partial class AddHandlerInterceptor
 {
-    static class Parser
+    internal static class Parser
     {
         public static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node) => node is InvocationExpressionSyntax
         {
@@ -70,6 +70,12 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
+            return Parse(ctx, operation, invocation, cancellationToken);
+        }
+
+        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx,
+            IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
                 return null;

@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -75,6 +76,12 @@ public class AddSagaInterceptor : IIncrementalGenerator
 
         // Get interceptable location for code generation
         if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+        {
+            return null;
+        }
+
+        var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx, operation, invocation, cancellationToken);
+        if (handlerSpec == null)
         {
             return null;
         }
