@@ -153,8 +153,7 @@ public sealed partial class AddSagaInterceptor
 
         static string CreateAccessorName(string messageType, string propertyName)
         {
-            var combined = $"{messageType}_{propertyName}";
-            var hash = NonCryptographicHash.GetHash(combined);
+            var hash = NonCryptographicHash.GetHash(messageType, "_", propertyName);
             return hash.ToString("x16");
         }
     }
