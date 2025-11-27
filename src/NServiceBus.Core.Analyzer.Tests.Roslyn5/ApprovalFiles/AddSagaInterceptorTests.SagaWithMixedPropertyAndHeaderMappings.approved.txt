@@ -54,7 +54,7 @@ namespace NServiceBus
             protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
 
             [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-            static extern object? AccessFrom_Property(global::OrderCreated message);
+            static extern string AccessFrom_Property(global::OrderCreated message);
 
             public static readonly NServiceBus.MessagePropertyAccessor Instance = new OrderCreatedOrderIdAccessor_16edcde3129fe540();
         }

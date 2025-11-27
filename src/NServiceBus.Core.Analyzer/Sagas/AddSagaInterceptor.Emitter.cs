@@ -104,7 +104,7 @@ public sealed partial class AddSagaInterceptor
                 sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
-                sourceWriter.WriteLine($"static extern object? AccessFrom_Property({mapping.MessageType} message);");
+                sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;

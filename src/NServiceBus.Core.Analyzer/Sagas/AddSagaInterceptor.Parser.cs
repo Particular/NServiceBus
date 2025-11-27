@@ -193,57 +193,69 @@ public sealed partial class AddSagaInterceptor
                 base.VisitInvocationExpression(node);
 
                 // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
-                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } } toMessageAccess)
+                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } })
                 {
                     // This is a ToMessage call from MapSaga().ToMessage<TMessage>(...)
                     // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
-                    AnalyzeMapSagaToMessageCall(node, toMessageAccess);
+                    AnalyzeMapSagaToMessageCall(node);
                 }
             }
 
-            void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall, MemberAccessExpressionSyntax toMessageAccess)
+            void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
             {
                 if (toMessageCall.ArgumentList.Arguments.Count <= 0)
                 {
                     return;
                 }
 
-                // Extract message property and type
-                var messagePropertyArg = toMessageCall.ArgumentList.Arguments[0].Expression;
-                var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
-
-                // Get message type from generic argument
-                if (toMessageAccess.Name is not GenericNameSyntax { TypeArgumentList.Arguments.Count: > 0 } genericName)
+                if (toMessageCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
                 {
                     return;
                 }
 
-                var messageTypeSyntax = genericName.TypeArgumentList.Arguments[0];
-                if (semanticModel.GetSymbolInfo(messageTypeSyntax, cancellationToken).Symbol is not INamedTypeSymbol messageTypeSymbol || messagePropertyName == null)
+                // Normalize body to a MemberAccessExpressionSyntax
+                MemberAccessExpressionSyntax? memberAccess = lambda.Body switch
                 {
-                    return;
-                }
-
-                var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                propertyMappings.Add(new PropertyMappingSpec(messageTypeName, messageTypeSymbol.Name, messagePropertyName));
-            }
-
-            static string? ExtractPropertyNameFromExpression(ExpressionSyntax expression)
-            {
-                // Handle lambda: message => message.Property
-                if (expression is not LambdaExpressionSyntax lambda)
-                {
-                    return null;
-                }
-
-                return lambda.Body switch
-                {
-                    MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
-                    // Handle conversion: message => (object)message.Property
-                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember.Name
-                        .Identifier.ValueText,
+                    MemberAccessExpressionSyntax m => m,
+                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember,
                     _ => null
                 };
+
+                if (memberAccess is null)
+                {
+                    return;
+                }
+
+                // Property name (syntax)
+                var propertyName = memberAccess.Name.Identifier.ValueText;
+                if (string.IsNullOrWhiteSpace(propertyName))
+                {
+                    return;
+                }
+
+                // Message "variable" expression: the left side of "message.Property"
+                var messageExpression = memberAccess.Expression;
+
+                // Message type (symbol)
+                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type;
+                if (messageTypeSymbol is null)
+                {
+                    return;
+                }
+
+                var messageType = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var messageName = messageTypeSymbol.Name; // simple name, e.g. "SomeMessage"
+
+                // Property symbol & type
+                var symbolInfo = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
+                if (symbolInfo.Symbol is not IPropertySymbol propertySymbol)
+                {
+                    return;
+                }
+
+                var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                propertyMappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
             }
         }
     }
