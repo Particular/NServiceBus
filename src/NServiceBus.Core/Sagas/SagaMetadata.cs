@@ -120,7 +120,7 @@ public partial class SagaMetadata
             throw new Exception($"'{sagaType.Name}' saga type does not implement Saga<T>");
         }
 
-        var associatedMessages = GetAssociatedMessages(sagaType).ToList();
+        var associatedMessages = GetAssociatedMessages(sagaType);
 
         var sagaEntityType = genericArguments.Single();
 
