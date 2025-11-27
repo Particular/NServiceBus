@@ -69,15 +69,16 @@ public partial class PersistenceTestsConfiguration : IPersistenceTestsConfigurat
     {
         get
         {
-            if (field == null)
+            if (field != null)
             {
-                var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t =>
-                    typeof(Saga).IsAssignableFrom(t) || typeof(ISagaFinder<,>).IsAssignableFrom(t) ||
-                    typeof(IFinder).IsAssignableFrom(t)).ToArray();
-                field = new SagaMetadataCollection();
-                field.Initialize(sagaTypes);
+                return field;
             }
 
+            var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t =>
+                typeof(Saga).IsAssignableFrom(t) || typeof(ISagaFinder<,>).IsAssignableFrom(t) ||
+                typeof(IFinder).IsAssignableFrom(t)).ToArray();
+            field = [];
+            field.AddRange(SagaMetadata.CreateMany(sagaTypes));
             return field;
         }
         set;

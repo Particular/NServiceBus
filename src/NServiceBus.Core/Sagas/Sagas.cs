@@ -25,7 +25,8 @@ public sealed class Sagas : Feature
         Prerequisite(context =>
         {
             var sagaCollection = context.Settings.Get<SagaMetadataCollection>();
-            sagaCollection.Initialize(context.Settings.GetAvailableTypes());
+            var sagaMetadata = SagaMetadata.CreateMany(context.Settings.GetAvailableTypes());
+            sagaCollection.AddRange(sagaMetadata);
             return sagaCollection.HasMetadata;
         }, "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
     }
@@ -43,6 +44,7 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
+        sagaMetaModel.PreventChanges();
 
         if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
         {

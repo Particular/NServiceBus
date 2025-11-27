@@ -90,7 +90,7 @@ public sealed partial class AddSagaInterceptor
 
                 // Generate builder API calls directly into the source writer
                 GenerateBuilderCode(sourceWriter, first);
-                sourceWriter.WriteLine("sagaMetadataCollection.Register(metadata);");
+                sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, first.Handler);
 
                 sourceWriter.Indentation--;

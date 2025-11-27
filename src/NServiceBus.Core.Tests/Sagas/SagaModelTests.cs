@@ -13,8 +13,31 @@ public class SagaModelTests
     static SagaMetadataCollection GetModel(params Type[] types)
     {
         var sagaMetaModel = new SagaMetadataCollection();
-        sagaMetaModel.Initialize(types.ToList());
+        sagaMetaModel.AddRange(SagaMetadata.CreateMany(types));
         return sagaMetaModel;
+    }
+
+    [Test]
+    public void ThrowsAfterPreventChanges()
+    {
+        var model = GetModel(typeof(MySaga));
+
+        model.PreventChanges();
+
+        using (Assert.EnterMultipleScope())
+        {
+            _ = Assert.Throws<InvalidOperationException>(() => model.Add(SagaMetadata.Create<MySaga2>()));
+            _ = Assert.Throws<InvalidOperationException>(() => model.AddRange([SagaMetadata.Create<MySaga2>()]));
+            Assert.DoesNotThrow(() => model.Find(typeof(MySaga)));
+        }
+    }
+
+    [Test]
+    public void Deduplicates()
+    {
+        var model = GetModel(typeof(MySaga), typeof(MySaga), typeof(MySaga3));
+
+        Assert.That(model.Count(), Is.EqualTo(2));
     }
 
     [Test]
@@ -23,7 +46,6 @@ public class SagaModelTests
         var model = GetModel(typeof(MySaga));
 
         var metadata = model.Find(typeof(MySaga));
-
 
         Assert.That(metadata, Is.Not.Null);
     }

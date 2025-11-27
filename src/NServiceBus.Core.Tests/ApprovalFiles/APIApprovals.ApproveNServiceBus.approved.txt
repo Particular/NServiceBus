@@ -2146,6 +2146,7 @@ namespace NServiceBus.Sagas
         public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> CreateMany(System.Collections.Generic.IEnumerable<System.Type> sagaTypes) { }
         public class CorrelationPropertyMetadata
         {
             public CorrelationPropertyMetadata(string name, System.Type type) { }
@@ -2157,14 +2158,15 @@ namespace NServiceBus.Sagas
     {
         public SagaMetadataCollection() { }
         public bool HasMetadata { get; }
+        public void Add(NServiceBus.Sagas.SagaMetadata metadata) { }
+        public void AddRange(System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> metadata) { }
         public NServiceBus.Sagas.SagaMetadata Find(System.Type sagaType) { }
         public NServiceBus.Sagas.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
+        [System.Obsolete("Use \'SagaMetadata.CreateMany\' instead. Will be removed in version 11.0.0.", true)]
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
-        [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
-            "ion 11.0.0.", true)]
+        [System.Obsolete("Use \'SagaMetadata.CreateMany\' instead. Will be removed in version 11.0.0.", true)]
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
-        public void Register(NServiceBus.Sagas.SagaMetadata metadata) { }
     }
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {

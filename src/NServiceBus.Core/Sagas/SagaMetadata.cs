@@ -77,8 +77,6 @@ public partial class SagaMetadata
         return property != null;
     }
 
-    internal static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
-
     /// <summary>
     /// True if the specified message type is allowed to start the saga.
     /// </summary>
@@ -146,6 +144,23 @@ public partial class SagaMetadata
     /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     public static SagaMetadata Create<TSagaType>() where TSagaType : Saga => Create(typeof(TSagaType));
+
+    /// <summary>
+    /// Bulk creates <see cref="SagaMetadata" /> instances from a collection of potential Saga types.
+    /// </summary>
+    /// <param name="sagaTypes">Potential saga types.</param>
+    /// <returns>Saga metadata for all the found saga types.</returns>
+    public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
+    {
+        ArgumentNullException.ThrowIfNull(sagaTypes);
+
+        foreach (var sagaType in sagaTypes.Where(IsSagaType))
+        {
+            yield return Create(sagaType);
+        }
+    }
+
+    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
 
     static SagaMetadata Create(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
     {

@@ -55,7 +55,7 @@ namespace NServiceBus
                     new PropertyAccessor_16edcde3129fe540(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
-                sagaMetadataCollection.Register(metadata);
+                sagaMetadataCollection.Add(metadata);
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
@@ -75,7 +75,7 @@ namespace NServiceBus
                     new PropertyAccessor_c90ac66d7074e25c(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga, global::PaymentSagaData>(associatedMessages, propertyAccessors);
-                sagaMetadataCollection.Register(metadata);
+                sagaMetadataCollection.Add(metadata);
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::PaymentSaga, global::PaymentRequested>();

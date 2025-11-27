@@ -1,4 +1,5 @@
 #nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -17,16 +18,7 @@ public static class SagaRegistrationExtensions
         ArgumentNullException.ThrowIfNull(config);
 
         var sagaMetadataCollection = config.Settings.GetOrCreate<SagaMetadataCollection>();
-
-        // Check if saga is already registered to avoid duplicates in hybrid mode
-        if (sagaMetadataCollection.TryFind(typeof(TSaga), out _))
-        {
-            return;
-        }
-
-        var metadata = SagaMetadata.Create<TSaga>();
-
-        sagaMetadataCollection.Register(metadata);
+        sagaMetadataCollection.Add(SagaMetadata.Create<TSaga>());
 
         config.AddHandler<TSaga>();
     }
