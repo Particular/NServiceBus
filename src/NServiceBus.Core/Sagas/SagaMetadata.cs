@@ -77,7 +77,7 @@ public partial class SagaMetadata
         return property != null;
     }
 
-    internal static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType && !t.IsAbstract;
+    internal static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
 
     /// <summary>
     /// True if the specified message type is allowed to start the saga.
