@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -76,7 +75,7 @@ public sealed partial class AddSagaInterceptor
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings
-            var propertyMappings = ExtractPropertyMappings(sagaType, sagaDataType, ctx.SemanticModel, cancellationToken);
+            var propertyMappings = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
 
             return new SagaSpec(
                 InterceptLocationSpec.From(location),
@@ -123,7 +122,6 @@ public sealed partial class AddSagaInterceptor
 
         static ImmutableEquatableArray<PropertyMappingSpec> ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
-            INamedTypeSymbol sagaDataType,
             SemanticModel semanticModel,
             CancellationToken cancellationToken)
         {
@@ -159,7 +157,7 @@ public sealed partial class AddSagaInterceptor
             }
 
             var mappings = new List<PropertyMappingSpec>();
-            var walker = new ConfigureMappingWalker(semanticModel, sagaDataType, mappings, cancellationToken);
+            var walker = new ConfigureMappingWalker(semanticModel, mappings, cancellationToken);
             walker.Visit(methodBody);
 
             // Sort mappings to ensure deterministic ordering
@@ -203,7 +201,6 @@ public sealed partial class AddSagaInterceptor
 
         sealed class ConfigureMappingWalker(
             SemanticModel semanticModel,
-            INamedTypeSymbol sagaDataType,
             List<PropertyMappingSpec> propertyMappings,
             CancellationToken cancellationToken)
             : CSharpSyntaxWalker
