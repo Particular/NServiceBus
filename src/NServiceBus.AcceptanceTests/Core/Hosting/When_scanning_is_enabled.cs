@@ -63,7 +63,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
 
             public class AutoRegisteredSagaData : ContainSagaData
             {
-                public Guid SomeId { get; set; }
+                public virtual Guid SomeId { get; set; }
             }
         }
     }

@@ -40,9 +40,9 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
             return Task.CompletedTask;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithPersistenceNotSupportingItSagaData> mapper)
-        {
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithPersistenceNotSupportingItSagaData> mapper) =>
+            mapper.MapSaga(s => s.DataId)
+                .ToMessage<StartSaga>(m => m.DataId);
 
         public class SagaWithPersistenceNotSupportingItSagaData : ContainSagaData
         {
@@ -55,5 +55,8 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
         public bool MessageReceived { get; set; }
     }
 
-    public class StartSaga : ICommand;
+    public class StartSaga : ICommand
+    {
+        public Guid DataId { get; set; }
+    }
 }
