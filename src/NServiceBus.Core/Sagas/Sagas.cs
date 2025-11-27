@@ -16,16 +16,7 @@ public sealed class Sagas : Feature
     /// </summary>
     public Sagas()
     {
-        Defaults(s =>
-        {
-            conventions = s.Get<Conventions>();
-
-            var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
-            if (sagas.Count > 0)
-            {
-                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
-            }
-        });
+        Defaults(s => s.SetDefault(new SagaMetadataCollection()));
 
         Enable<SynchronizedStorage>();
 
