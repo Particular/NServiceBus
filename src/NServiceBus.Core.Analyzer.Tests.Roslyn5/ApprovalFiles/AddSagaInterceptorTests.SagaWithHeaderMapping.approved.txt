@@ -31,7 +31,7 @@ namespace NServiceBus
                    .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages);
                 sagaMetadataCollection.Register(metadata);

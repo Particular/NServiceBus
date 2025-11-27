@@ -2115,10 +2115,11 @@ namespace NServiceBus.Sagas
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
     }
-    public class SagaMessage
+    public sealed class SagaMessage : System.IEquatable<NServiceBus.Sagas.SagaMessage>
     {
-        public SagaMessage(System.Type messageType, bool isAllowedToStart) { }
+        public SagaMessage(System.Type messageType, bool isAllowedToStart, bool isTimeout) { }
         public bool IsAllowedToStartSaga { get; }
+        public bool IsTimeout { get; }
         public System.Type MessageType { get; }
         public string MessageTypeName { get; }
     }
@@ -2155,6 +2156,7 @@ namespace NServiceBus.Sagas
     public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata>, System.Collections.IEnumerable
     {
         public SagaMetadataCollection() { }
+        public bool HasMetadata { get; }
         public NServiceBus.Sagas.SagaMetadata Find(System.Type sagaType) { }
         public NServiceBus.Sagas.SagaMetadata FindByEntity(System.Type entityType) { }
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }

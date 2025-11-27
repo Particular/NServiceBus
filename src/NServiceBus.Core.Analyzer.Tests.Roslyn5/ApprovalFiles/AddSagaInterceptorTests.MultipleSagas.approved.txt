@@ -48,7 +48,7 @@ namespace NServiceBus
                    .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
@@ -68,7 +68,7 @@ namespace NServiceBus
                    .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::PaymentRequested), true),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::PaymentRequested), true, false),
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {

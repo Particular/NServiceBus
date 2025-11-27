@@ -106,9 +106,9 @@ public sealed partial class AddSagaInterceptor
         {
             sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
-            foreach (var message in details.Handler.Registrations.Select(r => new { r.MessageType, CanStartSaga = r.RegistrationType == RegistrationType.StartMessageHandler }))
+            foreach (var message in details.Handler.Registrations)
             {
-                sourceWriter.WriteLine($"    new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.CanStartSaga ? "true" : "false")}),");
+                sourceWriter.WriteLine($"    new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.RegistrationType == RegistrationType.StartMessageHandler ? "true" : "false")}, {(message.RegistrationType == RegistrationType.TimeoutHandler ? "true" : "false")}),");
             }
             sourceWriter.WriteLine("};");
 

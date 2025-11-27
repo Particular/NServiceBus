@@ -161,7 +161,8 @@ public partial class SagaMetadata
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
-            .Select(t => new SagaMessage(t, true)).ToList();
+            .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
+            .ToList();
 
         foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)))
         {
@@ -170,17 +171,12 @@ public partial class SagaMetadata
                 continue;
             }
 
-            result.Add(new SagaMessage(messageType, false));
+            result.Add(new SagaMessage(messageType, isAllowedToStart: false, isTimeout: false));
         }
 
         foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)))
         {
-            if (result.Any(m => m.MessageType == messageType))
-            {
-                continue;
-            }
-
-            result.Add(new SagaMessage(messageType, false));
+            result.Add(new SagaMessage(messageType, isAllowedToStart: false, isTimeout: true));
         }
 
         return result;

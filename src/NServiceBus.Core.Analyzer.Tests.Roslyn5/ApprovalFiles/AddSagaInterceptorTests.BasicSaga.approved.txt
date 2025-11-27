@@ -47,8 +47,8 @@ namespace NServiceBus
                    .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true),
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderShipped), false),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
+                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderShipped), false, false),
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
