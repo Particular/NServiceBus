@@ -104,15 +104,16 @@ public class MessageHandlerRegistry
     /// </summary>
     public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
     {
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-
-        var handlerFactories = GetOrCreate<THandler>();
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
-        if (deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
+        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
         {
-            handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage>());
+            return;
         }
+
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+        var handlerFactories = GetOrCreate<THandler>();
+        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage>());
     }
 
     /// <summary>
@@ -120,15 +121,16 @@ public class MessageHandlerRegistry
     /// </summary>
     public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
-        Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
-
-        var handlerFactories = GetOrCreate<THandler>();
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
-        if (deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>(isTimeoutHandler: true)))
+        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>(isTimeoutHandler: true)))
         {
-            handlerFactories.Add(new TimeoutHandlerFactory<THandler, TMessage>());
+            return;
         }
+
+        Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
+        var handlerFactories = GetOrCreate<THandler>();
+        handlerFactories.Add(new TimeoutHandlerFactory<THandler, TMessage>());
     }
 
     List<IMessageHandlerFactory> GetOrCreate<THandler>()
