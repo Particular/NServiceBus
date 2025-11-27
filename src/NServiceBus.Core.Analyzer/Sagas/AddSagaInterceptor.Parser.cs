@@ -212,95 +212,40 @@ public sealed partial class AddSagaInterceptor
             {
                 base.VisitInvocationExpression(node);
 
-                // Look for .ToSaga(...) calls
-                if (node.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "ToSaga", Expression: InvocationExpressionSyntax configureMappingCall })
-                // This is a ToSaga call, now we need to find the ConfigureMapping or ConfigureHeaderMapping call
-                {
-                    AnalyzeConfigureMappingCall(configureMappingCall, node);
-                }
-
                 // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
                 if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } } toMessageAccess)
                 {
                     // This is a ToMessage call from MapSaga().ToMessage<TMessage>(...)
                     // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
-                    // This internally calls ConfigureMapping(...).ToSaga(...), so we need to trace back
                     AnalyzeMapSagaToMessageCall(node, toMessageAccess);
                 }
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall, MemberAccessExpressionSyntax toMessageAccess)
             {
-                // The expression structure is: [MapSaga call].ToMessage<TMessage>(...)
-                // We need to find the MapSaga call and extract the saga property
-                // Extract saga property from MapSaga argument
-                if (toMessageAccess.Expression is InvocationExpressionSyntax { ArgumentList.Arguments.Count: > 0 } mapSagaCall)
-                {
-                    var sagaPropertyArg = mapSagaCall.ArgumentList.Arguments[0].Expression;
-                    var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg);
-
-                    if (sagaPropertyInfo != null && toMessageCall.ArgumentList.Arguments.Count > 0)
-                    {
-                        // Extract message property and type
-                        var messagePropertyArg = toMessageCall.ArgumentList.Arguments[0].Expression;
-                        var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
-
-                        // Get message type from generic argument
-                        if (toMessageAccess.Name is GenericNameSyntax { TypeArgumentList.Arguments.Count: > 0 } genericName)
-                        {
-                            var messageTypeSyntax = genericName.TypeArgumentList.Arguments[0];
-
-                            if (semanticModel.GetSymbolInfo(messageTypeSyntax, cancellationToken).Symbol is INamedTypeSymbol messageTypeSymbol && messagePropertyName != null)
-                            {
-                                var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                                propertyMappings.Add(new PropertyMappingSpec(
-                                    messageTypeName,
-                                    messagePropertyName));
-                            }
-                        }
-                    }
-                }
-            }
-
-            void AnalyzeConfigureMappingCall(InvocationExpressionSyntax configureMappingCall, InvocationExpressionSyntax toSagaCall)
-            {
-                if (semanticModel.GetOperation(configureMappingCall, cancellationToken) is not IInvocationOperation configureOp)
+                if (toMessageCall.ArgumentList.Arguments.Count <= 0)
                 {
                     return;
                 }
 
-                var method = configureOp.TargetMethod;
-                var methodName = method.Name;
+                // Extract message property and type
+                var messagePropertyArg = toMessageCall.ArgumentList.Arguments[0].Expression;
+                var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
 
-                // Check if this is ConfigureMapping<TMessage>(...)
-                if (methodName == "ConfigureMapping" && method is { IsGenericMethod: true, TypeArguments.Length: 1 })
+                // Get message type from generic argument
+                if (toMessageAccess.Name is not GenericNameSyntax { TypeArgumentList.Arguments.Count: > 0 } genericName)
                 {
-                    var messageType = method.TypeArguments[0];
-                    if (messageType is INamedTypeSymbol messageTypeSymbol)
-                    {
-                        // Extract message property from ConfigureMapping argument
-                        if (configureMappingCall.ArgumentList.Arguments.Count > 0)
-                        {
-                            var messagePropertyArg = configureMappingCall.ArgumentList.Arguments[0].Expression;
-                            var messagePropertyName = ExtractPropertyNameFromExpression(messagePropertyArg);
-
-                            // Extract saga property from ToSaga argument
-                            if (toSagaCall.ArgumentList.Arguments.Count > 0)
-                            {
-                                var sagaPropertyArg = toSagaCall.ArgumentList.Arguments[0].Expression;
-                                var sagaPropertyInfo = ExtractPropertyInfoFromExpression(sagaPropertyArg);
-
-                                if (messagePropertyName != null && sagaPropertyInfo != null)
-                                {
-                                    var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                                    propertyMappings.Add(new PropertyMappingSpec(
-                                        messageTypeName,
-                                        messagePropertyName));
-                                }
-                            }
-                        }
-                    }
+                    return;
                 }
+
+                var messageTypeSyntax = genericName.TypeArgumentList.Arguments[0];
+                if (semanticModel.GetSymbolInfo(messageTypeSyntax, cancellationToken).Symbol is not INamedTypeSymbol messageTypeSymbol || messagePropertyName == null)
+                {
+                    return;
+                }
+
+                var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                propertyMappings.Add(new PropertyMappingSpec(messageTypeName, messagePropertyName));
             }
 
             static string? ExtractPropertyNameFromExpression(ExpressionSyntax expression)
@@ -319,39 +264,6 @@ public sealed partial class AddSagaInterceptor
                         .Identifier.ValueText,
                     _ => null
                 };
-            }
-
-            IPropertySymbol? ExtractPropertyInfoFromExpression(ExpressionSyntax expression)
-            {
-                // Handle lambda: saga => saga.Property
-                if (expression is not LambdaExpressionSyntax lambda)
-                {
-                    return null;
-                }
-
-                var body = lambda.Body;
-
-                // Handle conversion: saga => (object)saga.Property
-                if (body is CastExpressionSyntax cast)
-                {
-                    body = cast.Expression;
-                }
-
-                if (body is not MemberAccessExpressionSyntax memberAccess)
-                {
-                    return null;
-                }
-
-                if (semanticModel.GetSymbolInfo(memberAccess, cancellationToken).Symbol is IPropertySymbol property)
-                {
-                    // Verify the property belongs to the saga data type
-                    if (property.ContainingType.Equals(sagaDataType, SymbolEqualityComparer.Default))
-                    {
-                        return property;
-                    }
-                }
-
-                return null;
             }
         }
     }
