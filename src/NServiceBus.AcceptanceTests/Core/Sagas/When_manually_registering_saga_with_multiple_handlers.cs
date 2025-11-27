@@ -21,10 +21,13 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
             .Done(c => c.OrderCompleted)
             .Run();
 
-        Assert.That(context.OrderStarted, Is.True);
-        Assert.That(context.OrderUpdated, Is.True);
-        Assert.That(context.OrderCompleted, Is.True);
-        Assert.That(context.OrderId, Is.EqualTo(orderId));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.OrderStarted, Is.True);
+            Assert.That(context.OrderUpdated, Is.True);
+            Assert.That(context.OrderCompleted, Is.True);
+            Assert.That(context.OrderId, Is.EqualTo(orderId));
+        }
     }
 
     public class Context : ScenarioContext
@@ -37,13 +40,11 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
 
     public class MultiHandlerSagaEndpoint : EndpointConfigurationBuilder
     {
-        public MultiHandlerSagaEndpoint()
-        {
+        public MultiHandlerSagaEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AddSaga<MultiMessageSaga>();
             });
-        }
 
         public class MultiMessageSaga(Context testContext)
             : Saga<MultiMessageSagaData>,
@@ -71,12 +72,11 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiMessageSagaData> mapper)
-            {
-                mapper.ConfigureMapping<StartOrder>(m => m.OrderId).ToSaga(s => s.OrderId);
-                mapper.ConfigureMapping<UpdateOrder>(m => m.OrderId).ToSaga(s => s.OrderId);
-                mapper.ConfigureMapping<CompleteOrder>(m => m.OrderId).ToSaga(s => s.OrderId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiMessageSagaData> mapper) =>
+                mapper.MapSaga(s => s.OrderId)
+                    .ToMessage<StartOrder>(m => m.OrderId)
+                    .ToMessage<UpdateOrder>(m => m.OrderId)
+                    .ToMessage<CompleteOrder>(m => m.OrderId);
         }
 
         public class MultiMessageSagaData : ContainSagaData
@@ -100,4 +100,3 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
         public Guid OrderId { get; set; }
     }
 }
-

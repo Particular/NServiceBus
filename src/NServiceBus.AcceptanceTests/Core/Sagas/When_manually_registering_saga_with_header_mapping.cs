@@ -24,8 +24,11 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
             .Done(c => c.SagaWasInvoked)
             .Run();
 
-        Assert.That(context.SagaWasInvoked, Is.True);
-        Assert.That(context.CorrelationId, Is.EqualTo(correlationId));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.SagaWasInvoked, Is.True);
+            Assert.That(context.CorrelationId, Is.EqualTo(correlationId));
+        }
     }
 
     public class Context : ScenarioContext
@@ -36,13 +39,11 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
 
     public class HeaderMappingSagaEndpoint : EndpointConfigurationBuilder
     {
-        public HeaderMappingSagaEndpoint()
-        {
+        public HeaderMappingSagaEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AddSaga<HeaderCorrelationSaga>();
             });
-        }
 
         public class HeaderCorrelationSaga(Context testContext)
             : Saga<HeaderCorrelationSagaData>, IAmStartedByMessages<StartWithHeader>
@@ -55,8 +56,7 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HeaderCorrelationSagaData> mapper) =>
-                mapper.ConfigureHeaderMapping<StartWithHeader>("X-Correlation-Id")
-                    .ToSaga(s => s.CorrelationId);
+                mapper.MapSaga(s => s.CorrelationId).ToMessageHeader<StartWithHeader>("X-Correlation-Id");
         }
 
         public class HeaderCorrelationSagaData : ContainSagaData
@@ -65,8 +65,5 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
         }
     }
 
-    public class StartWithHeader : ICommand
-    {
-    }
+    public class StartWithHeader : ICommand;
 }
-
