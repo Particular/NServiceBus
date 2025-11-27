@@ -33,13 +33,7 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
     {
         ArgumentNullException.ThrowIfNull(availableTypes);
 
-        var availableTypesList = availableTypes.ToList();
-
-        var foundSagas = availableTypesList.Where(SagaMetadata.IsSagaType)
-            .Select(SagaMetadata.Create)
-            .ToList();
-
-        foreach (var saga in foundSagas)
+        foreach (var saga in availableTypes.Where(SagaMetadata.IsSagaType).Select(SagaMetadata.Create))
         {
             byEntity[saga.SagaEntityType] = saga;
             byType[saga.SagaType] = saga;
