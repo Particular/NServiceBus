@@ -18,6 +18,11 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
+    /// Indicates whether any saga metadata is present in the collection.
+    /// </summary>
+    public bool HasMetadata => byEntity.Count > 0;
+
+    /// <summary>
     /// Populates the model with saga metadata from the provided collection of types.
     /// </summary>
     /// <param name="availableTypes">A collection of types to scan for sagas.</param>
