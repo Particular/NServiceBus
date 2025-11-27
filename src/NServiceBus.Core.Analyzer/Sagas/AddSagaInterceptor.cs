@@ -41,5 +41,5 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
         ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings,
         HandlerSpec Handler);
 
-    internal record PropertyMappingSpec(string MessageType, string MessagePropertyName);
+    internal record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName);
 }

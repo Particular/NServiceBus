@@ -19,22 +19,6 @@ namespace System.Runtime.CompilerServices
 namespace NServiceBus
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-    file sealed class PropertyAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
-    {
-        protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern object? AccessFrom_Property(global::OrderCreated message);
-    }
-
-    file sealed class PropertyAccessor_c90ac66d7074e25c : NServiceBus.MessagePropertyAccessor<global::PaymentRequested>
-    {
-        protected override object? AccessFrom(global::PaymentRequested message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_PaymentId")]
-        static extern object? AccessFrom_Property(global::PaymentRequested message);
-    }
-
     static file class InterceptionsOfAddSagaMethod
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
@@ -52,10 +36,11 @@ namespace NServiceBus
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
-                    new PropertyAccessor_16edcde3129fe540(),
+                    new OrderCreatedOrderIdAccessor_16edcde3129fe540(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
+
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
@@ -72,14 +57,32 @@ namespace NServiceBus
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
-                    new PropertyAccessor_c90ac66d7074e25c(),
+                    new PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga, global::PaymentSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
+
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::PaymentSaga, global::PaymentRequested>();
             }
         }
+
+        sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
+        {
+            protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+            static extern object? AccessFrom_Property(global::OrderCreated message);
+        }
+
+        sealed class PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c : NServiceBus.MessagePropertyAccessor<global::PaymentRequested>
+        {
+            protected override object? AccessFrom(global::PaymentRequested message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_PaymentId")]
+            static extern object? AccessFrom_Property(global::PaymentRequested message);
+        }
+
     }
 }

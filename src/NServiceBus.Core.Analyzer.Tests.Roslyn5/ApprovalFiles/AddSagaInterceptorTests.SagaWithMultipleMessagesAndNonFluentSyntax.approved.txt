@@ -19,30 +19,6 @@ namespace System.Runtime.CompilerServices
 namespace NServiceBus
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-    file sealed class PropertyAccessor_a45c711a50389073 : NServiceBus.MessagePropertyAccessor<global::OrderCancelled>
-    {
-        protected override object? AccessFrom(global::OrderCancelled message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern object? AccessFrom_Property(global::OrderCancelled message);
-    }
-
-    file sealed class PropertyAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
-    {
-        protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern object? AccessFrom_Property(global::OrderCreated message);
-    }
-
-    file sealed class PropertyAccessor_24f0d05d0a48e6ff : NServiceBus.MessagePropertyAccessor<global::OrderShipped>
-    {
-        protected override object? AccessFrom(global::OrderShipped message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern object? AccessFrom_Property(global::OrderShipped message);
-    }
-
     static file class InterceptionsOfAddSagaMethod
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
@@ -62,12 +38,13 @@ namespace NServiceBus
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
-                    new PropertyAccessor_a45c711a50389073(),
-                    new PropertyAccessor_16edcde3129fe540(),
-                    new PropertyAccessor_24f0d05d0a48e6ff(),
+                    new OrderCancelledOrderIdAccessor_a45c711a50389073(),
+                    new OrderCreatedOrderIdAccessor_16edcde3129fe540(),
+                    new OrderShippedOrderIdAccessor_24f0d05d0a48e6ff(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
+
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
@@ -76,5 +53,30 @@ namespace NServiceBus
                 registry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
             }
         }
+
+        sealed class OrderCancelledOrderIdAccessor_a45c711a50389073 : NServiceBus.MessagePropertyAccessor<global::OrderCancelled>
+        {
+            protected override object? AccessFrom(global::OrderCancelled message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+            static extern object? AccessFrom_Property(global::OrderCancelled message);
+        }
+
+        sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
+        {
+            protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+            static extern object? AccessFrom_Property(global::OrderCreated message);
+        }
+
+        sealed class OrderShippedOrderIdAccessor_24f0d05d0a48e6ff : NServiceBus.MessagePropertyAccessor<global::OrderShipped>
+        {
+            protected override object? AccessFrom(global::OrderShipped message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+            static extern object? AccessFrom_Property(global::OrderShipped message);
+        }
+
     }
 }

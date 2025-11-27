@@ -26,32 +26,6 @@ public sealed partial class AddSagaInterceptor
                 .ForInterceptor()
                 .WithGeneratedCodeAttribute();
 
-            var allPropertyMappings = sagas
-                .SelectMany(i => i.PropertyMappings)
-                .GroupBy(m => (m.MessageType, m.MessagePropertyName))
-                .Select(g => g.First())
-                .OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal);
-
-            foreach (var mapping in allPropertyMappings)
-            {
-                var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
-                sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
-                sourceWriter.WriteLine("{");
-
-                sourceWriter.Indentation++;
-
-                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
-                sourceWriter.WriteLine($"static extern object? AccessFrom_Property({mapping.MessageType} message);");
-
-                sourceWriter.Indentation--;
-
-                sourceWriter.WriteLine("}");
-                sourceWriter.WriteLine();
-            }
-
             sourceWriter.WriteLine("""
                                    static file class InterceptionsOfAddSagaMethod
                                    {
@@ -91,10 +65,41 @@ public sealed partial class AddSagaInterceptor
                 // Generate builder API calls directly into the source writer
                 GenerateBuilderCode(sourceWriter, first);
                 sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
+                sourceWriter.WriteLine();
                 AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, first.Handler);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
+            }
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+            sourceWriter.WriteLine();
+
+            var allPropertyMappings = sagas
+                .SelectMany(i => i.PropertyMappings)
+                .GroupBy(m => (m.MessageType, m.MessagePropertyName))
+                .Select(g => g.First())
+                .OrderBy(m => m.MessageType, StringComparer.Ordinal)
+                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal);
+
+            foreach (var mapping in allPropertyMappings)
+            {
+                var accessorClassName = AccessorName(mapping);
+                sourceWriter.WriteLine($"sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+                sourceWriter.WriteLine("{");
+
+                sourceWriter.Indentation++;
+
+                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
+                sourceWriter.WriteLine();
+                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
+                sourceWriter.WriteLine($"static extern object? AccessFrom_Property({mapping.MessageType} message);");
+
+                sourceWriter.Indentation--;
+
+                sourceWriter.WriteLine("}");
+                sourceWriter.WriteLine();
             }
 
             sourceWriter.CloseCurlies();
@@ -112,29 +117,21 @@ public sealed partial class AddSagaInterceptor
             }
             sourceWriter.WriteLine("};");
 
-            // Generate property accessors for property mappings
-            if (details.PropertyMappings.Count > 0)
+            sourceWriter.WriteLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
+            sourceWriter.WriteLine("{");
+            foreach (var mapping in details.PropertyMappings)
             {
-                sourceWriter.WriteLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
-                sourceWriter.WriteLine("{");
-                foreach (var mapping in details.PropertyMappings)
-                {
-                    var accessorClassName = $"PropertyAccessor_{CreateAccessorName(mapping.MessageType, mapping.MessagePropertyName)}";
-                    sourceWriter.WriteLine($"    new {accessorClassName}(),");
-                }
-                sourceWriter.WriteLine("};");
-                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
+                var accessorClassName = AccessorName(mapping);
+                sourceWriter.WriteLine($"    new {accessorClassName}(),");
             }
-            else
-            {
-                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages);");
-            }
+            sourceWriter.WriteLine("};");
+            sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
         }
 
-        static string CreateAccessorName(string messageType, string propertyName)
+        static string AccessorName(PropertyMappingSpec mapping)
         {
-            var hash = NonCryptographicHash.GetHash(messageType, "_", propertyName);
-            return hash.ToString("x16");
+            var hash = NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
+            return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
         }
     }
 }

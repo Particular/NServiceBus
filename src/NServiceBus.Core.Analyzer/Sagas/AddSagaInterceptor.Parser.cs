@@ -242,7 +242,7 @@ public sealed partial class AddSagaInterceptor
                 }
 
                 var messageTypeName = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                propertyMappings.Add(new PropertyMappingSpec(messageTypeName, messagePropertyName));
+                propertyMappings.Add(new PropertyMappingSpec(messageTypeName, messageTypeSymbol.Name, messagePropertyName));
             }
 
             static string? ExtractPropertyNameFromExpression(ExpressionSyntax expression)

@@ -19,14 +19,6 @@ namespace System.Runtime.CompilerServices
 namespace NServiceBus
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-    file sealed class PropertyAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
-    {
-        protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern object? AccessFrom_Property(global::OrderCreated message);
-    }
-
     static file class InterceptionsOfAddSagaMethod
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
@@ -44,15 +36,25 @@ namespace NServiceBus
                 };
                 var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
                 {
-                    new PropertyAccessor_16edcde3129fe540(),
+                    new OrderCreatedOrderIdAccessor_16edcde3129fe540(),
                 };
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
+
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
                 registry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
             }
         }
+
+        sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
+        {
+            protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
+
+            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+            static extern object? AccessFrom_Property(global::OrderCreated message);
+        }
+
     }
 }

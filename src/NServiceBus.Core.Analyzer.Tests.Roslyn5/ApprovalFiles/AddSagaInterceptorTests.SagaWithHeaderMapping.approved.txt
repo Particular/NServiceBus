@@ -33,12 +33,17 @@ namespace NServiceBus
                 {
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                 };
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages);
+                var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
+                {
+                };
+                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
+
                 var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
             }
         }
+
     }
 }
