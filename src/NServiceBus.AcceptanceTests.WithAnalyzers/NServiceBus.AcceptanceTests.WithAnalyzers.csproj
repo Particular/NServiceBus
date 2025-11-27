@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer.Fixes\NServiceBus.Core.Analyzer.Fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" PrivateAssets="All" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.11.2" PrivateAssets="All" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Approvals" Version="2.0.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NServiceBus.AcceptanceTests\EndpointTemplates\*.cs" Link="EndpointTemplates\%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="..\NServiceBus.AcceptanceTests\*.cs" Exclude="**\AssemblyInfo.cs" />
+    <Compile Include="..\NServiceBus.AcceptanceTests\Core\TestSuiteConstraints.cs" />
+  </ItemGroup>
+
+</Project>

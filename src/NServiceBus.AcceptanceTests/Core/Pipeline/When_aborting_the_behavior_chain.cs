@@ -36,7 +36,7 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             c.AddHandler<SecondHandler>();
         });
 
-        class FirstHandler(Context testContext) : IHandleMessages<SomeMessage>
+        public class FirstHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -48,7 +48,7 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             }
         }
 
-        class SecondHandler(Context testContext) : IHandleMessages<SomeMessage>
+        public class SecondHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
