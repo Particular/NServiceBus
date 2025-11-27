@@ -512,8 +512,8 @@ namespace NServiceBus
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
-    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
-        "ad\' instead. Will be removed in version 11.0.0.", true)]
+    [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
+        "ill be removed in version 11.0.0.", true)]
     public interface IToSagaExpression<TSagaData>
         where TSagaData : NServiceBus.IContainSagaData
     {
@@ -579,15 +579,15 @@ namespace NServiceBus
         public static NServiceBus.TransportExtensions<NServiceBus.LearningTransport> UseTransport<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.LearningTransport { }
     }
-    [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
-        "instead. Will be removed in version 11.0.0.", true)]
+    [System.Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will " +
+        "be removed in version 11.0.0.", true)]
     public static class LoadMessageHandlersExtensions
     {
-        [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
-            "instead. Will be removed in version 11.0.0.", true)]
+        [System.Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will " +
+            "be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
-        [System.Obsolete("Use \'Use AddHandler<TMessageHandler>(); to control order of handler invocation.\' " +
-            "instead. Will be removed in version 11.0.0.", true)]
+        [System.Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will " +
+            "be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
     }
     public static class MessageCausationConfigurationExtensions
@@ -879,13 +879,12 @@ namespace NServiceBus
     {
         public void ConfigureFinderMapping<TMessage, TFinder>()
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaData, TMessage> { }
-        [System.Obsolete("Use \'The old API for mapping messages to sagas using headers has been obsoleted, " +
-            "use \'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)\' instead\' instead. Will" +
-            " be removed in version 11.0.0.", true)]
+        [System.Obsolete("The old API for mapping messages to sagas using headers has been obsoleted, use \'" +
+            "mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)\' instead. Will be removed in" +
+            " version 11.0.0.", true)]
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) { }
-        [System.Obsolete("Use \'The old API for mapping messages to sagas has been obsoleted, use \'mapper.Ma" +
-            "pSaga(...).ToMessage<MyMessage>(...)\' instead\' instead. Will be removed in versi" +
-            "on 11.0.0.", true)]
+        [System.Obsolete("The old API for mapping messages to sagas has been obsoleted, use \'mapper.MapSaga" +
+            "(...).ToMessage<MyMessage>(...)\' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
@@ -1025,8 +1024,8 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
-    [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
-        "ad\' instead. Will be removed in version 11.0.0.", true)]
+    [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
+        "ill be removed in version 11.0.0.", true)]
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {

@@ -276,39 +276,39 @@ namespace NServiceBus
         public static void DisableFeature(this EndpointConfiguration config, Type featureType) => throw new NotImplementedException();
     }
 
-    [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
     public static class LoadMessageHandlersExtensions
     {
-        [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, IEnumerable<Type> handlerTypes) => throw new NotImplementedException();
 
-        [ObsoleteMetadata(ReplacementTypeOrMember = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, params Type[] handlerTypes) => throw new NotImplementedException();
     }
 
     public partial class SagaPropertyMapper<TSagaData>
     {
-        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(Message = "The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) => throw new NotImplementedException();
 
-        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use 'The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+        [ObsoleteMetadata(Message = "The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) => throw new NotImplementedException();
     }
 
-    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(Message = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead. Will be removed in version 11.0.0.", true)]
     public interface IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
 
-    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(Message = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead. Will be removed in version 11.0.0.", true)]
     public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, IContainSagaData
     {
         public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty) => throw new NotImplementedException();
