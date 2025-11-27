@@ -1,8 +1,11 @@
+#nullable enable
+
 namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 /// <summary>
@@ -65,7 +68,7 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
         return byType[sagaType];
     }
 
-    internal bool TryFind(Type sagaType, out SagaMetadata targetSagaMetaData) => byType.TryGetValue(sagaType, out targetSagaMetaData);
+    internal bool TryFind(Type sagaType, [NotNullWhen(true)] out SagaMetadata? sagaMetadata) => byType.TryGetValue(sagaType, out sagaMetadata);
 
     /// <summary>
     /// Registers a saga metadata instance explicitly.

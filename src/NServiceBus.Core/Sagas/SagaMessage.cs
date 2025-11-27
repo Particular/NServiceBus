@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Sagas;
 
 using System;
@@ -15,6 +17,8 @@ public sealed record SagaMessage
     /// <param name="isTimeout"><code>true</code> if the message is a timeout, <code>false</code> otherwise.</param>
     public SagaMessage(Type messageType, bool isAllowedToStart, bool isTimeout)
     {
+        ArgumentNullException.ThrowIfNull(messageType.FullName);
+
         if (isAllowedToStart && isTimeout)
         {
             throw new ArgumentException("A timeout message cannot start a saga.");
