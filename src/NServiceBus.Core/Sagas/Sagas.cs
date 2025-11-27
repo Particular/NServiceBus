@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
@@ -20,12 +19,15 @@ public sealed class Sagas : Feature
 
         Enable<SynchronizedStorage>();
 
-        Defaults(s => s.Set(new SagaMetadataCollection()));
+        DependsOn<SynchronizedStorage>();
 
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
-        Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
-
-        DependsOn<SynchronizedStorage>();
+        Prerequisite(context =>
+        {
+            var sagaCollection = context.Settings.Get<SagaMetadataCollection>();
+            sagaCollection.Initialize(context.Settings.GetAvailableTypes());
+            return sagaCollection.HasMetadata;
+        }, "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
     }
 
     /// <summary>
@@ -41,8 +43,6 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
 
         if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
         {
@@ -89,26 +89,7 @@ public sealed class Sagas : Feature
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }
 
-    static bool IsSagaType(Type t) => IsCompatible(t, typeof(Saga));
-
     static bool IsSagaNotFoundHandler(Type t) => IsCompatible(t, typeof(IHandleSagaNotFound));
 
     static bool IsCompatible(Type t, Type source) => source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
-
-    static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
-    {
-        // MakeGenericType() throws an exception if passed a ref struct type
-        // Messages cannot be ref struct types
-        if (type.IsByRefLike)
-        {
-            return false;
-        }
-
-        var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-        var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
-
-        return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
-    }
-
-    Conventions conventions;
 }
