@@ -70,7 +70,6 @@ public sealed partial class AddSagaInterceptor
                 return null;
             }
 
-            var methodName = CreateMethodName(sagaType);
             var sagaFullyQualifiedName = sagaType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
@@ -79,7 +78,7 @@ public sealed partial class AddSagaInterceptor
 
             return new SagaSpec(
                 InterceptLocationSpec.From(location),
-                methodName,
+                sagaType.Name,
                 sagaFullyQualifiedName,
                 sagaDataFullyQualifiedName,
                 propertyMappings,
@@ -102,22 +101,6 @@ public sealed partial class AddSagaInterceptor
                 baseType = baseType.BaseType;
             }
             return null;
-        }
-
-        static string CreateMethodName(INamedTypeSymbol sagaType)
-        {
-            const string NamePrefix = "AddSaga_";
-
-            var sb = new StringBuilder(NamePrefix, 50)
-                .Append(sagaType.Name)
-                .Append('_');
-
-            var sagaFullName = sagaType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var hash = NonCryptographicHash.GetHash(sagaFullName);
-
-            sb.Append(hash.ToString("x16"));
-
-            return sb.ToString();
         }
 
         static ImmutableEquatableArray<PropertyMappingSpec> ExtractPropertyMappings(

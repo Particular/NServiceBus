@@ -39,19 +39,27 @@ public sealed partial class AddSagaInterceptor
                                    """);
             sourceWriter.Indentation++;
 
-            var groups = sagas.GroupBy(i => i.MethodName)
+            var groups = sagas.Select(s => (MethodName: MethodName(s.SagaName, s.SagaType), Saga: s))
+                .GroupBy(i => i.MethodName)
                 .OrderBy(g => g.Key, StringComparer.Ordinal);
-            foreach (IGrouping<string, SagaSpec> group in groups)
+            foreach (var group in groups)
             {
-                foreach (SagaSpec location in group)
+                (string MethodName, SagaSpec SagaSpec) first = default;
+                foreach (var location in group)
                 {
-                    sourceWriter.WriteLine($"{location.Location.Attribute} // {location.Location.DisplayLocation}");
+                    if (first == default)
+                    {
+                        first = location;
+                    }
+
+                    var (_, saga) = location;
+                    sourceWriter.WriteLine($"{saga.Location.Attribute} // {saga.Location.DisplayLocation}");
                 }
 
-                SagaSpec first = group.First();
+                (string methodName, SagaSpec sagaSpec) = first;
 
                 sourceWriter.WriteLine($$"""
-                                         public void {{first.MethodName}}()
+                                         public void {{methodName}}()
                                          {
                                          """);
                 sourceWriter.Indentation++;
@@ -63,10 +71,10 @@ public sealed partial class AddSagaInterceptor
                                        """);
 
                 // Generate builder API calls directly into the source writer
-                GenerateBuilderCode(sourceWriter, first);
+                GenerateBuilderCode(sourceWriter, sagaSpec);
                 sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 sourceWriter.WriteLine();
-                AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, first.Handler);
+                AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -138,6 +146,21 @@ public sealed partial class AddSagaInterceptor
         {
             var hash = NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
             return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
+        }
+
+        static string MethodName(string sagaName, string sagaType)
+        {
+            const string NamePrefix = "AddSaga_";
+
+            var sb = new StringBuilder(NamePrefix, 50)
+                .Append(sagaName)
+                .Append('_');
+
+            var hash = NonCryptographicHash.GetHash(sagaType);
+
+            sb.Append(hash.ToString("x16"));
+
+            return sb.ToString();
         }
     }
 }

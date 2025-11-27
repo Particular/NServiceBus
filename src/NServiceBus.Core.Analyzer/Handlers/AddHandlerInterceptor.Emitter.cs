@@ -14,7 +14,8 @@ public sealed partial class AddHandlerInterceptor
 
         static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs)
         {
-            if (handlerSpecs.Handlers.Count == 0)
+            var handlers = handlerSpecs.Handlers;
+            if (handlers.Count == 0)
             {
                 return;
             }
@@ -36,8 +37,7 @@ public sealed partial class AddHandlerInterceptor
                                    """);
             sourceWriter.Indentation++;
 
-            var handlers = handlerSpecs.Handlers;
-            var groups = handlers.Select(h => (MethodName: CreateMethodName(h.Name, h.HandlerType), Handler: h))
+            var groups = handlers.Select(h => (MethodName: AddMethodName(h.Name, h.HandlerType), Handler: h))
                 .GroupBy(i => i.MethodName)
                 .OrderBy(g => g.Key, StringComparer.Ordinal);
             foreach (var group in groups)
@@ -51,8 +51,7 @@ public sealed partial class AddHandlerInterceptor
                     }
 
                     var (_, handler) = location;
-                    sourceWriter.WriteLine(
-                        $"{handler.LocationSpec.Attribute} // {handler.LocationSpec.DisplayLocation}");
+                    sourceWriter.WriteLine($"{handler.LocationSpec.Attribute} // {handler.LocationSpec.DisplayLocation}");
                 }
 
                 (string methodName, HandlerSpec handlerSpec) = first;
@@ -94,7 +93,7 @@ public sealed partial class AddHandlerInterceptor
             }
         }
 
-        static string CreateMethodName(string name, string handlerType)
+        static string AddMethodName(string name, string handlerType)
         {
             const string NamePrefix = "AddHandler_";
 

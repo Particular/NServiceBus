@@ -35,7 +35,7 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
 
     internal record SagaSpec(
         InterceptLocationSpec Location,
-        string MethodName,
+        string SagaName,
         string SagaType,
         string SagaDataType,
         ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings,
