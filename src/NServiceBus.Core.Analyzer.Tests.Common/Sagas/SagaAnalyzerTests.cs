@@ -35,7 +35,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.SagaMappingExpressionCanBeRewritten, source);
+        return Assert([DiagnosticIds.SagaMappingExpressionCanBeRewritten], source, mustCompile: false);
     }
 
     [Test]
@@ -290,7 +290,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert([DiagnosticIds.CannotMapToSagasIdProperty], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified]);
+        return Assert([DiagnosticIds.CannotMapToSagasIdProperty], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
     }
 
     [Test]
@@ -658,16 +658,7 @@ public class Msg2 : ICommand
     public Guid CorrId { get; set; }
 }
 public class Msg3 : ICommand {}";
-        var expected = new[]
-        {
-            DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions
-        };
-        var ignore = new[]
-        {
-            DiagnosticIds.SagaMappingExpressionCanBeSimplified
-        };
-
-        return Assert(expected, source, ignore);
+        return Assert([DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
     }
 
     [Test]

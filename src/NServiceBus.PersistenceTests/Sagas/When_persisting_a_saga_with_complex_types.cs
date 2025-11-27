@@ -11,7 +11,11 @@ public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
     public async Task It_should_get_deep_copy()
     {
         var correlationPropertyData = Guid.NewGuid().ToString();
-        var sagaData = new SagaWithComplexTypeEntity { Ints = [1, 2], CorrelationProperty = correlationPropertyData };
+        var sagaData = new SagaWithComplexTypeEntity
+        {
+            Ints = [1, 2],
+            CorrelationProperty = correlationPropertyData
+        };
 
         await SaveSaga(sagaData);
 
@@ -23,15 +27,9 @@ public class When_persisting_a_saga_with_complex_types : SagaPersisterTests
 
     public class SagaWithComplexType : Saga<SagaWithComplexTypeEntity>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithComplexTypeEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.CorrelationProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithComplexTypeEntity> mapper) => mapper.MapSaga(s => s.CorrelationProperty).ToMessage<StartMessage>(m => m.SomeId);
     }
 
     public class SagaWithComplexTypeEntity : ContainSagaData

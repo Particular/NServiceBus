@@ -14,10 +14,7 @@ using NUnit.Framework;
 public class SagaMetadataCreationTests
 {
     [Test]
-    public void Throws_when_does_not_implement_generic_saga()
-    {
-        Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MyNonGenericSaga)));
-    }
+    public void Throws_when_does_not_implement_generic_saga() => Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MyNonGenericSaga)));
 
     [Test]
     public void GetEntityClrType()
@@ -47,8 +44,8 @@ public class SagaMetadataCreationTests
     [Test]
     public void When_finder_for_non_message()
     {
-        var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder)); });
-        Assert.That(exception.Message, Does.Contain(nameof(SagaWithNonMessageFinder.StartSagaMessage)));
+        var exception = Assert.Throws<ArgumentException>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder)); });
+        Assert.That(exception.Message, Does.Contain(nameof(SagaWithNonMessageFinder.OtherMessage)));
     }
 
     [Test]
@@ -102,7 +99,7 @@ public class SagaMetadataCreationTests
     {
         var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
 
-        Assert.That(ex.Message, Does.Contain("mapper.ConfigureMapping"));
+        Assert.That(ex.Message, Does.Contain("mapper.MapSaga"));
     }
 
     [Test]
@@ -225,22 +222,15 @@ public class SagaMetadataCreationTests
 
     class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<StartingMessage>
     {
-        public Task Handle(StartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartingMessage>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper) => mapper.MapSaga(s => s.UniqueProperty).ToMessage<StartingMessage>(m => m.UniqueProperty);
 
         internal class MyEntity : ContainSagaData
         {
             public int UniqueProperty { get; set; }
         }
     }
-
 
     class StartingMessage
     {
@@ -250,33 +240,20 @@ public class SagaMetadataCreationTests
     public class SagaWithNonMessageFinder : Saga<SagaWithNonMessageFinder.SagaData>,
         IAmStartedByMessages<SagaWithNonMessageFinder.StartSagaMessage>
     {
-        public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+        public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) => mapper.ConfigureFinderMapping<OtherMessage, Finder>();
+
+        public class SagaData : ContainSagaData;
+
+        public class Finder : ISagaFinder<SagaData, OtherMessage>
         {
-            return Task.CompletedTask;
+            public Task<SagaData> FindBy(OtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(SagaData));
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            //no mapping for the start message
-        }
+        public class StartSagaMessage;
 
-        public class SagaData : ContainSagaData
-        {
-            public string Property { get; set; }
-        }
-
-        public class Finder : ISagaFinder<SagaData, StartSagaMessage>
-        {
-            public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(default(SagaData));
-            }
-        }
-
-        public class StartSagaMessage
-        {
-            public string Property { get; set; }
-        }
+        public class OtherMessage;
     }
 
     public class SagaWithFinderOnly : Saga<SagaWithFinderOnly.SagaData>,
@@ -308,8 +285,7 @@ public class SagaMetadataCreationTests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
-            mapper.ConfigureMapping<StartSagaMessage>(m => m.Property)
-                .ToSaga(s => s.Property);
+            mapper.MapSaga(s => s.Property).ToMessage<StartSagaMessage>(m => m.Property);
             mapper.ConfigureFinderMapping<StartSagaMessage, Finder>();
         }
 
@@ -331,16 +307,10 @@ public class SagaMetadataCreationTests
 
     class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>, IAmStartedByMessages<SomeMessage>
     {
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
-                .ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<SomeMessage>(m => m.SomeProperty);
 
         public class SagaData : ContainSagaData
         {
@@ -350,16 +320,10 @@ public class SagaMetadataCreationTests
 
     class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>, IAmStartedByMessages<SomeMessage>
     {
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
-                .ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<SomeMessage>(m => m.SomeProperty);
 
         public class SagaData : ContainSagaData
         {
@@ -369,16 +333,10 @@ public class SagaMetadataCreationTests
 
     class MySagaWithMappedHeader : Saga<MySagaWithMappedHeader.SagaData>, IAmStartedByMessages<SomeMessage>
     {
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureHeaderMapping<SomeMessage>("CorrelationHeader")
-                .ToSaga(s => s.UniqueProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<SomeMessage>("CorrelationHeader");
 
         public class SagaData : ContainSagaData
         {
@@ -386,23 +344,13 @@ public class SagaMetadataCreationTests
         }
     }
 
-    class StartMessage
-    {
-    }
-
     class MySagaWithUnmappedStartProperty : Saga<MySagaWithUnmappedStartProperty.SagaData>,
         IAmStartedByMessages<MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga>,
         IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesNotStartTheSaga>
     {
-        public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-        public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
@@ -431,33 +379,18 @@ public class SagaMetadataCreationTests
         IHandleMessages<SagaWith2StartersAnd1Handler.Message3>,
         IHandleTimeouts<SagaWith2StartersAnd1Handler.MyTimeout>
     {
-        public Task Handle(StartMessage1 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage1 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Handle(StartMessage2 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage2 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Handle(Message3 message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(Message3 message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        public Task Timeout(MyTimeout state, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Timeout(MyTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage1>(m => m.SomeId)
-                .ToSaga(s => s.SomeId);
-            mapper.ConfigureMapping<StartMessage2>(m => m.SomeId)
-                .ToSaga(s => s.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.SomeId)
+                .ToMessage<StartMessage1>(m => m.SomeId)
+                .ToMessage<StartMessage2>(m => m.SomeId);
 
         public class StartMessage1 : IMessage
         {
@@ -486,20 +419,12 @@ public class SagaMetadataCreationTests
     class SagaWithIdMappedToStringMessageProperty : Saga<SagaWithIdMappedToStringMessageProperty.SagaData>,
         IAmStartedByMessages<SomeMessageWithStringProperty>
     {
-        public class SagaData : ContainSagaData
-        {
-        }
+        public class SagaData : ContainSagaData;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessageWithStringProperty>(m => m.StringProperty)
-                .ToSaga(s => s.Id);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.Id).ToMessage<SomeMessageWithStringProperty>(m => m.StringProperty);
 
-        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context) => Task.CompletedTask;
     }
 
     class SagaWithNonIdPropertyMappedToStringMessageProperty : Saga<SagaWithNonIdPropertyMappedToStringMessageProperty.SagaData>,
@@ -510,69 +435,41 @@ public class SagaMetadataCreationTests
             public Guid NonIdColumn { get; set; }
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessageWithStringProperty>(m => m.StringProperty)
-                .ToSaga(s => s.NonIdColumn);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.NonIdColumn).ToMessage<SomeMessageWithStringProperty>(m => m.StringProperty);
 
-        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context) => Task.CompletedTask;
     }
 
     class SagaWithIdMappedToNonGuidMessageProperty : Saga<SagaWithIdMappedToNonGuidMessageProperty.SagaData>,
         IAmStartedByMessages<SomeMessage>
     {
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
-                .ToSaga(s => s.Id);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.Id).ToMessage<SomeMessage>(m => m.SomeProperty);
 
-        public class SagaData : ContainSagaData
-        {
-        }
+        public class SagaData : ContainSagaData;
     }
 
     class SagaWithIdMappedToNonGuidMessageField : Saga<SagaWithIdMappedToNonGuidMessageField.SagaData>,
         IAmStartedByMessages<SomeMessageWithField>
     {
-        public Task Handle(SomeMessageWithField message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(SomeMessageWithField message, IMessageHandlerContext context) => Task.CompletedTask;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessageWithField>(m => m.SomeProperty)
-                .ToSaga(s => s.Id);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.Id).ToMessage<SomeMessageWithField>(m => m.SomeProperty);
 
-        public class SagaData : ContainSagaData
-        {
-        }
+        public class SagaData : ContainSagaData;
     }
 
     class SagaWithSagaDataMemberAsFieldInsteadOfProperty : Saga<SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData>,
         IAmStartedByMessages<SomeMessage>
     {
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => Task.CompletedTask;
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
-                .ToSaga(s => s.SomeField);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.SomeField).ToMessage<SomeMessage>(m => m.SomeProperty);
 
         public class SagaData : ContainSagaData
         {
@@ -582,10 +479,7 @@ public class SagaMetadataCreationTests
 
     class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>, IAmStartedByMessages<SomeMessageWithStringProperty>
     {
-        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         public class SagaData : ContainSagaData
         {
@@ -600,23 +494,19 @@ public class SagaMetadataCreationTests
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
             base.ConfigureHowToFindSaga(mapper);
-            mapper.ConfigureMapping<SomeMessageWithStringProperty>(message => message.StringProperty).ToSaga(saga => saga.SomeId);
+            mapper.MapSaga(s => s.SomeId).ToMessage<SomeMessageWithStringProperty>(message => message.StringProperty);
         }
     }
 
     class SagaThatMapsMessageItDoesntHandle : Saga<SagaThatMapsMessageItDoesntHandle.SagaData>,
         IAmStartedByMessages<SomeMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-            mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.SomeProperty)
+                .ToMessage<SomeMessage>(m => m.SomeProperty)
+                .ToMessage<OtherMessage>(m => m.SomeProperty);
 
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         public class SagaData : ContainSagaData
         {
@@ -632,16 +522,12 @@ public class SagaMetadataCreationTests
     class SagaThatMapsHeaderFromMessageItDoesntHandle : Saga<SagaThatMapsHeaderFromMessageItDoesntHandle.SagaData>,
         IAmStartedByMessages<SomeMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-        {
-            mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-            mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.SomeProperty)
+                .ToMessage<SomeMessage>(m => m.SomeProperty)
+                .ToMessageHeader<OtherMessage>("MyHeader");
 
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         public class SagaData : ContainSagaData
         {
@@ -659,21 +545,15 @@ public class SagaMetadataCreationTests
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
         {
-            mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+            mapper.MapSaga(saga => saga.SomeProperty).ToMessage<SomeMessage>(m => m.SomeProperty);
             mapper.ConfigureFinderMapping<OtherMessage, Finder>();
         }
 
-        public Task Handle(SomeMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         public class Finder : ISagaFinder<SagaData, OtherMessage>
         {
-            public Task<SagaData> FindBy(OtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-            {
-                return Task.FromResult(default(SagaData));
-            }
+            public Task<SagaData> FindBy(OtherMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(SagaData));
         }
 
         public class SagaData : ContainSagaData

@@ -21,26 +21,28 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
     protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp14;
 
     protected Task Assert(string markupCode, CancellationToken cancellationToken = default) =>
-        Assert([], markupCode, [], cancellationToken);
+        Assert([], markupCode, [], true, cancellationToken);
 
     protected Task Assert(string expectedDiagnosticId, string markupCode, CancellationToken cancellationToken = default) =>
-        Assert([expectedDiagnosticId], markupCode, [], cancellationToken);
+        Assert([expectedDiagnosticId], markupCode, [], true, cancellationToken);
 
-    protected async Task Assert(string[] expectedDiagnosticIds, string markupCode, string[] ignoreDiagnosticIds, CancellationToken cancellationToken = default)
+    protected async Task Assert(string[] expectedDiagnosticIds, string markupCode, string[] ignoreDiagnosticIds = null, bool mustCompile = true, CancellationToken cancellationToken = default)
     {
+        ignoreDiagnosticIds ??= [];
+
         var (code, markupSpans) = Parse(markupCode);
 
         var project = CreateProject(code);
         await WriteCode(project);
 
         var compilerDiagnostics = (await Task.WhenAll(project.Documents
-            .Select(doc => doc.GetCompilerDiagnostics(cancellationToken))))
+                .Select(doc => doc.GetCompilerDiagnostics(cancellationToken))))
             .SelectMany(diagnostics => diagnostics);
 
         WriteCompilerDiagnostics(compilerDiagnostics);
 
         var compilation = await project.GetCompilationAsync(cancellationToken);
-        compilation.Compile();
+        compilation.Compile(mustCompile);
 
         var analyzerDiagnostics = (await compilation.GetAnalyzerDiagnostics(new TAnalyzer(), cancellationToken))
             .Where(d => !ignoreDiagnosticIds.Contains(d.Id))
@@ -72,19 +74,15 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
             Console.WriteLine(document.Name);
             var code = await document.GetCode();
             foreach (var (line, index) in code.Replace("\r\n", "\n").Split('\n')
-            .Select((line, index) => (line, index)))
+                         .Select((line, index) => (line, index)))
             {
                 Console.WriteLine($"  {index + 1,3}: {line}");
             }
         }
-
     }
 
-    static readonly ImmutableDictionary<string, ReportDiagnostic> DiagnosticOptions = new Dictionary<string, ReportDiagnostic>
-    {
-        { "CS1701", ReportDiagnostic.Hidden }
-    }
-    .ToImmutableDictionary();
+    static readonly ImmutableDictionary<string, ReportDiagnostic> DiagnosticOptions = new Dictionary<string, ReportDiagnostic> { { "CS1701", ReportDiagnostic.Hidden } }
+        .ToImmutableDictionary();
 
     protected Project CreateProject(string[] code)
     {
@@ -104,17 +102,17 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
     }
 
     static AnalyzerTestFixture() => ProjectReferences =
-        [
-            MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
-            MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
-            MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
-            MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
-        ];
+    [
+        MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+        MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
+        MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
+        MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
+    ];
 
     static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
 
@@ -209,7 +207,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
     }
 
     protected static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
-        || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
+                                                    || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
 
     static readonly string[] openingSeparator = ["[|"];
     static readonly string[] closingSeparator = ["|]"];

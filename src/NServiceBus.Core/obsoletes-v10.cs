@@ -1,10 +1,12 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
 namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
@@ -286,6 +288,32 @@ namespace NServiceBus
         [Obsolete("Use 'Use AddHandler<TMessageHandler>(); to control order of handler invocation.' instead. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, params Type[] handlerTypes) => throw new NotImplementedException();
     }
+
+    public partial class SagaPropertyMapper<TSagaData>
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'The old API for mapping messages to sagas using headers has been obsoleted, use 'mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+        public NServiceBus.IToSagaExpression<TSagaData> ConfigureHeaderMapping<TMessage>(string headerName) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'The old API for mapping messages to sagas has been obsoleted, use 'mapper.MapSaga(...).ToMessage<MyMessage>(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) => throw new NotImplementedException();
+    }
+
+    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+    public interface IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
+    {
+        void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
+    }
+
+    [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
+    public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, IContainSagaData
+    {
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty) => throw new NotImplementedException();
+        public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.DataBus
@@ -551,4 +579,5 @@ namespace NServiceBus.Sagas
     }
 }
 
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

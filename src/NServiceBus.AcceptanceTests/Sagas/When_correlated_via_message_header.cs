@@ -89,21 +89,12 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
 
     public class EndpointWithSagaWithHeaderMapping : EndpointConfigurationBuilder
     {
-        public EndpointWithSagaWithHeaderMapping()
-        {
+        public EndpointWithSagaWithHeaderMapping() =>
             EndpointSetup<DefaultServer>(cfg =>
                 cfg.Pipeline.Register(typeof(EndTestOnException), "Ends test if an exception occurs"));
-        }
 
-        public class SagaWithHeaderMapping : Saga<SagaDataWithHeaderMapping>, IAmStartedByMessages<StartSaga>
+        public class SagaWithHeaderMapping(Context scenario) : Saga<SagaDataWithHeaderMapping>, IAmStartedByMessages<StartSaga>
         {
-            Context scenario;
-
-            public SagaWithHeaderMapping(Context scenario)
-            {
-                this.scenario = scenario;
-            }
-
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 scenario.CorrelationId = Data.CorrelationId;
@@ -111,22 +102,11 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithHeaderMapping> mapper)
-            {
-                mapper.ConfigureHeaderMapping<StartSaga>(CorrelationHeader)
-                    .ToSaga(saga => saga.CorrelationId);
-            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithHeaderMapping> mapper) => mapper.MapSaga(s => s.CorrelationId).ToMessageHeader<StartSaga>(CorrelationHeader);
         }
 
-        class EndTestOnException : Behavior<IIncomingLogicalMessageContext>
+        class EndTestOnException(Context scenario) : Behavior<IIncomingLogicalMessageContext>
         {
-            Context scenario;
-
-            public EndTestOnException(Context scenario)
-            {
-                this.scenario = scenario;
-            }
-
             public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
             {
                 try

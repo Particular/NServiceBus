@@ -41,15 +41,9 @@ public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTe
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
         IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
-        {
-            mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper) => mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
 
-        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }
 
     public class SagaWithoutCorrelationPropertyData : ContainSagaData
@@ -66,10 +60,7 @@ public class When_completing_saga_with_no_mapping_loaded_by_id : SagaPersisterTe
 
     public class CustomFinder : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
     {
-        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 
     public When_completing_saga_with_no_mapping_loaded_by_id(TestVariant param) : base(param)

@@ -10,7 +10,11 @@ public class When_completing_a_saga_with_correlation_property : SagaPersisterTes
     public async Task Should_delete_the_saga()
     {
         var correlationPropertyData = Guid.NewGuid().ToString();
-        var saga = new SagaWithCorrelationPropertyData { CorrelatedProperty = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
+        var saga = new SagaWithCorrelationPropertyData
+        {
+            CorrelatedProperty = correlationPropertyData,
+            DateTimeProperty = DateTime.UtcNow
+        };
         await SaveSaga(saga);
 
         const string correlatedPropertyName = nameof(SagaWithCorrelationPropertyData.CorrelatedProperty);
@@ -38,15 +42,9 @@ public class When_completing_a_saga_with_correlation_property : SagaPersisterTes
 
     public class SagaWithCorrelationProperty : Saga<SagaWithCorrelationPropertyData>, IAmStartedByMessages<SagaCorrelationPropertyStartingMessage>
     {
-        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SagaCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper)
-        {
-            mapper.ConfigureMapping<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty).ToSaga(s => s.CorrelatedProperty);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithCorrelationPropertyData> mapper) => mapper.MapSaga(s => s.CorrelatedProperty).ToMessage<SagaCorrelationPropertyStartingMessage>(m => m.CorrelatedProperty);
     }
 
     public class SagaCorrelationPropertyStartingMessage

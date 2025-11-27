@@ -44,23 +44,14 @@ public class When_updating_saga_with_no_mapping_found_by_id : SagaPersisterTests
     public class SagaWithoutCorrelationProperty : Saga<SagaWithoutCorrelationPropertyData>,
         IAmStartedByMessages<SagaWithoutCorrelationPropertyStartingMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper)
-        {
-            mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithoutCorrelationPropertyData> mapper) => mapper.ConfigureFinderMapping<SagaWithoutCorrelationPropertyStartingMessage, CustomFinder>();
 
-        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(SagaWithoutCorrelationPropertyStartingMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }
 
     public class CustomFinder : ISagaFinder<SagaWithoutCorrelationPropertyData, SagaWithoutCorrelationPropertyStartingMessage>
     {
-        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SagaWithoutCorrelationPropertyData> FindBy(SagaWithoutCorrelationPropertyStartingMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 
     public class SagaWithoutCorrelationPropertyData : ContainSagaData

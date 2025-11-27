@@ -11,14 +11,14 @@ using System.Linq.Expressions;
 /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
 public class CorrelatedSagaPropertyMapper<TSagaData> where TSagaData : class, IContainSagaData
 {
-    readonly SagaPropertyMapper<TSagaData> sagaPropertyMapper;
     readonly Expression<Func<TSagaData, object?>> sagaProperty;
+    readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
 
-    internal CorrelatedSagaPropertyMapper(SagaPropertyMapper<TSagaData> sagaPropertyMapper, Expression<Func<TSagaData, object?>> sagaProperty)
+    internal CorrelatedSagaPropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TSagaData, object?>> sagaProperty)
     {
-        ArgumentNullException.ThrowIfNull(sagaPropertyMapper);
+        ArgumentNullException.ThrowIfNull(sagaMessageFindingConfiguration);
         ArgumentNullException.ThrowIfNull(sagaProperty);
-        this.sagaPropertyMapper = sagaPropertyMapper;
+        this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
         this.sagaProperty = sagaProperty;
     }
 
@@ -32,7 +32,7 @@ public class CorrelatedSagaPropertyMapper<TSagaData> where TSagaData : class, IC
     /// </returns>
     public CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(Expression<Func<TMessage, object?>> messageProperty)
     {
-        sagaPropertyMapper.ConfigureMapping(messageProperty).ToSaga(sagaProperty);
+        sagaMessageFindingConfiguration.ConfigureMapping(sagaProperty, messageProperty);
         return this;
     }
 
@@ -47,7 +47,12 @@ public class CorrelatedSagaPropertyMapper<TSagaData> where TSagaData : class, IC
     /// </returns>
     public CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName)
     {
-        sagaPropertyMapper.ConfigureHeaderMapping<TMessage>(headerName).ToSaga(sagaProperty);
+        if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithMessageHeaders sagaHeaderFindingConfiguration)
+        {
+            throw new Exception($"Unable to configure header mapping. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithMessageHeaders)}.");
+        }
+
+        sagaHeaderFindingConfiguration.ConfigureMapping<TSagaData, TMessage>(sagaProperty, headerName);
         return this;
     }
 }

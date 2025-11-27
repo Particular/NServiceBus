@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
+using System.Threading;
 using System.Threading.Tasks;
 using Helpers;
 using NUnit.Framework;
@@ -45,7 +46,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
     }";
 
-        return RunTest(code, DiagnosticIds.SagaMappingExpressionCanBeSimplified);
+        return RunTest(code, DiagnosticIds.SagaMappingExpressionCanBeSimplified, mustCompile: false);
     }
 
     [Test]
@@ -58,7 +59,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
         mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga([|saga => saga.OtherId|]);
     }";
 
-        return RunTest(code, DiagnosticIds.MultipleCorrelationIdValues);
+        return RunTest(code, DiagnosticIds.MultipleCorrelationIdValues, mustCompile: false);
     }
 
     [Test]
@@ -80,7 +81,7 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
         return RunTest(code, DiagnosticIds.NonMappingExpressionUsedInConfigureHowToFindSaga);
     }
 
-    protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId)
+    protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId, bool mustCompile = true)
     {
         var nullableTypesSource =
 @"
@@ -109,6 +110,6 @@ public class Msg2 : ICommand
 }
 #nullable restore";
 
-        return Assert(diagnosticId, nullableTypesSource);
+        return Assert([diagnosticId], nullableTypesSource, mustCompile: mustCompile);
     }
 }

@@ -13,7 +13,11 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
     {
         configuration.RequiresDtcSupport();
 
-        var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+        var startingSagaData = new TestSagaData
+        {
+            SomeId = Guid.NewGuid().ToString(),
+            LastUpdatedBy = "Unchanged"
+        };
         await SaveSaga(startingSagaData);
 
         // This enlistment notifier emulates a participating DTC transaction that fails to commit.
@@ -54,7 +58,11 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
     {
         configuration.RequiresDtcSupport();
 
-        var startingSagaData = new TestSagaData { SomeId = Guid.NewGuid().ToString(), LastUpdatedBy = "Unchanged" };
+        var startingSagaData = new TestSagaData
+        {
+            SomeId = Guid.NewGuid().ToString(),
+            LastUpdatedBy = "Unchanged"
+        };
         await SaveSaga(startingSagaData);
 
         var enlistmentNotifier = new EnlistmentNotifier(abortTransaction: false);
@@ -97,7 +105,7 @@ public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPers
             => throw new NotImplementedException();
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-            => mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+            => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class TestSagaData : ContainSagaData

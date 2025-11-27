@@ -10,7 +10,11 @@ public class When_retrieving_the_same_saga_twice : SagaPersisterTests
     public async Task Get_returns_different_instance_of_saga_data()
     {
         var correlationPropertyData = Guid.NewGuid().ToString();
-        var saga = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
+        var saga = new TestSagaData
+        {
+            SomeId = correlationPropertyData,
+            DateTimeProperty = DateTime.UtcNow
+        };
 
         await SaveSaga(saga);
 
@@ -22,20 +26,15 @@ public class When_retrieving_the_same_saga_twice : SagaPersisterTests
             Assert.That(returnedSaga1, Is.Not.SameAs(returnedSaga2));
             Assert.That(saga, Is.Not.SameAs(returnedSaga1));
         }
+
         Assert.That(saga, Is.Not.SameAs(returnedSaga2));
     }
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class StartMessage

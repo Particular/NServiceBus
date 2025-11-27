@@ -22,15 +22,9 @@ public class When_saga_not_found : SagaPersisterTests
 
     public class SimpleSagaEntitySaga : Saga<SimpleSagaEntity>, IAmStartedByMessages<StartMessage>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Handle(StartMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaEntity> mapper)
-        {
-            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.UsedAsCorrelationId);
-        }
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaEntity> mapper) => mapper.MapSaga(s => s.UsedAsCorrelationId).ToMessage<StartMessage>(msg => msg.SomeId);
     }
 
     public class SimpleSagaEntity : ContainSagaData

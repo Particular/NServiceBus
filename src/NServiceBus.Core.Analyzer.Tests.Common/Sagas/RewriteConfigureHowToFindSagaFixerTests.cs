@@ -69,7 +69,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 
     [TestCase(null)]
@@ -157,7 +157,7 @@ public class Msg2 : ICommand
             expected = Regex.Replace(expected, "\r?\n", lineEnding);
         }
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 
     [Test]
@@ -224,7 +224,7 @@ namespace SomeNamespace
     }
 }";
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 
     [Test]
@@ -321,7 +321,7 @@ namespace SomeNamespace
     public class Msg5 : ICommand {}
 }";
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 
     [Test]
@@ -544,7 +544,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 
     // https://github.com/Particular/NServiceBus/issues/6399
@@ -619,6 +619,6 @@ public class Notification
 }
 ";
 
-        return Assert(original, expected);
+        return Assert(original, expected, fixMustCompile: false);
     }
 }

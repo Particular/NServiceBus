@@ -45,7 +45,7 @@ public class When_updating_saga_in_outbox_transaction : SagaPersisterTests
 
     public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartTestSagaMessage>
     {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.ConfigureMapping<StartTestSagaMessage>(m => m.SomeId).ToSaga(s => s.SomeId);
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) => mapper.MapSaga(s => s.SomeId).ToMessage<StartTestSagaMessage>(m => m.SomeId);
 
         public Task Handle(StartTestSagaMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
     }
