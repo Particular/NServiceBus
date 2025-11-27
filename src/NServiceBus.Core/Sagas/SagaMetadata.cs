@@ -22,11 +22,11 @@ public partial class SagaMetadata
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
 
-        associatedMessages = [];
+        AssociatedMessages = messages;
 
-        foreach (var sagaMessage in messages)
+        foreach (var sagaMessage in messages.Where(m => m.IsAllowedToStartSaga))
         {
-            associatedMessages[sagaMessage.MessageTypeName] = sagaMessage;
+            _ = messageNamesAllowedToStartTheSaga.Add(sagaMessage.MessageTypeName);
         }
 
         sagaFinders = [];
@@ -40,12 +40,12 @@ public partial class SagaMetadata
     /// <summary>
     /// Returns the list of messages that is associated with this saga.
     /// </summary>
-    public IReadOnlyCollection<SagaMessage> AssociatedMessages => associatedMessages.Values.ToList();
+    public IReadOnlyCollection<SagaMessage> AssociatedMessages { get; private set; }
 
     /// <summary>
     /// Gets the list of finders for this saga.
     /// </summary>
-    public IReadOnlyCollection<SagaFinderDefinition> Finders => sagaFinders.Values.ToList();
+    public IReadOnlyCollection<SagaFinderDefinition> Finders => [.. sagaFinders.Values];
 
     /// <summary>
     /// The name of the saga.
@@ -85,7 +85,7 @@ public partial class SagaMetadata
     public bool IsMessageAllowedToStartTheSaga(string messageType)
     {
         ArgumentNullException.ThrowIfNull(messageType);
-        return associatedMessages.TryGetValue(messageType, out var sagaMessage) && sagaMessage.IsAllowedToStartSaga;
+        return messageNamesAllowedToStartTheSaga.Contains(messageType);
     }
 
     /// <summary>
@@ -223,7 +223,7 @@ public partial class SagaMetadata
         throw new InvalidOperationException();
     }
 
-    readonly Dictionary<string, SagaMessage> associatedMessages;
+    readonly HashSet<string> messageNamesAllowedToStartTheSaga = [];
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
