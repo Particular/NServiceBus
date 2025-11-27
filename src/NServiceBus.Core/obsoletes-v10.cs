@@ -6,6 +6,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
@@ -301,15 +302,17 @@ namespace NServiceBus
 
     [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
     [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
-    public interface IToSagaExpression<TSagaData>
+    public interface IToSagaExpression<TSagaData> where TSagaData : IContainSagaData
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
 
     [ObsoleteMetadata(ReplacementTypeOrMember = "The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
     [Obsolete("Use 'The old saga mapping API has been obsoleted, use 'mapper.MapSaga(...)' instead' instead. Will be removed in version 11.0.0.", true)]
-    public class ToSagaExpression<TSagaData, TMessage>
+    public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, IContainSagaData
     {
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty) => throw new NotImplementedException();
+        public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty) => throw new NotImplementedException();
     }
 }
 

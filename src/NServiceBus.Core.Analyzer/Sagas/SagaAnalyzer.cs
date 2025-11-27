@@ -29,7 +29,8 @@
             SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass,
             SagaDiagnostics.SagaShouldNotImplementNotFoundHandler,
             SagaDiagnostics.ToSagaMappingMustBeToAProperty,
-            SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions
+            SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions,
+            SagaDiagnostics.SagaMappingExpressionCanBeRewritten
         ];
 
         public override void Initialize(AnalysisContext context)
@@ -162,6 +163,21 @@
                         correlationId: assumedCorrelationId,
                         saga: saga);
                     context.ReportDiagnostic(diagnostic);
+                }
+                else
+                {
+                    var mappingMethodNames = nonCustomFinderMapping.Select(m => (m.MessageTypeSyntax?.Parent?.Parent as GenericNameSyntax)?.Identifier.ValueText);
+                    if (mappingMethodNames.Any(name => name is "ConfigureMapping" or "ConfigureHeaderMapping"))
+                    {
+                        Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
+                            fixerTitle: "Rewrite saga mapping expression",
+                            descriptor: SagaDiagnostics.SagaMappingExpressionCanBeRewritten,
+                            location: saga.ConfigureHowToFindMethod.Identifier.GetLocation(),
+                            newMappingForLocation: null,
+                            correlationId: assumedCorrelationId,
+                            saga: saga);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
 
                 foreach (var mapping in saga.MessageMappings)
@@ -654,101 +670,121 @@
                 return false;
             }
 
-            // either a ConfigureFinderMapping or a MapSaga
+            // either old syntax ConfigureMapping/ConfigureHeaderMapping, or newer MapSaga
             var firstInvocationMethodName = memberAccess.Name.Identifier.ValueText;
 
-            return firstInvocationMethodName switch
+            if (firstInvocationMethodName is "ConfigureMapping" or "ConfigureHeaderMapping" or "ConfigureFinderMapping") // if old syntax
             {
-                "ConfigureFinderMapping" => ProcessCustomFinderMapping(semanticModel, saga, memberAccess, cancellationToken),
-                "MapSaga" => ProcessSagaMapping(semanticModel, saga, firstInvoke, invokeChain, cancellationToken),
-                _ => throw new InvalidOperationException($"Unhandled expression type: {firstInvocationMethodName}"),
-            };
-        }
-
-        static bool ProcessSagaMapping(SemanticModel semanticModel, SagaDetails saga, InvocationExpressionSyntax invocation, ImmutableArray<InvocationExpressionSyntax> invokeChain, CancellationToken cancellationToken)
-        {
-            // Looking for the lambda expression `saga => saga.OrderId` inside the argument of MapSaga()
-            if (invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is not SimpleLambdaExpressionSyntax toSagaSyntax)
-            {
-                return false;
-            }
-
-            // Iterate through the fluent .ToMessage() or .ToMessageHeader() calls
-            foreach (var fluentInvocation in invokeChain.Skip(1))
-            {
-                // Either way it needs to be a MemberAccess: PreviousSomething.SomethingElse
-                if (fluentInvocation.Expression is not MemberAccessExpressionSyntax toSomethingMemberAccess)
-                {
-                    return false;
-                }
-
                 // Method has to be generic so we can get the generic type, which is the message type
-                if (toSomethingMemberAccess.Name is not GenericNameSyntax genericTypeName)
+                if (memberAccess.Name is not GenericNameSyntax genericTypeName)
                 {
                     return false;
                 }
 
-                // Now we get the syntax for the message type
+                // Get the generic argument of the Configure... method, this is the message type being mapped
                 var messageTypeSyntax = genericTypeName.TypeArgumentList.Arguments.FirstOrDefault();
                 if (messageTypeSyntax == null)
                 {
                     return false;
                 }
 
-                // And translate the message type syntax to the Type it represents
+                // Get the named type for the message type
                 var messageTypeInfo = semanticModel.GetTypeInfo(messageTypeSyntax, cancellationToken);
                 if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
                 {
                     return false;
                 }
 
-                // Whether the argument is a simple string for a header, or a `msg => msg.PropertyName`, we don't care we just want the argument
-                var headerOrMessageExpressionArgument = fluentInvocation.ArgumentList.Arguments.FirstOrDefault();
+                if (firstInvocationMethodName is "ConfigureFinderMapping")
+                {
+                    saga.MessageMappings.Add(SagaMessageMapping.CreateFinderMapping(messageType));
+
+                    return true;
+                }
+
+                // Whether the argument is a literal string for a header, or a `msg => msg.PropertyName`, we don't care we just want the argument in its entirety
+                var headerOrMessageExpressionArgument = firstInvoke.ArgumentList.Arguments.FirstOrDefault();
                 if (headerOrMessageExpressionArgument == null)
                 {
                     return false;
                 }
 
-                var methodName = toSomethingMemberAccess.Name.Identifier.ValueText;
-                var isHeaderMapping = IsMessageHeaderMapping(methodName);
+                // The ToSaga() expression is the 2nd invocation in the chain
+                var toSagaInvocation = invokeChain.Skip(1).SingleOrDefault();
+                if ((toSagaInvocation.Expression as MemberAccessExpressionSyntax)?.Name?.Identifier.ValueText != "ToSaga")
+                {
+                    return false;
+                }
+
+                // The argument of the ToSaga() method is the ToSaga mapping expression `saga => saga.OrderId`
+                if (toSagaInvocation.ArgumentList.Arguments.FirstOrDefault()?.Expression is not LambdaExpressionSyntax toSagaSyntax)
+                {
+                    return false;
+                }
+
+                var isHeaderMapping = firstInvocationMethodName == "ConfigureHeaderMapping";
                 var mapping = new SagaMessageMapping(messageTypeSyntax, messageType, isHeaderMapping, headerOrMessageExpressionArgument, toSagaSyntax);
                 saga.MessageMappings.Add(mapping);
             }
-
-            return true;
-        }
-
-        static bool ProcessCustomFinderMapping(SemanticModel semanticModel, SagaDetails saga, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
-        {
-            // Method has to be generic so we can get the generic type, which is the message type
-            if (memberAccess.Name is not GenericNameSyntax genericTypeName)
+            else if (firstInvocationMethodName == "MapSaga") // New syntax
             {
-                return false;
+                // Looking for the lambda expression `saga => saga.OrderId` inside the argument of MapSaga()
+                if (firstInvoke.ArgumentList.Arguments.FirstOrDefault()?.Expression is not SimpleLambdaExpressionSyntax toSagaSyntax)
+                {
+                    return false;
+                }
+
+                // Iterate through the fluent .ToMessage() or .ToMessageHeader() calls
+                foreach (var fluentInvocation in invokeChain.Skip(1))
+                {
+                    // Either way it needs to be a MemberAccess: PreviousSomething.SomethingElse
+                    if (fluentInvocation.Expression is not MemberAccessExpressionSyntax toSomethingMemberAccess)
+                    {
+                        return false;
+                    }
+
+                    // Method has to be generic so we can get the generic type, which is the message type
+                    if (toSomethingMemberAccess.Name is not GenericNameSyntax genericTypeName)
+                    {
+                        return false;
+                    }
+
+                    // Now we get the syntax for the message type
+                    var messageTypeSyntax = genericTypeName.TypeArgumentList.Arguments.FirstOrDefault();
+                    if (messageTypeSyntax == null)
+                    {
+                        return false;
+                    }
+
+                    // And translate the message type syntax to the Type it represents
+                    var messageTypeInfo = semanticModel.GetTypeInfo(messageTypeSyntax, cancellationToken);
+                    if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
+                    {
+                        return false;
+                    }
+
+                    // Whether the argument is a simple string for a header, or a `msg => msg.PropertyName`, we don't care we just want the argument
+                    var headerOrMessageExpressionArgument = fluentInvocation.ArgumentList.Arguments.FirstOrDefault();
+                    if (headerOrMessageExpressionArgument == null)
+                    {
+                        return false;
+                    }
+
+                    var methodName = toSomethingMemberAccess.Name.Identifier.ValueText;
+                    var isHeaderMapping = IsMessageHeaderMapping(methodName);
+                    var mapping = new SagaMessageMapping(messageTypeSyntax, messageType, isHeaderMapping, headerOrMessageExpressionArgument, toSagaSyntax);
+                    saga.MessageMappings.Add(mapping);
+                }
             }
 
-            // Get the generic argument of the ConfigureFinderMapping... method, this is the message type being mapped
-            var messageTypeSyntax = genericTypeName.TypeArgumentList.Arguments.FirstOrDefault();
-            if (messageTypeSyntax == null)
-            {
-                return false;
-            }
-
-            // Get the named type for the message type
-            var messageTypeInfo = semanticModel.GetTypeInfo(messageTypeSyntax, cancellationToken);
-            if (messageTypeInfo.Type is not INamedTypeSymbol messageType)
-            {
-                return false;
-            }
-
-            saga.MessageMappings.Add(SagaMessageMapping.CreateFinderMapping(messageType));
             return true;
         }
 
         static bool IsMessageHeaderMapping(string methodName) =>
             methodName switch
             {
-                "ToMessage" => false,
-                "ToMessageHeader" => true,
+                "ToMessage" or "ConfigureMapping" => false,
+                "ToMessageHeader" or "ConfigureHeaderMapping" => true,
                 _ => throw new Exception($"Unknown if method name {methodName} denotes a message header mapping."),
             };
 

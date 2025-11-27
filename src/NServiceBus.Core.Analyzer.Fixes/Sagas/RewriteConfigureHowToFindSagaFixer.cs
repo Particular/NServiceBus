@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Fixes
+﻿namespace NServiceBus.Core.Analyzer.Fixes
 {
     using System.Collections.Immutable;
     using System.Composition;
@@ -21,7 +21,8 @@ namespace NServiceBus.Core.Analyzer.Fixes
         public override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(
                 DiagnosticIds.SagaMappingExpressionCanBeSimplified,
-                DiagnosticIds.MessageStartsSagaButNoMapping);
+                DiagnosticIds.MessageStartsSagaButNoMapping,
+                DiagnosticIds.SagaMappingExpressionCanBeRewritten);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -109,15 +110,14 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 {
                     indent += indentText;
                 }
-
                 return Whitespace(indent);
             }
 
             var mapSagaInvocation = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(mapperParamName).WithLeadingTrivia(Indent(1)),
-                        IdentifierName("MapSaga")))
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(mapperParamName).WithLeadingTrivia(Indent(1)),
+                    IdentifierName("MapSaga")))
                 .WithArgumentList(CreateCorrelationIdMapping(correlationId));
 
             for (int i = 0; i < mappings.Length; i++)
@@ -125,18 +125,18 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 var mapping = mappings[i];
 
                 mapSagaInvocation = InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            mapSagaInvocation.WithTrailingTrivia(ElasticCarriageReturnLineFeed),
-                            Token(SyntaxKind.DotToken).WithLeadingTrivia(Indent(2)),
-                            CreateGenericMappingMethod(mapping.IsHeaderMapping ? "ToMessageHeader" : "ToMessage", mapping.MessageTypeSyntax.ToFullString())
-                        )
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        mapSagaInvocation.WithTrailingTrivia(ElasticCarriageReturnLineFeed),
+                        Token(SyntaxKind.DotToken).WithLeadingTrivia(Indent(2)),
+                        CreateGenericMappingMethod(mapping.IsHeaderMapping ? "ToMessageHeader" : "ToMessage", mapping.MessageTypeSyntax.ToFullString())
                     )
-                    .WithArgumentList(
-                        ArgumentList(
-                            SingletonSeparatedList(mapping.MessageMappingExpression)
-                        )
-                    );
+                )
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(mapping.MessageMappingExpression)
+                    )
+                );
             }
 
             var block = Block(
@@ -157,7 +157,9 @@ namespace NServiceBus.Core.Analyzer.Fixes
                     Identifier("ConfigureHowToFindSaga"))
                 .WithModifiers(
                     TokenList(
-                        new[] { Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword) }))
+                        new[]{
+                            Token(SyntaxKind.ProtectedKeyword),
+                            Token(SyntaxKind.OverrideKeyword)}))
                 .WithParameterList(method.ParameterList.NormalizeWhitespace())
                 .NormalizeWhitespace().WithLeadingTrivia(leadingTrivia).WithTrailingTrivia(ElasticCarriageReturnLineFeed)
                 .WithBody(block)
@@ -212,7 +214,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 {
                     indentBuilder.Append(indentChar);
                 }
-
                 return indentBuilder.ToString();
             }
         }
@@ -220,5 +221,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
         // Value really doesn't matter but is required by RS1010 analyzer. Can not be the title because
         // the title is dynamic based on the context name and target method name.
         static readonly string EquivalenceKey = typeof(RewriteConfigureHowToFindSagaFixer).FullName;
+
     }
 }

@@ -1,7 +1,8 @@
-#pragma warning disable NUnit1034 // Base TestFixtures should be abstract
+﻿#pragma warning disable NUnit1034 // Base TestFixtures should be abstract
 
 namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Helpers;
 using NServiceBus.Core.Analyzer.Fixes;
@@ -10,6 +11,319 @@ using NUnit.Framework;
 [TestFixture]
 public class RewriteConfigureHowToFindSagaFixerTests : CodeFixTestFixture<SagaAnalyzer, RewriteConfigureHowToFindSagaFixer>
 {
+    [Test]
+    public Task Simple()
+    {
+        var original =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+        mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        var expected =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => saga.CorrId)
+            .ToMessage<Msg1>(msg => msg.CorrId)
+            .ToMessage<Msg2>(msg => msg.CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
+    [TestCase(null)]
+    [TestCase("\r\n")]
+    [TestCase("\n")]
+    public Task SimpleLineEndingTestWithExtraNewLines(string lineEnding)
+    {
+        var original =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{ // Extra newlines are on purpose
+
+
+{TAB}{SPACE}
+
+
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+        mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+    }
+
+
+
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        var expected =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{ // Extra newlines are on purpose
+
+
+{TAB}{SPACE}
+
+
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => saga.CorrId)
+            .ToMessage<Msg1>(msg => msg.CorrId)
+            .ToMessage<Msg2>(msg => msg.CorrId);
+    }
+
+
+
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        original = original.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
+        expected = expected.Replace("{TAB}", "\t").Replace("{SPACE}", " ");
+
+        if (lineEnding != null)
+        {
+            original = Regex.Replace(original, "\r?\n", lineEnding);
+            expected = Regex.Replace(expected, "\r?\n", lineEnding);
+        }
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
+    [Test]
+    public Task IndentedInNamespace()
+    {
+        var original =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+namespace SomeNamespace
+{
+    public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+        {
+            mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+            mapper.ConfigureMapping<Msg2>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+        }
+        public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    }
+    public class MyData : ContainSagaData
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg1 : ICommand
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg2 : ICommand
+    {
+        public string CorrId { get; set; }
+    }
+}";
+
+        var expected =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+namespace SomeNamespace
+{
+    public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+        {
+            mapper.MapSaga(saga => saga.CorrId)
+                .ToMessage<Msg1>(msg => msg.CorrId)
+                .ToMessage<Msg2>(msg => msg.CorrId);
+        }
+        public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    }
+    public class MyData : ContainSagaData
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg1 : ICommand
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg2 : ICommand
+    {
+        public string CorrId { get; set; }
+    }
+}";
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
+    [Test]
+    public Task KitchenSinkMappings()
+    {
+        var original =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+namespace SomeNamespace
+{
+    public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>, IAmStartedByMessages<Msg3>, IAmStartedByMessages<Msg4>, IAmStartedByMessages<Msg5>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+        {
+            mapper.ConfigureMapping<Msg1>(msg => msg.Foo).ToSaga(saga => saga.CorrId);
+            mapper.ConfigureMapping<Msg2>(msg => msg.Foo + "" "" + msg.Bar).ToSaga(saga => saga.CorrId);
+            mapper.ConfigureMapping<Msg3>(msg => $""{msg.Foo}/{msg.Bar}/{msg.Baz}"").ToSaga(saga => saga.CorrId);
+            mapper.ConfigureHeaderMapping<Msg4>(""speed"").ToSaga(saga => saga.CorrId);
+            mapper.ConfigureHeaderMapping<Msg5>(""racer"").ToSaga(saga => saga.CorrId);
+        }
+        public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg3 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg4 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg5 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    }
+    public class MyData : ContainSagaData
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg1 : ICommand
+    {
+        public string Foo { get; set; }
+    }
+    public class Msg2 : ICommand
+    {
+        public string Foo { get; set; }
+        public string Bar { get; set; }
+    }
+    public class Msg3 : ICommand
+    {
+        public string Foo { get; set; }
+        public string Bar { get; set; }
+        public string Baz { get; set; }
+    }
+    public class Msg4 : ICommand {}
+    public class Msg5 : ICommand {}
+}";
+
+        var expected =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+namespace SomeNamespace
+{
+    public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>, IAmStartedByMessages<Msg3>, IAmStartedByMessages<Msg4>, IAmStartedByMessages<Msg5>
+    {
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+        {
+            mapper.MapSaga(saga => saga.CorrId)
+                .ToMessage<Msg1>(msg => msg.Foo)
+                .ToMessage<Msg2>(msg => msg.Foo + "" "" + msg.Bar)
+                .ToMessage<Msg3>(msg => $""{msg.Foo}/{msg.Bar}/{msg.Baz}"")
+                .ToMessageHeader<Msg4>(""speed"")
+                .ToMessageHeader<Msg5>(""racer"");
+        }
+        public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg3 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg4 message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(Msg5 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    }
+    public class MyData : ContainSagaData
+    {
+        public string CorrId { get; set; }
+    }
+    public class Msg1 : ICommand
+    {
+        public string Foo { get; set; }
+    }
+    public class Msg2 : ICommand
+    {
+        public string Foo { get; set; }
+        public string Bar { get; set; }
+    }
+    public class Msg3 : ICommand
+    {
+        public string Foo { get; set; }
+        public string Bar { get; set; }
+        public string Baz { get; set; }
+    }
+    public class Msg4 : ICommand {}
+    public class Msg5 : ICommand {}
+}";
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
     [Test]
     public Task AddMissingMessageMappingFallbackValue()
     {
@@ -178,6 +492,132 @@ public class Msg1 : ICommand
 {
     public string CorrId { get; set; }
 }";
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
+    [Test]
+    public Task RewriteSingleOldMappingWithInfoDiagnostic()
+    {
+        var original =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => saga.CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+    public string OtherId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        var expected =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => saga.CorrId)
+            .ToMessage<Msg1>(msg => msg.CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+    public string OtherId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+        return Assert(original, expected, fixMustCompile: false);
+    }
+
+    // https://github.com/Particular/NServiceBus/issues/6399
+    [Test]
+    public Task GenericSagaTest()
+    {
+        var original = @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class ScheduledNotificationData : ContainSagaData
+{
+    public Guid SourceId { get; set; }
+
+    public DateTime? CancelledDateTime
+    {
+        get; set;
+    }
+}
+public class ScheduledNotification<T> : Saga<ScheduledNotificationData> where T : INotificationCommand
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ScheduledNotificationData> mapper)
+    {
+        mapper.ConfigureMapping<ScheduleCommandCommand<T>>(command => command.Command.Notification.SourceId)
+            .ToSaga(saga => saga.SourceId);
+    }
+}
+public class ScheduleCommandCommand<T> where T : INotificationCommand
+{
+    public T Command { get; set; }
+}
+public interface INotificationCommand
+{
+    Notification Notification { get; }
+}
+public class Notification
+{
+    public Guid SourceId { get; set; }
+}
+";
+
+        var expected = @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class ScheduledNotificationData : ContainSagaData
+{
+    public Guid SourceId { get; set; }
+
+    public DateTime? CancelledDateTime
+    {
+        get; set;
+    }
+}
+public class ScheduledNotification<T> : Saga<ScheduledNotificationData> where T : INotificationCommand
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ScheduledNotificationData> mapper)
+    {
+        mapper.MapSaga(saga => saga.SourceId)
+            .ToMessage<ScheduleCommandCommand<T>>(command => command.Command.Notification.SourceId);
+    }
+}
+public class ScheduleCommandCommand<T> where T : INotificationCommand
+{
+    public T Command { get; set; }
+}
+public interface INotificationCommand
+{
+    Notification Notification { get; }
+}
+public class Notification
+{
+    public Guid SourceId { get; set; }
+}
+";
 
         return Assert(original, expected, fixMustCompile: false);
     }

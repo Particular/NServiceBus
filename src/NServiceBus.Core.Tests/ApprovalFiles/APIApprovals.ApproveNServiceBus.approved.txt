@@ -515,6 +515,7 @@ namespace NServiceBus
     [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
         "ad\' instead. Will be removed in version 11.0.0.", true)]
     public interface IToSagaExpression<TSagaData>
+        where TSagaData : NServiceBus.IContainSagaData
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
@@ -1027,8 +1028,10 @@ namespace NServiceBus
     [System.Obsolete("Use \'The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' inste" +
         "ad\' instead. Will be removed in version 11.0.0.", true)]
     public class ToSagaExpression<TSagaData, TMessage>
+        where TSagaData :  class, NServiceBus.IContainSagaData
     {
-        public ToSagaExpression() { }
+        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
     }
     public static class TransportConfig
     {
