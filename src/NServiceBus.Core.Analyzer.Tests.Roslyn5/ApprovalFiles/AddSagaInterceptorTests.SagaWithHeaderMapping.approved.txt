@@ -33,9 +33,8 @@ namespace NServiceBus
                 {
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                 };
-                var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
-                {
-                };
+                MessagePropertyAccessor[] propertyAccessors = [
+                ];
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 

@@ -91,11 +91,14 @@ public sealed partial class AddSagaInterceptor
 
                 sourceWriter.Indentation++;
 
+                sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
+                sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
                 sourceWriter.WriteLine($"static extern object? AccessFrom_Property({mapping.MessageType} message);");
-
+                sourceWriter.WriteLine();
+                sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;
 
                 sourceWriter.WriteLine("}");
@@ -111,20 +114,23 @@ public sealed partial class AddSagaInterceptor
         {
             sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
             foreach (var message in details.Handler.Registrations)
             {
-                sourceWriter.WriteLine($"    new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.RegistrationType == RegistrationType.StartMessageHandler ? "true" : "false")}, {(message.RegistrationType == RegistrationType.TimeoutHandler ? "true" : "false")}),");
+                sourceWriter.WriteLine($"new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.RegistrationType == RegistrationType.StartMessageHandler ? "true" : "false")}, {(message.RegistrationType == RegistrationType.TimeoutHandler ? "true" : "false")}),");
             }
+            sourceWriter.Indentation--;
             sourceWriter.WriteLine("};");
 
-            sourceWriter.WriteLine("var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]");
-            sourceWriter.WriteLine("{");
+            sourceWriter.WriteLine("MessagePropertyAccessor[] propertyAccessors = [");
+            sourceWriter.Indentation++;
             foreach (var mapping in details.PropertyMappings)
             {
                 var accessorClassName = AccessorName(mapping);
-                sourceWriter.WriteLine($"    new {accessorClassName}(),");
+                sourceWriter.WriteLine($"{accessorClassName}.Instance,");
             }
-            sourceWriter.WriteLine("};");
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("];");
             sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
         }
 

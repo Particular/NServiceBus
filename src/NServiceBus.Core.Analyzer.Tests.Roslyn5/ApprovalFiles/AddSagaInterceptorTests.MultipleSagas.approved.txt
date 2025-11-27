@@ -34,10 +34,9 @@ namespace NServiceBus
                 {
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                 };
-                var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
-                {
-                    new OrderCreatedOrderIdAccessor_16edcde3129fe540(),
-                };
+                MessagePropertyAccessor[] propertyAccessors = [
+                    OrderCreatedOrderIdAccessor_16edcde3129fe540.Instance,
+                ];
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
@@ -55,10 +54,9 @@ namespace NServiceBus
                 {
                     new NServiceBus.Sagas.SagaMessage(typeof(global::PaymentRequested), true, false),
                 };
-                var propertyAccessors = new NServiceBus.MessagePropertyAccessor[]
-                {
-                    new PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c(),
-                };
+                MessagePropertyAccessor[] propertyAccessors = [
+                    PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c.Instance,
+                ];
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga, global::PaymentSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
@@ -70,18 +68,26 @@ namespace NServiceBus
 
         sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
         {
+            OrderCreatedOrderIdAccessor_16edcde3129fe540() { }
+
             protected override object? AccessFrom(global::OrderCreated message) => AccessFrom_Property(message);
 
             [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
             static extern object? AccessFrom_Property(global::OrderCreated message);
+
+            public static readonly NServiceBus.MessagePropertyAccessor Instance = new OrderCreatedOrderIdAccessor_16edcde3129fe540();
         }
 
         sealed class PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c : NServiceBus.MessagePropertyAccessor<global::PaymentRequested>
         {
+            PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c() { }
+
             protected override object? AccessFrom(global::PaymentRequested message) => AccessFrom_Property(message);
 
             [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_PaymentId")]
             static extern object? AccessFrom_Property(global::PaymentRequested message);
+
+            public static readonly NServiceBus.MessagePropertyAccessor Instance = new PaymentRequestedPaymentIdAccessor_c90ac66d7074e25c();
         }
 
     }
