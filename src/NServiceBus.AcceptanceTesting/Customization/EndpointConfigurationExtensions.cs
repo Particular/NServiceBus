@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Hosting.Helpers;
 using Sagas;
 using Support;
 
@@ -26,8 +25,7 @@ public static class EndpointConfigurationExtensions
         var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
 
         var typesToIncludeInScanning = testTypes
-            .Where(t => t.IsAssignableTo(typeof(IHandleSagaNotFound))
-                        || t.IsAssignableTo(typeof(Saga)))
+            .Where(t => t.IsAssignableTo(typeof(IHandleSagaNotFound)))
             .Union(customizationConfiguration.TypesToInclude);
 
         config.TypesToIncludeInScan(typesToIncludeInScanning);
@@ -38,6 +36,15 @@ public static class EndpointConfigurationExtensions
             foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
             {
                 AddHandlerWithReflection(messageHandler, config);
+            }
+        }
+
+        //auto-register sagas for now
+        if (customizationConfiguration.AutoRegisterSagas)
+        {
+            foreach (var sagaType in testTypes.Where(t => t.IsAssignableTo(typeof(Saga))))
+            {
+                AddSagaWithReflection(sagaType, config);
             }
         }
 
@@ -92,5 +99,11 @@ public static class EndpointConfigurationExtensions
         typeof(MessageHandlerRegistrationExtensions)
             .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!
             .MakeGenericMethod(handlerType)
+            .Invoke(null, [endpointConfiguration]);
+
+    static void AddSagaWithReflection(Type sagaType, EndpointConfiguration endpointConfiguration) =>
+        typeof(SagaRegistrationExtensions)
+            .GetMethod("AddSaga", BindingFlags.Public | BindingFlags.Static)!
+            .MakeGenericMethod(sagaType)
             .Invoke(null, [endpointConfiguration]);
 }

@@ -122,4 +122,11 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
         return this;
     }
+
+    public EndpointConfigurationBuilder DoNotAutoRegisterSagas()
+    {
+        configuration.AutoRegisterSagas = false;
+
+        return this;
+    }
 }
