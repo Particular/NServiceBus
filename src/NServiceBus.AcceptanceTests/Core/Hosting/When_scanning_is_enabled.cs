@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Hosting;
 
+using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -12,16 +13,21 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(c => c
-                .When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.GotTheMessage)
+                .When(b => b.SendLocal(new MyMessage { SomeId = Guid.NewGuid() })))
+            .Done(c => c.HandlerGotMessage && c.SagaGotMessage)
             .Run();
 
-        Assert.That(context.GotTheMessage, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.HandlerGotMessage, Is.True);
+            Assert.That(context.SagaGotMessage, Is.True);
+        }
     }
 
     class Context : ScenarioContext
     {
-        public bool GotTheMessage { get; set; }
+        public bool HandlerGotMessage { get; set; }
+        public bool SagaGotMessage { get; set; }
     }
 
     class MyEndpoint : EndpointConfigurationBuilder
@@ -29,17 +35,41 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
         public MyEndpoint() =>
             EndpointSetup<DefaultServer>()
                 .DoNotAutoRegisterHandlers()
-                .IncludeType<MyMessageHandler>();
+                .DoNotAutoRegisterSagas()
+                .IncludeType<AutoRegisteredHandler>()
+                .IncludeType<AutoRegisteredSaga>();
 
-        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
+        public class AutoRegisteredHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                testContext.GotTheMessage = true;
+                testContext.HandlerGotMessage = true;
                 return Task.CompletedTask;
+            }
+        }
+
+        public class AutoRegisteredSaga(Context testContext) : Saga<AutoRegisteredSaga.AutoRegisteredSagaData>, IAmStartedByMessages<MyMessage>
+        {
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                Data.SomeId = message.SomeId;
+                testContext.SagaGotMessage = true;
+                MarkAsComplete();
+                return Task.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoRegisteredSagaData> mapper)
+                => mapper.MapSaga(s => s.SomeId).ToMessage<MyMessage>(m => m.SomeId);
+
+            public class AutoRegisteredSagaData : ContainSagaData
+            {
+                public virtual Guid SomeId { get; set; }
             }
         }
     }
 
-    public class MyMessage : IMessage;
+    public class MyMessage : IMessage
+    {
+        public Guid SomeId { get; set; }
+    }
 }

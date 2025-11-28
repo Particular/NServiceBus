@@ -1,10 +1,14 @@
 ﻿namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
+using Fakes;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.Persistence;
 using NServiceBus.Sagas;
@@ -203,6 +207,95 @@ public class SagaMetadataCreationTests
         Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(SagaWithInheritanceChain.SagaData)));
     }
 
+    [Test]
+    public async Task PropertyFinder_UsesExpressionsByDefault()
+    {
+        var services = new ServiceCollection();
+        var fakeSagaPersister = new FakeSagaPersister();
+        services.AddSingleton<ISagaPersister>(fakeSagaPersister);
+        await using var provider = services.BuildServiceProvider();
+
+        var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)]);
+        var finder = metadata.Finders.Single();
+
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+    }
+
+    [Test]
+    public async Task PropertyFinder_AllowsPassingAccessor()
+    {
+        var services = new ServiceCollection();
+        var fakeSagaPersister = new FakeSagaPersister();
+        services.AddSingleton<ISagaPersister>(fakeSagaPersister);
+        await using var provider = services.BuildServiceProvider();
+
+        var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)], [new StartingMessageAccessor()]);
+        var finder = metadata.Finders.Single();
+
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+    }
+
+    [Test]
+    public async Task HeaderFinder_WorksAsExpected()
+    {
+        var services = new ServiceCollection();
+        var fakeSagaPersister = new FakeSagaPersister();
+        services.AddSingleton<ISagaPersister>(fakeSagaPersister);
+        await using var provider = services.BuildServiceProvider();
+
+        var metadata = SagaMetadata.Create<MySagaWithMappedHeader, MySagaWithMappedHeader.SagaData>([new SagaMessage(typeof(SomeMessage), true, false)]);
+        var finder = metadata.Finders.Single();
+
+        var headers = new Dictionary<string, string>
+        {
+            { "CorrelationHeader", "456" }
+        };
+
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new SomeMessage(), headers).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_456"));
+    }
+
+    class FakeSagaPersister : ISagaPersister
+    {
+        public string Property { get; set; }
+
+        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session,
+            ContextBag context, CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task Update(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, ContextBag context,
+            CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData =>
+            throw new NotImplementedException();
+
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context,
+            CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+        {
+            Property = $"{propertyName}_{propertyValue}";
+            return Task.FromResult(default(TSagaData));
+        }
+
+        public Task Complete(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+    }
+
+    class StartingMessageAccessor : MessagePropertyAccessor<StartingMessage>
+    {
+        protected override object AccessFrom(StartingMessage message) => AccessFrom_UniqueProperty(message);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_UniqueProperty")]
+        static extern int AccessFrom_UniqueProperty(StartingMessage unsafeExample);
+    }
+
     static SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
     {
         if (!metadata.TryGetFinder(messageType, out var finder))
@@ -273,9 +366,7 @@ public class SagaMetadataCreationTests
             public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(SagaData));
         }
 
-        public class StartSagaMessage : IMessage
-        {
-        }
+        public class StartSagaMessage : IMessage;
     }
 
     public class SagaWithMappingAndFinder : Saga<SagaWithMappingAndFinder.SagaData>,

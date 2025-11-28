@@ -4,6 +4,10 @@
     <Using Include="NServiceBus" />
   </ItemGroup>
 
+  <ItemGroup Label="Compiler visible properties">
+    <CompilerVisibleProperty Include="NServiceBusDisableSagaPropertyAccessor" />
+  </ItemGroup>
+
   <PropertyGroup>
     <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
   </PropertyGroup>

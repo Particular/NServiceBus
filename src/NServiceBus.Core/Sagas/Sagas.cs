@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
@@ -16,25 +15,20 @@ public sealed class Sagas : Feature
     /// </summary>
     public Sagas()
     {
-        Defaults(s =>
-        {
-            conventions = s.Get<Conventions>();
-
-            var sagas = s.GetAvailableTypes().Where(IsSagaType).ToList();
-            if (sagas.Count > 0)
-            {
-                conventions.AddSystemMessagesConventions(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
-            }
-        });
+        Defaults(s => s.SetDefault(new SagaMetadataCollection()));
 
         Enable<SynchronizedStorage>();
 
-        Defaults(s => s.Set(new SagaMetadataCollection()));
+        DependsOn<SynchronizedStorage>();
 
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
-        Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
-
-        DependsOn<SynchronizedStorage>();
+        Prerequisite(context =>
+        {
+            var sagaCollection = context.Settings.Get<SagaMetadataCollection>();
+            var sagaMetadata = SagaMetadata.CreateMany(context.Settings.GetAvailableTypes());
+            sagaCollection.AddRange(sagaMetadata);
+            return sagaCollection.HasMetadata;
+        }, "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
     }
 
     /// <summary>
@@ -50,7 +44,7 @@ public sealed class Sagas : Feature
         var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
 
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
-        sagaMetaModel.Initialize(context.Settings.GetAvailableTypes());
+        sagaMetaModel.PreventChanges();
 
         if (context.GetStorageOptions<StorageType.SagasOptions>() is { SupportsFinders: false })
         {
@@ -74,6 +68,7 @@ public sealed class Sagas : Feature
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
 
+        // Register saga not found handlers
         foreach (var t in context.Settings.GetAvailableTypes())
         {
             if (IsSagaNotFoundHandler(t))
@@ -88,26 +83,7 @@ public sealed class Sagas : Feature
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }
 
-    static bool IsSagaType(Type t) => IsCompatible(t, typeof(Saga));
-
     static bool IsSagaNotFoundHandler(Type t) => IsCompatible(t, typeof(IHandleSagaNotFound));
 
     static bool IsCompatible(Type t, Type source) => source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
-
-    static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
-    {
-        // MakeGenericType() throws an exception if passed a ref struct type
-        // Messages cannot be ref struct types
-        if (type.IsByRefLike)
-        {
-            return false;
-        }
-
-        var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
-        var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
-
-        return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
-    }
-
-    Conventions conventions;
 }

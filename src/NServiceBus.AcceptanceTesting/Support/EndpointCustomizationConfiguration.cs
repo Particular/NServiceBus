@@ -27,4 +27,6 @@ public class EndpointCustomizationConfiguration
     public bool DisableStartupDiagnostics { get; set; } = true;
 
     public bool AutoRegisterHandlers { get; set; } = true;
+
+    public bool AutoRegisterSagas { get; set; } = true;
 }

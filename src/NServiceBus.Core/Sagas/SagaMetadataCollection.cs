@@ -1,9 +1,11 @@
+#nullable enable
+
 namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Sagas metamodel.
@@ -18,24 +20,44 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
-    /// Populates the model with saga metadata from the provided collection of types.
+    /// Indicates whether any saga metadata is present in the collection.
     /// </summary>
-    /// <param name="availableTypes">A collection of types to scan for sagas.</param>
-    public void Initialize(IEnumerable<Type> availableTypes)
+    public bool HasMetadata => byEntity.Count > 0;
+
+    /// <summary>
+    /// Adds a range of saga metadata instances.
+    /// </summary>
+    /// <param name="metadata">The saga metadata instances to add.</param>
+    public void AddRange(IEnumerable<SagaMetadata> metadata)
     {
-        ArgumentNullException.ThrowIfNull(availableTypes);
+        ArgumentNullException.ThrowIfNull(metadata);
 
-        var availableTypesList = availableTypes.ToList();
+        AssertNotLocked();
 
-        var foundSagas = availableTypesList.Where(SagaMetadata.IsSagaType)
-            .Select(SagaMetadata.Create)
-            .ToList();
-
-        foreach (var saga in foundSagas)
+        foreach (var sagaMetadata in metadata)
         {
-            byEntity[saga.SagaEntityType] = saga;
-            byType[saga.SagaType] = saga;
+            Add(sagaMetadata);
         }
+    }
+
+    /// <summary>
+    /// Adds a saga metadata instance explicitly.
+    /// </summary>
+    /// <param name="metadata">The saga metadata to add.</param>
+    public void Add(SagaMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+
+        AssertNotLocked();
+
+        // Deduplicate additions since the saga metadata creation is assumed to be idempotent
+        if (byType.ContainsKey(metadata.SagaType) && byEntity.ContainsKey(metadata.SagaEntityType))
+        {
+            return;
+        }
+
+        byEntity[metadata.SagaEntityType] = metadata;
+        byType[metadata.SagaType] = metadata;
     }
 
     /// <summary>
@@ -60,7 +82,9 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
         return byType[sagaType];
     }
 
-    internal bool TryFind(Type sagaType, out SagaMetadata targetSagaMetaData) => byType.TryGetValue(sagaType, out targetSagaMetaData);
+    internal void PreventChanges() => locked = true;
+
+    internal bool TryFind(Type sagaType, [NotNullWhen(true)] out SagaMetadata? sagaMetadata) => byType.TryGetValue(sagaType, out sagaMetadata);
 
     internal void VerifyIfEntitiesAreShared()
     {
@@ -91,6 +115,15 @@ public partial class SagaMetadataCollection : IEnumerable<SagaMetadata>
         }
     }
 
+    void AssertNotLocked()
+    {
+        if (locked)
+        {
+            throw new InvalidOperationException("SagaMetadataCollection is locked and cannot be modified.");
+        }
+    }
+
+    bool locked;
     readonly Dictionary<Type, SagaMetadata> byEntity = [];
     readonly Dictionary<Type, SagaMetadata> byType = [];
 }
