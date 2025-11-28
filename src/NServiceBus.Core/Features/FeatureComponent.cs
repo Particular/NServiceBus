@@ -47,7 +47,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
     {
-        var startedTaskControllers = new List<FeatureStartupTaskController>();
+        var startedTaskControllers = new List<IFeatureStartupTaskController>();
 
         // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
         foreach (var feature in enabledFeatures.Where(f => f.IsActive))
