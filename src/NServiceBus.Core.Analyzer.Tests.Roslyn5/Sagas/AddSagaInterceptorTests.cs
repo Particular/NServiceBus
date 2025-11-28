@@ -61,6 +61,61 @@ public class AddSagaInterceptorTests
     }
 
     [Test]
+    public void DisableUnsafeAccessors()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddSaga<OrderSaga>();
+                         }
+                     }
+
+                     public class OrderSaga : Saga<OrderSagaData>,
+                         IAmStartedByMessages<OrderCreated>,
+                         IHandleMessages<OrderShipped>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
+                         {
+                             mapper.MapSaga(s => s.OrderId)
+                                 .ToMessage<OrderCreated>(m => m.OrderId)
+                                 .ToMessage<OrderShipped>(m => m.OrderId);
+                         }
+                         
+                         public Task Handle(OrderCreated message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Handle(OrderShipped message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class OrderSagaData : ContainSagaData
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     
+                     public class OrderCreated : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     
+                     public class OrderShipped : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("SagaSpec", "SagaSpecs")
+            .WithProperty("build_property.NServiceBusDisableSagaUnsafeAccessors", "true")
+            .Approve()
+            .ToConsole()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void MultipleSagas()
     {
         var source = """

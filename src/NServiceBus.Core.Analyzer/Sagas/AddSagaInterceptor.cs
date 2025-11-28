@@ -11,6 +11,10 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var options = context.AnalyzerConfigOptionsProvider
+            .Select(static (provider, _) => Options.Create(provider))
+            .WithTrackingName("SagaOptions");
+
         var addSagas = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => Parser.SyntaxLooksLikeAddSagaMethod(node),
@@ -23,11 +27,14 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
             .Select((sagas, _) => new SagaSpecs(sagas.ToImmutableEquatableArray()))
             .WithTrackingName("SagaSpecs");
 
-        context.RegisterSourceOutput(collected,
-            static (productionContext, intercepts) =>
+        var sagaSpecsWithOptions = collected.Combine(options);
+
+        context.RegisterSourceOutput(sagaSpecsWithOptions,
+            static (productionContext, interceptsAndOptions) =>
             {
+                var (intercepts, sagaOptions) = interceptsAndOptions;
                 var emitter = new Emitter(productionContext);
-                emitter.Emit(intercepts);
+                emitter.Emit(intercepts, sagaOptions);
             });
     }
 

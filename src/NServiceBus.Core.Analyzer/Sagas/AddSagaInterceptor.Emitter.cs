@@ -12,9 +12,9 @@ public sealed partial class AddSagaInterceptor
 {
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(SagaSpecs sagaSpecs) => Emit(sourceProductionContext, sagaSpecs);
+        public void Emit(SagaSpecs sagaSpecs, Options options) => Emit(sourceProductionContext, sagaSpecs, options);
 
-        static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs)
+        static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs, Options options)
         {
             var sagas = sagaSpecs.Sagas;
             if (sagas.Count == 0)
@@ -73,7 +73,7 @@ public sealed partial class AddSagaInterceptor
                                        """);
 
                 // Generate builder API calls directly into the source writer
-                GenerateBuilderCode(sourceWriter, sagaSpec);
+                GenerateBuilderCode(sourceWriter, sagaSpec, options);
                 sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 sourceWriter.WriteLine();
                 AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
@@ -92,43 +92,46 @@ public sealed partial class AddSagaInterceptor
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
 
-            var allPropertyMappings = sagas
-                .SelectMany(i => i.PropertyMappings)
-                .GroupBy(m => (m.MessageType, m.MessagePropertyName))
-                .Select(g => g.First())
-                .OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal)
-                .ToArray();
-
-            if (allPropertyMappings.Length > 0)
+            if (options.GenerateUnsafeAccessors)
             {
-                sourceWriter.WriteLine();
-            }
+                var allPropertyMappings = sagas
+                    .SelectMany(i => i.PropertyMappings)
+                    .GroupBy(m => (m.MessageType, m.MessagePropertyName))
+                    .Select(g => g.First())
+                    .OrderBy(m => m.MessageType, StringComparer.Ordinal)
+                    .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal)
+                    .ToArray();
 
-            for (var index = 0; index < allPropertyMappings.Length; index++)
-            {
-                var mapping = allPropertyMappings[index];
-                var accessorClassName = AccessorName(mapping);
-                _ = sourceWriter.WithGeneratedCodeAttribute();
-                sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
-                sourceWriter.WriteLine("{");
-
-                sourceWriter.Indentation++;
-
-                sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
-                sourceWriter.Indentation--;
-
-                sourceWriter.WriteLine("}");
-                if (index < allPropertyMappings.Length - 1)
+                if (allPropertyMappings.Length > 0)
                 {
                     sourceWriter.WriteLine();
+                }
+
+                for (var index = 0; index < allPropertyMappings.Length; index++)
+                {
+                    var mapping = allPropertyMappings[index];
+                    var accessorClassName = AccessorName(mapping);
+                    _ = sourceWriter.WithGeneratedCodeAttribute();
+                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+                    sourceWriter.WriteLine("{");
+
+                    sourceWriter.Indentation++;
+
+                    sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
+                    sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
+                    sourceWriter.Indentation--;
+
+                    sourceWriter.WriteLine("}");
+                    if (index < allPropertyMappings.Length - 1)
+                    {
+                        sourceWriter.WriteLine();
+                    }
                 }
             }
 
@@ -137,7 +140,7 @@ public sealed partial class AddSagaInterceptor
             context.AddSource("InterceptionsOfAddSagaMethod.g.cs", sourceWriter.ToSourceText());
         }
 
-        static void GenerateBuilderCode(SourceWriter sourceWriter, SagaSpec details)
+        static void GenerateBuilderCode(SourceWriter sourceWriter, SagaSpec details, Options options)
         {
             sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
@@ -149,16 +152,23 @@ public sealed partial class AddSagaInterceptor
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("};");
 
-            sourceWriter.WriteLine("MessagePropertyAccessor[] propertyAccessors = [");
-            sourceWriter.Indentation++;
-            foreach (var mapping in details.PropertyMappings)
+            if (options.GenerateUnsafeAccessors)
             {
-                var accessorClassName = AccessorName(mapping);
-                sourceWriter.WriteLine($"{accessorClassName}.Instance,");
+                sourceWriter.WriteLine("MessagePropertyAccessor[] propertyAccessors = [");
+                sourceWriter.Indentation++;
+                foreach (var mapping in details.PropertyMappings)
+                {
+                    var accessorClassName = AccessorName(mapping);
+                    sourceWriter.WriteLine($"{accessorClassName}.Instance,");
+                }
+                sourceWriter.Indentation--;
+                sourceWriter.WriteLine("];");
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
             }
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("];");
-            sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
+            else
+            {
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages);");
+            }
         }
 
         static string AccessorName(PropertyMappingSpec mapping)
