@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_sagas_cant_be_found : NServiceBusAcceptanceTest

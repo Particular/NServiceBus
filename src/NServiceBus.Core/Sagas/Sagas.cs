@@ -68,22 +68,8 @@ public sealed class Sagas : Feature
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
 
-        // Register saga not found handlers
-        foreach (var t in context.Settings.GetAvailableTypes())
-        {
-            if (IsSagaNotFoundHandler(t))
-            {
-                context.Services.AddTransient(typeof(IHandleSagaNotFound), t);
-            }
-        }
-
         // Register the Saga related behaviors for incoming messages
         context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.GetRequiredService<ISagaPersister>(), sagaIdGenerator, sagaMetaModel), "Invokes the saga logic");
-        context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }
-
-    static bool IsSagaNotFoundHandler(Type t) => IsCompatible(t, typeof(IHandleSagaNotFound));
-
-    static bool IsCompatible(Type t, Type source) => source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
 }

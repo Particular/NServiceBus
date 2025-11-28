@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest

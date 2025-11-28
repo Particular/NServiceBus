@@ -22,13 +22,9 @@ public static class EndpointConfigurationExtensions
     public static void ScanTypesForTest(this EndpointConfiguration config,
         EndpointCustomizationConfiguration customizationConfiguration)
     {
+        config.TypesToIncludeInScan(customizationConfiguration.TypesToInclude);
+
         var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
-
-        var typesToIncludeInScanning = testTypes
-            .Where(t => t.IsAssignableTo(typeof(IHandleSagaNotFound)))
-            .Union(customizationConfiguration.TypesToInclude);
-
-        config.TypesToIncludeInScan(typesToIncludeInScanning);
 
         //auto-register handlers for now
         if (customizationConfiguration.AutoRegisterHandlers)

@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
