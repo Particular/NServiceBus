@@ -41,7 +41,7 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
     public class MultiHandlerSagaEndpoint : EndpointConfigurationBuilder
     {
         public MultiHandlerSagaEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<MultiMessageSaga>();
             });

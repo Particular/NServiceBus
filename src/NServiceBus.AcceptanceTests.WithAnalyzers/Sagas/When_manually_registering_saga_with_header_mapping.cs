@@ -40,7 +40,7 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
     public class HeaderMappingSagaEndpoint : EndpointConfigurationBuilder
     {
         public HeaderMappingSagaEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<HeaderCorrelationSaga>();
             });

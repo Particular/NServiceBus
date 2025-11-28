@@ -34,7 +34,7 @@ public class When_manually_registering_saga : NServiceBusAcceptanceTest
     public class ManualSagaEndpoint : EndpointConfigurationBuilder
     {
         public ManualSagaEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<ManuallyRegisteredSaga>();
             });
@@ -65,4 +65,3 @@ public class When_manually_registering_saga : NServiceBusAcceptanceTest
         public Guid OrderId { get; set; }
     }
 }
-

@@ -35,7 +35,7 @@ public class When_manually_registering_saga_with_mapsaga_syntax : NServiceBusAcc
     public class MapSagaSyntaxEndpoint : EndpointConfigurationBuilder
     {
         public MapSagaSyntaxEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<FluentMappingSaga>();
             });

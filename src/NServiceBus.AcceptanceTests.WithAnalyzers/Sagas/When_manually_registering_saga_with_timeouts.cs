@@ -34,7 +34,7 @@ public class When_manually_registering_saga_with_timeouts : NServiceBusAcceptanc
     public class ManualTimeoutSagaEndpoint : EndpointConfigurationBuilder
     {
         public ManualTimeoutSagaEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 // Manually register the saga using AddSaga
                 config.AddSaga<TimeoutHandlingSaga>();

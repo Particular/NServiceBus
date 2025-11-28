@@ -59,10 +59,10 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
     public class HybridSagaEndpoint : EndpointConfigurationBuilder
     {
         public HybridSagaEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<ManuallyRegisteredOrderSaga>();
-            }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
+            })
             .IncludeType<ScannedPaymentSaga>();
 
         public class ManuallyRegisteredOrderSaga(Context testContext)
@@ -109,10 +109,10 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
     public class DuplicateRegistrationEndpoint : EndpointConfigurationBuilder
     {
         public DuplicateRegistrationEndpoint() =>
-            EndpointSetup<DefaultServer>(config =>
+            EndpointSetup<NonScanningServer>(config =>
             {
                 config.AddSaga<DuplicateRegistrationSaga>();
-            }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
+            })
             .IncludeType<DuplicateRegistrationSaga>();
 
         public class DuplicateRegistrationSaga(Context testContext)
