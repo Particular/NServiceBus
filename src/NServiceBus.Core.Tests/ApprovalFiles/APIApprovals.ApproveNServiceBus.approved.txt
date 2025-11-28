@@ -407,6 +407,11 @@ namespace NServiceBus
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object?>> sagaEntityProperty, string headerName)
             where TSagaEntity :  class, NServiceBus.IContainSagaData;
     }
+    public interface IConfigureSagaNotFoundHandler
+    {
+        void ConfigureSagaNotFoundHandler<TNotFoundHandler>()
+            where TNotFoundHandler : NServiceBus.IHandleSagaNotFound;
+    }
     public interface IContainSagaData
     {
         System.Guid Id { get; set; }
@@ -451,6 +456,10 @@ namespace NServiceBus
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
+    }
+    public interface IHandleSagaNotFound
+    {
+        System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
     public interface IHandleTimeouts<T>
     {
@@ -899,6 +908,8 @@ namespace NServiceBus
         [System.Obsolete("The old API for mapping messages to sagas has been obsoleted, use \'mapper.MapSaga" +
             "(...).ToMessage<MyMessage>(...)\' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
+        public void ConfigureNotFoundHandler<TNotFoundHandler>()
+            where TNotFoundHandler : NServiceBus.IHandleSagaNotFound { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
     public static class SagaRegistrationExtensions
@@ -2068,6 +2079,9 @@ namespace NServiceBus.Sagas
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
     public interface IFinder { }
+    [System.Obsolete("ISagaNotFound is no longer automatically scanned. Please register them using mapp" +
+        "er.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas. Will be remo" +
+        "ved in version 11.0.0.", true)]
     public interface IHandleSagaNotFound
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);

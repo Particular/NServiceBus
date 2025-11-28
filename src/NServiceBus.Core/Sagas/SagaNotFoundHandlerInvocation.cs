@@ -1,5 +1,5 @@
 #nullable enable
-namespace NServiceBus.Sagas;
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
