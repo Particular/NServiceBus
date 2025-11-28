@@ -815,7 +815,7 @@
             public INamedTypeSymbol IContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.IContainSagaData");
             public INamedTypeSymbol ContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.ContainSagaData");
             public INamedTypeSymbol IMessageHandlerContext { get; } = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-            public INamedTypeSymbol IHandleSagaNotFound { get; } = compilation.GetTypeByMetadataName("NServiceBus.Sagas.IHandleSagaNotFound");
+            public INamedTypeSymbol IHandleSagaNotFound { get; } = compilation.GetTypeByMetadataName("NServiceBus.IHandleSagaNotFound");
             public INamedTypeSymbol IEnumerableT { get; } = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
 
             public bool IsValid() =>

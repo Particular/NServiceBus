@@ -78,7 +78,6 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
 @"using NServiceBus;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
-using NServiceBus.Sagas;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

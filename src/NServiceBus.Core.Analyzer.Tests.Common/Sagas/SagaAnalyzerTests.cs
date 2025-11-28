@@ -577,7 +577,6 @@ public class ReplyMsg : IMessage {}";
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Sagas;
 public partial class MySaga : Saga<MyData>, [|IHandleSagaNotFound|]
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) { }
