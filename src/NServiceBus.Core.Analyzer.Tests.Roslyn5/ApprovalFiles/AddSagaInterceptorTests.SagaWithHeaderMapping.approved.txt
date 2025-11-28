@@ -43,6 +43,5 @@ namespace NServiceBus
                 registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
             }
         }
-
     }
 }

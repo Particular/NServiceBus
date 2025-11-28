@@ -82,19 +82,28 @@ public sealed partial class AddSagaInterceptor
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
-            sourceWriter.WriteLine();
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
 
             var allPropertyMappings = sagas
                 .SelectMany(i => i.PropertyMappings)
                 .GroupBy(m => (m.MessageType, m.MessagePropertyName))
                 .Select(g => g.First())
                 .OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal);
+                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal)
+                .ToArray();
 
-            foreach (var mapping in allPropertyMappings)
+            if (allPropertyMappings.Length > 0)
             {
+                sourceWriter.WriteLine();
+            }
+
+            for(var index = 0; index < allPropertyMappings.Length; index++)
+            {
+                var mapping = allPropertyMappings[index];
                 var accessorClassName = AccessorName(mapping);
-                sourceWriter.WriteLine($"sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+                _ = sourceWriter.WithGeneratedCodeAttribute();
+                sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
                 sourceWriter.WriteLine("{");
 
                 sourceWriter.Indentation++;
@@ -110,7 +119,10 @@ public sealed partial class AddSagaInterceptor
                 sourceWriter.Indentation--;
 
                 sourceWriter.WriteLine("}");
-                sourceWriter.WriteLine();
+                if (index < allPropertyMappings.Length - 1)
+                {
+                    sourceWriter.WriteLine();
+                }
             }
 
             sourceWriter.CloseCurlies();
