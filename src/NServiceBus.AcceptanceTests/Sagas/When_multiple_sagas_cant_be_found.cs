@@ -39,13 +39,13 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             c.AddSaga<FoundSaga>();
         });
 
-        public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.SagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+        public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
             {
                 mapper.MapSaga(s => s.MessageId)
                     .ToMessage<StartSaga>(m => m.Id)
@@ -54,7 +54,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 mapper.ConfigureNotFoundHandler<Saga1NotFound>();
             }
 
-            public class SagaData : ContainSagaData
+            public class CantBeFoundSaga1Data : ContainSagaData
             {
                 public virtual Guid MessageId { get; set; }
             }
@@ -69,13 +69,13 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             }
         }
 
-        public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.SagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+        public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
             {
                 mapper.MapSaga(s => s.MessageId)
                     .ToMessage<StartSaga>(m => m.Id)
@@ -84,7 +84,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 mapper.ConfigureNotFoundHandler<Saga2NotFound>();
             }
 
-            public class SagaData : ContainSagaData
+            public class CantBeFoundSaga2Data : ContainSagaData
             {
                 public virtual Guid MessageId { get; set; }
             }
@@ -100,7 +100,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
         }
     }
 
-    public class FoundSaga(Context testContext) : Saga<FoundSaga.SagaData>, IAmStartedByMessages<MessageToSaga>
+    public class FoundSaga(Context testContext) : Saga<FoundSaga.FoundSagaData>, IAmStartedByMessages<MessageToSaga>
     {
         public Task Handle(MessageToSaga message, IMessageHandlerContext context)
         {
@@ -108,7 +108,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             return Task.CompletedTask;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FoundSagaData> mapper)
         {
             mapper.MapSaga(s => s.MessageId)
                 .ToMessage<MessageToSaga>(m => m.Id);
@@ -116,7 +116,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             mapper.ConfigureNotFoundHandler<Saga2NotFound>();
         }
 
-        public class SagaData : ContainSagaData
+        public class FoundSagaData : ContainSagaData
         {
             public virtual Guid MessageId { get; set; }
         }

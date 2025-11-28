@@ -34,13 +34,13 @@ public class When_saga_cant_be_found : NServiceBusAcceptanceTest
     {
         public SagaEndpoint() => EndpointSetup<DefaultServer>(c => c.AddSaga<CantBeFoundSaga>());
 
-        public class CantBeFoundSaga : Saga<CantBeFoundSaga.SagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+        public class CantBeFoundSaga : Saga<CantBeFoundSaga.CantBeFoundSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
             public Task Handle(MessageToSaga message, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSagaData> mapper)
             {
                 mapper.MapSaga(s => s.MessageId)
                     .ToMessage<StartSaga>(m => m.Id)
@@ -53,7 +53,7 @@ public class When_saga_cant_be_found : NServiceBusAcceptanceTest
                 mapper.ConfigureNotFoundHandler<DisposableHandler>();
             }
 
-            public class SagaData : ContainSagaData
+            public class CantBeFoundSagaData : ContainSagaData
             {
                 public virtual Guid MessageId { get; set; }
             }
