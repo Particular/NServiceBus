@@ -7,7 +7,7 @@ using Settings;
 
 sealed class FeatureInfo
 {
-    readonly List<FeatureStartupTaskController> taskControllers = [];
+    readonly List<IFeatureStartupTaskController> taskControllers = [];
 
     public FeatureInfo(Feature feature, IReadOnlyCollection<IReadOnlyCollection<string>> dependencyNames)
     {
@@ -33,7 +33,7 @@ sealed class FeatureInfo
     public string Name => Feature.Name;
     public bool Enabled => State is FeatureState.Enabled;
     public bool IsActive => State is FeatureState.Active;
-    public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
+    public IReadOnlyList<IFeatureStartupTaskController> TaskControllers => taskControllers;
     public IReadOnlyCollection<IReadOnlyCollection<string>> DependencyNames { get; }
 
     Feature Feature { get; }
@@ -44,7 +44,7 @@ sealed class FeatureInfo
     {
         Feature.SetupFeature(featureConfigurationContext);
         var featureStartupTasks = new List<string>();
-        foreach (FeatureStartupTaskController controller in featureConfigurationContext.TaskControllers)
+        foreach (var controller in featureConfigurationContext.TaskControllers)
         {
             taskControllers.Add(controller);
             featureStartupTasks.Add(controller.Name);
