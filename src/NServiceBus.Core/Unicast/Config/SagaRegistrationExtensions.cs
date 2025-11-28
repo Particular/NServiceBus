@@ -23,5 +23,3 @@ public static class SagaRegistrationExtensions
         config.AddHandler<TSaga>();
     }
 }
-
-
