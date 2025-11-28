@@ -20,6 +20,6 @@ public sealed partial class AddSagaInterceptor
             options.TryGetValue($"build_property.{propertyName}", out var value) &&
             value.Equals(bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
-        const string DisableSagaUnsafeAccessorsPropertyName = "NServiceBusDisableSagaUnsafeAccessors";
+        const string DisableSagaUnsafeAccessorsPropertyName = "NServiceBusDisableSagaPropertyAccessor";
     }
 }

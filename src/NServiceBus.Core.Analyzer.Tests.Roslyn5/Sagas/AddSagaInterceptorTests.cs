@@ -109,7 +109,7 @@ public class AddSagaInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
-            .WithProperty("build_property.NServiceBusDisableSagaUnsafeAccessors", "true")
+            .WithProperty("build_property.NServiceBusDisableSagaPropertyAccessor", "true")
             .Approve()
             .ToConsole()
             .AssertRunsAreEqual();
