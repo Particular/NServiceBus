@@ -76,10 +76,15 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
 
             public Task Timeout(MyTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
+            {
                 mapper.MapSaga(s => s.DataId)
                     .ToMessage<StartSaga>(m => m.DataId)
                     .ToMessage<SomeOtherMessage>(m => m.DataId);
+
+                //TODO: should we allow the saga to be used? I think we have a analyzer for this
+                mapper.ConfigureNotFoundHandler<TimeoutHitsNotFoundSaga>();
+            }
 
             public class TimeoutHitsNotFoundSagaData : ContainSagaData
             {

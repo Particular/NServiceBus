@@ -14,10 +14,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session =>
             {
-                var message = new MessageWithSagaId
-                {
-                    DataId = Guid.NewGuid()
-                };
+                var message = new MessageWithSagaId { DataId = Guid.NewGuid() };
                 var options = new SendOptions();
 
                 options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
@@ -72,9 +69,13 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
+            {
                 mapper.MapSaga(s => s.DataId)
                     .ToMessage<MessageWithSagaId>(m => m.DataId);
+
+                mapper.ConfigureNotFoundHandler<MessageWithSagaIdSaga>();
+            }
 
             public class MessageWithSagaIdSagaData : ContainSagaData
             {

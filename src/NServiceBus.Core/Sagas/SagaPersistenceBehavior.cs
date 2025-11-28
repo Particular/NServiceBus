@@ -10,7 +10,7 @@ using Logging;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
@@ -84,17 +84,6 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
                 }
 
                 sagaInstanceState.MarkAsNotFound();
-
-                //we don't invoke not found handlers for timeouts
-                if (isTimeoutMessage)
-                {
-                    logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
-                }
-                else
-                {
-                    //TODO: call not found handlers
-                    logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
-                }
             }
         }
         else
@@ -108,6 +97,21 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
 
         if (sagaInstanceState.NotFound)
         {
+            //we don't invoke not found handlers for timeouts
+            if (isTimeoutMessage)
+            {
+                logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
+            }
+            else
+            {
+                logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
+
+                foreach (var notFoundHandler in currentSagaMetadata.NotFoundHandlers)
+                {
+                    await notFoundHandler.Invoke(serviceProvider, context.MessageBeingHandled, context).ConfigureAwait(false);
+                }
+            }
+
             return;
         }
 
