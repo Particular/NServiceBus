@@ -18,43 +18,45 @@ public class When_manually_registering_saga_with_timeouts : NServiceBusAcceptanc
             {
                 OrderId = id
             })))
-            .Done(c => c.SagaStarted)
+            .Done(c => c.SagaCompleted)
             .Run();
 
-        Assert.That(context.SagaStarted, Is.True);
+        Assert.That(context.SagaCompleted, Is.True);
         Assert.That(context.OrderId, Is.EqualTo(id));
     }
 
     public class Context : ScenarioContext
     {
-        public bool SagaStarted { get; set; }
+        public bool SagaCompleted { get; set; }
         public Guid OrderId { get; set; }
     }
 
     public class ManualTimeoutSagaEndpoint : EndpointConfigurationBuilder
     {
-        public ManualTimeoutSagaEndpoint()
-        {
+        public ManualTimeoutSagaEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 // Manually register the saga using AddSaga
                 config.AddSaga<TimeoutHandlingSaga>();
             });
-        }
 
         public class TimeoutHandlingSaga(Context testContext)
             : Saga<TimeoutHandlingSagaData>,
               IAmStartedByMessages<StartSagaWithTimeout>,
               IHandleTimeouts<OrderProcessingTimeout>
         {
-            public Task Handle(StartSagaWithTimeout message, IMessageHandlerContext context)
+            public async Task Handle(StartSagaWithTimeout message, IMessageHandlerContext context)
             {
-                testContext.SagaStarted = true;
+                Data.OrderId = message.OrderId;
                 testContext.OrderId = Data.OrderId;
-                return Task.CompletedTask;
+                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new OrderProcessingTimeout());
             }
 
-            public Task Timeout(OrderProcessingTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
+            public Task Timeout(OrderProcessingTimeout state, IMessageHandlerContext context)
+            {
+                testContext.SagaCompleted = true;
+                return Task.CompletedTask;
+            }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHandlingSagaData> mapper) =>
                 mapper.MapSaga(s => s.OrderId)
@@ -72,8 +74,5 @@ public class When_manually_registering_saga_with_timeouts : NServiceBusAcceptanc
         public Guid OrderId { get; set; }
     }
 
-    public class OrderProcessingTimeout
-    {
-    }
+    public class OrderProcessingTimeout;
 }
-

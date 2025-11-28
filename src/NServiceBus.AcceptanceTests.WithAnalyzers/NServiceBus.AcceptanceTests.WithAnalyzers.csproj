@@ -28,7 +28,6 @@
   <ItemGroup>
     <Compile Include="..\NServiceBus.AcceptanceTests\EndpointTemplates\*.cs" Link="EndpointTemplates\%(RecursiveDir)%(FileName)%(Extension)" />
     <Compile Include="..\NServiceBus.AcceptanceTests\*.cs" Exclude="**\AssemblyInfo.cs" />
-    <Compile Include="..\NServiceBus.AcceptanceTests\Core\TestSuiteConstraints.cs" />
   </ItemGroup>
 
 </Project>

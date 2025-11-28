@@ -34,13 +34,11 @@ public class When_manually_registering_saga_with_mapsaga_syntax : NServiceBusAcc
 
     public class MapSagaSyntaxEndpoint : EndpointConfigurationBuilder
     {
-        public MapSagaSyntaxEndpoint()
-        {
+        public MapSagaSyntaxEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AddSaga<FluentMappingSaga>();
             });
-        }
 
         public class FluentMappingSaga(Context testContext)
             : Saga<FluentMappingSagaData>,
@@ -83,4 +81,3 @@ public class When_manually_registering_saga_with_mapsaga_syntax : NServiceBusAcc
         public Guid OrderId { get; set; }
     }
 }
-
