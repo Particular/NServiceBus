@@ -4,17 +4,13 @@ using System;
 using Logging;
 using Support;
 
-public class Scenario
+public static class Scenario
 {
     public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory { get; set; } = _ => new ContextAppenderFactory();
 
     public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
-    {
-        return new ScenarioWithContext<T>(c => { });
-    }
+        => new ScenarioWithContext<T>(static _ => { });
 
     public static IScenarioWithEndpointBehavior<T> Define<T>(Action<T> contextInitializer) where T : ScenarioContext, new()
-    {
-        return new ScenarioWithContext<T>(contextInitializer);
-    }
+        => new ScenarioWithContext<T>(contextInitializer);
 }

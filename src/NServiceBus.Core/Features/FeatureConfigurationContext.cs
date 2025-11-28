@@ -51,7 +51,7 @@ public class FeatureConfigurationContext
 
     internal ReceiveComponent.Configuration Receiving => field ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
-    internal List<FeatureStartupTaskController> TaskControllers { get; }
+    internal List<IFeatureStartupTaskController> TaskControllers { get; }
 
     internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType, new() => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
     internal TOptions? GetStorageOptions<TOptions>() where TOptions : StorageType.Options => persistenceConfiguration.SupportedPersistences.Get<TOptions>();
@@ -74,6 +74,12 @@ public class FeatureConfigurationContext
 
         Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
     }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TTask"></typeparam>
+    public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask => TaskControllers.Add(new ActivatorBasedFeatureStartupTaskController<TTask>());
 
     /// <summary>
     /// Registers an instance of a feature startup task.

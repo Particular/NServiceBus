@@ -39,33 +39,17 @@ public class When_depending_on_feature : NServiceBusAcceptanceTest
 
     public class EndpointWithFeatures : EndpointConfigurationBuilder
     {
-        public EndpointWithFeatures()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithFeatures() => EndpointSetup<DefaultServer>();
     }
 
     public class TypedDependentFeature : Feature
     {
-        public TypedDependentFeature()
-        {
-            DependsOn<DependencyFeature>();
-        }
+        public TypedDependentFeature() => DependsOn<DependencyFeature>();
 
-        protected override void Setup(FeatureConfigurationContext context)
-        {
-            context.Services.AddSingleton<Runner>();
-            context.RegisterStartupTask(b => b.GetService<Runner>());
-        }
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask<Runner>();
 
-        class Runner : FeatureStartupTask
+        class Runner(Dependency dependency) : FeatureStartupTask
         {
-            Dependency dependency;
-
-            public Runner(Dependency dependency)
-            {
-                this.dependency = dependency;
-            }
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 dependency.Start();
@@ -85,40 +69,23 @@ public class When_depending_on_feature : NServiceBusAcceptanceTest
         protected override void Setup(FeatureConfigurationContext context)
         {
             context.Services.AddSingleton<Dependency>();
-            context.Services.AddSingleton<Runner>();
-            context.RegisterStartupTask(b => b.GetService<Runner>());
+            context.RegisterStartupTask<Runner>();
         }
 
-        class Runner : FeatureStartupTask
+        class Runner(Dependency dependency) : FeatureStartupTask
         {
-            Dependency dependency;
-
-            public Runner(Dependency dependency)
-            {
-                this.dependency = dependency;
-            }
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 dependency.Initialize();
                 return Task.CompletedTask;
             }
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 
-    class Dependency
+    class Dependency(Context context)
     {
-        Context context;
-
-        public Dependency(Context context)
-        {
-            this.context = context;
-        }
-
         public void Start()
         {
             if (!context.InitializeCalled)
@@ -138,9 +105,6 @@ public class When_depending_on_feature : NServiceBusAcceptanceTest
             context.StopCalled = true;
         }
 
-        public void Initialize()
-        {
-            context.InitializeCalled = true;
-        }
+        public void Initialize() => context.InitializeCalled = true;
     }
 }
