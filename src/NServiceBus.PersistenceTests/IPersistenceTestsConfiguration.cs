@@ -75,8 +75,7 @@ public partial class PersistenceTestsConfiguration : IPersistenceTestsConfigurat
             }
 
             var sagaTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t =>
-                typeof(Saga).IsAssignableFrom(t) || typeof(ISagaFinder<,>).IsAssignableFrom(t) ||
-                typeof(IFinder).IsAssignableFrom(t)).ToArray();
+                typeof(Saga).IsAssignableFrom(t)).ToArray();
             field = [];
             field.AddRange(SagaMetadata.CreateMany(sagaTypes));
             return field;
