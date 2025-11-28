@@ -105,7 +105,7 @@ public sealed partial class AddSagaInterceptor
                 sourceWriter.WriteLine();
             }
 
-            for(var index = 0; index < allPropertyMappings.Length; index++)
+            for (var index = 0; index < allPropertyMappings.Length; index++)
             {
                 var mapping = allPropertyMappings[index];
                 var accessorClassName = AccessorName(mapping);
