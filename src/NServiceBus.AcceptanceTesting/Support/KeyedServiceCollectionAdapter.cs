@@ -55,10 +55,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         return descriptors.Contains(item);
     }
 
-    public void CopyTo(ServiceDescriptor[] array, int arrayIndex)
-    {
-        descriptors.CopyTo(array, arrayIndex);
-    }
+    public void CopyTo(ServiceDescriptor[] array, int arrayIndex) => descriptors.CopyTo(array, arrayIndex);
 
     public IEnumerator<ServiceDescriptor> GetEnumerator() => descriptors.GetEnumerator();
 

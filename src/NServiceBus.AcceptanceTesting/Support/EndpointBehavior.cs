@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Customization;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 public class EndpointBehavior : IComponentBehavior
@@ -13,17 +14,17 @@ public class EndpointBehavior : IComponentBehavior
     {
         EndpointBuilder = endpointBuilder;
         CustomConfig = [];
-        ConfigureHowToCreateInstance(config => Endpoint.Create(config), static (startableEndpoint, cancellationToken) => startableEndpoint.Start(cancellationToken));
+        ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
 
-    public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
+    public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
-        createInstanceCallback = async config =>
+        createInstanceCallback = async (services, config) =>
         {
-            var result = await createCallback(config).ConfigureAwait(false);
+            var result = await createCallback(services, config).ConfigureAwait(false);
             return result;
         };
-        startInstanceCallback = (state, ct) => startCallback((T)state, ct);
+        startInstanceCallback = (state, provider, ct) => startCallback((T)state, provider, ct);
     }
 
     public IEndpointConfigurationFactory EndpointBuilder { get; }
@@ -52,6 +53,6 @@ public class EndpointBehavior : IComponentBehavior
         return runner;
     }
 
-    Func<EndpointConfiguration, Task<object>> createInstanceCallback;
-    Func<object, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
+    Func<IServiceCollection, EndpointConfiguration, Task<object>> createInstanceCallback;
+    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
 }

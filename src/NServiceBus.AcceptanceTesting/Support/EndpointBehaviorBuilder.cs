@@ -4,25 +4,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
+public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory endpointConfigurationFactory)
+    where TContext : ScenarioContext
 {
-    public EndpointBehaviorBuilder(IEndpointConfigurationFactory endpointConfigurationFactory)
-    {
-        behavior = new EndpointBehavior(endpointConfigurationFactory)
-        {
-            Whens = []
-        };
-    }
+    public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action) => When(c => true, action);
 
-    public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action)
-    {
-        return When(c => true, action);
-    }
-
-    public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, Task> action)
-    {
-        return When(c => true, action);
-    }
+    public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, Task> action) => When(c => true, action);
 
     public EndpointBehaviorBuilder<TContext> When(Func<TContext, Task<bool>> condition, Func<IMessageSession, Task> action)
     {
@@ -68,14 +55,14 @@ public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
 
     public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
-        behavior.ConfigureHowToCreateInstance(createCallback, startCallback);
+        behavior.ConfigureHowToCreateInstance((services, config) => createCallback(config), (t, _, ct) => startCallback(t, ct));
 
         return this;
     }
 
     public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<EndpointConfiguration, T> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
-        behavior.ConfigureHowToCreateInstance(config => Task.FromResult(createCallback(config)), startCallback);
+        behavior.ConfigureHowToCreateInstance((services, config) => Task.FromResult(createCallback(config)), (t, _, ct) => startCallback(t, ct));
 
         return this;
     }
@@ -89,5 +76,8 @@ public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
 
     public EndpointBehavior Build() => behavior;
 
-    EndpointBehavior behavior;
+    readonly EndpointBehavior behavior = new(endpointConfigurationFactory)
+    {
+        Whens = []
+    };
 }

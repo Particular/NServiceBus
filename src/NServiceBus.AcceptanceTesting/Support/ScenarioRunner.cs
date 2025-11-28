@@ -9,6 +9,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 public class ScenarioRunner
 {
@@ -56,6 +57,8 @@ public class ScenarioRunner
             var endpoints = await InitializeRunners().ConfigureAwait(false);
 
             runResult.ActiveEndpoints = endpoints.Select(r => r.Name);
+
+            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider();
 
             await PerformScenarios(endpoints).ConfigureAwait(false);
 
@@ -182,9 +185,19 @@ public class ScenarioRunner
     {
         using var stopTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
 
-        await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
-            .WaitAsync(stopTimeoutCts.Token)
-            .ConfigureAwait(false);
+        try
+        {
+            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
+                .WaitAsync(stopTimeoutCts.Token)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            if (runDescriptor.ServiceProvider is not null)
+            {
+                await runDescriptor.ServiceProvider.DisposeAsync().ConfigureAwait(false);
+            }
+        }
     }
 
     async Task StopEndpoint(ComponentRunner endpoint, CancellationToken cancellationToken)
@@ -206,8 +219,17 @@ public class ScenarioRunner
 
     async Task<ComponentRunner[]> InitializeRunners()
     {
-        var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
-        return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
+        // TODO: For now sequential initialization of endpoints
+        var runners = new List<ComponentRunner>(behaviorDescriptors.Count);
+        foreach (var componentBehavior in behaviorDescriptors)
+        {
+            var componentRunner = await componentBehavior.CreateRunner(runDescriptor).ConfigureAwait(false);
+            runners.Add(componentRunner);
+        }
+
+        return [.. runners];
+        // var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
+        // return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
     }
 
     static CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeout)
