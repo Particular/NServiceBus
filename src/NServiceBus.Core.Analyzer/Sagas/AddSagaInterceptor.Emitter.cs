@@ -41,9 +41,11 @@ public sealed partial class AddSagaInterceptor
 
             var groups = sagas.Select(s => (MethodName: MethodName(s.SagaName, s.SagaType), Saga: s))
                 .GroupBy(i => i.MethodName)
-                .OrderBy(g => g.Key, StringComparer.Ordinal);
-            foreach (var group in groups)
+                .OrderBy(g => g.Key, StringComparer.Ordinal)
+                .ToArray();
+            for (int index = 0; index < groups.Length; index++)
             {
+                IGrouping<string, (string MethodName, SagaSpec Saga)> group = groups[index];
                 (string MethodName, SagaSpec SagaSpec) first = default;
                 foreach (var location in group)
                 {
@@ -78,6 +80,11 @@ public sealed partial class AddSagaInterceptor
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
+
+                if (index < groups.Length - 1)
+                {
+                    sourceWriter.WriteLine();
+                }
             }
 
             sourceWriter.Indentation--;

@@ -27,11 +27,11 @@ namespace NServiceBus
             public void AddHandler_OrderPolicy_df58223eb7801b4c()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
-                registry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
-                registry.AddTimeoutHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
+                messageHandlerRegistry.AddTimeoutHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
             }
         }
     }

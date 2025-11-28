@@ -39,9 +39,11 @@ public sealed partial class AddHandlerInterceptor
 
             var groups = handlers.Select(h => (MethodName: AddMethodName(h.Name, h.HandlerType), Handler: h))
                 .GroupBy(i => i.MethodName)
-                .OrderBy(g => g.Key, StringComparer.Ordinal);
-            foreach (var group in groups)
+                .OrderBy(g => g.Key, StringComparer.Ordinal)
+                .ToArray();
+            for (int index = 0; index < groups.Length; index++)
             {
+                IGrouping<string, (string MethodName, HandlerSpec Handler)> group = groups[index];
                 (string MethodName, HandlerSpec HandlerSpec) first = default;
                 foreach (var location in group)
                 {
@@ -67,6 +69,11 @@ public sealed partial class AddHandlerInterceptor
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
+
+                if (index < groups.Length - 1)
+                {
+                    sourceWriter.WriteLine();
+                }
             }
 
             sourceWriter.CloseCurlies();
@@ -77,7 +84,7 @@ public sealed partial class AddHandlerInterceptor
         public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)
         {
             sourceWriter.WriteLine("""
-                                   var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                                   var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                                       .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    """);
             foreach (var registration in handlerSpec.Registrations)
@@ -89,7 +96,7 @@ public sealed partial class AddHandlerInterceptor
                     _ => "Message"
                 };
 
-                sourceWriter.WriteLine($"registry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
+                sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
             }
         }
 

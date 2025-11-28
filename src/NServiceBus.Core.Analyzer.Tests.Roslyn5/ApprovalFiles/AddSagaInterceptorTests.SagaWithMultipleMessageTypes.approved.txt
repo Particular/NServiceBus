@@ -44,12 +44,12 @@ namespace NServiceBus
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var registry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
-                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
-                registry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
-                registry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
+                messageHandlerRegistry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
             }
         }
     }
