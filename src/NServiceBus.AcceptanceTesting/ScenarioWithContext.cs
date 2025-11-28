@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
@@ -5,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Support;
@@ -28,7 +31,9 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioContext = new TContext();
         initializer(scenarioContext);
 
-        var runDescriptor = new RunDescriptor(scenarioContext);
+        AddScenarioContext(scenarioContext, services);
+
+        var runDescriptor = new RunDescriptor(scenarioContext, services);
         runDescriptor.Settings.Merge(settings);
 
         TestExecutionContext.CurrentContext.AddRunDescriptor(runDescriptor);
@@ -57,7 +62,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>()
         where T : EndpointConfigurationBuilder, new()
-        => WithEndpoint<T>(b => { });
+        => WithEndpoint<T>(static _ => { });
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
         where T : EndpointConfigurationBuilder, new()
@@ -88,6 +93,17 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         return this;
     }
 
-    List<IComponentBehavior> behaviors = [];
-    Func<ScenarioContext, Task<bool>> done = static context => Task.FromResult(true);
+    static void AddScenarioContext(TContext scenarioContext, IServiceCollection services)
+    {
+        var type = scenarioContext.GetType();
+        while (type != typeof(object) && type is not null)
+        {
+            services.AddSingleton(type, scenarioContext);
+            type = type.BaseType;
+        }
+    }
+
+    readonly List<IComponentBehavior> behaviors = [];
+    readonly IServiceCollection services = new ServiceCollection();
+    Func<ScenarioContext, Task<bool>> done = static _ => Task.FromResult(true);
 }

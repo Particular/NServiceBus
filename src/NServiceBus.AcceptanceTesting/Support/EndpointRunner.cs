@@ -13,16 +13,20 @@ using Transport;
 public class EndpointRunner : ComponentRunner
 {
     static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-    Func<EndpointConfiguration, Task<object>> createCallback;
-    Func<object, CancellationToken, Task<IEndpointInstance>> startCallback;
+    Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback;
+    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback;
     bool doNotFailOnErrorMessages;
     EndpointBehavior behavior;
     object startable;
     IEndpointInstance endpointInstance;
     EndpointCustomizationConfiguration configuration;
     ScenarioContext scenarioContext;
+    KeyedServiceCollectionAdapter services;
+    RunDescriptor runDescriptor;
+    KeyedServiceProviderAdapter serviceProvider;
+    readonly string runnerId = Guid.CreateVersion7().ToString("N")[..12];
 
-    public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, CancellationToken, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
+    public EndpointRunner(Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback, Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
     {
         this.createCallback = createCallback;
         this.startCallback = startCallback;
@@ -35,8 +39,9 @@ public class EndpointRunner : ComponentRunner
         try
         {
             behavior = endpointBehavior;
-            scenarioContext = run.ScenarioContext;
-            endpointBehavior.EndpointBuilder.ScenarioContext = run.ScenarioContext;
+            runDescriptor = run;
+            scenarioContext = runDescriptor.ScenarioContext;
+            endpointBehavior.EndpointBuilder.ScenarioContext = runDescriptor.ScenarioContext;
             configuration = endpointBehavior.EndpointBuilder.Get();
             configuration.EndpointName = endpointName;
 
@@ -45,7 +50,7 @@ public class EndpointRunner : ComponentRunner
             {
                 throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
             }
-            var endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
+            var endpointConfiguration = await configuration.GetConfiguration(runDescriptor).ConfigureAwait(false);
             RegisterScenarioContext(endpointConfiguration);
             TrackFailingMessages(endpointName, endpointConfiguration);
 
@@ -58,7 +63,9 @@ public class EndpointRunner : ComponentRunner
 
             endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-            startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
+            services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
+
+            startable = await createCallback(services, endpointConfiguration).ConfigureAwait(false);
 
             var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
             scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
@@ -79,11 +86,9 @@ public class EndpointRunner : ComponentRunner
     void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
     {
         var type = scenarioContext.GetType();
-        while (type != typeof(object))
+        while (type != typeof(object) && type is not null)
         {
-            var currentType = type;
-            endpointConfiguration.GetSettings().Set(currentType.FullName, scenarioContext);
-            endpointConfiguration.RegisterComponents(serviceCollection => serviceCollection.AddSingleton(currentType, scenarioContext));
+            endpointConfiguration.GetSettings().Set(type.FullName, scenarioContext);
             type = type.BaseType;
         }
     }
@@ -93,11 +98,12 @@ public class EndpointRunner : ComponentRunner
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
-            endpointInstance = await startCallback(startable, cancellationToken).ConfigureAwait(false);
+            serviceProvider = new KeyedServiceProviderAdapter(runDescriptor.ServiceProvider!, Name, services);
+            endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
-            Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
+            Logger.Error("Failed to start endpoint " + Name, ex);
 
             throw;
         }
@@ -115,7 +121,7 @@ public class EndpointRunner : ComponentRunner
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
-            Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
+            Logger.Error($"Failed to execute Whens on endpoint{Name}", ex);
 
             throw;
         }
@@ -183,5 +189,5 @@ public class EndpointRunner : ComponentRunner
         }
     }
 
-    public override string Name => configuration.EndpointName;
+    public override string Name => $"{configuration.EndpointName}_{runnerId}";
 }
