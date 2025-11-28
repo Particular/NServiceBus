@@ -14,10 +14,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
         Requires.DelayedDelivery();
 
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga
-            {
-                DataId = Guid.NewGuid()
-            })))
+            .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
             .Done(c => c.NotFoundHandlerCalledForRegularMessage)
             .Run();
 
@@ -40,7 +37,6 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
         public class TimeoutHitsNotFoundSaga(Context testContext)
             : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
                 IAmStartedByMessages<StartSaga>,
-                IHandleSagaNotFound,
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>
         {
@@ -50,29 +46,12 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
 
                 //this will cause the message to be delivered right away
                 await RequestTimeout<MyTimeout>(context, TimeSpan.Zero);
-                await context.SendLocal(new SomeOtherMessage
-                {
-                    DataId = Guid.NewGuid()
-                });
+                await context.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                 MarkAsComplete();
             }
 
             public Task Handle(SomeOtherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
-
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                if (message is SomeOtherMessage)
-                {
-                    testContext.NotFoundHandlerCalledForRegularMessage = true;
-                }
-
-                if (message is MyTimeout)
-                {
-                    testContext.NotFoundHandlerCalledForTimeout = true;
-                }
-                return Task.CompletedTask;
-            }
 
             public Task Timeout(MyTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
 
@@ -82,8 +61,25 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                     .ToMessage<StartSaga>(m => m.DataId)
                     .ToMessage<SomeOtherMessage>(m => m.DataId);
 
-                //TODO: should we allow the saga to be used? I think we have a analyzer for this
-                mapper.ConfigureNotFoundHandler<TimeoutHitsNotFoundSaga>();
+                mapper.ConfigureNotFoundHandler<NotFoundHandler>();
+            }
+
+            class NotFoundHandler(Context testContext) : IHandleSagaNotFound
+            {
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    if (message is SomeOtherMessage)
+                    {
+                        testContext.NotFoundHandlerCalledForRegularMessage = true;
+                    }
+
+                    if (message is MyTimeout)
+                    {
+                        testContext.NotFoundHandlerCalledForTimeout = true;
+                    }
+
+                    return Task.CompletedTask;
+                }
             }
 
             public class TimeoutHitsNotFoundSagaData : ContainSagaData

@@ -48,18 +48,11 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
 
         public class MessageWithSagaIdSaga(Context testContext) : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
             IAmStartedByMessages<MessageWithSagaId>,
-            IHandleTimeouts<MessageWithSagaId>,
-            IHandleSagaNotFound
+            IHandleTimeouts<MessageWithSagaId>
         {
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.MessageHandlerCalled = true;
-                return Task.CompletedTask;
-            }
-
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                testContext.NotFoundHandlerCalled = true;
                 return Task.CompletedTask;
             }
 
@@ -74,7 +67,16 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 mapper.MapSaga(s => s.DataId)
                     .ToMessage<MessageWithSagaId>(m => m.DataId);
 
-                mapper.ConfigureNotFoundHandler<MessageWithSagaIdSaga>();
+                mapper.ConfigureNotFoundHandler<NotFoundHandler>();
+            }
+
+            class NotFoundHandler(Context testContext) : IHandleSagaNotFound
+            {
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    testContext.NotFoundHandlerCalled = true;
+                    return Task.CompletedTask;
+                }
             }
 
             public class MessageWithSagaIdSagaData : ContainSagaData
