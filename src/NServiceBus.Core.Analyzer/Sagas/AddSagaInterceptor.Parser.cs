@@ -110,23 +110,10 @@ public sealed partial class AddSagaInterceptor
         {
             var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
 
-            if (configureMethod == null)
-            {
-                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
-            }
+            // Get syntax node from method symbol (single declaration for overrides)
+            var syntaxRef = configureMethod?.DeclaringSyntaxReferences.FirstOrDefault();
 
-            // Get syntax node from method symbol
-            // Sort syntax references by file path to ensure deterministic selection
-            var syntaxRefs = configureMethod.DeclaringSyntaxReferences
-                .OrderBy(r => r.SyntaxTree.FilePath, StringComparer.Ordinal)
-                .ThenBy(r => r.Span.Start)
-                .ToArray();
-            if (syntaxRefs.Length == 0)
-            {
-                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
-            }
-
-            var methodSyntax = syntaxRefs[0].GetSyntax(cancellationToken);
+            var methodSyntax = syntaxRef?.GetSyntax(cancellationToken);
             if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
             {
                 return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
