@@ -60,7 +60,16 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
         finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage)));
     }
 
-    void IConfigureSagaNotFoundHandler.ConfigureSagaNotFoundHandler<TNotFoundHandler>() => notFoundHandlers.Add(new SagaNotFoundHandlerInvocation<TNotFoundHandler>());
+    void IConfigureSagaNotFoundHandler.ConfigureSagaNotFoundHandler<TNotFoundHandler>()
+    {
+        var handlerType = typeof(TNotFoundHandler);
+        if (notFoundHandlers.ContainsKey(handlerType))
+        {
+            return;
+        }
+
+        notFoundHandlers[handlerType] = new SagaNotFoundHandlerInvocation<TNotFoundHandler>();
+    }
 
     void AssertMessageCanBeMapped<TMessage>(string context)
     {
@@ -162,12 +171,12 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
             throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
         }
 
-        return new SagaMapping(finders, correlationProperty, notFoundHandlers);
+        return new SagaMapping(finders, correlationProperty, notFoundHandlers.Values.ToList());
     }
 
     readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
     readonly List<SagaFinderDefinition> finders = [];
-    readonly List<ISagaNotFoundHandlerInvocation> notFoundHandlers = [];
+    readonly Dictionary<Type, ISagaNotFoundHandlerInvocation> notFoundHandlers = [];
     SagaMetadata.CorrelationPropertyMetadata? correlationProperty;
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
