@@ -15,10 +15,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
         Requires.DelayedDelivery();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-            .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1
-            {
-                ContextId = c.Id
-            })))
+            .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))
             .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
             .Run(TimeSpan.FromSeconds(60));
 
@@ -61,14 +58,8 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 
                 Data.ContextId = message.ContextId;
 
-                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout
-                {
-                    ContextId = testContext.Id
-                });
-                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout
-                {
-                    ContextId = testContext.Id
-                });
+                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout { ContextId = testContext.Id });
+                await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout { ContextId = testContext.Id });
             }
 
             public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
@@ -82,6 +73,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
                 {
                     MarkAsComplete();
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -96,12 +88,17 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
                 {
                     MarkAsComplete();
                 }
+
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
+            {
                 mapper.MapSaga(s => s.ContextId)
                     .ToMessage<StartSaga1>(m => m.ContextId);
+
+                mapper.ConfigureNotFoundHandler<SagaNotFound>();
+            }
 
             public class MultiTimeoutsSaga1Data : ContainSagaData
             {
@@ -109,18 +106,16 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             }
         }
 
-        public class SagaNotFound : IHandleSagaNotFound
+        public class SagaNotFound(Context testContext) : IHandleSagaNotFound
         {
-            public Context TestContext { get; set; }
-
             public Task Handle(object message, IMessageProcessingContext context)
             {
-                if (((dynamic)message).ContextId != TestContext.Id)
+                if (((dynamic)message).ContextId != testContext.Id)
                 {
                     return Task.CompletedTask;
                 }
 
-                TestContext.SagaNotFound = true;
+                testContext.SagaNotFound = true;
 
                 return Task.CompletedTask;
             }
