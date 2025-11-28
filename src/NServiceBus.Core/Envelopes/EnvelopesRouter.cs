@@ -16,11 +16,13 @@ class EnvelopesRouter(IEnumerable<IEnvelopeHandler> envelopeHandlers)
         {
             if (envelopeHandler.CanUnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body))
             {
+                // TODO log which envelope handler was used
                 (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) = envelopeHandler.UnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
                 return new IncomingMessage(messageContext.NativeMessageId, headers, body);
             }
         }
 
+        // TODO log the default handler was used
         return GetDefaultIncomingMessage(messageContext);
     }
 }
