@@ -46,15 +46,8 @@ public class When_retrying_control_message_from_error_queue : NServiceBusAccepta
             c.RegisterStartupTask<ControlMessageSender>();
         });
 
-        class ControlMessageSender : FeatureStartupTask
+        class ControlMessageSender(IMessageDispatcher dispatcher) : FeatureStartupTask
         {
-            IMessageDispatcher dispatcher;
-
-            public ControlMessageSender(IMessageDispatcher dispatcher)
-            {
-                this.dispatcher = dispatcher;
-            }
-
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 var controlMessage = ControlMessageFactory.Create(MessageIntent.Subscribe);
@@ -78,15 +71,8 @@ public class When_retrying_control_message_from_error_queue : NServiceBusAccepta
             new ControlMessageBehavior(r.ScenarioContext as Context),
             "Checks for confirmation control message"));
 
-        class ControlMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
+        class ControlMessageBehavior(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            Context testContext;
-
-            public ControlMessageBehavior(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 await next();
