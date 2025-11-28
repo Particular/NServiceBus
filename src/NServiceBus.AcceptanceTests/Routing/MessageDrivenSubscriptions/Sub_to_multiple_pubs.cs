@@ -36,7 +36,6 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
             Assert.That(context.SubscribedToPublisher1, Is.True);
             Assert.That(context.SubscribedToPublisher2, Is.True);
         }
-
     }
 
     class Context : ScenarioContext
@@ -47,8 +46,7 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<AutoSubscribe>();
@@ -57,18 +55,12 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
                 metadata.RegisterPublisherFor<SomeEvent>("Publisher1");
                 metadata.RegisterPublisherFor<SomeEvent>("Publisher2");
             });
-        }
     }
 
     class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Publisher() => EndpointSetup<DefaultServer>();
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }
