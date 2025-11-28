@@ -68,14 +68,6 @@ public sealed class Sagas : Feature
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
 
-        var conventions = context.Settings.Get<Conventions>();
-        var timeoutMessages = sagaMetaModel.SelectMany(m => m.AssociatedMessages).Where(m => m.IsTimeout).Select(m => m.MessageType)
-            .ToHashSet();
-        if (timeoutMessages.Count > 0)
-        {
-            conventions.AddSystemMessagesConventions(t => timeoutMessages.Contains(t));
-        }
-
         // Register saga not found handlers
         foreach (var t in context.Settings.GetAvailableTypes())
         {
