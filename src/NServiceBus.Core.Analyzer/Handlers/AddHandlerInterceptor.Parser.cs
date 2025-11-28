@@ -90,15 +90,20 @@ public sealed partial class AddHandlerInterceptor
             foreach (var iface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
                 var messageType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                var registrationType = iface.Name switch
+                RegistrationType? registrationType = iface.Name switch
                 {
                     "IHandleMessages" => RegistrationType.MessageHandler,
                     "IHandleTimeouts" => RegistrationType.TimeoutHandler,
                     "IAmStartedByMessages" => RegistrationType.StartMessageHandler,
-                    _ => throw new NotImplementedException()
+                    _ => null,
                 };
 
-                var spec = new RegistrationSpec(registrationType, messageType);
+                if (!registrationType.HasValue)
+                {
+                    continue;
+                }
+
+                var spec = new RegistrationSpec(registrationType.Value, messageType);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
