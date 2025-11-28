@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -58,13 +58,12 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
 
     public class HybridSagaEndpoint : EndpointConfigurationBuilder
     {
-        public HybridSagaEndpoint()
-        {
+        public HybridSagaEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AddSaga<ManuallyRegisteredOrderSaga>();
-            });
-        }
+            }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
+            .IncludeType<ScannedPaymentSaga>();
 
         public class ManuallyRegisteredOrderSaga(Context testContext)
             : Saga<ManuallyRegisteredOrderSagaData>, IAmStartedByMessages<StartManualSaga>
@@ -109,13 +108,12 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
 
     public class DuplicateRegistrationEndpoint : EndpointConfigurationBuilder
     {
-        public DuplicateRegistrationEndpoint()
-        {
+        public DuplicateRegistrationEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AddSaga<DuplicateRegistrationSaga>();
-            });
-        }
+            }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
+            .IncludeType<DuplicateRegistrationSaga>();
 
         public class DuplicateRegistrationSaga(Context testContext)
             : Saga<DuplicateRegistrationSagaData>, IAmStartedByMessages<StartDuplicateSaga>
@@ -153,4 +151,3 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
         public Guid OrderId { get; set; }
     }
 }
-
