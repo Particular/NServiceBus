@@ -34,7 +34,7 @@ public class SagaNotFoundInvocationTests
         await invocation.Invoke(serviceProvider, null, null);
     }
 
-    class DisposableHandler : NServiceBus.IHandleSagaNotFound, IDisposable
+    class DisposableHandler : IHandleSagaNotFound, IDisposable
     {
         public void Dispose() => DisposeCalled = true;
 
@@ -42,7 +42,7 @@ public class SagaNotFoundInvocationTests
         public Task Handle(object message, IMessageProcessingContext context) => Task.CompletedTask;
     }
 
-    class AsyncDisposableHandler : NServiceBus.IHandleSagaNotFound, IAsyncDisposable
+    class AsyncDisposableHandler : IHandleSagaNotFound, IAsyncDisposable
     {
         public static bool DisposeCalled;
 

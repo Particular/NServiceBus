@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFoundHandlerInvocation where TSagaNotFoundHandler : NServiceBus.IHandleSagaNotFound
+sealed class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFoundHandlerInvocation where TSagaNotFoundHandler : NServiceBus.IHandleSagaNotFound
 {
     public async Task Invoke(IServiceProvider serviceProvider, object message, IMessageProcessingContext context)
     {
@@ -17,7 +17,6 @@ class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFoundHandler
         }
         finally
         {
-            //TODO add tests for disposable
             if (notFoundHandler is IAsyncDisposable asyncDisposableInstaller)
             {
                 await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
