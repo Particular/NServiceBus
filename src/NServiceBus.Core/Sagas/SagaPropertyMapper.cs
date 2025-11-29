@@ -45,5 +45,18 @@ public partial class SagaPropertyMapper<TSagaData> where TSagaData : class, ICon
         return new CorrelatedSagaPropertyMapper<TSagaData>(sagaMessageFindingConfiguration, sagaProperty);
     }
 
+    /// <summary>
+    /// Configures the given handle to be invoked when instances if this saga can't be found by any of the handled messages.
+    /// </summary>
+    public void ConfigureNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : IHandleSagaNotFound
+    {
+        if (sagaMessageFindingConfiguration is not IConfigureSagaNotFoundHandler sagaNotFoundConfiguration)
+        {
+            throw new Exception($"Unable to configure a not found handler. To fix this, ensure that {sagaMessageFindingConfiguration.GetType().FullName} implements {nameof(IConfigureHowToFindSagaWithFinder)}.");
+        }
+
+        sagaNotFoundConfiguration.ConfigureSagaNotFoundHandler<TNotFoundHandler>();
+    }
+
     readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
 }

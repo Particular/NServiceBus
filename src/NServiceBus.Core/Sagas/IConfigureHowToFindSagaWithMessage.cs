@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 /// <summary>
 /// Implementation provided by the infrastructure - don't implement this
-/// or register implementations of it in the container unless you intend
+/// unless you intend
 /// to substantially change the way sagas work.
 /// </summary>
 public interface IConfigureHowToFindSagaWithMessage

@@ -541,6 +541,7 @@ namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Particular.Obsoletes;
 
     public partial class SagaFinderDefinition
@@ -552,6 +553,13 @@ namespace NServiceBus.Sagas
         [ObsoleteMetadata(Message = "Finder properties are no longer used", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Finder properties are no longer used. Will be removed in version 11.0.0.", true)]
         public Dictionary<string, object> Properties { get; }
+    }
+
+    [ObsoleteMetadata(Message = "ISagaNotFound is no longer automatically scanned. Please register them using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("ISagaNotFound is no longer automatically scanned. Please register them using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas. Will be removed in version 11.0.0.", true)]
+    public interface IHandleSagaNotFound
+    {
+        Task Handle(object message, IMessageProcessingContext context);
     }
 }
 
