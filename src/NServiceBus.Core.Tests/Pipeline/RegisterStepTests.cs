@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Features;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 
@@ -114,17 +114,26 @@ public class RegisterStepTests
 
     class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next) => Task.CompletedTask;
     }
 
     class BehaviorB : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next) => Task.CompletedTask;
+    }
+
+    class FakeBuilder(Type type) : IServiceProvider, IServiceProviderIsService
+    {
+        public object GetService(Type serviceType)
         {
-            return Task.CompletedTask;
+            if (serviceType == typeof(IServiceProvider) || serviceType == typeof(IServiceProviderIsService))
+            {
+                return this;
+            }
+
+            return serviceType != type ? throw new Exception("Not the expected type") : Activator.CreateInstance(serviceType);
         }
+
+        public bool IsService(Type serviceType) => serviceType == type;
     }
 }
