@@ -29,12 +29,9 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class TimeoutHitsNotFoundSaga(Context testContext)
+        public class TimeoutHitsNotFoundSaga
             : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
                 IAmStartedByMessages<StartSaga>,
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
