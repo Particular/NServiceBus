@@ -42,44 +42,25 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
         public int CriticalErrorsRaised { get; set; }
     }
 
-    public class EndpointWithCriticalError : EndpointConfigurationBuilder
-    {
-        public EndpointWithCriticalError() => EndpointSetup<DefaultServer>();
-
-        public class CriticalHandler(CriticalError criticalError, TestContext testContext) : IHandleMessages<Message>
-        {
-            public Task Handle(Message request, IMessageHandlerContext context)
-            {
-                if (testContext.ContextId == request.ContextId)
-                {
-                    criticalError.Raise("a critical error", new SimulatedException());
-                    testContext.CriticalErrorsRaised++;
-                }
-
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    class CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext) : FeatureStartupTask
-    {
-        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
-            testContext.CriticalErrorsRaised++;
-
-            criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
-            testContext.CriticalErrorsRaised++;
-
-            return Task.CompletedTask;
-        }
-
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
-    }
-
     public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
     {
         public EndpointWithCriticalErrorStartup() => EndpointSetup<DefaultServer>(c => c.RegisterStartupTask<CriticalErrorStartupFeatureTask>());
+
+        class CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext) : FeatureStartupTask
+        {
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
+                testContext.CriticalErrorsRaised++;
+
+                criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
+                testContext.CriticalErrorsRaised++;
+
+                return Task.CompletedTask;
+            }
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        }
     }
 
     public class Message : IMessage
