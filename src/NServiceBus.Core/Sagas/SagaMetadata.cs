@@ -21,7 +21,7 @@ public partial class SagaMetadata
         EntityName = sagaEntityType.FullName!;
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
-        NotFoundHandlers = mapping.NotFoundHandlers;
+        NotFoundHandler = mapping.NotFoundHandler;
 
         AssociatedMessages = messages;
 
@@ -38,7 +38,7 @@ public partial class SagaMetadata
         }
     }
 
-    internal IReadOnlyList<ISagaNotFoundHandlerInvocation> NotFoundHandlers { get; set; }
+    internal ISagaNotFoundHandlerInvocation? NotFoundHandler { get; }
 
     /// <summary>
     /// Returns the list of messages that is associated with this saga.
