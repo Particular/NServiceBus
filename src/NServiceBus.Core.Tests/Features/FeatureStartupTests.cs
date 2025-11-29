@@ -318,15 +318,3 @@ public class FeatureStartupTests
         }
     }
 }
-
-public class FakeBuilder(Type type) : IServiceProvider
-{
-    public object GetService(Type serviceType)
-    {
-        if (serviceType != type)
-        {
-            throw new Exception("Not the expected type");
-        }
-        return Activator.CreateInstance(serviceType);
-    }
-}

@@ -17,8 +17,6 @@ NServiceBus.Settings.IReadOnlySettings - Singleton
 NServiceBus.Transport.ISubscriptionManager - Singleton
 ----------- Private registrations used by Core-----------
 NServiceBus.IncomingPipelineMetrics - Singleton
-NServiceBus.InferredMessageTypeEnricherBehavior - Transient
-NServiceBus.SubscriptionReceiverBehavior - Transient
 NServiceBus.SubscriptionRouter - Singleton
 NServiceBus.UnicastSendRouter - Singleton
 ----------- Private registrations not used by Core -----------

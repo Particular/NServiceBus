@@ -22,7 +22,6 @@ public abstract class RegisterStep
     /// <param name="factoryMethod">A factory method for creating the behavior.</param>
     protected RegisterStep(string stepId, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
     {
-        this.factoryMethod = factoryMethod;
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
@@ -30,6 +29,8 @@ public abstract class RegisterStep
         BehaviorType = behavior;
         StepId = stepId;
         Description = description;
+
+        this.factoryMethod = factoryMethod ?? DefaultFactoryMethod;
     }
 
     /// <summary>
@@ -51,16 +52,6 @@ public abstract class RegisterStep
     /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
     /// </summary>
     public Type BehaviorType { get; private set; }
-
-    internal void ApplyContainerRegistration(IServiceCollection serviceCollection)
-    {
-        if (factoryMethod != null)
-        {
-            return;
-        }
-
-        serviceCollection.AddTransient(BehaviorType);
-    }
 
     /// <summary>
     /// Instructs the pipeline to register this step before the <paramref name="id" /> one. If the <paramref name="id" /> does
@@ -122,7 +113,7 @@ public abstract class RegisterStep
         }
 
         BehaviorType = replacement.BehaviorType;
-        factoryMethod = replacement.FactoryMethod;
+        factoryMethod = replacement.FactoryMethod ?? DefaultFactoryMethod;
 
         if (!string.IsNullOrWhiteSpace(replacement.Description))
         {
@@ -130,19 +121,13 @@ public abstract class RegisterStep
         }
     }
 
-    internal IBehavior CreateBehavior(IServiceProvider defaultBuilder)
-    {
-        var behavior = factoryMethod != null
-            ? factoryMethod(defaultBuilder)
-            : (IBehavior)defaultBuilder.GetRequiredService(BehaviorType);
-
-        return behavior;
-    }
+    internal IBehavior CreateBehavior(IServiceProvider defaultBuilder) => factoryMethod(defaultBuilder);
 
     internal static RegisterStep Create(string pipelineStep, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
         => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
 
-    Func<IServiceProvider, IBehavior>? factoryMethod;
+    Func<IServiceProvider, IBehavior> factoryMethod;
+    Func<IServiceProvider, IBehavior> DefaultFactoryMethod => provider => (IBehavior)ActivatorUtilities.CreateInstance(provider, BehaviorType);
 
     class DefaultRegisterStep(
         Type behavior,
