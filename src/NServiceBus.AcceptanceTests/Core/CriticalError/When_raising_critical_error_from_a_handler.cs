@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using Features;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using CriticalError = NServiceBus.CriticalError;
 
@@ -52,19 +51,10 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
 
     public class EndpointWithCriticalError : EndpointConfigurationBuilder
     {
-        public EndpointWithCriticalError()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithCriticalError() => EndpointSetup<DefaultServer>();
 
-        public class CriticalHandler : IHandleMessages<Message>
+        public class CriticalHandler(CriticalError criticalError, TestContext testContext) : IHandleMessages<Message>
         {
-            public CriticalHandler(CriticalError criticalError, TestContext testContext)
-            {
-                this.criticalError = criticalError;
-                this.testContext = testContext;
-            }
-
             public Task Handle(Message request, IMessageHandlerContext context)
             {
                 if (testContext.ContextId == request.ContextId)
@@ -75,19 +65,10 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
 
                 return Task.CompletedTask;
             }
-
-            CriticalError criticalError;
-            TestContext testContext;
         }
     }
-    class CriticalErrorStartupFeatureTask : FeatureStartupTask
+    class CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext) : FeatureStartupTask
     {
-        public CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext)
-        {
-            this.criticalError = criticalError;
-            this.testContext = testContext;
-        }
-
         protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
             criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
@@ -99,23 +80,14 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
             return Task.CompletedTask;
         }
 
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        readonly TestContext testContext;
-
-        CriticalError criticalError;
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
     {
-        public EndpointWithCriticalErrorStartup()
-        {
+        public EndpointWithCriticalErrorStartup() =>
             EndpointSetup<DefaultServer>(c => c
-                .RegisterStartupTask(b => new CriticalErrorStartupFeatureTask(b.GetService<CriticalError>(), b.GetService<TestContext>())));
-        }
+                .RegisterStartupTask<CriticalErrorStartupFeatureTask>());
     }
 
     public class Message : IMessage

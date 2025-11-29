@@ -7,15 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class FeatureStartupTaskController
+class FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureStartupTask> factory)
+    : IFeatureStartupTaskController
 {
-    public FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureStartupTask> factory)
-    {
-        Name = name;
-        this.factory = factory;
-    }
-
-    public string Name { get; }
+    public string Name { get; } = name;
 
     public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
@@ -45,17 +40,17 @@ class FeatureStartupTaskController
         }
         finally
         {
-            DisposeIfNecessary(instance);
+            if (instance is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            }
+            else if (instance is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 
-    static void DisposeIfNecessary(FeatureStartupTask task)
-    {
-        var disposableTask = task as IDisposable;
-        disposableTask?.Dispose();
-    }
-
-    readonly Func<IServiceProvider, FeatureStartupTask> factory;
     FeatureStartupTask? instance;
 
     static readonly ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
