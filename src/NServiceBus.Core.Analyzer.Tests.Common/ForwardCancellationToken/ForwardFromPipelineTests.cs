@@ -65,7 +65,7 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
     [TestCase(typeof(IHandleMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
     [TestCase(typeof(IAmStartedByMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
     [TestCase(typeof(IHandleTimeouts<>), "TestTimeout", "Timeout", "TestTimeout state, IMessageHandlerContext context")]
-    [TestCase(typeof(NServiceBus.IHandleSagaNotFound), null, "Handle", "object message, IMessageProcessingContext context")]
+    [TestCase(typeof(NServiceBus.ISagaNotFoundHandler), null, "Handle", "object message, IMessageProcessingContext context")]
     [TestCase(typeof(Behavior<>), "IIncomingLogicalMessageContext", "Invoke", "IIncomingLogicalMessageContext context, Func<Task> next")]
     [TestCase(typeof(IBehavior<,>), "IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext", "Invoke", "IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next")]
     [TestCase(typeof(IMutateIncomingTransportMessages), null, "MutateIncoming", "MutateIncomingTransportMessageContext context")]

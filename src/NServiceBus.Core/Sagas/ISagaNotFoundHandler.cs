@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// by a saga, but no existing saga was found. This does not include the scenario when
 /// a saga is allowed to be created for the given message type.
 /// </summary>
-public interface IHandleSagaNotFound
+public interface ISagaNotFoundHandler
 {
     /// <summary>
     /// Called when the saga the not found handler is attached to was not found as part of processing the provided message.

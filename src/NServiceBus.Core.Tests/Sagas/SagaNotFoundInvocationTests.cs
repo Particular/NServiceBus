@@ -23,7 +23,7 @@ public class SagaNotFoundInvocationTests
         Assert.That(AsyncDisposableHandler.DisposeCalled, Is.True);
     }
 
-    static async Task InvokeHandler<THandler>(CancellationToken cancellationToken = default) where THandler : NServiceBus.IHandleSagaNotFound
+    static async Task InvokeHandler<THandler>(CancellationToken cancellationToken = default) where THandler : NServiceBus.ISagaNotFoundHandler
     {
         var services = new ServiceCollection();
 
@@ -34,7 +34,7 @@ public class SagaNotFoundInvocationTests
         await invocation.Invoke(serviceProvider, null, null);
     }
 
-    class DisposableHandler : IHandleSagaNotFound, IDisposable
+    class DisposableHandler : ISagaNotFoundHandler, IDisposable
     {
         public void Dispose() => DisposeCalled = true;
 
@@ -42,7 +42,7 @@ public class SagaNotFoundInvocationTests
         public Task Handle(object message, IMessageProcessingContext context) => Task.CompletedTask;
     }
 
-    class AsyncDisposableHandler : IHandleSagaNotFound, IAsyncDisposable
+    class AsyncDisposableHandler : ISagaNotFoundHandler, IAsyncDisposable
     {
         public static bool DisposeCalled;
 

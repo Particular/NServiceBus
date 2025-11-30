@@ -64,7 +64,7 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
             }
         }
 
-        public class SagaNotFoundDoingReply : IHandleSagaNotFound
+        public class SagaNotFoundDoingReply : ISagaNotFoundHandler
         {
             public Task Handle(object message, IMessageProcessingContext context) => context.Reply(new Reply());
         }

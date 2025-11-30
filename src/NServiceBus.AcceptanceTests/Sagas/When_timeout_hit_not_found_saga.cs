@@ -61,7 +61,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                 mapper.ConfigureNotFoundHandler<NotFoundHandler>();
             }
 
-            class NotFoundHandler(Context testContext) : IHandleSagaNotFound
+            class NotFoundHandler(Context testContext) : ISagaNotFoundHandler
             {
                 public Task Handle(object message, IMessageProcessingContext context)
                 {

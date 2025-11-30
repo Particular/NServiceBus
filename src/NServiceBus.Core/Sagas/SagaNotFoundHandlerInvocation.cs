@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-sealed class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFoundHandlerInvocation where TSagaNotFoundHandler : NServiceBus.IHandleSagaNotFound
+sealed class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFoundHandlerInvocation where TSagaNotFoundHandler : ISagaNotFoundHandler
 {
     public async Task Invoke(IServiceProvider serviceProvider, object message, IMessageProcessingContext context)
     {

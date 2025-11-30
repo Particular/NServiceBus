@@ -70,7 +70,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 mapper.ConfigureNotFoundHandler<NotFoundHandler>();
             }
 
-            class NotFoundHandler(Context testContext) : IHandleSagaNotFound
+            class NotFoundHandler(Context testContext) : ISagaNotFoundHandler
             {
                 public Task Handle(object message, IMessageProcessingContext context)
                 {

@@ -26,7 +26,7 @@ public class When_saga_has_duplicate_not_found_handlers
             mapper.ConfigureNotFoundHandler<MyNotFoundHandler>();
         }
 
-        class MyNotFoundHandler : NServiceBus.IHandleSagaNotFound
+        class MyNotFoundHandler : NServiceBus.ISagaNotFoundHandler
         {
             public Task Handle(object message, IMessageProcessingContext context) => throw new NotImplementedException();
         }

@@ -410,7 +410,7 @@ namespace NServiceBus
     public interface IConfigureSagaNotFoundHandler
     {
         void ConfigureSagaNotFoundHandler<TNotFoundHandler>()
-            where TNotFoundHandler : NServiceBus.IHandleSagaNotFound;
+            where TNotFoundHandler : NServiceBus.ISagaNotFoundHandler;
     }
     public interface IContainSagaData
     {
@@ -456,10 +456,6 @@ namespace NServiceBus
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
-    }
-    public interface IHandleSagaNotFound
-    {
-        System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
     public interface IHandleTimeouts<T>
     {
@@ -511,6 +507,10 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+    }
+    public interface ISagaNotFoundHandler
+    {
+        System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
     public interface IStartableEndpoint
     {
@@ -909,7 +909,7 @@ namespace NServiceBus
             "(...).ToMessage<MyMessage>(...)\' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public void ConfigureNotFoundHandler<TNotFoundHandler>()
-            where TNotFoundHandler : NServiceBus.IHandleSagaNotFound { }
+            where TNotFoundHandler : NServiceBus.ISagaNotFoundHandler { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
     public static class SagaRegistrationExtensions

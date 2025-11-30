@@ -11,5 +11,5 @@ public interface IConfigureSagaNotFoundHandler
     /// <summary>
     /// Specifies the optional saga not found handler for this saga instance.
     /// </summary>
-    void ConfigureSagaNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : IHandleSagaNotFound;
+    void ConfigureSagaNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler;
 }

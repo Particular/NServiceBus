@@ -59,7 +59,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 public virtual Guid MessageId { get; set; }
             }
 
-            public class Saga1NotFound(Context testContext) : IHandleSagaNotFound
+            public class Saga1NotFound(Context testContext) : ISagaNotFoundHandler
             {
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
@@ -89,7 +89,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 public virtual Guid MessageId { get; set; }
             }
 
-            public class Saga2NotFound(Context testContext) : IHandleSagaNotFound
+            public class Saga2NotFound(Context testContext) : ISagaNotFoundHandler
             {
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
@@ -121,7 +121,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             public virtual Guid MessageId { get; set; }
         }
 
-        public class Saga2NotFound(Context testContext) : IHandleSagaNotFound
+        public class Saga2NotFound(Context testContext) : ISagaNotFoundHandler
         {
             public Task Handle(object message, IMessageProcessingContext context)
             {

@@ -106,7 +106,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             }
         }
 
-        public class SagaNotFound(Context testContext) : IHandleSagaNotFound
+        public class SagaNotFound(Context testContext) : ISagaNotFoundHandler
         {
             public Task Handle(object message, IMessageProcessingContext context)
             {

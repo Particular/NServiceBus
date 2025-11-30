@@ -577,12 +577,12 @@ public class ReplyMsg : IMessage {}";
 @"using System;
 using System.Threading.Tasks;
 using NServiceBus;
-public partial class MySaga : Saga<MyData>, [|IHandleSagaNotFound|]
+public partial class MySaga : Saga<MyData>, [|ISagaNotFoundHandler|]
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) { }
     public Task Handle(object message, IMessageProcessingContext context) => throw new NotImplementedException();
 }
-public partial class MySaga : [|IHandleSagaNotFound|] { }
+public partial class MySaga : [|ISagaNotFoundHandler|] { }
 public class MyData : ContainSagaData
 {
     public string CorrId { get; set; }

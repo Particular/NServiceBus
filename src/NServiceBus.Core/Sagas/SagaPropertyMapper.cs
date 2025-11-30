@@ -48,7 +48,7 @@ public partial class SagaPropertyMapper<TSagaData> where TSagaData : class, ICon
     /// <summary>
     /// Configures the given handle to be invoked when instances if this saga can't be found by any of the handled messages.
     /// </summary>
-    public void ConfigureNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : IHandleSagaNotFound
+    public void ConfigureNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler
     {
         if (sagaMessageFindingConfiguration is not IConfigureSagaNotFoundHandler sagaNotFoundConfiguration)
         {
