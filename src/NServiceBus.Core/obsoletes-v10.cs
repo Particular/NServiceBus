@@ -555,8 +555,8 @@ namespace NServiceBus.Sagas
         public Dictionary<string, object> Properties { get; }
     }
 
-    [ObsoleteMetadata(Message = "ISagaNotFound is no longer automatically scanned. Please register them using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("ISagaNotFound is no longer automatically scanned. Please register them using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas. Will be removed in version 11.0.0.", true)]
+    [ObsoleteMetadata(Message = "Saga not found handlers are longer automatically registered during assembly scanning. Handlers are no longer global and should be registered for each saga using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+    [Obsolete("Saga not found handlers are longer automatically registered during assembly scanning. Handlers are no longer global and should be registered for each saga using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>(). Will be removed in version 11.0.0.", true)]
     public interface IHandleSagaNotFound
     {
         Task Handle(object message, IMessageProcessingContext context);

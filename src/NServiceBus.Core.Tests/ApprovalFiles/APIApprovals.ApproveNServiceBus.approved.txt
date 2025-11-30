@@ -2079,9 +2079,10 @@ namespace NServiceBus.Sagas
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
     public interface IFinder { }
-    [System.Obsolete("ISagaNotFound is no longer automatically scanned. Please register them using mapp" +
-        "er.ConfigureNotFoundHandler<MyNotFoundHandler>() on relevant sagas. Will be remo" +
-        "ved in version 11.0.0.", true)]
+    [System.Obsolete("Saga not found handlers are longer automatically registered during assembly scann" +
+        "ing. Handlers are no longer global and should be registered for each saga using " +
+        "mapper.ConfigureNotFoundHandler<MyNotFoundHandler>(). Will be removed in version" +
+        " 11.0.0.", true)]
     public interface IHandleSagaNotFound
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
