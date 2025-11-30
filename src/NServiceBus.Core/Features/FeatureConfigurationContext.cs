@@ -78,7 +78,7 @@ public class FeatureConfigurationContext
     /// <summary>
     /// Registers a feature startup task.
     /// </summary>
-    /// <typeparam name="TTask"></typeparam>
+    /// <typeparam name="TTask">The startup task type to register.</typeparam>
     public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask
         => TaskControllers.Add(new ActivatorBasedFeatureStartupTaskController<TTask>());
 
