@@ -7,12 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Sagas;
 
-class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) : IConfigureHowToFindSagaWithMessage, IConfigureHowToFindSagaWithMessageHeaders, IConfigureHowToFindSagaWithFinder
+class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) :
+    IConfigureHowToFindSagaWithMessage,
+    IConfigureHowToFindSagaWithMessageHeaders,
+    IConfigureHowToFindSagaWithFinder,
+    IConfigureSagaNotFoundHandler
 {
-    readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
-
     void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object?>> sagaEntityProperty, Expression<Func<TMessage, object?>> messageExpression)
     {
         AssertMessageCanBeMapped<TMessage>("property mapping");
@@ -56,6 +59,16 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
         AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
 
         finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage)));
+    }
+
+    void IConfigureSagaNotFoundHandler.ConfigureSagaNotFoundHandler<TNotFoundHandler>()
+    {
+        if (notFoundHandler != null)
+        {
+            throw new InvalidOperationException("Saga not found handler already configured");
+        }
+
+        notFoundHandler = new SagaNotFoundHandlerInvocation<TNotFoundHandler>();
     }
 
     void AssertMessageCanBeMapped<TMessage>(string context)
@@ -158,11 +171,21 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
             throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
         }
 
-        return new SagaMapping(finders, correlationProperty);
+        return new SagaMapping(finders, notFoundHandler ?? NoOpNotFoundHandler.Instance, correlationProperty);
     }
 
+    readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
     readonly List<SagaFinderDefinition> finders = [];
+
+    ISagaNotFoundHandlerInvocation? notFoundHandler;
     SagaMetadata.CorrelationPropertyMetadata? correlationProperty;
+
+    class NoOpNotFoundHandler : ISagaNotFoundHandlerInvocation
+    {
+        public Task Invoke(IServiceProvider serviceProvider, object message, IMessageProcessingContext context) => Task.CompletedTask;
+
+        public static readonly ISagaNotFoundHandlerInvocation Instance = new NoOpNotFoundHandler();
+    }
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic

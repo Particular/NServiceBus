@@ -7,10 +7,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Helpers;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using NServiceBus.MessageMutator;
-using NServiceBus.Pipeline;
+using MessageMutator;
+using Pipeline;
 using NServiceBus.Sagas;
 using NUnit.Framework;
 
@@ -67,7 +65,7 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
     [TestCase(typeof(IHandleMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
     [TestCase(typeof(IAmStartedByMessages<>), "TestMessage", "Handle", "TestMessage message, IMessageHandlerContext context")]
     [TestCase(typeof(IHandleTimeouts<>), "TestTimeout", "Timeout", "TestTimeout state, IMessageHandlerContext context")]
-    [TestCase(typeof(IHandleSagaNotFound), null, "Handle", "object message, IMessageProcessingContext context")]
+    [TestCase(typeof(NServiceBus.ISagaNotFoundHandler), null, "Handle", "object message, IMessageProcessingContext context")]
     [TestCase(typeof(Behavior<>), "IIncomingLogicalMessageContext", "Invoke", "IIncomingLogicalMessageContext context, Func<Task> next")]
     [TestCase(typeof(IBehavior<,>), "IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext", "Invoke", "IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next")]
     [TestCase(typeof(IMutateIncomingTransportMessages), null, "MutateIncoming", "MutateIncomingTransportMessageContext context")]
@@ -80,7 +78,6 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
 @"using NServiceBus;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
-using NServiceBus.Sagas;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

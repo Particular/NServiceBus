@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using NServiceBus.Sagas;
 using NUnit.Framework;
 
 public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
@@ -15,10 +14,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session =>
             {
-                var message = new MessageWithSagaId
-                {
-                    DataId = Guid.NewGuid()
-                };
+                var message = new MessageWithSagaId { DataId = Guid.NewGuid() };
                 var options = new SendOptions();
 
                 options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
@@ -52,18 +48,11 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
 
         public class MessageWithSagaIdSaga(Context testContext) : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
             IAmStartedByMessages<MessageWithSagaId>,
-            IHandleTimeouts<MessageWithSagaId>,
-            IHandleSagaNotFound
+            IHandleTimeouts<MessageWithSagaId>
         {
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 testContext.MessageHandlerCalled = true;
-                return Task.CompletedTask;
-            }
-
-            public Task Handle(object message, IMessageProcessingContext context)
-            {
-                testContext.NotFoundHandlerCalled = true;
                 return Task.CompletedTask;
             }
 
@@ -73,9 +62,22 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
+            {
                 mapper.MapSaga(s => s.DataId)
                     .ToMessage<MessageWithSagaId>(m => m.DataId);
+
+                mapper.ConfigureNotFoundHandler<NotFoundHandler>();
+            }
+
+            class NotFoundHandler(Context testContext) : ISagaNotFoundHandler
+            {
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    testContext.NotFoundHandlerCalled = true;
+                    return Task.CompletedTask;
+                }
+            }
 
             public class MessageWithSagaIdSagaData : ContainSagaData
             {

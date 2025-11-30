@@ -108,8 +108,8 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
 
         public static readonly DiagnosticDescriptor SagaShouldNotImplementNotFoundHandler = new(
             id: DiagnosticIds.SagaShouldNotImplementNotFoundHandler,
-            title: "Saga should not implement IHandleSagaNotFound",
-            messageFormat: "A saga should not implement IHandleSagaNotFound, as this catch-all handler will handle messages where *any* saga is not found. Implement IHandleSagaNotFound on a separate class instead.",
+            title: "Saga should not implement ISagaNotFoundHandler",
+            messageFormat: "A saga should not implement ISagaNotFoundHandler, as this gives access to the uninitialized saga data property. Implement ISagaNotFoundHandler on a separate class instead.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);

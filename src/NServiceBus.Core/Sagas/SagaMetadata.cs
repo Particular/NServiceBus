@@ -21,6 +21,7 @@ public partial class SagaMetadata
         EntityName = sagaEntityType.FullName!;
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
+        NotFoundHandler = mapping.NotFoundHandler;
 
         AssociatedMessages = messages;
 
@@ -36,6 +37,8 @@ public partial class SagaMetadata
             sagaFinders[finder.MessageType.FullName!] = finder;
         }
     }
+
+    internal ISagaNotFoundHandlerInvocation NotFoundHandler { get; }
 
     /// <summary>
     /// Returns the list of messages that is associated with this saga.

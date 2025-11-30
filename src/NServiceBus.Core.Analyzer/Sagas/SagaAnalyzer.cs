@@ -110,17 +110,17 @@
             }
 
             // Check to see if saga implements IHandleSagaNotFound
-            if (sagaType.IsAssignableTo(knownTypes.IHandleSagaNotFound))
+            if (sagaType.IsAssignableTo(knownTypes.ISagaNotFoundHandler))
             {
                 // Only report diagnostic if it's on THIS partial class, so BaseList must not be null
                 if (classDeclaration.BaseList != null)
                 {
                     var badSyntaxes = classDeclaration.BaseList.Types
-                        .Where(baseType => baseType.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(idName => idName.Identifier.ValueText == "IHandleSagaNotFound"))
+                        .Where(baseType => baseType.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(idName => idName.Identifier.ValueText == "ISagaNotFoundHandler"))
                         .Where(baseType =>
                         {
                             ITypeSymbol typeSymbol = context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
-                            return typeSymbol != null && typeSymbol.Equals(knownTypes.IHandleSagaNotFound, SymbolEqualityComparer.IncludeNullability);
+                            return typeSymbol != null && typeSymbol.Equals(knownTypes.ISagaNotFoundHandler, SymbolEqualityComparer.IncludeNullability);
                         });
 
                     foreach (var badSyntax in badSyntaxes)
@@ -815,7 +815,7 @@
             public INamedTypeSymbol IContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.IContainSagaData");
             public INamedTypeSymbol ContainSagaData { get; } = compilation.GetTypeByMetadataName("NServiceBus.ContainSagaData");
             public INamedTypeSymbol IMessageHandlerContext { get; } = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-            public INamedTypeSymbol IHandleSagaNotFound { get; } = compilation.GetTypeByMetadataName("NServiceBus.Sagas.IHandleSagaNotFound");
+            public INamedTypeSymbol ISagaNotFoundHandler { get; } = compilation.GetTypeByMetadataName("NServiceBus.ISagaNotFoundHandler");
             public INamedTypeSymbol IEnumerableT { get; } = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
 
             public bool IsValid() =>
@@ -828,7 +828,7 @@
                 IContainSagaData != null &&
                 ContainSagaData != null &&
                 IMessageHandlerContext != null &&
-                IHandleSagaNotFound != null &&
+                ISagaNotFoundHandler != null &&
                 IEnumerableT != null;
         }
     }
