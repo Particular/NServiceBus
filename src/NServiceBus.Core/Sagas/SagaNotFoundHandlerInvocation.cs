@@ -17,13 +17,13 @@ sealed class SagaNotFoundHandlerInvocation<TSagaNotFoundHandler> : ISagaNotFound
         }
         finally
         {
-            if (notFoundHandler is IAsyncDisposable asyncDisposableInstaller)
+            if (notFoundHandler is IAsyncDisposable asyncDisposableHandler)
             {
-                await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
+                await asyncDisposableHandler.DisposeAsync().ConfigureAwait(false);
             }
-            else if (notFoundHandler is IDisposable disposableInstaller)
+            else if (notFoundHandler is IDisposable disposableHandler)
             {
-                disposableInstaller.Dispose();
+                disposableHandler.Dispose();
             }
         }
     }
