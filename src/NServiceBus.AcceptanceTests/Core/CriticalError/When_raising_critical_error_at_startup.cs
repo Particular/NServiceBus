@@ -62,9 +62,4 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
-
-    public class Message : IMessage
-    {
-        public string ContextId { get; set; }
-    }
 }

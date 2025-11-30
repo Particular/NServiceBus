@@ -29,24 +29,15 @@ public class When_purging_queues : NServiceBusAcceptanceTest
 
     class EndpointWithStartupTask : EndpointConfigurationBuilder
     {
-        public EndpointWithStartupTask()
-        {
+        public EndpointWithStartupTask() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.RegisterStartupTask<StartupTask>();
                 c.PurgeOnStartup(true);
             });
-        }
 
-        class MessageHandler : IHandleMessages<LocalMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {
                 testContext.LocalMessageReceived = true;
@@ -55,16 +46,11 @@ public class When_purging_queues : NServiceBusAcceptanceTest
         }
         class StartupTask : FeatureStartupTask
         {
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return session.SendLocal(new LocalMessage(), cancellationToken);
-            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => session.SendLocal(new LocalMessage(), cancellationToken);
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 
-    public class LocalMessage : IMessage
-    {
-    }
+    public class LocalMessage : IMessage;
 }

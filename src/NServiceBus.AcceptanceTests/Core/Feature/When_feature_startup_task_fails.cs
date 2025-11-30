@@ -27,23 +27,14 @@ public class When_feature_startup_task_fails : NServiceBusAcceptanceTest
 
         class FeatureWithStartupTask : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.RegisterStartupTask(new FailingStartupTask());
-            }
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new FailingStartupTask());
         }
 
         class FailingStartupTask : FeatureStartupTask
         {
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                throw new SimulatedException();
-            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => throw new SimulatedException();
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }

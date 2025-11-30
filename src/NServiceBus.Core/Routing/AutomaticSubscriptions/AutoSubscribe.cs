@@ -40,15 +40,12 @@ public sealed class AutoSubscribe : Feature
         });
     }
 
-    class ApplySubscriptions : FeatureStartupTask
+    class ApplySubscriptions(
+        MessageHandlerRegistry messageHandlerRegistry,
+        Conventions conventions,
+        SubscribeSettings subscribeSettings)
+        : FeatureStartupTask
     {
-        public ApplySubscriptions(MessageHandlerRegistry messageHandlerRegistry, Conventions conventions, SubscribeSettings subscribeSettings)
-        {
-            this.messageHandlerRegistry = messageHandlerRegistry;
-            this.conventions = conventions;
-            this.subscribeSettings = subscribeSettings;
-        }
-
         protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
             var eventsToSubscribe = GetHandledEventTypes(messageHandlerRegistry, conventions, subscribeSettings);
@@ -100,32 +97,20 @@ public sealed class AutoSubscribe : Feature
             }
         }
 
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         static Type[] GetHandledEventTypes(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings) =>
-            handlerRegistry.GetMessageTypes() //get all potential messages
+            [.. handlerRegistry.GetMessageTypes() //get all potential messages
                 .GetHandledEventTypes(conventions)
                 .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
-                .Except(settings.ExcludedTypes)
-                .ToArray();
+                .Except(settings.ExcludedTypes)];
 
-        readonly MessageHandlerRegistry messageHandlerRegistry;
-        readonly Conventions conventions;
-        readonly SubscribeSettings subscribeSettings;
         static readonly ILog Logger = LogManager.GetLogger<AutoSubscribe>();
     }
 
     internal class SubscribeSettings
     {
-        public SubscribeSettings()
-        {
-            AutoSubscribeSagas = true;
-        }
-
-        public bool AutoSubscribeSagas { get; set; }
+        public bool AutoSubscribeSagas { get; set; } = true;
 
         public HashSet<Type> ExcludedTypes { get; set; } = [];
     }

@@ -65,9 +65,9 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
 
         public class Bootstrapper : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetRequiredService<Context>(), b));
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask<MyTask>();
 
-            public class MyTask(Context scenarioContext, IServiceProvider provider) : FeatureStartupTask
+            class MyTask(Context scenarioContext, IServiceProvider provider) : FeatureStartupTask
             {
                 protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {

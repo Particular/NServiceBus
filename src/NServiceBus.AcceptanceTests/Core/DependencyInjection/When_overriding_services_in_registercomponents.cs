@@ -68,11 +68,10 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
             {
                 context.Services.AddSingleton<IDependencyFromFeature, OriginallyDefinedDependency>();
 
-                context.Services.AddTransient<StartupFeatureWithDependencies>();
-                context.RegisterStartupTask(sp => sp.GetRequiredService<StartupFeatureWithDependencies>());
+                context.RegisterStartupTask<StartupFeatureWithDependencies>();
             }
 
-            public class StartupFeatureWithDependencies : FeatureStartupTask
+            class StartupFeatureWithDependencies : FeatureStartupTask
             {
                 public StartupFeatureWithDependencies(
                     Context testContext,

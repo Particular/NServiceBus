@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using Features;
 using NUnit.Framework;
 using CriticalError = NServiceBus.CriticalError;
 
@@ -66,28 +65,6 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
                 return Task.CompletedTask;
             }
         }
-    }
-    class CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext) : FeatureStartupTask
-    {
-        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            criticalError.Raise("critical error 1", new SimulatedException(), cancellationToken);
-            testContext.CriticalErrorsRaised++;
-
-            criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
-            testContext.CriticalErrorsRaised++;
-
-            return Task.CompletedTask;
-        }
-
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
-    }
-
-    public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
-    {
-        public EndpointWithCriticalErrorStartup() =>
-            EndpointSetup<DefaultServer>(c => c
-                .RegisterStartupTask<CriticalErrorStartupFeatureTask>());
     }
 
     public class Message : IMessage

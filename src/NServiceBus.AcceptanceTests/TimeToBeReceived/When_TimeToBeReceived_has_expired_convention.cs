@@ -36,48 +36,27 @@ public class When_TimeToBeReceived_has_expired_convention : NServiceBusAcceptanc
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
         }
 
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.RegisterStartupTask(new DelayReceiverFromStartingTask());
-                c.Conventions().DefiningTimeToBeReceivedAs(messageType =>
-                {
-                    if (messageType == typeof(MyMessage))
-                    {
-                        return TimeSpan.FromSeconds(2);
-                    }
-                    return TimeSpan.MaxValue;
-                });
+                c.Conventions().DefiningTimeToBeReceivedAs(messageType => messageType == typeof(MyMessage) ? TimeSpan.FromSeconds(2) : TimeSpan.MaxValue);
             });
-        }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }
