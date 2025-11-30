@@ -171,7 +171,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
             throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
         }
 
-        return new SagaMapping(finders, correlationProperty, notFoundHandler ?? NoOpNotFoundHandler.Instance);
+        return new SagaMapping(finders, notFoundHandler ?? NoOpNotFoundHandler.Instance, correlationProperty);
     }
 
     readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
