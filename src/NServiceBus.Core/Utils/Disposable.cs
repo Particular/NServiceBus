@@ -11,7 +11,7 @@ static class Disposable
         maybeDisposable switch
         {
             null => NoOpDisposable.Instance,
-            IAsyncDisposable asyncDisposable => new AsyncDisposable(asyncDisposable),
+            IAsyncDisposable asyncDisposable => asyncDisposable,
             IDisposable disposable => new SyncDisposable(disposable),
             _ => NoOpDisposable.Instance
         };
@@ -21,11 +21,6 @@ static class Disposable
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         public static readonly NoOpDisposable Instance = new();
-    }
-
-    sealed class AsyncDisposable(IAsyncDisposable asyncDisposable) : IAsyncDisposable
-    {
-        public ValueTask DisposeAsync() => asyncDisposable.DisposeAsync();
     }
 
     sealed class SyncDisposable(IDisposable disposable) : IAsyncDisposable
