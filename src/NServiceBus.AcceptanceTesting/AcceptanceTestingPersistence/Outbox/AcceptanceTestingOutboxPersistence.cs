@@ -21,7 +21,7 @@ class AcceptanceTestingOutboxPersistence : Feature
     {
         var outboxStorage = new AcceptanceTestingOutboxStorage();
 
-        context.Services.AddSingleton(typeof(IOutboxStorage), outboxStorage);
+        context.Services.AddSingleton<IOutboxStorage>(outboxStorage);
 
         context.RegisterStartupTask(new OutboxCleaner(outboxStorage, TimeSpan.FromDays(5)));
     }
