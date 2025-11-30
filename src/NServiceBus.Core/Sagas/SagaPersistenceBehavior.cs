@@ -106,10 +106,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             {
                 logger.InfoFormat("Could not find a started saga of '{0}' for message type '{1}'.", currentSagaMetadata.SagaType.FullName, context.MessageBeingHandled.GetType().FullName);
 
-                if (currentSagaMetadata.NotFoundHandler != null)
-                {
-                    await currentSagaMetadata.NotFoundHandler.Invoke(serviceProvider, context.MessageBeingHandled, context).ConfigureAwait(false);
-                }
+                await currentSagaMetadata.NotFoundHandler.Invoke(serviceProvider, context.MessageBeingHandled, context).ConfigureAwait(false);
             }
 
             return;

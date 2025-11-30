@@ -38,7 +38,7 @@ public partial class SagaMetadata
         }
     }
 
-    internal ISagaNotFoundHandlerInvocation? NotFoundHandler { get; }
+    internal ISagaNotFoundHandlerInvocation NotFoundHandler { get; }
 
     /// <summary>
     /// Returns the list of messages that is associated with this saga.

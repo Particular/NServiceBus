@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Sagas;
 
 class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) :
@@ -170,7 +171,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
             throw new Exception($"{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {sagaType.Name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
         }
 
-        return new SagaMapping(finders, correlationProperty, notFoundHandler);
+        return new SagaMapping(finders, correlationProperty, notFoundHandler ?? NoOpNotFoundHandler.Instance);
     }
 
     readonly Dictionary<Type, MessagePropertyAccessor> mappers = propertyAccessors.ToDictionary(m => m.MessageType);
@@ -178,6 +179,13 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
     ISagaNotFoundHandlerInvocation? notFoundHandler;
     SagaMetadata.CorrelationPropertyMetadata? correlationProperty;
+
+    class NoOpNotFoundHandler : ISagaNotFoundHandlerInvocation
+    {
+        public Task Invoke(IServiceProvider serviceProvider, object message, IMessageProcessingContext context) => Task.CompletedTask;
+
+        public static readonly ISagaNotFoundHandlerInvocation Instance = new NoOpNotFoundHandler();
+    }
 
     // This list is also enforced at compile time in the SagaAnalyzer by diagnostic NSB0012,
     // but also needs to be enforced at runtime in case the user silences the diagnostic
