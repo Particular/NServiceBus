@@ -16,25 +16,12 @@ class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where 
     public async Task<IContainSagaData> Find(IServiceProvider serviceProvider, ISynchronizedStorageSession storageSession, ContextBag context, object message, IReadOnlyDictionary<string, string> messageHeaders, CancellationToken cancellationToken = default)
     {
         var finder = factory(serviceProvider, []);
+        await using var _ = Disposable.Wrap(finder).ConfigureAwait(false);
 
-        try
-        {
-            return await finder
-                .FindBy((TMessage)message, storageSession, context, cancellationToken)
-                .ThrowIfNull()
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            if (finder is IAsyncDisposable asyncDisposableInstaller)
-            {
-                await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
-            }
-            else if (finder is IDisposable disposableInstaller)
-            {
-                disposableInstaller.Dispose();
-            }
-        }
+        return await finder
+            .FindBy((TMessage)message, storageSession, context, cancellationToken)
+            .ThrowIfNull()
+            .ConfigureAwait(false);
     }
 
     static readonly ObjectFactory<TFinder> factory = ActivatorUtilities.CreateFactory<TFinder>([]);
