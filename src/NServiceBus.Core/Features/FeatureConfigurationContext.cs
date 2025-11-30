@@ -81,7 +81,7 @@ public class FeatureConfigurationContext
     /// <remarks>The startup task will automatically have all it's constructor parameters resolved from the dependency injection container.</remarks>
     /// <typeparam name="TTask">The startup task type to register.</typeparam>
     public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask
-        => TaskControllers.Add(new ActivatorBasedFeatureStartupTaskController<TTask>());
+        => TaskControllers.Add(new ActivatorUtilityBasedFeatureStartupTaskController<TTask>());
 
     /// <summary>
     /// Registers an instance of a feature startup task.
@@ -90,7 +90,7 @@ public class FeatureConfigurationContext
     public void RegisterStartupTask<TTask>(TTask startupTask) where TTask : FeatureStartupTask
     {
         ArgumentNullException.ThrowIfNull(startupTask);
-        RegisterStartupTask(() => startupTask);
+        TaskControllers.Add(new FeatureStartupTaskController<TTask>(typeof(TTask).Name, static (_, task) => task, startupTask));
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class FeatureConfigurationContext
     public void RegisterStartupTask<TTask>(Func<TTask> startupTaskFactory) where TTask : FeatureStartupTask
     {
         ArgumentNullException.ThrowIfNull(startupTaskFactory);
-        TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, _ => startupTaskFactory()));
+        TaskControllers.Add(new FeatureStartupTaskController<Func<TTask>>(typeof(TTask).Name, static (_, startupTaskFactory) => startupTaskFactory(), startupTaskFactory));
     }
 
     /// <summary>

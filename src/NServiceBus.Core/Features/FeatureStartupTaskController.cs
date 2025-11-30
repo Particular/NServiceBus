@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using Logging;
 
 class FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureStartupTask> factory)
+    : FeatureStartupTaskController<Func<IServiceProvider, FeatureStartupTask>>(name,
+        static (provider, state) => state(provider), factory);
+
+class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, TState, FeatureStartupTask> factory, TState state)
     : IFeatureStartupTaskController
 {
     public string Name { get; } = name;
@@ -19,7 +23,7 @@ class FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureSt
             Log.Debug($"Starting {nameof(FeatureStartupTask)} '{Name}'.");
         }
 
-        instance = factory(builder);
+        instance = factory(builder, state);
         return instance.PerformStartup(messageSession, cancellationToken);
     }
 
@@ -53,5 +57,5 @@ class FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureSt
 
     FeatureStartupTask? instance;
 
-    static readonly ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
+    static readonly ILog Log = LogManager.GetLogger("FeatureStartupTaskController");
 }
