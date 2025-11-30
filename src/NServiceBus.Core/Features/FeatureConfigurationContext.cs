@@ -78,6 +78,7 @@ public class FeatureConfigurationContext
     /// <summary>
     /// Registers a feature startup task.
     /// </summary>
+    /// <remarks>The startup task will automatically have all it's constructor parameters resolved from the dependency injection container.</remarks>
     /// <typeparam name="TTask">The startup task type to register.</typeparam>
     public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask
         => TaskControllers.Add(new ActivatorBasedFeatureStartupTaskController<TTask>());
