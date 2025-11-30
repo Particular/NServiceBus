@@ -113,7 +113,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             mapper.MapSaga(s => s.MessageId)
                 .ToMessage<MessageToSaga>(m => m.Id);
 
-            mapper.ConfigureNotFoundHandler<Saga2NotFound>();
+            mapper.ConfigureNotFoundHandler<FoundSagaNotFoundHandler>();
         }
 
         public class FoundSagaData : ContainSagaData
@@ -121,7 +121,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             public virtual Guid MessageId { get; set; }
         }
 
-        public class Saga2NotFound(Context testContext) : ISagaNotFoundHandler
+        public class FoundSagaNotFoundHandler(Context testContext) : ISagaNotFoundHandler
         {
             public Task Handle(object message, IMessageProcessingContext context)
             {
