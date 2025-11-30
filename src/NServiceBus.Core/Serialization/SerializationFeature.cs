@@ -51,10 +51,10 @@ sealed class SerializationFeature : Feature
         context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
         context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(mainSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
-        context.Services.AddSingleton(_ => mapper);
-        context.Services.AddSingleton<IMessageCreator>(sp => sp.GetRequiredService<IMessageMapper>());
-        context.Services.AddSingleton(_ => messageMetadataRegistry);
-        context.Services.AddSingleton(_ => logicalMessageFactory);
+        context.Services.AddSingleton(mapper);
+        context.Services.AddSingleton<IMessageCreator>(mapper);
+        context.Services.AddSingleton(messageMetadataRegistry);
+        context.Services.AddSingleton(logicalMessageFactory);
 
         LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 
