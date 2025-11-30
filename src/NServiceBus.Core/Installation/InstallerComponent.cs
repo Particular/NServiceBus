@@ -68,22 +68,8 @@ class InstallerComponent(InstallerComponent.Settings settings)
             {
                 // Deliberately not using the factory because installers are only resolved at startup once
                 var installer = ActivatorUtilities.CreateInstance<T>(serviceProvider);
-
-                try
-                {
-                    await installer.Install(identity, cancellationToken).ConfigureAwait(false);
-                }
-                finally
-                {
-                    if (installer is IAsyncDisposable asyncDisposableInstaller)
-                    {
-                        await asyncDisposableInstaller.DisposeAsync().ConfigureAwait(false);
-                    }
-                    else if (installer is IDisposable disposableInstaller)
-                    {
-                        disposableInstaller.Dispose();
-                    }
-                }
+                await using var _ = Disposable.Wrap(installer).ConfigureAwait(false);
+                await installer.Install(identity, cancellationToken).ConfigureAwait(false);
             }
 
             public Type InstallerType { get; } = typeof(T);
