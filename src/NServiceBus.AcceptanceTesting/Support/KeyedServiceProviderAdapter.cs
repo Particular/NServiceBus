@@ -2,9 +2,10 @@
 namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService
+sealed class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService, IDisposable, IAsyncDisposable
 {
     public KeyedServiceProviderAdapter(IServiceProvider inner, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
     {
@@ -73,6 +74,19 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, I
 
         var itemType = serviceType.GetGenericArguments()[0];
         return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetRequiredService(serviceType);
+    }
+
+    public void Dispose() => (inner as IDisposable)?.Dispose();
+
+    public ValueTask DisposeAsync()
+    {
+        if (inner is IAsyncDisposable asyncDisposable)
+        {
+            return asyncDisposable.DisposeAsync();
+        }
+
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 
     readonly IServiceProvider inner;
