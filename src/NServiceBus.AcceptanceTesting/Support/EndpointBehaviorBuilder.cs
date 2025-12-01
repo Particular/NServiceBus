@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory endpointConfigurationFactory)
     where TContext : ScenarioContext
@@ -41,7 +42,7 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
 
     public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration> action)
     {
-        behavior.CustomConfig.Add((busConfig, context) => action(busConfig));
+        behavior.CustomConfig.Add((configuration, _) => action(configuration));
 
         return this;
     }
@@ -53,16 +54,16 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
         return this;
     }
 
-    public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
+    public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
-        behavior.ConfigureHowToCreateInstance((services, config) => createCallback(config), (t, _, ct) => startCallback(t, ct));
+        behavior.ConfigureHowToCreateInstance(createCallback, startCallback);
 
         return this;
     }
 
-    public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<EndpointConfiguration, T> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
+    public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, T> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
-        behavior.ConfigureHowToCreateInstance((services, config) => Task.FromResult(createCallback(config)), (t, _, ct) => startCallback(t, ct));
+        behavior.ConfigureHowToCreateInstance((services, config) => Task.FromResult(createCallback(services, config)), startCallback);
 
         return this;
     }

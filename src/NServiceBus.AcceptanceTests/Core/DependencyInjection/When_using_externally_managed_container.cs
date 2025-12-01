@@ -9,20 +9,21 @@ using NUnit.Framework;
 
 public class When_using_externally_managed_container : NServiceBusAcceptanceTest
 {
-    static MyComponent myComponent = new MyComponent();
+    static MyComponent myComponent = new();
 
     [Test]
     public async Task Should_use_it_for_component_resolution()
     {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(typeof(MyComponent), myComponent);
-
         var result = await Scenario.Define<Context>()
         .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
         {
             b.ToCreateInstance(
-                    config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                    (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
+                    (services, configuration) =>
+                        {
+                            _ = services.AddSingleton(typeof(MyComponent), myComponent);
+                            return EndpointWithExternallyManagedContainer.Create(configuration, services);
+                        },
+                    (startableEndpoint, provider, ct) => startableEndpoint.Start(provider, ct)
                 )
                 .When((session, c) => session.SendLocal(new SomeMessage()));
         })
@@ -68,11 +69,7 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         }
     }
 
-    public class MyComponent
-    {
-    }
+    public class MyComponent;
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 }
