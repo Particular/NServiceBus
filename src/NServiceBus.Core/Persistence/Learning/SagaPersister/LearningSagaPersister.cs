@@ -9,14 +9,8 @@ using Extensibility;
 using Persistence;
 using Sagas;
 
-sealed class LearningSagaPersister : ISagaPersister
+sealed class LearningSagaPersister(SagaManifestCollection sagaManifests) : ISagaPersister
 {
-    public LearningSagaPersister(SagaManifestCollection sagaManifests)
-    {
-        ArgumentNullException.ThrowIfNull(sagaManifests);
-        this.sagaManifests = sagaManifests;
-    }
-
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
         var storageSession = (LearningSynchronizedStorageSession)session;
@@ -51,6 +45,4 @@ sealed class LearningSagaPersister : ISagaPersister
         var storageSession = (LearningSynchronizedStorageSession)session;
         return storageSession.Read<TSagaData>(sagaId, sagaManifests, cancellationToken)!;
     }
-
-    readonly SagaManifestCollection sagaManifests;
 }
