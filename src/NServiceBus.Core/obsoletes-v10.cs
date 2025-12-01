@@ -578,6 +578,10 @@ namespace NServiceBus.Sagas
         [ObsoleteMetadata(Message = "Use the overload without available types and conventions", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use the overload without available types and conventions. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) => throw new NotImplementedException();
+
+        [ObsoleteMetadata(ReplacementTypeOrMember = "Create<TSagaType>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'Create<TSagaType>()' instead. Will be removed in version 11.0.0.", true)]
+        public NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) => throw new NotImplementedException();
     }
 
     public partial class SagaMetadataCollection
