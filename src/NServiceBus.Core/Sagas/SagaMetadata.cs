@@ -91,7 +91,7 @@ public partial class SagaMetadata
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
             yield return ((SagaMetadata)typeof(SagaMetadata)
-                .GetMethod("Create", 1, BindingFlags.Public | BindingFlags.Static, [])!
+                .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!
                 .MakeGenericMethod(sagaType)
                 .Invoke(null, [])!)!;
         }
@@ -120,7 +120,7 @@ public partial class SagaMetadata
         try
         {
             return ((SagaMetadata)typeof(SagaMetadata)
-                .GetMethod("Create", 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!
+                .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!
                 .MakeGenericMethod(sagaType, sagaEntityType)
                 .Invoke(null, [associatedMessages, null])!)!;
         }
