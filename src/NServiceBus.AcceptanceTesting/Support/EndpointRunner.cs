@@ -24,7 +24,7 @@ public class EndpointRunner(
     ScenarioContext scenarioContext;
     KeyedServiceCollectionAdapter services;
     RunDescriptor runDescriptor;
-    KeyedServiceProviderAdapter serviceProvider;
+    IServiceProvider serviceProvider;
 
     public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
     {
@@ -166,6 +166,13 @@ public class EndpointRunner(
         {
             Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
             throw;
+        }
+        finally
+        {
+            if (serviceProvider is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            }
         }
 
         if (!doNotFailOnErrorMessages)
