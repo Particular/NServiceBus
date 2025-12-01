@@ -16,18 +16,20 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
     [Test]
     public async Task Make_sure_things_are_in_DI()
     {
-        var serviceCollection = new ServiceCollection();
+        IServiceCollection serviceCollection = null;
         SpyContainer spyContainer = null;
         await Scenario.Define<Context>()
             .WithEndpoint<StartedEndpoint>(b =>
             {
-                b.ToCreateInstance(
-                    endpointConfiguration => EndpointWithExternallyManagedContainer.Create(endpointConfiguration, serviceCollection),
-                    (startableEndpoint, ct) =>
-                    {
-                        spyContainer = new SpyContainer(serviceCollection);
-                        return startableEndpoint.Start(spyContainer, ct);
-                    });
+                b.ToCreateInstance((services, configuration) =>
+                {
+                    serviceCollection = services;
+                    return EndpointWithExternallyManagedContainer.Create(configuration, services);
+                }, (startableEndpoint, provider, ct) =>
+                {
+                    spyContainer = new SpyContainer(serviceCollection, provider);
+                    return startableEndpoint.Start(spyContainer, ct);
+                });
                 b.When(session => session.SendLocal(new SomeMessage()));
             })
             .Done(c => c.GotTheMessage)
@@ -38,8 +40,8 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
             .OrderBy(c => c.Type.FullName)
             .ToList();
 
-        var privateComponents = coreComponents.Where(c => !c.Type.IsPublic);
-        var publicComponents = coreComponents.Where(c => c.Type.IsPublic);
+        var privateComponents = coreComponents.Where(c => !c.Type.IsPublic).ToArray();
+        var publicComponents = coreComponents.Where(c => c.Type.IsPublic).ToArray();
 
         builder.AppendLine("----------- Public registrations used by Core -----------");
 
@@ -79,40 +81,28 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
 
     public class StartedEndpoint : EndpointConfigurationBuilder
     {
-        public StartedEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public StartedEndpoint() => EndpointSetup<DefaultServer>();
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public SomeMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 
-    class SpyContainer : IServiceProvider, IServiceScopeFactory
+    class SpyContainer : IServiceProvider, ISupportRequiredService, IServiceScopeFactory
     {
         public Dictionary<Type, RegisteredService> RegisteredServices { get; } = [];
 
-        ServiceProvider ServiceProvider { get; }
+        IServiceProvider ServiceProvider { get; }
 
-        public SpyContainer(IServiceCollection serviceCollection)
+        public SpyContainer(IServiceCollection serviceCollection, IServiceProvider provider)
         {
             foreach (var serviceDescriptor in serviceCollection
                 .Where(sd => sd.ServiceType.Assembly == typeof(IEndpointInstance).Assembly))
@@ -124,7 +114,7 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
                 };
             }
 
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            ServiceProvider = provider;
         }
 
         public object GetService(Type serviceType)
@@ -137,23 +127,25 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
             return serviceType == typeof(IServiceScopeFactory) ? this : ServiceProvider.GetService(serviceType);
         }
 
+        public object GetRequiredService(Type serviceType)
+        {
+            if (RegisteredServices.TryGetValue(serviceType, out var registeredService))
+            {
+                registeredService.WasResolved = true;
+            }
+
+            return serviceType == typeof(IServiceScopeFactory) ? this : ServiceProvider.GetRequiredService(serviceType);
+        }
+
         public IServiceScope CreateScope()
         {
             var scope = ServiceProvider.CreateAsyncScope();
             return new SpyScope(scope, RegisteredServices);
         }
 
-        class SpyScope : IServiceScope, IServiceProvider, IAsyncDisposable
+        class SpyScope(AsyncServiceScope decorated, Dictionary<Type, RegisteredService> registeredServices)
+            : IServiceScope, ISupportRequiredService, IServiceProvider, IAsyncDisposable
         {
-            readonly AsyncServiceScope decorated;
-            readonly Dictionary<Type, RegisteredService> registeredServices;
-
-            public SpyScope(AsyncServiceScope decorated, Dictionary<Type, RegisteredService> registeredServices)
-            {
-                this.registeredServices = registeredServices;
-                this.decorated = decorated;
-            }
-
             public IServiceProvider ServiceProvider => this;
             public object GetService(Type serviceType)
             {
@@ -163,6 +155,16 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
                 }
 
                 return decorated.ServiceProvider.GetService(serviceType);
+            }
+
+            public object GetRequiredService(Type serviceType)
+            {
+                if (registeredServices.TryGetValue(serviceType, out var registeredService))
+                {
+                    registeredService.WasResolved = true;
+                }
+
+                return decorated.ServiceProvider.GetRequiredService(serviceType);
             }
 
             public void Dispose() => decorated.Dispose();

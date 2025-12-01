@@ -13,20 +13,21 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
     [Test]
     public async Task RegisterComponents_calls_override_registrations()
     {
-        var serviceCollection = new ServiceCollection();
+        IServiceCollection serviceCollection = null;
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithOverrides>(b => b
                 .ToCreateInstance(
-                    config =>
+                    (services, configuration) =>
                     {
-                        serviceCollection.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                        return EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
+                        serviceCollection = services;
+                        services.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
+                        return EndpointWithExternallyManagedContainer.Create(configuration, serviceCollection);
                     },
-                    (configured, ct) =>
+                    (startableEndpoint, provider, ct) =>
                     {
                         serviceCollection.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>();
-                        return configured.Start(serviceCollection.BuildServiceProvider(), ct);
+                        return startableEndpoint.Start(provider, ct);
                     }))
             .Done(c => c.EndpointsStarted)
             .Run();

@@ -13,27 +13,23 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
     [Test]
     public async Task Should_dispose()
     {
-        ServiceProvider serviceProvider = null;
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<SingletonAsyncDisposable>();
-        serviceCollection.AddScoped<ScopedAsyncDisposable>();
-
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.ToCreateInstance(
-                    config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                    (configured, ct) =>
+                    (services, configuration) =>
                     {
-                        serviceProvider = serviceCollection.BuildServiceProvider();
-                        return configured.Start(serviceProvider, ct);
-                    });
+                        _ = services.AddSingleton<SingletonAsyncDisposable>();
+                        _ = services.AddScoped<ScopedAsyncDisposable>();
+                        return EndpointWithExternallyManagedContainer.Create(configuration, services);
+                    },
+                    (startableEndpoint, provider, ct) => startableEndpoint.Start(provider, ct));
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Done(c => c.ScopedAsyncDisposableDisposed)
             .Run(TimeSpan.FromSeconds(10));
 
-        await serviceProvider.DisposeAsync();
+        // the acceptance test infrastructure disposes the managed provider
 
         using (Assert.EnterMultipleScope())
         {
@@ -53,31 +49,22 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>();
 
-        class HandlerWithAsyncDisposable : IHandleMessages<SomeMessage>
+        class HandlerWithAsyncDisposable(
+            Context testContext,
+            ScopedAsyncDisposable scopedAsyncDisposable,
+            SingletonAsyncDisposable singletonAsyncDisposable)
+            : IHandleMessages<SomeMessage>
         {
-            public HandlerWithAsyncDisposable(Context context, ScopedAsyncDisposable scopedAsyncDisposable, SingletonAsyncDisposable singletonAsyncDisposable)
-            {
-                testContext = context;
-                this.scopedAsyncDisposable = scopedAsyncDisposable;
-                this.singletonAsyncDisposable = singletonAsyncDisposable;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 scopedAsyncDisposable.Initialize(testContext);
                 singletonAsyncDisposable.Initialize(testContext);
                 return Task.CompletedTask;
             }
-
-            readonly Context testContext;
-            readonly ScopedAsyncDisposable scopedAsyncDisposable;
-            readonly SingletonAsyncDisposable singletonAsyncDisposable;
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 
     class SingletonAsyncDisposable : IAsyncDisposable
     {
