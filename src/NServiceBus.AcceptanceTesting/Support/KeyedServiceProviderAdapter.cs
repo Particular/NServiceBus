@@ -21,6 +21,11 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
+        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        {
+            return this;
+        }
+
         if (serviceType == typeof(IServiceScopeFactory))
         {
             var scopeFactory = inner.GetService<IServiceScopeFactory>();
@@ -45,6 +50,11 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService
     public object GetRequiredService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
+
+        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        {
+            return this;
+        }
 
         if (serviceType == typeof(IServiceScopeFactory))
         {
