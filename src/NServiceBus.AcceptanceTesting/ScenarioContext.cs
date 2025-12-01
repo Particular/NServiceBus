@@ -27,23 +27,21 @@ public class ScenarioContext
 
     public bool HasNativePubSubSupport { get; set; }
 
-    public void AddTrace(string trace)
-    {
+    public void AddTrace(string trace) =>
         Logs.Enqueue(new LogItem
         {
             LoggerName = "Trace",
             Level = LogLevel.Info,
             Message = trace
         });
-    }
 
-    public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
+    public readonly ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new();
 
-    public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
+    public readonly ConcurrentQueue<LogItem> Logs = new();
 
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
-    internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
+    internal readonly ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new();
 
     static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
     static readonly AsyncLocal<string> asyncEndpointName = new AsyncLocal<string>();

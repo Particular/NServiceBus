@@ -2,22 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Faults;
 using Pipeline;
 
-class CaptureRecoverabilityActionBehavior : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
+class CaptureRecoverabilityActionBehavior(string endpointName, ScenarioContext scenarioContext)
+    : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
 {
-    readonly string endpointName;
-    readonly ScenarioContext scenarioContext;
-
-    public CaptureRecoverabilityActionBehavior(string endpointName, ScenarioContext scenarioContext)
-    {
-        this.endpointName = endpointName;
-        this.scenarioContext = scenarioContext;
-    }
-
     public async Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
     {
         await next(context).ConfigureAwait(false);
@@ -33,34 +24,22 @@ class CaptureRecoverabilityActionBehavior : IBehavior<IRecoverabilityContext, IR
                         context.Exception,
                         moveToErrorAction.ErrorQueue);
 
-                    scenarioContext.FailedMessages.AddOrUpdate(
-                        endpointName,
-                        new[]
-                        {
-                            failedMessage
-                        },
-                        (i, failed) =>
-                        {
-                            var result = failed.ToList();
-                            result.Add(failedMessage);
-                            return result;
-                        });
+                    _ = scenarioContext.FailedMessages.AddOrUpdate(
+                        endpointName, static (_, failedMessage) => [failedMessage],
+                        static (_, failed, failedMessage) => [.. failed, failedMessage], failedMessage);
 
                     MarkMessageAsCompleted();
                     break;
                 }
-            case Discard discardAction:
+            case Discard:
                 MarkMessageAsCompleted();
                 break;
             default:
                 break;
         }
 
-        void MarkMessageAsCompleted()
-        {
-            scenarioContext.UnfinishedFailedMessages.AddOrUpdate(context.FailedMessage.MessageId,
-                id => false,
-                (id, value) => false);
-        }
+        return;
+
+        void MarkMessageAsCompleted() => scenarioContext.UnfinishedFailedMessages.AddOrUpdate(context.FailedMessage.MessageId, _ => false, static (_, _) => false);
     }
 }
