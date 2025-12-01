@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTesting.Support;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService
+class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService
 {
     public KeyedServiceProviderAdapter(IServiceProvider inner, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
     {
@@ -16,6 +16,9 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService
         this.serviceKey = serviceKey;
         this.serviceCollection = serviceCollection;
     }
+
+    public bool IsService(Type serviceType) => serviceCollection.ContainsService(serviceType);
+    public bool IsKeyedService(Type serviceType, object? serviceKey) => serviceCollection.ContainsService(serviceType) && Equals(this.serviceKey, serviceKey);
 
     public object? GetService(Type serviceType)
     {
