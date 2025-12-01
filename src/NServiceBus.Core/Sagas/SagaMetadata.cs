@@ -95,6 +95,8 @@ public partial class SagaMetadata
                 .MakeGenericMethod(sagaType)
                 .Invoke(null, [])!)!;
         }
+
+        static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
     }
 
     /// <summary>
@@ -217,9 +219,6 @@ public partial class SagaMetadata
             }
         }
     }
-
-    //TODO: make local function
-    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
 
     static Type GetBaseSagaType(Type t)
     {
