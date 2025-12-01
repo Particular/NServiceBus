@@ -51,7 +51,7 @@ public class FeatureConfigurationContext
 
     internal ReceiveComponent.Configuration Receiving => field ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
-    internal List<FeatureStartupTaskController> TaskControllers { get; }
+    internal List<IFeatureStartupTaskController> TaskControllers { get; }
 
     internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType, new() => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
     internal TOptions? GetStorageOptions<TOptions>() where TOptions : StorageType.Options => persistenceConfiguration.SupportedPersistences.Get<TOptions>();
@@ -76,13 +76,21 @@ public class FeatureConfigurationContext
     }
 
     /// <summary>
+    /// Registers a feature startup task.
+    /// </summary>
+    /// <remarks>The startup task will automatically have all it's constructor parameters resolved from the dependency injection container.</remarks>
+    /// <typeparam name="TTask">The startup task type to register.</typeparam>
+    public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask
+        => TaskControllers.Add(new ActivatorUtilityBasedFeatureStartupTaskController<TTask>());
+
+    /// <summary>
     /// Registers an instance of a feature startup task.
     /// </summary>
     /// <param name="startupTask">A startup task.</param>
     public void RegisterStartupTask<TTask>(TTask startupTask) where TTask : FeatureStartupTask
     {
         ArgumentNullException.ThrowIfNull(startupTask);
-        RegisterStartupTask(() => startupTask);
+        TaskControllers.Add(new FeatureStartupTaskController<TTask>(typeof(TTask).Name, static (_, task) => task, startupTask));
     }
 
     /// <summary>
@@ -92,7 +100,7 @@ public class FeatureConfigurationContext
     public void RegisterStartupTask<TTask>(Func<TTask> startupTaskFactory) where TTask : FeatureStartupTask
     {
         ArgumentNullException.ThrowIfNull(startupTaskFactory);
-        TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, _ => startupTaskFactory()));
+        TaskControllers.Add(new FeatureStartupTaskController<Func<TTask>>(typeof(TTask).Name, static (_, startupTaskFactory) => startupTaskFactory(), startupTaskFactory));
     }
 
     /// <summary>

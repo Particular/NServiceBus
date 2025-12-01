@@ -1375,6 +1375,8 @@ namespace NServiceBus.Features
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.IReadOnlySettings Settings { get; }
         public void AddSatelliteReceiver(string name, NServiceBus.Transport.QueueAddress transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
+        public void RegisterStartupTask<TTask>()
+            where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<System.IServiceProvider, TTask> startupTaskFactory)

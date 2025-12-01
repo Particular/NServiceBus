@@ -88,6 +88,44 @@ public class FeatureStartupTests
     }
 
     [Test]
+    public async Task Should_dispose_feature_startup_tasks_when_they_implement_IAsyncDisposable()
+    {
+        var feature = new FeatureWithStartupTaskWhichIsAsyncDisposable();
+
+        featureFactory.Add(feature);
+
+        featureSettings.EnableFeature<FeatureWithStartupTaskWhichIsAsyncDisposable>();
+
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
+
+        Assert.That(feature.TaskDisposed, Is.True);
+    }
+
+    [Test]
+    public async Task Should_prefer_async_disposable_when_task_implements_both_interfaces()
+    {
+        var feature = new FeatureWithStartupTaskWhichIsSyncAndAsyncDisposable();
+
+        featureFactory.Add(feature);
+
+        featureSettings.EnableFeature<FeatureWithStartupTaskWhichIsSyncAndAsyncDisposable>();
+
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+
+        await featureComponent.StartFeatures(null, null);
+        await featureComponent.StopFeatures(null);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(feature.TaskAsyncDisposed, Is.True);
+            Assert.That(feature.TaskDisposed, Is.False);
+        }
+    }
+
+    [Test]
     public void Should_throw_when_feature_task_fails_on_start_and_should_stop_previously_started_tasks_and_should_abort_starting()
     {
         var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStop: true, createException: () => new InvalidOperationException("feature1"));
@@ -260,13 +298,9 @@ public class FeatureStartupTests
         readonly bool throwOnStop;
         readonly Func<Exception> createException;
 
-        public class Runner(FeatureWithStartupTaskThatThrows parentFeature) : FeatureStartupTask, IDisposable
+        sealed class Runner(FeatureWithStartupTaskThatThrows parentFeature) : FeatureStartupTask, IDisposable
         {
-            public void Dispose()
-            {
-                parentFeature.TaskDisposed = true;
-                GC.SuppressFinalize(this);
-            }
+            public void Dispose() => parentFeature.TaskDisposed = true;
 
             protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
@@ -304,13 +338,52 @@ public class FeatureStartupTests
 
         protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
 
-        public class Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature) : FeatureStartupTask, IDisposable
+        sealed class Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature) : FeatureStartupTask, IDisposable
         {
-            public void Dispose()
+            public void Dispose() => parentFeature.TaskDisposed = true;
+
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        }
+    }
+
+    class FeatureWithStartupTaskWhichIsAsyncDisposable : TestFeature
+    {
+        public bool TaskDisposed { get; private set; }
+
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+
+        sealed class Runner(FeatureWithStartupTaskWhichIsAsyncDisposable parentFeature) : FeatureStartupTask, IAsyncDisposable
+        {
+            public ValueTask DisposeAsync()
             {
                 parentFeature.TaskDisposed = true;
-                GC.SuppressFinalize(this);
+                return ValueTask.CompletedTask;
             }
+
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        }
+    }
+
+    class FeatureWithStartupTaskWhichIsSyncAndAsyncDisposable : TestFeature
+    {
+        public bool TaskDisposed { get; private set; }
+        public bool TaskAsyncDisposed { get; private set; }
+
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+
+        sealed class Runner(FeatureWithStartupTaskWhichIsSyncAndAsyncDisposable parentFeature) : FeatureStartupTask, IDisposable, IAsyncDisposable
+        {
+            public ValueTask DisposeAsync()
+            {
+                parentFeature.TaskAsyncDisposed = true;
+                return ValueTask.CompletedTask;
+            }
+
+            public void Dispose() => parentFeature.TaskDisposed = true;
 
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
 

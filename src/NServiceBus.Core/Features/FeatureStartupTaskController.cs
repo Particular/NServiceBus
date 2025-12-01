@@ -7,15 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class FeatureStartupTaskController
-{
-    public FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureStartupTask> factory)
-    {
-        Name = name;
-        this.factory = factory;
-    }
+class FeatureStartupTaskController(string name, Func<IServiceProvider, FeatureStartupTask> factory)
+    : FeatureStartupTaskController<Func<IServiceProvider, FeatureStartupTask>>(name,
+        static (provider, state) => state(provider), factory);
 
-    public string Name { get; }
+class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, TState, FeatureStartupTask> factory, TState state)
+    : IFeatureStartupTaskController
+{
+    public string Name { get; } = name;
 
     public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
@@ -24,7 +23,7 @@ class FeatureStartupTaskController
             Log.Debug($"Starting {nameof(FeatureStartupTask)} '{Name}'.");
         }
 
-        instance = factory(builder);
+        instance = factory(builder, state);
         return instance.PerformStartup(messageSession, cancellationToken);
     }
 
@@ -37,26 +36,16 @@ class FeatureStartupTaskController
 
         try
         {
+            await using var _ = Disposable.Wrap(instance).ConfigureAwait(false);
             await instance.PerformStop(messageSession, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             Log.Warn($"Exception occurred during stopping of feature startup task '{Name}'.", ex);
         }
-        finally
-        {
-            DisposeIfNecessary(instance);
-        }
     }
 
-    static void DisposeIfNecessary(FeatureStartupTask task)
-    {
-        var disposableTask = task as IDisposable;
-        disposableTask?.Dispose();
-    }
-
-    readonly Func<IServiceProvider, FeatureStartupTask> factory;
     FeatureStartupTask? instance;
 
-    static readonly ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
+    static readonly ILog Log = LogManager.GetLogger("FeatureStartupTaskController");
 }

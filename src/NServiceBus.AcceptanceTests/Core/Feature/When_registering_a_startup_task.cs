@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using Features;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 public class When_registering_a_startup_task : NServiceBusAcceptanceTest
@@ -41,9 +40,9 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
 
         public class Bootstrapper : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(b => new MyTask(b.GetService<Context>()));
+            protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask<MyTask>();
 
-            public class MyTask(Context scenarioContext) : FeatureStartupTask
+            class MyTask(Context scenarioContext) : FeatureStartupTask
             {
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {

@@ -36,51 +36,29 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
         }
 
-        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Conventions()
                     .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName)
-                    .DefiningTimeToBeReceivedAs(messageType =>
-                    {
-                        if (messageType == typeof(MyCommand))
-                        {
-                            return TimeSpan.FromSeconds(2);
-                        }
-
-                        return TimeSpan.MaxValue;
-                    });
+                    .DefiningTimeToBeReceivedAs(messageType => messageType == typeof(MyCommand) ? TimeSpan.FromSeconds(2) : TimeSpan.MaxValue);
                 c.RegisterStartupTask(new SendMessageAndDelayStartTask());
             });
-        }
 
-        public class MyMessageHandler : IHandleMessages<MyCommand>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyCommand>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyCommand message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyCommand
-    {
-    }
+    public class MyCommand;
 }

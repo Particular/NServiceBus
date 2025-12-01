@@ -26,14 +26,9 @@ class AcceptanceTestingOutboxPersistence : Feature
         context.RegisterStartupTask(new OutboxCleaner(outboxStorage, TimeSpan.FromDays(5)));
     }
 
-    class OutboxCleaner : FeatureStartupTask
+    class OutboxCleaner(AcceptanceTestingOutboxStorage storage, TimeSpan timeToKeepDeduplicationData)
+        : FeatureStartupTask
     {
-        public OutboxCleaner(AcceptanceTestingOutboxStorage storage, TimeSpan timeToKeepDeduplicationData)
-        {
-            this.timeToKeepDeduplicationData = timeToKeepDeduplicationData;
-            acceptanceTestingOutboxStorage = storage;
-        }
-
         protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
             cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
@@ -46,19 +41,12 @@ class AcceptanceTestingOutboxPersistence : Feature
             {
                 cleanupTimer.Dispose(waitHandle);
 
-                // TODO: Use async synchronization primitive
                 waitHandle.WaitOne();
             }
             return Task.CompletedTask;
         }
 
-        void PerformCleanup(object state)
-        {
-            acceptanceTestingOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
-        }
-
-        readonly AcceptanceTestingOutboxStorage acceptanceTestingOutboxStorage;
-        readonly TimeSpan timeToKeepDeduplicationData;
+        void PerformCleanup(object state) => storage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
 
         Timer cleanupTimer;
     }

@@ -63,7 +63,7 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
                         return Task.FromResult(true);
                     });
 
-                context.RegisterStartupTask(sp => new SatelliteFeatureStartupTask(sp.GetRequiredService<ReceiveAddresses>()));
+                context.RegisterStartupTask<SatelliteFeatureStartupTask>();
             }
 
             class SatelliteFeatureStartupTask : FeatureStartupTask

@@ -65,24 +65,13 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, messageContext, cancellationToken) => Task.FromResult(true));
 
-                context.RegisterStartupTask(s => new StartupTask(testContext,
-                    (ITransportAddressResolver)s.GetService(typeof(ITransportAddressResolver)),
-                    (ReceiveAddresses)s.GetService(typeof(ReceiveAddresses))));
+                context.RegisterStartupTask<StartupTask>();
             }
         }
 
-        class StartupTask : FeatureStartupTask
+        class StartupTask(Context testContext, ITransportAddressResolver resolver, ReceiveAddresses receiveAddresses)
+            : FeatureStartupTask
         {
-            readonly Context testContext;
-            readonly ITransportAddressResolver resolver;
-            readonly ReceiveAddresses receiveAddresses;
-
-            public StartupTask(Context testContext, ITransportAddressResolver resolver, ReceiveAddresses receiveAddresses)
-            {
-                this.testContext = testContext;
-                this.resolver = resolver;
-                this.receiveAddresses = receiveAddresses;
-            }
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
             {
                 testContext.ResolvedAddress = resolver.ToTransportAddress(new QueueAddress("SomeAddress"));
@@ -90,10 +79,7 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return Task.CompletedTask;
-            }
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 }

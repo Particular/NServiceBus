@@ -48,8 +48,7 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
 
     class EndpointWithStartupTask : EndpointConfigurationBuilder
     {
-        public EndpointWithStartupTask()
-        {
+        public EndpointWithStartupTask() =>
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
@@ -63,17 +62,9 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
                     });
                 },
                 p => p.RegisterPublisherFor<LocalEvent, EndpointWithStartupTask>());
-        }
 
-        class MessageHandler : IHandleMessages<LocalEvent>
+        class MessageHandler(Context testContext) : IHandleMessages<LocalEvent>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(LocalEvent message, IMessageHandlerContext context)
             {
                 testContext.LocalEventReceived = true;
@@ -83,16 +74,11 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
 
         class StartupTask : FeatureStartupTask
         {
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                return session.Subscribe<LocalEvent>(cancellationToken);
-            }
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => session.Subscribe<LocalEvent>(cancellationToken);
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
     }
 
-    public class LocalEvent : IEvent
-    {
-    }
+    public class LocalEvent : IEvent;
 }
