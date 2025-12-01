@@ -10,12 +10,13 @@ using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
 
-public class EndpointRunner : ComponentRunner
+public class EndpointRunner(
+    Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
+    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
+    bool doNotFailOnErrorMessages)
+    : ComponentRunner
 {
-    static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-    Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback;
-    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback;
-    bool doNotFailOnErrorMessages;
+    static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
     EndpointBehavior behavior;
     object startable;
     IEndpointInstance endpointInstance;
@@ -24,14 +25,6 @@ public class EndpointRunner : ComponentRunner
     KeyedServiceCollectionAdapter services;
     RunDescriptor runDescriptor;
     KeyedServiceProviderAdapter serviceProvider;
-    readonly string runnerId = Guid.CreateVersion7().ToString("N")[..12];
-
-    public EndpointRunner(Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback, Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
-    {
-        this.createCallback = createCallback;
-        this.startCallback = startCallback;
-        this.doNotFailOnErrorMessages = doNotFailOnErrorMessages;
-    }
 
     public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
     {
@@ -183,11 +176,14 @@ public class EndpointRunner : ComponentRunner
 
     void ThrowOnFailedMessages()
     {
-        foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == Name))
+        foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == configuration.EndpointName))
         {
             throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
         }
     }
 
-    public override string Name => $"{configuration.EndpointName}_{runnerId}";
+    public override string Name
+    {
+        get => $"{configuration.EndpointName}_{field}";
+    } = Guid.CreateVersion7().ToString("N")[..12];
 }
