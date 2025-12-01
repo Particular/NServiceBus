@@ -36,22 +36,12 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
 
         try
         {
+            await using var _ = Disposable.Wrap(instance).ConfigureAwait(false);
             await instance.PerformStop(messageSession, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             Log.Warn($"Exception occurred during stopping of feature startup task '{Name}'.", ex);
-        }
-        finally
-        {
-            if (instance is IAsyncDisposable asyncDisposable)
-            {
-                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-            }
-            else if (instance is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
         }
     }
 
