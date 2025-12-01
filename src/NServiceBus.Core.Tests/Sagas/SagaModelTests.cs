@@ -57,7 +57,6 @@ public class SagaModelTests
 
         var metadata = model.FindByEntity(typeof(MyEntity));
 
-
         Assert.That(metadata, Is.Not.Null);
     }
 

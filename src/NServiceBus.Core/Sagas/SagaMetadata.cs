@@ -14,32 +14,6 @@ using System.Runtime.CompilerServices;
 /// </summary>
 public partial class SagaMetadata
 {
-    SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping)
-    {
-        correlationProperty = mapping.CorrelationProperty;
-        Name = sagaType.FullName!;
-        EntityName = sagaEntityType.FullName!;
-        SagaEntityType = sagaEntityType;
-        SagaType = sagaType;
-        NotFoundHandler = mapping.NotFoundHandler;
-
-        AssociatedMessages = messages;
-
-        foreach (var sagaMessage in messages.Where(m => m.IsAllowedToStartSaga))
-        {
-            _ = messageNamesAllowedToStartTheSaga.Add(sagaMessage.MessageTypeName);
-        }
-
-        sagaFinders = [];
-
-        foreach (var finder in mapping.Finders)
-        {
-            sagaFinders[finder.MessageType.FullName!] = finder;
-        }
-    }
-
-    internal ISagaNotFoundHandlerInvocation NotFoundHandler { get; }
-
     /// <summary>
     /// Returns the list of messages that is associated with this saga.
     /// </summary>
@@ -69,6 +43,10 @@ public partial class SagaMetadata
     /// The type for this saga.
     /// </summary>
     public Type SagaType { get; }
+
+    internal ISagaNotFoundHandlerInvocation NotFoundHandler { get; }
+
+    internal ISagaLoader Loader { get; }
 
     /// <summary>
     /// Property this saga is correlated on.
@@ -102,19 +80,31 @@ public partial class SagaMetadata
     }
 
     /// <summary>
+    /// Bulk creates <see cref="SagaMetadata" /> instances from a collection of potential Saga types.
+    /// </summary>
+    /// <param name="sagaTypes">Potential saga types.</param>
+    /// <returns>Saga metadata for all the found saga types.</returns>
+    public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
+    {
+        ArgumentNullException.ThrowIfNull(sagaTypes);
+
+        foreach (var sagaType in sagaTypes.Where(IsSagaType))
+        {
+            yield return ((SagaMetadata)typeof(SagaMetadata)
+                .GetMethod("Create", 1, BindingFlags.Public | BindingFlags.Static, [])!
+                .MakeGenericMethod(sagaType)
+                .Invoke(null, [])!)!;
+        }
+    }
+
+    /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
-    /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</param>
+    /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create(Type sagaType)
+    public static SagaMetadata Create<TSagaType>() where TSagaType : Saga
     {
-        ArgumentNullException.ThrowIfNull(sagaType);
-
-        if (!IsSagaType(sagaType))
-        {
-            throw new Exception(sagaType.FullName + " is not a saga");
-        }
-
+        var sagaType = typeof(TSagaType);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
         if (genericArguments.Length != 1)
         {
@@ -125,7 +115,17 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        return Create(sagaType, sagaEntityType, associatedMessages);
+        try
+        {
+            return ((SagaMetadata)typeof(SagaMetadata)
+                .GetMethod("Create", 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!
+                .MakeGenericMethod(sagaType, sagaEntityType)
+                .Invoke(null, [associatedMessages, null])!)!;
+        }
+        catch (TargetInvocationException e)
+        {
+            throw e.InnerException!;
+        }
     }
 
     /// <summary>
@@ -138,42 +138,42 @@ public partial class SagaMetadata
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
-        where TSagaData : class, IContainSagaData, new() =>
-        Create(typeof(TSaga), typeof(TSagaData), associatedMessages, propertyAccessors);
-
-    /// <summary>
-    /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
-    /// </summary>
-    /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
-    /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSagaType>() where TSagaType : Saga => Create(typeof(TSagaType));
-
-    /// <summary>
-    /// Bulk creates <see cref="SagaMetadata" /> instances from a collection of potential Saga types.
-    /// </summary>
-    /// <param name="sagaTypes">Potential saga types.</param>
-    /// <returns>Saga metadata for all the found saga types.</returns>
-    public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
+        where TSagaData : class, IContainSagaData, new()
     {
-        ArgumentNullException.ThrowIfNull(sagaTypes);
+        var sagaType = typeof(TSaga);
+        var sagaEntityType = typeof(TSagaData);
 
-        foreach (var sagaType in sagaTypes.Where(IsSagaType))
-        {
-            yield return Create(sagaType);
-        }
-    }
-
-    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
-
-    static SagaMetadata Create(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
-    {
         var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
 
         var mapper = new SagaMapper(sagaType, associatedMessages, propertyAccessors ?? []);
 
         saga.ConfigureHowToFindSaga(mapper);
 
-        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping());
+        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping(), new LoadSagaByIdWrapper<TSagaData>());
+    }
+
+    SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping, ISagaLoader sagaLoader)
+    {
+        correlationProperty = mapping.CorrelationProperty;
+        Name = sagaType.FullName!;
+        EntityName = sagaEntityType.FullName!;
+        SagaEntityType = sagaEntityType;
+        SagaType = sagaType;
+        NotFoundHandler = mapping.NotFoundHandler;
+        Loader = sagaLoader;
+        AssociatedMessages = messages;
+
+        foreach (var sagaMessage in messages.Where(m => m.IsAllowedToStartSaga))
+        {
+            _ = messageNamesAllowedToStartTheSaga.Add(sagaMessage.MessageTypeName);
+        }
+
+        sagaFinders = [];
+
+        foreach (var finder in mapping.Finders)
+        {
+            sagaFinders[finder.MessageType.FullName!] = finder;
+        }
     }
 
     static List<SagaMessage> GetAssociatedMessages(Type sagaType)
@@ -217,6 +217,9 @@ public partial class SagaMetadata
             }
         }
     }
+
+    //TODO: make local function
+    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
 
     static Type GetBaseSagaType(Type t)
     {

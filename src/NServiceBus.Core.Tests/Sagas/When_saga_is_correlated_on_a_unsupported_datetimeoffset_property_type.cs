@@ -12,7 +12,7 @@ public class When_saga_is_correlated_on_a_unsupported_datetimeoffset_property_ty
     [Test]
     public void Should_throw()
     {
-        var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNoStartMessage)));
+        var ex = Assert.Throws<Exception>(() => SagaMetadata.Create<SagaWithNoStartMessage>());
 
         Assert.That(ex.Message, Does.Contain("DateTimeOffset is not supported for correlated properties"));
     }

@@ -11,7 +11,7 @@ public class When_saga_has_duplicate_not_found_handlers
     [Test]
     public void Should_throw()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithDuplicateNotFoundHandlers)));
+        var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create<SagaWithDuplicateNotFoundHandlers>());
 
         Assert.That(ex.Message, Does.Contain("Saga not found handler already configured"));
     }
