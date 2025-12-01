@@ -40,14 +40,13 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, I
 
         if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
         {
-            return serviceCollection.ContainsService(serviceType)
+            return IsKeyedService(serviceType, serviceKey)
                 ? inner.GetKeyedService(serviceType, serviceKey)
                 : inner.GetService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return serviceCollection.ContainsService(serviceType) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetServices(serviceType);
-
+        return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetServices(serviceType);
     }
 
     public object GetRequiredService(Type serviceType)
@@ -67,14 +66,13 @@ class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, I
 
         if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
         {
-            return serviceCollection.ContainsService(serviceType)
+            return IsKeyedService(serviceType, serviceKey)
                 ? inner.GetRequiredKeyedService(serviceType, serviceKey)
                 : inner.GetRequiredService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return serviceCollection.ContainsService(serviceType) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetRequiredService(serviceType);
-
+        return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetRequiredService(serviceType);
     }
 
     readonly IServiceProvider inner;
