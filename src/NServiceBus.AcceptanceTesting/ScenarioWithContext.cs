@@ -70,7 +70,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
     {
-        var builder = new EndpointBehaviorBuilder<TContext>(endpointConfigurationBuilder);
+        var builder = new EndpointBehaviorBuilder<TContext>(endpointConfigurationBuilder, componentCount++);
         defineBehavior(builder);
         behaviors.Add(builder.Build());
 
@@ -79,6 +79,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior)
     {
+        componentCount++;
         behaviors.Add(componentBehavior);
         return this;
     }
@@ -104,6 +105,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
     }
 
     readonly List<IComponentBehavior> behaviors = [];
+    int componentCount = 0;
     readonly IServiceCollection services = new ServiceCollection();
     Func<ScenarioContext, Task<bool>> done = static _ => Task.FromResult(true);
 }

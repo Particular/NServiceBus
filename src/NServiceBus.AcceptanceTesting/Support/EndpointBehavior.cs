@@ -10,8 +10,11 @@ using NUnit.Framework;
 
 public class EndpointBehavior : IComponentBehavior
 {
-    public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder)
+    readonly int instanceIndex;
+
+    public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder, int instanceIndex)
     {
+        this.instanceIndex = instanceIndex;
         EndpointBuilder = endpointBuilder;
         CustomConfig = [];
         ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
@@ -39,7 +42,7 @@ public class EndpointBehavior : IComponentBehavior
     {
         var endpointName = Conventions.EndpointNamingConvention(EndpointBuilder.GetType());
 
-        var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages);
+        var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages, instanceIndex);
 
         try
         {
