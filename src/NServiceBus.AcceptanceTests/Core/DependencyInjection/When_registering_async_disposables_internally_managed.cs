@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -16,6 +17,9 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
+                b.ToCreateInstance(
+                    (_, configuration) => Endpoint.Create(configuration),
+                    (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Done(c => c.ScopedAsyncDisposableDisposed)
@@ -41,36 +45,29 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             {
                 c.RegisterComponents(s =>
                 {
+                    // We have to take over re-registering the context because we have taking control over the instance creation
+                    s.AddSingleton(c.GetSettings().Get<Context>());
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                 });
             });
 
-        class HandlerWithAsyncDisposable : IHandleMessages<SomeMessage>
+        class HandlerWithAsyncDisposable(
+            Context testContext,
+            ScopedAsyncDisposable scopedAsyncDisposable,
+            SingletonAsyncDisposable singletonAsyncDisposable)
+            : IHandleMessages<SomeMessage>
         {
-            public HandlerWithAsyncDisposable(Context context, ScopedAsyncDisposable scopedAsyncDisposable, SingletonAsyncDisposable singletonAsyncDisposable)
-            {
-                testContext = context;
-                this.scopedAsyncDisposable = scopedAsyncDisposable;
-                this.singletonAsyncDisposable = singletonAsyncDisposable;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 scopedAsyncDisposable.Initialize(testContext);
                 singletonAsyncDisposable.Initialize(testContext);
                 return Task.CompletedTask;
             }
-
-            readonly Context testContext;
-            readonly ScopedAsyncDisposable scopedAsyncDisposable;
-            readonly SingletonAsyncDisposable singletonAsyncDisposable;
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 
     class SingletonAsyncDisposable : IAsyncDisposable
     {
