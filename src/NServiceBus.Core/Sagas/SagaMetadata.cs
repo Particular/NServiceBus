@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 
 /// <summary>
 /// Contains metadata for known sagas.
@@ -88,16 +89,37 @@ public partial class SagaMetadata
     {
         ArgumentNullException.ThrowIfNull(sagaTypes);
 
+        var sagaMetadata = new List<SagaMetadata>();
+
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            yield return ((SagaMetadata)typeof(SagaMetadata)
-                .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!
-                .MakeGenericMethod(sagaType)
-                .Invoke(null, [])!)!;
+            try
+            {
+                sagaMetadata.Add((SagaMetadata)CreateSagaOfTSagaMethod
+                    .MakeGenericMethod(sagaType)
+                    .Invoke(null, [])!);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                {
+                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                }
+
+                throw;
+            }
         }
 
-        static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
+        return sagaMetadata;
     }
+
+    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
+
+    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!;
+
+    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!;
 
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
@@ -119,14 +141,18 @@ public partial class SagaMetadata
 
         try
         {
-            return ((SagaMetadata)typeof(SagaMetadata)
-                .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!
+            return (SagaMetadata)CreateSagaOfTSagaTEntityMethod
                 .MakeGenericMethod(sagaType, sagaEntityType)
-                .Invoke(null, [associatedMessages, null])!)!;
+                .Invoke(null, [associatedMessages, null])!;
         }
         catch (TargetInvocationException e)
         {
-            throw e.InnerException!;
+            if (e.InnerException != null)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+            }
+
+            throw;
         }
     }
 
