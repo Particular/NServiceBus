@@ -197,6 +197,6 @@ public class EndpointRunner(
 
     public override string Name
     {
-        get => $"{configuration.EndpointName}_{field}";
+        get => $"{configuration.EndpointName}{field}";
     } = instanceIndex.ToString(CultureInfo.InvariantCulture);
 }
