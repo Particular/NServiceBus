@@ -111,15 +111,9 @@ public partial class SagaMetadata
         }
 
         return sagaMetadata;
+
+        static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
     }
-
-    static bool IsSagaType(Type t) => typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && t is { IsGenericType: false, IsAbstract: false };
-
-    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!;
-
-    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!;
 
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
@@ -268,6 +262,12 @@ public partial class SagaMetadata
     readonly HashSet<string> messageNamesAllowedToStartTheSaga = [];
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
+
+    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!;
+
+    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!;
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
