@@ -17,13 +17,15 @@ class EnvelopeUnwrapper(IEnumerable<IEnvelopeHandler> envelopeHandlers)
         {
             if (envelopeHandler.CanUnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body))
             {
-                // TODO log which envelope handler was used
+                Log.Debug($"Unwrapping the current message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
                 (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) = envelopeHandler.UnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
                 return new IncomingMessage(messageContext.NativeMessageId, headers, body);
             }
         }
 
-        // TODO log the default handler was used
+        Log.Debug($"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
         return GetDefaultIncomingMessage(messageContext);
     }
+
+    static readonly ILog Log = LogManager.GetLogger<EnvelopeUnwrapper>();
 }
