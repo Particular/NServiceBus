@@ -14,12 +14,26 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         ArgumentNullException.ThrowIfNull(serviceCollection);
 
         this.inner = inner;
-        this.serviceKey = serviceKey;
+        serviceKeyedServiceKey = new KeyedServiceKey(serviceKey);
         this.serviceCollection = serviceCollection;
     }
 
     public bool IsService(Type serviceType) => serviceCollection.ContainsService(serviceType);
-    public bool IsKeyedService(Type serviceType, object? serviceKey) => serviceCollection.ContainsService(serviceType) && Equals(this.serviceKey, serviceKey);
+
+    public bool IsKeyedService(Type serviceType, object? serviceKey)
+    {
+        if (!serviceCollection.ContainsService(serviceType))
+        {
+            return false;
+        }
+
+        if (serviceKey is KeyedServiceKey key)
+        {
+            return Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey);
+        }
+
+        return false;
+    }
 
     public object? GetService(Type serviceType)
     {
@@ -35,19 +49,19 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             var scopeFactory = inner.GetService<IServiceScopeFactory>();
             if (scopeFactory != null)
             {
-                return new KeyedServiceScopeFactory(scopeFactory, serviceKey, serviceCollection);
+                return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
             }
         }
 
         if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
         {
-            return IsKeyedService(serviceType, serviceKey)
-                ? inner.GetKeyedService(serviceType, serviceKey)
+            return IsKeyedService(serviceType, serviceKeyedServiceKey)
+                ? inner.GetKeyedService(serviceType, serviceKeyedServiceKey)
                 : inner.GetService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetServices(serviceType);
+        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(serviceType);
     }
 
     public object GetRequiredService(Type serviceType)
@@ -62,18 +76,18 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         if (serviceType == typeof(IServiceScopeFactory))
         {
             var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
-            return new KeyedServiceScopeFactory(scopeFactory, serviceKey, serviceCollection);
+            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
         }
 
         if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
         {
-            return IsKeyedService(serviceType, serviceKey)
-                ? inner.GetRequiredKeyedService(serviceType, serviceKey)
+            return IsKeyedService(serviceType, serviceKeyedServiceKey)
+                ? inner.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey)
                 : inner.GetRequiredService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetRequiredService(serviceType);
+        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetRequiredKeyedService(itemType, serviceKeyedServiceKey) : inner.GetRequiredService(serviceType);
     }
 
     public object? GetKeyedService(Type serviceType, object? serviceKey)
@@ -85,24 +99,52 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return this;
         }
 
-        var computedServiceKey = $"{this.serviceKey}{serviceKey}";
+        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
 
         if (serviceType == typeof(IServiceScopeFactory))
         {
             var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
-            return new KeyedServiceScopeFactory(scopeFactory, this.serviceKey, serviceCollection);
+            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
         }
 
         if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
         {
-            return inner.GetRequiredKeyedService(serviceType, computedServiceKey);
+            return IsKeyedService(serviceType, computedServiceKey)
+                ? inner.GetKeyedService(serviceType, computedServiceKey)
+                : inner.GetKeyedService(serviceType, serviceKey);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetRequiredService(serviceType);
+        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedService(itemType, serviceKey);
     }
 
-    public object GetRequiredKeyedService(Type serviceType, object? serviceKey) => throw new NotImplementedException();
+    public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
+    {
+        ArgumentNullException.ThrowIfNull(serviceType);
+
+        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        {
+            return this;
+        }
+
+        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
+
+        if (serviceType == typeof(IServiceScopeFactory))
+        {
+            var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
+            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
+        }
+
+        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        {
+            return IsKeyedService(serviceType, computedServiceKey)
+                ? inner.GetRequiredKeyedService(serviceType, computedServiceKey)
+                : inner.GetRequiredKeyedService(serviceType, serviceKey);
+        }
+
+        var itemType = serviceType.GetGenericArguments()[0];
+        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetRequiredKeyedService(itemType, computedServiceKey) : inner.GetRequiredKeyedService(itemType, serviceKey);
+    }
 
     public void Dispose() => (inner as IDisposable)?.Dispose();
 
@@ -118,6 +160,6 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     }
 
     readonly IServiceProvider inner;
-    readonly object serviceKey;
+    readonly KeyedServiceKey serviceKeyedServiceKey;
     readonly KeyedServiceCollectionAdapter serviceCollection;
 }

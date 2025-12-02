@@ -128,52 +128,49 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     ServiceDescriptor EnsureKeyedDescriptor(ServiceDescriptor descriptor)
     {
-        if (descriptor is { IsKeyedService: true, ServiceKey: not string })
-        {
-            throw new InvalidOperationException("Endpoint scoped registrations must use the string based keyed service descriptor syntax.");
-        }
-
         ServiceDescriptor keyedDescriptor;
         if (descriptor.IsKeyedService)
         {
             if (descriptor.KeyedImplementationInstance is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", descriptor.KeyedImplementationInstance);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey), descriptor.KeyedImplementationInstance);
             }
             else if (descriptor.KeyedImplementationFactory is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", (serviceProvider, key) =>
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey), (serviceProvider, key) =>
                 {
-                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
+                    KeyedServiceKey resultingKeyedServiceKey = key is null ? new KeyedServiceKey(serviceKey) : new KeyedServiceKey(key);
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
                     return descriptor.KeyedImplementationFactory!(keyedProvider, key);
                 }, descriptor.Lifetime);
             }
             else if (descriptor.KeyedImplementationType is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", descriptor.KeyedImplementationType, descriptor.Lifetime);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey), descriptor.KeyedImplementationType, descriptor.Lifetime);
             }
             else
             {
-                throw new InvalidOperationException($"Unsupported service descriptor configuration for service type '{descriptor.ServiceType}'.");
+                throw new InvalidOperationException($"Unsupported keyed service descriptor configuration for service type '{descriptor.ServiceType}'.");
             }
         }
         else
         {
             if (descriptor.ImplementationInstance is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationInstance);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey), descriptor.ImplementationInstance);
             }
             else if (descriptor.ImplementationFactory is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (serviceProvider, key) =>
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey), (serviceProvider, key) =>
                 {
-                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
+                    KeyedServiceKey resultingKeyedServiceKey = key is null ? new KeyedServiceKey(serviceKey) : new KeyedServiceKey(key);
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
                     return descriptor.ImplementationFactory!(keyedProvider);
                 }, descriptor.Lifetime);
             }
             else if (descriptor.ImplementationType is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationType, descriptor.Lifetime);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey), descriptor.ImplementationType, descriptor.Lifetime);
             }
             else
             {
