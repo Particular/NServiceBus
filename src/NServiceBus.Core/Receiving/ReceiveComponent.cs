@@ -151,7 +151,7 @@ partial class ReceiveComponent
 
         var pipelineMetrics = builder.GetService<IncomingPipelineMetrics>();
         var envelopeHandlers = builder.GetServices<IEnvelopeHandler>();
-        var envelopesRouter = new EnvelopesRouter(envelopeHandlers);
+        var envelopesRouter = new EnvelopeUnwrapper(envelopeHandlers);
         var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopesRouter);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(

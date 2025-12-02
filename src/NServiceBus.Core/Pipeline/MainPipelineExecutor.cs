@@ -15,7 +15,7 @@ class MainPipelineExecutor(
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
-    EnvelopesRouter marshalers)
+    EnvelopeUnwrapper envelopeUnwrapper)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -30,7 +30,7 @@ class MainPipelineExecutor(
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            var message = marshalers.Translate(messageContext);
+            var message = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
                 messageOperations,
