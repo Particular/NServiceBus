@@ -102,11 +102,11 @@ public partial class SagaMetadata
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
-    /// <typeparam name="TSagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
+    /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSagaType>() where TSagaType : Saga
+    public static SagaMetadata Create<TSaga>() where TSaga : Saga
     {
-        var sagaType = typeof(TSagaType);
+        var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
         if (genericArguments.Length != 1)
         {
