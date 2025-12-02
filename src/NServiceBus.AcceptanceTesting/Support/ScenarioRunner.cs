@@ -11,19 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-public class ScenarioRunner
+public class ScenarioRunner(
+    RunDescriptor runDescriptor,
+    List<IComponentBehavior> behaviorDescriptors,
+    Func<ScenarioContext, Task<bool>> done)
 {
-    readonly RunDescriptor runDescriptor;
-    readonly List<IComponentBehavior> behaviorDescriptors;
-    readonly Func<ScenarioContext, Task<bool>> done;
-
-    public ScenarioRunner(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
-    {
-        this.runDescriptor = runDescriptor;
-        this.behaviorDescriptors = behaviorDescriptors;
-        this.done = done;
-    }
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
     public async Task<RunSummary> Run()
     {
@@ -56,7 +48,7 @@ public class ScenarioRunner
         {
             var endpoints = await InitializeRunners().ConfigureAwait(false);
 
-            runResult.ActiveEndpoints = endpoints.Select(r => r.Name);
+            runResult.ActiveEndpoints = [.. endpoints.Select(r => r.Name)];
 
             runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider();
 
@@ -244,18 +236,16 @@ public class RunResult
 
     public ScenarioContext ScenarioContext { get; set; }
 
-    public IEnumerable<string> ActiveEndpoints
+    public IReadOnlyCollection<string> ActiveEndpoints
     {
         get
         {
-            activeEndpoints ??= [];
+            field ??= [];
 
-            return activeEndpoints;
+            return field;
         }
-        set => activeEndpoints = value.ToList();
+        set => field = [.. value];
     }
-
-    IList<string> activeEndpoints;
 }
 
 public class RunSummary
@@ -264,5 +254,5 @@ public class RunSummary
 
     public RunDescriptor RunDescriptor { get; set; }
 
-    public IEnumerable<IComponentBehavior> Endpoints { get; set; }
+    public IReadOnlyCollection<IComponentBehavior> Endpoints { get; set; }
 }
