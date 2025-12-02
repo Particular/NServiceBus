@@ -60,10 +60,14 @@ public class EndpointRunner(
 
             services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
 
+            endpointBehavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
+
             startable = await createCallback(services, endpointConfiguration).ConfigureAwait(false);
 
             var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
             scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
+
+            endpointBehavior.ServicesAfterStart.ForEach(customAction => customAction(services, scenarioContext));
         }
         catch (Exception ex)
         {
