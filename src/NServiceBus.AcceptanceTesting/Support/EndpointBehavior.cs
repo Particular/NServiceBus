@@ -1,7 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Customization;
@@ -23,7 +26,9 @@ public class EndpointBehavior : IComponentBehavior
         ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
 
+    [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]
     public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
+        where T : notnull
     {
         createInstanceCallback = async (services, config) =>
         {

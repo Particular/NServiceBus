@@ -1,10 +1,11 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting.Customization;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Sagas;
 using Support;
 
 public static class EndpointConfigurationExtensions
@@ -44,7 +45,7 @@ public static class EndpointConfigurationExtensions
             }
         }
 
-        IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
+        IEnumerable<Type> GetNestedTypeRecursive(Type? rootType, Type builderType)
         {
             if (rootType == null)
             {
