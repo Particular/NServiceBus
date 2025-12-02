@@ -13,7 +13,7 @@ using NUnit.Framework;
 /// Async disposables are used to also demonstrate the disposal behavior when the service provider is externally managed.
 /// </summary>
 [TestFixture]
-public class When_registering_keyed_services_externally_managed : NServiceBusAcceptanceTest
+public class When_registering_keyed_async_disposables_externally_managed : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_dispose()
