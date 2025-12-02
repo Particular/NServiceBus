@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting.Customization;
 
 using System;
@@ -43,7 +45,7 @@ public static class EndpointConfigurationExtensions
             }
         }
 
-        IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
+        IEnumerable<Type> GetNestedTypeRecursive(Type? rootType, Type builderType)
         {
             if (rootType == null)
             {

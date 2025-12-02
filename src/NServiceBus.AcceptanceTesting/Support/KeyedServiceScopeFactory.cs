@@ -11,20 +11,18 @@ class KeyedServiceScopeFactory(IServiceScopeFactory innerFactory, object service
     public IServiceScope CreateScope()
     {
         var innerScope = innerFactory.CreateScope();
+        ArgumentNullException.ThrowIfNull(innerScope);
+
         return new KeyedServiceScope(innerScope, serviceKey, serviceCollection);
     }
 
-    class KeyedServiceScope : IServiceScope, IAsyncDisposable
+    sealed class KeyedServiceScope(
+        IServiceScope innerScope,
+        object serviceKey,
+        KeyedServiceCollectionAdapter serviceCollection)
+        : IServiceScope, IAsyncDisposable
     {
-        public KeyedServiceScope(IServiceScope innerScope, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
-        {
-            ArgumentNullException.ThrowIfNull(innerScope);
-
-            this.innerScope = innerScope;
-            ServiceProvider = new KeyedServiceProviderAdapter(innerScope.ServiceProvider, serviceKey, serviceCollection);
-        }
-
-        public IServiceProvider ServiceProvider { get; }
+        public IServiceProvider ServiceProvider { get; } = new KeyedServiceProviderAdapter(innerScope.ServiceProvider, serviceKey, serviceCollection);
 
         public void Dispose() => innerScope.Dispose();
 
@@ -38,7 +36,5 @@ class KeyedServiceScopeFactory(IServiceScopeFactory innerFactory, object service
             innerScope.Dispose();
             return ValueTask.CompletedTask;
         }
-
-        readonly IServiceScope innerScope;
     }
 }

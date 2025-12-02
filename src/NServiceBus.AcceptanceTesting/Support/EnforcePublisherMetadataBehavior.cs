@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
