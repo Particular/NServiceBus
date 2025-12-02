@@ -2,13 +2,14 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using Logging;
 using Transport;
 
-class EnvelopesRouter(IEnumerable<IEnvelopeHandler> envelopeHandlers)
+class EnvelopeUnwrapper(IEnumerable<IEnvelopeHandler> envelopeHandlers)
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-    internal IncomingMessage Translate(MessageContext messageContext)
+    internal IncomingMessage UnwrapEnvelope(MessageContext messageContext)
     {
         // TODO: Is there any point in optimizing this to never hit the foreach if the translators list is empty.
         // https://stackoverflow.com/questions/45651325/performance-before-using-a-foreach-loop-check-if-the-list-is-empty
