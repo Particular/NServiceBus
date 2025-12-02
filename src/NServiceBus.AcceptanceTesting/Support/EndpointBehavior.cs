@@ -16,7 +16,10 @@ public class EndpointBehavior : IComponentBehavior
     {
         this.instanceIndex = instanceIndex;
         EndpointBuilder = endpointBuilder;
+        Whens = [];
         CustomConfig = [];
+        ServicesBeforeStart = [];
+        ServicesAfterStart = [];
         ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
 
@@ -32,9 +35,13 @@ public class EndpointBehavior : IComponentBehavior
 
     public IEndpointConfigurationFactory EndpointBuilder { get; }
 
-    public List<IWhenDefinition> Whens { get; set; }
+    public List<IWhenDefinition> Whens { get; }
 
     public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; }
+
+    public List<Action<IServiceCollection, ScenarioContext>> ServicesBeforeStart { get; }
+
+    public List<Action<IServiceCollection, ScenarioContext>> ServicesAfterStart { get; }
 
     public bool DoNotFailOnErrorMessages { get; set; }
 

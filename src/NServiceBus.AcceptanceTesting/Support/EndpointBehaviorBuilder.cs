@@ -54,6 +54,20 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
         return this;
     }
 
+    public EndpointBehaviorBuilder<TContext> Services(Action<IServiceCollection> action, bool afterStart = false)
+    {
+        var actions = afterStart ? behavior.ServicesAfterStart : behavior.ServicesBeforeStart;
+        actions.Add((services, _) => action(services));
+        return this;
+    }
+
+    public EndpointBehaviorBuilder<TContext> Services(Action<IServiceCollection, TContext> action, bool afterStart = false)
+    {
+        var actions = afterStart ? behavior.ServicesAfterStart : behavior.ServicesBeforeStart;
+        actions.Add((services, context) => action(services, (TContext)context));
+        return this;
+    }
+
     public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
     {
         behavior.ConfigureHowToCreateInstance(createCallback, startCallback);
@@ -77,8 +91,5 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
 
     public EndpointBehavior Build() => behavior;
 
-    readonly EndpointBehavior behavior = new(endpointConfigurationFactory, instanceIndex)
-    {
-        Whens = []
-    };
+    readonly EndpointBehavior behavior = new(endpointConfigurationFactory, instanceIndex);
 }
