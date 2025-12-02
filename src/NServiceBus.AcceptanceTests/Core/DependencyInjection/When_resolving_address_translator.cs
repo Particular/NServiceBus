@@ -13,7 +13,6 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_be_available_after_the_endpoint_is_started()
     {
-        var serviceCollection = new ServiceCollection();
         string translatedAddress = null;
 
         await Scenario.Define<Context>()
@@ -40,7 +39,6 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_throw_meaningful_exception_when_resolved_before_endpoint_started()
     {
-        var serviceCollection = new ServiceCollection();
         Exception thrownException = null;
 
         await Scenario.Define<Context>()

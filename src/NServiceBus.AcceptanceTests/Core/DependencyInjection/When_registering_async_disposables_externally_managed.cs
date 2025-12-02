@@ -16,15 +16,12 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
-                b.ToCreateInstance(
-                    (services, configuration) =>
-                    {
-                        _ = services.AddSingleton<SingletonAsyncDisposable>();
-                        _ = services.AddScoped<ScopedAsyncDisposable>();
-                        return EndpointWithExternallyManagedContainer.Create(configuration, services);
-                    },
-                    (startableEndpoint, provider, ct) => startableEndpoint.Start(provider, ct));
-                b.When(e => e.SendLocal(new SomeMessage()));
+                b.Services(static s =>
+                {
+                    s.AddSingleton<SingletonAsyncDisposable>();
+                    s.AddScoped<ScopedAsyncDisposable>();
+                })
+                .When(e => e.SendLocal(new SomeMessage()));
             })
             .Done(c => c.ScopedAsyncDisposableDisposed)
             .Run(TimeSpan.FromSeconds(10));

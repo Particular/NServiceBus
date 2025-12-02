@@ -16,17 +16,8 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
     {
         var result = await Scenario.Define<Context>()
         .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-        {
-            b.ToCreateInstance(
-                    (services, configuration) =>
-                        {
-                            _ = services.AddSingleton(typeof(MyComponent), myComponent);
-                            return EndpointWithExternallyManagedContainer.Create(configuration, services);
-                        },
-                    (startableEndpoint, provider, ct) => startableEndpoint.Start(provider, ct)
-                )
-                .When((session, c) => session.SendLocal(new SomeMessage()));
-        })
+            b.Services(static services => services.AddSingleton(myComponent))
+                .When((session, c) => session.SendLocal(new SomeMessage())))
         .Done(c => c.MessageReceived)
         .Run();
 

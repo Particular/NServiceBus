@@ -18,9 +18,9 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
     {
         IServiceCollection serviceCollection = null;
         SpyContainer spyContainer = null;
+
         await Scenario.Define<Context>()
             .WithEndpoint<StartedEndpoint>(b =>
-            {
                 b.ToCreateInstance((services, configuration) =>
                 {
                     serviceCollection = services;
@@ -29,9 +29,8 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
                 {
                     spyContainer = new SpyContainer(serviceCollection, provider);
                     return startableEndpoint.Start(spyContainer, ct);
-                });
-                b.When(session => session.SendLocal(new SomeMessage()));
-            })
+                })
+                .When(session => session.SendLocal(new SomeMessage())))
             .Done(c => c.GotTheMessage)
             .Run();
 
