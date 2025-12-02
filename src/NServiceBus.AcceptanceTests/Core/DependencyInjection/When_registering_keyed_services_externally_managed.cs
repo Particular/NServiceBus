@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 /// <summary>
-/// This test deliberately uses a bunch of weird keyed service registrations to verify that many key types just work as expected
+/// This test deliberately uses a bunch of weird keyed service registrations to verify that many key types just work as expected.
+/// Async disposables are used to also demonstrate the disposal behavior when the service provider is externally managed.
 /// </summary>
 [TestFixture]
 public class When_registering_keyed_services_externally_managed : NServiceBusAcceptanceTest
