@@ -219,17 +219,8 @@ public class ScenarioRunner
 
     async Task<ComponentRunner[]> InitializeRunners()
     {
-        // TODO: For now sequential initialization of endpoints
-        var runners = new List<ComponentRunner>(behaviorDescriptors.Count);
-        foreach (var componentBehavior in behaviorDescriptors)
-        {
-            var componentRunner = await componentBehavior.CreateRunner(runDescriptor).ConfigureAwait(false);
-            runners.Add(componentRunner);
-        }
-
-        return [.. runners];
-        // var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
-        // return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
+        var runnerInitializations = behaviorDescriptors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
+        return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
     }
 
     static CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeout)
