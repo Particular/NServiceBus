@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,8 @@ using Transport;
 public class EndpointRunner(
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
     Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
-    bool doNotFailOnErrorMessages)
+    bool doNotFailOnErrorMessages,
+    int instanceIndex)
     : ComponentRunner
 {
     static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
@@ -192,5 +194,5 @@ public class EndpointRunner(
     public override string Name
     {
         get => $"{configuration.EndpointName}_{field}";
-    } = Guid.CreateVersion7().ToString("N")[..12];
+    } = instanceIndex.ToString(CultureInfo.InvariantCulture);
 }

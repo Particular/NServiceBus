@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory endpointConfigurationFactory)
+public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory endpointConfigurationFactory, int instanceIndex)
     where TContext : ScenarioContext
 {
     public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action) => When(c => true, action);
@@ -77,7 +77,7 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
 
     public EndpointBehavior Build() => behavior;
 
-    readonly EndpointBehavior behavior = new(endpointConfigurationFactory)
+    readonly EndpointBehavior behavior = new(endpointConfigurationFactory, instanceIndex)
     {
         Whens = []
     };
