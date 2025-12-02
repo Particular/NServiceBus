@@ -20,6 +20,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     public ServiceDescriptor this[int index]
     {
+        // we assume no more modifications can occur at this point and therefore read without a lock
         get => descriptors[index];
         set => throw new NotSupportedException("Replacing service descriptors is not supported for multi endpoint services.");
     }
@@ -32,65 +33,76 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        var keyedDescriptor = EnsureKeyedDescriptor(item);
-        descriptors.Add(keyedDescriptor);
-        inner.Add(keyedDescriptor);
+        lock (inner)
+        {
+            var keyedDescriptor = EnsureKeyedDescriptor(item);
+            descriptors.Add(keyedDescriptor);
+            inner.Add(keyedDescriptor);
+        }
     }
 
     public void Clear()
     {
-        foreach (var descriptor in descriptors)
+        lock (inner)
         {
-            _ = inner.Remove(descriptor);
-        }
+            foreach (var descriptor in descriptors)
+            {
+                _ = inner.Remove(descriptor);
+            }
 
-        descriptors.Clear();
-        serviceTypes.Clear();
+            descriptors.Clear();
+            serviceTypes.Clear();
+        }
     }
 
     public bool Contains(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        // we assume no more modifications can occur at this point and therefore read without a lock
         return descriptors.Contains(item);
     }
 
     public void CopyTo(ServiceDescriptor[] array, int arrayIndex) => descriptors.CopyTo(array, arrayIndex);
 
-    public IEnumerator<ServiceDescriptor> GetEnumerator() => descriptors.GetEnumerator();
+    public IEnumerator<ServiceDescriptor> GetEnumerator() => descriptors.GetEnumerator(); // we assume no more modifications can occur at this point and therefore read without a lock
 
     public int IndexOf(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        // we assume no more modifications can occur at this point and therefore read without a lock
         return descriptors.IndexOf(item);
     }
 
-    public void Insert(int index, ServiceDescriptor item)
-    {
-        throw new NotSupportedException("Inserting service descriptors at specific positions is not supported for multi endpoint services.");
-    }
+    public void Insert(int index, ServiceDescriptor item) => throw new NotSupportedException("Inserting service descriptors at specific positions is not supported for multi endpoint services.");
 
     public bool Remove(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        if (!descriptors.Remove(item))
+        lock (inner)
         {
-            return false;
-        }
+            if (!descriptors.Remove(item))
+            {
+                return false;
+            }
 
-        _ = inner.Remove(item);
-        _ = serviceTypes.Remove(item.ServiceType);
+            _ = inner.Remove(item);
+            _ = serviceTypes.Remove(item.ServiceType);
+        }
         return true;
     }
 
     public void RemoveAt(int index)
     {
-        var descriptor = descriptors[index];
-        descriptors.RemoveAt(index);
-        _ = inner.Remove(descriptor);
-        _ = serviceTypes.Remove(descriptor.ServiceType);
+        lock (inner)
+        {
+            var descriptor = descriptors[index];
+            descriptors.RemoveAt(index);
+            _ = inner.Remove(descriptor);
+            _ = serviceTypes.Remove(descriptor.ServiceType);
+        }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -99,6 +111,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
+        // we assume no more modifications can occur at this point and therefore read without a lock
         if (serviceTypes.Contains(serviceType))
         {
             return true;
