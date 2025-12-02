@@ -22,13 +22,15 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
                     {
                         serviceCollection = services;
                         services.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                        return EndpointWithExternallyManagedContainer.Create(configuration, serviceCollection);
-                    },
-                    (startableEndpoint, provider, ct) =>
-                    {
+
+                        // RegisterComponents is called during endpoint creation but before the endpoint is started
+                        var startableEndpoint = EndpointWithExternallyManagedContainer.Create(configuration, serviceCollection);
+
+                        // Simulate adding a registration after the endpoint has been created
                         serviceCollection.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>();
-                        return startableEndpoint.Start(provider, ct);
-                    }))
+                        return startableEndpoint;
+                    },
+                    (startableEndpoint, provider, ct) => startableEndpoint.Start(provider, ct)))
             .Done(c => c.EndpointsStarted)
             .Run();
 
