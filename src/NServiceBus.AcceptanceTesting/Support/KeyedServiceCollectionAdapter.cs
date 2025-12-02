@@ -128,38 +128,57 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     ServiceDescriptor EnsureKeyedDescriptor(ServiceDescriptor descriptor)
     {
-        if (descriptor.IsKeyedService)
+        if (descriptor is { IsKeyedService: true, ServiceKey: not string })
         {
-            if (!Equals(descriptor.ServiceKey, serviceKey))
-            {
-                throw new InvalidOperationException("Endpoint scoped registrations must use the endpoint service key.");
-            }
-
-            serviceTypes.Add(descriptor.ServiceType);
-            return descriptor;
+            throw new InvalidOperationException("Endpoint scoped registrations must use the string based keyed service descriptor syntax.");
         }
 
         ServiceDescriptor keyedDescriptor;
-
-        if (descriptor.ImplementationInstance is not null)
+        if (descriptor.IsKeyedService)
         {
-            keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationInstance);
-        }
-        else if (descriptor.ImplementationFactory is not null)
-        {
-            keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (serviceProvider, key) =>
+            if (descriptor.KeyedImplementationInstance is not null)
             {
-                var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
-                return descriptor.ImplementationFactory!(keyedProvider);
-            }, descriptor.Lifetime);
-        }
-        else if (descriptor.ImplementationType is not null)
-        {
-            keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationType, descriptor.Lifetime);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", descriptor.KeyedImplementationInstance);
+            }
+            else if (descriptor.KeyedImplementationFactory is not null)
+            {
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", (serviceProvider, key) =>
+                {
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
+                    return descriptor.KeyedImplementationFactory!(keyedProvider, key);
+                }, descriptor.Lifetime);
+            }
+            else if (descriptor.KeyedImplementationType is not null)
+            {
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, $"{serviceKey}{descriptor.ServiceKey}", descriptor.KeyedImplementationType, descriptor.Lifetime);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unsupported service descriptor configuration for service type '{descriptor.ServiceType}'.");
+            }
         }
         else
         {
-            throw new InvalidOperationException($"Unsupported service descriptor configuration for service type '{descriptor.ServiceType}'.");
+            if (descriptor.ImplementationInstance is not null)
+            {
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationInstance);
+            }
+            else if (descriptor.ImplementationFactory is not null)
+            {
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (serviceProvider, key) =>
+                {
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, key ?? serviceKey, this);
+                    return descriptor.ImplementationFactory!(keyedProvider);
+                }, descriptor.Lifetime);
+            }
+            else if (descriptor.ImplementationType is not null)
+            {
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, descriptor.ImplementationType, descriptor.Lifetime);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unsupported service descriptor configuration for service type '{descriptor.ServiceType}'.");
+            }
         }
 
         serviceTypes.Add(keyedDescriptor.ServiceType);

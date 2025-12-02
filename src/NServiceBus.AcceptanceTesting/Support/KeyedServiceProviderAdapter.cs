@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-sealed class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService, IDisposable, IAsyncDisposable
+sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService, IDisposable, IAsyncDisposable
 {
     public KeyedServiceProviderAdapter(IServiceProvider inner, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
     {
@@ -75,6 +75,34 @@ sealed class KeyedServiceProviderAdapter : IServiceProvider, ISupportRequiredSer
         var itemType = serviceType.GetGenericArguments()[0];
         return IsKeyedService(serviceType, serviceKey) ? inner.GetKeyedServices(itemType, serviceKey) : inner.GetRequiredService(serviceType);
     }
+
+    public object? GetKeyedService(Type serviceType, object? serviceKey)
+    {
+        ArgumentNullException.ThrowIfNull(serviceType);
+
+        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        {
+            return this;
+        }
+
+        var computedServiceKey = $"{this.serviceKey}{serviceKey}";
+
+        if (serviceType == typeof(IServiceScopeFactory))
+        {
+            var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
+            return new KeyedServiceScopeFactory(scopeFactory, this.serviceKey, serviceCollection);
+        }
+
+        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        {
+            return inner.GetRequiredKeyedService(serviceType, computedServiceKey);
+        }
+
+        var itemType = serviceType.GetGenericArguments()[0];
+        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetRequiredService(serviceType);
+    }
+
+    public object GetRequiredKeyedService(Type serviceType, object? serviceKey) => throw new NotImplementedException();
 
     public void Dispose() => (inner as IDisposable)?.Dispose();
 
