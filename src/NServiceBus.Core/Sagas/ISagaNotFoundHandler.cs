@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 /// by a saga, but no existing saga was found. This does not include the scenario when
 /// a saga is allowed to be created for the given message type.
 /// </summary>
+/// <remarks>Handlers should be registered for each saga using <see cref="SagaPropertyMapper{TSagaData}.ConfigureNotFoundHandler{TSagaNotFoundHandler}"/>
+/// in the <see cref="Saga{TSagaData}.ConfigureHowToFindSaga(SagaPropertyMapper{TSagaData})"/> method.</remarks>
 public interface ISagaNotFoundHandler
 {
     /// <summary>
