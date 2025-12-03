@@ -62,7 +62,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(serviceType);
+        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
     }
 
     public object GetRequiredService(Type serviceType)
@@ -88,7 +88,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetRequiredKeyedService(itemType, serviceKeyedServiceKey) : inner.GetRequiredService(serviceType);
+        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetRequiredKeyedService(itemType, serviceKeyedServiceKey) : inner.GetRequiredService(itemType);
     }
 
     public object? GetKeyedService(Type serviceType, object? serviceKey)
