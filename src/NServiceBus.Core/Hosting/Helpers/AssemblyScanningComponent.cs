@@ -16,7 +16,7 @@ class AssemblyScanningComponent
             return new AssemblyScanningComponent(configuration.UserProvidedTypes);
         }
 
-        if (!configuration.AssemblyScannerConfiguration.Enabled)
+        if (configuration.AssemblyScannerConfiguration.Disable)
         {
             return new AssemblyScanningComponent([]);
         }
@@ -38,7 +38,7 @@ class AssemblyScanningComponent
 
         if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
         {
-            throw new Exception($"Both file and appdomain scanning has been turned off which results in no assemblies being scanned. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to scan assemblies, or set {nameof(AssemblyScannerConfiguration.Enabled)} to false to explicitly disable assembly scanning.");
+            throw new Exception($"Both file and appdomain scanning has been turned off which results in no assemblies being scanned. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to scan assemblies, or set {nameof(AssemblyScannerConfiguration.Disable)} to false to explicitly disable assembly scanning.");
         }
 
         var scannableAssemblies = assemblyScanner.GetScannableAssemblies();

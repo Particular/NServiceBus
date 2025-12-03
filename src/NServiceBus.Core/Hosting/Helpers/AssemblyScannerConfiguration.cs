@@ -14,9 +14,9 @@ using Hosting.Helpers;
 public class AssemblyScannerConfiguration
 {
     /// <summary>
-    /// Defines whether assembly scanning is enabled or not. Default value is <code>true</code>.
+    /// Disables assembly scanning. Default value is <code>false</code>.
     /// </summary>
-    public bool Enabled { get; set; } = true;
+    public bool Disable { get; set; } = false;
 
     /// <summary>
     /// Defines whether assemblies loaded into the current <see cref="AppDomain"/> should be scanned. Default value is <code>true</code>.

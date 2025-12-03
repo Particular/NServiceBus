@@ -50,7 +50,7 @@ class AssemblyScanningComponentTests
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
 
-        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { Enabled = false } };
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { Disable = true } };
 
         var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
