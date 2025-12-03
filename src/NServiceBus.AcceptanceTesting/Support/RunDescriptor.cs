@@ -14,9 +14,6 @@ public class RunDescriptor(ScenarioContext context, IServiceCollection services)
 
     public ScenarioContext ScenarioContext { get; } = context;
 
-    /// <summary>
-    /// TODO This is not thread safe
-    /// </summary>
     public IServiceCollection Services { get; } = services;
 
     public ServiceProvider? ServiceProvider { get; set; }
@@ -32,5 +29,5 @@ public class RunDescriptor(ScenarioContext context, IServiceCollection services)
         onCompletedCallbacks = null;
     }
 
-    internal List<Func<RunSummary, Task>>? onCompletedCallbacks = [];
+    List<Func<RunSummary, Task>>? onCompletedCallbacks = [];
 }
