@@ -7,15 +7,15 @@ using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-public class When_using_externally_managed_container : NServiceBusAcceptanceTest
+public class When_registering_externally_managed_singletons : NServiceBusAcceptanceTest
 {
     static MyComponent myComponent = new();
 
     [Test]
-    public async Task Should_use_it_for_component_resolution()
+    public async Task Should_work()
     {
         var result = await Scenario.Define<Context>()
-        .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
+        .WithEndpoint<ExternallyManagedSingletonEndpoint>(b =>
             b.Services(static services => services.AddSingleton(myComponent))
                 .When((session, c) => session.SendLocal(new SomeMessage())))
         .Done(c => c.MessageReceived)
@@ -35,9 +35,9 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         public MyComponent CustomService { get; set; }
     }
 
-    public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
+    public class ExternallyManagedSingletonEndpoint : EndpointConfigurationBuilder
     {
-        public ExternallyManagedContainerEndpoint() => EndpointSetup<DefaultServer>();
+        public ExternallyManagedSingletonEndpoint() => EndpointSetup<DefaultServer>();
 
         class SomeMessageHandler : IHandleMessages<SomeMessage>
         {
