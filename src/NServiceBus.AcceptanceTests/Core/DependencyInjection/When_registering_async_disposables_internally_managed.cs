@@ -45,7 +45,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             {
                 c.RegisterComponents(s =>
                 {
-                    // We have to take over re-registering the context because we have taking control over the instance creation
+                    // We have to take control over re-registering the context because we have taken control over the instance creation
                     s.AddSingleton(c.GetSettings().Get<Context>());
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
