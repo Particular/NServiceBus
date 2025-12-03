@@ -11,18 +11,18 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-public class When_defining_same_dependencies_in_endpoints
+public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_be_isolated_except_global_shared_once()
     {
         var result = await Scenario.Define<Context>()
             .WithComponent(new CustomComponent())
-            .WithEndpoint<DeeplyNestedDependenciesEndpoint>(b =>
+            .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint1", new SomeMessage1())))
-            .WithEndpoint<DeeplyNestedDependenciesEndpoint>(b =>
+            .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint2"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage1())))
@@ -57,9 +57,9 @@ public class When_defining_same_dependencies_in_endpoints
         public override string Name => nameof(CustomComponent);
     }
 
-    class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
+    class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
+        public WithSameDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
         {
             b.EnableFeature<MyFeatureProvidingMoreDependencies>();
 
@@ -132,5 +132,5 @@ public class When_defining_same_dependencies_in_endpoints
         }
     }
 
-    class SomeMessage1 : ICommand;
+    public class SomeMessage1 : ICommand;
 }

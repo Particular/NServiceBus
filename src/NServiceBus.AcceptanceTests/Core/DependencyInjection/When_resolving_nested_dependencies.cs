@@ -8,7 +8,7 @@ using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-public class When_resolving_deeply_nested_dependencies_with_keyed_services
+public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_work()
@@ -17,7 +17,7 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
             .WithEndpoint<DeeplyNestedDependenciesEndpoint>(b =>
                 b.Services(static services =>
                     {
-                        services.AddKeyedScoped<IDependency, MyDependency>("Dependency");
+                        services.AddScoped<IDependency, MyDependency>();
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
@@ -39,10 +39,10 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
             b.EnableFeature<MyFeatureProvidingMoreDependencies>();
 
             // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency"));
+            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
         });
 
-        class SomeMessageHandler([FromKeyedServices("Dependency")] IDependency dependency) : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -55,8 +55,8 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Services.AddKeyedSingleton("Dependency", new FeatureSpecificObject("FromFeature"));
-                context.Services.AddKeyedScoped<IDependencyOfDependency, DependencyOfDependency>("Dependency");
+                context.Services.AddSingleton(new FeatureSpecificObject("FromFeature"));
+                context.Services.AddScoped<IDependencyOfDependency, DependencyOfDependency>();
             }
         }
     }
@@ -66,7 +66,7 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
         void DoSomething();
     }
 
-    class MyDependency([FromKeyedServices] IDependencyOfDependency dependency) : IDependency
+    class MyDependency(IDependencyOfDependency dependency) : IDependency
     {
         public void DoSomething() => dependency.DoSomething();
     }
@@ -76,7 +76,7 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
         void DoSomething();
     }
 
-    class DependencyOfDependency([FromKeyedServices] IDependencyOfDependencyOfDependency dependency) : IDependencyOfDependency
+    class DependencyOfDependency(IDependencyOfDependencyOfDependency dependency) : IDependencyOfDependency
     {
         public void DoSomething() => dependency.DoSomething();
     }
@@ -87,12 +87,12 @@ public class When_resolving_deeply_nested_dependencies_with_keyed_services
     }
 
     // using provider for demonstration purposes to simulate various scenarios
-    class DependencyOfDependencyOfDependency(IServiceProvider serviceProvider, [FromKeyedServices] FeatureSpecificObject featureSpecificObject) : IDependencyOfDependencyOfDependency
+    class DependencyOfDependencyOfDependency(IServiceProvider serviceProvider, FeatureSpecificObject featureSpecificObject) : IDependencyOfDependencyOfDependency
     {
         public void DoSomething() => serviceProvider.GetRequiredService<Context>().MessageReceived = featureSpecificObject.SomeValue == "FromFeature";
     }
 
     record FeatureSpecificObject(string SomeValue);
 
-    class SomeMessage : IMessage;
+    public class SomeMessage : IMessage;
 }
