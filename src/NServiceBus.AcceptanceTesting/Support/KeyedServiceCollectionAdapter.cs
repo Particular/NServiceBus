@@ -4,7 +4,9 @@ namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
 class KeyedServiceCollectionAdapter : IServiceCollection
@@ -146,7 +148,16 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             }
             else if (descriptor.KeyedImplementationType is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey), descriptor.KeyedImplementationType, descriptor.Lifetime);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey),
+                    (serviceProvider, key) =>
+                    {
+                        KeyedServiceKey resultingKeyedServiceKey = key is null ? new KeyedServiceKey(serviceKey) : new KeyedServiceKey(key);
+                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                        return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.KeyedImplementationType) :
+                            factories.GetOrAdd(descriptor.KeyedImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
+                    }, descriptor.Lifetime);
+                // Crazy hack to work around generic constraint checks
+                UnsafeAccessor.GetImplementationType(keyedDescriptor) = descriptor.KeyedImplementationType;
             }
             else
             {
@@ -170,7 +181,16 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             }
             else if (descriptor.ImplementationType is not null)
             {
-                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey), descriptor.ImplementationType, descriptor.Lifetime);
+                keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey),
+                    (serviceProvider, key) =>
+                    {
+                        KeyedServiceKey resultingKeyedServiceKey = key is null ? new KeyedServiceKey(serviceKey) : new KeyedServiceKey(key);
+                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                        return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.ImplementationType) :
+                            factories.GetOrAdd(descriptor.ImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
+                    }, descriptor.Lifetime);
+                // Crazy hack to work around generic constraint checks
+                UnsafeAccessor.GetImplementationType(keyedDescriptor) = descriptor.ImplementationType;
             }
             else
             {
@@ -182,8 +202,15 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         return keyedDescriptor;
     }
 
+    static class UnsafeAccessor
+    {
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_implementationType")]
+        public static extern ref Type GetImplementationType(ServiceDescriptor descriptor);
+    }
+
     readonly IServiceCollection inner;
     readonly object serviceKey;
     readonly List<ServiceDescriptor> descriptors = [];
     readonly HashSet<Type> serviceTypes = [];
+    readonly ConcurrentDictionary<Type, ObjectFactory> factories = new();
 }
