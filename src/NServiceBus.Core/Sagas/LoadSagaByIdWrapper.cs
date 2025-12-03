@@ -8,11 +8,9 @@ using Persistence;
 using Sagas;
 
 //this class in only here until we can move to a better saga persister api
-class LoadSagaByIdWrapper<T> : ISagaLoader
-    where T : class, IContainSagaData
+sealed class LoadSagaByIdWrapper<TSagaData> : ISagaLoader
+    where TSagaData : class, IContainSagaData
 {
-    public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, ISynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default)
-    {
-        return await persister.Get<T>(Guid.Parse(sagaId), storageSession, context, cancellationToken).ConfigureAwait(false);
-    }
+    public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, ISynchronizedStorageSession storageSession, ContextBag context, CancellationToken cancellationToken = default) =>
+        await persister.Get<TSagaData>(Guid.Parse(sagaId), storageSession, context, cancellationToken).ConfigureAwait(false);
 }

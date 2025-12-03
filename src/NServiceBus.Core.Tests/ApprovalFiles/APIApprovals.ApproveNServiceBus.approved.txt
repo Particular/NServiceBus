@@ -2150,12 +2150,13 @@ namespace NServiceBus.Sagas
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
         public bool TryGetCorrelationProperty([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata? property) { }
         public bool TryGetFinder(string messageType, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out NServiceBus.Sagas.SagaFinderDefinition? finderDefinition) { }
+        [System.Obsolete("Use \'Create<TSagaType>()\' instead. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSagaType>()
-            where TSagaType : NServiceBus.Saga { }
+        public static NServiceBus.Sagas.SagaMetadata Create<TSaga>()
+            where TSaga : NServiceBus.Saga { }
         public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }

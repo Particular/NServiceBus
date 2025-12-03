@@ -226,14 +226,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
     {
         if (context.Headers.TryGetValue(Headers.SagaId, out var sagaId) && !string.IsNullOrEmpty(sagaId))
         {
-            var sagaEntityType = metadata.SagaEntityType;
-
-            //since we have a saga id available we can now shortcut the finders and just load the saga
-            var loaderType = typeof(LoadSagaByIdWrapper<>).MakeGenericType(sagaEntityType);
-
-            var loader = (ISagaLoader)Activator.CreateInstance(loaderType);
-
-            return loader.Load(persister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
+            return metadata.Loader.Load(persister, sagaId, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken);
         }
 
         var finderDefinition = GetSagaFinder(metadata, context);
