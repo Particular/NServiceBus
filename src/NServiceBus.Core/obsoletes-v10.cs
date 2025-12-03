@@ -581,7 +581,7 @@ namespace NServiceBus.Sagas
 
         [ObsoleteMetadata(ReplacementTypeOrMember = "Create<TSagaType>()", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
         [Obsolete("Use 'Create<TSagaType>()' instead. Will be removed in version 11.0.0.", true)]
-        public NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) => throw new NotImplementedException();
+        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) => throw new NotImplementedException();
     }
 
     public partial class SagaMetadataCollection
