@@ -29,7 +29,8 @@ sealed class LearningSagaPersistence : Feature
 
         var allSagas = context.Settings.Get<SagaMetadataCollection>();
 
-        context.Services.AddSingleton<ISagaPersister>(_ => new LearningSagaPersister(new SagaManifestCollection(allSagas, storageLocation, sagaName => sagaName.Replace("+", ""))));
+        context.Services.AddSingleton(new SagaManifestCollection(allSagas, storageLocation, sagaName => sagaName.Replace("+", "")));
+        context.Services.AddSingleton<ISagaPersister, LearningSagaPersister>();
     }
 
     internal static readonly string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
