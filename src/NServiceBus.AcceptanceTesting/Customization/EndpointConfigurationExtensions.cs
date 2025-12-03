@@ -10,72 +10,74 @@ using Support;
 
 public static class EndpointConfigurationExtensions
 {
-    /// <summary>
-    /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
-    /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
-    /// <param name="typesToScan">Override the types to scan.</param>
-    public static void TypesToIncludeInScan(this EndpointConfiguration config, IEnumerable<Type> typesToScan) => config.TypesToScanInternal(typesToScan);
-
-    /// <summary>
-    /// Finds all nested types related to a given acceptance test that hasn't yet been converted to being added via an explicit API.
-    /// </summary>
-    public static void ScanTypesForTest(this EndpointConfiguration config,
-        EndpointCustomizationConfiguration customizationConfiguration)
+    extension(EndpointConfiguration config)
     {
-        config.TypesToIncludeInScan(customizationConfiguration.TypesToInclude);
+        /// <summary>
+        /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
+        /// </summary>
+        /// <param name="typesToScan">Override the types to scan.</param>
+        public void TypesToIncludeInScan(IEnumerable<Type> typesToScan) => config.TypesToScanInternal(typesToScan);
 
-        var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
-
-        //auto-register handlers for now
-        if (customizationConfiguration.AutoRegisterHandlers)
+        /// <summary>
+        /// Finds all nested types related to a given acceptance test that hasn't yet been converted to being added via an explicit API.
+        /// </summary>
+        public void ScanTypesForTest(EndpointCustomizationConfiguration customizationConfiguration)
         {
-            foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+            config.TypesToIncludeInScan(customizationConfiguration.TypesToInclude);
+
+            var testTypes = GetNestedTypeRecursive(customizationConfiguration.BuilderType.DeclaringType, customizationConfiguration.BuilderType).ToList();
+
+            //auto-register handlers for now
+            if (customizationConfiguration.AutoRegisterHandlers)
             {
-                AddHandlerWithReflection(messageHandler, config);
+                foreach (var messageHandler in testTypes.Where(t => t.IsAssignableTo(typeof(IHandleMessages))))
+                {
+                    AddHandlerWithReflection(messageHandler, config);
+                }
+            }
+
+            //auto-register sagas for now
+            if (customizationConfiguration.AutoRegisterSagas)
+            {
+                foreach (var sagaType in testTypes.Where(t => t.IsAssignableTo(typeof(Saga))))
+                {
+                    AddSagaWithReflection(sagaType, config);
+                }
+            }
+
+            IEnumerable<Type> GetNestedTypeRecursive(Type? rootType, Type builderType)
+            {
+                if (rootType == null)
+                {
+                    throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
+                }
+
+                yield return rootType;
+
+                if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
+                {
+                    yield break;
+                }
+
+                foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
+                {
+                    yield return nestedType;
+                }
             }
         }
 
-        //auto-register sagas for now
-        if (customizationConfiguration.AutoRegisterSagas)
+        public void AuditProcessedMessagesTo<TAuditEndpoint>()
         {
-            foreach (var sagaType in testTypes.Where(t => t.IsAssignableTo(typeof(Saga))))
-            {
-                AddSagaWithReflection(sagaType, config);
-            }
+            var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndpoint));
+            config.AuditProcessedMessagesTo(auditEndpointAddress);
         }
 
-        IEnumerable<Type> GetNestedTypeRecursive(Type? rootType, Type builderType)
+        public void SendFailedMessagesTo<TErrorEndpoint>()
         {
-            if (rootType == null)
-            {
-                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
-            }
-
-            yield return rootType;
-
-            if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
-            {
-                yield break;
-            }
-
-            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
-            {
-                yield return nestedType;
-            }
+            var errorEndpointAddress = Conventions.EndpointNamingConvention(typeof(TErrorEndpoint));
+            config.SendFailedMessagesTo(errorEndpointAddress);
         }
-    }
-
-    public static void AuditProcessedMessagesTo<TAuditEndpoint>(this EndpointConfiguration config)
-    {
-        var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndpoint));
-        config.AuditProcessedMessagesTo(auditEndpointAddress);
-    }
-
-    public static void SendFailedMessagesTo<TErrorEndpoint>(this EndpointConfiguration config)
-    {
-        var errorEndpointAddress = Conventions.EndpointNamingConvention(typeof(TErrorEndpoint));
-        config.SendFailedMessagesTo(errorEndpointAddress);
     }
 
     public static void RouteToEndpoint(this RoutingSettings routingSettings, Type messageType, Type destinationEndpointType)
