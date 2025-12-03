@@ -62,7 +62,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
+        return IsKeyedService(itemType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
     }
 
     public object GetRequiredService(Type serviceType)
@@ -88,7 +88,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
+        return IsKeyedService(itemType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
     }
 
     public object? GetKeyedService(Type serviceType, object? serviceKey)
@@ -116,7 +116,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
+        return IsKeyedService(itemType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
     }
 
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
@@ -144,7 +144,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(serviceType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
+        return IsKeyedService(itemType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
     }
 
     public void Dispose() => (inner as IDisposable)?.Dispose();
