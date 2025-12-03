@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 
 /// <summary>
 /// Contains metadata for known sagas.
@@ -93,21 +92,7 @@ public partial class SagaMetadata
 
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            try
-            {
-                sagaMetadata.Add((SagaMetadata)CreateSagaOfTSagaMethod
-                    .MakeGenericMethod(sagaType)
-                    .Invoke(null, [])!);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException != null)
-                {
-                    ExceptionDispatchInfo.Capture(e.InnerException).Throw();
-                }
-
-                throw new Exception($"Failed to create saga metadata for '{sagaType.Name}'", e);
-            }
+            sagaMetadata.Add(((SagaMetadata)CreateSagaOfTSagaInvocation.InvokeGeneric(m => m.Invoke(null, []), sagaType)!)!);
         }
 
         return sagaMetadata;
@@ -133,21 +118,7 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        try
-        {
-            return (SagaMetadata)CreateSagaOfTSagaTEntityMethod
-                .MakeGenericMethod(sagaType, sagaEntityType)
-                .Invoke(null, [associatedMessages, null])!;
-        }
-        catch (TargetInvocationException e)
-        {
-            if (e.InnerException != null)
-            {
-                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
-            }
-
-            throw new Exception($"Failed to create saga metadata for '{sagaType.Name}'", e);
-        }
+        return ((SagaMetadata)CreateSagaOfTSagaTEntityInvocation.InvokeGeneric(m => m.Invoke(null, [associatedMessages, null])!, sagaType, sagaEntityType)!)!;
     }
 
     /// <summary>
@@ -263,11 +234,11 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
-    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, [])!;
+    static readonly ReflectionBasedInvocation CreateSagaOfTSagaInvocation = new(typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create)));
 
-    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)])!;
+    static readonly ReflectionBasedInvocation CreateSagaOfTSagaTEntityInvocation = new(typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create)));
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
