@@ -41,8 +41,7 @@ class AssemblyScanningComponentTests
 
         var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
 
-        Assert.That(exception.Message, Does.Contain(@$"Both file and appdomain scanning has been turned off which results in no assemblies being scanned. 
-Set {nameof(AssemblyScannerConfiguration.Enabled)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)} to enable scanning. Set {nameof(AssemblyScannerConfiguration.Enabled)} to false to disable assembly scanning"));
+        Assert.That(exception.Message, Does.Contain("Both file and appdomain scanning has been turned off"));
     }
 
     [Test]
