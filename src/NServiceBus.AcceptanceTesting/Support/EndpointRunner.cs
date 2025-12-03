@@ -19,14 +19,14 @@ public class EndpointRunner(
     : ComponentRunner
 {
     static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
-    EndpointBehavior behavior;
-    object startable;
-    IEndpointInstance endpointInstance;
-    EndpointCustomizationConfiguration configuration;
-    ScenarioContext scenarioContext;
-    KeyedServiceCollectionAdapter services;
-    RunDescriptor runDescriptor;
-    IServiceProvider serviceProvider;
+    EndpointBehavior? behavior;
+    object? startable;
+    IEndpointInstance? endpointInstance;
+    EndpointCustomizationConfiguration? configuration;
+    ScenarioContext? scenarioContext;
+    KeyedServiceCollectionAdapter? services;
+    RunDescriptor? runDescriptor;
+    IServiceProvider? serviceProvider;
 
     public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
     {
@@ -41,10 +41,11 @@ public class EndpointRunner(
             configuration.EndpointName = endpointName;
 
             //apply custom config settings
-            if (configuration.GetConfiguration == null)
+            if (configuration.GetConfiguration is null)
             {
                 throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
             }
+
             var endpointConfiguration = await configuration.GetConfiguration(runDescriptor).ConfigureAwait(false);
             RegisterScenarioContext(endpointConfiguration);
             TrackFailingMessages(endpointName, endpointConfiguration);
@@ -78,26 +79,33 @@ public class EndpointRunner(
 
     void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
     {
+        ArgumentNullException.ThrowIfNull(scenarioContext);
         endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
         endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
     }
 
     void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
     {
-        var type = scenarioContext.GetType();
-        while (type != typeof(object) && type is not null)
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+
+        for (var type = scenarioContext.GetType(); type != null && type != typeof(object); type = type.BaseType)
         {
-            endpointConfiguration.GetSettings().Set(type.FullName, scenarioContext);
-            type = type.BaseType;
+            endpointConfiguration.GetSettings().Set(type.FullName!, scenarioContext);
         }
     }
 
     public override async Task Start(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runDescriptor);
+        ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(startable);
+        ArgumentNullException.ThrowIfNull(services);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
-            serviceProvider = new KeyedServiceProviderAdapter(runDescriptor.ServiceProvider!, Name, services);
+            serviceProvider = new KeyedServiceProviderAdapter(runDescriptor.ServiceProvider, Name, services);
             endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
@@ -110,6 +118,9 @@ public class EndpointRunner(
 
     public override async Task ComponentsStarted(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(behavior);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
@@ -129,6 +140,10 @@ public class EndpointRunner(
     async Task ExecuteWhens(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+
+        ArgumentNullException.ThrowIfNull(endpointInstance);
+        ArgumentNullException.ThrowIfNull(behavior);
+        ArgumentNullException.ThrowIfNull(scenarioContext);
 
         var executedWhens = new HashSet<Guid>();
 
@@ -160,6 +175,9 @@ public class EndpointRunner(
 
     public override async Task Stop(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
@@ -189,6 +207,9 @@ public class EndpointRunner(
 
     void ThrowOnFailedMessages()
     {
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == configuration.EndpointName))
         {
             throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
@@ -197,6 +218,6 @@ public class EndpointRunner(
 
     public override string Name
     {
-        get => $"{configuration.EndpointName}{field}";
+        get => $"{configuration?.EndpointName}{field}";
     } = instanceIndex.ToString(CultureInfo.InvariantCulture);
 }

@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTesting.Support;
+﻿namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ public class EndpointCustomizationConfiguration
 {
     public IList<Type> TypesToInclude { get; } = [];
 
-    public Func<RunDescriptor, Task<EndpointConfiguration>> GetConfiguration { get; set; }
+    public Func<RunDescriptor, Task<EndpointConfiguration>>? GetConfiguration { get; set; }
 
     public PublisherMetadata PublisherMetadata { get; } = new();
 
@@ -17,13 +16,13 @@ public class EndpointCustomizationConfiguration
     {
         get => !string.IsNullOrEmpty(CustomEndpointName) ? CustomEndpointName : field;
         set;
-    }
+    } = string.Empty;
 
-    public Type BuilderType { get; set; }
+    public required Type BuilderType { get; set; }
 
-    public string CustomMachineName { get; set; }
+    public string? CustomMachineName { get; set; }
 
-    public string CustomEndpointName { get; set; }
+    public string? CustomEndpointName { get; set; }
 
     public bool DisableStartupDiagnostics { get; set; } = true;
 

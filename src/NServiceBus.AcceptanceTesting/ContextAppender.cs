@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NServiceBus.AcceptanceTesting;
+﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
 using System.Diagnostics;
@@ -9,11 +7,11 @@ using NUnit.Framework;
 
 class ContextAppender(string logger) : ILog
 {
-    public bool IsDebugEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Debug;
-    public bool IsInfoEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Info;
-    public bool IsWarnEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Warn;
-    public bool IsErrorEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Error;
-    public bool IsFatalEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Fatal;
+    public bool IsDebugEnabled => CurrentLogLevel <= LogLevel.Debug;
+    public bool IsInfoEnabled => CurrentLogLevel <= LogLevel.Info;
+    public bool IsWarnEnabled => CurrentLogLevel <= LogLevel.Warn;
+    public bool IsErrorEnabled => CurrentLogLevel <= LogLevel.Error;
+    public bool IsFatalEnabled => CurrentLogLevel <= LogLevel.Fatal;
 
     public void Debug(string? message) => Log(message, LogLevel.Debug);
 
@@ -109,4 +107,6 @@ class ContextAppender(string logger) : ILog
             Message = message
         });
     }
+
+    static LogLevel CurrentLogLevel => ScenarioContext.Current?.LogLevel ?? LogLevel.Debug;
 }

@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace NServiceBus.AcceptanceTesting.Customization;
 
 using System;

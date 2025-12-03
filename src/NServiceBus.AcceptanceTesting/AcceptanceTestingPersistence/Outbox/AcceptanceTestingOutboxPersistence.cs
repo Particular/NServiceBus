@@ -1,13 +1,11 @@
-﻿#nullable enable
-
-namespace NServiceBus.AcceptanceTesting;
+﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Outbox;
+using Outbox;
 
 class AcceptanceTestingOutboxPersistence : Feature
 {

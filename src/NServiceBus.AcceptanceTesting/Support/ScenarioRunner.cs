@@ -58,7 +58,6 @@ public class ScenarioRunner(
         }
         catch (Exception ex)
         {
-            runResult.Failed = true;
             runResult.Exception = ExceptionDispatchInfo.Capture(ex);
         }
 
@@ -224,35 +223,4 @@ public class ScenarioRunner(
 
         return new CancellationTokenSource(timeout);
     }
-}
-
-public class RunResult
-{
-    public bool Failed { get; set; }
-
-    public ExceptionDispatchInfo Exception { get; set; }
-
-    public TimeSpan TotalTime { get; set; }
-
-    public ScenarioContext ScenarioContext { get; set; }
-
-    public IReadOnlyCollection<string> ActiveEndpoints
-    {
-        get
-        {
-            field ??= [];
-
-            return field;
-        }
-        set => field = [.. value];
-    }
-}
-
-public class RunSummary
-{
-    public RunResult Result { get; set; }
-
-    public RunDescriptor RunDescriptor { get; set; }
-
-    public IReadOnlyCollection<IComponentBehavior> Endpoints { get; set; }
 }

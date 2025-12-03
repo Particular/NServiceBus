@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NServiceBus;
+﻿namespace NServiceBus;
 
 using AcceptanceTesting;
 using Persistence;

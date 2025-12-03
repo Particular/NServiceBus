@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
@@ -52,10 +50,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         TestContext.Out.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
 
-        if (runSummary.Result.Failed)
-        {
-            runSummary.Result.Exception.Throw();
-        }
+        runSummary.Result.Exception?.Throw();
 
         return (TContext)runDescriptor.ScenarioContext;
     }

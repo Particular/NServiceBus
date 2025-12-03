@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NServiceBus.AcceptanceTesting;
+﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
 

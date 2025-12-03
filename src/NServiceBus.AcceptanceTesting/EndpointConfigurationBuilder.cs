@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NServiceBus.AcceptanceTesting;
+﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
 using System.Threading.Tasks;
@@ -8,8 +6,10 @@ using Configuration.AdvancedExtensibility;
 using Features;
 using Support;
 
-public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
+public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 {
+    protected EndpointConfigurationBuilder() => configuration = new EndpointCustomizationConfiguration { BuilderType = GetType(), };
+
     public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
     {
         configuration.CustomMachineName = customMachineName;
@@ -105,8 +105,6 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
     public ScenarioContext? ScenarioContext { get; set; }
 
-    readonly EndpointCustomizationConfiguration configuration = new();
-
     public EndpointConfigurationBuilder IncludeType<T>()
     {
         configuration.TypesToInclude.Add(typeof(T));
@@ -127,4 +125,6 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
         return this;
     }
+
+    readonly EndpointCustomizationConfiguration configuration;
 }
