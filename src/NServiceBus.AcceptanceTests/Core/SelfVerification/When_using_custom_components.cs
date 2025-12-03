@@ -23,6 +23,7 @@ public class When_using_custom_components : NServiceBusAcceptanceTest
             Assert.That(ctx.Starting, Is.True);
             Assert.That(ctx.ComponentsStarted, Is.True);
             Assert.That(ctx.Stopped, Is.True);
+            Assert.That(ctx.CustomDependenciesCanBeResolved, Is.True);
         }
     }
 
