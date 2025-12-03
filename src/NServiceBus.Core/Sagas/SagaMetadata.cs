@@ -106,7 +106,7 @@ public partial class SagaMetadata
                     ExceptionDispatchInfo.Capture(e.InnerException).Throw();
                 }
 
-                throw;
+                throw new Exception($"Failed to create saga metadata for '{sagaType.Name}'", e);
             }
         }
 
@@ -146,7 +146,7 @@ public partial class SagaMetadata
                 ExceptionDispatchInfo.Capture(e.InnerException).Throw();
             }
 
-            throw;
+            throw new Exception($"Failed to create saga metadata for '{sagaType.Name}'", e);
         }
     }
 
