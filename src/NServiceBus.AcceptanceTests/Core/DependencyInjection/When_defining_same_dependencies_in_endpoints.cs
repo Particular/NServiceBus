@@ -105,7 +105,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
 
     interface IDependencyOfDependency
     {
-        public IDependencyOfDependencyOfDependency Dependency { get; }
+        IDependencyOfDependencyOfDependency Dependency { get; }
 
         void DoSomething();
     }
