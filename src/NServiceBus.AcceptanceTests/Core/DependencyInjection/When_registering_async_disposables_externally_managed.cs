@@ -20,6 +20,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
             {
                 b.Services(static s =>
                 {
+                    s.AddSingleton<IDependency, MyDependency>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                     s.AddScoped<ScopedAsyncDisposable>();
                 })
@@ -102,6 +103,16 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
 
     public class SomeMessage : IMessage;
 
+    class MyDependency : IDependency
+    {
+        public MyDependency(Context context)
+        {
+
+        }
+    }
+
+    interface IDependency;
+
     abstract class InitializableBase : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
@@ -130,7 +141,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    class SingletonAsyncDisposable : InitializableBase
+    class SingletonAsyncDisposable(IDependency dependency) : InitializableBase
     {
         public override ValueTask DisposeAsync()
         {
@@ -148,3 +159,4 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 }
+
