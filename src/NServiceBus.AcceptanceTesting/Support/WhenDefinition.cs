@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
@@ -34,7 +36,7 @@ public class WhenDefinition<TContext> : IWhenDefinition where TContext : Scenari
         {
             await messageAction(session).ConfigureAwait(false);
         }
-        else
+        else if (messageAndContextAction != null)
         {
             await messageAndContextAction(session, c).ConfigureAwait(false);
         }
@@ -42,7 +44,8 @@ public class WhenDefinition<TContext> : IWhenDefinition where TContext : Scenari
         return true;
     }
 
-    Func<TContext, Task<bool>> condition;
-    Func<IMessageSession, Task> messageAction;
-    Func<IMessageSession, TContext, Task> messageAndContextAction;
+    readonly Func<TContext, Task<bool>> condition;
+
+    readonly Func<IMessageSession, Task>? messageAction;
+    readonly Func<IMessageSession, TContext, Task>? messageAndContextAction;
 }
