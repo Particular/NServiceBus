@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTesting;
 
 using Features;
 using Persistence;

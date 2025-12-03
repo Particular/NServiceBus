@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
@@ -5,10 +7,7 @@ using System.Collections.Generic;
 
 class AcceptanceTestingTransaction
 {
-    public void Enlist(Action action)
-    {
-        actions.Add(action);
-    }
+    public void Enlist(Action action) => actions.Add(action);
 
     public void Commit()
     {
@@ -19,10 +18,7 @@ class AcceptanceTestingTransaction
         actions.Clear();
     }
 
-    public void Rollback()
-    {
-        actions.Clear();
-    }
+    public void Rollback() => actions.Clear();
 
-    List<Action> actions = [];
+    readonly List<Action> actions = [];
 }

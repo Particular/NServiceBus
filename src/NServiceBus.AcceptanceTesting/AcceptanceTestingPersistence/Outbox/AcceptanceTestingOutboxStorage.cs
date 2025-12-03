@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTesting;
 
 using System;
 using System.Collections.Concurrent;
@@ -14,16 +16,13 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
     {
         if (!storage.TryGetValue(messageId, out var storedMessage))
         {
-            return NoOutboxMessageTask;
+            return NoOutboxMessageTask!;
         }
 
         return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
     }
 
-    public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
-    }
+    public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
 
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
     {
@@ -61,25 +60,18 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
         }
     }
 
-    ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
-    static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));
+    readonly ConcurrentDictionary<string, StoredMessage> storage = new();
+    static readonly Task<OutboxMessage?> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));
 
-    class StoredMessage
+    class StoredMessage(string messageId, TransportOperation[] transportOperations)
     {
-        public StoredMessage(string messageId, TransportOperation[] transportOperations)
-        {
-            TransportOperations = transportOperations;
-            Id = messageId;
-            StoredAt = DateTime.UtcNow;
-        }
-
-        public string Id { get; }
+        public string Id { get; } = messageId;
 
         public bool Dispatched { get; private set; }
 
-        public DateTime StoredAt { get; }
+        public DateTime StoredAt { get; } = DateTime.UtcNow;
 
-        public TransportOperation[] TransportOperations { get; private set; }
+        public TransportOperation[] TransportOperations { get; private set; } = transportOperations;
 
         public void MarkAsDispatched()
         {
@@ -87,12 +79,9 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
             TransportOperations = [];
         }
 
-        protected bool Equals(StoredMessage other)
-        {
-            return string.Equals(Id, other.Id) && Dispatched.Equals(other.Dispatched);
-        }
+        protected bool Equals(StoredMessage other) => string.Equals(Id, other.Id) && Dispatched.Equals(other.Dispatched);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {

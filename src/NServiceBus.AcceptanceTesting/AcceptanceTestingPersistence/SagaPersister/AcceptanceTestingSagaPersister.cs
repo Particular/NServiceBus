@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
@@ -54,7 +56,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
             return Task.FromResult((TSagaData)data);
         }
 
-        return CachedSagaDataTask<TSagaData>.Default;
+        return CachedSagaDataTask<TSagaData>.Default!;
     }
 
     public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
@@ -68,7 +70,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
             return Get<TSagaData>(id, session, context, cancellationToken);
         }
 
-        return CachedSagaDataTask<TSagaData>.Default;
+        return CachedSagaDataTask<TSagaData>.Default!;
     }
 
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
@@ -112,7 +114,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
 
     static void SetEntry(ContextBag context, Guid sagaId, Entry value)
     {
-        if (context.TryGet(ContextKey, out Dictionary<Guid, Entry> entries) == false)
+        if (!context.TryGet(ContextKey, out Dictionary<Guid, Entry>? entries))
         {
             entries = [];
             context.Set(ContextKey, entries);
@@ -122,7 +124,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
 
     static Entry GetEntry(ContextBag context, Guid sagaDataId)
     {
-        if (context.TryGet(ContextKey, out Dictionary<Guid, Entry> entries))
+        if (context.TryGet(ContextKey, out Dictionary<Guid, Entry>? entries))
         {
             if (entries.TryGetValue(sagaDataId, out var entry))
             {
@@ -139,7 +141,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
     const string ContextKey = "NServiceBus.AcceptanceTestingSagaPersistence.Sagas";
     static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
 
-    class Entry
+    class Entry(IContainSagaData sagaData, CorrelationId correlationId)
     {
         static Entry()
         {
@@ -147,23 +149,14 @@ class AcceptanceTestingSagaPersister : ISagaPersister
             shallowCopy = sagaData => (IContainSagaData)func(sagaData);
         }
 
-        public Entry(IContainSagaData sagaData, CorrelationId correlationId)
-        {
-            CorrelationId = correlationId;
-            data = sagaData;
-        }
+        public CorrelationId CorrelationId { get; } = correlationId;
 
-        public CorrelationId CorrelationId { get; }
-
-        static IContainSagaData DeepCopy(IContainSagaData source)
-        {
-            return source.DeepCopy();
-        }
+        static IContainSagaData DeepCopy(IContainSagaData source) => source.DeepCopy();
 
         public IContainSagaData GetSagaCopy()
         {
-            var canBeShallowCopied = canBeShallowCopiedCache.GetOrAdd(data.GetType(), type => CanBeShallowCopied(type));
-            return canBeShallowCopied ? shallowCopy(data) : DeepCopy(data);
+            var canBeShallowCopied = canBeShallowCopiedCache.GetOrAdd(sagaData.GetType(), CanBeShallowCopied);
+            return canBeShallowCopied ? shallowCopy(sagaData) : DeepCopy(sagaData);
         }
 
         static bool CanBeShallowCopied(Type type)
@@ -172,7 +165,7 @@ class AcceptanceTestingSagaPersister : ISagaPersister
             {
                 var fieldType = fi.FieldType;
 
-                if (fieldType.IsPrimitive == false)
+                if (!fieldType.IsPrimitive)
                 {
                     if (fieldType != typeof(string) && fieldType != typeof(Guid))
                     {
@@ -186,27 +179,20 @@ class AcceptanceTestingSagaPersister : ISagaPersister
 
         static Func<object, object> GenerateMemberwiseClone()
         {
-            var method = new DynamicMethod("CloneMemberwise", typeof(object), new[]
-            {
-                typeof(object)
-            }, typeof(object).Assembly.ManifestModule, true);
+            var method = new DynamicMethod("CloneMemberwise", typeof(object), [typeof(object)], typeof(object).Assembly.ManifestModule, true);
             var ilGenerator = method.GetILGenerator();
             ilGenerator.Emit(OpCodes.Ldarg_0);
-            var methodInfo = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var methodInfo = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!;
             ilGenerator.EmitCall(OpCodes.Call, methodInfo, null);
             ilGenerator.Emit(OpCodes.Ret);
 
             return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
         }
 
-        public Entry UpdateTo(IContainSagaData sagaData)
-        {
-            return new Entry(sagaData, CorrelationId);
-        }
+        public Entry UpdateTo(IContainSagaData sagaData) => new(sagaData, CorrelationId);
 
-        readonly IContainSagaData data;
-        static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
-        static Func<IContainSagaData, IContainSagaData> shallowCopy;
+        static readonly ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new();
+        static readonly Func<IContainSagaData, IContainSagaData> shallowCopy;
     }
 
     /// <summary>
@@ -215,26 +201,16 @@ class AcceptanceTestingSagaPersister : ISagaPersister
     /// The only thing that is allocated is the correlationId itself and the propertyValue, which again, is allocated anyway
     /// by the saga behavior.
     /// </summary>
-    class CorrelationId
+    class CorrelationId(Type type, string propertyName, object propertyValue)
     {
-        public CorrelationId(Type type, string propertyName, object propertyValue)
-        {
-            this.type = type;
-            this.propertyName = propertyName;
-            this.propertyValue = propertyValue;
-        }
-
         public CorrelationId(Type sagaType, SagaCorrelationProperty correlationProperty)
             : this(sagaType, correlationProperty.Name, correlationProperty.Value)
         {
         }
 
-        bool Equals(CorrelationId other)
-        {
-            return type == other.type && string.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
-        }
+        bool Equals(CorrelationId other) => type == other.type && string.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {
@@ -265,14 +241,14 @@ class AcceptanceTestingSagaPersister : ISagaPersister
             }
         }
 
-        readonly Type type;
-        readonly string propertyName;
-        readonly object propertyValue;
+        readonly Type type = type;
+        readonly string propertyName = propertyName;
+        readonly object propertyValue = propertyValue;
     }
 }
 
 static class CachedSagaDataTask<TSagaData>
                 where TSagaData : IContainSagaData
 {
-    public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
+    public static readonly Task<TSagaData?> Default = Task.FromResult(default(TSagaData));
 }

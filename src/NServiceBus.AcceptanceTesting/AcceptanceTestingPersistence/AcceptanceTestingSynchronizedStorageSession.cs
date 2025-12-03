@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
@@ -11,7 +13,7 @@ using Transport;
 
 class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
-    public AcceptanceTestingTransaction Transaction { get; private set; }
+    public AcceptanceTestingTransaction? Transaction { get; private set; }
 
     public void Dispose()
     {
@@ -70,21 +72,24 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
 
     public Task CompleteAsync(CancellationToken cancellationToken = default)
     {
-        if (ownsTransaction)
+        if (ownsTransaction && Transaction is not null)
         {
             Transaction.Commit();
         }
         return Task.CompletedTask;
     }
 
-    public void Enlist(Action action) => Transaction.Enlist(action);
+    public void Enlist(Action action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(Transaction);
+        Transaction.Enlist(action);
+    }
 
     bool ownsTransaction;
 
-    sealed class EnlistmentNotification : IEnlistmentNotification
+    sealed class EnlistmentNotification(AcceptanceTestingTransaction transaction) : IEnlistmentNotification
     {
-        public EnlistmentNotification(AcceptanceTestingTransaction transaction) => this.transaction = transaction;
-
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
             try
@@ -107,7 +112,5 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
         }
 
         public void InDoubt(Enlistment enlistment) => enlistment.Done();
-
-        readonly AcceptanceTestingTransaction transaction;
     }
 }
