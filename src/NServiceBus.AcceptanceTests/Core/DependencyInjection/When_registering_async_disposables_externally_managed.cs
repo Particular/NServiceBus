@@ -15,7 +15,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
     public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
-            .WithComponent(new CustomComponent())
+            .WithComponent(new ComponentThatRegistersGloballySharedServices())
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.Services(static s =>
@@ -39,8 +39,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    // Custom component that mimicks registering global shared services
-    class CustomComponent : ComponentRunner, IComponentBehavior
+    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
     {
         public Task<ComponentRunner> CreateRunner(RunDescriptor run)
         {
@@ -49,7 +48,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
             return Task.FromResult<ComponentRunner>(this);
         }
 
-        public override string Name => nameof(CustomComponent);
+        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
     }
 
     class Context : ScenarioContext

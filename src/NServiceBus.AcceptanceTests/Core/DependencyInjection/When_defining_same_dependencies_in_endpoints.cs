@@ -17,7 +17,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
     public async Task Should_be_isolated_except_global_shared_once()
     {
         var result = await Scenario.Define<Context>()
-            .WithComponent(new CustomComponent())
+            .WithComponent(new ComponentThatRegistersGloballySharedServices())
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
@@ -45,8 +45,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         public ConcurrentBag<IDependency> Dependencies { get; } = [];
     }
 
-    // Custom component that mimicks registering global shared keyed services
-    class CustomComponent : ComponentRunner, IComponentBehavior
+    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
     {
         public Task<ComponentRunner> CreateRunner(RunDescriptor run)
         {
@@ -54,7 +53,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
             return Task.FromResult<ComponentRunner>(this);
         }
 
-        public override string Name => nameof(CustomComponent);
+        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
     }
 
     class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
