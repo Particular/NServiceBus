@@ -104,11 +104,11 @@ static class TypeExtensionMethods
 #nullable enable
 static class MethodInfoExtensions
 {
-    public static object? InvokeGeneric(this MethodInfo method, Func<MethodInfo, object?> invocation, params Type[] genericTypes)
+    public static object? InvokeGeneric(this MethodInfo method, object? target, object?[]? args, params Type[] genericTypes)
     {
         try
         {
-            return invocation(method.MakeGenericMethod(genericTypes));
+            return method.MakeGenericMethod(genericTypes).Invoke(target, args);
         }
         catch (TargetInvocationException e)
         {

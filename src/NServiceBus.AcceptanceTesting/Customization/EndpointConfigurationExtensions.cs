@@ -92,10 +92,10 @@ public static class EndpointConfigurationExtensions
     }
 
     static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
-        AddHandlerWithReflectionMethod.InvokeGeneric(m => m.Invoke(null, [endpointConfiguration]), handlerType);
+        AddHandlerWithReflectionMethod.InvokeGeneric(null, [endpointConfiguration], handlerType);
 
     static void AddSagaWithReflection(Type sagaType, EndpointConfiguration endpointConfiguration) =>
-        AddSagaWithReflectionMethod.InvokeGeneric(m => m.Invoke(null, [endpointConfiguration]), sagaType);
+        AddSagaWithReflectionMethod.InvokeGeneric(null, [endpointConfiguration], sagaType);
 
     static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistrationExtensions)
         .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!;

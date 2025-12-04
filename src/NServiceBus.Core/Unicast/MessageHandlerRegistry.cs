@@ -82,12 +82,12 @@ public class MessageHandlerRegistry
             var messageType = interfaceType.GetGenericArguments()[0];
             if (genericTypeDefinition == typeof(IHandleMessages<>))
             {
-                _ = AddMessageHandlerForMessageMethod.InvokeGeneric(m => m.Invoke(this, []), handlerType, messageType);
+                _ = AddMessageHandlerForMessageMethod.InvokeGeneric(this, null, handlerType, messageType);
             }
 
             if (genericTypeDefinition == typeof(IHandleTimeouts<>))
             {
-                _ = AddTimeoutHandlerForMessageMethod.InvokeGeneric(m => m.Invoke(this, []), handlerType, messageType);
+                _ = AddTimeoutHandlerForMessageMethod.InvokeGeneric(this, null, handlerType, messageType);
             }
         }
     }
@@ -171,7 +171,7 @@ public class MessageHandlerRegistry
     }
 
     void AddHandlerWithReflection(Type handlerType) =>
-        AddHandlerWithReflectionMethod.InvokeGeneric(m => m.Invoke(this, []), handlerType);
+        AddHandlerWithReflectionMethod.InvokeGeneric(this, null, handlerType);
 
     static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
