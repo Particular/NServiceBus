@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;
@@ -6,13 +8,9 @@ using Performance.TimeToBeReceived;
 using Pipeline;
 using Transport;
 
-class ApplyTimeToBeReceivedBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+class ApplyTimeToBeReceivedBehavior(TimeToBeReceivedMappings timeToBeReceivedMappings)
+    : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
 {
-    public ApplyTimeToBeReceivedBehavior(TimeToBeReceivedMappings timeToBeReceivedMappings)
-    {
-        this.timeToBeReceivedMappings = timeToBeReceivedMappings;
-    }
-
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
@@ -23,6 +21,4 @@ class ApplyTimeToBeReceivedBehavior : IBehavior<IOutgoingLogicalMessageContext, 
 
         return next(context);
     }
-
-    readonly TimeToBeReceivedMappings timeToBeReceivedMappings;
 }

@@ -40,7 +40,6 @@ NServiceBus.MessageDeserializationException
 NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageIdExtensions
 NServiceBus.MessageProcessingContextExtensions
-NServiceBus.MessageProcessingOptimizationExtensions
 NServiceBus.MessageSessionExtensions
 NServiceBus.MoveToError
 NServiceBus.OnSatelliteMessage
@@ -126,8 +125,6 @@ NServiceBus.SettingsExtensions
 NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Support.RuntimeEnvironment
-NServiceBus.TimeToBeReceivedAttribute
-NServiceBus.TimeToBeReceivedConventionExtensions
 NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
 NServiceBus.Transport.IMessageDispatcher
