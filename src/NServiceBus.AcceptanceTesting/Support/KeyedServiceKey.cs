@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
 
-sealed class KeyedServiceKey
+public sealed class KeyedServiceKey
 {
     public KeyedServiceKey(object baseKey, object? serviceKey = null)
     {
@@ -38,4 +38,8 @@ sealed class KeyedServiceKey
     public override int GetHashCode() => HashCode.Combine(BaseKey, ServiceKey);
 
     public override string? ToString() => ServiceKey == null ? BaseKey.ToString() : $"({BaseKey}, {ServiceKey})";
+
+    public static KeyedServiceKey AnyKey(object baseKey) => new(baseKey, Any);
+
+    public const string Any = "_______<ANY>_______";
 }

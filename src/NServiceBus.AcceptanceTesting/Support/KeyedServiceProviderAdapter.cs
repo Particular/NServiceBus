@@ -1,6 +1,9 @@
 namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +17,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
 
         this.inner = inner;
         serviceKeyedServiceKey = new KeyedServiceKey(serviceKey);
+        anyKey = KeyedServiceKey.AnyKey(serviceKey);
         this.serviceCollection = serviceCollection;
     }
 
@@ -106,7 +110,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
         {
             return IsKeyedService(serviceType, computedServiceKey)
                 ? inner.GetKeyedService(serviceType, computedServiceKey)
@@ -114,7 +118,20 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
+        if (!Equals(computedServiceKey, anyKey))
+        {
+            return IsKeyedService(itemType, computedServiceKey)
+                ? inner.GetKeyedServices(itemType, computedServiceKey)
+                : inner.GetKeyedServices(itemType, serviceKey);
+        }
+
+        Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);
+        var services = (IList)Activator.CreateInstance(genericEnumerable)!;
+        foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
+        {
+            services.Add(service);
+        }
+        return services;
     }
 
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
@@ -134,7 +151,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
         {
             return IsKeyedService(serviceType, computedServiceKey)
                 ? inner.GetRequiredKeyedService(serviceType, computedServiceKey)
@@ -142,7 +159,20 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, computedServiceKey) ? inner.GetKeyedServices(itemType, computedServiceKey) : inner.GetKeyedServices(itemType, serviceKey);
+        if (!Equals(computedServiceKey, anyKey))
+        {
+            return IsKeyedService(itemType, computedServiceKey)
+                ? inner.GetKeyedServices(itemType, computedServiceKey)
+                : inner.GetKeyedServices(itemType, serviceKey);
+        }
+
+        Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);
+        var services = (IList)Activator.CreateInstance(genericEnumerable)!;
+        foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
+        {
+            services.Add(service);
+        }
+        return services;
     }
 
     public void Dispose() => (inner as IDisposable)?.Dispose();
@@ -161,4 +191,5 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     readonly IServiceProvider inner;
     readonly KeyedServiceKey serviceKeyedServiceKey;
     readonly KeyedServiceCollectionAdapter serviceCollection;
+    readonly KeyedServiceKey anyKey;
 }
