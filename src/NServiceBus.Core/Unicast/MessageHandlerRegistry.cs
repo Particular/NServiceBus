@@ -82,12 +82,12 @@ public class MessageHandlerRegistry
             var messageType = interfaceType.GetGenericArguments()[0];
             if (genericTypeDefinition == typeof(IHandleMessages<>))
             {
-                _ = AddMessageHandlerForMessageInvocation.InvokeGeneric(m => m.Invoke(this, []), handlerType, messageType);
+                _ = AddMessageHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
 
             if (genericTypeDefinition == typeof(IHandleTimeouts<>))
             {
-                _ = AddTimeoutHandlerForMessageInvocation.InvokeGeneric(m => m.Invoke(this, []), handlerType, messageType);
+                _ = AddTimeoutHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
         }
     }
@@ -171,16 +171,16 @@ public class MessageHandlerRegistry
     }
 
     void AddHandlerWithReflection(Type handlerType) =>
-        AddHandlerWithReflectionInvocation.InvokeGeneric(m => m.Invoke(this, []), handlerType);
+        AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
-    static readonly ReflectionBasedInvocation AddHandlerWithReflectionInvocation = new(typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler)));
+    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
-    static readonly ReflectionBasedInvocation AddMessageHandlerForMessageInvocation = new(typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage)));
+    static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
-    static readonly ReflectionBasedInvocation AddTimeoutHandlerForMessageInvocation = new(typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage)));
+    static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
