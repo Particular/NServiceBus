@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace NServiceBus.Extensibility;
 
 using System.Collections.Generic;
@@ -26,7 +28,7 @@ public abstract class ExtendableOptions
 
     internal ContextBag Context { get; }
 
-    internal string UserDefinedMessageId { get; set; }
+    internal string? UserDefinedMessageId { get; set; }
 
     internal Dictionary<string, string> OutgoingHeaders { get; }
 }
