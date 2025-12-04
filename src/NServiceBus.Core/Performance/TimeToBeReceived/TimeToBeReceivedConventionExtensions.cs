@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 
@@ -7,16 +9,19 @@ using System;
 /// </summary>
 public static class TimeToBeReceivedConventionExtensions
 {
-    /// <summary>
-    /// Sets the function to be used to evaluate whether a message has a time to be received.
-    /// </summary>
-    public static ConventionsBuilder DefiningTimeToBeReceivedAs(this ConventionsBuilder builder, Func<Type, TimeSpan> retrieveTimeToBeReceived)
+    extension(ConventionsBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(retrieveTimeToBeReceived);
+        /// <summary>
+        /// Sets the function to be used to evaluate whether a message has a time to be received.
+        /// </summary>
+        public ConventionsBuilder DefiningTimeToBeReceivedAs(Func<Type, TimeSpan> retrieveTimeToBeReceived)
+        {
+            ArgumentNullException.ThrowIfNull(builder);
+            ArgumentNullException.ThrowIfNull(retrieveTimeToBeReceived);
 
-        builder.Settings.Set(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived));
+            builder.Settings.Set(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived));
 
-        return builder;
+            return builder;
+        }
     }
 }

@@ -647,7 +647,10 @@ namespace NServiceBus
     }
     public static class MessageProcessingOptimizationExtensions
     {
-        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
+        extension(NServiceBus.EndpointConfiguration config)
+        {
+            public void LimitMessageProcessingConcurrencyTo(int maxConcurrency) { }
+        }
     }
     public abstract class MessagePropertyAccessor
     {
@@ -1052,7 +1055,10 @@ namespace NServiceBus
     }
     public static class TimeToBeReceivedConventionExtensions
     {
-        public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
+        extension(NServiceBus.ConventionsBuilder builder)
+        {
+            public NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
+        }
     }
     [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
         "ill be removed in version 11.0.0.", true)]

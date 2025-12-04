@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
@@ -22,7 +24,7 @@ class TimeToBeReceivedMappings
 
     public bool TryGetTimeToBeReceived(Type messageType, out TimeSpan timeToBeReceived)
     {
-        timeToBeReceived = mappings.GetOrAdd(messageType, type => GetTimeToBeReceived(convention, type, doesTransportSupportDiscardIfNotReceivedBefore));
+        timeToBeReceived = mappings.GetOrAdd(messageType, static (type, @this) => GetTimeToBeReceived(@this.convention, type, @this.doesTransportSupportDiscardIfNotReceivedBefore), this);
         return timeToBeReceived != TimeSpan.MaxValue;
     }
 
@@ -35,11 +37,7 @@ class TimeToBeReceivedMappings
             throw new Exception("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction. Remove TTBR from messages or select a transport that does support TTBR");
         }
 
-        if (timeToBeReceived <= TimeSpan.Zero)
-        {
-            throw new Exception("TimeToBeReceived must be greater that 0");
-        }
-        return timeToBeReceived;
+        return timeToBeReceived <= TimeSpan.Zero ? throw new Exception("TimeToBeReceived must be greater that 0") : timeToBeReceived;
     }
 
     readonly ConcurrentDictionary<Type, TimeSpan> mappings;
@@ -48,13 +46,9 @@ class TimeToBeReceivedMappings
 
     readonly bool doesTransportSupportDiscardIfNotReceivedBefore;
 
-    public static Func<Type, TimeSpan> DefaultConvention = t =>
+    public static readonly Func<Type, TimeSpan> DefaultConvention = t =>
     {
         var timeToBeReceivedAttribute = t.GetCustomAttribute<TimeToBeReceivedAttribute>(true);
-        if (timeToBeReceivedAttribute == null)
-        {
-            return TimeSpan.MaxValue;
-        }
-        return timeToBeReceivedAttribute.TimeToBeReceived;
+        return timeToBeReceivedAttribute?.TimeToBeReceived ?? TimeSpan.MaxValue;
     };
 }

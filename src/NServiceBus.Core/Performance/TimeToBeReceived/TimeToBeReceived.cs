@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 using Transport;
 using System.Linq;
