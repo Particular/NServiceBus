@@ -106,19 +106,19 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return keyedScopeFactory;
         }
 
-        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
+        var computedKey = GetOrCreateComputedKey(serviceKey);
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, computedServiceKey)
-                ? serviceProvider.GetKeyedService(serviceType, computedServiceKey)
+            return IsKeyedService(serviceType, computedKey)
+                ? serviceProvider.GetKeyedService(serviceType, computedKey)
                 : serviceProvider.GetKeyedService(serviceType, serviceKey);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        if (!Equals(computedServiceKey, anyKey))
+        if (!Equals(computedKey, anyKey))
         {
-            return IsKeyedService(itemType, computedServiceKey)
-                ? serviceProvider.GetKeyedServices(itemType, computedServiceKey)
+            return IsKeyedService(itemType, computedKey)
+                ? serviceProvider.GetKeyedServices(itemType, computedKey)
                 : serviceProvider.GetKeyedServices(itemType, serviceKey);
         }
 
@@ -139,19 +139,19 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return keyedScopeFactory;
         }
 
-        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
+        var computedKey = GetOrCreateComputedKey(serviceKey);
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, computedServiceKey)
-                ? serviceProvider.GetRequiredKeyedService(serviceType, computedServiceKey)
+            return IsKeyedService(serviceType, computedKey)
+                ? serviceProvider.GetRequiredKeyedService(serviceType, computedKey)
                 : serviceProvider.GetRequiredKeyedService(serviceType, serviceKey);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        if (!Equals(computedServiceKey, anyKey))
+        if (!Equals(computedKey, anyKey))
         {
-            return IsKeyedService(itemType, computedServiceKey)
-                ? serviceProvider.GetKeyedServices(itemType, computedServiceKey)
+            return IsKeyedService(itemType, computedKey)
+                ? serviceProvider.GetKeyedServices(itemType, computedKey)
                 : serviceProvider.GetKeyedServices(itemType, serviceKey);
         }
 
@@ -169,6 +169,16 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
 
         Dispose();
         return ValueTask.CompletedTask;
+    }
+
+    KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
+    {
+        if (serviceKey is KeyedServiceKey key && Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey))
+        {
+            return key;
+        }
+
+        return new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
     }
 
     static object GetAllServices(IServiceProvider serviceProvider, Type itemType)
