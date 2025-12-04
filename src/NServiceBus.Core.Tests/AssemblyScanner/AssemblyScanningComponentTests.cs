@@ -15,13 +15,7 @@ class AssemblyScanningComponentTests
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
 
-        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
-        {
-            AssemblyScannerConfiguration =
-            {
-                AdditionalAssemblyScanningPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested", "Subfolder")
-            }
-        };
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { AdditionalAssemblyScanningPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested", "Subfolder") } };
 
         var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
@@ -47,6 +41,19 @@ class AssemblyScanningComponentTests
 
         var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
 
-        Assert.That(exception.Message, Does.Contain($"Assembly scanning has been disabled. This prevents messages, message handlers, features and other functionality from loading correctly. Enable {nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)} or {nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}"));
+        Assert.That(exception.Message, Does.Contain("Both file and appdomain scanning has been turned off"));
+    }
+
+    [Test]
+    public void Should_allow_assembly_scanning_to_be_disabled()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { Disable = true } };
+
+        var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+        Assert.That(component.AvailableTypes, Is.Empty);
     }
 }
