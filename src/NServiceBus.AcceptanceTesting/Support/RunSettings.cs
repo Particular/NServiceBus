@@ -5,9 +5,17 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 
 public class RunSettings : IEnumerable<KeyValuePair<string, object>>
 {
+    public RunSettings() =>
+        Set(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
+
     public TimeSpan? TestExecutionTimeout
     {
         get => TryGet("TestExecutionTimeout", out TimeSpan timeout) ? timeout : null;

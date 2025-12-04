@@ -50,7 +50,7 @@ public class ScenarioRunner(
 
             runResult.ActiveEndpoints = [.. endpoints.Select(r => r.Name)];
 
-            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider();
+            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
 
             await PerformScenarios(endpoints).ConfigureAwait(false);
 
