@@ -21,11 +21,11 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
-                    .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint1", new SomeMessage1())))
+                    .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint1", new SomeMessage())))
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint2"))
-                    .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage1())))
+                    .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage())))
             .Done(c => c.Dependencies.Count == 2)
             .Run();
 
@@ -66,9 +66,9 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
             b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
         });
 
-        class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage1>
+        class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
         {
-            public Task Handle(SomeMessage1 message1, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 dependency.DoSomething();
                 return Task.CompletedTask;
@@ -131,5 +131,5 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         }
     }
 
-    public class SomeMessage1 : ICommand;
+    public class SomeMessage : ICommand;
 }
