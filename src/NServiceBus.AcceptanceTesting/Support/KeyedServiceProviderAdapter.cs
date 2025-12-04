@@ -65,8 +65,6 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return IsKeyedService(itemType, serviceKeyedServiceKey) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey) : serviceProvider.GetServices(itemType);
     }
 
-    static bool IsServicesRequest(Type serviceType) => serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-
     public object GetRequiredService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -192,6 +190,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return services;
     }
 
+    static bool IsServicesRequest(Type serviceType) => serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
     static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
     static bool IsScopeFactory(Type serviceType) => serviceType == typeof(IServiceScopeFactory);
 
