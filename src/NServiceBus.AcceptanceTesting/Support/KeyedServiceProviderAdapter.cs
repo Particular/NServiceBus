@@ -3,23 +3,24 @@ namespace NServiceBus.AcceptanceTesting.Support;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService, IDisposable, IAsyncDisposable
 {
-    public KeyedServiceProviderAdapter(IServiceProvider inner, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
+    public KeyedServiceProviderAdapter(IServiceProvider serviceProvider, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
     {
-        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(serviceKey);
         ArgumentNullException.ThrowIfNull(serviceCollection);
 
-        this.inner = inner;
+        this.serviceProvider = serviceProvider;
         serviceKeyedServiceKey = new KeyedServiceKey(serviceKey);
         anyKey = KeyedServiceKey.AnyKey(serviceKey);
         this.serviceCollection = serviceCollection;
+
+        keyedScopeFactory = new KeyedServiceScopeFactory(serviceProvider.GetRequiredService<IServiceScopeFactory>(), serviceKeyedServiceKey, serviceCollection);
     }
 
     public bool IsService(Type serviceType) => serviceCollection.ContainsService(serviceType);
@@ -48,20 +49,20 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return this;
         }
 
-        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
+        if (IsScopeFactory(serviceType))
         {
-            return scopeFactory;
+            return keyedScopeFactory;
         }
 
         if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, serviceKeyedServiceKey)
-                ? inner.GetKeyedService(serviceType, serviceKeyedServiceKey)
-                : inner.GetService(serviceType);
+                ? serviceProvider.GetKeyedService(serviceType, serviceKeyedServiceKey)
+                : serviceProvider.GetService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
+        return IsKeyedService(itemType, serviceKeyedServiceKey) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey) : serviceProvider.GetServices(itemType);
     }
 
     static bool IsServicesRequest(Type serviceType) => serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
@@ -75,20 +76,20 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return this;
         }
 
-        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
+        if (IsScopeFactory(serviceType))
         {
-            return scopeFactory;
+            return keyedScopeFactory;
         }
 
         if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, serviceKeyedServiceKey)
-                ? inner.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey)
-                : inner.GetRequiredService(serviceType);
+                ? serviceProvider.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey)
+                : serviceProvider.GetRequiredService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
+        return IsKeyedService(itemType, serviceKeyedServiceKey) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey) : serviceProvider.GetServices(itemType);
     }
 
     public object? GetKeyedService(Type serviceType, object? serviceKey)
@@ -100,37 +101,29 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return this;
         }
 
-        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
+        if (IsScopeFactory(serviceType))
         {
-            return scopeFactory;
+            return keyedScopeFactory;
         }
 
         var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
         if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, computedServiceKey)
-                ? inner.GetKeyedService(serviceType, computedServiceKey)
-                : inner.GetKeyedService(serviceType, serviceKey);
+                ? serviceProvider.GetKeyedService(serviceType, computedServiceKey)
+                : serviceProvider.GetKeyedService(serviceType, serviceKey);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
         if (!Equals(computedServiceKey, anyKey))
         {
             return IsKeyedService(itemType, computedServiceKey)
-                ? inner.GetKeyedServices(itemType, computedServiceKey)
-                : inner.GetKeyedServices(itemType, serviceKey);
+                ? serviceProvider.GetKeyedServices(itemType, computedServiceKey)
+                : serviceProvider.GetKeyedServices(itemType, serviceKey);
         }
 
-        Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);
-        var services = (IList)Activator.CreateInstance(genericEnumerable)!;
-        foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
-        {
-            _ = services.Add(service);
-        }
-        return services;
+        return GetAllServices(serviceProvider, itemType);
     }
-
-    static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
 
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
     {
@@ -141,53 +134,35 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             return this;
         }
 
-        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
+        if (IsScopeFactory(serviceType))
         {
-            return scopeFactory;
+            return keyedScopeFactory;
         }
 
         var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
         if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, computedServiceKey)
-                ? inner.GetRequiredKeyedService(serviceType, computedServiceKey)
-                : inner.GetRequiredKeyedService(serviceType, serviceKey);
+                ? serviceProvider.GetRequiredKeyedService(serviceType, computedServiceKey)
+                : serviceProvider.GetRequiredKeyedService(serviceType, serviceKey);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
         if (!Equals(computedServiceKey, anyKey))
         {
             return IsKeyedService(itemType, computedServiceKey)
-                ? inner.GetKeyedServices(itemType, computedServiceKey)
-                : inner.GetKeyedServices(itemType, serviceKey);
+                ? serviceProvider.GetKeyedServices(itemType, computedServiceKey)
+                : serviceProvider.GetKeyedServices(itemType, serviceKey);
         }
 
-        Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);
-        var services = (IList)Activator.CreateInstance(genericEnumerable)!;
-        foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
-        {
-            _ = services.Add(service);
-        }
-        return services;
+        return GetAllServices(serviceProvider, itemType);
     }
 
-    bool TryGetScopeFactory(Type serviceType, [NotNullWhen(true)] out object? scopeFactory)
-    {
-        if (serviceType != typeof(IServiceScopeFactory))
-        {
-            scopeFactory = null;
-            return false;
-        }
-
-        scopeFactory = new KeyedServiceScopeFactory(inner.GetRequiredService<IServiceScopeFactory>(), serviceKeyedServiceKey, serviceCollection);
-        return true;
-    }
-
-    public void Dispose() => (inner as IDisposable)?.Dispose();
+    public void Dispose() => (serviceProvider as IDisposable)?.Dispose();
 
     public ValueTask DisposeAsync()
     {
-        if (inner is IAsyncDisposable asyncDisposable)
+        if (serviceProvider is IAsyncDisposable asyncDisposable)
         {
             return asyncDisposable.DisposeAsync();
         }
@@ -196,8 +171,23 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return ValueTask.CompletedTask;
     }
 
-    readonly IServiceProvider inner;
+    static object GetAllServices(IServiceProvider serviceProvider, Type itemType)
+    {
+        Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);
+        var services = (IList)Activator.CreateInstance(genericEnumerable)!;
+        foreach (var service in serviceProvider.GetServices(itemType).Concat(serviceProvider.GetKeyedServices(itemType, KeyedService.AnyKey)))
+        {
+            _ = services.Add(service);
+        }
+        return services;
+    }
+
+    static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
+    static bool IsScopeFactory(Type serviceType) => serviceType == typeof(IServiceScopeFactory);
+
+    readonly IServiceProvider serviceProvider;
     readonly KeyedServiceKey serviceKeyedServiceKey;
     readonly KeyedServiceCollectionAdapter serviceCollection;
     readonly KeyedServiceKey anyKey;
+    readonly KeyedServiceScopeFactory keyedScopeFactory;
 }
