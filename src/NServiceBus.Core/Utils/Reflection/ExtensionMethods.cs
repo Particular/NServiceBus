@@ -4,7 +4,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 static class TypeExtensionMethods
 {
@@ -97,4 +99,26 @@ static class TypeExtensionMethods
 
     static readonly ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new();
     static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new();
+}
+
+#nullable enable
+static class MethodInfoExtensions
+{
+    public static object? InvokeGeneric(this MethodInfo method, Func<MethodInfo, object?> invocation, params Type[] genericTypes)
+    {
+        try
+        {
+            return invocation(method.MakeGenericMethod(genericTypes));
+        }
+        catch (TargetInvocationException e)
+        {
+            if (e.InnerException != null)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+            }
+
+            var genericParameters = string.Join(",", genericTypes.Select(t => t.Name));
+            throw new Exception($"Failed invoke {method.Name}<{genericParameters}> using reflection", e);
+        }
+    }
 }

@@ -92,7 +92,7 @@ public partial class SagaMetadata
 
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            sagaMetadata.Add(((SagaMetadata)CreateSagaOfTSagaInvocation.InvokeGeneric(m => m.Invoke(null, []), sagaType)!)!);
+            sagaMetadata.Add(((SagaMetadata)CreateSagaOfTSagaMethod.InvokeGeneric(m => m.Invoke(null, []), sagaType)!)!);
         }
 
         return sagaMetadata;
@@ -118,7 +118,7 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        return ((SagaMetadata)CreateSagaOfTSagaTEntityInvocation.InvokeGeneric(m => m.Invoke(null, [associatedMessages, null])!, sagaType, sagaEntityType)!)!;
+        return ((SagaMetadata)CreateSagaOfTSagaTEntityMethod.InvokeGeneric(m => m.Invoke(null, [associatedMessages, null])!, sagaType, sagaEntityType)!)!;
     }
 
     /// <summary>
@@ -234,11 +234,11 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
-    static readonly ReflectionBasedInvocation CreateSagaOfTSagaInvocation = new(typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create)));
+    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
 
-    static readonly ReflectionBasedInvocation CreateSagaOfTSagaTEntityInvocation = new(typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create)));
+    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
