@@ -38,7 +38,7 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public IReadOnlyCollection<IMyComponent> Components { get; set; } = [];
+        public List<IMyComponent> Components { get; set; } = [];
     }
 
     interface IMyComponent;
