@@ -92,7 +92,7 @@ public partial class SagaMetadata
 
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            sagaMetadata.Add(((SagaMetadata)CreateSagaOfTSagaMethod.InvokeGeneric(null, null, sagaType)!)!);
+            sagaMetadata.Add(CreateSagaOfTSagaMethod.InvokeGeneric<SagaMetadata>(sagaType)!);
         }
 
         return sagaMetadata;
@@ -118,7 +118,7 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        return ((SagaMetadata)CreateSagaOfTSagaTEntityMethod.InvokeGeneric(null, [associatedMessages, null], sagaType, sagaEntityType)!)!;
+        return CreateSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null], [sagaType, sagaEntityType])!;
     }
 
     /// <summary>
