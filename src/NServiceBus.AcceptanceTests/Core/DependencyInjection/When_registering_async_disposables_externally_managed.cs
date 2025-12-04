@@ -39,7 +39,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    // Custom component that mimicks registering global shared keyed services
+    // Custom component that mimicks registering global shared services
     class CustomComponent : ComponentRunner, IComponentBehavior
     {
         public Task<ComponentRunner> CreateRunner(RunDescriptor run)
