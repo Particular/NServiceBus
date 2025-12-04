@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
@@ -9,8 +10,8 @@ using NUnit.Framework;
 
 public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 {
-    [Test]
-    public async Task Should_correlate_trace_from_publish()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_correlate_trace_from_publish(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
@@ -25,7 +26,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                 return Task.CompletedTask;
             }))
             .Done(c => c.ReplyMessageReceived)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         var incomingActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();

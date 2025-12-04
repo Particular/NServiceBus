@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
@@ -11,8 +11,8 @@ using Unicast;
 
 public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_invoke_manually_registered_handlers()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_invoke_manually_registered_handlers(CancellationToken cancellationToken = default)
     {
         Requires.MessageDrivenPubSub();
 
@@ -24,7 +24,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                        && c.ManuallyRegisteredCommandHandlerInvoked
                        && c.RegularEventHandlerInvoked
                        && c.ManuallyRegisteredEventHandlerInvoked)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
