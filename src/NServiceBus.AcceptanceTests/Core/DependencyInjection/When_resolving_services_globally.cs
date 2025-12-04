@@ -1,11 +1,8 @@
 namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -19,13 +16,24 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
     public async Task Should_be_possible_to_get_all()
     {
         var result = await Scenario.Define<Context>()
-            .WithComponent(new ComponentThatRegistersGloballySharedServices())
+            .WithServices(static services => services.AddSingleton<IMyComponent, SharedComponent>())
             .WithEndpoint<ComponentRegistrationEndpoint>(b =>
                 b.Services(static services =>
                     {
                         services.AddSingleton<IMyComponent, EndpointComponent1>();
                         services.AddSingleton<IMyComponent, EndpointComponent2>();
                     }))
+            .WithServiceResolve(static (provider, _) =>
+            {
+                var context = provider.GetRequiredService<Context>();
+                var allServices = new List<IMyComponent>();
+                // demonstrates using GetServices to get the non-keyed services of that type
+                allServices.AddRange(provider.GetServices<IMyComponent>());
+                // demonstrates using AnyKey to get the keyed services of that type
+                allServices.AddRange(provider.GetKeyedServices<IMyComponent>(KeyedService.AnyKey));
+                context.Components = allServices;
+                return Task.CompletedTask;
+            })
             .Done(c => c.Components.Count != 0)
             .Run();
 
@@ -47,35 +55,6 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
 
     class EndpointComponent1 : IMyComponent;
     class EndpointComponent2 : IMyComponent;
-
-    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
-    {
-        RunDescriptor runDescriptor;
-
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddSingleton<IMyComponent, SharedComponent>();
-            runDescriptor = run;
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override Task ComponentsStarted(CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(runDescriptor);
-            ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
-
-            var context = runDescriptor.ServiceProvider.GetRequiredService<Context>();
-            var allServices = new List<IMyComponent>();
-            // demonstrates using GetServices to get the non-keyed services of that type
-            allServices.AddRange(runDescriptor.ServiceProvider.GetServices<IMyComponent>());
-            // demonstrates using AnyKey to get the keyed services of that type
-            allServices.AddRange(runDescriptor.ServiceProvider.GetKeyedServices<IMyComponent>(KeyedService.AnyKey));
-            context.Components = allServices;
-            return Task.CompletedTask;
-        }
-
-        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
-    }
 
     class ComponentRegistrationEndpoint : EndpointConfigurationBuilder
     {

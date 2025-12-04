@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,6 +77,18 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
     {
         componentCount++;
         behaviors.Add(componentBehavior);
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection> configureServices)
+    {
+        behaviors.Add(new ServiceRegistrationComponent(configureServices, componentCount++));
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart)
+    {
+        behaviors.Add(new ServiceResolveComponent(resolve, componentCount++, resolveMode));
         return this;
     }
 

@@ -18,7 +18,7 @@ public class When_resolving_all_services_within_an_endpoint : NServiceBusAccepta
     public async Task Should_be_possible()
     {
         var result = await Scenario.Define<Context>()
-            .WithComponent(new ComponentThatRegistersGloballySharedServices())
+            .WithServices(static services => services.AddSingleton<IMyComponent, SharedComponent>())
             .WithEndpoint<ComponentRegistrationEndpoint>(b =>
                 b.Services(static services =>
                     {
@@ -47,17 +47,6 @@ public class When_resolving_all_services_within_an_endpoint : NServiceBusAccepta
 
     class EndpointComponent1 : IMyComponent;
     class EndpointComponent2 : IMyComponent;
-
-    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
-    {
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddSingleton<IMyComponent, SharedComponent>();
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
-    }
 
     class ComponentRegistrationEndpoint : EndpointConfigurationBuilder
     {

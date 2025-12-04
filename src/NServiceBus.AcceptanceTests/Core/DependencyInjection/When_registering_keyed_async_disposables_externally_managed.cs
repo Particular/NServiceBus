@@ -19,7 +19,11 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
     public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
-            .WithComponent(new CustomComponent())
+            .WithServices(static services =>
+            {
+                services.AddKeyedSingleton<SingletonAsyncDisposableShared>(false);
+                services.AddKeyedScoped<ScopedAsyncDisposableShared>(true);
+            })
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.Services(static s =>
@@ -41,19 +45,6 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
             Assert.That(context.SingletonAsyncDisposableSharedDisposed, Is.True, "Singleton AsyncDisposable Shared wasn't disposed as it should have been.");
             Assert.That(context.ScopedAsyncDisposableSharedDisposed, Is.True, "Scoped AsyncDisposable Shared wasn't disposed as it should have been.");
         }
-    }
-
-    // Custom component that mimicks registering global shared keyed services
-    class CustomComponent : ComponentRunner, IComponentBehavior
-    {
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddKeyedSingleton<SingletonAsyncDisposableShared>(false);
-            run.Services.AddKeyedScoped<ScopedAsyncDisposableShared>(true);
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override string Name => nameof(CustomComponent);
     }
 
     class Context : ScenarioContext

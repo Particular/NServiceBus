@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -15,7 +14,11 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
     public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
-            .WithComponent(new ComponentThatRegistersGloballySharedServices())
+            .WithServices(static services =>
+            {
+                services.AddSingleton<SingletonAsyncDisposableShared>();
+                services.AddScoped<ScopedAsyncDisposableShared>();
+            })
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.Services(static s =>
@@ -37,18 +40,6 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
             Assert.That(context.SingletonAsyncDisposableSharedDisposed, Is.True, "Singleton AsyncDisposable Shared wasn't disposed as it should have been.");
             Assert.That(context.ScopedAsyncDisposableSharedDisposed, Is.True, "Scoped AsyncDisposable Shared wasn't disposed as it should have been.");
         }
-    }
-
-    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
-    {
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddSingleton<SingletonAsyncDisposableShared>();
-            run.Services.AddScoped<ScopedAsyncDisposableShared>();
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
     }
 
     class Context : ScenarioContext

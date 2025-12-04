@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +16,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
     public async Task Should_be_isolated_except_global_shared_once()
     {
         var result = await Scenario.Define<Context>()
-            .WithComponent(new ComponentThatRegistersGloballySharedServices())
+            .WithServices(static services => services.AddSingleton<ISingletonShared, SingletonShared>())
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
@@ -43,17 +42,6 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
     class Context : ScenarioContext
     {
         public ConcurrentBag<IDependency> Dependencies { get; } = [];
-    }
-
-    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
-    {
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddSingleton<ISingletonShared, SingletonShared>();
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
     }
 
     class WithSameDependenciesEndpoint : EndpointConfigurationBuilder

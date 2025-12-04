@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -17,7 +16,7 @@ public class When_resolving_services_within_an_endpoint : NServiceBusAcceptanceT
     public async Task Should_get_endpoint_specific_dependencies_only()
     {
         var result = await Scenario.Define<Context>()
-            .WithComponent(new ComponentThatRegistersGloballySharedServices())
+            .WithServices(static services => services.AddSingleton<IMyComponent, SharedComponent>())
             .WithEndpoint<ComponentRegistrationEndpoint>(b =>
                 b.Services(static services =>
                     {
@@ -46,17 +45,6 @@ public class When_resolving_services_within_an_endpoint : NServiceBusAcceptanceT
 
     class EndpointComponent1 : IMyComponent;
     class EndpointComponent2 : IMyComponent;
-
-    class ComponentThatRegistersGloballySharedServices : ComponentRunner, IComponentBehavior
-    {
-        public Task<ComponentRunner> CreateRunner(RunDescriptor run)
-        {
-            run.Services.AddSingleton<IMyComponent, SharedComponent>();
-            return Task.FromResult<ComponentRunner>(this);
-        }
-
-        public override string Name => nameof(ComponentThatRegistersGloballySharedServices);
-    }
 
     class ComponentRegistrationEndpoint : EndpointConfigurationBuilder
     {
