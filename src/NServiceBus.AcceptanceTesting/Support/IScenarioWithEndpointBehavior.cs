@@ -21,6 +21,7 @@ public interface IScenarioWithEndpointBehavior<TContext> where TContext : Scenar
 
     IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
-    Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
-    Task<TContext> Run(RunSettings settings);
+    Task<TContext> Run(TimeSpan timeout);
+    Task<TContext> Run(CancellationToken cancellationToken = default);
+    Task<TContext> Run(RunSettings settings, CancellationToken cancellationToken = default);
 }

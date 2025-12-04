@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -8,8 +9,8 @@ using NUnit.Framework;
 
 public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_invoke_instance_that_requested_the_timeout()
+    [Test, CancelAfter(30_000)]
+    public async Task Should_invoke_instance_that_requested_the_timeout(CancellationToken cancellationToken = default)
     {
         Requires.DelayedDelivery();
 
@@ -19,7 +20,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
                 Id = Guid.NewGuid().ToString()
             })))
             .Done(c => c.Saga1ReceivedTimeout || c.Saga2ReceivedTimeout)
-            .Run(TimeSpan.FromSeconds(30));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

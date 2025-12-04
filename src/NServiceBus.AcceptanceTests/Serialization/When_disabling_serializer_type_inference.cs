@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -15,15 +16,15 @@ using Settings;
 
 class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_not_deserialize_messages_without_types_header()
+    [Test, CancelAfter(35_000)]
+    public async Task Should_not_deserialize_messages_without_types_header(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new MessageWithoutTypeHeader())))
             .Done(c => c.IncomingMessageReceived)
-            .Run(TimeSpan.FromSeconds(35));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -36,15 +37,15 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
-    [Test]
-    public async Task Should_not_deserialize_messages_with_unknown_type_header()
+    [Test, CancelAfter(35_000)]
+    public async Task Should_not_deserialize_messages_with_unknown_type_header(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new UnknownMessage())))
             .Done(c => c.IncomingMessageReceived)
-            .Run(TimeSpan.FromSeconds(35));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

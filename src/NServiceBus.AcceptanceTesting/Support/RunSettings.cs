@@ -16,22 +16,6 @@ public class RunSettings : IEnumerable<KeyValuePair<string, object>>
             ValidateScopes = true
         });
 
-    public TimeSpan? TestExecutionTimeout
-    {
-        get => TryGet("TestExecutionTimeout", out TimeSpan timeout) ? timeout : null;
-        set
-        {
-            if (value.HasValue)
-            {
-                Set("TestExecutionTimeout", value.Value);
-            }
-            else
-            {
-                Remove("TestExecutionTimeout");
-            }
-        }
-    }
-
     public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => stash.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -9,15 +10,15 @@ using NUnit.Framework;
 public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
 {
     // related to NSB issue #1819
-    [Test]
-    public async Task It_should_not_invoke_SagaNotFound_handler()
+    [Test, CancelAfter(60_000)]
+    public async Task It_should_not_invoke_SagaNotFound_handler(CancellationToken cancellationToken = default)
     {
         Requires.DelayedDelivery();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))
             .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
-            .Run(TimeSpan.FromSeconds(60));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
@@ -72,8 +73,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
-    [Test]
-    public async Task By_retry_Should_create_new_trace_and_link_to_send()
+    [Test, CancelAfter(120_000)]
+    public async Task By_retry_Should_create_new_trace_and_link_to_send(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
@@ -81,7 +82,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 .When(session => session.SendLocal(new MessageToBeRetried()))
                 .DoNotFailOnErrorMessages())
             .Done(c => !c.FailedMessages.IsEmpty)
-            .Run(TimeSpan.FromSeconds(120));
+            .Run(cancellationToken);
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();

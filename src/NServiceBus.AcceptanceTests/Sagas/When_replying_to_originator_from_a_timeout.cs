@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -8,15 +9,15 @@ using NUnit.Framework;
 
 public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_route_the_message_to_the_endpoint_starting_the_saga()
+    [Test, CancelAfter(15_000)]
+    public async Task Should_route_the_message_to_the_endpoint_starting_the_saga(CancellationToken cancellationToken = default)
     {
         Requires.DelayedDelivery();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
             .Done(c => c.DidRequestingSagaGetTheResponse)
-            .Run(TimeSpan.FromSeconds(15));
+            .Run(cancellationToken);
 
         Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
     }

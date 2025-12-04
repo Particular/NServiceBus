@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -10,8 +11,8 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_publishing_using_base_type : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Event_should_be_published_using_instance_type()
+    [Test, CancelAfter(20_000)]
+    public async Task Event_should_be_published_using_instance_type(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b =>
@@ -31,7 +32,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                 }
             }))
             .Done(c => c.Subscriber1GotTheEvent)
-            .Run(TimeSpan.FromSeconds(20));
+            .Run(cancellationToken);
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
     }
