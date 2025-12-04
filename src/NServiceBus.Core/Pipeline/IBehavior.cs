@@ -25,6 +25,4 @@ public interface IBehavior<in TInContext, out TOutContext> : IBehavior
 /// <summary>
 /// Base interface for all behaviors.
 /// </summary>
-public interface IBehavior
-{
-}
+public interface IBehavior;

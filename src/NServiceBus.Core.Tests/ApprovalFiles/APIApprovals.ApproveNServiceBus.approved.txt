@@ -629,8 +629,11 @@ namespace NServiceBus
     }
     public static class MessageIdExtensions
     {
-        public static string GetMessageId(this NServiceBus.Extensibility.ExtendableOptions options) { }
-        public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions options, string messageId) { }
+        extension(NServiceBus.Extensibility.ExtendableOptions options)
+        {
+            public void SetMessageId(string messageId) { }
+            public string? GetMessageId() { }
+        }
     }
     public enum MessageIntent
     {
@@ -1895,15 +1898,15 @@ namespace NServiceBus.Pipeline
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Register<T>(string stepId, T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void RegisterOrReplace(string stepId, System.Type behavior, string description = null) { }
-        public void RegisterOrReplace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
+        public void RegisterOrReplace(string stepId, System.Type behavior, string? description = null) { }
+        public void RegisterOrReplace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string? description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
+        public void RegisterOrReplace<T>(string stepId, T behavior, string? description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void Replace(string stepId, System.Type newBehavior, string description = null) { }
-        public void Replace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string description = null)
+        public void Replace(string stepId, System.Type newBehavior, string? description = null) { }
+        public void Replace<T>(string stepId, System.Func<System.IServiceProvider, T> factoryMethod, string? description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public void Replace<T>(string stepId, T newBehavior, string description = null)
+        public void Replace<T>(string stepId, T newBehavior, string? description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>

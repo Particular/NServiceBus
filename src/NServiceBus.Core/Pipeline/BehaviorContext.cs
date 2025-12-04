@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -5,20 +7,16 @@ using System.Threading;
 using Extensibility;
 using Pipeline;
 
-abstract class BehaviorContext : ContextBag, IBehaviorContext
+abstract class BehaviorContext(ContextBag? parentContext, CancellationToken cancellationToken = default)
+    : ContextBag(parentContext), IBehaviorContext
 {
-    protected BehaviorContext(IBehaviorContext parentContext) : this(parentContext?.Extensions, parentContext?.CancellationToken ?? default)
+    protected BehaviorContext(IBehaviorContext? parentContext) : this(parentContext?.Extensions, parentContext?.CancellationToken ?? CancellationToken.None)
     {
-    }
-
-    public BehaviorContext(ContextBag parentContext, CancellationToken cancellationToken = default) : base(parentContext)
-    {
-        CancellationToken = cancellationToken;
     }
 
     public IServiceProvider Builder => Get<IServiceProvider>();
 
     public ContextBag Extensions => this;
 
-    public CancellationToken CancellationToken { get; }
+    public CancellationToken CancellationToken { get; } = cancellationToken;
 }

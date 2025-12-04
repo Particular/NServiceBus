@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Pipeline;
 
 using System;
@@ -23,7 +25,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace(string stepId, Type newBehavior, string description = null)
+    public void Replace(string stepId, Type newBehavior, string? description = null)
     {
         BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
@@ -41,14 +43,14 @@ public class PipelineSettings : ExposeSettings
     /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace<T>(string stepId, T newBehavior, string description = null)
+    public void Replace<T>(string stepId, T newBehavior, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
         EnsureWriteEnabled(stepId, nameof(Replace));
 
-        var replaceStep = new ReplaceStep(stepId, typeof(T), description, builder => newBehavior);
+        var replaceStep = new ReplaceStep(stepId, typeof(T), description, _ => newBehavior);
 
         modifications.AddReplacement(replaceStep);
     }
@@ -60,7 +62,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
+    public void Replace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
@@ -78,7 +80,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace(string stepId, Type behavior, string description = null)
+    public void RegisterOrReplace(string stepId, Type behavior, string? description = null)
     {
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
@@ -96,7 +98,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace<T>(string stepId, T behavior, string description = null)
+    public void RegisterOrReplace<T>(string stepId, T behavior, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
@@ -104,7 +106,7 @@ public class PipelineSettings : ExposeSettings
         EnsureWriteEnabled(stepId, nameof(Replace));
         EnsureWriteEnabled(stepId, nameof(Register));
 
-        var step = RegisterOrReplaceStep.Create(stepId, typeof(T), description, builder => behavior);
+        var step = RegisterOrReplaceStep.Create(stepId, typeof(T), description, _ => behavior);
 
         modifications.AddAdditionOrReplacement(step);
     }
@@ -115,7 +117,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description = null)
+    public void RegisterOrReplace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
