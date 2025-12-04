@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace NServiceBus.Extensibility;
 
 using System;
@@ -50,11 +52,6 @@ public static class ExtendableOptionsExtensions
     static ContextBag GetOperationPropertiesInternal(this IBehaviorContext behaviorContext)
     {
         ArgumentNullException.ThrowIfNull(behaviorContext);
-        if (!behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag context))
-        {
-            return behaviorContext.Extensions; // fallback behavior, e.g. when invoking the outgoing pipeline without using MessageOperation API.
-        }
-
-        return context;
+        return behaviorContext.Extensions.TryGet(ExtendableOptions.OperationPropertiesKey, out ContextBag? context) ? context : behaviorContext.Extensions; // fallback behavior, e.g. when invoking the outgoing pipeline without using MessageOperation API.
     }
 }

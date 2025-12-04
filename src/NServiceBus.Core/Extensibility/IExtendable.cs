@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Extensibility;
+﻿#nullable enable
+
+namespace NServiceBus.Extensibility;
 
 using System.ComponentModel;
 

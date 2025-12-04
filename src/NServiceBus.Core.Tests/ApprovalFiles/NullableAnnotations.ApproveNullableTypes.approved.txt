@@ -18,8 +18,6 @@ NServiceBus.EndpointConfiguration
 NServiceBus.EndpointInstanceExtensions
 NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.ErrorQueueSettings
-NServiceBus.Extensibility.ExtendableOptionsExtensions
-NServiceBus.Extensibility.IExtendable
 NServiceBus.FailedConfig
 NServiceBus.Faults.DelayedRetryMessage
 NServiceBus.Faults.FailedMessage
