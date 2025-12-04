@@ -139,8 +139,8 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             {
                 keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey), (serviceProvider, key) =>
                 {
-                    KeyedServiceKey resultingKeyedServiceKey = key is null ? serviceKey : new KeyedServiceKey(key);
-                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                    var resultingKey = key is null ? serviceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                     return descriptor.KeyedImplementationFactory!(keyedProvider, key);
                 }, descriptor.Lifetime);
             }
@@ -149,8 +149,8 @@ class KeyedServiceCollectionAdapter : IServiceCollection
                 keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, new KeyedServiceKey(serviceKey, descriptor.ServiceKey),
                     (serviceProvider, key) =>
                     {
-                        KeyedServiceKey resultingKeyedServiceKey = key is null ? serviceKey : new KeyedServiceKey(key);
-                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                        var resultingKey = key is null ? serviceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
+                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                         return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.KeyedImplementationType) :
                             factories.GetOrAdd(descriptor.KeyedImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
                     }, descriptor.Lifetime);
@@ -172,8 +172,8 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             {
                 keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey, (serviceProvider, key) =>
                 {
-                    KeyedServiceKey resultingKeyedServiceKey = key is null ? serviceKey : new KeyedServiceKey(key);
-                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                    var resultingKey = key is null ? serviceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
+                    var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                     return descriptor.ImplementationFactory!(keyedProvider);
                 }, descriptor.Lifetime);
             }
@@ -182,8 +182,8 @@ class KeyedServiceCollectionAdapter : IServiceCollection
                 keyedDescriptor = new ServiceDescriptor(descriptor.ServiceType, serviceKey,
                     (serviceProvider, key) =>
                     {
-                        KeyedServiceKey resultingKeyedServiceKey = key is null ? serviceKey : new KeyedServiceKey(key);
-                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKeyedServiceKey, this);
+                        var resultingKey = key is null ? serviceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
+                        var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                         return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.ImplementationType) :
                             factories.GetOrAdd(descriptor.ImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
                     }, descriptor.Lifetime);
