@@ -1,15 +1,14 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.IO;
 
 class SagaManifest
 {
-    public string StorageDirectory { get; set; }
-    public Type SagaEntityType { get; set; }
+    public required string StorageDirectory { get; init; }
+    public required Type SagaEntityType { get; init; }
 
-    public string GetFilePath(Guid sagaId)
-    {
-        return Path.Combine(StorageDirectory, sagaId + ".json");
-    }
+    public string GetFilePath(Guid sagaId) => Path.Combine(StorageDirectory, sagaId + ".json");
 }

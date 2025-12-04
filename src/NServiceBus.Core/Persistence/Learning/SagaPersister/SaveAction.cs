@@ -1,15 +1,17 @@
+﻿#nullable enable
+
 namespace NServiceBus;
 
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-class SaveAction : StorageAction
+class SaveAction(
+    IContainSagaData sagaData,
+    Dictionary<string, SagaStorageFile> sagaFiles,
+    SagaManifestCollection sagaManifests)
+    : StorageAction(sagaData, sagaFiles, sagaManifests)
 {
-    public SaveAction(IContainSagaData sagaData, Dictionary<string, SagaStorageFile> sagaFiles, SagaManifestCollection sagaManifests) : base(sagaData, sagaFiles, sagaManifests)
-    {
-    }
-
     public override async Task Execute(CancellationToken cancellationToken = default)
     {
         var sagaId = sagaData.Id;

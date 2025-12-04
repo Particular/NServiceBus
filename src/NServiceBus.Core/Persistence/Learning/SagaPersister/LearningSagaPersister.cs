@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -7,9 +9,13 @@ using Extensibility;
 using Persistence;
 using Sagas;
 
-class LearningSagaPersister : ISagaPersister
+sealed class LearningSagaPersister : ISagaPersister
 {
-    public LearningSagaPersister(SagaManifestCollection sagaManifests) => this.sagaManifests = sagaManifests;
+    public LearningSagaPersister(SagaManifestCollection sagaManifests)
+    {
+        ArgumentNullException.ThrowIfNull(sagaManifests);
+        this.sagaManifests = sagaManifests;
+    }
 
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
@@ -26,16 +32,12 @@ class LearningSagaPersister : ISagaPersister
     }
 
     public Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
-        where TSagaData : class, IContainSagaData
-    {
-        return Get<TSagaData>(sagaId, session, sagaManifests, cancellationToken);
-    }
+        where TSagaData : class, IContainSagaData =>
+        Get<TSagaData>(sagaId, session, sagaManifests, cancellationToken);
 
     public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
-        where TSagaData : class, IContainSagaData
-    {
-        return Get<TSagaData>(LearningSagaIdGenerator.Generate(typeof(TSagaData), propertyName, propertyValue), session, sagaManifests, cancellationToken);
-    }
+        where TSagaData : class, IContainSagaData =>
+        Get<TSagaData>(LearningSagaIdGenerator.Generate(typeof(TSagaData), propertyName, propertyValue), session, sagaManifests, cancellationToken);
 
     public Task Complete(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
@@ -47,7 +49,7 @@ class LearningSagaPersister : ISagaPersister
     static Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, SagaManifestCollection sagaManifests, CancellationToken cancellationToken) where TSagaData : class, IContainSagaData
     {
         var storageSession = (LearningSynchronizedStorageSession)session;
-        return storageSession.Read<TSagaData>(sagaId, sagaManifests, cancellationToken);
+        return storageSession.Read<TSagaData>(sagaId, sagaManifests, cancellationToken)!;
     }
 
     readonly SagaManifestCollection sagaManifests;
