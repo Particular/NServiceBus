@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 using NUnit.Framework;
 
 [TestFixture]
-public class ExtensionMethodsTests
+public class TypeExtensionMethodsTests
 {
     [Test]
     public void SerializationFriendlyNameTests()
@@ -35,9 +35,7 @@ public class ExtensionMethodsTests
         }
     }
 
-    class Target
-    {
-    }
+    class Target;
 
     [Test]
     public void Should_return_false_for_type_in_SN_and_non_particular_assembly() => Assert.That(typeof(string).IsFromParticularAssembly(), Is.False);

@@ -33,6 +33,7 @@ public class MessageHandlerRegistry
                 }
             }
         }
+
         return messageHandlers;
     }
 
@@ -58,12 +59,6 @@ public class MessageHandlerRegistry
     [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
-    void AddHandlerWithReflection(Type handlerType) =>
-        typeof(MessageHandlerRegistry)
-            .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, [])!
-            .MakeGenericMethod(handlerType)
-            .Invoke(this, []);
-
     /// <summary>
     /// Registers the handler type.
     /// </summary>
@@ -87,14 +82,12 @@ public class MessageHandlerRegistry
             var messageType = interfaceType.GetGenericArguments()[0];
             if (genericTypeDefinition == typeof(IHandleMessages<>))
             {
-                AddMessageHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
-                    .Invoke(this, []);
+                _ = AddMessageHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
 
             if (genericTypeDefinition == typeof(IHandleTimeouts<>))
             {
-                AddTimeoutHandlerForMessageMethodInfo.MakeGenericMethod(handlerType, messageType)
-                    .Invoke(this, []);
+                _ = AddTimeoutHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
         }
     }
@@ -139,15 +132,9 @@ public class MessageHandlerRegistry
         {
             messageHandlerFactories[typeof(THandler)] = handlerFactories = [];
         }
+
         return handlerFactories;
     }
-
-    static readonly MethodInfo AddMessageHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
-
-    static readonly MethodInfo AddTimeoutHandlerForMessageMethodInfo = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
-
 
     /// <summary>
     /// Add handlers from types scanned at runtime.
@@ -182,6 +169,19 @@ public class MessageHandlerRegistry
         messageHandlerFactories.Clear();
         deduplicationSet.Clear();
     }
+
+    void AddHandlerWithReflection(Type handlerType) =>
+        AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
+
+    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
+
+    static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+
+    static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
+
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];

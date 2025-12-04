@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Sagas;
 using Support;
 
 public static class EndpointConfigurationExtensions
@@ -92,14 +91,14 @@ public static class EndpointConfigurationExtensions
     }
 
     static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
-        typeof(MessageHandlerRegistrationExtensions)
-            .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!
-            .MakeGenericMethod(handlerType)
-            .Invoke(null, [endpointConfiguration]);
+        AddHandlerWithReflectionMethod.InvokeGeneric(null, [endpointConfiguration], [handlerType]);
 
     static void AddSagaWithReflection(Type sagaType, EndpointConfiguration endpointConfiguration) =>
-        typeof(SagaRegistrationExtensions)
-            .GetMethod("AddSaga", BindingFlags.Public | BindingFlags.Static)!
-            .MakeGenericMethod(sagaType)
-            .Invoke(null, [endpointConfiguration]);
+        AddSagaWithReflectionMethod.InvokeGeneric(null, [endpointConfiguration], [sagaType]);
+
+    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistrationExtensions)
+        .GetMethod("AddHandler", BindingFlags.Public | BindingFlags.Static)!;
+
+    static readonly MethodInfo AddSagaWithReflectionMethod = typeof(SagaRegistrationExtensions)
+        .GetMethod("AddSaga", BindingFlags.Public | BindingFlags.Static)!;
 }
