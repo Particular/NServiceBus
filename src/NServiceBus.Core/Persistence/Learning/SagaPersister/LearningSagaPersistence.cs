@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 using System;
 using System.IO;
@@ -31,5 +33,5 @@ sealed class LearningSagaPersistence : Feature
         context.Services.AddSingleton<ISagaPersister, LearningSagaPersister>();
     }
 
-    internal static string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
+    internal static readonly string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
 }

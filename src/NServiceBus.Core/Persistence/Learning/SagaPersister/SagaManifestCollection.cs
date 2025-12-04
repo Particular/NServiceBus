@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ class SagaManifestCollection
     {
         foreach (var metadata in sagas)
         {
-            var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName));
+            var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName!));
 
             if (!Directory.Exists(sagaStorageDir))
             {
@@ -28,10 +30,7 @@ class SagaManifestCollection
         }
     }
 
-    public SagaManifest GetForEntityType(Type type)
-    {
-        return sagaManifests[type];
-    }
+    public SagaManifest GetForEntityType(Type type) => sagaManifests[type];
 
     readonly Dictionary<Type, SagaManifest> sagaManifests = [];
 }

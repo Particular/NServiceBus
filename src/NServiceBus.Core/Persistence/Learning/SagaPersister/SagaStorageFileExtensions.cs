@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -5,8 +7,8 @@ using System.Collections.Generic;
 
 static class SagaStorageFileExtensions
 {
-    public static void RegisterSagaFile(this Dictionary<string, SagaStorageFile> sagaFiles, SagaStorageFile sagaStorageFile, Guid sagaId, Type sagaDataType)
+    extension(Dictionary<string, SagaStorageFile> sagaFiles)
     {
-        sagaFiles[$"{sagaDataType.FullName}{sagaId}"] = sagaStorageFile;
+        public void RegisterSagaFile(SagaStorageFile sagaStorageFile, Guid sagaId, Type sagaDataType) => sagaFiles[$"{sagaDataType.FullName}{sagaId}"] = sagaStorageFile;
     }
 }
