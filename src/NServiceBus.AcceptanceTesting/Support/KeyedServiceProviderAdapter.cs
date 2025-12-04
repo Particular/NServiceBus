@@ -125,7 +125,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         var services = (IList)Activator.CreateInstance(genericEnumerable)!;
         foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
         {
-            services.Add(service);
+            _ = services.Add(service);
         }
         return services;
     }
@@ -166,7 +166,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         var services = (IList)Activator.CreateInstance(genericEnumerable)!;
         foreach (var service in inner.GetServices(itemType).Concat(inner.GetKeyedServices(itemType, KeyedService.AnyKey)))
         {
-            services.Add(service);
+            _ = services.Add(service);
         }
         return services;
     }
