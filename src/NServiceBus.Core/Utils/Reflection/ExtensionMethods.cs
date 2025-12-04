@@ -118,7 +118,7 @@ static class MethodInfoExtensions
             }
 
             var genericParameters = string.Join(",", genericTypes.Select(t => t.Name));
-            throw new Exception($"Failed invoke {method.Name}<{genericParameters}> using reflection", e);
+            throw new Exception($"Failed to invoke {method.Name}<{genericParameters}> using reflection", e);
         }
     }
 }
