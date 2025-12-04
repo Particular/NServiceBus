@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTesting.Support;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,21 +43,17 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        if (IsServiceProvider(serviceType))
         {
             return this;
         }
 
-        if (serviceType == typeof(IServiceScopeFactory))
+        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
         {
-            var scopeFactory = inner.GetService<IServiceScopeFactory>();
-            if (scopeFactory != null)
-            {
-                return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
-            }
+            return scopeFactory;
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, serviceKeyedServiceKey)
                 ? inner.GetKeyedService(serviceType, serviceKeyedServiceKey)
@@ -67,22 +64,23 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return IsKeyedService(itemType, serviceKeyedServiceKey) ? inner.GetKeyedServices(itemType, serviceKeyedServiceKey) : inner.GetServices(itemType);
     }
 
+    static bool IsServicesRequest(Type serviceType) => serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+
     public object GetRequiredService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        if (IsServiceProvider(serviceType))
         {
             return this;
         }
 
-        if (serviceType == typeof(IServiceScopeFactory))
+        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
         {
-            var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
-            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
+            return scopeFactory;
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(System.Collections.Generic.IEnumerable<>))
+        if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, serviceKeyedServiceKey)
                 ? inner.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey)
@@ -97,20 +95,18 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        if (IsServiceProvider(serviceType))
         {
             return this;
         }
 
-        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
-
-        if (serviceType == typeof(IServiceScopeFactory))
+        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
         {
-            var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
-            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
+            return scopeFactory;
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
+        if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, computedServiceKey)
                 ? inner.GetKeyedService(serviceType, computedServiceKey)
@@ -134,24 +130,24 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return services;
     }
 
+    static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
+
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService))
+        if (IsServiceProvider(serviceType))
         {
             return this;
         }
 
-        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
-
-        if (serviceType == typeof(IServiceScopeFactory))
+        if (TryGetScopeFactory(serviceType, out object? scopeFactory))
         {
-            var scopeFactory = inner.GetRequiredService<IServiceScopeFactory>();
-            return new KeyedServiceScopeFactory(scopeFactory, serviceKeyedServiceKey, serviceCollection);
+            return scopeFactory;
         }
 
-        if (!serviceType.IsGenericType || serviceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+        var computedServiceKey = new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
+        if (!IsServicesRequest(serviceType))
         {
             return IsKeyedService(serviceType, computedServiceKey)
                 ? inner.GetRequiredKeyedService(serviceType, computedServiceKey)
@@ -173,6 +169,18 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
             services.Add(service);
         }
         return services;
+    }
+
+    bool TryGetScopeFactory(Type serviceType, [NotNullWhen(true)] out object? scopeFactory)
+    {
+        if (serviceType != typeof(IServiceScopeFactory))
+        {
+            scopeFactory = null;
+            return false;
+        }
+
+        scopeFactory = new KeyedServiceScopeFactory(inner.GetRequiredService<IServiceScopeFactory>(), serviceKeyedServiceKey, serviceCollection);
+        return true;
     }
 
     public void Dispose() => (inner as IDisposable)?.Dispose();
