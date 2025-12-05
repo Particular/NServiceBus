@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -26,7 +28,7 @@ partial class ReceiveComponent
             () => handledMessages.Select(handledMessage => new ReceiveComponentManifestMessageType
             {
                 Name = handledMessage.MessageType.Name,
-                FullName = handledMessage.MessageType.FullName,
+                FullName = handledMessage.MessageType.FullName!,
                 IsMessage = handledMessage.IsMessage,
                 IsEvent = handledMessage.IsEvent,
                 IsCommand = handledMessage.IsCommand,
@@ -42,16 +44,16 @@ partial class ReceiveComponent
     {
         public record SchemaProperty
         {
-            public string Name { get; init; }
-            public string Type { get; init; }
+            public required string Name { get; init; }
+            public required string Type { get; init; }
         }
 
-        public string Name { get; init; }
-        public string FullName { get; init; }
+        public required string Name { get; init; }
+        public required string FullName { get; init; }
         public bool IsMessage { get; init; }
         public bool IsEvent { get; init; }
         public bool IsCommand { get; init; }
-        public SchemaProperty[] Schema { get; init; }
+        public required SchemaProperty[] Schema { get; init; }
     }
 
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
@@ -68,7 +70,7 @@ partial class ReceiveComponent
         var queueNameBase = settings.CustomQueueNameBase ?? endpointName;
         var purgeOnStartup = settings.PurgeOnStartup;
 
-        QueueAddress instanceSpecificQueueAddress = null;
+        QueueAddress? instanceSpecificQueueAddress = null;
 
         if (discriminator != null)
         {
@@ -93,7 +95,7 @@ partial class ReceiveComponent
     }
 
     public class Configuration(QueueAddress localQueueAddress,
-        QueueAddress instanceSpecificQueueAddress,
+        QueueAddress? instanceSpecificQueueAddress,
         PushRuntimeSettings pushRuntimeSettings,
         bool purgeOnStartup,
         Notification<ReceivePipelineCompleted> pipelineCompletedSubscribers,
@@ -103,7 +105,7 @@ partial class ReceiveComponent
     {
         public QueueAddress LocalQueueAddress { get; } = localQueueAddress;
 
-        public QueueAddress InstanceSpecificQueueAddress { get; } = instanceSpecificQueueAddress;
+        public QueueAddress? InstanceSpecificQueueAddress { get; } = instanceSpecificQueueAddress;
 
         public PushRuntimeSettings PushRuntimeSettings { get; } = pushRuntimeSettings;
 
