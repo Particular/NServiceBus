@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -9,33 +11,36 @@ using NServiceBus.Transport;
 /// </summary>
 public static class ReceiveFeatureConfigurationContextExtensions
 {
-    /// <summary>
-    /// Returns the local queue address of this endpoint.
-    /// </summary>
-    public static QueueAddress LocalQueueAddress(this FeatureConfigurationContext config)
+    extension(FeatureConfigurationContext config)
     {
-        ArgumentNullException.ThrowIfNull(config);
-
-        if (config.Receiving.IsSendOnlyEndpoint)
+        /// <summary>
+        /// Returns the local queue address of this endpoint.
+        /// </summary>
+        public QueueAddress LocalQueueAddress()
         {
-            throw new InvalidOperationException("LocalQueueAddress isn't available for send only endpoints.");
+            ArgumentNullException.ThrowIfNull(config);
+
+            if (config.Receiving.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("LocalQueueAddress isn't available for send only endpoints.");
+            }
+
+            return config.Receiving.LocalQueueAddress;
         }
 
-        return config.Receiving.LocalQueueAddress;
-    }
-
-    /// <summary>
-    /// Returns the instance specific queue address of this endpoint.
-    /// </summary>
-    public static QueueAddress InstanceSpecificQueueAddress(this FeatureConfigurationContext config)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-
-        if (config.Receiving.IsSendOnlyEndpoint)
+        /// <summary>
+        /// Returns the instance specific queue address of this endpoint.
+        /// </summary>
+        public QueueAddress? InstanceSpecificQueueAddress()
         {
-            throw new InvalidOperationException("InstanceSpecificQueueAddress isn't available for send only endpoints.");
-        }
+            ArgumentNullException.ThrowIfNull(config);
 
-        return config.Receiving.InstanceSpecificQueueAddress;
+            if (config.Receiving.IsSendOnlyEndpoint)
+            {
+                throw new InvalidOperationException("InstanceSpecificQueueAddress isn't available for send only endpoints.");
+            }
+
+            return config.Receiving.InstanceSpecificQueueAddress;
+        }
     }
 }

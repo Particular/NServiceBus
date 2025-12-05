@@ -43,24 +43,17 @@ class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IO
         return next(context);
     }
 
-    string ApplyUserOverride(string replyTo, State state)
-    {
-        if (state.Option == RouteOption.RouteReplyToAnyInstanceOfThisEndpoint)
+    string ApplyUserOverride(string replyTo, State state) =>
+        state.Option switch
         {
-            replyTo = sharedQueue;
-        }
-        else if (state.Option == RouteOption.RouteReplyToThisInstance)
-        {
-            replyTo = instanceSpecificQueue;
-        }
-        else if (state.Option == RouteOption.ExplicitReplyDestination)
-        {
-            replyTo = state.ExplicitDestination!;
-        }
-        return replyTo;
-    }
+            RouteOption.RouteReplyToAnyInstanceOfThisEndpoint => sharedQueue,
+            RouteOption.RouteReplyToThisInstance => instanceSpecificQueue!,
+            RouteOption.ExplicitReplyDestination => state.ExplicitDestination!,
+            RouteOption.None => replyTo,
+            _ => replyTo
+        };
 
-    readonly string instanceSpecificQueue;
+    readonly string? instanceSpecificQueue;
     readonly string sharedQueue;
     readonly string configuredReturnAddress;
 

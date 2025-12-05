@@ -1,6 +1,9 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.Logging;
@@ -44,13 +47,14 @@ class WrappedMessageReceiver(
         await baseReceiver.StopReceive(cancellationToken).ConfigureAwait(false);
     }
 
+    [MemberNotNull(nameof(wrappedOnMessage), nameof(originalLimitations), nameof(wrappedOnError), nameof(consecutiveFailuresCircuitBreaker))]
     public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
     {
         wrappedOnMessage = onMessage;
         wrappedOnError = onError;
         originalLimitations = limitations;
 
-        consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker((ticks, cancellationToken) =>
+        consecutiveFailuresCircuitBreaker = consecutiveFailuresConfiguration.CreateCircuitBreaker((ticks, _) =>
         {
             SwitchToRateLimitMode(ticks);
             return Task.CompletedTask;
@@ -65,12 +69,18 @@ class WrappedMessageReceiver(
 
     async Task WrappedInvoke(MessageContext messageContext, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(wrappedOnMessage);
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresCircuitBreaker);
+
         await wrappedOnMessage(messageContext, cancellationToken).ConfigureAwait(false);
         await consecutiveFailuresCircuitBreaker.Success(cancellationToken).ConfigureAwait(false);
     }
 
     async Task<ErrorHandleResult> WrappedOnError(ErrorContext errorContext, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(wrappedOnError);
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresCircuitBreaker);
+
         await consecutiveFailuresCircuitBreaker.Failure(cancellationToken).ConfigureAwait(false);
 
         return await wrappedOnError(errorContext, cancellationToken).ConfigureAwait(false);
@@ -135,6 +145,7 @@ class WrappedMessageReceiver(
 
     async Task StopRateLimiting(CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(originalLimitations);
         try
         {
             await ChangeConcurrency(originalLimitations, cancellationToken).ConfigureAwait(false);
@@ -176,13 +187,13 @@ class WrappedMessageReceiver(
     static readonly ILog Logger = LogManager.GetLogger<WrappedMessageReceiver>();
     static readonly PushRuntimeSettings RateLimitedRuntimeSettings = new(1);
 
-    ConsecutiveFailuresCircuitBreaker consecutiveFailuresCircuitBreaker;
+    ConsecutiveFailuresCircuitBreaker? consecutiveFailuresCircuitBreaker;
     TaskCompletionSource resetEventReplacement = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    Task rateLimitTask;
+    Task? rateLimitTask;
     readonly CancellationTokenSource rateLimitLoopCancellationToken = new();
-    OnMessage wrappedOnMessage;
-    OnError wrappedOnError;
-    PushRuntimeSettings originalLimitations;
+    OnMessage? wrappedOnMessage;
+    OnError? wrappedOnError;
+    PushRuntimeSettings? originalLimitations;
 
     bool endpointShouldBeRateLimited;
     long lastStateChangeTime = 0;

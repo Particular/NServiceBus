@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using Settings;
@@ -12,11 +14,11 @@ partial class ReceiveComponent
 
         public bool CustomQueueNameBaseProvided => settings.HasExplicitValue(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
-        public string CustomQueueNameBase => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
+        public string? CustomQueueNameBase => settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomQueueNameBaseKey);
 
         public string EndpointName => settings.EndpointName();
 
-        public string EndpointInstanceDiscriminator => settings.GetOrDefault<string>(EndpointInstanceDiscriminatorSettingsKey);
+        public string? EndpointInstanceDiscriminator => settings.GetOrDefault<string>(EndpointInstanceDiscriminatorSettingsKey);
 
         public bool PurgeOnStartup
         {
