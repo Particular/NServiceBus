@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Features;
 
+using System;
 using Logging;
 using Transport;
 
@@ -10,18 +11,32 @@ using Transport;
 /// </summary>
 public sealed class Audit : Feature
 {
+    const string AuditAddressEnvironmentVariableKey = "Audit__Address";
+    const string AuditEnabledEnvironmentVariableKey = "Audit__IsEnabled";
+
     /// <summary>
     /// Creates a new instance of the audit feature.
     /// </summary>
     public Audit()
     {
-        Defaults(settings =>
+        Prerequisite(_ =>
         {
-            settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));
-        });
-        Prerequisite(config => config.Settings.GetOrDefault<AuditConfigReader.Result>() != null, "No configured audit queue was found");
-        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
-            "Auditing is only relevant for endpoints receiving messages.");
+            var auditEnabledValue = Environment.GetEnvironmentVariable(AuditEnabledEnvironmentVariableKey);
+
+            // auditing is enabled by default and must be explicitly disabled
+            return auditEnabledValue is null ||
+                   !bool.TryParse(auditEnabledValue, out var isEnabled) ||
+                   isEnabled;
+        }, $"Auditing was disabled via the `{AuditEnabledEnvironmentVariableKey}` environment variable setting");
+
+        var defaultAuditQueue = Environment.GetEnvironmentVariable(AuditAddressEnvironmentVariableKey);
+        if (defaultAuditQueue is not null)
+        {
+            Defaults(settings => settings.SetDefault(new AuditConfigReader.Result(defaultAuditQueue, null)));
+        }
+
+        Prerequisite(config => !string.IsNullOrEmpty(config.Settings.GetOrDefault<AuditConfigReader.Result>()?.Address), "No configured audit queue was found");
+        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Auditing is only relevant for endpoints receiving messages.");
     }
 
 
