@@ -1,19 +1,18 @@
 ﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Pipeline;
 using Transport;
 
-class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
+class SubscriptionBehavior<TContext>(
+    Action<SubscriptionEvent, TContext> action,
+    TContext scenarioContext,
+    MessageIntent intentToHandle)
+    : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+    where TContext : ScenarioContext
 {
-    public SubscriptionBehavior(Action<SubscriptionEvent, TContext> action, TContext scenarioContext, MessageIntent intentToHandle)
-    {
-        this.action = action;
-        this.scenarioContext = scenarioContext;
-        this.intentToHandle = intentToHandle;
-    }
-
     public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
     {
         await next(context).ConfigureAwait(false);
@@ -45,12 +44,5 @@ class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITran
         }
     }
 
-    static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
-    {
-        return msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out var headerValue) ? headerValue : null;
-    }
-
-    Action<SubscriptionEvent, TContext> action;
-    TContext scenarioContext;
-    MessageIntent intentToHandle;
+    static string? GetSubscriptionMessageTypeFrom(IncomingMessage msg) => msg.Headers.GetValueOrDefault(Headers.SubscriptionMessageType);
 }

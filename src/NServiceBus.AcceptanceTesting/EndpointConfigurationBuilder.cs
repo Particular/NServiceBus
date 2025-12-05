@@ -6,8 +6,10 @@ using Configuration.AdvancedExtensibility;
 using Features;
 using Support;
 
-public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
+public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 {
+    protected EndpointConfigurationBuilder() => configuration = new EndpointCustomizationConfiguration { BuilderType = GetType(), };
+
     public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
     {
         configuration.CustomMachineName = customMachineName;
@@ -36,23 +38,21 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
         return configuration;
     }
 
-    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
-        Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
+    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration>? configurationBuilderCustomization = null,
+        Action<PublisherMetadata>? publisherMetadata = null) where T : IEndpointSetupTemplate, new()
     {
         configurationBuilderCustomization ??= b => { };
 
         return EndpointSetup<T>((bc, _) => configurationBuilderCustomization(bc), publisherMetadata);
     }
 
-    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
+    public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata>? publisherMetadata = null) where T : IEndpointSetupTemplate, new()
     {
-        configurationBuilderCustomization ??= (rd, b) => { };
-
         var template = new T();
         return EndpointSetup(template, configurationBuilderCustomization, publisherMetadata);
     }
 
-    public EndpointConfigurationBuilder EndpointSetup(IEndpointSetupTemplate endpointTemplate, Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+    public EndpointConfigurationBuilder EndpointSetup(IEndpointSetupTemplate endpointTemplate, Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata>? publisherMetadata = null)
     {
         publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
@@ -75,12 +75,10 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
         return this;
     }
 
-    public EndpointConfigurationBuilder EndpointSetup<T, TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+    public EndpointConfigurationBuilder EndpointSetup<T, TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata>? publisherMetadata = null)
         where T : IEndpointSetupTemplate, new()
         where TContext : ScenarioContext
     {
-        configurationBuilderCustomization ??= (rd, b) => { };
-
         publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
         configuration.GetConfiguration = async runDescriptor =>
@@ -105,9 +103,7 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
     EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get() => CreateScenario();
 
-    public ScenarioContext ScenarioContext { get; set; }
-
-    readonly EndpointCustomizationConfiguration configuration = new();
+    public ScenarioContext? ScenarioContext { get; set; }
 
     public EndpointConfigurationBuilder IncludeType<T>()
     {
@@ -129,4 +125,6 @@ public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
 
         return this;
     }
+
+    readonly EndpointCustomizationConfiguration configuration;
 }

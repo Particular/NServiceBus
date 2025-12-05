@@ -9,20 +9,13 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
-public class ScenarioRunner
+public class ScenarioRunner(
+    RunDescriptor runDescriptor,
+    List<IComponentBehavior> behaviorDescriptors,
+    Func<ScenarioContext, Task<bool>> done)
 {
-    readonly RunDescriptor runDescriptor;
-    readonly List<IComponentBehavior> behaviorDescriptors;
-    readonly Func<ScenarioContext, Task<bool>> done;
-
-    public ScenarioRunner(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
-    {
-        this.runDescriptor = runDescriptor;
-        this.behaviorDescriptors = behaviorDescriptors;
-        this.done = done;
-    }
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
     public async Task<RunSummary> Run()
     {
@@ -55,7 +48,9 @@ public class ScenarioRunner
         {
             var endpoints = await InitializeRunners().ConfigureAwait(false);
 
-            runResult.ActiveEndpoints = endpoints.Select(r => r.Name);
+            runResult.ActiveEndpoints = [.. endpoints.Select(r => r.Name)];
+
+            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
 
             await PerformScenarios(endpoints).ConfigureAwait(false);
 
@@ -63,7 +58,6 @@ public class ScenarioRunner
         }
         catch (Exception ex)
         {
-            runResult.Failed = true;
             runResult.Exception = ExceptionDispatchInfo.Capture(ex);
         }
 
@@ -182,9 +176,19 @@ public class ScenarioRunner
     {
         using var stopTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
 
-        await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
-            .WaitAsync(stopTimeoutCts.Token)
-            .ConfigureAwait(false);
+        try
+        {
+            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
+                .WaitAsync(stopTimeoutCts.Token)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            if (runDescriptor.ServiceProvider is not null)
+            {
+                await runDescriptor.ServiceProvider.DisposeAsync().ConfigureAwait(false);
+            }
+        }
     }
 
     async Task StopEndpoint(ComponentRunner endpoint, CancellationToken cancellationToken)
@@ -219,37 +223,4 @@ public class ScenarioRunner
 
         return new CancellationTokenSource(timeout);
     }
-}
-
-public class RunResult
-{
-    public bool Failed { get; set; }
-
-    public ExceptionDispatchInfo Exception { get; set; }
-
-    public TimeSpan TotalTime { get; set; }
-
-    public ScenarioContext ScenarioContext { get; set; }
-
-    public IEnumerable<string> ActiveEndpoints
-    {
-        get
-        {
-            activeEndpoints ??= [];
-
-            return activeEndpoints;
-        }
-        set => activeEndpoints = value.ToList();
-    }
-
-    IList<string> activeEndpoints;
-}
-
-public class RunSummary
-{
-    public RunResult Result { get; set; }
-
-    public RunDescriptor RunDescriptor { get; set; }
-
-    public IEnumerable<IComponentBehavior> Endpoints { get; set; }
 }

@@ -13,21 +13,13 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
     [Test]
     public async Task RegisterComponents_calls_override_registrations()
     {
-        var serviceCollection = new ServiceCollection();
-
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithOverrides>(b => b
-                .ToCreateInstance(
-                    config =>
-                    {
-                        serviceCollection.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>();
-                        return EndpointWithExternallyManagedContainer.Create(config, serviceCollection);
-                    },
-                    (configured, ct) =>
-                    {
-                        serviceCollection.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>();
-                        return configured.Start(serviceCollection.BuildServiceProvider(), ct);
-                    }))
+            .WithEndpoint<EndpointWithOverrides>(b =>
+                // RegisterComponents is called during endpoint creation but before the endpoint is started which will override this registration
+                b.Services(static s => s.AddSingleton<IDependencyBeforeEndpointConfiguration, OriginallyDefinedDependency>(), afterStart: false)
+                // Simulate adding a registration after the endpoint has been created
+                .Services(static s => s.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>(), afterStart: true)
+            )
             .Done(c => c.EndpointsStarted)
             .Run();
 

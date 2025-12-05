@@ -7,8 +7,12 @@ using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
+/// <summary>
+/// This test deliberately uses a bunch of weird keyed service registrations to verify that many key types just work as expected.
+/// Async disposables are used to also demonstrate the disposal behavior when the service provider is externally managed.
+/// </summary>
 [TestFixture]
-public class When_registering_async_disposables_externally_managed : NServiceBusAcceptanceTest
+public class When_registering_keyed_async_disposables_externally_managed : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_dispose()
@@ -16,15 +20,15 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         var context = await Scenario.Define<Context>()
             .WithServices(static services =>
             {
-                services.AddSingleton<SingletonAsyncDisposableShared>();
-                services.AddScoped<ScopedAsyncDisposableShared>();
+                services.AddKeyedSingleton<SingletonAsyncDisposableShared>(false);
+                services.AddKeyedScoped<ScopedAsyncDisposableShared>(true);
             })
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.Services(static s =>
                 {
-                    s.AddSingleton<SingletonAsyncDisposable>();
-                    s.AddScoped<ScopedAsyncDisposable>();
+                    s.AddKeyedSingleton<SingletonAsyncDisposable>(256);
+                    s.AddKeyedScoped<ScopedAsyncDisposable>("scoped-async-disposable");
                 })
                 .When(e => e.SendLocal(new SomeMessage()));
             })
@@ -57,10 +61,10 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
 
         class HandlerWithAsyncDisposable(
             Context testContext,
-            ScopedAsyncDisposable scopedAsyncDisposable,
-            SingletonAsyncDisposable singletonAsyncDisposable,
-            ScopedAsyncDisposableShared scopedAsyncDisposableShared,
-            SingletonAsyncDisposableShared singletonAsyncDisposableShared,
+            [FromKeyedServices("scoped-async-disposable")] ScopedAsyncDisposable scopedAsyncDisposable,
+            [FromKeyedServices(256)] SingletonAsyncDisposable singletonAsyncDisposable,
+            [FromKeyedServices(false)] SingletonAsyncDisposableShared singletonAsyncDisposableShared,
+            [FromKeyedServices(true)] ScopedAsyncDisposableShared scopedAsyncDisposableShared,
             IServiceProvider serviceProvider)
             : IHandleMessages<SomeMessage>
         {
@@ -73,17 +77,17 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
 
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(scopedAsyncDisposable, Is.SameAs(serviceProvider.GetRequiredService<ScopedAsyncDisposable>()));
-                    Assert.That(scopedAsyncDisposable, Is.SameAs(serviceProvider.GetService<ScopedAsyncDisposable>()));
+                    Assert.That(scopedAsyncDisposable, Is.SameAs(serviceProvider.GetRequiredKeyedService<ScopedAsyncDisposable>("scoped-async-disposable")));
+                    Assert.That(scopedAsyncDisposable, Is.SameAs(serviceProvider.GetKeyedService<ScopedAsyncDisposable>("scoped-async-disposable")));
 
-                    Assert.That(singletonAsyncDisposable, Is.SameAs(serviceProvider.GetRequiredService<SingletonAsyncDisposable>()));
-                    Assert.That(singletonAsyncDisposable, Is.SameAs(serviceProvider.GetService<SingletonAsyncDisposable>()));
+                    Assert.That(singletonAsyncDisposable, Is.SameAs(serviceProvider.GetRequiredKeyedService<SingletonAsyncDisposable>(256)));
+                    Assert.That(singletonAsyncDisposable, Is.SameAs(serviceProvider.GetKeyedService<SingletonAsyncDisposable>(256)));
 
-                    Assert.That(scopedAsyncDisposableShared, Is.SameAs(serviceProvider.GetRequiredService<ScopedAsyncDisposableShared>()));
-                    Assert.That(scopedAsyncDisposableShared, Is.SameAs(serviceProvider.GetService<ScopedAsyncDisposableShared>()));
+                    Assert.That(scopedAsyncDisposableShared, Is.SameAs(serviceProvider.GetRequiredKeyedService<ScopedAsyncDisposableShared>(true)));
+                    Assert.That(scopedAsyncDisposableShared, Is.SameAs(serviceProvider.GetKeyedService<ScopedAsyncDisposableShared>(true)));
 
-                    Assert.That(singletonAsyncDisposableShared, Is.SameAs(serviceProvider.GetRequiredService<SingletonAsyncDisposableShared>()));
-                    Assert.That(singletonAsyncDisposableShared, Is.SameAs(serviceProvider.GetService<SingletonAsyncDisposableShared>()));
+                    Assert.That(singletonAsyncDisposableShared, Is.SameAs(serviceProvider.GetRequiredKeyedService<SingletonAsyncDisposableShared>(false)));
+                    Assert.That(singletonAsyncDisposableShared, Is.SameAs(serviceProvider.GetKeyedService<SingletonAsyncDisposableShared>(false)));
                 }
                 return Task.CompletedTask;
             }

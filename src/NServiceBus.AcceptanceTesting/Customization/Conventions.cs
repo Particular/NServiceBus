@@ -2,12 +2,9 @@ namespace NServiceBus.AcceptanceTesting.Customization;
 
 using System;
 
-public class Conventions
+public static class Conventions
 {
-    static Conventions()
-    {
-        EndpointNamingConvention = t => t.Name;
-    }
+    static Conventions() => EndpointNamingConvention = static t => t.Name;
 
     public static Func<Type, string> EndpointNamingConvention { get; set; }
 }

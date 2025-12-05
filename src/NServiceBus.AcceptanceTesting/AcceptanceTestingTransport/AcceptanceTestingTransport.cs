@@ -8,13 +8,12 @@ using AcceptanceTesting;
 using Routing;
 using Transport;
 
-public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
+public class AcceptanceTestingTransport(
+    bool enableNativeDelayedDelivery = true,
+    bool enableNativePublishSubscribe = true)
+    : TransportDefinition(TransportTransactionMode.SendsAtomicWithReceive, enableNativeDelayedDelivery,
+        enableNativePublishSubscribe, true), IMessageDrivenSubscriptionTransport
 {
-    public AcceptanceTestingTransport(bool enableNativeDelayedDelivery = true, bool enableNativePublishSubscribe = true)
-        : base(TransportTransactionMode.SendsAtomicWithReceive, enableNativeDelayedDelivery, enableNativePublishSubscribe, true)
-    {
-    }
-
     public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(hostSettings);
@@ -26,17 +25,14 @@ public class AcceptanceTestingTransport : TransportDefinition, IMessageDrivenSub
         return infrastructure;
     }
 
-    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
-    {
-        return new[]
-        {
-            TransportTransactionMode.None,
-            TransportTransactionMode.ReceiveOnly,
-            TransportTransactionMode.SendsAtomicWithReceive
-        };
-    }
+    public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() =>
+    [
+        TransportTransactionMode.None,
+        TransportTransactionMode.ReceiveOnly,
+        TransportTransactionMode.SendsAtomicWithReceive
+    ];
 
-    public string StorageLocation
+    public string? StorageLocation
     {
         get;
         set

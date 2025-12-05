@@ -39,5 +39,5 @@ class AcceptanceTestingSubscriptionStorage : ISubscriptionStorage
         return Task.FromResult(subscribers);
     }
 
-    ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>>();
+    readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new();
 }

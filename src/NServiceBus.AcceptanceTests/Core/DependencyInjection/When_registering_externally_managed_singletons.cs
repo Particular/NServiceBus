@@ -7,25 +7,17 @@ using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-public class When_using_externally_managed_container : NServiceBusAcceptanceTest
+public class When_registering_externally_managed_singletons : NServiceBusAcceptanceTest
 {
-    static MyComponent myComponent = new MyComponent();
+    static MyComponent myComponent = new();
 
     [Test]
-    public async Task Should_use_it_for_component_resolution()
+    public async Task Should_work()
     {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(typeof(MyComponent), myComponent);
-
         var result = await Scenario.Define<Context>()
-        .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-        {
-            b.ToCreateInstance(
-                    config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                    (configured, ct) => configured.Start(serviceCollection.BuildServiceProvider(), ct)
-                )
-                .When((session, c) => session.SendLocal(new SomeMessage()));
-        })
+        .WithEndpoint<ExternallyManagedSingletonEndpoint>(b =>
+            b.Services(static services => services.AddSingleton(myComponent))
+                .When((session, c) => session.SendLocal(new SomeMessage())))
         .Done(c => c.MessageReceived)
         .Run();
 
@@ -43,9 +35,9 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         public MyComponent CustomService { get; set; }
     }
 
-    public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
+    public class ExternallyManagedSingletonEndpoint : EndpointConfigurationBuilder
     {
-        public ExternallyManagedContainerEndpoint() => EndpointSetup<DefaultServer>();
+        public ExternallyManagedSingletonEndpoint() => EndpointSetup<DefaultServer>();
 
         class SomeMessageHandler : IHandleMessages<SomeMessage>
         {
@@ -68,11 +60,7 @@ public class When_using_externally_managed_container : NServiceBusAcceptanceTest
         }
     }
 
-    public class MyComponent
-    {
-    }
+    public class MyComponent;
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 }

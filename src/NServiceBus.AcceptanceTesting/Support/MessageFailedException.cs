@@ -3,19 +3,13 @@ namespace NServiceBus.AcceptanceTesting.Support;
 using System;
 using Faults;
 
-public class MessageFailedException : Exception
+public class MessageFailedException(FailedMessage failedMessage, ScenarioContext scenarioContext)
+    : Exception("A message has been moved to the error queue.", failedMessage.Exception)
 {
-    public MessageFailedException(FailedMessage failedMessage, ScenarioContext scenarioContext)
-        : base("A message has been moved to the error queue.", failedMessage.Exception)
-    {
-        ScenarioContext = scenarioContext;
-        FailedMessage = failedMessage;
-    }
+    public ScenarioContext ScenarioContext { get; } = scenarioContext;
 
-    public ScenarioContext ScenarioContext { get; }
-
-    public FailedMessage FailedMessage { get; }
+    public FailedMessage FailedMessage { get; } = failedMessage;
 
     // Show the stack trace of the exception which caused the message to fail
-    public override string StackTrace => FailedMessage.Exception.StackTrace;
+    public override string? StackTrace => FailedMessage.Exception.StackTrace;
 }

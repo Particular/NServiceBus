@@ -2,35 +2,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Customization;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 public class EndpointBehavior : IComponentBehavior
 {
-    public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder)
+    readonly int instanceIndex;
+
+    public EndpointBehavior(IEndpointConfigurationFactory endpointBuilder, int instanceIndex)
     {
+        this.instanceIndex = instanceIndex;
         EndpointBuilder = endpointBuilder;
+        Whens = [];
         CustomConfig = [];
-        ConfigureHowToCreateInstance(config => Endpoint.Create(config), static (startableEndpoint, cancellationToken) => startableEndpoint.Start(cancellationToken));
+        ServicesBeforeStart = [];
+        ServicesAfterStart = [];
+        ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
 
-    public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, CancellationToken, Task<IEndpointInstance>> startCallback)
+    [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]
+    public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
+        where T : notnull
     {
-        createInstanceCallback = async config =>
+        createInstanceCallback = async (services, config) =>
         {
-            var result = await createCallback(config).ConfigureAwait(false);
+            var result = await createCallback(services, config).ConfigureAwait(false);
             return result;
         };
-        startInstanceCallback = (state, ct) => startCallback((T)state, ct);
+        startInstanceCallback = (state, provider, ct) => startCallback((T)state, provider, ct);
     }
 
     public IEndpointConfigurationFactory EndpointBuilder { get; }
 
-    public List<IWhenDefinition> Whens { get; set; }
+    public List<IWhenDefinition> Whens { get; }
 
     public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; }
+
+    public List<Action<IServiceCollection, ScenarioContext>> ServicesBeforeStart { get; }
+
+    public List<Action<IServiceCollection, ScenarioContext>> ServicesAfterStart { get; }
 
     public bool DoNotFailOnErrorMessages { get; set; }
 
@@ -38,7 +52,7 @@ public class EndpointBehavior : IComponentBehavior
     {
         var endpointName = Conventions.EndpointNamingConvention(EndpointBuilder.GetType());
 
-        var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages);
+        var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages, instanceIndex);
 
         try
         {
@@ -52,6 +66,6 @@ public class EndpointBehavior : IComponentBehavior
         return runner;
     }
 
-    Func<EndpointConfiguration, Task<object>> createInstanceCallback;
-    Func<object, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
+    Func<IServiceCollection, EndpointConfiguration, Task<object>> createInstanceCallback;
+    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
 }

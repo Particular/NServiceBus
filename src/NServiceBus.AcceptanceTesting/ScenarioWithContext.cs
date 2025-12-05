@@ -3,8 +3,10 @@ namespace NServiceBus.AcceptanceTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Support;
@@ -28,7 +30,9 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioContext = new TContext();
         initializer(scenarioContext);
 
-        var runDescriptor = new RunDescriptor(scenarioContext);
+        AddScenarioContext(scenarioContext, services);
+
+        var runDescriptor = new RunDescriptor(scenarioContext, services);
         runDescriptor.Settings.Merge(settings);
 
         TestExecutionContext.CurrentContext.AddRunDescriptor(runDescriptor);
@@ -47,17 +51,14 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         TestContext.Out.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
 
-        if (runSummary.Result.Failed)
-        {
-            runSummary.Result.Exception.Throw();
-        }
+        runSummary.Result.Exception?.Throw();
 
         return (TContext)runDescriptor.ScenarioContext;
     }
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>()
         where T : EndpointConfigurationBuilder, new()
-        => WithEndpoint<T>(b => { });
+        => WithEndpoint<T>(static _ => { });
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
         where T : EndpointConfigurationBuilder, new()
@@ -65,7 +66,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint(EndpointConfigurationBuilder endpointConfigurationBuilder, Action<EndpointBehaviorBuilder<TContext>> defineBehavior)
     {
-        var builder = new EndpointBehaviorBuilder<TContext>(endpointConfigurationBuilder);
+        var builder = new EndpointBehaviorBuilder<TContext>(endpointConfigurationBuilder, componentCount++);
         defineBehavior(builder);
         behaviors.Add(builder.Build());
 
@@ -74,7 +75,20 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior)
     {
+        componentCount++;
         behaviors.Add(componentBehavior);
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection> configureServices)
+    {
+        behaviors.Add(new ServiceRegistrationComponent(configureServices, componentCount++));
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart)
+    {
+        behaviors.Add(new ServiceResolveComponent(resolve, componentCount++, resolveMode));
         return this;
     }
 
@@ -88,6 +102,18 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         return this;
     }
 
-    List<IComponentBehavior> behaviors = [];
-    Func<ScenarioContext, Task<bool>> done = static context => Task.FromResult(true);
+    static void AddScenarioContext(TContext scenarioContext, IServiceCollection services)
+    {
+        var type = scenarioContext.GetType();
+        while (type != typeof(object) && type is not null)
+        {
+            services.AddSingleton(type, scenarioContext);
+            type = type.BaseType;
+        }
+    }
+
+    readonly List<IComponentBehavior> behaviors = [];
+    int componentCount = 0;
+    readonly IServiceCollection services = new ServiceCollection();
+    Func<ScenarioContext, Task<bool>> done = static _ => Task.FromResult(true);
 }

@@ -8,17 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Transport;
 
-class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
+class AcceptanceTestingTransportInfrastructure(
+    HostSettings settings,
+    AcceptanceTestingTransport transportSettings,
+    ReceiveSettings[] receiverSettings)
+    : TransportInfrastructure
 {
-    public AcceptanceTestingTransportInfrastructure(HostSettings settings, AcceptanceTestingTransport transportSettings, ReceiveSettings[] receiverSettings)
-    {
-        this.settings = settings;
-        this.transportSettings = transportSettings;
-        this.receiverSettings = receiverSettings;
-
-        storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
-    }
-
     static string FindSolutionRoot()
     {
         var directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -57,7 +52,7 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
 
         var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
 
-        ISubscriptionManager subscriptionManager = null;
+        ISubscriptionManager? subscriptionManager = null;
         if (receiveSettings.UsePublishSubscribe && transportSettings.SupportsPublishSubscribe)
         {
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
@@ -66,15 +61,9 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         return Task.FromResult<IMessageReceiver>(pump);
     }
 
-    public void ConfigureDispatcher()
-    {
-        Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
-    }
+    public void ConfigureDispatcher() => Dispatcher = new LearningTransportDispatcher(storagePath, int.MaxValue / 1024);
 
-    public override Task Shutdown(CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
+    public override Task Shutdown(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     public override string ToTransportAddress(QueueAddress address)
     {
@@ -102,8 +91,5 @@ class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
         return baseAddress;
     }
 
-    readonly string storagePath;
-    readonly HostSettings settings;
-    readonly AcceptanceTestingTransport transportSettings;
-    readonly ReceiveSettings[] receiverSettings;
+    readonly string storagePath = transportSettings.StorageLocation ?? Path.Combine(FindSolutionRoot(), ".attransport");
 }

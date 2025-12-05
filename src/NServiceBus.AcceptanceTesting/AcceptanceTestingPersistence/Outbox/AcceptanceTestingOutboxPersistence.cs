@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Outbox;
+using Outbox;
 
 class AcceptanceTestingOutboxPersistence : Feature
 {
@@ -37,6 +37,11 @@ class AcceptanceTestingOutboxPersistence : Feature
 
         protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
         {
+            if (cleanupTimer is null)
+            {
+                return Task.CompletedTask;
+            }
+
             using (var waitHandle = new ManualResetEvent(false))
             {
                 cleanupTimer.Dispose(waitHandle);
@@ -46,8 +51,8 @@ class AcceptanceTestingOutboxPersistence : Feature
             return Task.CompletedTask;
         }
 
-        void PerformCleanup(object state) => storage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
+        void PerformCleanup(object? state) => storage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
 
-        Timer cleanupTimer;
+        Timer? cleanupTimer;
     }
 }

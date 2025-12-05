@@ -7,7 +7,7 @@ using Outbox;
 
 class AcceptanceTestingOutboxTransaction : IOutboxTransaction
 {
-    public AcceptanceTestingTransaction Transaction { get; private set; } = new();
+    public AcceptanceTestingTransaction? Transaction { get; private set; } = new();
 
     public void Dispose()
     {
@@ -33,9 +33,15 @@ class AcceptanceTestingOutboxTransaction : IOutboxTransaction
 
     public Task Commit(CancellationToken cancellationToken = default)
     {
-        Transaction.Commit();
+        Transaction?.Commit();
         return Task.CompletedTask;
     }
 
-    public void Enlist(Action action) => Transaction.Enlist(action);
+    public void Enlist(Action action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(Transaction);
+
+        Transaction.Enlist(action);
+    }
 }

@@ -9,13 +9,13 @@ using Logging;
 
 public class ScenarioContext
 {
-    internal static ScenarioContext Current
+    internal static ScenarioContext? Current
     {
         get => asyncContext.Value;
         set => asyncContext.Value = value;
     }
 
-    internal static string CurrentEndpoint
+    internal static string? CurrentEndpoint
     {
         get => asyncEndpointName.Value;
         set => asyncEndpointName.Value = value;
@@ -27,35 +27,33 @@ public class ScenarioContext
 
     public bool HasNativePubSubSupport { get; set; }
 
-    public void AddTrace(string trace)
-    {
+    public void AddTrace(string trace) =>
         Logs.Enqueue(new LogItem
         {
             LoggerName = "Trace",
             Level = LogLevel.Info,
             Message = trace
         });
-    }
 
-    public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
+    public readonly ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new();
 
-    public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
+    public readonly ConcurrentQueue<LogItem> Logs = new();
 
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
-    internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
+    internal readonly ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new();
 
-    static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
-    static readonly AsyncLocal<string> asyncEndpointName = new AsyncLocal<string>();
+    static readonly AsyncLocal<ScenarioContext?> asyncContext = new AsyncLocal<ScenarioContext?>();
+    static readonly AsyncLocal<string?> asyncEndpointName = new AsyncLocal<string?>();
 
     public class LogItem
     {
 #pragma warning disable PS0023 // DateTime.UtcNow or DateTimeOffset.UtcNow should be used instead of DateTime.Now and DateTimeOffset.Now, unless the value is being used for displaying the current date-time in a user's local time zone
         public DateTime Timestamp { get; } = DateTime.Now;
 #pragma warning restore PS0023 // DateTime.UtcNow or DateTimeOffset.UtcNow should be used instead of DateTime.Now and DateTimeOffset.Now, unless the value is being used for displaying the current date-time in a user's local time zone
-        public string Endpoint { get; set; }
-        public string LoggerName { get; set; }
-        public string Message { get; set; }
+        public string? Endpoint { get; set; }
+        public string LoggerName { get; set; } = string.Empty;
+        public string? Message { get; set; }
         public LogLevel Level { get; set; }
     }
 }

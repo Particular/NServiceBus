@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,24 +11,22 @@ using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
 
-public class EndpointRunner : ComponentRunner
+public class EndpointRunner(
+    Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
+    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
+    bool doNotFailOnErrorMessages,
+    int instanceIndex)
+    : ComponentRunner
 {
-    static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-    Func<EndpointConfiguration, Task<object>> createCallback;
-    Func<object, CancellationToken, Task<IEndpointInstance>> startCallback;
-    bool doNotFailOnErrorMessages;
-    EndpointBehavior behavior;
-    object startable;
-    IEndpointInstance endpointInstance;
-    EndpointCustomizationConfiguration configuration;
-    ScenarioContext scenarioContext;
-
-    public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, CancellationToken, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
-    {
-        this.createCallback = createCallback;
-        this.startCallback = startCallback;
-        this.doNotFailOnErrorMessages = doNotFailOnErrorMessages;
-    }
+    static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
+    EndpointBehavior? behavior;
+    object? startable;
+    IEndpointInstance? endpointInstance;
+    EndpointCustomizationConfiguration? configuration;
+    ScenarioContext? scenarioContext;
+    KeyedServiceCollectionAdapter? services;
+    RunDescriptor? runDescriptor;
+    IServiceProvider? serviceProvider;
 
     public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
     {
@@ -35,17 +34,19 @@ public class EndpointRunner : ComponentRunner
         try
         {
             behavior = endpointBehavior;
-            scenarioContext = run.ScenarioContext;
-            endpointBehavior.EndpointBuilder.ScenarioContext = run.ScenarioContext;
+            runDescriptor = run;
+            scenarioContext = runDescriptor.ScenarioContext;
+            endpointBehavior.EndpointBuilder.ScenarioContext = runDescriptor.ScenarioContext;
             configuration = endpointBehavior.EndpointBuilder.Get();
             configuration.EndpointName = endpointName;
 
             //apply custom config settings
-            if (configuration.GetConfiguration == null)
+            if (configuration.GetConfiguration is null)
             {
                 throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
             }
-            var endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
+
+            var endpointConfiguration = await configuration.GetConfiguration(runDescriptor).ConfigureAwait(false);
             RegisterScenarioContext(endpointConfiguration);
             TrackFailingMessages(endpointName, endpointConfiguration);
 
@@ -58,10 +59,16 @@ public class EndpointRunner : ComponentRunner
 
             endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-            startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
+            services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
+
+            endpointBehavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
+
+            startable = await createCallback(services, endpointConfiguration).ConfigureAwait(false);
 
             var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
             scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
+
+            endpointBehavior.ServicesAfterStart.ForEach(customAction => customAction(services, scenarioContext));
         }
         catch (Exception ex)
         {
@@ -72,32 +79,38 @@ public class EndpointRunner : ComponentRunner
 
     void TrackFailingMessages(string endpointName, EndpointConfiguration endpointConfiguration)
     {
+        ArgumentNullException.ThrowIfNull(scenarioContext);
         endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
         endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
     }
 
     void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
     {
-        var type = scenarioContext.GetType();
-        while (type != typeof(object))
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+
+        for (var type = scenarioContext.GetType(); type != null && type != typeof(object); type = type.BaseType)
         {
-            var currentType = type;
-            endpointConfiguration.GetSettings().Set(currentType.FullName, scenarioContext);
-            endpointConfiguration.RegisterComponents(serviceCollection => serviceCollection.AddSingleton(currentType, scenarioContext));
-            type = type.BaseType;
+            endpointConfiguration.GetSettings().Set(type.FullName!, scenarioContext);
         }
     }
 
     public override async Task Start(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runDescriptor);
+        ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(startable);
+        ArgumentNullException.ThrowIfNull(services);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
-            endpointInstance = await startCallback(startable, cancellationToken).ConfigureAwait(false);
+            serviceProvider = new KeyedServiceProviderAdapter(runDescriptor.ServiceProvider, Name, services);
+            endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
-            Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
+            Logger.Error("Failed to start endpoint " + Name, ex);
 
             throw;
         }
@@ -105,6 +118,9 @@ public class EndpointRunner : ComponentRunner
 
     public override async Task ComponentsStarted(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(behavior);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
@@ -115,7 +131,7 @@ public class EndpointRunner : ComponentRunner
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
-            Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
+            Logger.Error($"Failed to execute Whens on endpoint{Name}", ex);
 
             throw;
         }
@@ -124,6 +140,10 @@ public class EndpointRunner : ComponentRunner
     async Task ExecuteWhens(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+
+        ArgumentNullException.ThrowIfNull(endpointInstance);
+        ArgumentNullException.ThrowIfNull(behavior);
+        ArgumentNullException.ThrowIfNull(scenarioContext);
 
         var executedWhens = new HashSet<Guid>();
 
@@ -155,6 +175,9 @@ public class EndpointRunner : ComponentRunner
 
     public override async Task Stop(CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
@@ -168,6 +191,13 @@ public class EndpointRunner : ComponentRunner
             Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
             throw;
         }
+        finally
+        {
+            if (serviceProvider is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            }
+        }
 
         if (!doNotFailOnErrorMessages)
         {
@@ -177,11 +207,17 @@ public class EndpointRunner : ComponentRunner
 
     void ThrowOnFailedMessages()
     {
-        foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == Name))
+        ArgumentNullException.ThrowIfNull(scenarioContext);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == configuration.EndpointName))
         {
             throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
         }
     }
 
-    public override string Name => configuration.EndpointName;
+    public override string Name
+    {
+        get => $"{configuration?.EndpointName}{field}";
+    } = instanceIndex.ToString(CultureInfo.InvariantCulture);
 }

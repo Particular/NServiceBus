@@ -13,21 +13,18 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_be_available_after_the_endpoint_is_started()
     {
-        var serviceCollection = new ServiceCollection();
         string translatedAddress = null;
 
         await Scenario.Define<Context>()
             .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             b.ToCreateInstance(
-                config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                async (configured, ct) =>
+                (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
+                async (startableEndpoint, provider, ct) =>
                 {
-                    var serviceProvider = serviceCollection.BuildServiceProvider();
-
                     // HINT: Resolve before start
-                    var transportAddressResolver = serviceProvider.GetRequiredService<ITransportAddressResolver>();
+                    var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
-                    var endpoint = await configured.Start(serviceProvider, ct);
+                    var endpoint = await startableEndpoint.Start(provider, ct);
 
                     translatedAddress = transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
 
@@ -42,23 +39,20 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_throw_meaningful_exception_when_resolved_before_endpoint_started()
     {
-        var serviceCollection = new ServiceCollection();
         Exception thrownException = null;
 
         await Scenario.Define<Context>()
             .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             b.ToCreateInstance(
-                config => EndpointWithExternallyManagedContainer.Create(config, serviceCollection),
-                (configured, ct) =>
+                (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
+                (startableEndpoint, provider, ct) =>
                 {
-                    var serviceProvider = serviceCollection.BuildServiceProvider();
-
-                    var transportAddressResolver = serviceProvider.GetRequiredService<ITransportAddressResolver>();
+                    var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
                     // HINT: Call before start
                     thrownException = Assert.Throws<Exception>(() => transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress")));
 
-                    return configured.Start(serviceProvider, ct);
+                    return startableEndpoint.Start(provider, ct);
                 })
             )
             .Done(ctx => thrownException != null)
@@ -67,10 +61,7 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
         Assert.That(thrownException.Message, Does.Contain("Transport address resolution is not supported before the NServiceBus transport has been started."));
     }
 
-    class Context : ScenarioContext
-    {
-        public bool Done { get; set; }
-    }
+    class Context : ScenarioContext;
 
     class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
     {

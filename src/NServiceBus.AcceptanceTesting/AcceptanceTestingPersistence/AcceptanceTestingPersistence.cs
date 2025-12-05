@@ -5,7 +5,7 @@ using Persistence;
 
 public abstract class AcceptanceTestingPersistenceBase : PersistenceDefinition
 {
-    protected AcceptanceTestingPersistenceBase(StorageType.SagasOptions sagasOptions = null)
+    protected AcceptanceTestingPersistenceBase(StorageType.SagasOptions? sagasOptions = null)
     {
         Supports<StorageType.Sagas, AcceptanceTestingSagaPersistence>(sagasOptions);
         Supports<StorageType.Subscriptions, AcceptanceTestingSubscriptionPersistence>();
