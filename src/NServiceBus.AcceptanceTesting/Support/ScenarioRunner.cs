@@ -17,12 +17,12 @@ public class ScenarioRunner(
     Func<ScenarioContext, Task<bool>> done)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
-    public async Task<RunSummary> Run()
+    public async Task<RunSummary> Run(CancellationToken cancellationToken = default)
     {
         runDescriptor.ScenarioContext.AddTrace("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
         runDescriptor.ScenarioContext.AddTrace("Started test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-        var runResult = await PerformTestRun().ConfigureAwait(false);
+        var runResult = await PerformTestRun(cancellationToken).ConfigureAwait(false);
 
         runDescriptor.ScenarioContext.AddTrace("Finished test @ " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
@@ -34,7 +34,7 @@ public class ScenarioRunner(
         };
     }
 
-    async Task<RunResult> PerformTestRun()
+    async Task<RunResult> PerformTestRun(CancellationToken cancellationToken)
     {
         var runResult = new RunResult
         {
@@ -52,11 +52,13 @@ public class ScenarioRunner(
 
             runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
 
-            await PerformScenarios(endpoints).ConfigureAwait(false);
+            await PerformScenarios(endpoints, cancellationToken).ConfigureAwait(false);
 
             runTimer.Stop();
         }
+#pragma warning disable PS0019
         catch (Exception ex)
+#pragma warning restore PS0019
         {
             runResult.Exception = ExceptionDispatchInfo.Capture(ex);
         }
@@ -67,44 +69,44 @@ public class ScenarioRunner(
     }
 
 
-    async Task PerformScenarios(ComponentRunner[] runners)
+    async Task PerformScenarios(ComponentRunner[] runners, CancellationToken cancellationToken)
     {
         try
         {
-            await StartEndpoints(runners).ConfigureAwait(false);
+            await StartEndpoints(runners, cancellationToken).ConfigureAwait(false);
             runDescriptor.ScenarioContext.EndpointsStarted = true;
-            await ExecuteWhens(runners).ConfigureAwait(false);
+            await ExecuteWhens(runners, cancellationToken).ConfigureAwait(false);
 
             var startTime = DateTime.UtcNow;
-            var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
+            var maxTime = cancellationToken.CanBeCanceled ? TimeSpan.MaxValue : TimeSpan.FromSeconds(90);
             while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false))
             {
                 if (!Debugger.IsAttached)
                 {
-                    if (DateTime.UtcNow - startTime > maxTime)
+                    if (DateTime.UtcNow - startTime > maxTime || cancellationToken.IsCancellationRequested)
                     {
                         throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
                     }
                 }
 
-                await Task.Delay(100).ConfigureAwait(false);
+                await Task.Delay(100, CancellationToken.None).ConfigureAwait(false);
             }
 
             startTime = DateTime.UtcNow;
             var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
             while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
             {
-                if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime)
+                if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime || cancellationToken.IsCancellationRequested)
                 {
                     throw new Exception("Some failed messages were not handled by the recoverability feature.");
                 }
 
-                await Task.Delay(100).ConfigureAwait(false);
+                await Task.Delay(100, CancellationToken.None).ConfigureAwait(false);
             }
         }
         finally
         {
-            await StopEndpoints(runners).ConfigureAwait(false);
+            await StopEndpoints(runners, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -118,7 +120,7 @@ public class ScenarioRunner(
         return sb.ToString();
     }
 
-    async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
+    async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationToken cancellationToken)
     {
         using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
         // separate (linked) CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException and hide the original error
@@ -145,11 +147,11 @@ public class ScenarioRunner(
         }
     }
 
-    async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints)
+    async Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationToken cancellationToken)
     {
         using var allWhensTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(1));
         // separate (linked) CTS as otherwise a failure during 'When' blocks will cause WaitAsync to throw an OperationCanceledException and hide the original error
-        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token);
+        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token, cancellationToken);
 
         await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource)))
             .WaitAsync(allWhensTimeout.Token)
@@ -172,13 +174,14 @@ public class ScenarioRunner(
         }
     }
 
-    async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
+    async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationToken cancellationToken)
     {
         using var stopTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(stopTimeoutCts.Token, cancellationToken);
 
         try
         {
-            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, stopTimeoutCts.Token)))
+            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, combinedSource.Token)))
                 .WaitAsync(stopTimeoutCts.Token)
                 .ConfigureAwait(false);
         }

@@ -14,18 +14,10 @@ using Support;
 public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
     where TContext : ScenarioContext, new()
 {
-    public Task<TContext> Run(TimeSpan? testExecutionTimeout)
-    {
-        var settings = new RunSettings();
-        if (testExecutionTimeout.HasValue)
-        {
-            settings.TestExecutionTimeout = testExecutionTimeout.Value;
-        }
+    public Task<TContext> Run(TimeSpan timeout) => Run();
+    public Task<TContext> Run(CancellationToken cancellationToken = default) => Run(new RunSettings(), cancellationToken);
 
-        return Run(settings);
-    }
-
-    public async Task<TContext> Run(RunSettings settings)
+    public async Task<TContext> Run(RunSettings settings, CancellationToken cancellationToken = default)
     {
         var scenarioContext = new TContext();
         initializer(scenarioContext);
@@ -44,7 +36,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors, done);
 
         sw.Start();
-        var runSummary = await scenarioRunner.Run().ConfigureAwait(false);
+        var runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
         sw.Stop();
 
         await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);

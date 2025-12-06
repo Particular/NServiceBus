@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -10,15 +11,15 @@ using NUnit.Framework;
 
 public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_not_skip_serialization_for_nested_send()
+    [Test, CancelAfter(15_000)]
+    public async Task Should_not_skip_serialization_for_nested_send(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(e => e
                 .When(s => s.Send(new MessageWithoutSerialization { SomeProperty = "Some property value" })))
             .WithEndpoint<Receiver>()
             .Done(c => c.NestedMessageReceived)
-            .Run(TimeSpan.FromSeconds(15));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
