@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -46,7 +48,7 @@ class PipelineModelBuilder(
         //Step 1: validate that additions are unique
         foreach (var metadata in totalAdditions)
         {
-            if (!registrations.TryGetValue(metadata.StepId, out RegisterStep existingValue))
+            if (!registrations.TryGetValue(metadata.StepId, out var existingValue))
             {
                 registrations.Add(metadata.StepId, metadata);
 
@@ -60,7 +62,7 @@ class PipelineModelBuilder(
         //  Step 2: validate and apply replacements
         foreach (var metadata in totalReplacements)
         {
-            if (!registrations.TryGetValue(metadata.ReplaceId, out RegisterStep value))
+            if (!registrations.TryGetValue(metadata.ReplaceId, out var value))
             {
                 var message = $"'{metadata.ReplaceId}' cannot be replaced because it does not exist. Make sure that you only register a replacement for existing pipeline behaviors.";
                 throw new Exception(message);
@@ -101,7 +103,7 @@ class PipelineModelBuilder(
         while (currentStage != null)
         {
             var stageSteps = new List<RegisterStep>(currentStage.Count);
-            List<RegisterStep> stageConnectors = null;
+            List<RegisterStep>? stageConnectors = null;
 
             foreach (var step in currentStage)
             {
@@ -266,14 +268,11 @@ class PipelineModelBuilder(
             {
                 n.Visit(output);
             }
-            if (registerStep != null)
-            {
-                output.Add(registerStep);
-            }
+            output.Add(registerStep);
         }
 
-        public readonly List<Dependency> Afters = registerStep.Afters;
-        public readonly List<Dependency> Befores = registerStep.Befores;
+        public readonly List<Dependency>? Afters = registerStep.Afters;
+        public readonly List<Dependency>? Befores = registerStep.Befores;
 
         public readonly string StepId = registerStep.StepId;
         internal readonly List<Node> previous = [];

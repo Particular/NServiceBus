@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -10,7 +12,7 @@ class InferredMessageTypeEnricherBehavior : IBehavior<IIncomingLogicalMessageCon
     {
         if (!context.Headers.ContainsKey(Headers.EnclosedMessageTypes))
         {
-            context.Headers[Headers.EnclosedMessageTypes] = context.Message.MessageType.FullName;
+            context.Headers[Headers.EnclosedMessageTypes] = context.Message.MessageType.FullName!;
         }
 
         return next(context);

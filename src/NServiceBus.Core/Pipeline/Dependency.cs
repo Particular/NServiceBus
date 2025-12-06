@@ -1,6 +1,8 @@
+#nullable enable
+
 namespace NServiceBus;
 
-class Dependency
+class Dependency(string dependentId, string dependsOnId, Dependency.DependencyDirection direction, bool enforce)
 {
     public enum DependencyDirection
     {
@@ -8,17 +10,9 @@ class Dependency
         After = 2
     }
 
-    public Dependency(string dependentId, string dependsOnId, DependencyDirection direction, bool enforce)
-    {
-        DependentId = dependentId;
-        DependsOnId = dependsOnId;
-        Direction = direction;
-        Enforce = enforce;
-    }
+    public string DependentId { get; } = dependentId;
+    public string DependsOnId { get; } = dependsOnId;
+    public bool Enforce { get; } = enforce;
 
-    public string DependentId { get; }
-    public string DependsOnId { get; }
-    public bool Enforce { get; }
-
-    public DependencyDirection Direction { get; }
+    public DependencyDirection Direction { get; } = direction;
 }

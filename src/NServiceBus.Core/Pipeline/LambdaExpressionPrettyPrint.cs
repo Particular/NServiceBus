@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Pipeline;
 
-static class LambdaExpressionPrettyPrint
+static partial class LambdaExpressionPrettyPrint
 {
     public static string PrettyPrint(this List<Expression> expression)
     {
@@ -23,12 +25,8 @@ static class LambdaExpressionPrettyPrint
         return sb.ToString();
     }
 
-    class BehaviorPipelineExpressionVisitor : ExpressionVisitor
+    partial class BehaviorPipelineExpressionVisitor(StringBuilder builder) : ExpressionVisitor
     {
-        readonly StringBuilder builder;
-
-        public BehaviorPipelineExpressionVisitor(StringBuilder builder) => this.builder = builder;
-
         public int Indent { get; set; }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -52,11 +50,16 @@ static class LambdaExpressionPrettyPrint
             {
                 // The regex is not compiled to avoid paying the cost at runtime since this whole code path is assumed to be only executed
                 // when debug logging is activated
-                string replace = Regex.Replace(node.ToString(), @", value\(System.Func`2\[NServiceBus.Pipeline.PipelineTerminator\`1\+ITerminatingContext.*\)\)", "))");
-                replace = Regex.Replace(replace, @"value\(System.Func`2.*\)\)", string.Empty);
+                string replace = TerminatingContextRegex().Replace(node.ToString(), "))");
+                replace = FuncRegex().Replace(replace, string.Empty);
                 _ = builder.Append(replace);
             }
             return base.VisitMethodCall(node);
         }
+
+        [GeneratedRegex(@", value\(System.Func`2\[NServiceBus.Pipeline.PipelineTerminator\`1\+ITerminatingContext.*\)\)")]
+        private static partial Regex TerminatingContextRegex();
+        [GeneratedRegex(@"value\(System.Func`2.*\)\)")]
+        private static partial Regex FuncRegex();
     }
 }

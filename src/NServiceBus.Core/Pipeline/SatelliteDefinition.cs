@@ -1,26 +1,24 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using Transport;
 
-class SatelliteDefinition
+class SatelliteDefinition(
+    string name,
+    QueueAddress receiveAddress,
+    PushRuntimeSettings runtimeSettings,
+    Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy,
+    OnSatelliteMessage onMessage)
 {
-    public SatelliteDefinition(string name, QueueAddress receiveAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, OnSatelliteMessage onMessage)
-    {
-        Name = name;
-        ReceiveAddress = receiveAddress;
-        RuntimeSettings = runtimeSettings;
-        RecoverabilityPolicy = recoverabilityPolicy;
-        OnMessage = onMessage;
-    }
+    public string Name { get; } = name;
 
-    public string Name { get; }
+    public QueueAddress ReceiveAddress { get; } = receiveAddress;
 
-    public QueueAddress ReceiveAddress { get; }
+    public PushRuntimeSettings RuntimeSettings { get; } = runtimeSettings;
 
-    public PushRuntimeSettings RuntimeSettings { get; }
+    public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; } = recoverabilityPolicy;
 
-    public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; }
-
-    public OnSatelliteMessage OnMessage { get; }
+    public OnSatelliteMessage OnMessage { get; } = onMessage;
 }

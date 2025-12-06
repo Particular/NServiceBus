@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Pipeline;
+﻿#nullable enable
+
+namespace NServiceBus.Pipeline;
 
 using System;
 using System.Diagnostics.CodeAnalysis;

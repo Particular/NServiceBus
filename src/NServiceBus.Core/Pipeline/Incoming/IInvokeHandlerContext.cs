@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Pipeline;
 
 using System.Collections.Generic;

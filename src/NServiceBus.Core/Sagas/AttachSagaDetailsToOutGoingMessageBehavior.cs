@@ -15,7 +15,7 @@ class AttachSagaDetailsToOutGoingMessageBehavior : IBehavior<IOutgoingLogicalMes
         if (context.Extensions.TryGet<ActiveSagaInstance>(out var saga) && HasBeenFound(saga) && !string.IsNullOrEmpty(saga.SagaId))
         {
             context.Headers[Headers.OriginatingSagaId] = saga.SagaId;
-            context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
+            context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName!;
         }
 
         return next(context);

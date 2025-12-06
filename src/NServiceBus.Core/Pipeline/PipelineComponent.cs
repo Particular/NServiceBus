@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -15,7 +17,7 @@ sealed class PipelineComponent
         // make the PipelineMetrics available to the Pipeline
         hostingConfiguration.Services.AddSingleton(sp =>
         {
-            var meterFactory = sp.GetService<IMeterFactory>();
+            var meterFactory = sp.GetRequiredService<IMeterFactory>();
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
             return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
         });

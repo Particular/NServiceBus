@@ -145,6 +145,6 @@ public abstract class Saga
     {
         options.SetHeader(Headers.SagaId, Entity.Id.ToString());
         options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
-        options.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName);
+        options.SetHeader(Headers.SagaType, GetType().AssemblyQualifiedName!);
     }
 }

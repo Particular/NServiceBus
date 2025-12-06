@@ -1,11 +1,11 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System.Threading.Tasks;
 using Pipeline;
 
-interface IPipeline
-{
-}
+interface IPipeline;
 
 interface IPipeline<in TContext> : IPipeline
     where TContext : IBehaviorContext

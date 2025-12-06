@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -10,14 +12,11 @@ using Routing;
 using Transport;
 using TransportOperation = Outbox.TransportOperation;
 
-class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+class TransportReceiveToPhysicalMessageConnector(
+    IOutboxStorage outboxStorage,
+    IncomingPipelineMetrics incomingPipelineMetrics)
+    : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
-    public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage, IncomingPipelineMetrics incomingPipelineMetrics)
-    {
-        this.outboxStorage = outboxStorage;
-        this.incomingPipelineMetrics = incomingPipelineMetrics;
-    }
-
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
     {
         var processingStartedAt = Stopwatch.GetTimestamp();
@@ -67,7 +66,7 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
             if (context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
             {
                 var activityTagsCollection = new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } };
-                activity?.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));
+                activity.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));
             }
 
             await this.Fork(batchDispatchContext).ConfigureAwait(false);
@@ -114,19 +113,17 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
     static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
     {
-        if (addressTag is MulticastAddressTag indirect)
+        switch (addressTag)
         {
-            options["EventType"] = indirect.MessageType.AssemblyQualifiedName;
-            return;
+            case MulticastAddressTag indirect:
+                options["EventType"] = indirect.MessageType.AssemblyQualifiedName!;
+                return;
+            case UnicastAddressTag direct:
+                options["Destination"] = direct.Destination;
+                return;
+            default:
+                throw new Exception($"Unknown routing strategy {addressTag.GetType().FullName}");
         }
-
-        if (addressTag is UnicastAddressTag direct)
-        {
-            options["Destination"] = direct.Destination;
-            return;
-        }
-
-        throw new Exception($"Unknown routing strategy {addressTag.GetType().FullName}");
     }
 
     static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
@@ -143,7 +140,4 @@ class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITranspor
 
         throw new Exception("Could not find routing strategy to deserialize");
     }
-
-    readonly IOutboxStorage outboxStorage;
-    readonly IncomingPipelineMetrics incomingPipelineMetrics;
 }

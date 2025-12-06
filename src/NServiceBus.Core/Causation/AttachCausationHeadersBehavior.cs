@@ -45,7 +45,7 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
             }
             if (hasIncomingMessageConversationId)
             {
-                context.Headers[Headers.PreviousConversationId] = conversationIdFromCurrentMessageContext;
+                context.Headers[Headers.PreviousConversationId] = conversationIdFromCurrentMessageContext!;
             }
             context.Headers[Headers.ConversationId] = state.ConversationId ?? conversationIdStrategy(context);
             return;
@@ -58,7 +58,7 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
                 throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{conversationIdFromCurrentMessageContext}'). To start a new conversation use sendOptions.StartNewConversation().");
             }
 
-            context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext;
+            context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext!;
             return;
         }
 
@@ -72,6 +72,6 @@ class AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string
 
     public class State
     {
-        public string? ConversationId { get; set; }
+        public string? ConversationId { get; init; }
     }
 }

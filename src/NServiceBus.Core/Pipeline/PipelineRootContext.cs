@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -6,7 +8,7 @@ using Extensibility;
 
 class PipelineRootContext : BehaviorContext
 {
-    public PipelineRootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, CancellationToken cancellationToken, ContextBag parentContext = null)
+    public PipelineRootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, CancellationToken cancellationToken, ContextBag? parentContext = null)
         : base(parentContext, cancellationToken)
     {
         Set(messageOperations);

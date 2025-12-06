@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
         behaviors = [.. coordinator.BuildPipelineModelFor<TContext>()
             .Select(r => r.CreateBehavior(builder))];
 
-        List<Expression> expressions = null;
+        List<Expression>? expressions = null;
         if (Logger.IsDebugEnabled)
         {
             expressions = [];
@@ -26,7 +28,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
 
         pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>(expressions);
 
-        if (Logger.IsDebugEnabled)
+        if (Logger.IsDebugEnabled && expressions is not null)
         {
             Logger.Debug(expressions.PrettyPrint());
         }
