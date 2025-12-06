@@ -14,7 +14,6 @@ using Support;
 public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
     where TContext : ScenarioContext, new()
 {
-    public Task<TContext> Run(TimeSpan timeout) => Run();
     public Task<TContext> Run(CancellationToken cancellationToken = default) => Run(new RunSettings(), cancellationToken);
 
     public async Task<TContext> Run(RunSettings settings, CancellationToken cancellationToken = default)
