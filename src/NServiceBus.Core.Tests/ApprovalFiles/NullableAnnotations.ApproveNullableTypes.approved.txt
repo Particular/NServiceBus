@@ -74,8 +74,6 @@ NServiceBus.Pipeline.PipelineTerminator`1
 NServiceBus.Pipeline.StageConnector`2
 NServiceBus.Pipeline.StageForkConnector`3
 NServiceBus.RateLimitSettings
-NServiceBus.ReceiveAddresses
-NServiceBus.ReceiveFeatureConfigurationContextExtensions
 NServiceBus.ReceivePipelineCompleted
 NServiceBus.ReceivePipelineConfigExtensions
 NServiceBus.ReceiveSettingsExtensions
