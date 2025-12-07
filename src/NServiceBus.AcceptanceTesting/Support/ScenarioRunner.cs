@@ -70,7 +70,7 @@ public class ScenarioRunner(
         try
         {
             await StartEndpoints(runners).ConfigureAwait(false);
-            runDescriptor.ScenarioContext.EndpointsStarted = true;
+            runDescriptor.ScenarioContext.EndpointsStarted.TrySetResult();
             await ExecuteWhens(runners).ConfigureAwait(false);
 
             //var startTime = DateTime.UtcNow;

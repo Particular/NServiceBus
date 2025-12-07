@@ -20,7 +20,7 @@ public interface IScenarioWithEndpointBehavior<TContext> where TContext : Scenar
     IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart);
 
     IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
-    IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource>? func);
+    IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource>? func = null);
 
     Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
     Task<TContext> Run(RunSettings settings);

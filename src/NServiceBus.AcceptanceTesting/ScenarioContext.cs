@@ -24,7 +24,7 @@ public class ScenarioContext
 
     public Guid TestRunId { get; } = Guid.NewGuid();
 
-    public bool EndpointsStarted { get; set; }
+    public TaskCompletionSource EndpointsStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public bool HasNativePubSubSupport { get; set; }
 
@@ -46,9 +46,9 @@ public class ScenarioContext
 
     internal readonly ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new();
 
-    protected internal void MarkAsCompleted() => Completed.TrySetResult();
-    protected internal void MarkAsFailed(Exception exception) => Completed.TrySetException(exception);
-    protected internal void MarkAsCanceled(CancellationToken cancellationToken = default) => Completed.TrySetCanceled(cancellationToken);
+    public void MarkAsCompleted() => Completed.TrySetResult();
+    public void MarkAsFailed(Exception exception) => Completed.TrySetException(exception);
+    public void MarkAsCanceled(CancellationToken cancellationToken = default) => Completed.TrySetCanceled(cancellationToken);
 
     static readonly AsyncLocal<ScenarioContext?> asyncContext = new AsyncLocal<ScenarioContext?>();
     static readonly AsyncLocal<string?> asyncEndpointName = new AsyncLocal<string?>();

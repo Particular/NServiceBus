@@ -121,7 +121,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         return this;
     }
 
-    public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource>? func)
+    public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource>? func = null)
     {
         if (func is null)
         {
