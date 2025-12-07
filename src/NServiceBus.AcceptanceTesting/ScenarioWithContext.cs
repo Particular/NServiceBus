@@ -41,6 +41,10 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
         kickOffTcs.SetResult(scenarioContext);
+        if (doneFunc is not null)
+        {
+            scenarioContext.Completed = doneFunc(scenarioContext);
+        }
 
         var sw = new Stopwatch();
         var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors);
@@ -132,12 +136,8 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         {
             throw new InvalidOperationException("Done condition has already been defined.");
         }
-        doneTask = Task.Run(async () =>
-        {
-            // TODO proper error handling and cancellation
-            var context = await kickOffTcs.Task.ConfigureAwait(false);
-            context.Completed = func(context);
-        });
+
+        doneFunc = func;
         return this;
     }
 
@@ -175,4 +175,5 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
     Task? doneTask;
     readonly TaskCompletionSource<TContext> kickOffTcs = new(); // Deliberately not async
     readonly IServiceCollection services = new ServiceCollection();
+    Func<TContext, TaskCompletionSource>? doneFunc;
 }
