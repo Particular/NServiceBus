@@ -20,7 +20,7 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithSeparateBodyStorage>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.AuditMessageReceived)
+            .Done()
             .Run();
 
         Assert.That(context.BodyWasEmpty, Is.True);
@@ -28,7 +28,6 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool AuditMessageReceived { get; set; }
         public bool BodyWasEmpty { get; set; }
     }
 
@@ -80,7 +79,7 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.BodyWasEmpty = context.Message.Body.Length == 0;
-                testContext.AuditMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return next();
             }
         }

@@ -20,7 +20,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                 RunId = c.RunId
             })))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
+            .Done()
             .Run();
 
         Assert.That(context.AuditChecksum, Is.EqualTo(context.OriginalBodyChecksum), "The body of the message sent to audit should be the same as the original message coming off the queue");
@@ -35,7 +35,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
     public class Context : ScenarioContext
     {
         public Guid RunId { get; set; }
-        public bool Done { get; set; }
         public byte OriginalBodyChecksum { get; set; }
         public byte AuditChecksum { get; set; }
     }
@@ -124,7 +123,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                     return Task.CompletedTask;
                 }
 
-                testContext.Done = true;
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }
