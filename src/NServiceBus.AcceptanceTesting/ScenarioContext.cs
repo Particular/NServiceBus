@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Faults;
 using Logging;
 
@@ -41,7 +42,13 @@ public class ScenarioContext
 
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
+    internal TaskCompletionSource Completed { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
     internal readonly ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new();
+
+    protected internal void MarkAsCompleted() => Completed.TrySetResult();
+    protected internal void MarkAsFailed(Exception exception) => Completed.TrySetException(exception);
+    protected internal void MarkAsCanceled(CancellationToken cancellationToken = default) => Completed.TrySetCanceled(cancellationToken);
 
     static readonly AsyncLocal<ScenarioContext?> asyncContext = new AsyncLocal<ScenarioContext?>();
     static readonly AsyncLocal<string?> asyncEndpointName = new AsyncLocal<string?>();

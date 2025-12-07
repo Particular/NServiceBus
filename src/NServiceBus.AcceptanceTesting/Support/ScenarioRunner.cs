@@ -6,15 +6,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 public class ScenarioRunner(
     RunDescriptor runDescriptor,
-    List<IComponentBehavior> behaviorDescriptors,
-    Func<ScenarioContext, Task<bool>> done)
+    List<IComponentBehavior> behaviorDescriptors)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
     public async Task<RunSummary> Run()
@@ -75,22 +73,24 @@ public class ScenarioRunner(
             runDescriptor.ScenarioContext.EndpointsStarted = true;
             await ExecuteWhens(runners).ConfigureAwait(false);
 
+            //var startTime = DateTime.UtcNow;
+            //var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
+            // TODO wire up cancellation
+            await runDescriptor.ScenarioContext.Completed.Task.ConfigureAwait(false);
+            // while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false))
+            // {
+            //     if (!Debugger.IsAttached)
+            //     {
+            //         if (DateTime.UtcNow - startTime > maxTime)
+            //         {
+            //             throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
+            //         }
+            //     }
+            //
+            //     await Task.Delay(100).ConfigureAwait(false);
+            // }
+
             var startTime = DateTime.UtcNow;
-            var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-            while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false))
-            {
-                if (!Debugger.IsAttached)
-                {
-                    if (DateTime.UtcNow - startTime > maxTime)
-                    {
-                        throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
-                    }
-                }
-
-                await Task.Delay(100).ConfigureAwait(false);
-            }
-
-            startTime = DateTime.UtcNow;
             var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
             while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
             {
@@ -108,15 +108,15 @@ public class ScenarioRunner(
         }
     }
 
-    static string GenerateTestTimedOutMessage(TimeSpan maxTime)
-    {
-        var sb = new StringBuilder();
-
-        sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
-        sb.AppendLine("----------------------------------------------------------------------------");
-
-        return sb.ToString();
-    }
+    // static string GenerateTestTimedOutMessage(TimeSpan maxTime)
+    // {
+    //     var sb = new StringBuilder();
+    //
+    //     sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
+    //     sb.AppendLine("----------------------------------------------------------------------------");
+    //
+    //     return sb.ToString();
+    // }
 
     async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints)
     {

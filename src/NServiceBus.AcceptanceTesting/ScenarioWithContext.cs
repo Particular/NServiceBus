@@ -40,8 +40,10 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
+        kickOffTcs.SetResult(scenarioContext);
+
         var sw = new Stopwatch();
-        var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors, done);
+        var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors);
 
         sw.Start();
         var runSummary = await scenarioRunner.Run().ConfigureAwait(false);
@@ -97,10 +99,66 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, Task<bool>> func)
     {
-        done = c => func((TContext)c);
+        if (doneTask is not null)
+        {
+            throw new InvalidOperationException("Done condition has already been defined.");
+        }
+        doneTask = Task.Run(async () =>
+        {
+            // TODO proper error handling and cancellation
+            var context = await kickOffTcs.Task.ConfigureAwait(false);
+            while (true)
+            {
+                if (await func(context).ConfigureAwait(false))
+                {
+                    context.MarkAsCompleted();
+                    break;
+                }
 
+                await Task.Delay(100).ConfigureAwait(false);
+            }
+        });
         return this;
     }
+
+    public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource>? func)
+    {
+        if (func is null)
+        {
+            return this;
+        }
+
+        if (doneTask is not null)
+        {
+            throw new InvalidOperationException("Done condition has already been defined.");
+        }
+        doneTask = Task.Run(async () =>
+        {
+            // TODO proper error handling and cancellation
+            var context = await kickOffTcs.Task.ConfigureAwait(false);
+            context.Completed = func(context);
+        });
+        return this;
+    }
+
+    // static async Task<bool> Done(TContext context, Func<TContext, Task<bool>> func)
+    // {
+    //     var taskCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    //     //var startTime = DateTime.UtcNow;
+    //     while (!await func(context).ConfigureAwait(false))
+    //     {
+    //         // if (!Debugger.IsAttached)
+    //         // {
+    //         //     if (DateTime.UtcNow - startTime > maxTime)
+    //         //     {
+    //         //         throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
+    //         //     }
+    //         // }
+    //
+    //         await Task.Delay(100).ConfigureAwait(false);
+    //     }
+    //     return taskCompletionSource;
+    // }
 
     static void AddScenarioContext(TContext scenarioContext, IServiceCollection services)
     {
@@ -114,6 +172,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     readonly List<IComponentBehavior> behaviors = [];
     int componentCount = 0;
+    Task? doneTask;
+    readonly TaskCompletionSource<TContext> kickOffTcs = new(); // Deliberately not async
     readonly IServiceCollection services = new ServiceCollection();
-    Func<ScenarioContext, Task<bool>> done = static _ => Task.FromResult(true);
 }
