@@ -20,7 +20,7 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
+            .Done()
             .Run();
 
         Assert.That(context.IsMessageHandlingComplete, Is.True);
@@ -29,8 +29,32 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
     class Context : ScenarioContext
     {
         public int AuditRetries;
-        public bool IsMessageHandlingComplete { get; set; }
-        public bool TTBRHasExpiredAndMessageIsStillInAuditQueue { get; set; }
+
+        public bool IsMessageHandlingComplete
+        {
+            get;
+            set
+            {
+                field = value;
+                if (value && TTBRHasExpiredAndMessageIsStillInAuditQueue)
+                {
+                    MarkAsCompleted();
+                }
+            }
+        }
+
+        public bool TTBRHasExpiredAndMessageIsStillInAuditQueue
+        {
+            get;
+            set
+            {
+                field = value;
+                if (value && IsMessageHandlingComplete)
+                {
+                    MarkAsCompleted();
+                }
+            }
+        }
     }
 
     class EndpointWithAuditOn : EndpointConfigurationBuilder
