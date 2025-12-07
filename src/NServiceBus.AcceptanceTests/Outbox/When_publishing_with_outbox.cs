@@ -12,8 +12,8 @@ using NUnit.Framework;
 
 public class When_publishing_with_outbox : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_be_delivered_to_all_subscribers()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_be_delivered_to_all_subscribers(CancellationToken cancellationToken = default)
     {
         Requires.OutboxPersistence();
 
@@ -53,7 +53,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
                 }
             }))
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

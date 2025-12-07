@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -9,8 +10,8 @@ using NUnit.Framework;
 [TestFixture]
 public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_apply_base_class_mapping_to_sub_classes()
+    [Test, CancelAfter(20_000)]
+    public async Task Should_apply_base_class_mapping_to_sub_classes(CancellationToken cancellationToken = default)
     {
         var correlationId = Guid.NewGuid();
         var context = await Scenario.Define<Context>()
@@ -23,7 +24,7 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
                 return session.SendLocal(startSagaMessage);
             }))
             .Done(c => c.SecondMessageFoundExistingSaga)
-            .Run(TimeSpan.FromSeconds(20));
+            .Run(cancellationToken);
 
         Assert.That(context.SecondMessageFoundExistingSaga, Is.True);
     }

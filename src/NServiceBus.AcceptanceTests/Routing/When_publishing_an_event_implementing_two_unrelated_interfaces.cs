@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -10,8 +11,8 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_publishing_an_event_implementing_two_unrelated_interfaces : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Event_should_be_published_using_instance_type()
+    [Test, CancelAfter(20_000)]
+    public async Task Event_should_be_published_using_instance_type(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<Publisher>(b =>
@@ -35,7 +36,7 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                 }
             }))
             .Done(c => c.GotEventA && c.GotEventB)
-            .Run(TimeSpan.FromSeconds(20));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

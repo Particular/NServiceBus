@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -10,8 +11,8 @@ using NUnit.Framework;
 
 public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_use_default_routing_when_empty_send_options()
+    [Test, CancelAfter(15_000)]
+    public async Task Should_use_default_routing_when_empty_send_options(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointA>(e => e
@@ -23,7 +24,7 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
                 .When(s => s.SendLocal(new LocalMessage())))
             .WithEndpoint<EndpointB>()
             .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
-            .Run(TimeSpan.FromSeconds(15));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -32,8 +33,8 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
         }
     }
 
-    [Test]
-    public async Task Should_apply_send_options_routing()
+    [Test, CancelAfter(15_000)]
+    public async Task Should_apply_send_options_routing(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointA>(e => e
@@ -44,7 +45,7 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
                 .When(s => s.SendLocal(new LocalMessage())))
             .WithEndpoint<EndpointB>()
             .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
-            .Run(TimeSpan.FromSeconds(15));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

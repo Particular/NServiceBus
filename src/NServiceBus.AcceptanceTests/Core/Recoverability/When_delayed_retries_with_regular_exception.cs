@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -10,8 +11,8 @@ using NUnit.Framework;
 
 public class When_delayed_retries_with_regular_exception : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_preserve_the_original_body_for_regular_exceptions()
+    [Test, CancelAfter(120_000)]
+    public async Task Should_preserve_the_original_body_for_regular_exceptions(CancellationToken cancellationToken = default)
     {
         Requires.DelayedDelivery();
 
@@ -20,7 +21,7 @@ public class When_delayed_retries_with_regular_exception : NServiceBusAcceptance
                 .When(session => session.SendLocal(new MessageToBeRetried()))
                 .DoNotFailOnErrorMessages())
             .Done(c => !c.FailedMessages.IsEmpty)
-            .Run(TimeSpan.FromSeconds(120));
+            .Run(cancellationToken);
 
         var delayedRetryBody = context.FailedMessages.Single().Value.Single().Body;
 

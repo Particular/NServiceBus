@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -8,15 +8,15 @@ using NUnit.Framework;
 
 public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_handle_it()
+    [Test, CancelAfter(20_000)]
+    public async Task Should_handle_it(CancellationToken cancellationToken = default)
     {
         Requires.OutboxPersistence();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
             .Done(c => c.OrderAckReceived == 1)
-            .Run(TimeSpan.FromSeconds(20));
+            .Run(cancellationToken);
 
         Assert.That(context.OrderAckReceived, Is.EqualTo(1), "Order ack should have been received");
     }

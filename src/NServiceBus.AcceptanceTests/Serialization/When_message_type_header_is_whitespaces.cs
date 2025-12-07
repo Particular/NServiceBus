@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -10,15 +11,15 @@ using NUnit.Framework;
 
 public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_move_message_to_error_queue()
+    [Test, CancelAfter(20_000)]
+    public async Task Should_move_message_to_error_queue(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new MessageWithEmptyTypeHeader())))
             .Done(c => c.IncomingMessageReceived)
-            .Run(TimeSpan.FromSeconds(20));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

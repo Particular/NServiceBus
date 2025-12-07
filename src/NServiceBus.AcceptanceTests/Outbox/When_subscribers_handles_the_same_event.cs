@@ -1,6 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Outbox;
 
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -11,8 +11,8 @@ using NUnit.Framework;
 
 public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_be_processed_by_all_subscribers()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_be_processed_by_all_subscribers(CancellationToken cancellationToken = default)
     {
         Requires.OutboxPersistence();
 
@@ -47,7 +47,7 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
                 }
             }))
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

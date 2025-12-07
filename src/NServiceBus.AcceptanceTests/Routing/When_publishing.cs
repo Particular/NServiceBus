@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing;
 
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -32,8 +32,8 @@ public class When_publishing : NServiceBusAcceptanceTest
         Assert.That(context.Subscriber3GotTheEvent, Is.True);
     }
 
-    [Test]
-    public async Task Should_be_delivered_to_all_subscribers()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_be_delivered_to_all_subscribers(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b =>
@@ -75,7 +75,7 @@ public class When_publishing : NServiceBusAcceptanceTest
                 }
             }))
             .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

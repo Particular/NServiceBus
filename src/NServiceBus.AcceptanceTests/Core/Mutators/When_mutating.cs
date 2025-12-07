@@ -17,7 +17,7 @@ public class When_mutating : NServiceBusAcceptanceTest
             .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new StartMessage())))
             .WithEndpoint<Receiver>()
             .Done(c => c.WasCalled)
-            .Run(TimeSpan.FromHours(1));
+            .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
     }

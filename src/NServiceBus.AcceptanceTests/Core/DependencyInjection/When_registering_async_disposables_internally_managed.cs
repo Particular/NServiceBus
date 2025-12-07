@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
@@ -11,8 +12,8 @@ using NUnit.Framework;
 [TestFixture]
 public class When_registering_async_disposables_internally_managed : NServiceBusAcceptanceTest
 {
-    [Test]
-    public async Task Should_dispose()
+    [Test, CancelAfter(10_000)]
+    public async Task Should_dispose(CancellationToken cancellationToken = default)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
@@ -23,7 +24,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Done(c => c.ScopedAsyncDisposableDisposed)
-            .Run(TimeSpan.FromSeconds(10));
+            .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
