@@ -1,6 +1,9 @@
 # TODO: Uncomment when analyzer line ending problem is fixed
 #root = true
 
+[*]
+max_line_length = 500
+
 [*.{csproj,props,targets,xml}]
 indent_style = space
 indent_size = 2
