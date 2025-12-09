@@ -696,6 +696,34 @@ public class Msg3 : ICommand {}";
 
         return Assert(DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions, source);
     }
+    [Test]
+    public Task InterfaceMessagesShouldNotTriggerNSB0016()
+    {
+        var source =
+            @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<MyInterfaceMessage>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => saga.CorrId)
+            .ToMessage<MyInterfaceMessage>(m => m.SomeString);
+    }
+    public Task Handle(MyInterfaceMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+}
+public interface MyInterfaceMessage : MyInterfaceBase;
+public interface MyInterfaceBase : ICommand
+{
+    string SomeString { get; set; }
+}";
+
+        return Assert(source);
+    }
 
     [Test]
     public Task MessageTypeMappedToHandlerAndTimeout()
