@@ -6,7 +6,7 @@ using Extensibility;
 using Fakes;
 using NServiceBus.Outbox;
 
-class FakeOutboxStorage : IOutboxStorage
+class FakeOutboxSeam : IOutboxSeam
 {
     public OutboxMessage ExistingMessage { get; set; }
     public OutboxMessage StoredMessage { get; set; }
