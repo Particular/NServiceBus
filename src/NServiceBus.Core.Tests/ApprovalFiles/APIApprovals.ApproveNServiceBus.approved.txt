@@ -297,6 +297,11 @@ namespace NServiceBus
     {
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
+    public static class EnvelopeConfigExtensions
+    {
+        public static void AddEnvelopeHandler<THandler>(this NServiceBus.Features.FeatureConfigurationContext context)
+            where THandler :  class, NServiceBus.IEnvelopeHandler { }
+    }
     public static class ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
