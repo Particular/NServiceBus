@@ -28,7 +28,7 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddHandler_OrderPolicy_df58223eb7801b4c()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);

@@ -17,7 +17,24 @@ public sealed partial class AddHandlerInterceptor
 {
     internal static class Parser
     {
-        public static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node) => node is InvocationExpressionSyntax
+        public static bool SyntaxLooksLikeAddHandlerMethod(MethodDeclarationSyntax method)
+        {
+            if (method.Body is null && method.ExpressionBody is null)
+            {
+                return false;
+            }
+
+            foreach (var descendantNode in method.DescendantNodes())
+            {
+                if (SyntaxLooksLikeAddHandlerMethodInvocation(descendantNode))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static bool SyntaxLooksLikeAddHandlerMethodInvocation(SyntaxNode node) => node is InvocationExpressionSyntax
         {
             Expression: MemberAccessExpressionSyntax
             {
@@ -58,11 +75,27 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static ImmutableArray<HandlerSpec> Parse(SemanticModel semanticModel, MethodDeclarationSyntax method, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
+            var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var spec = Parse(semanticModel, invocation, cancellationToken);
+                if (spec is not null)
+                {
+                    builder.Add(spec);
+                }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        public static HandlerSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        {
+            if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
             }
@@ -73,10 +106,10 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            return Parse(ctx, operation, invocation, cancellationToken);
+            return Parse(semanticModel, operation, invocation, cancellationToken);
         }
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx,
+        public static HandlerSpec? Parse(SemanticModel semanticModel,
             IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
         {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
@@ -121,7 +154,7 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;
             }

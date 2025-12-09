@@ -63,7 +63,7 @@ public sealed partial class AddSagaInterceptor
                 return null;
             }
 
-            var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx, operation, invocation, cancellationToken);
+            var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx.SemanticModel, operation, invocation, cancellationToken);
             if (handlerSpec == null)
             {
                 return null;
