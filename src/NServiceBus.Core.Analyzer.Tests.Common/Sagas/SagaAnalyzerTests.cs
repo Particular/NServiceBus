@@ -702,24 +702,49 @@ public class Msg3 : ICommand {}";
         var source =
             @"using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using NServiceBus;
-public class MySaga : Saga<MyData>, IAmStartedByMessages<MyInterfaceMessage>
+public class MySaga : Saga<RenewalSagaData>, IAmStartedByMessages<IRenewalSagaCommand>
 {
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RenewalSagaData> mapper)
     {
-        mapper.MapSaga(saga => saga.CorrId)
-            .ToMessage<MyInterfaceMessage>(m => m.SomeString);
+        mapper.MapSaga(saga => saga.PolicyHolderIdentifier)
+            .ToMessage<IRenewalSagaCommand>(m => m.CustomerNumber);
     }
-    public Task Handle(MyInterfaceMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(IRenewalSagaCommand message, IMessageHandlerContext context) => throw new NotImplementedException();
 }
-public class MyData : ContainSagaData
+
+public class RenewalSagaData : CustomerBasedBaseSagaData;
+
+public abstract class CustomerBasedBaseSagaData : BaseSagaData
 {
-    public string CorrId { get; set; }
+    public string PolicyHolderIdentifier { get; set; }
 }
-public interface MyInterfaceMessage : MyInterfaceBase;
-public interface MyInterfaceBase : ICommand
+
+public abstract class BaseSagaData : ContainSagaData
 {
-    string SomeString { get; set; }
+    protected BaseSagaData()
+    {
+        SagaStartDate = DateTime.UtcNow;
+        SagaLastModifiedDate = DateTime.UtcNow;
+        PoliciesToHandle = new HashSet<string>();
+    }
+    public DateTime SagaStartDate { get; set; }
+    public DateTime SagaLastModifiedDate { get; set; }
+    public HashSet<string> PoliciesToHandle { get; set; }
+    public bool TimeoutRequested { get; set; }
+    public DateTime TimeoutTriggerTime { get; set; }
+}
+public interface IRenewalSagaCommand : ICustomerBasedBaseSagaCommand;
+
+public interface ICustomerBasedBaseSagaCommand : IBaseSagaCommand
+{
+    string CustomerNumber { get; set; }
+}
+
+public interface IBaseSagaCommand : ICommand
+{
+    string PolicyId { get; set; }
 }";
 
         return Assert(source);
