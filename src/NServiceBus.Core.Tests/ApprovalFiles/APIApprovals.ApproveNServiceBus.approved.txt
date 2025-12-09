@@ -529,6 +529,7 @@ namespace NServiceBus
     {
         void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty);
     }
+    [System.Obsolete(@"Final adjustments to settings before configuration is finalized should be applied via an explicit last configuration step on the endpoint configuration, instead of via implementations of this interface discovered by scanning. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);

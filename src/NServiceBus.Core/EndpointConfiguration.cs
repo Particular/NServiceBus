@@ -100,7 +100,9 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault(conventionsBuilder.Conventions);
 
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
+#pragma warning disable CS0618 // Type or member is obsolete
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     readonly ConventionsBuilder conventionsBuilder;
