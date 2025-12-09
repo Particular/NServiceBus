@@ -6,7 +6,7 @@ using System;
 using Features;
 
 /// <summary>
-/// Provides extensions to register envelope handlers
+/// Provides extensions to register envelope handlers.
 /// </summary>
 public static class EnvelopeConfigExtensions
 {
