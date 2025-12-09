@@ -1560,6 +1560,10 @@ namespace NServiceBus.Logging
         protected LoggingFactoryDefinition() { }
         protected abstract NServiceBus.Logging.ILoggerFactory GetLoggingFactory();
     }
+    public sealed class ManualRegistrationsAttribute : System.Attribute
+    {
+        public ManualRegistrationsAttribute() { }
+    }
 }
 namespace NServiceBus.MessageInterfaces
 {

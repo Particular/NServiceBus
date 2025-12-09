@@ -13,6 +13,7 @@ public class AddSagaInterceptorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     [ManualRegistrations]
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
@@ -66,6 +67,8 @@ public class AddSagaInterceptorTests
         var source = """
                      using System.Threading.Tasks;
                      using NServiceBus;
+
+                     [assembly: ManualRegistrations]
 
                      public class Test
                      {
@@ -124,6 +127,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [ManualRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -191,6 +195,8 @@ public class AddSagaInterceptorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     [assembly: ManualRegistrations]
+
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
@@ -234,6 +240,8 @@ public class AddSagaInterceptorTests
         var source = """
                      using System.Threading.Tasks;
                      using NServiceBus;
+
+                     [assembly: ManualRegistrations]
 
                      public class Test
                      {
@@ -288,6 +296,8 @@ public class AddSagaInterceptorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     [assembly: ManualRegistrations]
+
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
@@ -338,6 +348,8 @@ public class AddSagaInterceptorTests
         var source = """
                      using System.Threading.Tasks;
                      using NServiceBus;
+
+                     [assembly: ManualRegistrations]
 
                      public class Test
                      {
@@ -406,6 +418,8 @@ public class AddSagaInterceptorTests
         var source = """
                      using System.Threading.Tasks;
                      using NServiceBus;
+
+                     [assembly: ManualRegistrations]
 
                      public class Test
                      {

@@ -13,6 +13,8 @@ public class AddHandlerInterceptorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     [assembly: ManualRegistrations]
+
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
@@ -55,6 +57,7 @@ public class AddHandlerInterceptorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     [ManualRegistrations]
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)

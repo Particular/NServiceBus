@@ -58,27 +58,28 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default) =>
+            Parse(ctx.SemanticModel, (InvocationExpressionSyntax)ctx.Node, cancellationToken);
+
+        public static HandlerSpec? Parse(SemanticModel semanticModel,
+            InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default, bool validateMethod = true)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
-
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
             }
 
-            // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            if (!IsAddHandlerMethod(operation.TargetMethod))
-            {
-                return null;
-            }
-
-            return Parse(ctx, operation, invocation, cancellationToken);
+            return Parse(semanticModel, operation, invocation, validateMethod, cancellationToken);
         }
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx,
-            IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        public static HandlerSpec? Parse(SemanticModel semanticModel,
+            IInvocationOperation operation, InvocationExpressionSyntax invocation, bool validateMethod, CancellationToken cancellationToken = default)
         {
+            if (validateMethod && !IsAddHandlerMethod(operation.TargetMethod))
+            {
+                return null;
+            }
+
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
                 return null;
@@ -121,7 +122,7 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;
             }

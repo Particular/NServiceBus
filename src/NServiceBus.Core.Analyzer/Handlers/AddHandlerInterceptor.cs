@@ -4,18 +4,22 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
 using Utility;
+using static NServiceBus.Core.Analyzer.ManualRegistrations;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var addHandlers = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => Parser.SyntaxLooksLikeAddHandlerMethod(node),
-                transform: Parser.Parse)
-            .Where(static d => d is not null)
-            .Select(static (d, _) => d!)
+        var registrationTargets = CreateTargets(context);
+
+        var addHandlers = registrationTargets
+            .Combine(context.CompilationProvider)
+            .SelectMany(static (targetAndCompilation, cancellationToken) =>
+                GetSpecs(targetAndCompilation.Left, targetAndCompilation.Right,
+                    Parser.SyntaxLooksLikeAddHandlerMethod,
+                    static (semanticModel, invocation, ct) => Parser.Parse(semanticModel, invocation, ct),
+                    cancellationToken))
             .WithTrackingName("HandlerSpec");
 
         var collected = addHandlers.Collect()

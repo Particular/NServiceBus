@@ -30,11 +30,12 @@ public sealed partial class AddSagaInterceptor
             ArgumentList.Arguments.Count: 0
         };
 
-        public static SagaSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
-        {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
+        public static SagaSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default) =>
+            Parse(ctx.SemanticModel, (InvocationExpressionSyntax)ctx.Node, cancellationToken);
 
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+        public static SagaSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        {
+            if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
             }
@@ -58,12 +59,12 @@ public sealed partial class AddSagaInterceptor
             }
 
             // Get interceptable location for code generation
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;
             }
 
-            var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx, operation, invocation, cancellationToken);
+            var handlerSpec = AddHandlerInterceptor.Parser.Parse(semanticModel, operation, invocation, validateMethod: false, cancellationToken);
             if (handlerSpec == null)
             {
                 return null;
@@ -73,7 +74,7 @@ public sealed partial class AddSagaInterceptor
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings
-            var propertyMappings = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
+            var propertyMappings = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
 
             return new SagaSpec(
                 InterceptLocationSpec.From(location),

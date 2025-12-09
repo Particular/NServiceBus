@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Analyzer.Sagas;
 using Microsoft.CodeAnalysis;
 using Utility;
 using static Handlers.AddHandlerInterceptor;
+using static NServiceBus.Core.Analyzer.ManualRegistrations;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddSagaInterceptor : IIncrementalGenerator
@@ -15,15 +16,19 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
             .Select(static (provider, _) => Options.Create(provider))
             .WithTrackingName("SagaOptions");
 
-        var addSagas = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => Parser.SyntaxLooksLikeAddSagaMethod(node),
-                transform: Parser.Parse)
-            .Where(static d => d is not null)
-            .Select(static (d, _) => d!)
+        var registrationTargets = CreateTargets(context);
+
+        var addSagas = registrationTargets
+            .Combine(context.CompilationProvider)
+            .SelectMany(static (targetAndCompilation, cancellationToken) =>
+                GetSpecs(targetAndCompilation.Left, targetAndCompilation.Right,
+                    Parser.SyntaxLooksLikeAddSagaMethod,
+                    static (semanticModel, invocation, ct) => Parser.Parse(semanticModel, invocation, ct),
+                    cancellationToken))
             .WithTrackingName("SagaSpec");
 
-        var collected = addSagas.Collect()
+        var collected = addSagas
+            .Collect()
             .Select((sagas, _) => new SagaSpecs(sagas.ToImmutableEquatableArray()))
             .WithTrackingName("SagaSpecs");
 
