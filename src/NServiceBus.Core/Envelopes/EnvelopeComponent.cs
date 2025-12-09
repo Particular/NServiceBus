@@ -2,16 +2,17 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 class EnvelopeComponent(EnvelopeComponent.Settings settings)
 {
     public IEnumerable<IEnvelopeHandler> InitializeHandlers(IServiceProvider serviceProvider)
     {
-        foreach (ObjectFactory factory in settings.HandlerFactories)
-        {
-            yield return (IEnvelopeHandler)factory(serviceProvider, null);
-        }
+        List<IEnvelopeHandler> handlers = [];
+        handlers.AddRange(settings.HandlerFactories.Select(factory => (IEnvelopeHandler)factory(serviceProvider, null)));
+
+        return handlers;
     }
 
     public class Settings()
