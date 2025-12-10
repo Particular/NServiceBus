@@ -22,7 +22,8 @@ public sealed class KeyedServiceKey
     }
 
     public object BaseKey { get; }
-    object? ServiceKey { get; }
+
+    public object? ServiceKey { get; }
 
     public override bool Equals(object? obj)
     {
