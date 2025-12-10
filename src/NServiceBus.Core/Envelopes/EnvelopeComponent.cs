@@ -17,14 +17,18 @@ class EnvelopeComponent(EnvelopeComponent.Settings settings)
 
     public class Settings()
     {
-        readonly List<ObjectFactory> factories = [];
+        readonly Dictionary<Type, ObjectFactory> factories = [];
         public void AddEnvelopeHandler<THandler>()
         {
+            if (factories.ContainsKey(typeof(THandler)))
+            {
+                return;
+            }
             //create and cache the factory
             var handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
-            factories.Add(handlerFactory);
+            factories.Add(typeof(THandler), handlerFactory);
         }
 
-        public IEnumerable<ObjectFactory> HandlerFactories => factories;
+        public IEnumerable<ObjectFactory> HandlerFactories => factories.Values;
     }
 }
