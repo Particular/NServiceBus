@@ -24,7 +24,8 @@ public sealed class KeyedServiceKey
     }
 
     public object BaseKey { get; }
-    object? ServiceKey { get; }
+
+    public object? ServiceKey { get; }
 
     public override bool Equals(object? obj)
     {
@@ -32,10 +33,10 @@ public sealed class KeyedServiceKey
         {
             return Equals(BaseKey, other.BaseKey) && Equals(ServiceKey, other.ServiceKey);
         }
-        return false;
+        return Equals(BaseKey, obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(BaseKey, ServiceKey);
+    public override int GetHashCode() => ServiceKey == null ? BaseKey.GetHashCode() : HashCode.Combine(BaseKey, ServiceKey);
 
     public override string? ToString() => ServiceKey == null ? BaseKey.ToString() : $"({BaseKey}, {ServiceKey})";
 
