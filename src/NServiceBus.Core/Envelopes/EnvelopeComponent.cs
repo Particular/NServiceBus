@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 class EnvelopeComponent(EnvelopeComponent.Settings settings)
 {
-    public IEnumerable<IEnvelopeHandler> InitializeHandlers(IServiceProvider serviceProvider)
+    public EnvelopeUnwrapper Initialize(IServiceProvider serviceProvider)
     {
         List<IEnvelopeHandler> handlers = [];
         handlers.AddRange(settings.HandlerFactories.Select(factory => (IEnvelopeHandler)factory(serviceProvider, null)));
 
-        return handlers;
+        return new EnvelopeUnwrapper(handlers);
     }
 
     public class Settings()
