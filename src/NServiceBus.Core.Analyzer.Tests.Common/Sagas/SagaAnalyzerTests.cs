@@ -762,7 +762,7 @@ public class MySaga : Saga<RenewalSagaData>, IAmStartedByMessages<IRenewalSagaCo
     public Task Handle(IRenewalSagaCommand message, IMessageHandlerContext context) => throw new NotImplementedException();
 }
 
-public class RenewalSagaData : CustomerBasedBaseSagaData;
+public class RenewalSagaData : CustomerBasedBaseSagaData{}
 
 public abstract class CustomerBasedBaseSagaData : BaseSagaData
 {
@@ -783,7 +783,7 @@ public abstract class BaseSagaData : ContainSagaData
     public bool TimeoutRequested { get; set; }
     public DateTime TimeoutTriggerTime { get; set; }
 }
-public interface IRenewalSagaCommand : ICustomerBasedBaseSagaCommand;
+public interface IRenewalSagaCommand : ICustomerBasedBaseSagaCommand{}
 
 public interface ICustomerBasedBaseSagaCommand : IBaseSagaCommand
 {
