@@ -30,6 +30,15 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
+        var auditEnabledValue = Environment.GetEnvironmentVariable(Features.Audit.IsEnabledEnvironmentVariableKey);
+        Settings.SetDefault("Audit.Enabled", auditEnabledValue is null || !bool.TryParse(auditEnabledValue, out var isEnabled) || isEnabled);
+
+        var defaultAuditQueue = Environment.GetEnvironmentVariable(Features.Audit.AddressEnvironmentVariableKey);
+        if (defaultAuditQueue is not null)
+        {
+            Settings.SetDefault("Audit.Address", defaultAuditQueue);
+        }
+
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
         Settings.Set(new HostingComponent.Settings(Settings));
         Settings.Set(new InstallerComponent.Settings(Settings));
