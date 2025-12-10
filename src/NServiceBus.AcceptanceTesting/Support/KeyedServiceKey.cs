@@ -1,7 +1,5 @@
 namespace NServiceBus.AcceptanceTesting.Support;
 
-using System;
-
 public sealed class KeyedServiceKey
 {
     public KeyedServiceKey(object baseKey, object? serviceKey = null)
@@ -32,10 +30,21 @@ public sealed class KeyedServiceKey
         {
             return Equals(BaseKey, other.BaseKey) && Equals(ServiceKey, other.ServiceKey);
         }
-        return false;
+        return Equals(BaseKey, obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(BaseKey, ServiceKey);
+    public override int GetHashCode()
+    {
+        if (ServiceKey == null)
+        {
+            return BaseKey.GetHashCode();
+        }
+
+        unchecked
+        {
+            return (BaseKey.GetHashCode() * 397) ^ ServiceKey.GetHashCode();
+        }
+    }
 
     public override string? ToString() => ServiceKey == null ? BaseKey.ToString() : $"({BaseKey}, {ServiceKey})";
 
