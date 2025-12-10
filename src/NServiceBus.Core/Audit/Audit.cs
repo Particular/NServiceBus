@@ -2,7 +2,6 @@
 
 namespace NServiceBus.Features;
 
-using System;
 using Logging;
 using Transport;
 
@@ -11,32 +10,24 @@ using Transport;
 /// </summary>
 public sealed class Audit : Feature
 {
-    const string AuditAddressEnvironmentVariableKey = "Audit__Address";
-    const string AuditEnabledEnvironmentVariableKey = "Audit__IsEnabled";
+    internal const string AddressEnvironmentVariableKey = "NServiceBus__Audit__Address";
+    internal const string IsEnabledEnvironmentVariableKey = "NServiceBus__Audit__IsEnabled";
 
     /// <summary>
     /// Creates a new instance of the audit feature.
     /// </summary>
     public Audit()
     {
-        Prerequisite(_ =>
-        {
-            var auditEnabledValue = Environment.GetEnvironmentVariable(AuditEnabledEnvironmentVariableKey);
-
-            // auditing is enabled by default and must be explicitly disabled
-            return auditEnabledValue is null ||
-                   !bool.TryParse(auditEnabledValue, out var isEnabled) ||
-                   isEnabled;
-        }, $"Auditing was disabled via the `{AuditEnabledEnvironmentVariableKey}` environment variable setting");
-
-        var defaultAuditQueue = Environment.GetEnvironmentVariable(AuditAddressEnvironmentVariableKey);
-        if (defaultAuditQueue is not null)
-        {
-            Defaults(settings => settings.SetDefault(new AuditConfigReader.Result(defaultAuditQueue, null)));
-        }
-
-        Prerequisite(config => !string.IsNullOrEmpty(config.Settings.GetOrDefault<AuditConfigReader.Result>()?.Address), "No configured audit queue was found");
+        Prerequisite(context => context.Settings.GetOrDefault<bool>("Audit.Enabled"), $"Auditing was disabled via the `{IsEnabledEnvironmentVariableKey}` environment variable setting");
+        Prerequisite(context => !string.IsNullOrEmpty(context.Settings.GetOrDefault<AuditConfigReader.Result>()?.Address), "No configured audit queue was found");
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Auditing is only relevant for endpoints receiving messages.");
+        Defaults(settings =>
+        {
+            if (settings.HasExplicitValue("Audit.Address"))
+            {
+                settings.SetDefault(new AuditConfigReader.Result(settings.Get<string>("Audit.Address"), null));
+            }
+        });
     }
 
 
