@@ -45,7 +45,6 @@ public class AddHandlerInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -88,7 +87,6 @@ public class AddHandlerInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -130,7 +128,6 @@ public class AddHandlerInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .ShouldNotGenerateCode()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -185,7 +182,6 @@ public class AddHandlerInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 }

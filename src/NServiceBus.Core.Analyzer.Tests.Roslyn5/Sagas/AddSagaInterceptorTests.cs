@@ -57,7 +57,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -112,7 +111,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -166,7 +164,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .ShouldNotGenerateCode()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -222,7 +219,6 @@ public class AddSagaInterceptorTests
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .WithProperty("build_property.NServiceBusDisableSagaPropertyAccessor", "true")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -292,7 +288,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -337,7 +332,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -391,7 +385,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -443,7 +436,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -512,7 +504,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 
@@ -581,7 +572,6 @@ public class AddSagaInterceptorTests
             .WithSource(source, "test.cs")
             .WithGeneratorStages("SagaSpec", "SagaSpecs")
             .Approve()
-            .ToConsole()
             .AssertRunsAreEqual();
     }
 }

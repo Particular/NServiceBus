@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NServiceBus;
 using NUnit.Framework;
 using Particular.Approvals;
 
@@ -285,11 +286,11 @@ public partial class SourceGeneratorTest
                 _ = sb.AppendLine();
             }
 
-            var start = $"// == {heading} ";
+            var start = $"// == {heading} ==";
 
             _ = sb.Append(start);
 
-            for (var i = 0; i < (120 - start.Length); i++)
+            for (var i = 0; i < 120 - start.Length; i++)
             {
                 _ = sb.Append('=');
             }
@@ -344,18 +345,15 @@ public partial class SourceGeneratorTest
             _ = Run();
         }
 
-        try
-        {
-            var output = GetCompilationOutput();
-            var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
-            Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
-            return this;
-        }
-        catch (Exception)
+        if (Environment.GetEnvironmentVariable("CI") != "true")
         {
             _ = ToConsole();
-            throw;
         }
+
+        var output = GetCompilationOutput();
+        var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+        Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
+        return this;
     }
 
     public SourceGeneratorTest ShouldNotGenerateCode()
@@ -373,7 +371,7 @@ public partial class SourceGeneratorTest
         return this;
     }
 
-    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]{36})"\)""", RegexOptions.Compiled)]
+    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]{36})"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
