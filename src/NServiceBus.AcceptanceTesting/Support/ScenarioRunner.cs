@@ -76,7 +76,7 @@ public class ScenarioRunner(
             runDescriptor.ScenarioContext.EndpointsStarted.SetResult();
             await ExecuteWhens(runners, cancellationToken).ConfigureAwait(false);
 
-            var maxTime = cancellationToken.CanBeCanceled ? TimeSpan.MaxValue : TimeSpan.FromSeconds(90);
+            var maxTime = cancellationToken.CanBeCanceled ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(90);
             using (var doneTokenSource = CreateCancellationTokenSource(maxTime))
             using (var combinedDoneTokenSource = CancellationTokenSource.CreateLinkedTokenSource(doneTokenSource.Token, cancellationToken))
             {
