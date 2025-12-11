@@ -130,6 +130,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         return null;
     }
 
+    // Assumes the caller has already verified the types are message types
     internal void RegisterMessageTypes(IEnumerable<Type> messageTypes)
     {
         foreach (var messageType in messageTypes)
@@ -138,6 +139,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         }
     }
 
+    // Assumes the caller has already verified the types are message types
     MessageMetadata RegisterMessageType(Type messageType)
     {
         if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
