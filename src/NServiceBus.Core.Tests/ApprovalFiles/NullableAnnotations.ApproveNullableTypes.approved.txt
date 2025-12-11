@@ -50,8 +50,6 @@ NServiceBus.Pipeline.ISubscribeContext
 NServiceBus.Pipeline.IUnsubscribeContext
 NServiceBus.Pipeline.PipelineSettings
 NServiceBus.RateLimitSettings
-NServiceBus.ReceiveAddresses
-NServiceBus.ReceiveFeatureConfigurationContextExtensions
 NServiceBus.ReceiveSettingsExtensions
 NServiceBus.Recoverability.RecoverabilityContextExtensions
 NServiceBus.RecoverabilityAction

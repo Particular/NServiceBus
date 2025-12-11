@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -40,7 +42,7 @@ partial class ReceiveComponent
 
             var mainReceiveAddress = transport.Receivers[MainReceiverId].ReceiveAddress;
 
-            string instanceReceiveAddress = null;
+            string? instanceReceiveAddress = null;
             if (transport.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceReceiver))
             {
                 instanceReceiveAddress = instanceReceiver.ReceiveAddress;
@@ -68,7 +70,7 @@ partial class ReceiveComponent
 
         pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -77,8 +79,8 @@ partial class ReceiveComponent
         hostingConfiguration.Services.AddSingleton(messageHandlerRegistry);
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
-            handlerDiagnostics[messageType.FullName] = messageHandlerRegistry.GetHandlersFor(messageType)
-                .Select(handler => handler.HandlerType.FullName)
+            handlerDiagnostics[messageType.FullName!] = messageHandlerRegistry.GetHandlersFor(messageType)
+                .Select(handler => handler.HandlerType.FullName!)
                 .ToList();
         }
 
@@ -149,7 +151,7 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var pipelineMetrics = builder.GetService<IncomingPipelineMetrics>();
+        var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
         var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(

@@ -776,15 +776,18 @@ namespace NServiceBus
     }
     public class ReceiveAddresses
     {
-        public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null) { }
-        public string InstanceReceiveAddress { get; }
+        public ReceiveAddresses(string mainReceiveAddress, string? instanceReceiveAddress = null, string[]? satelliteReceiveAddresses = null) { }
+        public string? InstanceReceiveAddress { get; }
         public string MainReceiveAddress { get; }
         public string[] SatelliteReceiveAddresses { get; }
     }
     public static class ReceiveFeatureConfigurationContextExtensions
     {
-        public static NServiceBus.Transport.QueueAddress InstanceSpecificQueueAddress(this NServiceBus.Features.FeatureConfigurationContext config) { }
-        public static NServiceBus.Transport.QueueAddress LocalQueueAddress(this NServiceBus.Features.FeatureConfigurationContext config) { }
+        extension(NServiceBus.Features.FeatureConfigurationContext config)
+        {
+            public NServiceBus.Transport.QueueAddress LocalQueueAddress() { }
+            public NServiceBus.Transport.QueueAddress? InstanceSpecificQueueAddress() { }
+        }
     }
     public class ReceivePipelineCompleted
     {

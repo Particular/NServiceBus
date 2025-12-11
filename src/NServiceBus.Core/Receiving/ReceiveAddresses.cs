@@ -1,6 +1,7 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
 
-using System;
+namespace NServiceBus;
+
 using Features;
 
 /// <summary>
@@ -11,11 +12,11 @@ public class ReceiveAddresses
     /// <summary>
     /// Creates a new instance of <see cref="ReceiveAddresses"/>.
     /// </summary>
-    public ReceiveAddresses(string mainReceiveAddress, string instanceReceiveAddress = null, string[] satelliteReceiveAddresses = null)
+    public ReceiveAddresses(string mainReceiveAddress, string? instanceReceiveAddress = null, string[]? satelliteReceiveAddresses = null)
     {
         MainReceiveAddress = mainReceiveAddress;
         InstanceReceiveAddress = instanceReceiveAddress;
-        SatelliteReceiveAddresses = satelliteReceiveAddresses ?? Array.Empty<string>();
+        SatelliteReceiveAddresses = satelliteReceiveAddresses ?? [];
     }
 
     /// <summary>
@@ -26,7 +27,7 @@ public class ReceiveAddresses
     /// <summary>
     /// The endpoint's additional, instance-specific input address. This will be null if the endpoint hasn't been configured to be uniquely addressable using <see cref="ReceiveSettingsExtensions.MakeInstanceUniquelyAddressable"/>.
     /// </summary>
-    public string InstanceReceiveAddress { get; }
+    public string? InstanceReceiveAddress { get; }
 
     /// <summary>
     /// The input addresses that have been configured via <see cref="FeatureConfigurationContext.AddSatelliteReceiver"/>.
