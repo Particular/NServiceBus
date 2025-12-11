@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Faults;
 using Pipeline;
 
-class CaptureRecoverabilityActionBehavior(string endpointName, ScenarioContext scenarioContext)
+class CaptureRecoverabilityActionBehavior(string endpointName, bool doNotFailOnErrorMessages, ScenarioContext scenarioContext)
     : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
 {
     public async Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
@@ -29,6 +29,11 @@ class CaptureRecoverabilityActionBehavior(string endpointName, ScenarioContext s
                         static (_, failed, failedMessage) => [.. failed, failedMessage], failedMessage);
 
                     MarkMessageAsCompleted();
+
+                    if (!doNotFailOnErrorMessages)
+                    {
+                        scenarioContext.MarkAsFailed(new MessageFailedException(failedMessage, scenarioContext));
+                    }
                     break;
                 }
             case Discard:
