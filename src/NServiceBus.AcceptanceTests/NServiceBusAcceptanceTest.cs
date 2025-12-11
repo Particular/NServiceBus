@@ -18,8 +18,7 @@ using NUnit.Framework.Internal;
 public abstract partial class NServiceBusAcceptanceTest
 {
     [SetUp]
-    public void SetUp()
-    {
+    public void SetUp() =>
         Conventions.EndpointNamingConvention = t =>
         {
             var classAndEndpoint = t.FullName.Split('.').Last();
@@ -36,7 +35,6 @@ public abstract partial class NServiceBusAcceptanceTest
 
             return testName + "." + endpointBuilder;
         };
-    }
 
     [TearDown]
     public void TearDown()
