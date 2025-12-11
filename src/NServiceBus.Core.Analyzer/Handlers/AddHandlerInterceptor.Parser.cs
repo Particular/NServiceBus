@@ -66,30 +66,60 @@ public sealed partial class AddHandlerInterceptor
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!SyntaxLooksLikeAddHandlerMethod(invocation))
-                {
-                    continue;
-                }
-
-                if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
-                {
-                    continue;
-                }
-
-                // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-                if (!IsAddHandlerMethod(operation.TargetMethod))
-                {
-                    continue;
-                }
-
-                var spec = Parse(ctx.SemanticModel, operation, invocation, cancellationToken);
+                HandlerSpec? spec = GetValue(ctx.SemanticModel, invocation, cancellationToken);
                 if (spec is not null)
                 {
                     builder.Add(spec);
                 }
             }
 
+            var modifiers = (ctx.TargetNode as ClassDeclarationSyntax)?.Modifiers ?? (ctx.TargetNode as MethodDeclarationSyntax)?.Modifiers ?? [];
+            if (modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
+            {
+                var declarations = (ctx.TargetSymbol as IMethodSymbol)?.PartialImplementationPart?.DeclaringSyntaxReferences ?? (ctx.TargetSymbol as ITypeSymbol)?.DeclaringSyntaxReferences ?? [];
+                foreach (var declarationPoint in declarations)
+                {
+                    var targetNode = declarationPoint.GetSyntax(cancellationToken);
+                    if (targetNode != ctx.TargetNode)
+                    {
+                        var semanticModel = ctx.SemanticModel.Compilation.GetSemanticModel(declarationPoint.SyntaxTree);
+                        foreach (var invocation in targetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            HandlerSpec? spec = GetValue(semanticModel, invocation, cancellationToken);
+                            if (spec is not null)
+                            {
+                                builder.Add(spec);
+                            }
+                        }
+                    }
+                }
+            }
+
             return builder.ToImmutable();
+        }
+
+        static HandlerSpec? GetValue(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        {
+            if (!SyntaxLooksLikeAddHandlerMethod(invocation))
+            {
+                return null;
+            }
+
+            if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            {
+                return null;
+            }
+
+            // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
+            if (!IsAddHandlerMethod(operation.TargetMethod))
+            {
+                return null;
+            }
+
+            var spec = Parse(semanticModel, operation, invocation, cancellationToken);
+            return spec;
         }
 
         public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)

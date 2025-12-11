@@ -32,8 +32,10 @@ public partial class SourceGeneratorTest
     bool suppressCompilationErrors;
     bool wroteToConsole;
     GeneratorTestOutput outputType;
+    OutputKind buildOutputType = OutputKind.DynamicallyLinkedLibrary;
     readonly HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
     readonly List<string> generatorStagesList = [];
+
 
     SourceGeneratorTest(string? outputAssemblyName = null)
     {
@@ -70,6 +72,12 @@ public partial class SourceGeneratorTest
     public List<MetadataReference> References { get; } = [];
 
     public LanguageVersion LangVersion { get; set; } = LanguageVersion.CSharp14;
+
+    public SourceGeneratorTest BuildAs(OutputKind outputKind)
+    {
+        buildOutputType = outputKind;
+        return this;
+    }
 
     public SourceGeneratorTest WithSource(string source, string? filename = null)
     {
@@ -173,7 +181,7 @@ public partial class SourceGeneratorTest
             optionsProvider: optsProvider,
             parseOptions: parseOptions);
 
-        var compileOpts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        var compileOpts = new CSharpCompilationOptions(buildOutputType);
 
         initialCompilation = CSharpCompilation.Create(outputAssemblyName, syntaxTrees, References, compileOpts);
 
@@ -371,7 +379,7 @@ public partial class SourceGeneratorTest
         return this;
     }
 
-    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]{36})"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
