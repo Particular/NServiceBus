@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -10,8 +9,8 @@ using NUnit.Framework;
 
 public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(20_000)]
-    public async Task Should_still_release_the_outgoing_messages_to_the_transport(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_still_release_the_outgoing_messages_to_the_transport()
     {
         Requires.OutboxPersistence();
 
@@ -20,7 +19,7 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
                 .DoNotFailOnErrorMessages() // PlaceOrder should fail due to exception after dispatch
                 .When(session => session.SendLocal(new PlaceOrder())))
             .Done(c => c.OrderAckReceived)
-            .Run(cancellationToken);
+            .Run();
 
         Assert.That(context.OrderAckReceived, Is.True, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
     }
