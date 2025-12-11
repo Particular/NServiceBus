@@ -49,12 +49,17 @@ namespace NServiceBus
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCancelled>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderCancelled), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderCreated), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderShipped), []);
                 messageHandlerRegistry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderTimeout), []);
             }
         }
     }

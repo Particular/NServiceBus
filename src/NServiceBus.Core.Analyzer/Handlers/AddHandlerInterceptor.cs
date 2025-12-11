@@ -40,5 +40,5 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
         TimeoutHandler,
     }
 
-    internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType);
+    internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy);
 }

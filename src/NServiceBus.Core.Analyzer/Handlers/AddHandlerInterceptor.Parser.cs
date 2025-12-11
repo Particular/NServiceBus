@@ -61,6 +61,9 @@ public sealed partial class AddHandlerInterceptor
         public static ImmutableArray<HandlerSpec> Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
+            var iMessage = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessage");
+            var iCommand = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.ICommand");
+            var iEvent = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IEvent");
 
             foreach (var invocation in ctx.TargetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
@@ -101,10 +104,16 @@ public sealed partial class AddHandlerInterceptor
 
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
+            var markers = new MarkerTypes(semanticModel.Compilation);
 
             foreach (var iface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
-                var messageType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (iface.TypeArguments[0] is not INamedTypeSymbol messageType)
+                {
+                    continue;
+                }
+
+                var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 RegistrationType? registrationType = iface.Name switch
                 {
                     "IHandleMessages" => RegistrationType.MessageHandler,
@@ -118,7 +127,8 @@ public sealed partial class AddHandlerInterceptor
                     continue;
                 }
 
-                var spec = new RegistrationSpec(registrationType.Value, messageType);
+                var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
+                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
@@ -143,6 +153,36 @@ public sealed partial class AddHandlerInterceptor
 
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             return new HandlerSpec(InterceptLocationSpec.From(location), handlerType.Name, handlerFullyQualifiedName, registrations);
+        }
+
+        static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers)
+        {
+            var current = type.BaseType;
+            while (current is { SpecialType: not SpecialType.System_Object })
+            {
+                yield return current;
+                current = current.BaseType;
+            }
+
+            foreach (var iface in type.AllInterfaces)
+            {
+                if (!markers.IsMarkerInterface(iface))
+                {
+                    yield return iface;
+                }
+            }
+        }
+
+        class MarkerTypes(Compilation compilation)
+        {
+            readonly INamedTypeSymbol IMessage = compilation.GetTypeByMetadataName("NServiceBus.IMessage")!;
+            readonly INamedTypeSymbol ICommand = compilation.GetTypeByMetadataName("NServiceBus.ICommand")!;
+            readonly INamedTypeSymbol IEvent = compilation.GetTypeByMetadataName("NServiceBus.IEvent")!;
+
+            public bool IsMarkerInterface(INamedTypeSymbol type) =>
+                SymbolEqualityComparer.Default.Equals(type, IMessage) ||
+                SymbolEqualityComparer.Default.Equals(type, ICommand) ||
+                SymbolEqualityComparer.Default.Equals(type, IEvent);
         }
 
         const string AddHandlerMethodName = "AddHandler";

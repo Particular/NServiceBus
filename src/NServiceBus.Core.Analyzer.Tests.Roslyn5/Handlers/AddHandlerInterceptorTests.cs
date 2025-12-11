@@ -36,9 +36,10 @@ public class AddHandlerInterceptorTests
                          public Task Handle(Cmd2 cmd, IMessageHandlerContext context) => Task.CompletedTask;
                          public Task Handle(Evt1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
                      }
-                     public class Cmd1 : ICommand { }
+                     public class Cmd1 : CmdBase { }
                      public class Cmd2 : ICommand { }
                      public class Evt1 : IEvent { }
+                     public class CmdBase : ICommand { }
                      """;
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()

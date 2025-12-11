@@ -45,9 +45,11 @@ namespace NServiceBus
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderCreated), []);
             }
 
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
@@ -66,9 +68,11 @@ namespace NServiceBus
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::PaymentSaga, global::PaymentSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::PaymentSaga, global::PaymentRequested>();
+                messageMetadataRegistry.RegisterMetadata(typeof(global::PaymentRequested), []);
             }
         }
     }

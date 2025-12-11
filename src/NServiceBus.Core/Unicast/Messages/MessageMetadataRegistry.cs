@@ -109,6 +109,19 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
     public MessageMetadata[] GetAllMessages() => [.. messages.Values];
 
+    /// <summary>
+    /// Register message types. Meant to be used by a source generator to pre-register message types before the endpoint starts.
+    /// </summary>
+    /// <returns></returns>
+    public MessageMetadata RegisterMetadata(Type messageType, IEnumerable<Type> parentMessages)
+    {
+        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages.Where(isMessageType)]);
+
+        messages[messageType.TypeHandle] = metadata;
+        cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
+        return metadata;
+    }
+
     Type GetType(string messageTypeIdentifier)
     {
         if (allowDynamicTypeLoading)
