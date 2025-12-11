@@ -358,7 +358,22 @@ public partial class SourceGeneratorTest
         }
     }
 
-    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    public SourceGeneratorTest ShouldNotGenerateCode()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        var generatedOutputs = build.OutputCompilation.SyntaxTrees
+            .Where(tree => tree.FilePath.EndsWith(".g.cs"))
+            .ToImmutableArray();
+
+        Assert.That(generatedOutputs.Length, Is.EqualTo(0));
+        return this;
+    }
+
+    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]{36})"\)""", RegexOptions.Compiled)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
