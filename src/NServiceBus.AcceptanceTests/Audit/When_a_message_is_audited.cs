@@ -20,7 +20,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                 RunId = c.RunId
             })))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
             .Run();
 
         Assert.That(context.AuditChecksum, Is.EqualTo(context.OriginalBodyChecksum), "The body of the message sent to audit should be the same as the original message coming off the queue");
@@ -42,22 +41,15 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.RegisterMessageMutator(new BodyMutator(context));
-                 config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-             });
-        }
-
-        class BodyMutator : IMutateIncomingTransportMessages
-        {
-            public BodyMutator(Context testContext)
             {
-                this.testContext = testContext;
-            }
+                config.RegisterMessageMutator(new BodyMutator(context));
+                config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+            });
 
+        class BodyMutator(Context testContext) : IMutateIncomingTransportMessages
+        {
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 var originalBody = context.Body;
@@ -69,54 +61,34 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
                 Buffer.BlockCopy(originalBody.ToArray(), 0, modifiedBody, 0, originalBody.Length);
 
-                modifiedBody[modifiedBody.Length - 1] = 13;
+                modifiedBody[^1] = 13;
 
                 context.Body = modifiedBody;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
-        {
-            EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
-        }
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
 
-        class BodySpy : IMutateIncomingTransportMessages
+        class BodySpy(Context context) : IMutateIncomingTransportMessages
         {
-            public BodySpy(Context context)
-            {
-                this.context = context;
-            }
-
             public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
             {
                 context.AuditChecksum = Checksum(transportMessage.Body.ToArray());
                 return Task.CompletedTask;
             }
-
-            Context context;
         }
 
-        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 if (message.RunId != testContext.RunId)
@@ -124,12 +96,10 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                     return Task.CompletedTask;
                 }
 
-                testContext.Done = true;
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
