@@ -134,12 +134,17 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     {
         foreach (var messageType in messageTypes)
         {
-            RegisterMessageType(messageType);
+            _ = RegisterMessageType(messageType);
         }
     }
 
     MessageMetadata RegisterMessageType(Type messageType)
     {
+        if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
+        {
+            return metadata;
+        }
+
         if (messageType.IsGenericType)
         {
             // This is not an error because in most cases it will work, but it's still not supported should issues arise
@@ -151,7 +156,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
             .Where(isMessageType)
             .OrderByDescending(PlaceInMessageHierarchy);
 
-        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
+        metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
 
         messages[messageType.TypeHandle] = metadata;
         cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
