@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Handlers;
@@ -30,58 +31,72 @@ public sealed partial class AddSagaInterceptor
             ArgumentList.Arguments.Count: 0
         };
 
-        public static SagaSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static ImmutableArray<SagaSpec> Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
+            var builder = ImmutableArray.CreateBuilder<SagaSpec>();
 
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            foreach (var invocation in ctx.TargetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
-                return null;
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!SyntaxLooksLikeAddSagaMethod(invocation))
+                {
+                    continue;
+                }
+
+                if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+                {
+                    continue;
+                }
+
+                // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
+                if (!IsAddSagaMethod(operation.TargetMethod))
+                {
+                    continue;
+                }
+
+                if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol sagaType)
+                {
+                    continue;
+                }
+
+                // Extract saga data type from Saga<TSagaData>
+                var sagaDataType = GetSagaDataType(sagaType);
+                if (sagaDataType == null)
+                {
+                    continue;
+                }
+
+                // Get interceptable location for code generation
+                if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+                {
+                    continue;
+                }
+
+                var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx.SemanticModel, operation, invocation, cancellationToken);
+                if (handlerSpec == null)
+                {
+                    continue;
+                }
+
+                var sagaFullyQualifiedName = sagaType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                // Analyze ConfigureHowToFindSaga to extract mappings
+                var propertyMappings = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
+
+                var spec = new SagaSpec(
+                    InterceptLocationSpec.From(location),
+                    sagaType.Name,
+                    sagaFullyQualifiedName,
+                    sagaDataFullyQualifiedName,
+                    propertyMappings,
+                    handlerSpec);
+
+                builder.Add(spec);
             }
 
-            // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            if (!IsAddSagaMethod(operation.TargetMethod))
-            {
-                return null;
-            }
-
-            if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol sagaType)
-            {
-                return null;
-            }
-
-            // Extract saga data type from Saga<TSagaData>
-            var sagaDataType = GetSagaDataType(sagaType);
-            if (sagaDataType == null)
-            {
-                return null;
-            }
-
-            // Get interceptable location for code generation
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
-            {
-                return null;
-            }
-
-            var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx, operation, invocation, cancellationToken);
-            if (handlerSpec == null)
-            {
-                return null;
-            }
-
-            var sagaFullyQualifiedName = sagaType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            // Analyze ConfigureHowToFindSaga to extract mappings
-            var propertyMappings = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
-
-            return new SagaSpec(
-                InterceptLocationSpec.From(location),
-                sagaType.Name,
-                sagaFullyQualifiedName,
-                sagaDataFullyQualifiedName,
-                propertyMappings,
-                handlerSpec);
+            return builder.ToImmutable();
         }
 
         static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)

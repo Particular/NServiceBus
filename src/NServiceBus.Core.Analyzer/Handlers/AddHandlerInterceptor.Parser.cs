@@ -58,26 +58,41 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static ImmutableArray<HandlerSpec> Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
+            var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            foreach (var invocation in ctx.TargetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
-                return null;
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!SyntaxLooksLikeAddHandlerMethod(invocation))
+                {
+                    continue;
+                }
+
+                if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+                {
+                    continue;
+                }
+
+                // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
+                if (!IsAddHandlerMethod(operation.TargetMethod))
+                {
+                    continue;
+                }
+
+                var spec = Parse(ctx.SemanticModel, operation, invocation, cancellationToken);
+                if (spec is not null)
+                {
+                    builder.Add(spec);
+                }
             }
 
-            // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            if (!IsAddHandlerMethod(operation.TargetMethod))
-            {
-                return null;
-            }
-
-            return Parse(ctx, operation, invocation, cancellationToken);
+            return builder.ToImmutable();
         }
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx,
-            IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
         {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
@@ -121,7 +136,7 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;
             }

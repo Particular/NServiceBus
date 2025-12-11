@@ -11,11 +11,10 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var addHandlers = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => Parser.SyntaxLooksLikeAddHandlerMethod(node),
+            .ForAttributeWithMetadataName("NServiceBus.NServiceBusRegistrationsAttribute",
+                predicate: static (node, _) => true,
                 transform: Parser.Parse)
-            .Where(static d => d is not null)
-            .Select(static (d, _) => d!)
+            .SelectMany(static (spec, _) => spec)
             .WithTrackingName("HandlerSpec");
 
         var collected = addHandlers.Collect()

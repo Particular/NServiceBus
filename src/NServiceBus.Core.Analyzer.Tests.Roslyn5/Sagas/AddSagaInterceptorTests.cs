@@ -15,6 +15,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -69,6 +70,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -124,6 +126,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -193,6 +196,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -237,6 +241,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -290,6 +295,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -341,6 +347,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();
@@ -409,6 +416,7 @@ public class AddSagaInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddSaga<OrderSaga>();

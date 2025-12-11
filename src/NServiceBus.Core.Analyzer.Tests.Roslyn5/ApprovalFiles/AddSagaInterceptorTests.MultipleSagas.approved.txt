@@ -28,8 +28,8 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
             public void AddSaga_OrderSaga_e02a35d0173ba1fe()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -50,7 +50,7 @@ namespace NServiceBus
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
             }
 
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
             public void AddSaga_PaymentSaga_7fc38895dc05807c()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);

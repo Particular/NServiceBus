@@ -15,6 +15,7 @@ public class AddHandlerInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddHandler<Handles1>();
@@ -57,6 +58,7 @@ public class AddHandlerInterceptorTests
 
                      public class Test
                      {
+                         [NServiceBusRegistrations]
                          public void Configure(EndpointConfiguration cfg)
                          {
                              cfg.AddHandler<OrderPolicy>();
