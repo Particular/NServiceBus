@@ -62,15 +62,26 @@ public sealed partial class AddHandlerInterceptor
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            foreach (var invocation in ctx.TargetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            foreach (var (invocation, semanticModel) in GetDescendentNodesAcrossPartials<InvocationExpressionSyntax>(ctx, cancellationToken))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                HandlerSpec? spec = GetValue(ctx.SemanticModel, invocation, cancellationToken);
+                HandlerSpec? spec = GetValue(semanticModel, invocation, cancellationToken);
                 if (spec is not null)
                 {
                     builder.Add(spec);
                 }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        static IEnumerable<(TNodeType, SemanticModel)> GetDescendentNodesAcrossPartials<TNodeType>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
+            where TNodeType : CSharpSyntaxNode
+        {
+            foreach (var descendant in ctx.TargetNode.DescendantNodes().OfType<TNodeType>())
+            {
+                yield return (descendant, ctx.SemanticModel);
             }
 
             var modifiers = (ctx.TargetNode as ClassDeclarationSyntax)?.Modifiers ?? (ctx.TargetNode as MethodDeclarationSyntax)?.Modifiers ?? [];
@@ -83,21 +94,13 @@ public sealed partial class AddHandlerInterceptor
                     if (targetNode != ctx.TargetNode)
                     {
                         var semanticModel = ctx.SemanticModel.Compilation.GetSemanticModel(declarationPoint.SyntaxTree);
-                        foreach (var invocation in targetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                        foreach (var descendant in targetNode.DescendantNodes().OfType<TNodeType>())
                         {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            HandlerSpec? spec = GetValue(semanticModel, invocation, cancellationToken);
-                            if (spec is not null)
-                            {
-                                builder.Add(spec);
-                            }
+                            yield return (descendant, semanticModel);
                         }
                     }
                 }
             }
-
-            return builder.ToImmutable();
         }
 
         static HandlerSpec? GetValue(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
