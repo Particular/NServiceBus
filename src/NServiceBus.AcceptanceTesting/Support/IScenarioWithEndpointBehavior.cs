@@ -21,6 +21,8 @@ public interface IScenarioWithEndpointBehavior<TContext> where TContext : Scenar
 
     IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
+    IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource> func);
+
     Task<TContext> Run(CancellationToken cancellationToken = default);
 
     Task<TContext> Run(RunSettings settings, CancellationToken cancellationToken = default);

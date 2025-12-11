@@ -17,7 +17,7 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Subscriber>()
-            .Done(c => c.EndpointsStarted && c.EventsSubscribedTo.Count >= 1)
+            .Done(c => c.EndpointsStarted.Task.IsCompletedSuccessfully && c.EventsSubscribedTo.Count >= 1)
             .Run();
 
         Assert.That(context.EventsSubscribedTo, Has.Count.EqualTo(1));
