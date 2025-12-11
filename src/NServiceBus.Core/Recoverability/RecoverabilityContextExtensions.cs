@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Recoverability;
+﻿#nullable enable
+
+namespace NServiceBus.Recoverability;
 
 using Pipeline;
 using Routing;

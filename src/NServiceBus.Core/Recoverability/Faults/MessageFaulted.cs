@@ -1,14 +1,11 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
 using Transport;
 
-class MessageFaulted : MessageProcessingFailed
+sealed class MessageFaulted(string errorQueue, IncomingMessage failedMessage, Exception exception) : MessageProcessingFailed(failedMessage, exception)
 {
-    public string ErrorQueue { get; }
-
-    public MessageFaulted(string errorQueue, IncomingMessage failedMessage, Exception exception) : base(failedMessage, exception)
-    {
-        ErrorQueue = errorQueue;
-    }
+    public string ErrorQueue { get; } = errorQueue;
 }

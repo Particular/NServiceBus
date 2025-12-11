@@ -9,11 +9,18 @@ using System.Threading.Tasks;
 using NServiceBus.Logging;
 using NServiceBus.Transport;
 
-class WrappedMessageReceiver(
-    ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
-    IMessageReceiver baseReceiver)
-    : IMessageReceiver
+class WrappedMessageReceiver : IMessageReceiver
 {
+    public WrappedMessageReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration,
+        IMessageReceiver baseReceiver)
+    {
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresConfiguration);
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresConfiguration.RateLimitSettings);
+
+        this.consecutiveFailuresConfiguration = consecutiveFailuresConfiguration;
+        this.baseReceiver = baseReceiver;
+    }
+
     public ISubscriptionManager Subscriptions => baseReceiver.Subscriptions;
     public string Id => baseReceiver.Id;
     public string ReceiveAddress => baseReceiver.ReceiveAddress;
@@ -128,14 +135,13 @@ class WrappedMessageReceiver(
 
     async Task StartRateLimiting(CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresConfiguration.RateLimitSettings);
+
         try
         {
             await ChangeConcurrency(RateLimitedRuntimeSettings, cancellationToken).ConfigureAwait(false);
 
-            if (consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted != null)
-            {
-                await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted(cancellationToken).ConfigureAwait(false);
-            }
+            await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitStarted(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
@@ -146,14 +152,13 @@ class WrappedMessageReceiver(
     async Task StopRateLimiting(CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(originalLimitations);
+        ArgumentNullException.ThrowIfNull(consecutiveFailuresConfiguration.RateLimitSettings);
+
         try
         {
             await ChangeConcurrency(originalLimitations, cancellationToken).ConfigureAwait(false);
 
-            if (consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded != null)
-            {
-                await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded(cancellationToken).ConfigureAwait(false);
-            }
+            await consecutiveFailuresConfiguration.RateLimitSettings.OnRateLimitEnded(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
@@ -197,4 +202,6 @@ class WrappedMessageReceiver(
 
     bool endpointShouldBeRateLimited;
     long lastStateChangeTime = 0;
+    readonly ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration;
+    readonly IMessageReceiver baseReceiver;
 }

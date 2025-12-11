@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -9,20 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
 
-class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
+class SatelliteRecoverabilityExecutor<TState>(
+    IServiceProvider serviceProvider,
+    FaultMetadataExtractor faultMetadataExtractor,
+    Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
+    TState state)
+    : IRecoverabilityPipelineExecutor
 {
-    public SatelliteRecoverabilityExecutor(
-        IServiceProvider serviceProvider,
-        FaultMetadataExtractor faultMetadataExtractor,
-        Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
-        TState state)
-    {
-        this.state = state;
-        this.serviceProvider = serviceProvider;
-        this.faultMetadataExtractor = faultMetadataExtractor;
-        this.recoverabilityPolicy = recoverabilityPolicy;
-    }
-
     public async Task<ErrorHandleResult> Invoke(
         ErrorContext errorContext,
         CancellationToken cancellationToken = default)
@@ -36,7 +31,7 @@ class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
             serviceProvider,
             cancellationToken);
 
-        List<TransportOperation> transportOperations = null;
+        List<TransportOperation>? transportOperations = null;
         var routingContexts = recoverabilityAction.GetRoutingContexts(actionContext);
 
         foreach (var routingContext in routingContexts)
@@ -59,49 +54,32 @@ class SatelliteRecoverabilityExecutor<TState> : IRecoverabilityPipelineExecutor
         }
 
         var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
-        await dispatcher.Dispatch(new TransportOperations(transportOperations.ToArray()), errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
+        await dispatcher.Dispatch(new TransportOperations([.. transportOperations]), errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
         return recoverabilityAction.ErrorHandleResult;
     }
 
-    class BehaviorActionContext : IRecoverabilityActionContext
+    sealed class BehaviorActionContext(
+        ErrorContext errorContext,
+        IReadOnlyDictionary<string, string> metadata,
+        IServiceProvider serviceProvider,
+        CancellationToken cancellationToken)
+        : IRecoverabilityActionContext
     {
-        public BehaviorActionContext(
-            ErrorContext errorContext,
-            IReadOnlyDictionary<string, string> metadata,
-            IServiceProvider serviceProvider,
-            CancellationToken cancellationToken)
-        {
-            FailedMessage = errorContext.Message;
-            Exception = errorContext.Exception;
-            ReceiveAddress = errorContext.ReceiveAddress;
-            ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
-            DelayedDeliveriesPerformed = errorContext.DelayedDeliveriesPerformed;
+        public IncomingMessage FailedMessage { get; } = errorContext.Message;
 
-            Metadata = metadata;
-            CancellationToken = cancellationToken;
-            Builder = serviceProvider;
-        }
+        public Exception Exception { get; } = errorContext.Exception;
 
-        public IncomingMessage FailedMessage { get; }
+        public string ReceiveAddress { get; } = errorContext.ReceiveAddress;
 
-        public Exception Exception { get; }
+        public int ImmediateProcessingFailures { get; } = errorContext.ImmediateProcessingFailures;
 
-        public string ReceiveAddress { get; }
+        public int DelayedDeliveriesPerformed { get; } = errorContext.DelayedDeliveriesPerformed;
 
-        public int ImmediateProcessingFailures { get; }
-
-        public int DelayedDeliveriesPerformed { get; }
-
-        public CancellationToken CancellationToken { get; }
+        public CancellationToken CancellationToken { get; } = cancellationToken;
 
         public ContextBag Extensions => field ??= new ContextBag();
-        public IServiceProvider Builder { get; }
-        public IReadOnlyDictionary<string, string> Metadata { get; }
+        public IServiceProvider Builder { get; } = serviceProvider;
+        public IReadOnlyDictionary<string, string> Metadata { get; } = metadata;
     }
-
-    readonly IServiceProvider serviceProvider;
-    readonly FaultMetadataExtractor faultMetadataExtractor;
-    readonly Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy;
-    readonly TState state;
 }

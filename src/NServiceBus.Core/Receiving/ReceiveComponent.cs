@@ -243,14 +243,7 @@ partial class ReceiveComponent
     }
 
     static IMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver)
-    {
-        if (consecutiveFailuresConfiguration.RateLimitSettings != null)
-        {
-            return new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver);
-        }
-
-        return receiver;
-    }
+        => consecutiveFailuresConfiguration.RateLimitSettings is not null ? new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver) : receiver;
 
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;

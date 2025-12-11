@@ -11,7 +11,7 @@ using Extensibility;
 using NServiceBus.Transport;
 using Pipeline;
 
-class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
+sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
 {
     public RecoverabilityContext(
         IServiceProvider serviceProvider,

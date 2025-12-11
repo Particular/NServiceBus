@@ -18,6 +18,12 @@ public class FailedMessage
     /// <param name="errorQueue">Error queue address.</param>
     public FailedMessage(string messageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, Exception exception, string errorQueue)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
+        ArgumentNullException.ThrowIfNull(headers);
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(exception);
+        ArgumentException.ThrowIfNullOrWhiteSpace(errorQueue);
+
         MessageId = messageId;
         Headers = headers;
         Body = body;
