@@ -28,7 +28,7 @@ public class When_publishing_command_bestpractices_disabled : NServiceBusAccepta
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.EndpointsStarted, Is.True);
+        Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);
     }
 
     public class Endpoint : EndpointConfigurationBuilder
