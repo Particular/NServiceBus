@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
@@ -11,8 +10,8 @@ using NUnit.Framework;
 
 public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(15_000)]
-    public async Task Should_not_apply_immediate_dispatch_to_inner_send(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_not_apply_immediate_dispatch_to_inner_send()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointA>(c => c
@@ -21,7 +20,7 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
             .WithEndpoint<EndpointB>()
             .WithEndpoint<EndpointC>()
             .Done(c => c.MessageBReceived)
-            .Run(cancellationToken);
+            .Run();
 
         using (Assert.EnterMultipleScope())
         {
