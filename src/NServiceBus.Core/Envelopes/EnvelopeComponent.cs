@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -7,28 +9,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 class EnvelopeComponent(EnvelopeComponent.Settings settings)
 {
-    public EnvelopeUnwrapper Initialize(IServiceProvider serviceProvider)
-    {
-        List<IEnvelopeHandler> handlers = [];
-        handlers.AddRange(settings.HandlerFactories.Select(factory => (IEnvelopeHandler)factory(serviceProvider, null)));
+    public EnvelopeUnwrapper CreateUnwrapper(IServiceProvider serviceProvider)
+        => new([.. settings.HandlerFactories.Select(factory => factory(serviceProvider))]);
 
-        return new EnvelopeUnwrapper(handlers);
-    }
-
-    public class Settings()
+    public class Settings
     {
-        readonly Dictionary<Type, ObjectFactory> factories = [];
-        public void AddEnvelopeHandler<THandler>()
+        readonly Dictionary<Type, Func<IServiceProvider, IEnvelopeHandler>> factories = [];
+
+        public void AddEnvelopeHandler<THandler>() where THandler : IEnvelopeHandler
         {
             if (factories.ContainsKey(typeof(THandler)))
             {
                 return;
             }
-            //create and cache the factory
-            var handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
-            factories.Add(typeof(THandler), handlerFactory);
+
+            // create and cache the factory because the service provider is only available later
+            // using CreateInstance instead of CreateFactory because the envelop handlers are instantiated only once and
+            // kept alive for the lifetime of the endpoint
+            factories.Add(typeof(THandler), static sp => ActivatorUtilities.CreateInstance<THandler>(sp));
         }
 
-        public IEnumerable<ObjectFactory> HandlerFactories => factories.Values;
+        public IReadOnlyCollection<Func<IServiceProvider, IEnvelopeHandler>> HandlerFactories => factories.Values;
     }
 }

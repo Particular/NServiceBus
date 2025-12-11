@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -5,7 +7,7 @@ using System.Collections.Generic;
 using Logging;
 using Transport;
 
-class EnvelopeUnwrapper(IEnumerable<IEnvelopeHandler> envelopeHandlers)
+class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers)
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
