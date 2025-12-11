@@ -13,7 +13,6 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<UserEndpoint>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<AuditSpy>()
-            .Done(c => c.MessageAudited)
             .Run();
 
         Assert.That(context.MessageAudited, Is.True);
@@ -21,42 +20,28 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
 
     public class UserEndpoint : EndpointConfigurationBuilder
     {
-        public UserEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
-        }
+        public UserEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
 
         class Handler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
     public class AuditSpy : EndpointConfigurationBuilder
     {
-        public AuditSpy()
-        {
+        public AuditSpy() =>
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("audit_with_code_target");
-        }
 
-        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public AuditMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.MessageAudited = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -66,7 +51,5 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
     }
 
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

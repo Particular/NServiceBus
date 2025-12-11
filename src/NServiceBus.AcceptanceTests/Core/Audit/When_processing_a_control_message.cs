@@ -21,7 +21,6 @@ public class When_processing_a_control_message : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointProcessingControlMessage>()
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.ControlMessageAudited)
             .Run();
 
         Assert.That(context.ControlMessageProcessed, Is.True);
@@ -76,6 +75,7 @@ public class When_processing_a_control_message : NServiceBusAcceptanceTest
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.ControlMessageAudited = true;
+                testContext.MarkAsCompleted();
                 return next();
             }
         }

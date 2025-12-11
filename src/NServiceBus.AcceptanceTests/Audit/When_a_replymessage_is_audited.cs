@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit;
 
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -18,7 +17,6 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
             .WithEndpoint<Server>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.Send(new Request())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.MessageAudited)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -27,12 +25,6 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
             Assert.That(context.MessageAudited, Is.True);
             Assert.That(context.HeaderValue, Is.EqualTo("SomeValue"));
         }
-    }
-
-    public static byte Checksum(byte[] data)
-    {
-        var longSum = data.Sum(x => (long)x);
-        return unchecked((byte)longSum);
     }
 
     public class Context : ScenarioContext
@@ -44,10 +36,7 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
 
     public class Server : EndpointConfigurationBuilder
     {
-        public Server()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Server() => EndpointSetup<DefaultServer>();
 
         class RequestHandler : IHandleMessages<Request>
         {
@@ -64,70 +53,46 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<Outbox>();
                 c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
                 c.ConfigureRouting().RouteToEndpoint(typeof(Request), typeof(Server));
             });
-        }
 
-        public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<ResponseToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                 testContext.MessageProcessed = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
-        {
-            EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
-        }
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
 
-        class BodySpy : IMutateIncomingTransportMessages
+        class BodySpy(Context testContext) : IMutateIncomingTransportMessages
         {
-            public BodySpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 testContext.MessageAudited = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
         {
-            public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class ResponseToBeAudited : IMessage
-    {
-    }
+    public class ResponseToBeAudited : IMessage;
 
-    public class Request : IMessage
-    {
-    }
+    public class Request : IMessage;
 }
