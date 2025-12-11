@@ -10,13 +10,16 @@ using Features;
 /// </summary>
 public static class EnvelopeConfigExtensions
 {
-    /// <summary>
-    /// Adds the envelope handler type.
-    /// </summary>
-    public static void AddEnvelopeHandler<THandler>(this FeatureConfigurationContext context) where THandler : class, IEnvelopeHandler
+    extension(FeatureConfigurationContext context)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        /// <summary>
+        /// Adds the envelope handler type.
+        /// </summary>
+        public void AddEnvelopeHandler<THandler>() where THandler : class, IEnvelopeHandler
+        {
+            ArgumentNullException.ThrowIfNull(context);
 
-        context.Settings.Get<EnvelopeComponent.Settings>().AddEnvelopeHandler<THandler>();
+            context.Settings.Get<EnvelopeComponent.Settings>().AddEnvelopeHandler<THandler>();
+        }
     }
 }

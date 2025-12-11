@@ -299,8 +299,11 @@ namespace NServiceBus
     }
     public static class EnvelopeConfigExtensions
     {
-        public static void AddEnvelopeHandler<THandler>(this NServiceBus.Features.FeatureConfigurationContext context)
-            where THandler :  class, NServiceBus.IEnvelopeHandler { }
+        extension(NServiceBus.Features.FeatureConfigurationContext context)
+        {
+            public void AddEnvelopeHandler<THandler>()
+                where THandler :  class, NServiceBus.IEnvelopeHandler { }
+        }
     }
     public static class ErrorQueueSettings
     {
