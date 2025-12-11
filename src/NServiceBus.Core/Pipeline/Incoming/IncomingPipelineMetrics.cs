@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -154,8 +156,8 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ExecutionResult, "success"));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
 
@@ -174,9 +176,9 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ExecutionResult, "failure"));
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, error.GetType().FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "failure"));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
 
@@ -195,7 +197,7 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
         totalImmediateRetries.Add(1, meterTags);
     }
 
@@ -214,7 +216,7 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
         totalDelayedRetries.Add(1, meterTags);
     }
 
@@ -233,7 +235,7 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
-        meterTags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, recoverabilityContext.Exception.GetType().FullName));
         totalSentToErrorQueue.Add(1, meterTags);
     }
 

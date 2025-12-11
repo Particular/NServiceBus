@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Pipeline;
+﻿#nullable enable
+
+namespace NServiceBus.Pipeline;
 
 /// <summary>
 /// Pipeline context for reply operations.

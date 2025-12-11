@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Pipeline;
+﻿#nullable enable
+
+namespace NServiceBus.Pipeline;
 
 using System;
 using System.Threading.Tasks;
@@ -30,7 +32,5 @@ public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminat
     /// <summary>
     /// A well-known context that terminates the pipeline.
     /// </summary>
-    public interface ITerminatingContext : IBehaviorContext
-    {
-    }
+    public interface ITerminatingContext : IBehaviorContext;
 }

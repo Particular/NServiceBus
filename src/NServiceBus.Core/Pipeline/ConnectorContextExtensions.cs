@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -10,7 +12,7 @@ using Transport;
 /// <summary>
 /// Contains extensions methods to map behavior contexts.
 /// </summary>
-public static partial class ConnectorContextExtensions
+public static class ConnectorContextExtensions
 {
     /// <summary>
     /// Creates a <see cref="IRoutingContext" /> based on the current context.
