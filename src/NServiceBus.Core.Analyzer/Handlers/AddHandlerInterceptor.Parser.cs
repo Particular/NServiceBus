@@ -61,9 +61,6 @@ public sealed partial class AddHandlerInterceptor
         public static ImmutableArray<HandlerSpec> Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
-            var iMessage = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessage");
-            var iCommand = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.ICommand");
-            var iEvent = ctx.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IEvent");
 
             foreach (var invocation in ctx.TargetNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
