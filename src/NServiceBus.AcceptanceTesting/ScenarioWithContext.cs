@@ -106,7 +106,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         doneTask = Task.Run(async () =>
         {
             var (context, cancellationToken) = await kickOffTcs.Task.ConfigureAwait(false);
-            var maxTime = cancellationToken.CanBeCanceled ? TimeSpan.MaxValue : TimeSpan.FromSeconds(90);
+            var maxTime = cancellationToken.CanBeCanceled ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(90);
             using var doneTokenSource = CreateCancellationTokenSource(maxTime);
             using var combinedDoneTokenSource = CancellationTokenSource.CreateLinkedTokenSource(doneTokenSource.Token, cancellationToken);
             var registration = combinedDoneTokenSource.Token.Register(() => context.MarkAsCanceled(combinedDoneTokenSource.Token));
