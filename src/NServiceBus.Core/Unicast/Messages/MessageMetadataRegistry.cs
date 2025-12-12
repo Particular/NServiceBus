@@ -258,7 +258,7 @@ public partial class MessageMetadataRegistry
     {
         if (!initialized)
         {
-            throw new InvalidOperationException("The message metadata registry has not been initialized. Call Initialize() before using the registry.");
+            throw new InvalidOperationException("The message metadata registry is not initialized which is an indication the registry was attempted to be used before the endpoint was created which means not all conventions and settings are available yet and therefore the registry cannot give accurate information about message metadata.");
         }
     }
 
