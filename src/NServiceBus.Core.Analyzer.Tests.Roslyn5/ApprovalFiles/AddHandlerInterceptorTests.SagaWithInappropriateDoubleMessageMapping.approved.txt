@@ -34,13 +34,13 @@ namespace NServiceBus
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderBilled), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderBilled), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderPlaced), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderPlaced), []);
                 messageHandlerRegistry.AddTimeoutHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderPlaced), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderPlaced), []);
             }
         }
     }

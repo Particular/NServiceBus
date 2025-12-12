@@ -48,11 +48,11 @@ namespace NServiceBus
 
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderCreated), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderCreated), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderShipped>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::OrderShipped), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderShipped), []);
             }
         }
     }

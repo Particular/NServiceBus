@@ -34,9 +34,9 @@ namespace NServiceBus
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles1, global::Cmd1>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
             }
 
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
@@ -46,13 +46,13 @@ namespace NServiceBus
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Cmd1>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Cmd2>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::Cmd2), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Evt1>();
-                messageMetadataRegistry.RegisterMetadata(typeof(global::Evt1), []);
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
             }
         }
     }
