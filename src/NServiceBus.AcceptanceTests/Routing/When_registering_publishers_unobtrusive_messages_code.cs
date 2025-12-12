@@ -16,7 +16,7 @@ public class When_registering_publishers_unobtrusive_messages_code : NServiceBus
             .WithEndpoint<Publisher>(e => e
                 .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
             .WithEndpoint<Subscriber>()
-            .Done(c => c.ReceivedMessage)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -65,6 +65,8 @@ public class When_registering_publishers_unobtrusive_messages_code : NServiceBus
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -17,7 +17,7 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ContextExtendingEndpoint>(e => e
                 .When((session, _) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.AnotherMessageReceived)
+            
             .Run();
 
         Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
@@ -60,6 +60,8 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {
                 testContext.AnotherMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

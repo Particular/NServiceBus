@@ -17,7 +17,7 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
             {
                 Data = expectedData
             })))
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.Data, Is.EqualTo(expectedData));
@@ -51,6 +51,8 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
             {
                 testContext.Data = message.Data;
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

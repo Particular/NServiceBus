@@ -23,7 +23,7 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
                     options.SetHeader(Headers.ConversationId, initialConversationId);
                     return s.Send(new IntermediateMessage(), options);
                 }))
-            .Done(c => c.ReceivedMessage)
+            
             .Run());
 
         Assert.That(exception.InnerException.Message, Does.Contain($"Cannot set the {Headers.ConversationId} header to 'intermediate message header' as it cannot override the incoming header value ('{initialConversationId}')."));
@@ -55,6 +55,8 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
             public async Task Handle(IntermediateMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+
+                testContext.MarkAsCompleted();
 
                 var options = new SendOptions();
                 options.RouteToThisEndpoint();

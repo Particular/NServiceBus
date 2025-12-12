@@ -22,7 +22,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                 c.EnableInstallers = false;
             })
             .WithEndpoint<Endpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.SetupInfrastructure, Is.False);
@@ -36,7 +36,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                 c.EnableInstallers = true;
             })
             .WithEndpoint<Endpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.SetupInfrastructure, Is.True);
@@ -59,7 +59,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                 endpointConfig.SendFailedMessagesTo(errorQueueName);
                 endpointConfig.AuditProcessedMessagesTo(auditQueueName);
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.SetupInfrastructure, Is.True);
@@ -81,7 +81,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                  endpointConfig.AuditProcessedMessagesTo("myAudit");
                  endpointConfig.MakeInstanceUniquelyAddressable(instanceDiscriminator);
              }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.SetupInfrastructure, Is.True);

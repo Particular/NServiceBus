@@ -12,7 +12,7 @@ public class When_transactions_off_and_immediate_retries_enabled : NServiceBusAc
     {
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.ToString(), Does.Contain("Immediate retries are not supported"));

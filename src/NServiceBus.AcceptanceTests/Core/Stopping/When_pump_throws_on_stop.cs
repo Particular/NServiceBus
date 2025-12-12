@@ -16,7 +16,7 @@ public class When_pump_throws_on_stop : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointThatThrowsOnPumpStop>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var logEntry = context.Logs.FirstOrDefault(l =>

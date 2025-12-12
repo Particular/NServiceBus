@@ -14,7 +14,7 @@ public class When_configuring_transport : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithFeature>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.TransportDefinition, Is.Not.Null);

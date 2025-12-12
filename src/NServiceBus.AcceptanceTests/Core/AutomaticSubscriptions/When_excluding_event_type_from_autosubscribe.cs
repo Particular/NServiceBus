@@ -19,7 +19,7 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
     {
         var ctx = await Scenario.Define<Context>()
             .WithEndpoint<Subscriber>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(ctx.EventsSubscribedTo, Has.Count.EqualTo(1));

@@ -17,7 +17,7 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             {
                 Id = c.Id
             })))
-            .Done(c => c.FirstHandlerWasCalled)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -62,6 +62,9 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             }
 
             testContext.FirstHandlerWasCalled = true;
+
+
+            testContext.MarkAsCompleted();
 
             return Task.CompletedTask;
         }

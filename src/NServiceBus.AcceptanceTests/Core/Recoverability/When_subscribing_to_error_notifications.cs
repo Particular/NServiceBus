@@ -24,7 +24,7 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
                     Id = c.Id
                 }));
             })
-            .Done(c => c.MessageSentToError)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -62,6 +62,8 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
                 {
                     testContext.MessageSentToErrorException = failedMessage.Exception;
                     testContext.MessageSentToError = true;
+
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
                 recoverability.Delayed(settings =>

@@ -23,7 +23,7 @@ public class When_endpoint_is_started : NServiceBusAcceptanceTest
 
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatWithDiagnosticsEnabled>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run()
             .ConfigureAwait(false);
 

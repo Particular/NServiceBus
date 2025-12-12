@@ -14,7 +14,7 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new MyRequest())))
-            .Done(c => c.GotTheRequest)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -60,6 +60,9 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
                 }
 
                 testContext.GotTheRequest = true;
+
+
+                testContext.MarkAsCompleted();
             }
 
             Context testContext;

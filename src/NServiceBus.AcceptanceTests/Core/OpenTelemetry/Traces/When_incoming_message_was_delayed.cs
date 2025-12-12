@@ -24,7 +24,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                     sendOptions.RouteToThisEndpoint();
                     return s.Send(new DelayedMessage(), sendOptions);
                 }))
-            .Done(c => c.DelayedMessageReceived)
+            
             .Run();
 
         Assert.That(context.DelayedMessageCurrentActivityId, Is.Not.Null, "delayed message current activityId is not null");
@@ -43,7 +43,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                     return s.Send(new IncomingMessage(), sendOptions);
                 }))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.ReplyMessageReceived)
+            
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -115,7 +115,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         var context = await Scenario.Define<SagaContext>()
             .WithEndpoint<SagaOtelEndpoint>(b => b
                 .When(s => s.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
-            .Done(c => c.SagaMarkedComplete)
+            
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -219,6 +219,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             {
                 testContext.ReplyMessageId = context.MessageId;
                 testContext.ReplyMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -232,6 +234,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {
                 testContext.DelayedMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 testContext.DelayedMessageCurrentActivityId = Activity.Current?.Id;
                 return Task.CompletedTask;
             }
@@ -281,6 +285,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             {
                 MarkAsComplete();
                 testContext.SagaMarkedComplete = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

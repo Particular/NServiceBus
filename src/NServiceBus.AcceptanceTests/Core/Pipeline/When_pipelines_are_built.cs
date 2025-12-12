@@ -16,7 +16,7 @@ public class When_pipelines_are_built : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RegularEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run()
             .ConfigureAwait(false);
 

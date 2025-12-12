@@ -18,7 +18,7 @@ public class When_no_finder_support : NServiceBusAcceptanceTest
     {
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.StartWith("The selected persistence doesn't support custom sagas finders"));

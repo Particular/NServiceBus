@@ -17,7 +17,7 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
         return Scenario.Define<ScenarioContext>()
             .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         //Assert in FakeReceiver.StartReceive

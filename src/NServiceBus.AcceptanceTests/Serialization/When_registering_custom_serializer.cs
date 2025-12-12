@@ -21,7 +21,7 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithCustomSerializer>(b => b.When(
                 (session, c) => session.SendLocal(new MyRequest())))
-            .Done(c => c.HandlerGotTheRequest)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -59,6 +59,8 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
                 testContext.HandlerGotTheRequest = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

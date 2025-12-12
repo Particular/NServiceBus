@@ -21,7 +21,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(result.MessageReceived, Is.True, "Message should be received");

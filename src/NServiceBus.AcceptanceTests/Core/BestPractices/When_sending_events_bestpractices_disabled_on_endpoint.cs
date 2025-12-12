@@ -13,7 +13,7 @@ public class When_sending_events_bestpractices_disabled_on_endpoint : NServiceBu
     {
         return Scenario.Define<ScenarioContext>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
     }
 

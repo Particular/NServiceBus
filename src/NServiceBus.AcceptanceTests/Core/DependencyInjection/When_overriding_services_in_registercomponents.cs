@@ -20,7 +20,7 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
                 // Simulate adding a registration after the endpoint has been created
                 .Services(static s => s.AddSingleton<IDependencyBeforeEndpointStart, OriginallyDefinedDependency>(), afterStart: true)
             )
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())

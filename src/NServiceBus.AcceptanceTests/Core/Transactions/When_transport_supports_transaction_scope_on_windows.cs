@@ -27,7 +27,7 @@ public class When_transport_supports_transaction_scope_on_windows : NServiceBusA
             {
                 c.UseTransport(fakeTransport);
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(fakeTransport.DtcIsAvailable, Is.True, fakeTransport.DtcCheckException?.Message);

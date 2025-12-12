@@ -12,7 +12,7 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<CorrelationEndpoint>(b => b.When(session => session.SendLocal(new MyRequest())))
-            .Done(c => c.GotRequest)
+            
             .Run();
 
         Assert.That(context.CorrelationIdReceived, Is.EqualTo(context.MessageIdReceived), "Correlation id should match MessageId");
@@ -44,6 +44,8 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
                 testContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
                 testContext.MessageIdReceived = context.MessageId;
                 testContext.GotRequest = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

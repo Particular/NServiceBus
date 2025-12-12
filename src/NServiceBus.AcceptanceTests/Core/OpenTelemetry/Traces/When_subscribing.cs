@@ -18,7 +18,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
             .WithEndpoint<SubscribingEndpoint>(e => e
                 .When(s => s.Subscribe<DemoEvent>()))
             .WithEndpoint<PublishingEndpoint>()
-            .Done(c => c.Subscribed)
+            
             .Run();
 
         var subscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
@@ -46,7 +46,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
             .WithEndpoint<SubscribingEndpoint>(e => e
                 .When(s => s.Subscribe<DemoEvent>()))
             .WithEndpoint<PublishingEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var subscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe")
@@ -86,6 +86,8 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
                 if (e.MessageType == typeof(DemoEvent).AssemblyQualifiedName)
                 {
                     ctx.Subscribed = true;
+
+                    ctx.MarkAsCompleted();
                 }
             });
         });

@@ -26,7 +26,7 @@ public class When_publishing : NServiceBusAcceptanceTest
                     ctx.Subscriber3Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber3GotTheEvent)
+            
             .Run();
 
         Assert.That(context.Subscriber3GotTheEvent, Is.True);
@@ -157,6 +157,8 @@ public class When_publishing : NServiceBusAcceptanceTest
             public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber3GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

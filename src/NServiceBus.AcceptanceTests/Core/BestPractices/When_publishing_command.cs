@@ -22,9 +22,11 @@ public class When_publishing_command : NServiceBusAcceptanceTest
                 {
                     c.Exception = ex;
                     c.GotTheException = true;
+
+                    c.MarkAsCompleted();
                 }
             }))
-            .Done(c => c.GotTheException)
+            
             .Run();
 
         Assert.That(context.Exception, Is.InstanceOf<Exception>());

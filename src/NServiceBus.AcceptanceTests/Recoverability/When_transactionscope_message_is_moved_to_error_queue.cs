@@ -23,7 +23,7 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -108,6 +108,8 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;

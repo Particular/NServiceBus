@@ -18,7 +18,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .WithEndpoint<SubscriberEndpoint>(e => e
                 .When(s => s.Unsubscribe<DemoEvent>()))
             .WithEndpoint<PublishingEndpoint>()
-            .Done(c => c.Unsubscribed)
+            
             .Run();
 
         var unsubscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
@@ -46,7 +46,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .WithEndpoint<SubscriberEndpoint>(e => e
                 .When(s => s.Unsubscribe<DemoEvent>()))
             .WithEndpoint<PublishingEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var unsubscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe").ToArray();
@@ -85,6 +85,8 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
                 if (e.MessageType == typeof(DemoEvent).AssemblyQualifiedName)
                 {
                     ctx.Unsubscribed = true;
+
+                    ctx.MarkAsCompleted();
                 }
             });
         });

@@ -18,7 +18,7 @@ public class When_features_are_scanned : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithFeature>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())

@@ -20,7 +20,7 @@ public class When_skip_wrapping_xml : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<NonWrappingEndpoint>(e => e
                 .When(session => session.SendLocal(new MessageWithRawXml { Document = xmlContent })))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -61,6 +61,8 @@ public class When_skip_wrapping_xml : NServiceBusAcceptanceTest
             public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 testContext.XmlPropertyValue = messageWithRawXml.Document;
 
                 return Task.CompletedTask;

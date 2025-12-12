@@ -20,7 +20,7 @@ public class When_custom_host_id_is_configured : NServiceBusAcceptanceTest
                 endpointConfig.EnableFeature<MyFeatureThatOverridesHostInformationDefaults>();
                 endpointConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(ctx.CustomHostId);
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())

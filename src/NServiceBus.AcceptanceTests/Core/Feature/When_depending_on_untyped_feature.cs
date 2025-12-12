@@ -17,7 +17,7 @@ public class When_depending_on_untyped_feature : NServiceBusAcceptanceTest
                 c.EnableFeature<UntypedDependentFeature>();
                 c.EnableFeature<DependencyFeature>();
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.UntypedDependencyFeatureSetUp, Is.True);
@@ -32,7 +32,7 @@ public class When_depending_on_untyped_feature : NServiceBusAcceptanceTest
                 c.DisableFeature<UntypedDependentFeature>();
                 c.EnableFeature<DependencyFeature>();
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.UntypedDependencyFeatureSetUp, Is.False);

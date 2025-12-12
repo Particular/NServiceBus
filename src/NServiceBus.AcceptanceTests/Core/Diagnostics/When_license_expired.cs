@@ -17,7 +17,7 @@ public class When_license_expired : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
+            
             .Run();
 
         Assert.That(context.HasDiagnosticLicensingHeaders, Is.True);
@@ -93,6 +93,9 @@ public class When_license_expired : NServiceBusAcceptanceTest
                 testContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
 
                 testContext.Done = true;
+
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

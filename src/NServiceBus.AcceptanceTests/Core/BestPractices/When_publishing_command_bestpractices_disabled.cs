@@ -25,7 +25,7 @@ public class When_publishing_command_bestpractices_disabled : NServiceBusAccepta
 
                 return session.Publish(new MyCommand(), publishOptions);
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);

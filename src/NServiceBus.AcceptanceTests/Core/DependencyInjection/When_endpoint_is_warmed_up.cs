@@ -31,7 +31,7 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
                     return startableEndpoint.Start(spyContainer, ct);
                 })
                 .When(session => session.SendLocal(new SomeMessage())))
-            .Done(c => c.GotTheMessage)
+            
             .Run();
 
         var builder = new StringBuilder();
@@ -87,6 +87,8 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

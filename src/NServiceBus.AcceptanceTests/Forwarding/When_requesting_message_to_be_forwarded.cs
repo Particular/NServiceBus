@@ -15,7 +15,7 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatForwards>(b => b.When((session, c) => session.SendLocal(new MessageToForward())))
             .WithEndpoint<ForwardReceiver>()
-            .Done(c => c.GotForwardedMessage)
+            
             .Run();
 
         Assert.That(context.GotForwardedMessage, Is.True);
@@ -48,6 +48,8 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
             {
                 testContext.ForwardedHeaders = context.MessageHeaders;
                 testContext.GotForwardedMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

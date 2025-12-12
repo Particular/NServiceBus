@@ -13,7 +13,7 @@ public class When_unsubscribing_on_send_only_endpoint : NServiceBusAcceptanceTes
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<NativePubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Unsubscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot unsubscribe to events"));
@@ -25,7 +25,7 @@ public class When_unsubscribing_on_send_only_endpoint : NServiceBusAcceptanceTes
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<MessageDrivenPubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Unsubscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot unsubscribe to events"));

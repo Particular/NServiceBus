@@ -18,7 +18,7 @@ public class When_feature_startup_task_throws_on_stop : NServiceBusAcceptanceTes
     {
         var context = await Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointThatThrowsOnInfrastructureStop>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("stopping of feature startup task") && item.Level == LogLevel.Warn);

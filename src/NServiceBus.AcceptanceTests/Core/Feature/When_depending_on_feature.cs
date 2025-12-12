@@ -20,7 +20,7 @@ public class When_depending_on_feature : NServiceBusAcceptanceTest
                 c.EnableFeature<DependencyFeature>();
                 c.EnableFeature<TypedDependentFeature>();
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())

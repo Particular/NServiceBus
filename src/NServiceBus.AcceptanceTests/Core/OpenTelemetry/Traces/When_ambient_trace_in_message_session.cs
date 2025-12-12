@@ -31,7 +31,7 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
                         await s.SendLocal(new LocalMessage());
                     }
                 }))
-            .Done(c => c.OutgoingMessageReceived)
+            
             .Run();
 
         var outgoingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
@@ -68,6 +68,8 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {
                 testContext.OutgoingMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

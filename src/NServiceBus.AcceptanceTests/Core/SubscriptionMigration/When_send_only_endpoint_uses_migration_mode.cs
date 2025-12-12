@@ -13,7 +13,7 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<SendOnlyEndpoint>(c => c
                 .When(s => s.Subscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot subscribe to events"));
@@ -25,7 +25,7 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<SendOnlyEndpoint>(c => c
                 .When(s => s.Unsubscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot unsubscribe to events"));

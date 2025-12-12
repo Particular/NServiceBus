@@ -14,7 +14,7 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new MyRequest())))
-            .Done(c => c.GotTheReply)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -63,6 +63,8 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
             public Task Handle(IMyReply message, IMessageHandlerContext context)
             {
                 testContext.GotTheReply = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

@@ -22,7 +22,7 @@ public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
                  c.UnitOfWork()
                      .WrapHandlersInATransactionScope();
              }))
-             .Done(c => c.EndpointsStarted)
+             
              .Run();
 
         Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);

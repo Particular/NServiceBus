@@ -16,7 +16,7 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
         var context = Scenario.Define<Context>()
            .WithEndpoint<Endpoint>(c => c
                .When(b => b.SendLocal(new MyMessage())))
-           .Done(c => c.GotTheMessage);
+           ;
 
         var ex = Assert.ThrowsAsync<JsonException>(async () => await context.Run());
         Assert.That(ex.Message, Does.Match("^The property or field.*doesn't allow getting null values.*$"));
@@ -52,6 +52,8 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

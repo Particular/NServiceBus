@@ -13,7 +13,7 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new V1Message())))
-            .Done(c => c.V2MessageReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -58,6 +58,8 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             public Task Handle(V2Message message, IMessageHandlerContext context)
             {
                 testContext.V2MessageReceived = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

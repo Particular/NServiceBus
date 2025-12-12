@@ -21,7 +21,7 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         Assert.That(context.MessageMovedToErrorQueue, Is.True);
@@ -73,6 +73,8 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;

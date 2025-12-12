@@ -14,7 +14,7 @@ public class When_transactions_off_and_delayed_retries_enabled : NServiceBusAcce
 
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.ToString(), Does.Contain("Delayed retries are not supported when running with TransportTransactionMode.None. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))' or select a different TransportTransactionMode."));

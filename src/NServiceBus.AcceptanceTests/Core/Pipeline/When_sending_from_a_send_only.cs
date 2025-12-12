@@ -18,7 +18,7 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
                 Id = c.Id
             })))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -80,6 +80,9 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
             }
 
             testContext.WasCalled = true;
+
+
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
 

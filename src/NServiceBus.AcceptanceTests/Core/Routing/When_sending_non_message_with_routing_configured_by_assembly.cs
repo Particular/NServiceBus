@@ -22,9 +22,11 @@ public class When_sending_non_message_with_routing_configured_by_assembly : NSer
                 {
                     c.Exception = ex;
                     c.GotTheException = true;
+
+                    c.MarkAsCompleted();
                 }
             }))
-            .Done(c => c.GotTheException)
+            
             .Run();
 
         Assert.That(context.Exception.ToString(), Does.Contain("No destination specified for message"));

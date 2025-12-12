@@ -31,7 +31,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
+            
             .Run(cancellationToken);
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
@@ -74,6 +74,8 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
             public Task Handle(EventMessage messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

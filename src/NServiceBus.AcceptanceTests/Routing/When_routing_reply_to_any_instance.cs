@@ -21,7 +21,7 @@ public class When_routing_reply_to_any_instance : NServiceBusAcceptanceTest
                     return s.Send(new RequestReplyMessage(), options);
                 }))
             .WithEndpoint<Replier>()
-            .Done(c => c.ReplyReceived)
+            
             .Run();
 
         Assert.That(context.ReplyReceived, Is.True);
@@ -57,6 +57,8 @@ public class When_routing_reply_to_any_instance : NServiceBusAcceptanceTest
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

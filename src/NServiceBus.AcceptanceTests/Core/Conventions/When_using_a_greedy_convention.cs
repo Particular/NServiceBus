@@ -17,7 +17,7 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
             {
                 Id = c.Id
             })))
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -63,6 +63,9 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
             }
 
             testContext.WasCalled = true;
+
+
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
 

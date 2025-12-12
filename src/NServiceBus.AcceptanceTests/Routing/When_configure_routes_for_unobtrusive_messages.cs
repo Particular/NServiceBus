@@ -16,7 +16,7 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
             .WithEndpoint<SendingEndpointUsingRoutingApi>(e => e
                 .When(s => s.Send(new SomeCommand())))
             .WithEndpoint<ReceivingEndpoint>()
-            .Done(c => c.ReceivedMessage)
+            
             .Run();
 
         Assert.That(context.ReceivedMessage, Is.True);
@@ -62,6 +62,8 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -23,7 +23,7 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
                 };
                 return session.SendLocal(startSagaMessage);
             }))
-            .Done(c => c.SecondMessageFoundExistingSaga)
+            
             .Run(cancellationToken);
 
         Assert.That(context.SecondMessageFoundExistingSaga, Is.True);
@@ -45,6 +45,8 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
             public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondMessageFoundExistingSaga = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

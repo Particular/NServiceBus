@@ -18,7 +18,7 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
                 {
                     Value = "Hello World!"
                 })))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(context.Input, Is.EqualTo("Hello World!"));
@@ -51,6 +51,8 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
                 scenarioContext.MessageReceived = true;
+
+                scenarioContext.MarkAsCompleted();
                 scenarioContext.Input = message.Value;
 
                 return Task.CompletedTask;

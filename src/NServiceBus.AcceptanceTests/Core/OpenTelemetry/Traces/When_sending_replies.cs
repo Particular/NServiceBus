@@ -12,7 +12,7 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new IncomingMessage())))
-            .Done(c => c.OutgoingMessageReceived)
+            
             .Run();
 
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -57,6 +57,8 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
                 testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                 testContext.OutgoingMessageId = context.MessageId;
                 testContext.OutgoingMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

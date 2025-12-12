@@ -23,7 +23,7 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -87,6 +87,8 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
                 {
                     testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.MessageMovedToErrorQueue = true;
+
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;

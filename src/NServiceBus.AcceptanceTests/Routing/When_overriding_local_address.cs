@@ -23,7 +23,7 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
                 return c.Send(new Message(), options);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.ReceivedMessage)
+            
             .Run();
 
         Assert.That(context.ReceivedMessage, Is.True);
@@ -35,7 +35,7 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
         var ex = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
            .WithEndpoint<Sender>()
            .WithEndpoint<Receiver>(e => e.CustomConfig(c => c.SendOnly()))
-           .Done(c => c.EndpointsStarted)
+           
            .Run());
 
         Assert.That(ex.Message, Does.Contain("send-only"));
@@ -71,6 +71,8 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

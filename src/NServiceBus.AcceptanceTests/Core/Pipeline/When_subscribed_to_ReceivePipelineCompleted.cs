@@ -14,7 +14,7 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SubscribingEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
-            .Done(c => c.NotificationEventFired)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -44,6 +44,8 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
                     var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
                     testContext.ReceivePipelineCompletedMessage = e;
                     testContext.NotificationEventFired = true;
+
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 });
             });

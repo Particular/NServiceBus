@@ -23,7 +23,7 @@ public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
 
                 return bus.Send(new MyMessage(), options);
             }))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(context.MessageReceived, Is.True);
@@ -51,6 +51,8 @@ public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

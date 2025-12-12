@@ -15,7 +15,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .WithEndpoint<MessageDrivenSubscriber>()
             .WithEndpoint<MigratedPublisher>(publisher => publisher
                 .When(ctx => Task.FromResult(ctx.Subscriber != null), (session, ctx) => session.Publish(new SomeEvent())))
-            .Done(c => c.EventReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -32,7 +32,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .WithEndpoint<NativeSubscriber>()
             .WithEndpoint<MigratedPublisher>(publisher => publisher
                 .When((session, ctx) => session.Publish(new SomeEvent())))
-            .Done(c => c.EventReceived)
+            
             .Run();
 
         Assert.That(context.EventReceived, Is.True);
@@ -63,6 +63,10 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.EventReceived = true;
+
+                testContext.MarkAsCompleted();
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -87,6 +91,10 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.EventReceived = true;
+
+                testContext.MarkAsCompleted();
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -16,7 +16,7 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(b => b
                 .When(s => s.SendLocal(new IncomingMessage()))) // tracing headers are removed from message
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         var incomingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
@@ -57,6 +57,8 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

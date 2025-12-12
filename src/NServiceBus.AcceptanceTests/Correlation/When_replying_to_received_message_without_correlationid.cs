@@ -21,7 +21,7 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
                 sendOptions.SetMessageId(mycustomid);
                 return session.Send(new MyRequest(), sendOptions);
             }))
-            .Done(c => c.GotResponse)
+            
             .Run();
 
         Assert.That(context.CorrelationIdReceived, Is.EqualTo(mycustomid), "Correlation id should match MessageId");
@@ -59,6 +59,8 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
             {
                 context.CorrelationIdReceived = c.MessageHeaders[Headers.CorrelationId];
                 context.GotResponse = true;
+
+                context.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

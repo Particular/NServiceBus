@@ -25,7 +25,7 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
                     ctx.Subscribed = true;
                 }
             }))
-            .Done(c => c.GotTheEvent)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -112,6 +112,8 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
             public Task Handle(IMyEvent @event, IMessageHandlerContext context)
             {
                 testContext.GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

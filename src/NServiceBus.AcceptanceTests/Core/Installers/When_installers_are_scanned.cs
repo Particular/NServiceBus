@@ -14,7 +14,7 @@ public class When_installers_are_scanned : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithInstaller>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.InstallerCalled, Is.True);

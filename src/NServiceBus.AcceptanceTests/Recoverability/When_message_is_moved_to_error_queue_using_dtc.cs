@@ -24,7 +24,7 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
@@ -92,6 +92,8 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
                 if (message.Id == testContext.Id)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;

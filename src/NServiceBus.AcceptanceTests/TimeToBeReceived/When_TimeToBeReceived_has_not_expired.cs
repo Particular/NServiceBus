@@ -13,7 +13,7 @@ public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -47,6 +47,8 @@ public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
             {
                 testContext.TTBROnIncomingMessage = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

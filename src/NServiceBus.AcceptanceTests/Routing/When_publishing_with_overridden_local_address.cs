@@ -24,7 +24,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
+            
             .Run();
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
@@ -72,6 +72,8 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

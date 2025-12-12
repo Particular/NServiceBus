@@ -19,7 +19,7 @@ public class When_publishing_command_bestpractices_disabled_on_endpoint : NServi
 
         var context = await Scenario.Define<ScenarioContext>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Publish(new MyCommand())))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);

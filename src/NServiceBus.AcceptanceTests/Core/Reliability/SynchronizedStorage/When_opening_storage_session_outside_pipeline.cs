@@ -32,7 +32,7 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                     c.EnableOutbox();
                 }
             }))
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -91,6 +91,9 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                     }
 
                     scenarioContext.Done = true;
+
+
+                    scenarioContext.MarkAsCompleted();
                 }
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;

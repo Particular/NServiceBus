@@ -16,7 +16,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
             .WithEndpoint<OtherEndpoint>()
-            .Done(c => c.SendingEndpointGotResponse)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -46,6 +46,8 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
             public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SendingEndpointGotResponse = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

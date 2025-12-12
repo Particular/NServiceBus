@@ -16,7 +16,7 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SendOnlyPublisher>(b => b.When((session, c) => session.Publish(new MyEvent())))
             .WithEndpoint<Subscriber>()
-            .Done(c => c.SubscriberGotTheEvent)
+            
             .Run();
 
         Assert.That(context.SubscriberGotTheEvent, Is.True);
@@ -55,6 +55,8 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SubscriberGotTheEvent = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

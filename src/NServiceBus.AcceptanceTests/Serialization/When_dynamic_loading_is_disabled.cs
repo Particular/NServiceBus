@@ -18,7 +18,7 @@ public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
                 .DoNotFailOnErrorMessages()
                 .When(session => session.SendLocal(new Message()))
             )
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(context.FailedMessages.Single().Value, Has.Count.EqualTo(1));
@@ -48,6 +48,8 @@ public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
 
                 context.Message.Headers[Headers.EnclosedMessageTypes] = typeof(PatchMessage).FullName;
 

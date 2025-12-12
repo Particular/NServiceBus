@@ -17,7 +17,7 @@ public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanc
 
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.ToString(), Does.Contain("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'."));

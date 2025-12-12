@@ -37,7 +37,7 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
+            
             .Run();
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
@@ -101,6 +101,8 @@ public class When_extending_the_publish_api : NServiceBusAcceptanceTest
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

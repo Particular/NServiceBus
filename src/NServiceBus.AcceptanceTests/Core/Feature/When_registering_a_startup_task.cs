@@ -15,7 +15,7 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<SendOnlyEndpoint>()
-            .Done(c => c.SendOnlyEndpointWasStarted)
+            
             .Run();
 
         Assert.That(context.SendOnlyEndpointWasStarted, Is.True, "The endpoint should have started without any errors");
@@ -47,6 +47,8 @@ public class When_registering_a_startup_task : NServiceBusAcceptanceTest
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     scenarioContext.SendOnlyEndpointWasStarted = true;
+
+                    scenarioContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }
 

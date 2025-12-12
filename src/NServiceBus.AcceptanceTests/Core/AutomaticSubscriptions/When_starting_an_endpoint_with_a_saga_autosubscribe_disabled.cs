@@ -16,7 +16,7 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Subscriber>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.EventsSubscribedTo.Count, Is.EqualTo(0), "Events only handled by sagas should not be auto subscribed");

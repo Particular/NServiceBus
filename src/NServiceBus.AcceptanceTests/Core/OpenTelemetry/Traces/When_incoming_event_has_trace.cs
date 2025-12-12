@@ -25,7 +25,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.ReplyMessageReceived)
+            
             .Run(cancellationToken);
 
         var incomingActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -76,6 +76,8 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
             {
                 testContext.ReplyTraceParent = context.MessageHeaders[Headers.DiagnosticsTraceParent];
                 testContext.ReplyMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -27,7 +27,7 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
                     return session.Send(new MyRequest());
                 }))
             .WithEndpoint<XmlCustomSerializationReceiver>()
-            .Done(c => c.HandlerGotTheRequest)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -80,6 +80,8 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
                 testContext.HandlerGotTheRequest = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

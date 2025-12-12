@@ -17,7 +17,7 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
                 .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
                 .When(s => s.Send(new IncomingMessage())))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.ReplyMessageReceived)
+            
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -108,6 +108,8 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
             {
                 testContext.ReplyMessageId = context.MessageId;
                 testContext.ReplyMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

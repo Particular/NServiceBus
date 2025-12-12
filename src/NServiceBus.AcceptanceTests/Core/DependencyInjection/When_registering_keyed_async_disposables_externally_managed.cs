@@ -33,7 +33,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
                 })
                 .When(e => e.SendLocal(new SomeMessage()));
             })
-            .Done(c => c.ScopedAsyncDisposableDisposed)
+            
             .Run(cancellationToken);
 
         // the acceptance test infrastructure disposes the managed provider
@@ -139,6 +139,8 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
+
+            context.MarkAsCompleted();
             return new ValueTask();
         }
     }

@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-                    .Done(c => c.MessageReceived)
+                    
                     .Run();
             });
 
@@ -36,6 +36,8 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     testContext.MessageReceived = true;
+
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }
             }

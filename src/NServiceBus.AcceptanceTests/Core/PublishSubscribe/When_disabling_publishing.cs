@@ -24,7 +24,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
 
                 return Task.FromResult(false);
             }, s => s.Publish(new TestEvent())))
-            .Done(c => c.ReceivedEvent)
+            
             .Run();
     }
 
@@ -34,7 +34,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
             .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                 c => c.Publish(new TestEvent())))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Publishing has been explicitly disabled on this endpoint"));
@@ -77,6 +77,8 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
             public Task Handle(TestEvent message, IMessageHandlerContext context)
             {
                 testContext.ReceivedEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

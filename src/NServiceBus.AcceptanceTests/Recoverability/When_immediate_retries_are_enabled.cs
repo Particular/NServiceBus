@@ -16,7 +16,7 @@ public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
             .WithEndpoint<RetryEndpoint>(b => b
                 .When((session, c) => session.SendLocal(new MessageToBeRetried()))
                 .DoNotFailOnErrorMessages())
-            .Done(c => c.ForwardedToErrorQueue)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -49,6 +49,8 @@ public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
                 config.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                 {
                     scenarioContext.ForwardedToErrorQueue = true;
+
+                    scenarioContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
 

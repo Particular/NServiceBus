@@ -29,7 +29,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
                 })
                 .When(e => e.SendLocal(new SomeMessage()));
             })
-            .Done(c => c.ScopedAsyncDisposableDisposed)
+            
             .Run(cancellationToken);
 
         // the acceptance test infrastructure disposes the managed provider
@@ -135,6 +135,8 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
+
+            context.MarkAsCompleted();
             return new ValueTask();
         }
     }

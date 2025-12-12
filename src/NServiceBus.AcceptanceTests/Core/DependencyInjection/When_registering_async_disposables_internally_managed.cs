@@ -23,7 +23,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
-            .Done(c => c.ScopedAsyncDisposableDisposed)
+            
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -92,6 +92,8 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         public ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
+
+            context.MarkAsCompleted();
             return new ValueTask();
         }
 

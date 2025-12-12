@@ -20,7 +20,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
                 .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         Assert.That(context.MessageBodyWasEmpty, Is.True);
@@ -91,6 +91,8 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             {
                 testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
                 testContext.MessageMovedToErrorQueue = true;
+
+                testContext.MarkAsCompleted();
                 return next(context);
             }
 

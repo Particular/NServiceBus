@@ -13,7 +13,7 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new Message())))
-            .Done(c => c.MessageProcessed)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -102,6 +102,8 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageProcessed = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

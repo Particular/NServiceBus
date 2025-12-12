@@ -14,7 +14,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -73,6 +73,8 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                 testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
                 testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
                 testContext.Done = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

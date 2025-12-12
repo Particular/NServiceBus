@@ -16,7 +16,7 @@ public class When_mutating : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new StartMessage())))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -63,6 +63,8 @@ public class When_mutating : NServiceBusAcceptanceTest
             public Task Handle(LoopMessage message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

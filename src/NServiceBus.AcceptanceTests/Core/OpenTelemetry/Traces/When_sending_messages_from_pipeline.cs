@@ -14,7 +14,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new TriggerMessage())))
-            .Done(c => c.OutgoingMessageReceived)
+            
             .Run();
 
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -47,6 +47,8 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
                 testContext.OutgoingMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -29,7 +29,7 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
                     sendOptions.SetHeader("ContentType", "MyCustomSerializer");
                     return session.SendLocal(new MyRequest());
                 }))
-            .Done(c => c.DeserializeCalled)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -120,6 +120,8 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
 
                 var msg = serializer.Deserialize(stream);
                 context.DeserializeCalled = true;
+
+                context.MarkAsCompleted();
                 context.ValueFromSettingsForDeserializer = valueFromSettings;
 
                 return new[]

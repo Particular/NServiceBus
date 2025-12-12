@@ -13,7 +13,7 @@ public class When_routing_interface_message : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new StartMessage())))
-            .Done(c => c.GotTheMessage)
+            
             .Run();
 
         Assert.That(context.GotTheMessage, Is.True);
@@ -52,6 +52,8 @@ public class When_routing_interface_message : NServiceBusAcceptanceTest
             public Task Handle(IMyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

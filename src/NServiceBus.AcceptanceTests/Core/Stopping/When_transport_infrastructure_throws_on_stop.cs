@@ -16,7 +16,7 @@ public class When_transport_infrastructure_throws_on_stop : NServiceBusAcceptanc
     {
         var context = await Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointThatThrowsOnInfrastructureStop>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains("Shutdown of the transport") && item.Level == LogLevel.Error);

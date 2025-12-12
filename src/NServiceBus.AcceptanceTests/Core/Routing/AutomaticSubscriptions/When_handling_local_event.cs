@@ -22,7 +22,7 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             })
             .When(c => c.EventSubscribed || c.HasNativePubSubSupport, (session, context) => session.Publish(new Event { ContextId = context.Id })))
-            .Done(c => c.GotEvent)
+            
             .Run().ConfigureAwait(false);
 
         Assert.That(ctx.GotEvent, Is.True);
@@ -67,6 +67,8 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                     return Task.CompletedTask;
                 }
                 testContext.GotEvent = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

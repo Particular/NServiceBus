@@ -16,7 +16,7 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(g => g.When(b => b.SendLocal(new Message())))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -62,6 +62,8 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
                 testContext.MessageId = context.MessageId;
                 testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

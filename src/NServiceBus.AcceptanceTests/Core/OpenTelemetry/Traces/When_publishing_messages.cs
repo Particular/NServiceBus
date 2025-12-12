@@ -25,7 +25,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
+            
             .Run();
 
         var outgoingEventActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -65,7 +65,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
+            
             .Run();
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -106,7 +106,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
+            
             .Run();
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -184,6 +184,12 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 testPublishContext.PublishedMessageId = context.MessageId;
                 testPublishContext.OutgoingEventReceived = true;
+
+                testPublishContext.MarkAsCompleted();
+
+                testPublishContext.MarkAsCompleted();
+
+                testPublishContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

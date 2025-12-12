@@ -17,7 +17,7 @@ public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
                 c.EnableFeature<TypedDependentFeature>();
                 c.EnableFeature<DependencyFeature>();
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.TypedDependencyFeatureSetUp, Is.True);
@@ -32,7 +32,7 @@ public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
                 c.DisableFeature<TypedDependentFeature>();
                 c.EnableFeature<DependencyFeature>();
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.TypedDependencyFeatureSetUp, Is.False);

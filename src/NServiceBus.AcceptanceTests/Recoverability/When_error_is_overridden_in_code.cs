@@ -15,7 +15,7 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
                 .When(session => session.SendLocal(new Message()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(context.MessageReceived, Is.True);
@@ -55,6 +55,8 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

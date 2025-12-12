@@ -24,7 +24,7 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
                 }))
             .WithEndpoint<Replier>()
             .WithEndpoint<ReplyHandler>()
-            .Done(c => c.ReplyReceived)
+            
             .Run();
 
         Assert.That(context.ReplyReceived, Is.True);
@@ -89,6 +89,8 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -15,7 +15,7 @@ public class When_initializing_transport : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.StartUpSequence, Is.EqualTo(new List<string>
@@ -33,7 +33,7 @@ public class When_initializing_transport : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.CustomConfig(c => c.SendOnly()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.StartUpSequence, Is.EqualTo(new List<string>

@@ -19,7 +19,7 @@ public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceT
 
                 return session.Send(new MyEvent(), sendOptions);
             }))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);

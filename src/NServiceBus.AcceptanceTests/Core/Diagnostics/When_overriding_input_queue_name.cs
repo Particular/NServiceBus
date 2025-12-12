@@ -12,7 +12,7 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -44,6 +44,8 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
         {
             testContext.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];
             testContext.Done = true;
+
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
 

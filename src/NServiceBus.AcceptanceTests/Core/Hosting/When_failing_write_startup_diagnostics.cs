@@ -14,7 +14,7 @@ public class When_failing_write_startup_diagnostics : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(context.Logs.Any(l => l.Message.Contains("Diagnostics write failed")), Is.True);

@@ -12,7 +12,7 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -72,6 +72,9 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
                 testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
 
                 testContext.Done = true;
+
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

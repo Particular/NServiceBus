@@ -16,7 +16,7 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));

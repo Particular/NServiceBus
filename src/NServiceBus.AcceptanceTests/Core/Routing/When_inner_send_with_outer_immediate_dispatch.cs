@@ -19,7 +19,7 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
                 .When(s => s.SendLocal(new TriggerMessage())))
             .WithEndpoint<EndpointB>()
             .WithEndpoint<EndpointC>()
-            .Done(c => c.MessageBReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -86,6 +86,8 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
             public Task Handle(MessageToEndpointB message, IMessageHandlerContext context)
             {
                 testContext.MessageBReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

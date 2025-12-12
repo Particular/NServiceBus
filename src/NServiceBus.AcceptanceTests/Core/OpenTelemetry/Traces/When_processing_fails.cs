@@ -17,7 +17,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
             .WithEndpoint<FailingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.HandlerInvoked).Run();
+            .Run();
 
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
@@ -64,6 +64,8 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {
                 textContext.HandlerInvoked = true;
+
+                textContext.MarkAsCompleted();
                 throw new SimulatedException(ErrorMessage);
             }
         }

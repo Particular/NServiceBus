@@ -18,7 +18,7 @@ public class When_defining_serializer_with_no_content_type : NServiceBusAcceptan
         var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointWithInvalidSerializer>(e => e
                 .CustomConfig(c => c.UseSerialization<InvalidSerializer>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value."));
@@ -30,7 +30,7 @@ public class When_defining_serializer_with_no_content_type : NServiceBusAcceptan
         var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointWithInvalidSerializer>(e => e
                 .CustomConfig(c => c.AddDeserializer<InvalidSerializer>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain($"Serializer '{nameof(InvalidSerializer)}' defines no content type. Ensure the 'ContentType' property of the serializer has a value."));

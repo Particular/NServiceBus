@@ -14,7 +14,7 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MessageToBeDetectedByRootNodeName())))
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.WasCalled, Is.True);
@@ -49,6 +49,8 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
             public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

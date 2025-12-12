@@ -17,7 +17,7 @@ public class When_no_content_type : NServiceBusAcceptanceTest
                 {
                     Property = "value"
                 })))
-            .Done(c => c.ReceivedMessage)
+            
             .Run();
     }
 

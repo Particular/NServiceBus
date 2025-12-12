@@ -17,7 +17,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
             .WithEndpoint<OtherEndpoint>()
-            .Done(c => c.SendingEndpointGotResponse)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -37,7 +37,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(instanceDiscriminator))
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.SendingEndpointGotResponse)
+            
             .Run();
 
         Assert.That(ctx.SendingEndpointGotResponse, Is.True);
@@ -53,7 +53,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
             .WithEndpoint<OtherEndpoint>()
-            .Done(c => c.OtherEndpointGotResponse)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -90,6 +90,10 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SendingEndpointGotResponse = true;
+
+                testContext.MarkAsCompleted();
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
@@ -114,6 +118,8 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.OtherEndpointGotResponse = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -18,7 +18,7 @@ public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanc
             .WithEndpoint<Sender>(e => e
                 .When(s => s.Send(new MessageWithoutSerialization { SomeProperty = "Some property value" })))
             .WithEndpoint<Receiver>()
-            .Done(c => c.NestedMessageReceived)
+            
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -98,6 +98,8 @@ public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanc
             public Task Handle(NestedMessage message, IMessageHandlerContext context)
             {
                 testContext.NestedMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 testContext.NestedMessagePropertyValue = message.SomeProperty;
                 return Task.CompletedTask;
             }

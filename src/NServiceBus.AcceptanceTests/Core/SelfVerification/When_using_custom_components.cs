@@ -15,7 +15,7 @@ public class When_using_custom_components : NServiceBusAcceptanceTest
     {
         var ctx = await Scenario.Define<Context>()
             .WithComponent(new CustomComponentBehavior())
-            .Done(c => c.Starting)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -51,6 +51,8 @@ public class When_using_custom_components : NServiceBusAcceptanceTest
             {
                 var context = runDescriptor.ServiceProvider!.GetRequiredService<Context>();
                 context.Starting = true;
+
+                context.MarkAsCompleted();
                 context.CustomDependenciesCanBeResolved = runDescriptor.ServiceProvider.GetService<CustomDependency>() != null;
                 return base.Start(cancellationToken);
             }

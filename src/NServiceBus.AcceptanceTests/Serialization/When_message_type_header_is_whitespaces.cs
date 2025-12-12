@@ -17,7 +17,7 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new MessageWithEmptyTypeHeader())))
-            .Done(c => c.IncomingMessageReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -65,6 +65,8 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.IncomingMessageReceived = true;
+
+                testContext.MarkAsCompleted();
 
                 // add some whitespace instead of removing the header completely
                 context.Message.Headers[Headers.EnclosedMessageTypes] = "   ";

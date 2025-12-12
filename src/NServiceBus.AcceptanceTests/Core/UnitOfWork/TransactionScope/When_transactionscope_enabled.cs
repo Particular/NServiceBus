@@ -13,7 +13,7 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ScopeEndpoint>(g => g.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -58,6 +58,8 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
                     testContext.IsolationLevel = Transaction.Current.IsolationLevel;
                 }
                 testContext.Done = true;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

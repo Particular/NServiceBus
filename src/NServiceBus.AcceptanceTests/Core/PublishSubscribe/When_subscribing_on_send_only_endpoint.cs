@@ -13,7 +13,7 @@ public class When_subscribing_on_send_only_endpoint : NServiceBusAcceptanceTest
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<NativePubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Subscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot subscribe to events"));
@@ -25,7 +25,7 @@ public class When_subscribing_on_send_only_endpoint : NServiceBusAcceptanceTest
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<MessageDrivenPubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Subscribe<SomeEvent>()))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Send-only endpoints cannot subscribe to events"));

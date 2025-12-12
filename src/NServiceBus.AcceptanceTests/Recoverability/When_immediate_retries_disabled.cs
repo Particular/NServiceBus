@@ -20,7 +20,7 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
                     ContextId = c.Id
                 }));
             })
-            .Done(c => c.GaveUp)
+            
             .Run();
 
         Assert.That(context.NumberOfTimesInvoked, Is.EqualTo(1), "No Immediate Retry should be in use if NumberOfRetries is set to 0");
@@ -45,6 +45,8 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
                 configure.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                 {
                     scenarioContext.GaveUp = true;
+
+                    scenarioContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
             });

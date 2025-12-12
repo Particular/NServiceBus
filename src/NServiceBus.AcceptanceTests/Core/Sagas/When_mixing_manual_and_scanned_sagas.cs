@@ -37,7 +37,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             {
                 OrderId = orderId
             })))
-            .Done(c => c.DuplicateSagaInvoked)
+            
             .Run();
 
         Assert.That(context.DuplicateSagaInvoked, Is.True);
@@ -121,6 +121,8 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             public Task Handle(StartDuplicateSaga message, IMessageHandlerContext context)
             {
                 testContext.DuplicateSagaInvoked = true;
+
+                testContext.MarkAsCompleted();
                 testContext.DuplicateOrderId = Data.OrderId;
                 return Task.CompletedTask;
             }

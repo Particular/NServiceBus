@@ -25,7 +25,7 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
                 await session.Subscribe<SpecificEvent>();
                 c.SubscriberSubscribed = true;
             }))
-            .Done(c => c.Done)
+            
             .Run();
 
         Assert.That(context.SubscriberGotEvent, Is.False);
@@ -87,6 +87,8 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
             public Task Handle(Done message, IMessageHandlerContext context)
             {
                 testContext.Done = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

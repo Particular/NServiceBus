@@ -16,7 +16,7 @@ public class When_outbox_enabled_with_transactions_off : NServiceBusAcceptanceTe
         string startupDiagnostics = null;
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.CustomConfig(c => c.CustomDiagnosticsWriter((d, __) => { startupDiagnostics = d; return Task.CompletedTask; })))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         // This could all be simplified if it suported JsonPath https://github.com/dotnet/runtime/issues/31068

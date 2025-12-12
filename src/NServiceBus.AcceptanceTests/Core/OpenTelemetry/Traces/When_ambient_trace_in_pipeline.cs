@@ -19,7 +19,7 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAmbientActivity>(e => e
                 .When(s => s.SendLocal(new TriggerMessage())))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
@@ -71,6 +71,8 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
             public Task Handle(MessageFromAmbientTrace message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

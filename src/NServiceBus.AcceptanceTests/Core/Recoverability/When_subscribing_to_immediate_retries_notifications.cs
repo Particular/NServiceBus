@@ -18,7 +18,7 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                 b.DoNotFailOnErrorMessages();
                 b.When((session, c) => session.SendLocal(new MessageToBeRetried()));
             })
-            .Done(c => c.MessageSentToError)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -51,6 +51,8 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                 recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                 {
                     testContext.MessageSentToError = true;
+
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
 

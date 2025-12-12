@@ -14,7 +14,7 @@ public class When_sending_non_message_with_routing_configured_by_type : NService
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c
                 .When(b => b.Send(new NonMessage())))
-            .Done(c => c.EndpointsStarted)
+            
             .Run());
 
         Assert.That(exception.ToString(), Does.Contain("Cannot configure routing for type"));

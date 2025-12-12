@@ -23,7 +23,7 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                     Id = c.Id
                 }));
             })
-            .Done(c => c.MessageSentToError)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -58,6 +58,8 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                 recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                 {
                     testContext.MessageSentToError = true;
+
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
                 recoverability.Immediate(settings =>

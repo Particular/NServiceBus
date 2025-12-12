@@ -18,7 +18,7 @@ public class When_registering_externally_managed_singletons : NServiceBusAccepta
         .WithEndpoint<ExternallyManagedSingletonEndpoint>(b =>
             b.Services(static services => services.AddSingleton(myComponent))
                 .When((session, c) => session.SendLocal(new SomeMessage())))
-        .Done(c => c.MessageReceived)
+        
         .Run();
 
         using (Assert.EnterMultipleScope())
@@ -53,6 +53,8 @@ public class When_registering_externally_managed_singletons : NServiceBusAccepta
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

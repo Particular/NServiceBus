@@ -26,7 +26,7 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
 
                 return session.Send(new SendMessage(), options);
             }))
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.Secret, Is.EqualTo("I did it"));
@@ -56,6 +56,8 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
             {
                 testContext.Secret = message.Secret;
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

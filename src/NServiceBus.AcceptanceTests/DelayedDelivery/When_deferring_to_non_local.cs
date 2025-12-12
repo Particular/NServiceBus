@@ -28,7 +28,7 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
                 return session.Send(new MyMessage(), options);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         Assert.That(context.ReceivedAt - context.SentAt, Is.GreaterThanOrEqualTo(delay));
@@ -70,6 +70,8 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
             {
                 testContext.ReceivedAt = DateTimeOffset.UtcNow;
                 testContext.WasCalled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

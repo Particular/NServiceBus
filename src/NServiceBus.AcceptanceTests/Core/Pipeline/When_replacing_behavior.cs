@@ -15,7 +15,7 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithReplacement>(e => e
                 .When(s => s.SendLocal<Message>(m => { })))
-            .Done(c => c.MessageHandled)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -87,6 +87,8 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageHandled = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

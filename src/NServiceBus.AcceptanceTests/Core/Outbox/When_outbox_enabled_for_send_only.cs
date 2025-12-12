@@ -13,7 +13,7 @@ public class When_outbox_enabled_for_send_only : NServiceBusAcceptanceTest
         string startupDiagnostics = null;
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.CustomConfig(c => c.CustomDiagnosticsWriter((d, __) => { startupDiagnostics = d; return Task.CompletedTask; })))
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         Assert.That(startupDiagnostics, Does.Contain("Outbox is only relevant for endpoints receiving messages."));

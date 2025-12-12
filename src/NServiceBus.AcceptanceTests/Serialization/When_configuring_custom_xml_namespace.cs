@@ -18,7 +18,7 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointUsingCustomNamespace>(e => e
                 .When(session => session.SendLocal(new SimpleMessage())))
-            .Done(c => c.MessageReceived)
+            
             .Run();
 
         Assert.That(context.MessageNamespace, Is.EqualTo($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}"));
@@ -51,6 +51,8 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
                 scenarioContext.MessageReceived = true;
+
+                scenarioContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

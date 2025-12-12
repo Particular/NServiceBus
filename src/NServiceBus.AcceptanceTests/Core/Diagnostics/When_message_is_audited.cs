@@ -19,7 +19,7 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandledByTheAuditEndpoint)
+            
             .Run();
 
         var processingStarted = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingStarted]);
@@ -78,6 +78,8 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
             {
                 testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.IsMessageHandledByTheAuditEndpoint = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

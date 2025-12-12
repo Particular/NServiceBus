@@ -17,7 +17,7 @@ public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<Sender>(b => b.When((session, c) => session.Send<MyMessage>(m => { m.Id = c.Id; })))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -77,6 +77,8 @@ public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
 
             testContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
             testContext.WasCalled = true;
+
+            testContext.MarkAsCompleted();
 
             return Task.CompletedTask;
         }

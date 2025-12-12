@@ -25,7 +25,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                     ctx.Subscribed = true;
                 }
             }))
-            .Done(c => c.GotTheEvent)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -99,6 +99,8 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
             public Task Handle(IMyEvent @event, IMessageHandlerContext context)
             {
                 testContext.GotTheEvent = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -16,7 +16,7 @@ public class When_registering_custom_critical_error_handler : NServiceBusAccepta
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
                 session => session.SendLocal(new MyRequest())))
-            .Done(c => c.ExceptionReceived)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -50,6 +50,8 @@ public class When_registering_custom_critical_error_handler : NServiceBusAccepta
                     context.Exception = aggregateException.InnerExceptions.First();
                     context.Message = errorContext.Error;
                     context.ExceptionReceived = true;
+
+                    context.MarkAsCompleted();
                     return Task.CompletedTask;
                 });
             });

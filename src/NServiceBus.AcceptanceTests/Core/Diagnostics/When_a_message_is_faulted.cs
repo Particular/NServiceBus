@@ -14,7 +14,7 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithFailingMessage>(b => b.When((session, c) => session.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .Done(c => c.Done)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -75,6 +75,8 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
                 testContext.Endpoint = context.MessageHeaders.ContainsKey(Headers.ProcessingEndpoint) ? context.MessageHeaders[Headers.ProcessingEndpoint] : null;
                 testContext.Machine = context.MessageHeaders.ContainsKey(Headers.ProcessingMachine) ? context.MessageHeaders[Headers.ProcessingMachine] : null;
                 testContext.Done = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

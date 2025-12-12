@@ -30,7 +30,7 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
                 .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
+            
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -122,6 +122,8 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             {
                 testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
                 testContext.MessageMovedToErrorQueue = true;
+
+                testContext.MarkAsCompleted();
                 return next(context);
             }
 

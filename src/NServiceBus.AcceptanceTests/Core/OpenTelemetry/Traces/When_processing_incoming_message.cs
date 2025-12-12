@@ -16,7 +16,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .When(s => s.SendLocal(new IncomingMessage())))
-            .Done(c => c.IncomingMessageReceived)
+            
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -78,6 +78,8 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
                     testContext.IncomingMessageConversationId = conversationId;
                 }
                 testContext.IncomingMessageReceived = true;
+
+                testContext.MarkAsCompleted();
                 testContext.ReceivedHeaders = new Dictionary<string, string>(context.MessageHeaders.ToImmutableDictionary());
                 return Task.CompletedTask;
             }
