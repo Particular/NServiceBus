@@ -181,8 +181,8 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return new HandlerSpec(InterceptLocationSpec.From(location), handlerType.Name, handlerFullyQualifiedName, registrations);
+            var handlerTypeSpec = HandlerTypeSpec.From(handlerType);
+            return new HandlerSpec(InterceptLocationSpec.From(location), handlerTypeSpec, registrations);
         }
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>

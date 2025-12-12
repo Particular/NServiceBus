@@ -37,35 +37,28 @@ public sealed partial class AddHandlerInterceptor
                                    """);
             sourceWriter.Indentation++;
 
-            var groups = handlers.Select(h => (MethodName: AddMethodName(h.Name, h.HandlerType), Handler: h))
-                .GroupBy(i => i.MethodName)
-                .OrderBy(g => g.Key, StringComparer.Ordinal)
+            var groups = handlers
+                .GroupBy(h => h.HandlerType)
+                .OrderBy(g => g.Key.InterceptorMethodName, StringComparer.Ordinal)
                 .ToArray();
             for (int index = 0; index < groups.Length; index++)
             {
-                IGrouping<string, (string MethodName, HandlerSpec Handler)> group = groups[index];
-                (string MethodName, HandlerSpec HandlerSpec) first = default;
+                var group = groups[index];
                 foreach (var location in group)
                 {
-                    if (first == default)
-                    {
-                        first = location;
-                    }
-
-                    var (_, handler) = location;
-                    sourceWriter.WriteLine($"{handler.LocationSpec.Attribute} // {handler.LocationSpec.DisplayLocation}");
+                    sourceWriter.WriteLine($"{location.LocationSpec.Attribute} // {location.LocationSpec.DisplayLocation}");
                 }
 
-                (string methodName, HandlerSpec handlerSpec) = first;
+                HandlerSpec first = group.First();
                 sourceWriter.WriteLine($$"""
-                                         public void {{methodName}}()
+                                         public void {{first.HandlerType.InterceptorMethodName}}()
                                          {
                                          """);
                 sourceWriter.Indentation++;
 
                 sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
-                EmitHandlerRegistryCode(sourceWriter, handlerSpec);
+                EmitHandlerRegistryCode(sourceWriter, first);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -97,25 +90,10 @@ public sealed partial class AddHandlerInterceptor
                     _ => "Message"
                 };
 
-                sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
+                sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType.FullyQualifiedName}, {registration.MessageType}>();");
                 var hierarchyLiteral = $"[{string.Join(", ", registration.MessageHierarchy.Select(type => $"typeof({type})"))}]";
                 sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({registration.MessageType}), {hierarchyLiteral});");
             }
-        }
-
-        static string AddMethodName(string name, string handlerType)
-        {
-            const string NamePrefix = "AddHandler_";
-
-            var sb = new StringBuilder(NamePrefix, 50)
-                .Append(name)
-                .Append('_');
-
-            var hash = NonCryptographicHash.GetHash(handlerType);
-
-            sb.Append(hash.ToString("x16"));
-
-            return sb.ToString();
         }
     }
 }
