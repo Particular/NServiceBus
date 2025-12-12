@@ -62,12 +62,11 @@ public sealed partial class AddHandlerInterceptor
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            foreach (var (invocation, semanticModel) in GetDescendentNodesAcrossPartials<InvocationExpressionSyntax>(ctx, cancellationToken))
+            foreach (var invocation in GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(ctx, cancellationToken))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                HandlerSpec? spec = GetValue(semanticModel, invocation, cancellationToken);
-                if (spec is not null)
+                if (Parse(ctx.SemanticModel, invocation, cancellationToken) is { } spec)
                 {
                     builder.Add(spec);
                 }
@@ -76,53 +75,54 @@ public sealed partial class AddHandlerInterceptor
             return builder.ToImmutable();
         }
 
-        static IEnumerable<(TNodeType, SemanticModel)> GetDescendentNodesAcrossPartials<TNodeType>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
-            where TNodeType : CSharpSyntaxNode
+        static IEnumerable<TNode> GetDescendantsAcrossDeclarations<TNode>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
+            where TNode : CSharpSyntaxNode
         {
-            foreach (var descendant in ctx.TargetNode.DescendantNodes().OfType<TNodeType>())
+            foreach (var syntaxRef in GetAllDeclaringSyntaxReferences(ctx.TargetSymbol))
             {
-                yield return (descendant, ctx.SemanticModel);
-            }
+                cancellationToken.ThrowIfCancellationRequested();
 
-            var modifiers = (ctx.TargetNode as ClassDeclarationSyntax)?.Modifiers ?? (ctx.TargetNode as MethodDeclarationSyntax)?.Modifiers ?? [];
-            if (modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
-            {
-                var declarations = (ctx.TargetSymbol as IMethodSymbol)?.PartialImplementationPart?.DeclaringSyntaxReferences ?? (ctx.TargetSymbol as ITypeSymbol)?.DeclaringSyntaxReferences ?? [];
-                foreach (var declarationPoint in declarations)
+                var declarationNode = syntaxRef.GetSyntax(cancellationToken);
+                foreach (var node in declarationNode.DescendantNodes().OfType<TNode>())
                 {
-                    var targetNode = declarationPoint.GetSyntax(cancellationToken);
-                    if (targetNode != ctx.TargetNode)
-                    {
-                        var semanticModel = ctx.SemanticModel.Compilation.GetSemanticModel(declarationPoint.SyntaxTree);
-                        foreach (var descendant in targetNode.DescendantNodes().OfType<TNodeType>())
-                        {
-                            yield return (descendant, semanticModel);
-                        }
-                    }
+                    yield return node;
                 }
             }
         }
 
-        static HandlerSpec? GetValue(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        static ImmutableArray<SyntaxReference> GetAllDeclaringSyntaxReferences(ISymbol symbol)
+        {
+            return symbol switch
+            {
+                ITypeSymbol type => type.DeclaringSyntaxReferences,
+                IMethodSymbol method => MergePartial(method),
+                _ => symbol.DeclaringSyntaxReferences,
+            };
+
+            static ImmutableArray<SyntaxReference> MergePartial(IMethodSymbol method)
+            {
+                var def = method.PartialDefinitionPart?.DeclaringSyntaxReferences ?? [];
+                var impl = method.PartialImplementationPart?.DeclaringSyntaxReferences ?? [];
+                var self = method.DeclaringSyntaxReferences;
+                return [.. ((SyntaxReference[])[.. def, .. impl, .. self]).Distinct()];
+            }
+        }
+
+        static HandlerSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
         {
             if (!SyntaxLooksLikeAddHandlerMethod(invocation))
             {
                 return null;
             }
 
-            if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            var invocationSemanticModel = semanticModel.Compilation.GetSemanticModel(invocation.SyntaxTree);
+            if (invocationSemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
             }
 
             // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            if (!IsAddHandlerMethod(operation.TargetMethod))
-            {
-                return null;
-            }
-
-            var spec = Parse(semanticModel, operation, invocation, cancellationToken);
-            return spec;
+            return !IsAddHandlerMethod(operation.TargetMethod) ? null : Parse(invocationSemanticModel, operation, invocation, cancellationToken);
         }
 
         public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
