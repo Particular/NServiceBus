@@ -40,7 +40,10 @@ public partial class MessageMetadataRegistry
         {
             foreach (var (messageType, parentMessages) in preRegisteredMessagesWithHierarchy)
             {
-                RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+                if (isMessageType(messageType))
+                {
+                    RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+                }
             }
             preRegisteredMessagesWithHierarchy.Clear();
         }
@@ -49,7 +52,10 @@ public partial class MessageMetadataRegistry
         {
             foreach (var messageType in preRegisteredMessageTypes)
             {
-                _ = RegisterMessageTypeCore(messageType);
+                if (isMessageType(messageType))
+                {
+                    _ = RegisterMessageTypeCore(messageType);
+                }
             }
             preRegisteredMessageTypes.Clear();
         }
@@ -169,7 +175,10 @@ public partial class MessageMetadataRegistry
         }
         else
         {
-            _ = RegisterMessageTypeCore(messageType);
+            if (isMessageType(messageType))
+            {
+                _ = RegisterMessageTypeCore(messageType);
+            }
         }
     }
 
@@ -189,7 +198,10 @@ public partial class MessageMetadataRegistry
         }
         else
         {
-            RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+            if (isMessageType(messageType))
+            {
+                RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+            }
         }
     }
 
