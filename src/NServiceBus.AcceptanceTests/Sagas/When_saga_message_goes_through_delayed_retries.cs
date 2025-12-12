@@ -20,13 +20,11 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
                 {
                     SomeId = Guid.NewGuid()
                 })))
-            .Done(c => c.SecondMessageProcessed)
             .Run();
     }
 
     public class Context : ScenarioContext
     {
-        public bool SecondMessageProcessed { get; set; }
         public int NumberOfTimesInvoked { get; set; }
     }
 
@@ -66,8 +64,7 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
                     throw new SimulatedException();
                 }
 
-                testContext.SecondMessageProcessed = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
