@@ -14,7 +14,6 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
 
         var context = await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
-            .Done(c => c.MessageHandled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -33,22 +32,15 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
             });
-        }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (testContext.FirstAttempt)
@@ -63,33 +55,21 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
 
                 await context.SendLocal(new MessageHandledEvent());
             }
-
-            Context testContext;
         }
 
-        public class MessageHandledHandler : IHandleMessages<MessageHandledEvent>
+        public class MessageHandledHandler(Context testContext) : IHandleMessages<MessageHandledEvent>
         {
-            public MessageHandledHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
             {
                 testContext.MessageHandled = true;
                 testContext.HasFailed |= message.HasFailed;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-
-    public class MyMessage : ICommand
-    {
-    }
-
+    public class MyMessage : ICommand;
 
     public class MessageHandledEvent : IMessage
     {
