@@ -18,7 +18,6 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
             .WithEndpoint<NonDtcReceivingEndpoint>(b => b
                 .DoNotFailOnErrorMessages() // PlaceOrder should fail due to exception after dispatch
                 .When(session => session.SendLocal(new PlaceOrder())))
-            .Done(c => c.OrderAckReceived)
             .Run();
 
         Assert.That(context.OrderAckReceived, Is.True, "Order ack should have been received since outbox dispatch isn't part of the receive tx");
@@ -31,8 +30,7 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
 
     public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public NonDtcReceivingEndpoint()
-        {
+        public NonDtcReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(
                 b =>
                 {
@@ -40,7 +38,6 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
                     b.EnableOutbox();
                     b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                 });
-        }
 
         class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
         {
@@ -54,34 +51,21 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
 
         class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
-            public Task Handle(PlaceOrder message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new SendOrderAcknowledgment());
-            }
+            public Task Handle(PlaceOrder message, IMessageHandlerContext context) => context.SendLocal(new SendOrderAcknowledgment());
         }
 
-        class SendOrderAcknowledgmentHandler : IHandleMessages<SendOrderAcknowledgment>
+        class SendOrderAcknowledgmentHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgment>
         {
-            public SendOrderAcknowledgmentHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
             {
                 testContext.OrderAckReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class PlaceOrder : ICommand
-    {
-    }
+    public class PlaceOrder : ICommand;
 
-    public class SendOrderAcknowledgment : IMessage
-    {
-    }
+    public class SendOrderAcknowledgment : IMessage;
 }

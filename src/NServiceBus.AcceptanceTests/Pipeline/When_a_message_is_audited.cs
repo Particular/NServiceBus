@@ -14,7 +14,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new FirstMessage())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -26,7 +25,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public string RelatedTo { get; set; }
         public string ConversationId { get; set; }
         public string OriginRelatedTo { get; set; }
@@ -35,26 +33,15 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     public class CausationEndpoint : EndpointConfigurationBuilder
     {
-        public CausationEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<AuditSpyEndpoint>());
-        }
+        public CausationEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<AuditSpyEndpoint>());
 
         public class MessageSentInsideHandlersHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
-        public class FirstMessageHandler : IHandleMessages<FirstMessage>
+        public class FirstMessageHandler(Context testContext) : IHandleMessages<FirstMessage>
         {
-            public FirstMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(FirstMessage message, IMessageHandlerContext context)
             {
                 testContext.OriginRelatedTo = context.MessageId;
@@ -62,51 +49,31 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
                 return context.SendLocal(new MessageToBeAudited());
             }
-
-            Context testContext;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
                 testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
-                testContext.Done = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class FirstMessageHandler : IHandleMessages<FirstMessage>
         {
-            public Task Handle(FirstMessage message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(FirstMessage message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class FirstMessage : IMessage
-    {
-    }
+    public class FirstMessage : IMessage;
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

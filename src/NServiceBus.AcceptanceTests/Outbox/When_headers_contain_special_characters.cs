@@ -32,7 +32,6 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.UnicodeHeaders, Is.Not.Empty);
@@ -48,8 +47,7 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
 
     public class OutboxEndpoint : EndpointConfigurationBuilder
     {
-        public OutboxEndpoint()
-        {
+        public OutboxEndpoint() =>
             EndpointSetup<DefaultServer>((b, r) =>
             {
                 b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
@@ -57,16 +55,9 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
                 b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior((Context)r.ScenarioContext), "Force reading the message from Outbox storage.");
                 b.Recoverability().Immediate(a => a.NumberOfRetries(1));
             });
-        }
-        class BlowUpBeforeDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
+
+        class BlowUpBeforeDispatchBehavior(Context testContext) : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
         {
-            Context testContext;
-
-            public BlowUpBeforeDispatchBehavior(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
             {
                 if (!testContext.SavedOutBoxRecord)
@@ -94,29 +85,19 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
             }
         }
 
-        class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
+        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
-            public SendOrderAcknowledgementHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
                 testContext.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class PlaceOrder : ICommand
-    {
-    }
+    public class PlaceOrder : ICommand;
 
-    public class SendOrderAcknowledgement : IMessage
-    {
-    }
+    public class SendOrderAcknowledgement : IMessage;
 }
