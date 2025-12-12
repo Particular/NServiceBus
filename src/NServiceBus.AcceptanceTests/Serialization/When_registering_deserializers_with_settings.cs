@@ -29,7 +29,6 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
                     sendOptions.SetHeader("ContentType", "MyCustomSerializer");
                     return session.SendLocal(new MyRequest());
                 }))
-            .Done(c => c.DeserializeCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -53,55 +52,32 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
 
     class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
     {
-        public XmlCustomSerializationReceiver()
-        {
+        public XmlCustomSerializationReceiver() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<MyCustomSerializer>().Settings(Value1, (Context)r.ScenarioContext);
                 c.AddDeserializer<MyCustomSerializer>().Settings(Value2, (Context)r.ScenarioContext);
             });
-        }
 
-        class MyRequestHandler : IHandleMessages<MyRequest>
+        class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
-            public MyRequestHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
                 testContext.HandlerGotTheRequest = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
     public class MyCustomSerializer : SerializationDefinition
     {
-        public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
-        {
-            return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
-        }
+        public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) => mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
     }
 
-    class MyCustomMessageSerializer : IMessageSerializer
+    class MyCustomMessageSerializer(string valueFromSettings, Context context) : IMessageSerializer
     {
-        string valueFromSettings;
-        Context context;
-
-        public MyCustomMessageSerializer(string valueFromSettings, Context context)
-        {
-            this.valueFromSettings = valueFromSettings;
-            this.context = context;
-        }
-
         public void Serialize(object message, Stream stream)
         {
             var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
@@ -114,19 +90,14 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
 
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
         {
-            using (var stream = new MemoryStream(body.ToArray()))
-            {
-                var serializer = new XmlSerializer(typeof(MyRequest));
+            using var stream = new MemoryStream(body.ToArray());
+            var serializer = new XmlSerializer(typeof(MyRequest));
 
-                var msg = serializer.Deserialize(stream);
-                context.DeserializeCalled = true;
-                context.ValueFromSettingsForDeserializer = valueFromSettings;
-
-                return new[]
-                {
-                    msg
-                };
-            }
+            var msg = serializer.Deserialize(stream);
+            context.DeserializeCalled = true;
+            context.ValueFromSettingsForDeserializer = valueFromSettings;
+            context.MarkAsCompleted();
+            return [msg];
         }
 
         public string ContentType => "MyCustomSerializer";

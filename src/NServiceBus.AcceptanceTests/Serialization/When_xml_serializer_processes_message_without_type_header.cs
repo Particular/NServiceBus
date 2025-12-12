@@ -14,7 +14,6 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MessageToBeDetectedByRootNodeName())))
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.WasCalled, Is.True);
@@ -27,32 +26,24 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
-            {
-                c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
-                c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
-                c.UseSerialization<XmlSerializer>();
-            })
-            //Need to include the message since it can't be nested inside the test class, see below
-            .IncludeType<MessageToBeDetectedByRootNodeName>();
-        }
+                {
+                    c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
+                    c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
+                    c.UseSerialization<XmlSerializer>();
+                })
+                //Need to include the message since it can't be nested inside the test class, see below
+                .IncludeType<MessageToBeDetectedByRootNodeName>();
 
-        public class MyMessageHandler : IHandleMessages<MessageToBeDetectedByRootNodeName>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MessageToBeDetectedByRootNodeName>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class RemoveTheTypeHeader : Behavior<IDispatchContext>

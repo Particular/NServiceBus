@@ -22,7 +22,6 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new MessageWithoutTypeHeader())))
-            .Done(c => c.IncomingMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -43,7 +42,6 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new UnknownMessage())))
-            .Done(c => c.IncomingMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -60,7 +58,6 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public bool HandlerInvoked { get; set; }
-        public bool IncomingMessageReceived { get; set; }
     }
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
@@ -86,8 +83,6 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         {
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
-                testContext.IncomingMessageReceived = true;
-
                 if (context.MessageHeaders[Headers.EnclosedMessageTypes].Contains(typeof(MessageWithoutTypeHeader).FullName))
                 {
                     context.Message.Headers.Remove(Headers.EnclosedMessageTypes);
@@ -96,7 +91,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
                 {
                     context.Message.Headers[Headers.EnclosedMessageTypes] = "SomeNamespace.SomeMessageType";
                 }
-
+                testContext.MarkAsCompleted();
                 return next();
             }
         }

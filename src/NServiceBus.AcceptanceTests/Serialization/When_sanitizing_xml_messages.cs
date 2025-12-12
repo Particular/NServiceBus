@@ -18,7 +18,6 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
                 {
                     Value = "Hello World!"
                 })))
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.Input, Is.EqualTo("Hello World!"));
@@ -26,37 +25,26 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; set; }
         public string Input { get; set; }
     }
 
     class EndpointSanitizingInput : EndpointConfigurationBuilder
     {
-        public EndpointSanitizingInput()
-        {
+        public EndpointSanitizingInput() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.UseSerialization<XmlSerializer>().SanitizeInput();
                 c.RegisterMessageMutator(new InjectInvalidCharMutator());
             });
-        }
 
-        class SimpleMessageHandler : IHandleMessages<SimpleMessage>
+        class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
         {
-            public SimpleMessageHandler(Context scenarioContext)
-            {
-                this.scenarioContext = scenarioContext;
-            }
-
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
-                scenarioContext.MessageReceived = true;
                 scenarioContext.Input = message.Value;
-
+                scenarioContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context scenarioContext;
         }
 
         class InjectInvalidCharMutator : IMutateIncomingTransportMessages

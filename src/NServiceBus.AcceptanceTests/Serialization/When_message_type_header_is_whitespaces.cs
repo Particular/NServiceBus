@@ -17,7 +17,6 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new MessageWithEmptyTypeHeader())))
-            .Done(c => c.IncomingMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -43,12 +42,8 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
                 c.Pipeline.Register(typeof(TypeHeaderRemovingBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
             });
 
-        public class MessageHandler : IHandleMessages<MessageWithEmptyTypeHeader>
+        public class MessageHandler(Context testContext) : IHandleMessages<MessageWithEmptyTypeHeader>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MessageWithEmptyTypeHeader message, IMessageHandlerContext context)
             {
                 testContext.HandlerInvoked = true;
@@ -56,25 +51,18 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
             }
         }
 
-        class TypeHeaderRemovingBehavior : Behavior<IIncomingPhysicalMessageContext>
+        class TypeHeaderRemovingBehavior(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            Context testContext;
-
-            public TypeHeaderRemovingBehavior(Context testContext) => this.testContext = testContext;
-
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 testContext.IncomingMessageReceived = true;
-
                 // add some whitespace instead of removing the header completely
                 context.Message.Headers[Headers.EnclosedMessageTypes] = "   ";
-
+                testContext.MarkAsCompleted();
                 return next();
             }
         }
     }
 
-    public class MessageWithEmptyTypeHeader : IMessage
-    {
-    }
+    public class MessageWithEmptyTypeHeader : IMessage;
 }
