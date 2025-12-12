@@ -6,6 +6,7 @@ using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
 
+[NServiceBusRegistrations]
 public class When_manually_registering_saga_with_header_mapping : NServiceBusAcceptanceTest
 {
     [Test]
