@@ -21,7 +21,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                 .When(session => session.SendLocal(new MessageToBeAudited()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.MessageAudited)
             .Run();
 
         Assert.That(context.MessageAudited, Is.True);
@@ -34,8 +33,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>(
                 b =>
                 {
@@ -44,7 +42,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
                     b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                     b.AuditProcessedMessagesTo<AuditSpyEndpoint>();
                 });
-        }
 
         class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
         {
@@ -64,37 +61,24 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.MessageAudited = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
-
 
     public class MessageToBeAudited : IMessage
     {

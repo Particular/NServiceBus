@@ -17,7 +17,6 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.SatelliteReceiveAddress, new MyMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -60,6 +59,7 @@ public class When_a_message_is_available : NServiceBusAcceptanceTest
                         var testContext = builder.GetService<Context>();
                         testContext.MessageReceived = true;
                         testContext.TransportTransactionAddedToContext = ReferenceEquals(messageContext.Extensions.Get<TransportTransaction>(), messageContext.TransportTransaction);
+                        testContext.MarkAsCompleted();
                         return Task.FromResult(true);
                     });
 
