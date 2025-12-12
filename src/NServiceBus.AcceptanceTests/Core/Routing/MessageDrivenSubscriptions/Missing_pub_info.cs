@@ -17,7 +17,6 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
 
         var context = await Scenario.Define<ScenarioContext>()
             .WithEndpoint<Subscriber>()
-            .Done(c => c.EndpointsStarted)
             .Run();
 
         Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True, "because it should not prevent endpoint startup");
@@ -33,21 +32,13 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Subscriber() => EndpointSetup<DefaultServer>();
 
         public class MyHandler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent @event, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEvent @event, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }
