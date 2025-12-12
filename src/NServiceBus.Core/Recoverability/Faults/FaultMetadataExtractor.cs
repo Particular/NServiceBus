@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -24,26 +26,32 @@ class FaultMetadataExtractor(Dictionary<string, string> staticFaultMetadata, Act
 
     static void SetExceptionMetadata(Dictionary<string, string> headers, Exception e)
     {
-        headers[FaultsHeaderKeys.ExceptionType] = e.GetType().FullName;
+        headers[FaultsHeaderKeys.ExceptionType] = e.GetType().FullName!;
 
         if (e.InnerException != null)
         {
-            headers[FaultsHeaderKeys.InnerExceptionType] = e.InnerException.GetType().FullName;
+            headers[FaultsHeaderKeys.InnerExceptionType] = e.InnerException.GetType().FullName!;
         }
 
-        headers[FaultsHeaderKeys.HelpLink] = e.HelpLink;
+        if (e.HelpLink is not null)
+        {
+            headers[FaultsHeaderKeys.HelpLink] = e.HelpLink;
+        }
         headers[FaultsHeaderKeys.Message] = Truncate(e.GetMessage(), 16384);
-        headers[FaultsHeaderKeys.Source] = e.Source;
+        if (e.Source is not null)
+        {
+            headers[FaultsHeaderKeys.Source] = e.Source;
+        }
         headers[FaultsHeaderKeys.StackTrace] = e.ToString();
         headers[FaultsHeaderKeys.TimeOfFailure] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
 
         foreach (DictionaryEntry entry in e.Data)
         {
-            if (entry.Value == null)
+            if (entry.Value is not { } value)
             {
                 continue;
             }
-            headers[$"{FaultsHeaderKeys.ExceptionInfoDataPrefix}{entry.Key}"] = entry.Value.ToString();
+            headers[$"{FaultsHeaderKeys.ExceptionInfoDataPrefix}{entry.Key}"] = value.ToString()!;
         }
     }
 

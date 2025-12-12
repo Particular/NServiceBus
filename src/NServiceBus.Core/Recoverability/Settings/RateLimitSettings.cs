@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -12,11 +14,11 @@ public class RateLimitSettings
     /// <summary>
     /// Configuration settings for rate limiting the endpoint when the system is experiencing multiple consecutive failures.
     /// </summary>
-    public RateLimitSettings(TimeSpan? timeToWaitBetweenThrottledAttempts = null, Func<CancellationToken, Task> onRateLimitStarted = null, Func<CancellationToken, Task> onRateLimitEnded = null)
+    public RateLimitSettings(TimeSpan? timeToWaitBetweenThrottledAttempts = null, Func<CancellationToken, Task>? onRateLimitStarted = null, Func<CancellationToken, Task>? onRateLimitEnded = null)
     {
         TimeToWaitBetweenThrottledAttempts = timeToWaitBetweenThrottledAttempts ?? TimeSpan.FromSeconds(1);
-        OnRateLimitStarted = onRateLimitStarted;
-        OnRateLimitEnded = onRateLimitEnded;
+        OnRateLimitStarted = onRateLimitStarted ?? (_ => Task.CompletedTask);
+        OnRateLimitEnded = onRateLimitEnded ?? (_ => Task.CompletedTask);
     }
 
     /// <summary>

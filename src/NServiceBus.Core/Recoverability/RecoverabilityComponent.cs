@@ -1,13 +1,15 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Hosting;
-using NServiceBus.Logging;
-using NServiceBus.Pipeline;
-using NServiceBus.Support;
+using Hosting;
+using Logging;
+using Pipeline;
+using Support;
 using Settings;
 using Transport;
 
@@ -22,7 +24,7 @@ class RecoverabilityComponent
         settings.SetDefault(NumberOfDelayedRetries, DefaultNumberOfRetries);
         settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
         settings.SetDefault(NumberOfImmediateRetries, 5);
-        settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
+        settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(_ => { }));
         settings.AddUnrecoverableException(typeof(MessageDeserializationException));
     }
 
@@ -39,23 +41,22 @@ class RecoverabilityComponent
         }
 
         hostInformation = hostingConfiguration.HostInformation;
-        this.transportSeam = transportSeam;
-        transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
+        var transactionsOn = transportSeam.TransportDefinition.TransportTransactionMode != TransportTransactionMode.None;
         delayedRetriesAvailable = transactionsOn && transportSeam.TransportDefinition.SupportsDelayedDelivery;
         immediateRetriesAvailable = transactionsOn;
 
         var errorQueue = settings.ErrorQueueAddress();
         transportSeam.QueueBindings.BindSending(errorQueue);
 
-        var immediateRetryConfig = GetImmediateRetryConfig();
+        var immediateRetryConfig = CreateImmediateRetryConfig(transactionsOn, settings);
 
-        var delayedRetryConfig = GetDelayedRetryConfig();
+        var delayedRetryConfig = CreateDelayedRetryConfig(transactionsOn, transportSeam.TransportDefinition, settings);
 
         var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
         recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
-        faultMetadataExtractor = CreateFaultMetadataExtractor();
+        faultMetadataExtractor = CreateFaultMetadataExtractor(hostInformation, settings);
 
         pipelineSettings.Register(sp => new RecoverabilityRoutingConnector(sp.GetRequiredService<IncomingPipelineMetrics>(), messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
 
@@ -75,6 +76,9 @@ class RecoverabilityComponent
         PipelineComponent pipeline,
         MessageOperations messageOperations)
     {
+        ArgumentNullException.ThrowIfNull(recoverabilityConfig);
+        ArgumentNullException.ThrowIfNull(faultMetadataExtractor);
+
         var recoverabilityPipeline = pipeline.CreatePipeline<IRecoverabilityContext>(serviceProvider);
 
         if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
@@ -88,11 +92,11 @@ class RecoverabilityComponent
             pipelineCache,
             messageOperations,
             recoverabilityConfig,
-            (errorContext, state) =>
+            static (errorContext, state) =>
             {
                 var (@this, localPolicy) = state;
                 return AdjustForTransportCapabilities(
-                    @this.recoverabilityConfig.Failed.ErrorQueue,
+                    @this.recoverabilityConfig!.Failed.ErrorQueue,
                     @this.immediateRetriesAvailable,
                     @this.delayedRetriesAvailable,
                     localPolicy(@this.recoverabilityConfig, errorContext));
@@ -104,19 +108,23 @@ class RecoverabilityComponent
 
     public IRecoverabilityPipelineExecutor CreateSatelliteRecoverabilityExecutor(
         IServiceProvider serviceProvider,
-        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy) =>
-        new SatelliteRecoverabilityExecutor<(RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
+        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy)
+    {
+        ArgumentNullException.ThrowIfNull(faultMetadataExtractor);
+
+        return new SatelliteRecoverabilityExecutor<(RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
             serviceProvider,
             faultMetadataExtractor,
             (errorContext, state) =>
             {
                 var (@this, policy) = state;
                 return AdjustForTransportCapabilities(
-                    @this.recoverabilityConfig.Failed.ErrorQueue,
+                    @this.recoverabilityConfig!.Failed.ErrorQueue,
                     @this.immediateRetriesAvailable,
                     @this.delayedRetriesAvailable,
                     policy(@this.recoverabilityConfig, errorContext));
             }, (this, recoverabilityPolicy));
+    }
 
     public static RecoverabilityAction AdjustForTransportCapabilities(
         string errorQueue,
@@ -124,22 +132,20 @@ class RecoverabilityComponent
         bool delayedRetriesAvailable,
         RecoverabilityAction selectedAction)
     {
-        if (selectedAction is ImmediateRetry && !immediateRetriesAvailable)
+        switch (selectedAction)
         {
-            Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
-            return RecoverabilityAction.MoveToError(errorQueue);
+            case ImmediateRetry when !immediateRetriesAvailable:
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
+                return RecoverabilityAction.MoveToError(errorQueue);
+            case DelayedRetry when !delayedRetriesAvailable:
+                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
+                return RecoverabilityAction.MoveToError(errorQueue);
+            default:
+                return selectedAction;
         }
-
-        if (selectedAction is DelayedRetry && !delayedRetriesAvailable)
-        {
-            Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
-            return RecoverabilityAction.MoveToError(errorQueue);
-        }
-
-        return selectedAction;
     }
 
-    FaultMetadataExtractor CreateFaultMetadataExtractor()
+    static FaultMetadataExtractor CreateFaultMetadataExtractor(HostInformation hostInformation, SettingsHolder settings)
     {
         var staticFaultMetadata = new Dictionary<string, string>
             {
@@ -154,7 +160,7 @@ class RecoverabilityComponent
         return new FaultMetadataExtractor(staticFaultMetadata, headerCustomizations);
     }
 
-    ImmediateConfig GetImmediateRetryConfig()
+    static ImmediateConfig CreateImmediateRetryConfig(bool transactionsOn, SettingsHolder settings)
     {
         var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
 
@@ -166,14 +172,14 @@ class RecoverabilityComponent
         return new ImmediateConfig(maxImmediateRetries);
     }
 
-    DelayedConfig GetDelayedRetryConfig()
+    static DelayedConfig CreateDelayedRetryConfig(bool transactionsOn, TransportDefinition transportDefinition, SettingsHolder settings)
     {
         var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
         var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
 
         if (numberOfRetries > 0)
         {
-            if (!transportSeam.TransportDefinition.SupportsDelayedDelivery)
+            if (!transportDefinition.SupportsDelayedDelivery)
             {
                 throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.");
             }
@@ -189,11 +195,10 @@ class RecoverabilityComponent
 
     readonly Notification<MessageToBeRetried> messageRetryNotification;
     readonly Notification<MessageFaulted> messageFaultedNotification;
-    RecoverabilityConfig recoverabilityConfig;
-    FaultMetadataExtractor faultMetadataExtractor;
-    HostInformation hostInformation;
+    RecoverabilityConfig? recoverabilityConfig;
+    FaultMetadataExtractor? faultMetadataExtractor;
+    HostInformation? hostInformation;
     readonly SettingsHolder settings;
-    bool transactionsOn;
     bool delayedRetriesAvailable;
     bool immediateRetriesAvailable;
 
@@ -207,7 +212,6 @@ class RecoverabilityComponent
     static readonly int DefaultNumberOfRetries = 3;
     static readonly TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     static readonly ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
-    TransportSeam transportSeam;
 
     public class Configuration
     {

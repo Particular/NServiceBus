@@ -300,8 +300,11 @@ namespace NServiceBus
     public static class ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
-        public static string ErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.IReadOnlySettings settings, out string errorQueue) { }
+        extension(NServiceBus.Settings.IReadOnlySettings settings)
+        {
+            public string ErrorQueueAddress() { }
+            public bool TryGetExplicitlyConfiguredErrorQueueAddress([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? errorQueue) { }
+        }
     }
     public class FailedConfig
     {
@@ -774,7 +777,7 @@ namespace NServiceBus
     }
     public class RateLimitSettings
     {
-        public RateLimitSettings(System.TimeSpan? timeToWaitBetweenThrottledAttempts = default, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> onRateLimitStarted = null, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> onRateLimitEnded = null) { }
+        public RateLimitSettings(System.TimeSpan? timeToWaitBetweenThrottledAttempts = default, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>? onRateLimitStarted = null, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>? onRateLimitEnded = null) { }
         public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> OnRateLimitEnded { get; }
         public System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task> OnRateLimitStarted { get; }
         public System.TimeSpan TimeToWaitBetweenThrottledAttempts { get; }
