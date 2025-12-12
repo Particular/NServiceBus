@@ -60,7 +60,6 @@ public class MessageMetadataRegistryTests
         }
     }
 
-
     [Test]
     public void Should_return_the_correct_parent_hierarchy()
     {
