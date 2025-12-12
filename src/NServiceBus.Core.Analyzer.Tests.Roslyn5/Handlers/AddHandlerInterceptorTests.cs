@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 
 using Analyzer.Handlers;
+using Analyzer.Sagas;
 using Helpers;
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
@@ -439,6 +440,59 @@ public class AddHandlerInterceptorTests
             .WithSource(partial, "partial.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void AddHandlerUsedOnSaga()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     [NServiceBus.NServiceBusRegistrations]
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             // Can't call AddHandler on a Saga
+                             cfg.AddHandler<MySaga>();
+                             
+                             // Don't need to check AddSaga<MyHandler>(), generic constraint prevents this
+                         }
+                     }
+
+                     public class MyHandler : IHandleMessages<Cmd>
+                     {
+                         public Task Handle(Cmd cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+                     
+                     public class MySaga : Saga<MyData>, IAmStartedByMessages<Cmd>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+                         {
+                             mapper.MapSaga(s => s.Corr)
+                                .ToMessage<Cmd>(c => c.Corr);
+                         }
+                         
+                         public Task Handle(Cmd cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+                     
+                     public class MyData : ContainSagaData
+                     {
+                         public string Corr { get; set; }
+                     }
+                     public class Cmd : ICommand
+                     {
+                         public string Corr { get; set; }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
+            .ToConsole()
             .AssertRunsAreEqual();
     }
 }
