@@ -25,7 +25,6 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
                 await session.Subscribe<SpecificEvent>();
                 c.SubscriberSubscribed = true;
             }))
-            .Done(c => c.Done)
             .Run();
 
         Assert.That(context.SubscriberGotEvent, Is.False);
@@ -34,75 +33,48 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
     public class Context : ScenarioContext
     {
         public bool SubscriberGotEvent { get; set; }
-
         public bool SubscriberSubscribed { get; set; }
-
-        public bool Done { get; set; }
     }
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b =>
-                b.ConfigureRouting().RouteToEndpoint(typeof(Done), typeof(Subscriber)),
+                    b.ConfigureRouting().RouteToEndpoint(typeof(Done), typeof(Subscriber)),
                 metadata => metadata.RegisterSelfAsPublisherFor<IBaseEvent>(this));
-        }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<AutoSubscribe>();
                 c.LimitMessageProcessingConcurrencyTo(1); //To ensure Done is processed after the event.
             }, metadata => metadata.RegisterPublisherFor<SpecificEvent, Publisher>());
-        }
 
-        public class MyHandler : IHandleMessages<SpecificEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<SpecificEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SubscriberGotEvent = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        public class DoneHandler : IHandleMessages<Done>
+        public class DoneHandler(Context testContext) : IHandleMessages<Done>
         {
-            public DoneHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(Done message, IMessageHandlerContext context)
             {
-                testContext.Done = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SpecificEvent : IBaseEvent
-    {
-    }
+    public class SpecificEvent : IBaseEvent;
 
-    public interface IBaseEvent : IEvent
-    {
-    }
+    public interface IBaseEvent : IEvent;
 
-    public class Done : ICommand
-    {
-    }
+    public class Done : ICommand;
 }
