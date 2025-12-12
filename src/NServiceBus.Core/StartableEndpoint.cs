@@ -12,6 +12,7 @@ using Transport;
 class StartableEndpoint(
     SettingsHolder settings,
     FeatureComponent featureComponent,
+    EnvelopeComponent envelopeComponent,
     ReceiveComponent receiveComponent,
     TransportSeam transportSeam,
     PipelineComponent pipelineComponent,
@@ -35,7 +36,7 @@ class StartableEndpoint(
 
         var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
-        await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
+        await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, envelopeComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
         AddSendingQueueManifest();
     }
