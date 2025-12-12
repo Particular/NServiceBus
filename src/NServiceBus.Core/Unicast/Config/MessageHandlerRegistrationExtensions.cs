@@ -3,7 +3,6 @@ namespace NServiceBus;
 
 using System;
 using Unicast;
-using Unicast.Messages;
 
 /// <summary>
 /// Provides extensions to manually register message handlers.
@@ -19,8 +18,5 @@ public static class MessageHandlerRegistrationExtensions
 
         var messageHandlerRegistry = config.Settings.GetOrCreate<MessageHandlerRegistry>();
         messageHandlerRegistry.AddHandler<THandler>();
-
-        var messageMetadataRegistry = config.Settings.GetOrCreate<MessageMetadataRegistry>();
-        messageMetadataRegistry.RegisterMessageType(typeof(THandler));
     }
 }
