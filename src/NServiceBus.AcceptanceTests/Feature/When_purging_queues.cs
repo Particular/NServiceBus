@@ -16,7 +16,6 @@ public class When_purging_queues : NServiceBusAcceptanceTest
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithStartupTask>()
-            .Done(c => c.LocalMessageReceived)
             .Run();
 
         Assert.That(context.LocalMessageReceived, Is.True);
@@ -41,6 +40,7 @@ public class When_purging_queues : NServiceBusAcceptanceTest
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {
                 testContext.LocalMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
