@@ -36,7 +36,7 @@ public class EndpointConfiguration : ExposeSettings
         var defaultAuditQueue = Environment.GetEnvironmentVariable(Features.Audit.AddressEnvironmentVariableKey);
         if (defaultAuditQueue is not null)
         {
-            Settings.SetDefault("Audit.Address", defaultAuditQueue);
+            Settings.Set("Audit.Address", defaultAuditQueue);
         }
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
