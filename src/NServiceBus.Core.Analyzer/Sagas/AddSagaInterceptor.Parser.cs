@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
-using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
+using HandlerParser = Handlers.AddHandlerInterceptor.Parser;
 
 public sealed partial class AddSagaInterceptor
 {
@@ -73,8 +73,7 @@ public sealed partial class AddSagaInterceptor
                     continue;
                 }
 
-                var handlerSpec = AddHandlerInterceptor.Parser.Parse(ctx.SemanticModel, operation, invocation, cancellationToken);
-                if (handlerSpec == null)
+                if (HandlerParser.Parse(ctx.SemanticModel, operation, invocation, cancellationToken) is not { } handlerSpec)
                 {
                     continue;
                 }
