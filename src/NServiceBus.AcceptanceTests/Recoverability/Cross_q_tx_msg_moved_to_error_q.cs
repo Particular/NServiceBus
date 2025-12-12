@@ -23,7 +23,6 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -41,23 +40,16 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
 
     class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
     {
-        public EndpointWithOutgoingMessages()
-        {
+        public EndpointWithOutgoingMessages() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
                 config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
@@ -68,17 +60,12 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
                     });
                 }
             }
-
-            Context testContext;
         }
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
-            EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
-        }
+        public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
 
         class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
@@ -91,38 +78,24 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
+        class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
         {
-            public SubsequentMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
             {
                 if (message.Id == testContext.TestRunId)
@@ -132,8 +105,6 @@ public class Cross_q_tx_msg_moved_to_error_q : NServiceBusAcceptanceTest
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

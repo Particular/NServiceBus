@@ -23,7 +23,6 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
                 b.When(c => c.Subscribed, session => session.Publish<MyEvent>())
             )
             .WithEndpoint<Subscriber>(b => b.When(async (session, c) => { await session.Subscribe<MyEvent>(); }))
-            .Done(c => c.MessageDelivered)
             .Run();
 
         Assert.That(context.MessageDelivered, Is.True);
@@ -37,16 +36,12 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
-            EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }));
-        }
+        public Publisher() => EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }));
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<AutoSubscribe>();
@@ -56,26 +51,17 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
                         new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
                     ]);
             });
-        }
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent evnt, IMessageHandlerContext context)
             {
                 testContext.MessageDelivered = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }
