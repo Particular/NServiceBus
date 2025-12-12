@@ -14,16 +14,16 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithComplexMessageHierarchy>(b =>
-                b.When(async (session, _) => await session.SendLocal(new OutgoingWithComplexHierarchyMessage())))
-            .Done(c => c.ComplexOutgoingMessageReceived)
+                b.When(async (session, _) => await session.SendLocal(new ComplexMessage())))
+            .Done(c => c.ComplexMessageReceived)
             .Run();
 
-        Assert.That(context.ComplexOutgoingMessageReceived, Is.True);
+        Assert.That(context.ComplexMessageReceived, Is.True);
     }
 
     public class Context : ScenarioContext
     {
-        public bool ComplexOutgoingMessageReceived;
+        public bool ComplexMessageReceived;
     }
 
     public class EndpointWithComplexMessageHierarchy : EndpointConfigurationBuilder
@@ -33,19 +33,19 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
             config.AddHandler<ComplexMessageHandler>();
         });
 
-        public class ComplexMessageHandler(Context testContext) : IHandleMessages<OutgoingWithComplexHierarchyMessage>
+        public class ComplexMessageHandler(Context testContext) : IHandleMessages<ComplexMessage>
         {
-            public Task Handle(OutgoingWithComplexHierarchyMessage message, IMessageHandlerContext context)
+            public Task Handle(ComplexMessage message, IMessageHandlerContext context)
             {
-                testContext.ComplexOutgoingMessageReceived = true;
+                testContext.ComplexMessageReceived = true;
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class BaseBaseOutgoingMessage : IMessage;
-
-    public class BaseOutgoingMessage : BaseBaseOutgoingMessage;
-
-    public class OutgoingWithComplexHierarchyMessage : BaseOutgoingMessage;
+    public class ComplexMessage : ConcreteParent1, IInterfaceParent1;
+    public class ConcreteParent1 : ConcreteParentBase;
+    public class ConcreteParentBase : IMessage;
+    public interface IInterfaceParent1 : IInterfaceParent1Base;
+    public interface IInterfaceParent1Base : IMessage;
 }
