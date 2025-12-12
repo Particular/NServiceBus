@@ -700,6 +700,11 @@ namespace NServiceBus
         public bool IsEventType(System.Type type) { }
         public bool IsMessageType(System.Type type) { }
     }
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Method)]
+    public sealed class NServiceBusRegistrationsAttribute : System.Attribute
+    {
+        public NServiceBusRegistrationsAttribute() { }
+    }
     public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
     public static class OpenTelemetryConfigurationExtensions
     {
@@ -2500,10 +2505,16 @@ namespace NServiceBus.Unicast.Messages
     }
     public class MessageMetadataRegistry
     {
+        public MessageMetadataRegistry() { }
+        [System.Obsolete("Use \'MessageMetadataRegistry.Initialize\' instead. Will be removed in version 11.0" +
+            ".0.", true)]
         public MessageMetadataRegistry(System.Func<System.Type, bool> isMessageType, bool allowDynamicTypeLoading) { }
         public NServiceBus.Unicast.Messages.MessageMetadata[] GetAllMessages() { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(System.Type messageType) { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(string messageTypeIdentifier) { }
+        public void Initialize(System.Func<System.Type, bool> isMessageType, bool allowDynamicTypeLoading) { }
+        public void RegisterMessageTypeWithHierarchy(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> parentMessages) { }
+        public void RegisterMessageTypes(System.Collections.Generic.IEnumerable<System.Type> messageTypes) { }
     }
 }
 namespace NServiceBus.Unicast.Queuing

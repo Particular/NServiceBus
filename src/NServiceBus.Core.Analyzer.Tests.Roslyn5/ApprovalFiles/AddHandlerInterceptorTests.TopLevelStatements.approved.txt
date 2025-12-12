@@ -28,7 +28,7 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // Program.cs(4,5)
             public void AddHandler_Handles1_dd0bdc51d8e77d74()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -39,8 +39,8 @@ namespace NServiceBus
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
             }
 
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // Program.cs(5,5)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // Program.cs(7,5)
             public void AddHandler_Handles3_dd0bde51d8e780da()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);

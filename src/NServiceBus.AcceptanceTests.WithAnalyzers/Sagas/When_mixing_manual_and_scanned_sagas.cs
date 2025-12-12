@@ -6,6 +6,7 @@ using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
 
+[NServiceBusRegistrations]
 public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
 {
     [Test]

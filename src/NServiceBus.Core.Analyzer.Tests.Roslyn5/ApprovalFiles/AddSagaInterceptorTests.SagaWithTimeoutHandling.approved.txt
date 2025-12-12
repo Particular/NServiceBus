@@ -28,7 +28,7 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddSaga_OrderSaga_e02a35d0173ba1fe()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -45,10 +45,13 @@ namespace NServiceBus
                 var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var messageHandlerRegistry = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
-                   .GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderSaga, global::OrderCreated>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderCreated), []);
                 messageHandlerRegistry.AddTimeoutHandlerForMessage<global::OrderSaga, global::OrderTimeout>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderTimeout), []);
             }
         }
     }

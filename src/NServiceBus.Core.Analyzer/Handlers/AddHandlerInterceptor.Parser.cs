@@ -58,26 +58,74 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static ImmutableArray<HandlerSpec> Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
+            var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            if (ctx.SemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
+            foreach (var invocation in GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(ctx, cancellationToken))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (Parse(ctx.SemanticModel, invocation, cancellationToken) is { } spec)
+                {
+                    builder.Add(spec);
+                }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        static IEnumerable<TNode> GetDescendantsAcrossDeclarations<TNode>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
+            where TNode : CSharpSyntaxNode
+        {
+            foreach (var syntaxRef in GetAllDeclaringSyntaxReferences(ctx.TargetSymbol))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var declarationNode = syntaxRef.GetSyntax(cancellationToken);
+                foreach (var node in declarationNode.DescendantNodes().OfType<TNode>())
+                {
+                    yield return node;
+                }
+            }
+        }
+
+        static ImmutableArray<SyntaxReference> GetAllDeclaringSyntaxReferences(ISymbol symbol)
+        {
+            return symbol switch
+            {
+                ITypeSymbol type => type.DeclaringSyntaxReferences,
+                IMethodSymbol method => MergePartial(method),
+                _ => symbol.DeclaringSyntaxReferences,
+            };
+
+            static ImmutableArray<SyntaxReference> MergePartial(IMethodSymbol method)
+            {
+                var def = method.PartialDefinitionPart?.DeclaringSyntaxReferences ?? [];
+                var impl = method.PartialImplementationPart?.DeclaringSyntaxReferences ?? [];
+                var self = method.DeclaringSyntaxReferences;
+                return [.. ((SyntaxReference[])[.. def, .. impl, .. self]).Distinct()];
+            }
+        }
+
+        static HandlerSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        {
+            if (!SyntaxLooksLikeAddHandlerMethod(invocation))
+            {
+                return null;
+            }
+
+            var invocationSemanticModel = semanticModel.Compilation.GetSemanticModel(invocation.SyntaxTree);
+            if (invocationSemanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
             }
 
             // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            if (!IsAddHandlerMethod(operation.TargetMethod))
-            {
-                return null;
-            }
-
-            return Parse(ctx, operation, invocation, cancellationToken);
+            return !IsAddHandlerMethod(operation.TargetMethod) ? null : Parse(invocationSemanticModel, operation, invocation, cancellationToken);
         }
 
-        public static HandlerSpec? Parse(GeneratorSyntaxContext ctx,
-            IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
+        public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
         {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
@@ -86,10 +134,16 @@ public sealed partial class AddHandlerInterceptor
 
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
+            var markers = new MarkerTypes(semanticModel.Compilation);
 
             foreach (var iface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
-                var messageType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (iface.TypeArguments[0] is not INamedTypeSymbol messageType)
+                {
+                    continue;
+                }
+
+                var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 RegistrationType? registrationType = iface.Name switch
                 {
                     "IHandleMessages" => RegistrationType.MessageHandler,
@@ -103,7 +157,8 @@ public sealed partial class AddHandlerInterceptor
                     continue;
                 }
 
-                var spec = new RegistrationSpec(registrationType.Value, messageType);
+                var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
+                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
@@ -121,13 +176,77 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (ctx.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;
             }
 
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             return new HandlerSpec(InterceptLocationSpec.From(location), handlerType.Name, handlerFullyQualifiedName, registrations);
+        }
+
+        static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
+            // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.
+            // It would be more efficient to yield the base types (except where type.SpecialType is not SpecialType.System_Object)
+            // and then to yield the the interfaces from type.AllInterfaces except those in the MarkerTypes.
+            // We're hesitant to change the implementation, however, due to wire compatibility concerns of outputting
+            // an EnclosedMessageTypes header with a different ordering.
+            GetParentTypes(type)
+                .Where(t => !markers.IsMarkerInterface(t))
+                .Select(t => new { Type = t, Rank = PlaceInMessageHierarchy(t) })
+                .OrderByDescending(item => item.Rank)
+                .Select(item => item.Type);
+
+        static IEnumerable<INamedTypeSymbol> GetParentTypes(INamedTypeSymbol type)
+        {
+            // All interfaces implemented by the type (includes inherited interfaces)
+            foreach (var iface in type.AllInterfaces)
+            {
+                yield return iface;
+            }
+
+            // All base types up to but excluding System.Object
+            var currentBase = type.BaseType;
+            while (currentBase is { SpecialType: not SpecialType.System_Object })
+            {
+                if (currentBase is { } named)
+                {
+                    yield return named;
+                }
+
+                currentBase = currentBase.BaseType;
+            }
+        }
+
+        static int PlaceInMessageHierarchy(INamedTypeSymbol type)
+        {
+            if (type.TypeKind == TypeKind.Interface)
+            {
+                // Approximate: number of interfaces implemented by this interface
+                return type.AllInterfaces.Length;
+            }
+
+            var result = 0;
+            var current = type.BaseType;
+            while (current is not null)
+            {
+                result++;
+                current = current.BaseType;
+            }
+
+            return result;
+        }
+
+        class MarkerTypes(Compilation compilation)
+        {
+            readonly INamedTypeSymbol IMessage = compilation.GetTypeByMetadataName("NServiceBus.IMessage")!;
+            readonly INamedTypeSymbol ICommand = compilation.GetTypeByMetadataName("NServiceBus.ICommand")!;
+            readonly INamedTypeSymbol IEvent = compilation.GetTypeByMetadataName("NServiceBus.IEvent")!;
+
+            public bool IsMarkerInterface(INamedTypeSymbol type) =>
+                SymbolEqualityComparer.Default.Equals(type, IMessage) ||
+                SymbolEqualityComparer.Default.Equals(type, ICommand) ||
+                SymbolEqualityComparer.Default.Equals(type, IEvent);
         }
 
         const string AddHandlerMethodName = "AddHandler";

@@ -18,7 +18,8 @@ public class IncomingPipelineMetricTagsTests
     [Test]
     public void Should_not_fail_when_handling_more_than_one_logical_message()
     {
-        var registry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
+        var registry = new MessageMetadataRegistry();
+        registry.Initialize(new Conventions().IsMessageType, true);
 
         registry.RegisterMessageTypes(
         [

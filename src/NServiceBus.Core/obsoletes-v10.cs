@@ -596,5 +596,20 @@ namespace NServiceBus.Sagas
     }
 }
 
+namespace NServiceBus.Unicast.Messages
+{
+    using System;
+    using Particular.Obsoletes;
+
+    public partial class MessageMetadataRegistry
+    {
+        [ObsoleteMetadata(ReplacementTypeOrMember = "MessageMetadataRegistry.Initialize", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
+        [Obsolete("Use 'MessageMetadataRegistry.Initialize' instead. Will be removed in version 11.0.0.", true)]
+        public MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
+        {
+        }
+    }
+}
+
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

@@ -132,7 +132,8 @@ public class UnicastPublisherRouterTests
     [SetUp]
     public void Setup()
     {
-        metadataRegistry = new MessageMetadataRegistry(_ => true, true);
+        metadataRegistry = new MessageMetadataRegistry();
+        metadataRegistry.Initialize(_ => true, true);
         endpointInstances = new EndpointInstances();
         subscriptionStorage = new FakeSubscriptionStorage();
         router = new UnicastPublishRouter(

@@ -16,11 +16,10 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
             .WithTrackingName("SagaOptions");
 
         var addSagas = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => Parser.SyntaxLooksLikeAddSagaMethod(node),
+            .ForAttributeWithMetadataName("NServiceBus.NServiceBusRegistrationsAttribute",
+                predicate: static (_, _) => true,
                 transform: Parser.Parse)
-            .Where(static d => d is not null)
-            .Select(static (d, _) => d!)
+            .SelectMany(static (spec, _) => spec)
             .WithTrackingName("SagaSpec");
 
         var collected = addSagas.Collect()

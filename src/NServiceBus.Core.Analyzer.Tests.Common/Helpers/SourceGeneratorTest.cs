@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NServiceBus;
 using NUnit.Framework;
 using Particular.Approvals;
 
@@ -31,8 +32,10 @@ public partial class SourceGeneratorTest
     bool suppressCompilationErrors;
     bool wroteToConsole;
     GeneratorTestOutput outputType;
+    OutputKind buildOutputType = OutputKind.DynamicallyLinkedLibrary;
     readonly HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
     readonly List<string> generatorStagesList = [];
+
 
     SourceGeneratorTest(string? outputAssemblyName = null)
     {
@@ -69,6 +72,12 @@ public partial class SourceGeneratorTest
     public List<MetadataReference> References { get; } = [];
 
     public LanguageVersion LangVersion { get; set; } = LanguageVersion.CSharp14;
+
+    public SourceGeneratorTest BuildAs(OutputKind outputKind)
+    {
+        buildOutputType = outputKind;
+        return this;
+    }
 
     public SourceGeneratorTest WithSource(string source, string? filename = null)
     {
@@ -172,7 +181,7 @@ public partial class SourceGeneratorTest
             optionsProvider: optsProvider,
             parseOptions: parseOptions);
 
-        var compileOpts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        var compileOpts = new CSharpCompilationOptions(buildOutputType);
 
         initialCompilation = CSharpCompilation.Create(outputAssemblyName, syntaxTrees, References, compileOpts);
 
@@ -285,11 +294,11 @@ public partial class SourceGeneratorTest
                 _ = sb.AppendLine();
             }
 
-            var start = $"// == {heading} ";
+            var start = $"// == {heading} ==";
 
             _ = sb.Append(start);
 
-            for (var i = 0; i < (120 - start.Length); i++)
+            for (var i = 0; i < 120 - start.Length; i++)
             {
                 _ = sb.Append('=');
             }
@@ -344,21 +353,33 @@ public partial class SourceGeneratorTest
             _ = Run();
         }
 
-        try
-        {
-            var output = GetCompilationOutput();
-            var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
-            Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
-            return this;
-        }
-        catch (Exception)
+        if (Environment.GetEnvironmentVariable("CI") != "true")
         {
             _ = ToConsole();
-            throw;
         }
+
+        var output = GetCompilationOutput();
+        var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+        Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
+        return this;
     }
 
-    [GeneratedRegex(@"System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, ""(?<InterceptData>[A-Za-z0-9+=/]{36})""\)", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    public SourceGeneratorTest ShouldNotGenerateCode()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        var generatedOutputs = build.OutputCompilation.SyntaxTrees
+            .Where(tree => tree.FilePath.EndsWith(".g.cs"))
+            .ToImmutableArray();
+
+        Assert.That(generatedOutputs.Length, Is.EqualTo(0));
+        return this;
+    }
+
+    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
 
     public SourceGeneratorTest ToConsole()
