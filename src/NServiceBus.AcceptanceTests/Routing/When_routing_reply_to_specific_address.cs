@@ -24,7 +24,6 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
                 }))
             .WithEndpoint<Replier>()
             .WithEndpoint<ReplyHandler>()
-            .Done(c => c.ReplyReceived)
             .Run();
 
         Assert.That(context.ReplyReceived, Is.True);
@@ -39,68 +38,43 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
 
     class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
             });
-        }
     }
 
     class Replier : EndpointConfigurationBuilder
     {
-        public Replier()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Replier() => EndpointSetup<DefaultServer>();
 
-        class RequestReplyMessageHandler : IHandleMessages<RequestReplyMessage>
+        class RequestReplyMessageHandler(Context testContext) : IHandleMessages<RequestReplyMessage>
         {
-            public RequestReplyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyToAddress = context.ReplyToAddress;
                 return context.Reply(new ReplyMessage());
             }
-
-            Context testContext;
         }
     }
 
     class ReplyHandler : EndpointConfigurationBuilder
     {
-        public ReplyHandler()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ReplyHandler() => EndpointSetup<DefaultServer>();
 
-        class ReplyMessageHandler : IHandleMessages<ReplyMessage>
+        class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
-            public ReplyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class RequestReplyMessage : ICommand
-    {
-    }
+    public class RequestReplyMessage : ICommand;
 
-    public class ReplyMessage : IMessage
-    {
-    }
+    public class ReplyMessage : IMessage;
 }

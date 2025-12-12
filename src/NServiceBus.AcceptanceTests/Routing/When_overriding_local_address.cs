@@ -23,7 +23,6 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
                 return c.Send(new Message(), options);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.ReceivedMessage)
             .Run();
 
         Assert.That(context.ReceivedMessage, Is.True);
@@ -48,18 +47,12 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
-            EndpointSetup<DefaultServer>(c => { });
-        }
+        public Sender() => EndpointSetup<DefaultServer>(c => { });
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress(ReceiverQueueName));
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress(ReceiverQueueName));
 
         public class MessageHandler : IHandleMessages<Message>
         {
@@ -71,6 +64,7 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -17,7 +17,6 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
             .WithEndpoint<OtherEndpoint>()
-            .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -37,7 +36,6 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(instanceDiscriminator))
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.SendingEndpointGotResponse)
             .Run();
 
         Assert.That(ctx.SendingEndpointGotResponse, Is.True);
@@ -53,7 +51,6 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 .When(b => b.Send(new MyMessage())))
             .WithEndpoint<ReplyingEndpoint>()
             .WithEndpoint<OtherEndpoint>()
-            .Done(c => c.OtherEndpointGotResponse)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -72,84 +69,53 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
 
     public class SendingEndpoint : EndpointConfigurationBuilder
     {
-        public SendingEndpoint()
-        {
+        public SendingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
             });
-        }
 
-        public class ResponseHandler : IHandleMessages<MyReply>
+        public class ResponseHandler(Context testContext) : IHandleMessages<MyReply>
         {
-            public ResponseHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SendingEndpointGotResponse = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class OtherEndpoint : EndpointConfigurationBuilder
     {
-        public OtherEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public OtherEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class ResponseHandler : IHandleMessages<MyReply>
+        public class ResponseHandler(Context testContext) : IHandleMessages<MyReply>
         {
-            public ResponseHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.OtherEndpointGotResponse = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class ReplyingEndpoint : EndpointConfigurationBuilder
     {
-        public ReplyingEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MessageHandler : IHandleMessages<MyMessage>
+        public class MessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyToAddress = context.ReplyToAddress;
                 return context.Reply(new MyReply());
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 
-    public class MyReply : IMessage
-    {
-    }
+    public class MyReply : IMessage;
 }
