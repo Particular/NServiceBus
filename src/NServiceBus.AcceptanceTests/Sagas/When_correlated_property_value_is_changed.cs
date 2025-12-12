@@ -40,7 +40,6 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = Guid.NewGuid();
-                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
