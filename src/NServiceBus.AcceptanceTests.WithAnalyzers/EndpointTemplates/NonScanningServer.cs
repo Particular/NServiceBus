@@ -12,6 +12,9 @@ public class NonScanningServer : IEndpointSetupTemplate
         var endpointConfiguration = await defaultServer.GetConfiguration(runDescriptor, endpointCustomizationConfiguration,
             configurationBuilderCustomization);
 
+        var scanner = endpointConfiguration.AssemblyScanner();
+        scanner.Disable = true;
+
         endpointCustomizationConfiguration.AutoRegisterHandlers = false;
         endpointCustomizationConfiguration.AutoRegisterSagas = false;
 
