@@ -7,6 +7,4 @@ using System;
 /// and <see cref="SagaRegistrationExtensions.AddSaga" /> with compile-time substitutes that do not require reflection.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public class NServiceBusRegistrationsAttribute : Attribute
-{
-}
+public sealed class NServiceBusRegistrationsAttribute : Attribute;
