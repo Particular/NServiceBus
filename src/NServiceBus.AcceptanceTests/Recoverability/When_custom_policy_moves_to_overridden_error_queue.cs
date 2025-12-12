@@ -21,7 +21,6 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         Assert.That(context.MessageMovedToErrorQueue, Is.True);
@@ -34,8 +33,7 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.Recoverability().CustomPolicy((c, ec) =>
@@ -43,42 +41,29 @@ public class When_custom_policy_moves_to_overridden_error_queue : NServiceBusAcc
 
                 config.SendFailedMessagesTo("error");
             });
-        }
 
         class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>();
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
