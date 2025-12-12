@@ -27,7 +27,6 @@ public class When_deferring_a_message : NServiceBusAcceptanceTest
 
                 return session.Send(new MyMessage(), options);
             }))
-            .Done(c => c.WasCalled)
             .Run();
 
         var sendReceiveDifference = context.ReceivedAt - context.SentAt;
@@ -36,37 +35,24 @@ public class When_deferring_a_message : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool WasCalled { get; set; }
         public DateTimeOffset SentAt { get; set; }
         public DateTimeOffset ReceivedAt { get; set; }
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedAt = DateTimeOffset.UtcNow;
-                testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }
