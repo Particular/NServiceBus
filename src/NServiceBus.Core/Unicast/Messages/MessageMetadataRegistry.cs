@@ -43,9 +43,18 @@ public partial class MessageMetadataRegistry
                 RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
             }
             preRegisteredMessagesWithHierarchy.Clear();
-
-            initialized = true;
         }
+
+        lock (preRegisteredMessageTypes)
+        {
+            foreach (var messageType in preRegisteredMessageTypes)
+            {
+                _ = RegisterMessageTypeCore(messageType);
+            }
+            preRegisteredMessageTypes.Clear();
+        }
+
+        initialized = true;
     }
 
     /// <summary>
@@ -146,9 +155,9 @@ public partial class MessageMetadataRegistry
     }
 
     /// <summary>
-    ///
+    /// Registers the potential message type.
     /// </summary>
-    /// <param name="messageType"></param>
+    /// <param name="messageType">The potential message type that is checked against the convention when the registery is initialized.</param>
     public void RegisterMessageType(Type messageType)
     {
         if (!initialized)
@@ -165,9 +174,10 @@ public partial class MessageMetadataRegistry
     }
 
     /// <summary>
-    /// Register message types. Meant to be used by a source generator to pre-register message types before the endpoint starts.
+    /// Registers the potential message type with the parent hierarchy.
     /// </summary>
-    /// <returns></returns>
+    /// <param name="messageType">The potential message type that is checked against the convention when the registry is initialized.</param>
+    /// <param name="parentMessages">The potential parent message hierarchy that is checked against the convention when the registry is initialized.</param>
     public void RegisterMessageTypeWithHierarchy(Type messageType, IEnumerable<Type> parentMessages)
     {
         if (!initialized)
