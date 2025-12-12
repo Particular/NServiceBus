@@ -232,6 +232,11 @@ public partial class MessageMetadataRegistry
 
     void RegisterMessageTypeWithHierarchyCore(Type messageType, IEnumerable<Type> parentMessages)
     {
+        if (messages.ContainsKey(messageType.TypeHandle))
+        {
+            return;
+        }
+
         LogGenericMessageTypeWarning(messageType);
 
         var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages.Where(isMessageType)]);
@@ -246,7 +251,7 @@ public partial class MessageMetadataRegistry
         {
             return metadata;
         }
-    
+
         LogGenericMessageTypeWarning(messageType);
 
         //get the parent types
