@@ -15,7 +15,6 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatForwards>(b => b.When((session, c) => session.SendLocal(new MessageToForward())))
             .WithEndpoint<ForwardReceiver>()
-            .Done(c => c.GotForwardedMessage)
             .Run();
 
         Assert.That(context.GotForwardedMessage, Is.True);
@@ -31,55 +30,35 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
 
     public class ForwardReceiver : EndpointConfigurationBuilder
     {
-        public ForwardReceiver()
-        {
+        public ForwardReceiver() =>
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("message_forward_receiver");
-        }
 
-        public class MessageToForwardHandler : IHandleMessages<MessageToForward>
+        public class MessageToForwardHandler(Context testContext) : IHandleMessages<MessageToForward>
         {
-            public MessageToForwardHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToForward message, IMessageHandlerContext context)
             {
                 testContext.ForwardedHeaders = context.MessageHeaders;
                 testContext.GotForwardedMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class EndpointThatForwards : EndpointConfigurationBuilder
     {
-        public EndpointThatForwards()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatForwards() => EndpointSetup<DefaultServer>();
 
-        public class MessageToForwardHandler : IHandleMessages<MessageToForward>
+        public class MessageToForwardHandler(Context testContext) : IHandleMessages<MessageToForward>
         {
-            public MessageToForwardHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToForward message, IMessageHandlerContext context)
             {
                 testContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 return context.ForwardCurrentMessageTo("message_forward_receiver");
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageToForward : IMessage
-    {
-    }
+    public class MessageToForward : IMessage;
 }
