@@ -154,8 +154,8 @@ class EndpointCreator
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
         messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
-        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes().Where(t => conventions.IsMessageType(t)));
-        messageMetadataRegistry.RegisterMessageTypes(messageTypesHandled);
+        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes());
+        messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
 

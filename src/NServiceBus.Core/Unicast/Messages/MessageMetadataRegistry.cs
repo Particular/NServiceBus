@@ -186,6 +186,14 @@ public partial class MessageMetadataRegistry
         }
     }
 
+    internal void RegisterMessageTypesBypassingChecks(IEnumerable<Type> messageTypes)
+    {
+        foreach (var messageType in messageTypes)
+        {
+            RegisterMessageTypeCore(messageType);
+        }
+    }
+
     void RegisterMessageType(Type messageType)
     {
         if (!initialized)
