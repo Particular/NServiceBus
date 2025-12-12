@@ -151,12 +151,11 @@ class EndpointCreator
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
         var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
-        var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType, allowDynamicTypeLoading);
+        var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
+        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
         messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes().Where(t => conventions.IsMessageType(t)));
         messageMetadataRegistry.RegisterMessageTypes(messageTypesHandled);
-
-        settings.Set(messageMetadataRegistry);
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
 

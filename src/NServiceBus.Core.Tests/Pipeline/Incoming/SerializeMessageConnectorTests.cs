@@ -16,7 +16,8 @@ public class SerializeMessageConnectorTests
     [Test]
     public async Task Should_set_content_type_header()
     {
-        var registry = new MessageMetadataRegistry(new Conventions().IsMessageType, true);
+        var registry = new MessageMetadataRegistry();
+        registry.Initialize(new Conventions().IsMessageType, true);
 
         registry.RegisterMessageTypes(
         [
@@ -35,26 +36,16 @@ public class SerializeMessageConnectorTests
         Assert.That(context.Headers[Headers.ContentType], Is.EqualTo("myContentType"));
     }
 
-    class FakeSerializer : IMessageSerializer
+    class FakeSerializer(string contentType) : IMessageSerializer
     {
-        public FakeSerializer(string contentType)
-        {
-            ContentType = contentType;
-        }
-
         public void Serialize(object message, Stream stream)
         {
         }
 
-        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
-        {
-            throw new NotImplementedException();
-        }
+        public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null) => throw new NotImplementedException();
 
-        public string ContentType { get; }
+        public string ContentType { get; } = contentType;
     }
 
-    class MyMessage : IMessage
-    {
-    }
+    class MyMessage : IMessage;
 }

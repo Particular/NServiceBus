@@ -17,8 +17,10 @@ public class NativeSubscribeTerminatorTests
     {
         var innerException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(new AggregateException(innerException));
+        var messageMetadataRegistry = new MessageMetadataRegistry();
+        messageMetadataRegistry.Initialize(_ => true, true);
         var terminator =
-            new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
+            new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
 
         var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
@@ -30,8 +32,9 @@ public class NativeSubscribeTerminatorTests
     {
         var expectedException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
-        var terminator =
-            new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
+        var messageMetadataRegistry = new MessageMetadataRegistry();
+        messageMetadataRegistry.Initialize(_ => true, true);
+        var terminator = new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
 
         var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
@@ -43,8 +46,9 @@ public class NativeSubscribeTerminatorTests
     {
         var aggregateException = new AggregateException(new Exception("expected exception"));
         var fakeSubscriptionManager = new FakeSubscriptionManager(aggregateException);
-        var terminator =
-            new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
+        var messageMetadataRegistry = new MessageMetadataRegistry();
+        messageMetadataRegistry.Initialize(_ => true, true);
+        var terminator = new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
         var testableSubscribeContext = new TestableSubscribeContext();
         testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
@@ -58,8 +62,9 @@ public class NativeSubscribeTerminatorTests
     {
         var expectedException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
-        var terminator =
-            new NativeSubscribeTerminator(fakeSubscriptionManager, new MessageMetadataRegistry(_ => true, true));
+        var messageMetadataRegistry = new MessageMetadataRegistry();
+        messageMetadataRegistry.Initialize(_ => true, true);
+        var terminator = new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
         var testableSubscribeContext = new TestableSubscribeContext();
         testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
@@ -68,15 +73,8 @@ public class NativeSubscribeTerminatorTests
         Assert.That(exception, Is.SameAs(expectedException));
     }
 
-    class FakeSubscriptionManager : ISubscriptionManager
+    class FakeSubscriptionManager(Exception exceptionToThrow) : ISubscriptionManager
     {
-        Exception exceptionToThrow;
-
-        public FakeSubscriptionManager(Exception exceptionToThrow)
-        {
-            this.exceptionToThrow = exceptionToThrow;
-        }
-
         public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default) => throw exceptionToThrow;
 
         public Task Unsubscribe(MessageMetadata eventType, ContextBag context, CancellationToken cancellationToken = default) => throw new NotImplementedException();

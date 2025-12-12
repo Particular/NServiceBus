@@ -86,7 +86,7 @@ public sealed partial class AddHandlerInterceptor
             sourceWriter.WriteLine("""
                                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                   var messageMetadataRegistry = settings.Get<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                                   var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                    """);
             foreach (var registration in handlerSpec.Registrations)
             {
@@ -99,7 +99,7 @@ public sealed partial class AddHandlerInterceptor
 
                 sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{handlerSpec.HandlerType}, {registration.MessageType}>();");
                 var hierarchyLiteral = $"[{string.Join(", ", registration.MessageHierarchy.Select(type => $"typeof({type})"))}]";
-                sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMetadata(typeof({registration.MessageType}), {hierarchyLiteral});");
+                sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({registration.MessageType}), {hierarchyLiteral});");
             }
         }
 

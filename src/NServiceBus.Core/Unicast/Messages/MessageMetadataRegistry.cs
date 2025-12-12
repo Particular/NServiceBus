@@ -13,12 +13,41 @@ using NServiceBus;
 /// <remarks>
 /// Create a new <see cref="MessageMetadataRegistry"/> instance.
 /// </remarks>
-/// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
-/// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
-/// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
-/// at runtime and all types must be explicitly loaded beforehand.</param>
-public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
+public partial class MessageMetadataRegistry
 {
+    /// <summary>
+    /// Creates a new instance of <see cref="MessageMetadataRegistry"/>.
+    /// </summary>
+    public MessageMetadataRegistry()
+    {
+    }
+
+    /// <summary>
+    /// Initializes the registry which makes it fully functional. When the registry is not initialized only the <see cref="RegisterMessageTypeWithHierarchy"/> and <see cref="RegisterMessageType"/> methods can be called.
+    /// </summary>
+    /// <param name="isMessageType">The function delegate indicating whether a specific type is a message type.</param>
+    /// <param name="allowDynamicTypeLoading">When set to <c>true</c> the metadata registry will attempt to dynamically
+    /// load types by using <see cref="Type.GetType(string)"/>; otherwise no attempts will be made to load types
+    /// at runtime and all types must be explicitly loaded beforehand.</param>
+    public void Initialize(Func<Type, bool> isMessageType, bool allowDynamicTypeLoading)
+    {
+        ArgumentNullException.ThrowIfNull(isMessageType);
+
+        this.isMessageType = isMessageType;
+        this.allowDynamicTypeLoading = allowDynamicTypeLoading;
+
+        lock (preRegisteredMessagesWithHierarchy)
+        {
+            foreach (var (messageType, parentMessages) in preRegisteredMessagesWithHierarchy)
+            {
+                RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+            }
+            preRegisteredMessagesWithHierarchy.Clear();
+
+            initialized = true;
+        }
+    }
+
     /// <summary>
     /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
     /// </summary>
@@ -27,6 +56,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     public MessageMetadata GetMessageMetadata(Type messageType)
     {
         ArgumentNullException.ThrowIfNull(messageType);
+        AssertIsInitialized();
 
         if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
         {
@@ -35,7 +65,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
 
         if (isMessageType(messageType))
         {
-            return RegisterMessageType(messageType);
+            return RegisterMessageTypeCore(messageType);
         }
 
         var message = $"Could not find metadata for '{messageType.FullName}'.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. '{messageType.FullName}' is included in initial scanning. {Environment.NewLine}2. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.";
@@ -50,6 +80,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
+        AssertIsInitialized();
 
         var cacheHit = cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType);
 
@@ -96,7 +127,7 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
 
         if (isMessageType(messageType))
         {
-            return RegisterMessageType(messageType);
+            return RegisterMessageTypeCore(messageType);
         }
 
         Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode. ", messageType, messageType.FullName);
@@ -107,19 +138,49 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     /// Retrieves all known messages <see cref="MessageMetadata" />.
     /// </summary>
     /// <returns>An array of <see cref="MessageMetadata" /> for all known message.</returns>
-    public MessageMetadata[] GetAllMessages() => [.. messages.Values];
+    public MessageMetadata[] GetAllMessages()
+    {
+        AssertIsInitialized();
+
+        return [.. messages.Values];
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="messageType"></param>
+    public void RegisterMessageType(Type messageType)
+    {
+        if (!initialized)
+        {
+            lock (preRegisteredMessageTypes)
+            {
+                preRegisteredMessageTypes.Add(messageType);
+            }
+        }
+        else
+        {
+            _ = RegisterMessageTypeCore(messageType);
+        }
+    }
 
     /// <summary>
     /// Register message types. Meant to be used by a source generator to pre-register message types before the endpoint starts.
     /// </summary>
     /// <returns></returns>
-    public MessageMetadata RegisterMetadata(Type messageType, IEnumerable<Type> parentMessages)
+    public void RegisterMessageTypeWithHierarchy(Type messageType, IEnumerable<Type> parentMessages)
     {
-        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages.Where(isMessageType)]);
-
-        messages[messageType.TypeHandle] = metadata;
-        cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
-        return metadata;
+        if (!initialized)
+        {
+            lock (preRegisteredMessagesWithHierarchy)
+            {
+                preRegisteredMessagesWithHierarchy.Add((messageType, parentMessages));
+            }
+        }
+        else
+        {
+            RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+        }
     }
 
     Type GetType(string messageTypeIdentifier)
@@ -148,23 +209,28 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
     {
         foreach (var messageType in messageTypes)
         {
-            _ = RegisterMessageType(messageType);
+            RegisterMessageTypeCore(messageType);
         }
     }
 
-    // Assumes the caller has already verified the types are message types
-    MessageMetadata RegisterMessageType(Type messageType)
+    void RegisterMessageTypeWithHierarchyCore(Type messageType, IEnumerable<Type> parentMessages)
+    {
+        LogGenericMessageTypeWarning(messageType);
+
+        var metadata = new MessageMetadata(messageType, [messageType, .. parentMessages.Where(isMessageType)]);
+
+        messages[messageType.TypeHandle] = metadata;
+        cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
+    }
+
+    MessageMetadata RegisterMessageTypeCore(Type messageType)
     {
         if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
         {
             return metadata;
         }
-
-        if (messageType.IsGenericType)
-        {
-            // This is not an error because in most cases it will work, but it's still not supported should issues arise
-            Logger.Debug($"Generic messages types are not supported. Consider converting '{messageType.AssemblyQualifiedName}' to a dedicated, simple type");
-        }
+    
+        LogGenericMessageTypeWarning(messageType);
 
         //get the parent types
         var parentMessages = GetParentTypes(messageType)
@@ -177,6 +243,23 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         cachedTypes.TryAdd(messageType.AssemblyQualifiedName, messageType);
 
         return metadata;
+    }
+
+    static void LogGenericMessageTypeWarning(Type messageType)
+    {
+        if (messageType.IsGenericType)
+        {
+            // This is not an error because in most cases it will work, but it's still not supported should issues arise
+            Logger.Debug($"Generic messages types are not supported. Consider converting '{messageType.AssemblyQualifiedName}' to a dedicated, simple type");
+        }
+    }
+
+    void AssertIsInitialized()
+    {
+        if (!initialized)
+        {
+            throw new InvalidOperationException("The message metadata registry has not been initialized. Call Initialize() before using the registry.");
+        }
     }
 
     static int PlaceInMessageHierarchy(Type type)
@@ -215,8 +298,13 @@ public class MessageMetadataRegistry(Func<Type, bool> isMessageType, bool allowD
         }
     }
 
+    bool initialized;
+    readonly List<(Type MessageType, IEnumerable<Type> Hierarchy)> preRegisteredMessagesWithHierarchy = [];
+    readonly List<Type> preRegisteredMessageTypes = [];
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();
     readonly ConcurrentDictionary<string, Type> cachedTypes = new();
+    Func<Type, bool> isMessageType;
+    bool allowDynamicTypeLoading;
 
     static readonly ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
 }
