@@ -28,7 +28,6 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
                         c.IsEventSubscriptionReceived = true;
                     }
                 }))
-            .Done(c => c.DidSagaComplete)
             .Run();
 
         Assert.That(context.DidSagaComplete, Is.True);
@@ -67,6 +66,8 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
                 Data.DataId = message.DataId;
                 MarkAsComplete();
                 testContext.DidSagaComplete = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

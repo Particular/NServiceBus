@@ -13,7 +13,6 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
-            .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run();
 
         Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
@@ -42,8 +41,8 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
             public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
             {
                 testContext.DidRequestingSagaGetTheResponse = true;
-
                 MarkAsComplete();
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }
@@ -62,8 +61,6 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
         public class RequestResponseRespondingSaga1 : Saga<RequestResponseRespondingSaga1.RequestResponseRespondingSagaData1>,
             IAmStartedByMessages<RequestToRespondingSaga>
         {
-            public Context TestContext { get; set; }
-
             public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context) =>
                 // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                 // we explicitly set the correlation ID to a non-existent saga since auto correlation happens to work for this special case

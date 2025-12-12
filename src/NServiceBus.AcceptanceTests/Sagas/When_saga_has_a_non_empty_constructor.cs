@@ -15,7 +15,6 @@ public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
             {
                 SomeId = IdThatSagaIsCorrelatedOn
             })))
-            .Done(c => c.SecondMessageReceived)
             .Run();
 
     static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
@@ -45,6 +44,7 @@ public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
             public Task Handle(OtherMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -14,7 +14,6 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithSaga>(b => b.When(session => session.SendLocal(new MessageToSaga())))
-            .Done(c => c.ReplyReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -38,7 +37,7 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
             public Task Handle(Reply message, IMessageHandlerContext context)
             {
                 testContext.ReplyReceived = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
