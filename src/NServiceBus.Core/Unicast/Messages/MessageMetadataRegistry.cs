@@ -36,29 +36,23 @@ public partial class MessageMetadataRegistry
         this.isMessageType = isMessageType;
         this.allowDynamicTypeLoading = allowDynamicTypeLoading;
 
-        lock (preRegisteredMessagesWithHierarchy)
+        foreach (var (messageType, parentMessages) in preRegisteredMessagesWithHierarchy)
         {
-            foreach (var (messageType, parentMessages) in preRegisteredMessagesWithHierarchy)
+            if (isMessageType(messageType))
             {
-                if (isMessageType(messageType))
-                {
-                    RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
-                }
+                RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
             }
-            preRegisteredMessagesWithHierarchy.Clear();
         }
+        preRegisteredMessagesWithHierarchy.Clear();
 
-        lock (preRegisteredMessageTypes)
+        foreach (var messageType in preRegisteredMessageTypes)
         {
-            foreach (var messageType in preRegisteredMessageTypes)
+            if (isMessageType(messageType))
             {
-                if (isMessageType(messageType))
-                {
-                    _ = RegisterMessageTypeCore(messageType);
-                }
+                _ = RegisterMessageTypeCore(messageType);
             }
-            preRegisteredMessageTypes.Clear();
         }
+        preRegisteredMessageTypes.Clear();
 
         initialized = true;
     }
@@ -161,28 +155,6 @@ public partial class MessageMetadataRegistry
     }
 
     /// <summary>
-    /// Registers the potential message type.
-    /// </summary>
-    /// <param name="messageType">The potential message type that is checked against the convention when the registery is initialized.</param>
-    public void RegisterMessageType(Type messageType)
-    {
-        if (!initialized)
-        {
-            lock (preRegisteredMessageTypes)
-            {
-                preRegisteredMessageTypes.Add(messageType);
-            }
-        }
-        else
-        {
-            if (isMessageType(messageType))
-            {
-                _ = RegisterMessageTypeCore(messageType);
-            }
-        }
-    }
-
-    /// <summary>
     /// Registers the potential message type with the parent hierarchy.
     /// </summary>
     /// <param name="messageType">The potential message type that is checked against the convention when the registry is initialized.</param>
@@ -191,16 +163,40 @@ public partial class MessageMetadataRegistry
     {
         if (!initialized)
         {
-            lock (preRegisteredMessagesWithHierarchy)
-            {
-                preRegisteredMessagesWithHierarchy.Add((messageType, parentMessages));
-            }
+            preRegisteredMessagesWithHierarchy.Add((messageType, parentMessages));
         }
         else
         {
             if (isMessageType(messageType))
             {
                 RegisterMessageTypeWithHierarchyCore(messageType, parentMessages);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Registers the potential message types.
+    /// </summary>
+    /// <param name="messageTypes">The potential message types are checked against the convention when the registry is initialized.</param>
+    public void RegisterMessageTypes(IEnumerable<Type> messageTypes)
+    {
+        foreach (var messageType in messageTypes)
+        {
+            RegisterMessageType(messageType);
+        }
+    }
+
+    void RegisterMessageType(Type messageType)
+    {
+        if (!initialized)
+        {
+            preRegisteredMessageTypes.Add(messageType);
+        }
+        else
+        {
+            if (isMessageType(messageType))
+            {
+                _ = RegisterMessageTypeCore(messageType);
             }
         }
     }
@@ -224,15 +220,6 @@ public partial class MessageMetadataRegistry
         }
 
         return null;
-    }
-
-    // Assumes the caller has already verified the types are message types
-    internal void RegisterMessageTypes(IEnumerable<Type> messageTypes)
-    {
-        foreach (var messageType in messageTypes)
-        {
-            RegisterMessageTypeCore(messageType);
-        }
     }
 
     void RegisterMessageTypeWithHierarchyCore(Type messageType, IEnumerable<Type> parentMessages)

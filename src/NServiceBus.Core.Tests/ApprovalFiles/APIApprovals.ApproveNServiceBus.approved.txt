@@ -2513,8 +2513,8 @@ namespace NServiceBus.Unicast.Messages
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(System.Type messageType) { }
         public NServiceBus.Unicast.Messages.MessageMetadata GetMessageMetadata(string messageTypeIdentifier) { }
         public void Initialize(System.Func<System.Type, bool> isMessageType, bool allowDynamicTypeLoading) { }
-        public void RegisterMessageType(System.Type messageType) { }
         public void RegisterMessageTypeWithHierarchy(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> parentMessages) { }
+        public void RegisterMessageTypes(System.Collections.Generic.IEnumerable<System.Type> messageTypes) { }
     }
 }
 namespace NServiceBus.Unicast.Queuing
