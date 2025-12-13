@@ -66,15 +66,12 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            testContext.MessageReceived = true;
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
     }
 
-    public class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class MyMessage : ICommand;
 }
