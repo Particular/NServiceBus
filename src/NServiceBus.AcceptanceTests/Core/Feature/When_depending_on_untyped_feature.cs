@@ -45,10 +45,7 @@ public class When_depending_on_untyped_feature : NServiceBusAcceptanceTest
 
     public class EndpointWithFeatures : EndpointConfigurationBuilder
     {
-        public EndpointWithFeatures()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithFeatures() => EndpointSetup<DefaultServer>();
     }
 
     public class UntypedDependentFeature : Feature
