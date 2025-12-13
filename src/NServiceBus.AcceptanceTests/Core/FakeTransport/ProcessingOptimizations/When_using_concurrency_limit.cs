@@ -36,15 +36,9 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
         }
     }
 
-    class FakeReceiver : IMessageReceiver
+    class FakeReceiver(ReceiveSettings settings) : IMessageReceiver
     {
         PushRuntimeSettings pushSettings;
-
-        public FakeReceiver(ReceiveSettings settings)
-        {
-            Id = settings.Id;
-            ReceiveAddress = settings.ReceiveAddress.ToString();
-        }
 
         public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
         {
@@ -59,49 +53,33 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
             return Task.CompletedTask;
         }
 
-        public Task StopReceive(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public Task StopReceive(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
         public ISubscriptionManager Subscriptions { get; }
 
-        public string Id { get; }
+        public string Id { get; } = settings.Id;
 
-        public string ReceiveAddress { get; }
+        public string ReceiveAddress { get; } = settings.ReceiveAddress.ToString();
     }
 
     class FakeDispatcher : IMessageDispatcher
     {
-        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
-    class FakeTransport : TransportDefinition
+    class FakeTransport() : TransportDefinition(TransportTransactionMode.None, false, false, false)
     {
-        public FakeTransport() : base(TransportTransactionMode.None, false, false, false)
-        {
-        }
+        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default) => Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
 
-        public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<TransportInfrastructure>(new FakeTransportInfrastructure(receivers));
-        }
-
-        public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
-        {
-            return new[]
-            {
-                TransportTransactionMode.None,
-                TransportTransactionMode.ReceiveOnly,
-                TransportTransactionMode.TransactionScope,
-                TransportTransactionMode.SendsAtomicWithReceive
-            };
-        }
+        public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() =>
+        [
+            TransportTransactionMode.None,
+            TransportTransactionMode.ReceiveOnly,
+            TransportTransactionMode.TransactionScope,
+            TransportTransactionMode.SendsAtomicWithReceive
+        ];
     }
 
     sealed class FakeTransportInfrastructure : TransportInfrastructure
@@ -114,14 +92,8 @@ public class When_using_concurrency_limit : NServiceBusAcceptanceTest
                 .ToDictionary<FakeReceiver, string, IMessageReceiver>(r => r.Id, r => r);
         }
 
-        public override Task Shutdown(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task Shutdown(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-        public override string ToTransportAddress(QueueAddress address)
-        {
-            return address.ToString();
-        }
+        public override string ToTransportAddress(QueueAddress address) => address.ToString();
     }
 }
