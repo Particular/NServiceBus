@@ -50,14 +50,12 @@ public class When_initializing_transport : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer, Context>((endpointConfig, context) =>
             {
                 var fakeTransport = new FakeTransport();
                 context.StartUpSequence = fakeTransport.StartupSequence;
                 endpointConfig.UseTransport(fakeTransport);
             });
-        }
     }
 }
