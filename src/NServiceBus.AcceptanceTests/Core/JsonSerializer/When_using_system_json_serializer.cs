@@ -13,7 +13,6 @@ public class When_using_system_json_serializer : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
            .WithEndpoint<Endpoint>(c => c
                .When(b => b.SendLocal(new MyMessage())))
-           .Done(c => c.GotTheMessage)
            .Run();
 
         Assert.That(context.GotTheMessage, Is.True);
@@ -26,29 +25,23 @@ public class When_using_system_json_serializer : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<SystemJsonSerializer>();
             });
-        }
 
-        class MyHandler : IHandleMessages<MyMessage>
+        class MyHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            Context testContext;
-
-            public MyHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class MyMessage
-    {
-    }
+    public class MyMessage;
 }
