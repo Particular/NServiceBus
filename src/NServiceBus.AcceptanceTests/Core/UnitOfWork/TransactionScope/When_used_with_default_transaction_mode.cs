@@ -30,9 +30,6 @@ public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
 
     public class ScopeEndpoint : EndpointConfigurationBuilder
     {
-        public ScopeEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ScopeEndpoint() => EndpointSetup<DefaultServer>();
     }
 }

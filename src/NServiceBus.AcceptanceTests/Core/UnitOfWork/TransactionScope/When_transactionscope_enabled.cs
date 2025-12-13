@@ -13,7 +13,6 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ScopeEndpoint>(g => g.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -25,15 +24,13 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public bool AmbientTransactionPresent { get; set; }
         public IsolationLevel IsolationLevel { get; set; }
     }
 
     public class ScopeEndpoint : EndpointConfigurationBuilder
     {
-        public ScopeEndpoint()
-        {
+        public ScopeEndpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
@@ -41,15 +38,9 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
                     .WrapHandlersInATransactionScope(
                         isolationLevel: IsolationLevel.RepeatableRead);
             });
-        }
 
-        class MyMessageHandler : IHandleMessages<MyMessage>
+        class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Transaction.Current != null)
@@ -57,16 +48,11 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
                     testContext.AmbientTransactionPresent = Transaction.Current != null;
                     testContext.IsolationLevel = Transaction.Current.IsolationLevel;
                 }
-                testContext.Done = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }
