@@ -45,6 +45,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
@@ -87,6 +88,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
@@ -128,62 +130,9 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .ShouldNotGenerateCode()
-            .AssertRunsAreEqual();
-    }
-
-    [Test]
-    public void SagaWithInappropriateDoubleMessageMapping()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         [NServiceBusRegistrations]
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.AddHandler<OrderPolicy>();
-                         }
-                     }
-
-                     public class OrderPolicy : Saga<OrderPolicyData>,
-                         IAmStartedByMessages<OrderPlaced>,
-                         IAmStartedByMessages<OrderBilled>,
-                         IHandleTimeouts<OrderPlaced> // Should not also use a message as timeout state in real life!
-                     {
-                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderPolicyData> mapper)
-                         {
-                             mapper.MapSaga(saga => saga.OrderId)
-                                 .ToMessage<OrderPlaced>(msg => msg.OrderId)
-                                 .ToMessage<OrderBilled>(msg => msg.OrderId);
-                         }
-                         
-                         public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                         public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                         public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                     }
-
-                     public class OrderPolicyData : ContainSagaData
-                     {
-                         public string OrderId { get; set; }
-                     }
-                     public class OrderPlaced : IEvent
-                     {
-                         public string OrderId { get; set; }
-                     }
-                     public class OrderBilled : IEvent
-                     {
-                         public string OrderId { get; set; }
-                     }
-                     """;
-
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
-            .WithSource(source, "test.cs")
-            .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
-            .Approve()
             .AssertRunsAreEqual();
     }
 
@@ -232,6 +181,7 @@ public class AddHandlerInterceptorTests
             .WithSource(program, "Program.cs")
             .WithSource(partialProgram, "ProgramPartial.cs")
             .WithSource(handlers, "Handlers.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .BuildAs(OutputKind.ConsoleApplication)
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
@@ -284,6 +234,7 @@ public class AddHandlerInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .WithSource(partial, "partial.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
@@ -335,6 +286,7 @@ public class AddHandlerInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .WithSource(partial, "partial.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
@@ -386,6 +338,7 @@ public class AddHandlerInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .WithSource(partial, "partial.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
@@ -437,6 +390,7 @@ public class AddHandlerInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .WithSource(partial, "partial.cs")
+            .WithAnalyzer<AddHandlerOnSagaTypeAnalyzer>()
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
