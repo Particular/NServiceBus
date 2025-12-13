@@ -15,10 +15,7 @@ using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
 public class When_a_persistence_does_not_provide_synchronized_storage_session : NServiceBusAcceptanceTest
 {
-    // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
-    // is not altered by Fody to throw an ObjectDisposedException if it was disposed
     [Test]
-    [Repeat(2)]
     public async Task ReceiveFeature_should_work_without_ISynchronizedStorage() =>
         await Scenario.Define<Context>()
             .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
