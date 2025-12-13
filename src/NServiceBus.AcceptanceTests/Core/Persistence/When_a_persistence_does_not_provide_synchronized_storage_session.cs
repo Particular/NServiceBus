@@ -22,7 +22,6 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
     public async Task ReceiveFeature_should_work_without_ISynchronizedStorage() =>
         await Scenario.Define<Context>()
             .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
     class FakeNoSynchronizedStorageSupportPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeNoSynchronizedStorageSupportPersistence>
@@ -68,14 +67,12 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             testContext.MessageReceived = true;
-
             return Task.CompletedTask;
         }
     }
 
     public class Context : ScenarioContext
     {
-        public bool NotSet { get; set; }
         public bool MessageReceived { get; set; }
     }
 

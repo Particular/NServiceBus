@@ -16,7 +16,6 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new StartSaga())))
-                    .Done(c => c.MessageReceived)
                     .Run();
             });
 
@@ -33,8 +32,8 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    testContext.MessageReceived = true;
                     MarkAsComplete();
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }
 
@@ -75,10 +74,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
             }
         }
 
-        public class Context : ScenarioContext
-        {
-            public bool MessageReceived { get; set; }
-        }
+        public class Context : ScenarioContext;
 
         public class StartSaga : ICommand
         {
