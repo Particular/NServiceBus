@@ -19,19 +19,15 @@ public class When_outbox_enabled_for_send_only : NServiceBusAcceptanceTest
         Assert.That(startupDiagnostics, Does.Contain("Outbox is only relevant for endpoints receiving messages."));
     }
 
-    public class Context : ScenarioContext
-    {
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableOutbox();
                 c.SendOnly();
             }).EnableStartupDiagnostics();
-        }
     }
 }

@@ -34,19 +34,15 @@ public class When_outbox_enabled_with_transactions_off : NServiceBusAcceptanceTe
         }
     }
 
-    public class Context : ScenarioContext
-    {
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableOutbox();
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
             }).EnableStartupDiagnostics();
-        }
     }
 }
