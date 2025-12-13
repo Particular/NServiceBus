@@ -21,19 +21,25 @@ public abstract partial class NServiceBusAcceptanceTest
     public void SetUp() =>
         Conventions.EndpointNamingConvention = t =>
         {
-            var classAndEndpoint = t.FullName.Split('.').Last();
+            var fullNameSpan = t.FullName.AsSpan();
+            var lastDot = fullNameSpan.LastIndexOf('.');
+            var classAndEndpointSpan = lastDot >= 0 ? fullNameSpan[(lastDot + 1)..] : fullNameSpan;
 
-            var testName = classAndEndpoint.Split('+').First();
+            var plusIndex = classAndEndpointSpan.IndexOf('+');
+            var testNameSpan = plusIndex >= 0 ? classAndEndpointSpan[..plusIndex] : classAndEndpointSpan;
+            var endpointBuilderSpan = plusIndex >= 0 ? classAndEndpointSpan[(plusIndex + 1)..] : ReadOnlySpan<char>.Empty;
 
-            testName = testName.Replace("When_", "");
+            if (testNameSpan.StartsWith("When_"))
+            {
+                testNameSpan = testNameSpan[5..];
+            }
 
-            var endpointBuilder = classAndEndpoint.Split('+').Last();
-
-            testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
-
+            var testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testNameSpan.ToString());
             testName = testName.Replace("_", "");
 
-            return testName + "." + endpointBuilder;
+            var endpointBuilder = endpointBuilderSpan.Length > 0 ? endpointBuilderSpan.ToString() : string.Empty;
+
+            return $"{testName}.{endpointBuilder}";
         };
 
     [TearDown]
