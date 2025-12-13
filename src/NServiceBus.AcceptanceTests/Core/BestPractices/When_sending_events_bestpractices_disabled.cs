@@ -28,30 +28,21 @@ public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceT
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 var routing = c.ConfigureRouting();
                 routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
                 routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
             });
-        }
 
         public class Handler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class MyCommand : ICommand
-    {
-    }
+    public class MyCommand : ICommand;
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

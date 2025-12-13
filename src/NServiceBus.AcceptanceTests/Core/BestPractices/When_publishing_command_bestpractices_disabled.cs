@@ -33,21 +33,13 @@ public class When_publishing_command_bestpractices_disabled : NServiceBusAccepta
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(MyCommand), typeof(Endpoint)));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(MyCommand), typeof(Endpoint)));
 
         public class Handler : IHandleMessages<MyCommand>
         {
-            public Task Handle(MyCommand message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class MyCommand : ICommand
-    {
-    }
+    public class MyCommand : ICommand;
 }
