@@ -15,8 +15,8 @@ using NUnit.Framework;
 [TestFixture]
 public class When_registering_keyed_async_disposables_externally_managed : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(10_000)]
-    public async Task Should_dispose(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
             .WithServices(static services =>
@@ -33,8 +33,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
                 })
                 .When(e => e.SendLocal(new SomeMessage()));
             })
-            .Done(c => c.ScopedAsyncDisposableDisposed)
-            .Run(cancellationToken);
+            .Run();
 
         // the acceptance test infrastructure disposes the managed provider
 
@@ -53,6 +52,8 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public bool SingletonAsyncDisposableDisposed { get; set; }
         public bool SingletonAsyncDisposableSharedDisposed { get; set; }
         public bool ScopedAsyncDisposableSharedDisposed { get; set; }
+
+        public void MaybeMarkAsCompleted() => MarkAsCompleted(ScopedAsyncDisposableDisposed, SingletonAsyncDisposableDisposed, SingletonAsyncDisposableSharedDisposed, ScopedAsyncDisposableSharedDisposed);
     }
 
     public class EndpointWithAsyncDisposable : EndpointConfigurationBuilder
@@ -112,6 +113,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.SingletonAsyncDisposableSharedDisposed = true;
+            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -121,6 +123,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableSharedDisposed = true;
+            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -130,6 +133,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.SingletonAsyncDisposableDisposed = true;
+            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -139,6 +143,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
+            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
