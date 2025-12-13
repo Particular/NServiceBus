@@ -13,7 +13,6 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new V1Message())))
-            .Done(c => c.V2MessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -31,10 +30,7 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new MutateOutgoingMessages()));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new MutateOutgoingMessages()));
 
         class MutateOutgoingMessages : IMutateOutgoingMessages
         {
@@ -48,48 +44,28 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             }
         }
 
-        class V2Handler : IHandleMessages<V2Message>
+        class V2Handler(Context testContext) : IHandleMessages<V2Message>
         {
-            public V2Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(V2Message message, IMessageHandlerContext context)
             {
                 testContext.V2MessageReceived = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class V1Handler : IHandleMessages<V1Message>
+        class V1Handler(Context testContext) : IHandleMessages<V1Message>
         {
-            public V1Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(V1Message message, IMessageHandlerContext context)
             {
                 testContext.V1MessageReceived = true;
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
+    public class V1Message : ICommand;
 
-    public class V1Message : ICommand
-    {
-    }
-
-
-    public class V2Message : ICommand
-    {
-    }
+    public class V2Message : ICommand;
 }

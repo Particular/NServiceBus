@@ -14,7 +14,6 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
-            .Done(c => c.MessageProcessed)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -26,7 +25,6 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool MessageProcessed { get; set; }
         public bool CanAddHeaders { get; set; }
         public string MutatedPropertyValue { get; set; }
     }
@@ -57,15 +55,13 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
             {
                 testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
                 testContext.MutatedPropertyValue = message.SomeProperty;
-                testContext.MessageProcessed = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class MessageToBeMutated : ICommand
-    {
-    }
+    public class MessageToBeMutated : ICommand;
 
     public class MessageThatMutatorChangesTo : ICommand
     {
