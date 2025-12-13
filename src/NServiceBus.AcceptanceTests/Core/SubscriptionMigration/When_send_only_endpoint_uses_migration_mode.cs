@@ -33,17 +33,13 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
 
     class SendOnlyEndpoint : EndpointConfigurationBuilder
     {
-        public SendOnlyEndpoint()
-        {
+        public SendOnlyEndpoint() =>
             EndpointSetup<EndpointWithNativePubSub>(c =>
             {
                 c.GetSettings().Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
                 c.SendOnly();
             });
-        }
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }
