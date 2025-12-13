@@ -153,19 +153,18 @@ public class ScenarioRunner(
         // separate (linked) CTS as otherwise a failure during 'When' blocks will cause WaitAsync to throw an OperationCanceledException and hide the original error
         using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token, cancellationToken);
 
-        await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource)))
+        await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource, combinedSource.Token)))
             .WaitAsync(allWhensTimeout.Token)
             .ConfigureAwait(false);
     }
 
-    async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
+    async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts, CancellationToken cancellationToken)
     {
-        var token = cts.Token;
         try
         {
-            await component.ComponentsStarted(token).ConfigureAwait(false);
+            await component.ComponentsStarted(cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (!ex.IsCausedBy(token))
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             // signal other endpoints to stop evaluating the when conditions
             await cts.CancelAsync().ConfigureAwait(false);
