@@ -135,6 +135,7 @@ partial class ReceiveComponent
     public async Task Initialize(
         IServiceProvider builder,
         RecoverabilityComponent recoverabilityComponent,
+        EnvelopeComponent envelopeComponent,
         MessageOperations messageOperations,
         PipelineComponent pipelineComponent,
         IPipelineCache pipelineCache,
@@ -152,7 +153,8 @@ partial class ReceiveComponent
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
         var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics);
+        var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
