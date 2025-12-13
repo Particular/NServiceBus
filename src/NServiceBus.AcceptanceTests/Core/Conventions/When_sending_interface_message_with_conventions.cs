@@ -18,7 +18,7 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
                 await session.Send<IMyInterfaceMessage>(m => m.Id = c.Id);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.MessageInterfaceReceived)
+            
             .Run();
 
         Assert.That(context.MessageInterfaceReceived, Is.True);
@@ -68,6 +68,9 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
                 }
 
                 testContext.MessageInterfaceReceived = true;
+
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }
