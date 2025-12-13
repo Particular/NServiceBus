@@ -57,7 +57,5 @@ public class When_unsubscribing_on_send_only_endpoint : NServiceBusAcceptanceTes
         }
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }

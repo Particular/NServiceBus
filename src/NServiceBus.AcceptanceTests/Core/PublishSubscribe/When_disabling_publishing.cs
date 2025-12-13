@@ -24,7 +24,6 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
 
                 return Task.FromResult(false);
             }, s => s.Publish(new TestEvent())))
-            .Done(c => c.ReceivedEvent)
             .Run();
     }
 
@@ -43,7 +42,6 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public bool ReceivedSubscription { get; set; }
-        public bool ReceivedEvent { get; set; }
     }
 
     class EndpointWithDisabledPublishing : EndpointConfigurationBuilder
@@ -65,18 +63,11 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
                 pm => pm.RegisterPublisherFor<TestEvent, MessageDrivenPublisher>());
         }
 
-        class EventHandler : IHandleMessages<TestEvent>
+        class EventHandler(Context testContext) : IHandleMessages<TestEvent>
         {
-            Context testContext;
-
-            public EventHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(TestEvent message, IMessageHandlerContext context)
             {
-                testContext.ReceivedEvent = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -102,7 +93,5 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
         }
     }
 
-    public class TestEvent : IEvent
-    {
-    }
+    public class TestEvent : IEvent;
 }

@@ -57,7 +57,5 @@ public class When_subscribing_on_send_only_endpoint : NServiceBusAcceptanceTest
         }
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }
