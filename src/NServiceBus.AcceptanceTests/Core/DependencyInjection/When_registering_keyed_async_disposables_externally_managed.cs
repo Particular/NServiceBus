@@ -52,8 +52,6 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public bool SingletonAsyncDisposableDisposed { get; set; }
         public bool SingletonAsyncDisposableSharedDisposed { get; set; }
         public bool ScopedAsyncDisposableSharedDisposed { get; set; }
-
-        public void MaybeMarkAsCompleted() => MarkAsCompleted(ScopedAsyncDisposableDisposed, SingletonAsyncDisposableDisposed, SingletonAsyncDisposableSharedDisposed, ScopedAsyncDisposableSharedDisposed);
     }
 
     public class EndpointWithAsyncDisposable : EndpointConfigurationBuilder
@@ -113,7 +111,6 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.SingletonAsyncDisposableSharedDisposed = true;
-            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -123,7 +120,6 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableSharedDisposed = true;
-            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -133,7 +129,6 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.SingletonAsyncDisposableDisposed = true;
-            context.MaybeMarkAsCompleted();
             return new ValueTask();
         }
     }
@@ -143,7 +138,7 @@ public class When_registering_keyed_async_disposables_externally_managed : NServ
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
-            context.MaybeMarkAsCompleted();
+            context.MarkAsCompleted();
             return new ValueTask();
         }
     }
