@@ -15,7 +15,7 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithInstaller>()
-            
+            .Done(c => c.EndpointsStarted)
             .Run();
 
         Assert.That(context.AsyncDisposeInstallerCalled, Is.True);
