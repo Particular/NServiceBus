@@ -16,23 +16,10 @@ public class AddHandlerOnSagaTypeAnalyzer : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-
-        context.RegisterSyntaxNodeAction(static context =>
-        {
-            var sagaBaseType = context.Compilation.GetTypeByMetadataName("NServiceBus.Saga");
-
-            if (sagaBaseType is null)
-            {
-                return;
-            }
-
-            var knownTypes = new KnownTypes(sagaBaseType);
-
-            Analyze(context, knownTypes);
-        }, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
-    static void Analyze(SyntaxNodeAnalysisContext context, KnownTypes knownTypes)
+    static void Analyze(SyntaxNodeAnalysisContext context)
     {
         if (context.Node is not InvocationExpressionSyntax invocationSyntax)
         {
@@ -73,8 +60,6 @@ public class AddHandlerOnSagaTypeAnalyzer : DiagnosticAnalyzer
             }
         }
     }
-
-    readonly record struct KnownTypes(INamedTypeSymbol SagaBaseType);
 
     static readonly DiagnosticDescriptor AddHandlerOnSagaType = new(DiagnosticIds.AddHandlerOnSagaType,
         title: "AddHandler<T> cannot be used on sagas",
