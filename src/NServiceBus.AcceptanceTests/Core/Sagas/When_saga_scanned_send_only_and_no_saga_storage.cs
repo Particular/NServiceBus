@@ -14,7 +14,7 @@ public class When_saga_scanned_send_only_and_no_saga_storage : NServiceBusAccept
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SendOnlyEndpointWithSaga>()
-                
+                .Done(c => c.EndpointsStarted)
                 .Run();
         });
 
