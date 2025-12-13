@@ -19,7 +19,6 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAmbientActivity>(e => e
                 .When(s => s.SendLocal(new TriggerMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().First();
@@ -36,7 +35,6 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; set; }
         public string AmbientActivityId { get; set; }
         public string AmbientActivityParentId { get; set; }
         public string AmbientActivityRootId { get; set; }
@@ -47,42 +45,32 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
     {
         public EndpointWithAmbientActivity() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
+        class MessageHandler(Context testContext) : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public async Task Handle(TriggerMessage message, IMessageHandlerContext context)
             {
-                using (var ambientActivity = externalActivitySource.StartActivity())
-                {
-                    // set/modify trace state:
-                    ambientActivity.TraceStateString = ExpectedTraceState;
+                using var ambientActivity = externalActivitySource.StartActivity();
+                // set/modify trace state:
+                ambientActivity.TraceStateString = ExpectedTraceState;
 
-                    testContext.AmbientActivityId = ambientActivity.Id;
-                    testContext.AmbientActivityParentId = ambientActivity.ParentId;
-                    testContext.AmbientActivityRootId = ambientActivity.RootId;
-                    testContext.AmbientActivityState = ambientActivity.TraceStateString;
-                    await context.SendLocal(new MessageFromAmbientTrace());
-                }
+                testContext.AmbientActivityId = ambientActivity.Id;
+                testContext.AmbientActivityParentId = ambientActivity.ParentId;
+                testContext.AmbientActivityRootId = ambientActivity.RootId;
+                testContext.AmbientActivityState = ambientActivity.TraceStateString;
+                await context.SendLocal(new MessageFromAmbientTrace());
             }
 
             public Task Handle(MessageFromAmbientTrace message, IMessageHandlerContext context)
             {
-                testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class TriggerMessage : IMessage
-    {
-    }
+    public class TriggerMessage : IMessage;
 
-    public class MessageFromAmbientTrace : IMessage
-    {
-    }
+    public class MessageFromAmbientTrace : IMessage;
 
     const string ExpectedTraceState = "trace state from ambient activity";
 }

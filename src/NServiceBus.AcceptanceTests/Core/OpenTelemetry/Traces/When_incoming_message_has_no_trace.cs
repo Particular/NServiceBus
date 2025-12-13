@@ -16,17 +16,13 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(b => b
                 .When(s => s.SendLocal(new IncomingMessage()))) // tracing headers are removed from message
-            .Done(c => c.MessageReceived)
             .Run();
 
         var incomingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
         Assert.That(incomingMessageActivity.ParentId, Is.EqualTo(null), "should start a trace when incoming message isn't part of a trace already");
     }
 
-    class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; set; }
-    }
+    class Context : ScenarioContext;
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
@@ -48,23 +44,15 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
             }
         }
 
-        class IncomingMessageHandler : IHandleMessages<IncomingMessage>
+        class IncomingMessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
-            readonly Context testContext;
-
-            public IncomingMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
-                testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-
-
-    public class IncomingMessage : IMessage
-    {
-    }
+    public class IncomingMessage : IMessage;
 }

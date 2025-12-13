@@ -16,7 +16,6 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new OutgoingMessage())))
-            .Done(c => c.OutgoingMessageReceived)
             .Run();
 
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -47,11 +46,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
-                .When(s =>
-                {
-                    return s.SendLocal(new OutgoingMessage());
-                }))
-            .Done(c => c.OutgoingMessageReceived)
+                .When(s => s.SendLocal(new OutgoingMessage())))
             .Run();
 
         var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -86,7 +81,6 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
                     sendOptions.StartNewTraceOnReceive();
                     return s.Send(new OutgoingMessage(), sendOptions);
                 }))
-            .Done(c => c.OutgoingMessageReceived)
             .Run();
 
         var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -113,7 +107,6 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool OutgoingMessageReceived { get; set; }
         public string SentMessageId { get; set; }
         public string MessageConversationId { get; set; }
         public Dictionary<string, string> SentMessageHeaders { get; set; }
@@ -124,24 +117,18 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<OutgoingMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
                 testContext.SentMessageId = context.MessageId;
                 testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
-                testContext.OutgoingMessageReceived = true;
                 testContext.SentMessageHeaders = new Dictionary<string, string>((IDictionary<string, string>)context.MessageHeaders);
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class OutgoingMessage : IMessage
-    {
-    }
+    public class OutgoingMessage : IMessage;
 }
