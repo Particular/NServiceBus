@@ -20,7 +20,6 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithStartupTask>(e => e
                 .When(s => s.Publish(new LocalEvent())))
-            .Done(c => c.LocalEventReceived)
             .Run();
 
         Assert.That(context.LocalEventReceived, Is.True);
@@ -34,7 +33,6 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithStartupTask>(e => e
                 .When(ctx => ctx.EndpointSubscribed, s => s.Publish(new LocalEvent())))
-            .Done(c => c.LocalEventReceived)
             .Run();
 
         Assert.That(context.LocalEventReceived, Is.True);
@@ -68,6 +66,7 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
             public Task Handle(LocalEvent message, IMessageHandlerContext context)
             {
                 testContext.LocalEventReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

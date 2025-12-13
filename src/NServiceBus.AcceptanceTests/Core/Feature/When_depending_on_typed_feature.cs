@@ -45,18 +45,12 @@ public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
 
     public class EndpointWithFeatures : EndpointConfigurationBuilder
     {
-        public EndpointWithFeatures()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithFeatures() => EndpointSetup<DefaultServer>();
     }
 
     public class TypedDependentFeature : Feature
     {
-        public TypedDependentFeature()
-        {
-            DependsOn<DependencyFeature>();
-        }
+        public TypedDependentFeature() => DependsOn<DependencyFeature>();
 
         protected override void Setup(FeatureConfigurationContext context)
         {

@@ -16,7 +16,6 @@ public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTes
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<DTCEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
-            .Done(c => c.HandlerInvoked)
             .Run();
 
         Assert.That(context.DtcTransactionPresent, Is.True, "There should exists a DTC tx");
@@ -25,38 +24,25 @@ public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTes
 
     public class Context : ScenarioContext
     {
-        public bool HandlerInvoked { get; set; }
 
         public bool DtcTransactionPresent { get; set; }
     }
 
     public class DTCEndpoint : EndpointConfigurationBuilder
     {
-        public DTCEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public DTCEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
                 testContext.DtcTransactionPresent = Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty;
-                testContext.HandlerInvoked = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : ICommand
-    {
-    }
+    public class MyMessage : ICommand;
 }

@@ -21,10 +21,9 @@ public class When_publishing_command : NServiceBusAcceptanceTest
                 catch (Exception ex)
                 {
                     c.Exception = ex;
-                    c.GotTheException = true;
+                    c.MarkAsCompleted();
                 }
             }))
-            .Done(c => c.GotTheException)
             .Run();
 
         Assert.That(context.Exception, Is.InstanceOf<Exception>());
@@ -32,19 +31,13 @@ public class When_publishing_command : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool GotTheException { get; set; }
         public Exception Exception { get; set; }
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
     }
 
-    public class MyCommand : ICommand
-    {
-    }
+    public class MyCommand : ICommand;
 }

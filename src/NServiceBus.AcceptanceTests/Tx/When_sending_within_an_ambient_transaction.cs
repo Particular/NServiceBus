@@ -59,7 +59,6 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
 
                 await session.Send(new MessageThatIsNotEnlisted());
             }))
-            .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
             .Run();
 
         Assert.That(context.MessageThatIsEnlistedHandlerWasCalled, Is.False, "The transactional handler should not be called");
@@ -79,8 +78,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
 
     public class TransactionalEndpoint : EndpointConfigurationBuilder
     {
-        public TransactionalEndpoint()
-        {
+        public TransactionalEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.LimitMessageProcessingConcurrencyTo(1);
@@ -88,15 +86,9 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
                 routing.RouteToEndpoint(typeof(MessageThatIsEnlisted), typeof(TransactionalEndpoint));
                 routing.RouteToEndpoint(typeof(MessageThatIsNotEnlisted), typeof(TransactionalEndpoint));
             });
-        }
 
-        public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>
+        public class MessageThatIsEnlistedHandler(Context testContext) : IHandleMessages<MessageThatIsEnlisted>
         {
-            public MessageThatIsEnlistedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.MessageThatIsEnlistedHandlerWasCalled = true;
@@ -109,25 +101,17 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        public class MessageThatIsNotEnlistedHandler : IHandleMessages<MessageThatIsNotEnlisted>
+        public class MessageThatIsNotEnlistedHandler(Context testContext) : IHandleMessages<MessageThatIsNotEnlisted>
         {
-            public MessageThatIsNotEnlistedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context)
             {
                 testContext.MessageThatIsNotEnlistedHandlerWasCalled = true;
                 testContext.NonTransactionalHandlerCalledFirst = !testContext.MessageThatIsEnlistedHandlerWasCalled;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -136,7 +120,5 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
         public int SequenceNumber { get; set; }
     }
 
-    public class MessageThatIsNotEnlisted : ICommand
-    {
-    }
+    public class MessageThatIsNotEnlisted : ICommand;
 }

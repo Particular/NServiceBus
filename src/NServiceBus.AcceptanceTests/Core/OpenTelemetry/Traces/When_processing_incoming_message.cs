@@ -16,7 +16,6 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .When(s => s.SendLocal(new IncomingMessage())))
-            .Done(c => c.IncomingMessageReceived)
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -29,7 +28,6 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
 
             Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Ok));
         }
-        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint));
         Assert.That(incomingActivity.DisplayName, Is.EqualTo("process message"));
 
         var incomingActivityTags = incomingActivity.Tags.ToImmutableDictionary();
@@ -54,7 +52,6 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
     {
         public string IncomingMessageId { get; set; }
         public string IncomingMessageConversationId { get; set; }
-        public bool IncomingMessageReceived { get; set; }
         public Dictionary<string, string> ReceivedHeaders { get; set; }
         public string IncomingNativeMessageId { get; set; }
     }
@@ -63,12 +60,8 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
     {
         public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<IncomingMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
                 testContext.IncomingMessageId = context.MessageId;
@@ -77,14 +70,13 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
                 {
                     testContext.IncomingMessageConversationId = conversationId;
                 }
-                testContext.IncomingMessageReceived = true;
+
                 testContext.ReceivedHeaders = new Dictionary<string, string>(context.MessageHeaders.ToImmutableDictionary());
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class IncomingMessage : IMessage
-    {
-    }
+    public class IncomingMessage : IMessage;
 }

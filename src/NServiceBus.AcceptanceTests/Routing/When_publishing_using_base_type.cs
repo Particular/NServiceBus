@@ -31,7 +31,6 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
             .Run(cancellationToken);
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
@@ -45,8 +44,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
@@ -54,30 +52,20 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                     context.Subscriber1Subscribed = true;
                 }
             }), metadata => metadata.RegisterSelfAsPublisherFor<EventMessage>(this));
-        }
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
     {
-        public Subscriber1()
-        {
-            EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage, Publisher>());
-        }
+        public Subscriber1() => EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage, Publisher>());
 
-        public class MyHandler : IHandleMessages<EventMessage>
+        public class MyHandler(Context testContext) : IHandleMessages<EventMessage>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(EventMessage messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

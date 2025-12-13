@@ -20,7 +20,6 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
             .Run();
 
         Assert.That(context.IsMessageHandlingComplete, Is.True);
@@ -30,52 +29,33 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
     {
         public int AuditRetries;
         public bool IsMessageHandlingComplete { get; set; }
-        public bool TTBRHasExpiredAndMessageIsStillInAuditQueue { get; set; }
     }
 
     class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
-            EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
-        }
+        public EndpointWithAuditOn() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
-        class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.IsMessageHandlingComplete = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesAuditMessages()
-        {
-            EndpointSetup<DefaultServer>(c => c.Recoverability().Immediate(s => s.NumberOfRetries(10)));
-        }
+        public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>(c => c.Recoverability().Immediate(s => s.NumberOfRetries(10)));
 
-        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        class AuditMessageHandler(Context textContext) : IHandleMessages<MessageToBeAudited>
         {
-            public AuditMessageHandler(Context textContext)
-            {
-                this.textContext = textContext;
-            }
-
             public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 if (textContext.AuditRetries > 0)
                 {
-                    textContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
+                    textContext.MarkAsCompleted();
                     return;
                 }
 
@@ -87,13 +67,9 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
                 Interlocked.Increment(ref textContext.AuditRetries);
                 throw new Exception("retry message");
             }
-
-            Context textContext;
         }
     }
 
     [TimeToBeReceived("00:00:03")]
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

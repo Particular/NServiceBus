@@ -38,6 +38,8 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         public bool FeatureSetupCalled { get; set; }
         public bool FeatureStartupTaskCalled { get; set; }
         public FakeTransport.StartUpSequence TransportStartupSequence { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(InstallerCalled, FeatureSetupCalled, TransportStartupSequence != null);
     }
 
     class EndpointWithInstaller : EndpointConfigurationBuilder
@@ -58,6 +60,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             public Task Install(string identity, CancellationToken cancellationToken = default)
             {
                 testContext.InstallerCalled = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -79,6 +82,7 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
                 protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
                 {
                     testContext.FeatureStartupTaskCalled = true;
+                    testContext.MaybeCompleted();
                     return Task.CompletedTask;
                 }
 

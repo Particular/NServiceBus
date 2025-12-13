@@ -17,7 +17,6 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
                 .DoNotFailOnErrorMessages()
                 .CustomConfig(x => x.MakeInstanceUniquelyAddressable("disc"))
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.HandlerInvoked)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
@@ -57,22 +56,17 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool HandlerInvoked { get; set; }
     }
 
     class FailingEndpoint : EndpointConfigurationBuilder
     {
         public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class FailingMessageHandler : IHandleMessages<FailingMessage>
+        class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
         {
-            readonly Context textContext;
-
-            public FailingMessageHandler(Context textContext) => this.textContext = textContext;
-
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {
-                textContext.HandlerInvoked = true;
+                textContext.MarkAsCompleted();
                 throw new SimulatedException(ErrorMessage);
             }
 
@@ -80,7 +74,5 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-    }
+    public class FailingMessage : IMessage;
 }

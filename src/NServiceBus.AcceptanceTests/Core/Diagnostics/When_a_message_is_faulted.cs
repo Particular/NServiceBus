@@ -14,7 +14,6 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithFailingMessage>(b => b.When((session, c) => session.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -28,7 +27,6 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public string HostId { get; set; }
         public string HostName { get; set; }
         public string Endpoint { get; set; }
@@ -37,52 +35,35 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
 
     public class EndpointWithFailingMessage : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingMessage()
-        {
+        public EndpointWithFailingMessage() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>();
             });
-        }
 
         public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>
         {
-            public Task Handle(MessageThatFails message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(MessageThatFails message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
     class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesErrorMessages()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>();
 
-        public class MessageThatFailsHandler : IHandleMessages<MessageThatFails>
+        public class MessageThatFailsHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
-            public MessageThatFailsHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageThatFails message, IMessageHandlerContext context)
             {
                 testContext.HostId = context.MessageHeaders.ContainsKey(Headers.HostId) ? context.MessageHeaders[Headers.HostId] : null;
                 testContext.HostName = context.MessageHeaders.ContainsKey(Headers.HostDisplayName) ? context.MessageHeaders[Headers.HostDisplayName] : null;
                 testContext.Endpoint = context.MessageHeaders.ContainsKey(Headers.ProcessingEndpoint) ? context.MessageHeaders[Headers.ProcessingEndpoint] : null;
                 testContext.Machine = context.MessageHeaders.ContainsKey(Headers.ProcessingMachine) ? context.MessageHeaders[Headers.ProcessingMachine] : null;
-                testContext.Done = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageThatFails : IMessage
-    {
-    }
+    public class MessageThatFails : IMessage;
 }

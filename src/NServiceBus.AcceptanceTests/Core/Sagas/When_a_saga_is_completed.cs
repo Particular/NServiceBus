@@ -27,7 +27,6 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
                     SomeId = c.Id
                 }));
             })
-            .Done(c => c.AnotherMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -97,6 +96,7 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
         public Task Handle(AnotherMessage message, IMessageHandlerContext context)
         {
             testContext.AnotherMessageReceived = true;
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
     }

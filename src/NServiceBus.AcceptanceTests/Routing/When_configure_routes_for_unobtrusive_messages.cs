@@ -16,7 +16,6 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
             .WithEndpoint<SendingEndpointUsingRoutingApi>(e => e
                 .When(s => s.Send(new SomeCommand())))
             .WithEndpoint<ReceivingEndpoint>()
-            .Done(c => c.ReceivedMessage)
             .Run();
 
         Assert.That(context.ReceivedMessage, Is.True);
@@ -29,8 +28,7 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
 
     public class SendingEndpointUsingRoutingApi : EndpointConfigurationBuilder
     {
-        public SendingEndpointUsingRoutingApi()
-        {
+        public SendingEndpointUsingRoutingApi() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Conventions().DefiningCommandsAs(t => t == typeof(SomeCommand));
@@ -38,30 +36,21 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
                 var routing = new RoutingSettings(c.GetSettings());
                 routing.RouteToEndpoint(typeof(SomeCommand).Assembly, Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint)));
             });
-        }
     }
 
     public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint()
-        {
+        public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(c => c
                 .Conventions()
                 .DefiningCommandsAs(t => t == typeof(SomeCommand)));
-        }
 
-        public class CommandHandler : IHandleMessages<SomeCommand>
+        public class CommandHandler(Context testContext) : IHandleMessages<SomeCommand>
         {
-            Context testContext;
-
-            public CommandHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

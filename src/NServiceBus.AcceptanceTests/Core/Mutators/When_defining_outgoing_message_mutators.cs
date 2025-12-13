@@ -13,7 +13,6 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new Message())))
-            .Done(c => c.MessageProcessed)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -34,83 +33,51 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.RegisterMessageMutator(new TransportMutator(context));
-                 config.RegisterMessageMutator(new OtherTransportMutator(context));
-                 config.RegisterMessageMutator(new MessageMutator(context));
-             });
-        }
-
-        class TransportMutator : IMutateOutgoingTransportMessages
-        {
-            public TransportMutator(Context testContext)
             {
-                this.testContext = testContext;
-            }
+                config.RegisterMessageMutator(new TransportMutator(context));
+                config.RegisterMessageMutator(new OtherTransportMutator(context));
+                config.RegisterMessageMutator(new MessageMutator(context));
+            });
 
+        class TransportMutator(Context testContext) : IMutateOutgoingTransportMessages
+        {
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
                 testContext.TransportMutatorCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class OtherTransportMutator : IMutateOutgoingTransportMessages
+        class OtherTransportMutator(Context testContext) : IMutateOutgoingTransportMessages
         {
-            public OtherTransportMutator(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
             {
                 testContext.OtherTransportMutatorCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class MessageMutator : IMutateOutgoingMessages
+        class MessageMutator(Context testContext) : IMutateOutgoingMessages
         {
-            public MessageMutator(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
                 testContext.MessageMutatorCalled = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class Handler : IHandleMessages<Message>
+        class Handler(Context testContext) : IHandleMessages<Message>
         {
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageProcessed = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class Message : ICommand
-    {
-    }
+    public class Message : ICommand;
 }

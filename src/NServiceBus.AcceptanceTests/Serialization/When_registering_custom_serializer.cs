@@ -21,7 +21,6 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithCustomSerializer>(b => b.When(
                 (session, c) => session.SendLocal(new MyRequest())))
-            .Done(c => c.HandlerGotTheRequest)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -33,58 +32,38 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool HandlerGotTheRequest { get; set; }
         public bool SerializeCalled { get; set; }
         public bool DeserializeCalled { get; set; }
     }
 
     public class EndpointWithCustomSerializer : EndpointConfigurationBuilder
     {
-        public EndpointWithCustomSerializer()
-        {
+        public EndpointWithCustomSerializer() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<MySuperSerializer>();
                 c.GetSettings().Set((Context)r.ScenarioContext);
             });
-        }
 
-        public class MyRequestHandler : IHandleMessages<MyRequest>
+        public class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
-            public MyRequestHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
-                testContext.HandlerGotTheRequest = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
     class MySuperSerializer : SerializationDefinition
     {
-        public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings)
-        {
-            return mapper => new MyCustomSerializer(settings.Get<Context>());
-        }
+        public override Func<IMessageMapper, IMessageSerializer> Configure(IReadOnlySettings settings) => mapper => new MyCustomSerializer(settings.Get<Context>());
     }
 
-    class MyCustomSerializer : IMessageSerializer
+    class MyCustomSerializer(Context context) : IMessageSerializer
     {
-        public MyCustomSerializer(Context context)
-        {
-            this.context = context;
-        }
-
         public void Serialize(object message, Stream stream)
         {
             context.SerializeCalled = true;
@@ -104,14 +83,10 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
 
                 context.DeserializeCalled = true;
 
-                return new[]
-                {
-                    msg
-                };
+                return [msg];
             }
         }
 
         public string ContentType => "MyCustomSerializer";
-        readonly Context context;
     }
 }

@@ -24,7 +24,6 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                     ctx.Subscriber1Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent)
             .Run();
 
         Assert.That(context.Subscriber1GotTheEvent, Is.True);
@@ -38,8 +37,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 if (s.SubscriberReturnAddress.Contains("myinputqueue"))
@@ -47,7 +45,6 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
                     context.Subscriber1Subscribed = true;
                 }
             }), metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
-        }
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
@@ -62,25 +59,16 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
             metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

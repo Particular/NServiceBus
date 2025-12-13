@@ -18,7 +18,6 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointUsingCustomNamespace>(e => e
                 .When(session => session.SendLocal(new SimpleMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.MessageNamespace, Is.EqualTo($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}"));
@@ -26,44 +25,29 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; set; }
         public string MessageNamespace { get; set; }
     }
 
     class EndpointUsingCustomNamespace : EndpointConfigurationBuilder
     {
-        public EndpointUsingCustomNamespace()
-        {
+        public EndpointUsingCustomNamespace() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.UseSerialization<XmlSerializer>().Namespace(CustomXmlNamespace);
-                 config.RegisterMessageMutator(new IncomingMutator(context));
-             });
-        }
-
-        class SimpleMessageHandler : IHandleMessages<SimpleMessage>
-        {
-            public SimpleMessageHandler(Context scenarioContext)
             {
-                this.scenarioContext = scenarioContext;
-            }
+                config.UseSerialization<XmlSerializer>().Namespace(CustomXmlNamespace);
+                config.RegisterMessageMutator(new IncomingMutator(context));
+            });
 
+        class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
+        {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
-                scenarioContext.MessageReceived = true;
+                scenarioContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context scenarioContext;
         }
 
-        public class IncomingMutator : IMutateIncomingTransportMessages
+        public class IncomingMutator(Context scenarioContext) : IMutateIncomingTransportMessages
         {
-            public IncomingMutator(Context scenarioContext)
-            {
-                this.scenarioContext = scenarioContext;
-            }
-
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 var document = XDocument.Parse(Encoding.UTF8.GetString(context.Body.ToArray()));
@@ -71,12 +55,8 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
                 scenarioContext.MessageNamespace = defaultNamespace?.NamespaceName;
                 return Task.CompletedTask;
             }
-
-            Context scenarioContext;
         }
     }
 
-    public class SimpleMessage : ICommand
-    {
-    }
+    public class SimpleMessage : ICommand;
 }

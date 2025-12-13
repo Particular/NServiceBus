@@ -14,7 +14,6 @@ public class At_most_once : NServiceBusAcceptanceTest
             .WithEndpoint<NonTransactionalEndpoint>(b => b
                 .When(session => session.SendLocal(new InitiatingMessage()))
                 .DoNotFailOnErrorMessages())
-            .Done(c => c.MessageDispatched)
             .Run();
 
         Assert.That(context.MessageDispatched, Is.True, "Should dispatch the message immediately");
@@ -27,13 +26,11 @@ public class At_most_once : NServiceBusAcceptanceTest
 
     public class NonTransactionalEndpoint : EndpointConfigurationBuilder
     {
-        public NonTransactionalEndpoint()
-        {
+        public NonTransactionalEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
             });
-        }
 
         public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
@@ -50,28 +47,18 @@ public class At_most_once : NServiceBusAcceptanceTest
             }
         }
 
-        public class MessageToBeDispatchedImmediatelyHandler : IHandleMessages<MessageToBeDispatchedImmediately>
+        public class MessageToBeDispatchedImmediatelyHandler(Context testContext) : IHandleMessages<MessageToBeDispatchedImmediately>
         {
-            public MessageToBeDispatchedImmediatelyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
             {
                 testContext.MessageDispatched = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class InitiatingMessage : ICommand
-    {
-    }
+    public class InitiatingMessage : ICommand;
 
-    public class MessageToBeDispatchedImmediately : ICommand
-    {
-    }
+    public class MessageToBeDispatchedImmediately : ICommand;
 }

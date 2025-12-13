@@ -29,14 +29,12 @@ public class When_transport_is_started_send_only : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.SendOnly();
                 c.EnableFeature<FeatureAccessingAddressing>();
             });
-        }
 
         class FeatureAccessingAddressing : Feature
         {

@@ -18,7 +18,6 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
                     {
                         CorrelationProperty = default
                     })))
-            .Done(c => c.MessageCorrelated)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -67,6 +66,7 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
             {
                 scenarioContext.MessageCorrelated = true;
                 scenarioContext.CorrelatedId = Data.CorrelatedProperty;
+                scenarioContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

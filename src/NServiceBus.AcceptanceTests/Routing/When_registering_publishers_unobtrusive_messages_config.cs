@@ -16,7 +16,6 @@ public class When_registering_publishers_unobtrusive_messages_config : NServiceB
             .WithEndpoint<Publisher>(e => e
                 .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
             .WithEndpoint<Subscriber>()
-            .Done(c => c.ReceivedMessage)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -34,42 +33,30 @@ public class When_registering_publishers_unobtrusive_messages_config : NServiceB
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.OnEndpointSubscribed<Context>((e, ctx) => ctx.Subscribed = true);
                 c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
             }, metadata => metadata.RegisterSelfAsPublisherFor<SomeEvent>(this));
-        }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c => c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)),
-            metadata => metadata.RegisterPublisherFor<SomeEvent, Publisher>());
-        }
+                metadata => metadata.RegisterPublisherFor<SomeEvent, Publisher>());
 
-        public class Handler : IHandleMessages<SomeEvent>
+        public class Handler(Context testContext) : IHandleMessages<SomeEvent>
         {
-            Context testContext;
-
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class SomeEvent
-    {
-    }
+    public class SomeEvent;
 }

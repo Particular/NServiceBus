@@ -15,7 +15,6 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .WithEndpoint<MessageDrivenSubscriber>()
             .WithEndpoint<MigratedPublisher>(publisher => publisher
                 .When(ctx => Task.FromResult(ctx.Subscriber != null), (session, ctx) => session.Publish(new SomeEvent())))
-            .Done(c => c.EventReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -32,7 +31,6 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
             .WithEndpoint<NativeSubscriber>()
             .WithEndpoint<MigratedPublisher>(publisher => publisher
                 .When((session, ctx) => session.Publish(new SomeEvent())))
-            .Done(c => c.EventReceived)
             .Run();
 
         Assert.That(context.EventReceived, Is.True);
@@ -46,23 +44,14 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
 
     class MessageDrivenSubscriber : EndpointConfigurationBuilder
     {
-        public MessageDrivenSubscriber()
+        public MessageDrivenSubscriber() => EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent, MigratedPublisher>());
+
+        class SomeEventHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
-            EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent, MigratedPublisher>());
-        }
-
-        class SomeEventHandler : IHandleMessages<SomeEvent>
-        {
-            Context testContext;
-
-            public SomeEventHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.EventReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -70,23 +59,14 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
 
     class NativeSubscriber : EndpointConfigurationBuilder
     {
-        public NativeSubscriber()
+        public NativeSubscriber() => EndpointSetup<EndpointWithNativePubSub>();
+
+        class SomeEventHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
-            EndpointSetup<EndpointWithNativePubSub>();
-        }
-
-        class SomeEventHandler : IHandleMessages<SomeEvent>
-        {
-            Context testContext;
-
-            public SomeEventHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.EventReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -94,18 +74,14 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
 
     class MigratedPublisher : EndpointConfigurationBuilder
     {
-        public MigratedPublisher()
-        {
+        public MigratedPublisher() =>
             EndpointSetup<EndpointWithNativePubSub>(c =>
             {
                 // Enable Migration mode
                 c.GetSettings().Set("NServiceBus.Subscriptions.EnableMigrationMode", true);
                 c.OnEndpointSubscribed<Context>((subscription, ctx) => { ctx.Subscriber = subscription.SubscriberEndpoint; });
             });
-        }
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }

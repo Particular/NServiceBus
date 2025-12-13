@@ -20,7 +20,6 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
                 RunId = ctx.RunId
             })))
             .WithEndpoint<EndpointThatRepliesToSagaMessage>()
-            .Done(c => c.Done)
             .Run();
 
         Assert.That(context.ResponseRunId, Is.EqualTo(context.RunId));
@@ -30,37 +29,29 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
     {
         public Guid RunId { get; set; }
         public Guid ResponseRunId { get; set; }
-        public bool Done { get; set; }
     }
 
     public class EndpointThatRepliesToSagaMessage : EndpointConfigurationBuilder
     {
-        public EndpointThatRepliesToSagaMessage()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatRepliesToSagaMessage() => EndpointSetup<DefaultServer>();
 
         class DoSomethingHandler : IHandleMessages<DoSomething>
         {
-            public Task Handle(DoSomething message, IMessageHandlerContext context)
-            {
-                return context.Reply(new DoSomethingResponse
+            public Task Handle(DoSomething message, IMessageHandlerContext context) =>
+                context.Reply(new DoSomethingResponse
                 {
                     RunId = message.RunId
                 });
-            }
         }
     }
 
     public class EndpointThatHostsASaga : EndpointConfigurationBuilder
     {
-        public EndpointThatHostsASaga()
-        {
+        public EndpointThatHostsASaga() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
             });
-        }
 
         public class CorrelationTestSaga(Context testContext) : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
             IAmStartedByMessages<StartSaga>,
@@ -74,9 +65,9 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
 
             public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
             {
-                testContext.Done = true;
                 testContext.ResponseRunId = message.RunId;
                 MarkAsComplete();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -21,7 +21,6 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(result.MessageReceived, Is.True, "Message should be received");
@@ -89,7 +88,12 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
     // using provider for demonstration purposes to simulate various scenarios
     class DependencyOfDependencyOfDependency(IServiceProvider serviceProvider, [FromKeyedServices] FeatureSpecificObject featureSpecificObject) : IDependencyOfDependencyOfDependency
     {
-        public void DoSomething() => serviceProvider.GetRequiredService<Context>().MessageReceived = featureSpecificObject.SomeValue == "FromFeature";
+        public void DoSomething()
+        {
+            Context context = serviceProvider.GetRequiredService<Context>();
+            context.MessageReceived = featureSpecificObject.SomeValue == "FromFeature";
+            context.MarkAsCompleted(context.MessageReceived);
+        }
     }
 
     record FeatureSpecificObject(string SomeValue);

@@ -112,8 +112,7 @@ public class When_creating_queues : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer, Context>((c, t) =>
             {
                 c.EnableFeature<MySatellite>();
@@ -134,7 +133,6 @@ public class When_creating_queues : NServiceBusAcceptanceTest
                     c.GetSettings().Set("Installers.Enable", false);
                 }
             });
-        }
 
         class MySatellite : Feature
         {

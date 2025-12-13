@@ -13,7 +13,6 @@ public class When_deserializing_interface_message : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
            .WithEndpoint<Endpoint>(c => c
                .When(b => b.SendLocal<IMyMessage>(_ => { })))
-           .Done(c => c.GotTheMessage)
            .Run();
 
         Assert.That(context.GotTheMessage, Is.True);
@@ -26,30 +25,22 @@ public class When_deserializing_interface_message : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<SystemJsonSerializer>();
             });
-        }
 
-        class MyHandler : IHandleMessages<IMyMessage>
+        class MyHandler(Context testContext) : IHandleMessages<IMyMessage>
         {
-
-            Context testContext;
-
-            public MyHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IMyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public interface IMyMessage
-    {
-    }
+    public interface IMyMessage;
 }

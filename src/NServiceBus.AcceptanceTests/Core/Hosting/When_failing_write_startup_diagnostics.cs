@@ -20,16 +20,12 @@ public class When_failing_write_startup_diagnostics : NServiceBusAcceptanceTest
         Assert.That(context.Logs.Any(l => l.Message.Contains("Diagnostics write failed")), Is.True);
     }
 
-    class Context : ScenarioContext
-    {
-    }
+    class Context : ScenarioContext;
 
     class MyEndpoint : EndpointConfigurationBuilder
     {
-        public MyEndpoint()
-        {
+        public MyEndpoint() =>
             EndpointSetup<DefaultServer>(c => c.CustomDiagnosticsWriter((_, __) => throw new Exception("Diagnostics write failed")))
                 .EnableStartupDiagnostics();
-        }
     }
 }

@@ -42,14 +42,12 @@ public class When_transport_is_started : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<FeatureAccessingAddressing>();
                 c.MakeInstanceUniquelyAddressable("MyInstance");
             });
-        }
 
         class FeatureAccessingAddressing : Feature
         {

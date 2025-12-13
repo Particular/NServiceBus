@@ -19,7 +19,6 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
                 {
                     DataId = Guid.NewGuid()
                 })))
-            .Done(c => c.TimeoutReceived)
             .Run();
 
         Assert.That(context.TimeoutReceived, Is.True);
@@ -49,6 +48,7 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
             {
                 MarkAsComplete();
                 testContext.TimeoutReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

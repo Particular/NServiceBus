@@ -23,7 +23,6 @@ public class When_completing_a_saga : NServiceBusAcceptanceTest
                     SomeId = c.Id
                 }));
             })
-            .Done(c => c.SagaCompleted)
             .Run();
 
         Assert.That(context.SagaCompleted, Is.True);
@@ -60,6 +59,7 @@ public class When_completing_a_saga : NServiceBusAcceptanceTest
             {
                 MarkAsComplete();
                 testContext.SagaCompleted = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

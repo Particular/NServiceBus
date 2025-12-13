@@ -16,7 +16,6 @@ public class When_mutating : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new StartMessage())))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -29,44 +28,30 @@ public class When_mutating : NServiceBusAcceptanceTest
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(StartMessage), typeof(Receiver));
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new Mutator()));
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new Mutator()));
 
         public class StartMessageHandler : IHandleMessages<StartMessage>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new LoopMessage());
-            }
+            public Task Handle(StartMessage message, IMessageHandlerContext context) => context.SendLocal(new LoopMessage());
         }
 
-        public class LoopMessageHandler : IHandleMessages<LoopMessage>
+        public class LoopMessageHandler(Context testContext) : IHandleMessages<LoopMessage>
         {
-            public LoopMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(LoopMessage message, IMessageHandlerContext context)
             {
                 testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class Mutator :
@@ -131,11 +116,7 @@ public class When_mutating : NServiceBusAcceptanceTest
         }
     }
 
-    public class StartMessage : IMessage
-    {
-    }
+    public class StartMessage : IMessage;
 
-    public class LoopMessage : IMessage
-    {
-    }
+    public class LoopMessage : IMessage;
 }

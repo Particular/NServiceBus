@@ -22,7 +22,6 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 options.RouteToThisEndpoint();
                 return session.Send(message, options);
             }))
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -38,8 +37,6 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         public bool NotFoundHandlerCalled { get; set; }
         public bool MessageHandlerCalled { get; set; }
         public bool TimeoutHandlerCalled { get; set; }
-        public bool OtherSagaStarted { get; set; }
-        public bool Done { get; set; }
     }
 
     public class SagaEndpoint : EndpointConfigurationBuilder
@@ -89,8 +86,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
         {
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
-                testContext.Done = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

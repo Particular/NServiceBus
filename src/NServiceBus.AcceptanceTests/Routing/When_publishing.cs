@@ -26,7 +26,6 @@ public class When_publishing : NServiceBusAcceptanceTest
                     ctx.Subscriber3Subscribed = true;
                 }
             }))
-            .Done(c => c.Subscriber3GotTheEvent)
             .Run();
 
         Assert.That(context.Subscriber3GotTheEvent, Is.True);
@@ -98,8 +97,7 @@ public class When_publishing : NServiceBusAcceptanceTest
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) =>
@@ -120,13 +118,11 @@ public class When_publishing : NServiceBusAcceptanceTest
                 });
                 b.DisableFeature<AutoSubscribe>();
             }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
-        }
     }
 
     public class Publisher3 : EndpointConfigurationBuilder
     {
-        public Publisher3()
-        {
+        public Publisher3() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 var subscriber3 = Conventions.EndpointNamingConvention(typeof(Subscriber3));
@@ -136,57 +132,39 @@ public class When_publishing : NServiceBusAcceptanceTest
                     context.Subscriber3Subscribed = true;
                 }
             }), metadata => metadata.RegisterSelfAsPublisherFor<IFoo>(this));
-        }
     }
 
     public class Subscriber3 : EndpointConfigurationBuilder
     {
-        public Subscriber3()
-        {
+        public Subscriber3() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<IFoo, Publisher3>());
-        }
 
-        public class MyHandler : IHandleMessages<IFoo>
+        public class MyHandler(Context testContext) : IHandleMessages<IFoo>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber3GotTheEvent = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
     {
-        public Subscriber1()
-        {
+        public Subscriber1() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
-        }
+                metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
                 testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                 testContext.Subscriber1GotTheEvent = true;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

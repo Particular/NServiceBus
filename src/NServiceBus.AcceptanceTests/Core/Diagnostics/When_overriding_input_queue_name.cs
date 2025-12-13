@@ -12,51 +12,34 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.Done)
             .Run();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.Done, Is.True);
-            Assert.That(context.InputQueue, Does.StartWith("OverriddenInputQueue"));
-        }
+        Assert.That(context.InputQueue, Does.StartWith("OverriddenInputQueue"));
     }
 
     public class MyEndpoint : EndpointConfigurationBuilder
     {
-        public MyEndpoint()
-        {
+        public MyEndpoint() =>
             EndpointSetup<DefaultServer>((c, d) =>
             {
                 c.OverrideLocalAddress("OverriddenInputQueue");
             });
-        }
     }
 
-    public class MyMessageHandler : IHandleMessages<MyMessage>
+    public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public MyMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             testContext.InputQueue = context.MessageHeaders[Headers.ReplyToAddress];
-            testContext.Done = true;
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public string InputQueue { get; set; }
     }
 
-    public class MyMessage : ICommand
-    {
-    }
+    public class MyMessage : ICommand;
 }

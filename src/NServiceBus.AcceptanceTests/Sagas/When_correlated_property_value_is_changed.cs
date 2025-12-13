@@ -20,7 +20,6 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
                     {
                         DataId = Guid.NewGuid()
                     })))
-                .Done(c => c.ModifiedCorrelationProperty)
                 .Run());
 
         Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
@@ -29,22 +28,18 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
             Does.Contain("Changing the value of correlated properties at runtime is currently not supported"));
     }
 
-    public class Context : ScenarioContext
-    {
-        public bool ModifiedCorrelationProperty { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class CorrIdChangedSaga(Context testContext) : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
+        public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
             IAmStartedByMessages<StartSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 Data.DataId = Guid.NewGuid();
-                testContext.ModifiedCorrelationProperty = true;
                 return Task.CompletedTask;
             }
 

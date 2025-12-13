@@ -21,7 +21,6 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b
                 .When(session => session.SendLocal(new StartSagaMessage())))
-            .Done(c => c.FinderUsed)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -53,6 +52,7 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
             {
                 testContext.ContextBag = context;
                 testContext.FinderUsed = true;
+                testContext.MarkAsCompleted();
                 return Task.FromResult(default(TestSaga07.SagaData07));
             }
         }

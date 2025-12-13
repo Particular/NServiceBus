@@ -17,7 +17,6 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
             {
                 Id = c.Id
             })))
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -32,15 +31,9 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(MessageConvention));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(MessageConvention));
 
-        static bool MessageConvention(Type t)
-        {
-            return (t.Namespace != null && (t.Assembly == typeof(Conventions).Assembly)) || (t == typeof(MyMessage));
-        }
+        static bool MessageConvention(Type t) => (t.Namespace != null && t.Assembly == typeof(Conventions).Assembly) || t == typeof(MyMessage);
     }
 
     public class MyMessage
@@ -48,13 +41,8 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
         public Guid Id { get; set; }
     }
 
-    public class MyMessageHandler : IHandleMessages<MyMessage>
+    public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public MyMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             if (testContext.Id != message.Id)
@@ -63,9 +51,8 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
             }
 
             testContext.WasCalled = true;
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 }

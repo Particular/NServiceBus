@@ -2,7 +2,9 @@ namespace NServiceBus.AcceptanceTests;
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using NUnit.Framework;
@@ -16,8 +18,7 @@ using NUnit.Framework.Internal;
 public abstract partial class NServiceBusAcceptanceTest
 {
     [SetUp]
-    public void SetUp()
-    {
+    public void SetUp() =>
         Conventions.EndpointNamingConvention = t =>
         {
             var classAndEndpoint = t.FullName.Split('.').Last();
@@ -34,7 +35,6 @@ public abstract partial class NServiceBusAcceptanceTest
 
             return testName + "." + endpointBuilder;
         };
-    }
 
     [TearDown]
     public void TearDown()
@@ -52,7 +52,7 @@ public abstract partial class NServiceBusAcceptanceTest
 {string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
 
             TestContext.Out.WriteLine($@"Context:
-{string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(scenarioContext, null)}"))}");
+{string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {ExtractScenarioContextValues(scenarioContext, p)}"))}");
         }
 
         if (TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error)
@@ -65,6 +65,14 @@ public abstract partial class NServiceBusAcceptanceTest
                 TestContext.Out.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? TestContext.CurrentContext.Test.Name}: {logEntry.Message}");
             }
             TestContext.Out.WriteLine("--- End log entries ---------------------------------------------------");
+        }
+
+        return;
+
+        static object ExtractScenarioContextValues(ScenarioContext scenarioContext, PropertyInfo property)
+        {
+            var contextPropertyValue = property.GetValue(scenarioContext, null);
+            return contextPropertyValue is TaskCompletionSource tcs ? tcs.Task.IsCompletedSuccessfully : contextPropertyValue;
         }
     }
 }

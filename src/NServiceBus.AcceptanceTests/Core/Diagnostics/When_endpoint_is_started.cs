@@ -24,8 +24,7 @@ public class When_endpoint_is_started : NServiceBusAcceptanceTest
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatWithDiagnosticsEnabled>()
             .Done(c => c.EndpointsStarted)
-            .Run()
-            .ConfigureAwait(false);
+            .Run();
 
         var endpointName = Conventions.EndpointNamingConvention(typeof(EndpointThatWithDiagnosticsEnabled));
         var startupDiagnosticsFileName = $"{endpointName}-configuration.txt";
@@ -33,20 +32,16 @@ public class When_endpoint_is_started : NServiceBusAcceptanceTest
         var pathToFile = Path.Combine(basePath, startupDiagnosticsFileName);
         Assert.That(File.Exists(pathToFile), Is.True);
 
-        var diagnosticContent = File.ReadAllText(pathToFile);
+        var diagnosticContent = await File.ReadAllTextAsync(pathToFile);
         Assert.That(diagnosticContent, Does.Contain("\"Licensing\""));
     }
 
-    class Context : ScenarioContext
-    {
-    }
+    class Context : ScenarioContext;
 
     class EndpointThatWithDiagnosticsEnabled : EndpointConfigurationBuilder
     {
-        public EndpointThatWithDiagnosticsEnabled()
-        {
+        public EndpointThatWithDiagnosticsEnabled() =>
             EndpointSetup<DefaultServer>(c => c.SetDiagnosticsPath(basePath))
                 .EnableStartupDiagnostics();
-        }
     }
 }

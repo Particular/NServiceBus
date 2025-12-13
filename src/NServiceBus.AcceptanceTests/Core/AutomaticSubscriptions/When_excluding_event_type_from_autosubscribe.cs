@@ -30,18 +30,12 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
 
     class Context : ScenarioContext
     {
-        public Context()
-        {
-            EventsSubscribedTo = [];
-        }
-
-        public List<Type> EventsSubscribedTo { get; }
+        public List<Type> EventsSubscribedTo { get; } = [];
     }
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
@@ -53,51 +47,34 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
                     metadata.RegisterPublisherFor<EventToSubscribeTo, Subscriber>();
                     metadata.RegisterPublisherFor<EventToExclude, Subscriber>();
                 });
-        }
 
-        class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
+        class SubscriptionSpy(Context testContext) : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public SubscriptionSpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
                 await next(context).ConfigureAwait(false);
 
                 testContext.EventsSubscribedTo.AddRange(context.EventTypes);
             }
-
-            Context testContext;
         }
 
         class MyMessageHandler : IHandleMessages<EventToSubscribeTo>
         {
-            public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
         public class EventMessageHandler : IHandleMessages<EventToExclude>
         {
-            public Task Handle(EventToExclude message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(EventToExclude message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
         public class MyEventWithNoRoutingHandler : IHandleMessages<EventWithNoPublisher>
         {
-            public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class EventToSubscribeTo : IEvent { }
-    public class EventToExclude : IEvent { }
-    public class EventWithNoPublisher : IEvent { }
+    public class EventToSubscribeTo : IEvent;
+    public class EventToExclude : IEvent;
+    public class EventWithNoPublisher : IEvent;
 }

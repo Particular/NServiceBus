@@ -18,7 +18,6 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
-            .Done(c => c.SagaStarted)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -58,6 +57,7 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
                 Data.CorrelationProperty = "some value";
 
                 testContext.SagaStarted = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

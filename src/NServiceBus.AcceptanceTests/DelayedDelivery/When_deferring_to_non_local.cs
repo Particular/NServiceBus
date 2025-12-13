@@ -28,7 +28,6 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
                 return session.Send(new MyMessage(), options);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.ReceivedAt - context.SentAt, Is.GreaterThanOrEqualTo(delay));
@@ -36,48 +35,33 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool WasCalled { get; set; }
         public DateTimeOffset SentAt { get; set; }
         public DateTimeOffset ReceivedAt { get; set; }
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Receiver() => EndpointSetup<DefaultServer>();
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedAt = DateTimeOffset.UtcNow;
-                testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : ICommand
-    {
-    }
+    public class MyMessage : ICommand;
 }

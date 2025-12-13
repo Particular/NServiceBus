@@ -1,6 +1,4 @@
-﻿#if NET9_0_OR_GREATER
-
-namespace NServiceBus.AcceptanceTests.Core.JsonSerializer;
+﻿namespace NServiceBus.AcceptanceTests.Core.JsonSerializer;
 
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -15,8 +13,7 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
     {
         var context = Scenario.Define<Context>()
            .WithEndpoint<Endpoint>(c => c
-               .When(b => b.SendLocal(new MyMessage())))
-           .Done(c => c.GotTheMessage);
+               .When(b => b.SendLocal(new MyMessage())));
 
         var ex = Assert.ThrowsAsync<JsonException>(async () => await context.Run());
         Assert.That(ex.Message, Does.Match("^The property or field.*doesn't allow getting null values.*$"));
@@ -29,9 +26,7 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 var serialization = c.UseSerialization<SystemJsonSerializer>();
@@ -41,17 +36,14 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
                 };
                 serialization.Options(options);
             });
-        }
 
-        class MyHandler : IHandleMessages<MyMessage>
+        class MyHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            Context testContext;
-
-            public MyHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -65,4 +57,3 @@ public class When_using_system_json_serializer_with_options : NServiceBusAccepta
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     }
 }
-#endif

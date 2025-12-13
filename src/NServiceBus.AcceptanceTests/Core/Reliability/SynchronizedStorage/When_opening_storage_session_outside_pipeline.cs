@@ -32,7 +32,6 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                     c.EnableOutbox();
                 }
             }))
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -52,7 +51,6 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
         public bool StorageSessionEqual { get; set; }
         public bool SessionNotNullAfterOpening { get; set; }
         public bool OutboxNotNullAfterOpening { get; set; }
-        public bool Done { get; set; }
     }
 
     public class Endpoint : EndpointConfigurationBuilder
@@ -90,7 +88,7 @@ public class When_opening_storage_session_outside_pipeline : NServiceBusAcceptan
                         await completableSynchronizedStorageSession.CompleteAsync(cancellationToken);
                     }
 
-                    scenarioContext.Done = true;
+                    scenarioContext.MarkAsCompleted();
                 }
 
                 protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;

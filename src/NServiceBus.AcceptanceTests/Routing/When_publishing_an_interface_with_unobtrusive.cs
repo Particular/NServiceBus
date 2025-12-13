@@ -25,7 +25,6 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                     ctx.Subscribed = true;
                 }
             }))
-            .Done(c => c.GotTheEvent)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -44,8 +43,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(c =>
             {
                 c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
@@ -58,55 +56,37 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                     }
                 });
             }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
-        }
 
-        class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+        class EventTypeSpy(Context testContext) : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
         {
-            public EventTypeSpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
             {
                 testContext.EventTypePassedToRouting = context.Message.MessageType;
                 return next(context);
             }
-
-            Context testContext;
         }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
                     c.DisableFeature<AutoSubscribe>();
                 },
                 metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
-        }
 
-        public class MyHandler : IHandleMessages<IMyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<IMyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IMyEvent @event, IMessageHandlerContext context)
             {
                 testContext.GotTheEvent = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public interface IMyEvent
-    {
-    }
+    public interface IMyEvent;
 }

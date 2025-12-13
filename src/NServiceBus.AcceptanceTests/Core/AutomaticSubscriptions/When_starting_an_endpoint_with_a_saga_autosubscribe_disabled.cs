@@ -24,9 +24,7 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
 
     class Context : ScenarioContext
     {
-        public Context() => EventsSubscribedTo = [];
-
-        public List<Type> EventsSubscribedTo { get; }
+        public List<Type> EventsSubscribedTo { get; } = [];
     }
 
     class Subscriber : EndpointConfigurationBuilder
@@ -43,18 +41,14 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
                     metadata.RegisterPublisherFor<MyEvent, Subscriber>();
                 });
 
-        class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
+        class SubscriptionSpy(Context testContext) : IBehavior<ISubscribeContext, ISubscribeContext>
         {
-            public SubscriptionSpy(Context testContext) => this.testContext = testContext;
-
             public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
             {
                 await next(context).ConfigureAwait(false);
 
                 testContext.EventsSubscribedTo.AddRange(context.EventTypes);
             }
-
-            Context testContext;
         }
 
         public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
@@ -93,8 +87,6 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
     }
 
     public class MyEventWithParent : MyEventBase;
-
-    public class MyMessage : IMessage;
 
     public class MyEvent : IEvent
     {

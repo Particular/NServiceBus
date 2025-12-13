@@ -18,7 +18,6 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             .WithEndpoint<SubscriberEndpoint>(e => e
                 .When(s => s.Unsubscribe<DemoEvent>()))
             .WithEndpoint<PublishingEndpoint>()
-            .Done(c => c.Unsubscribed)
             .Run();
 
         var unsubscribeActivities = NServiceBusActivityListener.CompletedActivities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe")
@@ -63,10 +62,7 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
         Assert.That(subscriptionReceiveActivity, Is.Empty, "native pubsub should not produce a message");
     }
 
-    class Context : ScenarioContext
-    {
-        public bool Unsubscribed { get; set; }
-    }
+    class Context : ScenarioContext;
 
     class SubscriberEndpoint : EndpointConfigurationBuilder
     {
@@ -84,13 +80,11 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
             {
                 if (e.MessageType == typeof(DemoEvent).AssemblyQualifiedName)
                 {
-                    ctx.Unsubscribed = true;
+                    ctx.MarkAsCompleted();
                 }
             });
         });
     }
 
-    public class DemoEvent : IEvent
-    {
-    }
+    public class DemoEvent : IEvent;
 }

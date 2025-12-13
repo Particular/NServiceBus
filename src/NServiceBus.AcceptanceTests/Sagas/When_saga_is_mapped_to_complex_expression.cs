@@ -22,7 +22,6 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
                     Part1 = "Part1",
                     Part2 = "Part2"
                 })))
-            .Done(c => c.SecondMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,11 +41,9 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
+        public SagaEndpoint() =>
             //note: the concurrency checks for the InMemory persister doesn't seem to work so limiting to 1 for now
             EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
-        }
 
         public class TestSaga02(Context testContext) : Saga<TestSagaData02>,
             IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
@@ -55,6 +52,7 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
             {
                 testContext.SagaIdWhenOtherMessageReceived = Data.Id;
                 testContext.SecondMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -27,23 +27,16 @@ public class When_querying_for_transaction_mode : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<FeatureEnabledByUser>();
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
             });
-        }
 
         public class FeatureEnabledByUser : Feature
         {
-            public Context TestContext { get; set; }
-
-            protected override void Setup(FeatureConfigurationContext context)
-            {
-                context.Settings.Get<Context>().TransactionModeFromSettingsExtensions = context.Settings.GetRequiredTransactionModeForReceives();
-            }
+            protected override void Setup(FeatureConfigurationContext context) => context.Settings.Get<Context>().TransactionModeFromSettingsExtensions = context.Settings.GetRequiredTransactionModeForReceives();
         }
     }
 }

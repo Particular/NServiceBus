@@ -25,7 +25,6 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
             .Run();
 
         var outgoingEventActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -65,7 +64,6 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
             .Run();
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -93,10 +91,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
-                .When(ctx => ctx.SomeEventSubscribed, s =>
-                {
-                    return s.Publish(new ThisIsAnEvent());
-                }))
+                .When(ctx => ctx.SomeEventSubscribed, s => s.Publish(new ThisIsAnEvent())))
             .WithEndpoint<Subscriber>(b => b.When((session, ctx) =>
             {
                 if (ctx.HasNativePubSubSupport)
@@ -106,7 +101,6 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.OutgoingEventReceived)
             .Run();
 
         var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
@@ -133,7 +127,6 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool OutgoingEventReceived { get; set; }
         public string PublishedMessageId { get; set; }
         public string TraceParentHeader { get; set; }
         public bool SomeEventSubscribed { get; set; }
@@ -168,13 +161,8 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
                     metadata.RegisterPublisherFor<ThisIsAnEvent, Publisher>();
                 });
 
-        public class ThisHandlesSomethingHandler : IHandleMessages<ThisIsAnEvent>
+        public class ThisHandlesSomethingHandler(Context testPublishContext) : IHandleMessages<ThisIsAnEvent>
         {
-            public ThisHandlesSomethingHandler(Context testPublishContext)
-            {
-                this.testPublishContext = testPublishContext;
-            }
-
             public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)
             {
                 if (context.MessageHeaders.TryGetValue(Headers.DiagnosticsTraceParent, out var traceParentHeader))
@@ -183,15 +171,11 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
                 }
 
                 testPublishContext.PublishedMessageId = context.MessageId;
-                testPublishContext.OutgoingEventReceived = true;
+                testPublishContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testPublishContext;
         }
     }
 
-    public class ThisIsAnEvent : IEvent
-    {
-    }
+    public class ThisIsAnEvent : IEvent;
 }

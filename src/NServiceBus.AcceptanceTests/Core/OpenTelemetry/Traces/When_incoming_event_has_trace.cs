@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
-using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
@@ -10,8 +8,8 @@ using NUnit.Framework;
 
 public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 {
-    [Test, CancelAfter(10_000)]
-    public async Task Should_correlate_trace_from_publish(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_correlate_trace_from_publish()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b
@@ -25,8 +23,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
 
                 return Task.CompletedTask;
             }))
-            .Done(c => c.ReplyMessageReceived)
-            .Run(cancellationToken);
+            .Run();
 
         var incomingActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -44,7 +41,6 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     public class Context : ScenarioContext
     {
         public bool SomeEventSubscribed { get; set; }
-        public bool ReplyMessageReceived { get; set; }
         public string EventTraceParent { get; set; }
         public string ReplyTraceParent { get; set; }
     }
@@ -66,16 +62,12 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                 });
             });
 
-        class ReplyMessageHandler : IHandleMessages<ReplyMessage>
+        class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
-            Context testContext;
-
-            public ReplyMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyTraceParent = context.MessageHeaders[Headers.DiagnosticsTraceParent];
-                testContext.ReplyMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -92,26 +84,18 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                     metadata.RegisterPublisherFor<SomeEvent, Publisher>();
                 });
 
-        public class ThisHandlesSomethingHandler : IHandleMessages<SomeEvent>
+        public class ThisHandlesSomethingHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
-            public ThisHandlesSomethingHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(SomeEvent @event, IMessageHandlerContext context)
             {
                 testContext.EventTraceParent = context.MessageHeaders[Headers.DiagnosticsTraceParent];
 
                 return context.Reply(new ReplyMessage());
             }
-
-            readonly Context testContext;
         }
     }
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 
-    public class ReplyMessage : IMessage
-    {
-    }
+    public class ReplyMessage : IMessage;
 }

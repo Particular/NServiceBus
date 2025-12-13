@@ -15,7 +15,6 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
                 .When(session => session.SendLocal(new Message()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.MessageReceived, Is.True);
@@ -23,42 +22,28 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
 
     public class UserEndpoint : EndpointConfigurationBuilder
     {
-        public UserEndpoint()
-        {
-            EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
-        }
+        public UserEndpoint() => EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
 
         class Handler : IHandleMessages<Message>
         {
-            public Task Handle(Message message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(Message message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
     public class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
+        public ErrorSpy() =>
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("error_with_code_source");
-        }
 
-        class Handler : IHandleMessages<Message>
+        class Handler(Context testContext) : IHandleMessages<Message>
         {
-            public Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -68,7 +53,5 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
     }
 
 
-    public class Message : IMessage
-    {
-    }
+    public class Message : IMessage;
 }

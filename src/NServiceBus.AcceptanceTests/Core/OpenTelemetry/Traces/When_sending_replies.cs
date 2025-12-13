@@ -12,7 +12,6 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new IncomingMessage())))
-            .Done(c => c.OutgoingMessageReceived)
             .Run();
 
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -33,40 +32,28 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
     {
         public string MessageConversationId { get; set; }
         public string OutgoingMessageId { get; set; }
-        public bool OutgoingMessageReceived { get; set; }
     }
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<IncomingMessage>,
+        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
             IHandleMessages<OutgoingReply>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
-            public Task Handle(IncomingMessage message, IMessageHandlerContext context)
-            {
-                return context.Reply(new OutgoingReply());
-            }
+            public Task Handle(IncomingMessage message, IMessageHandlerContext context) => context.Reply(new OutgoingReply());
 
             public Task Handle(OutgoingReply message, IMessageHandlerContext context)
             {
                 testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                 testContext.OutgoingMessageId = context.MessageId;
-                testContext.OutgoingMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class IncomingMessage : IMessage
-    {
-    }
+    public class IncomingMessage : IMessage;
 
-    public class OutgoingReply : IMessage
-    {
-    }
+    public class OutgoingReply : IMessage;
 }

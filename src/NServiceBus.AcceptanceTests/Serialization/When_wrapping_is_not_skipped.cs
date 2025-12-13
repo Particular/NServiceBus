@@ -20,7 +20,6 @@ public class When_wrapping_is_not_skipped : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<WrappingEndpoint>(e => e
                 .When(session => session.SendLocal(new MessageWithRawXml { Document = xmlContent })))
-            .Done(c => c.MessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -35,57 +34,37 @@ public class When_wrapping_is_not_skipped : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; set; }
-
         public XDocument XmlMessage { get; set; }
-
         public XDocument XmlPropertyValue { get; set; }
     }
 
     class WrappingEndpoint : EndpointConfigurationBuilder
     {
-        public WrappingEndpoint()
-        {
+        public WrappingEndpoint() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.UseSerialization<XmlSerializer>(); // wrapping is enabled by default
-                 config.RegisterMessageMutator(new IncomingMutator(context));
-             });
-        }
-
-        class RawXmlMessageHandler : IHandleMessages<MessageWithRawXml>
-        {
-            public RawXmlMessageHandler(Context testContext)
             {
-                this.testContext = testContext;
-            }
+                config.UseSerialization<XmlSerializer>(); // wrapping is enabled by default
+                config.RegisterMessageMutator(new IncomingMutator(context));
+            });
 
+        class RawXmlMessageHandler(Context testContext) : IHandleMessages<MessageWithRawXml>
+        {
             public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context)
             {
-                testContext.MessageReceived = true;
                 testContext.XmlPropertyValue = messageWithRawXml.Document;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        public class IncomingMutator : IMutateIncomingTransportMessages
+        public class IncomingMutator(Context testContext) : IMutateIncomingTransportMessages
         {
-            public IncomingMutator(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 testContext.XmlMessage = XDocument.Parse(Encoding.UTF8.GetString(context.Body.ToArray()));
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

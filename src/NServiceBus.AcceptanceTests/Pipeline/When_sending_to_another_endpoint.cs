@@ -28,7 +28,6 @@ public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
                 }, sendOptions);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -57,30 +56,20 @@ public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Receiver() => EndpointSetup<DefaultServer>();
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (testContext.Id != message.Id)
@@ -96,10 +85,9 @@ public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
 
                 testContext.WasCalled = true;
 
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

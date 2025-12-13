@@ -18,7 +18,6 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
                 await session.Send<IMyInterfaceMessage>(m => m.Id = c.Id);
             }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.MessageInterfaceReceived)
             .Run();
 
         Assert.That(context.MessageInterfaceReceived, Is.True);
@@ -32,34 +31,25 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message"));
                 b.ConfigureRouting().RouteToEndpoint(typeof(IMyInterfaceMessage), typeof(Receiver));
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
+        public Receiver() =>
             EndpointSetup<DefaultServer>(builder =>
             {
                 builder.Conventions()
                     .DefiningMessagesAs(type => type.Name.EndsWith("Message"));
             });
-        }
 
-        public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+        public class MyMessageInterfaceHandler(Context testContext) : IHandleMessages<IMyInterfaceMessage>
         {
-            public MyMessageInterfaceHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
             {
                 if (testContext.Id != interfaceMessage.Id)
@@ -68,11 +58,9 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
                 }
 
                 testContext.MessageInterfaceReceived = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

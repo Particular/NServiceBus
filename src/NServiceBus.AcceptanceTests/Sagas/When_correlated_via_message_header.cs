@@ -27,7 +27,6 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
 
                     await session.Send(new StartSaga(), sendOptions);
                 }))
-            .Done(ctx => ctx.Done)
             .Run();
 
         Assert.That(scenario.CorrelationId, Is.EqualTo(5));
@@ -47,7 +46,6 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
                         await session.Send(new StartSaga(), sendOptions);
                     }
                 ))
-                .Done(ctx => ctx.Done)
                 .Run()
         );
 
@@ -70,7 +68,6 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
                         await session.Send(new StartSaga(), sendOptions);
                     }
                 ))
-                .Done(ctx => ctx.Done)
                 .Run()
         );
 
@@ -90,41 +87,23 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
     public class EndpointWithSagaWithHeaderMapping : EndpointConfigurationBuilder
     {
         public EndpointWithSagaWithHeaderMapping() =>
-            EndpointSetup<DefaultServer>(cfg =>
-                cfg.Pipeline.Register(typeof(EndTestOnException), "Ends test if an exception occurs"));
+            EndpointSetup<DefaultServer>();
 
         public class SagaWithHeaderMapping(Context scenario) : Saga<SagaDataWithHeaderMapping>, IAmStartedByMessages<StartSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
                 scenario.CorrelationId = Data.CorrelationId;
-                scenario.Done = true;
+                scenario.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithHeaderMapping> mapper) => mapper.MapSaga(s => s.CorrelationId).ToMessageHeader<StartSaga>(CorrelationHeader);
         }
-
-        class EndTestOnException(Context scenario) : Behavior<IIncomingLogicalMessageContext>
-        {
-            public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
-            {
-                try
-                {
-                    await next();
-                }
-                catch
-                {
-                    scenario.Done = true;
-                    throw;
-                }
-            }
-        }
     }
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public int CorrelationId { get; set; }
     }
 }

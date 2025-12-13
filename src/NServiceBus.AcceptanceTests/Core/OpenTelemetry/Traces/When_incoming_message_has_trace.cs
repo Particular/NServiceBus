@@ -17,7 +17,6 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
                 .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
                 .When(s => s.Send(new IncomingMessage())))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.ReplyMessageReceived)
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -50,7 +49,6 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
     class Context : ScenarioContext
     {
-        public bool ReplyMessageReceived { get; set; }
         public string IncomingMessageId { get; set; }
         public string ReplyMessageId { get; set; }
         public bool IncomingMessageReceived { get; set; }
@@ -60,12 +58,8 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
     {
         public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<IncomingMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
                 testContext.IncomingMessageId = context.MessageId;
@@ -79,12 +73,8 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
     {
         public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<IncomingMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
                 testContext.IncomingMessageId = context.MessageId;
@@ -98,26 +88,18 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        class MessageHandler : IHandleMessages<ReplyMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyMessageId = context.MessageId;
-                testContext.ReplyMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class IncomingMessage : IMessage
-    {
-    }
+    public class IncomingMessage : IMessage;
 
-    public class ReplyMessage : IMessage
-    {
-    }
+    public class ReplyMessage : IMessage;
 }
