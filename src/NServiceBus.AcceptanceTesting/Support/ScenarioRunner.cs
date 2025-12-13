@@ -124,7 +124,7 @@ public class ScenarioRunner(
     {
         using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
         // separate (linked) CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException and hide the original error
-        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token);
+        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token, cancellationToken);
 
         await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, combinedSource)))
             .WaitAsync(allEndpointsStartTimeout.Token)
