@@ -14,7 +14,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<AuditSpyEndpoint>()
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -28,7 +27,6 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public string HostId { get; set; }
         public string HostName { get; set; }
         public string Endpoint { get; set; }
@@ -37,51 +35,33 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>(c => c
                 .AuditProcessedMessagesTo<AuditSpyEndpoint>());
-        }
 
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
     class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
-        public AuditSpyEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public AuditSpyEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.HostId = context.MessageHeaders[Headers.HostId];
                 testContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
                 testContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
                 testContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
-                testContext.Done = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }
