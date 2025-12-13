@@ -23,7 +23,7 @@ public class When_endpoint_starts : NServiceBusAcceptanceTest
 
         await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>()
-            .Done(c => c.EndpointsStarted)
+            
             .Run();
 
         var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
