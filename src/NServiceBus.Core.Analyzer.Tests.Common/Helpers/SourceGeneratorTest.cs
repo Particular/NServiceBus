@@ -21,6 +21,7 @@ public partial class SourceGeneratorTest
 {
     readonly List<(string Filename, string Source)> sources;
     readonly List<ISourceGenerator> generators;
+    readonly List<DiagnosticAnalyzer> analyzers;
     readonly Dictionary<string, string> features;
     readonly string outputAssemblyName;
     string? scenarioName;
@@ -41,6 +42,7 @@ public partial class SourceGeneratorTest
     {
         sources = [];
         generators = [];
+        analyzers = [];
         this.outputAssemblyName = outputAssemblyName ?? "TestAssembly";
 
         features = new()
@@ -122,6 +124,12 @@ public partial class SourceGeneratorTest
         return this;
     }
 
+    public SourceGeneratorTest WithAnalyzer<TAnalyzer>() where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        analyzers.Add(new TAnalyzer());
+        return this;
+    }
+
     public SourceGeneratorTest WithProperty(string name, string value)
     {
         features.Add(name, value);
@@ -185,7 +193,8 @@ public partial class SourceGeneratorTest
 
         initialCompilation = CSharpCompilation.Create(outputAssemblyName, syntaxTrees, References, compileOpts);
 
-        build = new Build(initialCompilation, driver);
+        ImmutableArray<DiagnosticAnalyzer> analyzersToUse = analyzers.Count > 0 ? [.. analyzers] : [new NoOpAnalyzer()];
+        build = new Build(initialCompilation, driver, analyzersToUse);
 
         try
         {
@@ -194,7 +203,7 @@ public partial class SourceGeneratorTest
                 Assert.That(build.GeneratorDiagnostics, Has.None.Matches<Diagnostic>(d => d.Severity >= DiagnosticSeverity.Error));
             }
 
-            compilationDiagnostics = build.OutputCompilation.GetDiagnostics();
+            compilationDiagnostics = build.OutputCompilation.GetAllDiagnosticsAsync().GetAwaiter().GetResult();
 
             if (!suppressCompilationErrors)
             {
@@ -371,7 +380,7 @@ public partial class SourceGeneratorTest
             _ = Run();
         }
 
-        var generatedOutputs = build.OutputCompilation.SyntaxTrees
+        var generatedOutputs = build.OutputCompilation.Compilation.SyntaxTrees
             .Where(tree => tree.FilePath.EndsWith(".g.cs"))
             .ToImmutableArray();
 
@@ -453,9 +462,9 @@ public partial class SourceGeneratorTest
 
         return outputType switch
         {
-            GeneratorTestOutput.All => build.OutputCompilation.SyntaxTrees,
-            GeneratorTestOutput.GeneratedOnly => build.OutputCompilation.SyntaxTrees.Where(t => t.FilePath.EndsWith(".g.cs")),
-            GeneratorTestOutput.SourceOnly => build.OutputCompilation.SyntaxTrees.Where(t => !t.FilePath.EndsWith(".g.cs")),
+            GeneratorTestOutput.All => build.OutputCompilation.Compilation.SyntaxTrees,
+            GeneratorTestOutput.GeneratedOnly => build.OutputCompilation.Compilation.SyntaxTrees.Where(t => t.FilePath.EndsWith(".g.cs")),
+            GeneratorTestOutput.SourceOnly => build.OutputCompilation.Compilation.SyntaxTrees.Where(t => !t.FilePath.EndsWith(".g.cs")),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -464,25 +473,27 @@ public partial class SourceGeneratorTest
     {
         readonly Compilation initialCompilation;
         readonly GeneratorDriver driver;
+        readonly ImmutableArray<DiagnosticAnalyzer> analyzers;
 
-        public Build(Compilation initialCompilation, GeneratorDriver driver)
+        public Build(Compilation initialCompilation, GeneratorDriver driver, ImmutableArray<DiagnosticAnalyzer> analyzers)
         {
             this.initialCompilation = initialCompilation;
             this.driver = driver.RunGeneratorsAndUpdateCompilation(initialCompilation, out var outputCompilation, out var generatorDiagnostics);
+            this.analyzers = analyzers;
 
             RunResult = this.driver.GetRunResult();
-            OutputCompilation = outputCompilation;
+            OutputCompilation = outputCompilation.WithAnalyzers(analyzers);
             GeneratorDiagnostics = generatorDiagnostics;
         }
 
-        public Compilation OutputCompilation { get; }
+        public CompilationWithAnalyzers OutputCompilation { get; }
         public ImmutableArray<Diagnostic> GeneratorDiagnostics { get; }
         public GeneratorDriverRunResult RunResult { get; }
 
         public Build Clone()
         {
             var cloneCompilation = initialCompilation.Clone();
-            return new Build(cloneCompilation, driver);
+            return new Build(cloneCompilation, driver, analyzers);
         }
     }
 
@@ -507,4 +518,17 @@ public enum GeneratorTestOutput
     GeneratedOnly = 0,
     SourceOnly = 1,
     All = 2
+}
+
+public class NoOpAnalyzer : DiagnosticAnalyzer
+{
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [];
+
+    public override void Initialize(AnalysisContext context)
+    {
+        context.EnableConcurrentExecution();
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
+        context.RegisterSyntaxNodeAction(static context => { }, SyntaxKind.ModuleKeyword);
+    }
 }
