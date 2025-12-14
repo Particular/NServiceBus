@@ -19,7 +19,6 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
                 .When(session => session.SendLocal(new StartOrder { OrderId = orderId }))
                 .When(c => c.OrderStarted, session => session.SendLocal(new UpdateOrder { OrderId = orderId }))
                 .When(c => c.OrderUpdated, session => session.SendLocal(new CompleteOrder { OrderId = orderId })))
-            .Done(c => c.OrderCompleted)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -70,6 +69,7 @@ public class When_manually_registering_saga_with_multiple_handlers : NServiceBus
             {
                 testContext.OrderCompleted = true;
                 MarkAsComplete();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

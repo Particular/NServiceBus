@@ -19,7 +19,6 @@ public class When_manually_registering_saga : NServiceBusAcceptanceTest
             {
                 OrderId = id
             })))
-            .Done(c => c.SagaWasInvoked)
             .Run();
 
         Assert.That(context.SagaWasInvoked, Is.True);
@@ -47,6 +46,7 @@ public class When_manually_registering_saga : NServiceBusAcceptanceTest
             {
                 testContext.SagaWasInvoked = true;
                 testContext.OrderId = Data.OrderId;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

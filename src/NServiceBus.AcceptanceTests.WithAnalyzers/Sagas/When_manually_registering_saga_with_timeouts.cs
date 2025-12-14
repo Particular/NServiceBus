@@ -19,7 +19,6 @@ public class When_manually_registering_saga_with_timeouts : NServiceBusAcceptanc
             {
                 OrderId = id
             })))
-            .Done(c => c.SagaCompleted)
             .Run();
 
         Assert.That(context.SagaCompleted, Is.True);
@@ -56,6 +55,7 @@ public class When_manually_registering_saga_with_timeouts : NServiceBusAcceptanc
             public Task Timeout(OrderProcessingTimeout state, IMessageHandlerContext context)
             {
                 testContext.SagaCompleted = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

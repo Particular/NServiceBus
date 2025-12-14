@@ -19,7 +19,6 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             .WithEndpoint<HybridSagaEndpoint>(b => b
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = manualId }))
                 .When(session => session.SendLocal(new StartScannedSaga { PaymentId = scannedId })))
-            .Done(c => c.ManualSagaInvoked && c.ScannedSagaInvoked)
             .Run();
 
         Assert.That(context.ManualSagaInvoked, Is.True);
@@ -38,7 +37,6 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             {
                 OrderId = orderId
             })))
-            .Done(c => c.DuplicateSagaInvoked)
             .Run();
 
         Assert.That(context.DuplicateSagaInvoked, Is.True);
@@ -52,6 +50,8 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
         public bool ScannedSagaInvoked { get; set; }
         public Guid ManualOrderId { get; set; }
         public Guid ScannedPaymentId { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ManualSagaInvoked, ScannedSagaInvoked);
 
         public bool DuplicateSagaInvoked { get; set; }
         public Guid DuplicateOrderId { get; set; }
@@ -73,6 +73,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             {
                 testContext.ManualSagaInvoked = true;
                 testContext.ManualOrderId = Data.OrderId;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -93,6 +94,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             {
                 testContext.ScannedSagaInvoked = true;
                 testContext.ScannedPaymentId = Data.PaymentId;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -123,6 +125,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             {
                 testContext.DuplicateSagaInvoked = true;
                 testContext.DuplicateOrderId = Data.OrderId;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
