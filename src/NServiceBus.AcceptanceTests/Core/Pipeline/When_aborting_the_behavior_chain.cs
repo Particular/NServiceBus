@@ -41,6 +41,7 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             {
                 testContext.FirstHandlerInvoked = true;
                 context.DoNotContinueDispatchingCurrentMessageToHandlers();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -50,7 +51,6 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondHandlerInvoked = true;
-                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
