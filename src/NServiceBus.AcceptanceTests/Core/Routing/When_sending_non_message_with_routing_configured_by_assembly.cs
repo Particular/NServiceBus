@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System;
-using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -9,9 +8,8 @@ using NUnit.Framework;
 public class When_sending_non_message_with_routing_configured_by_assembly : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_throw_when_sending()
-    {
-        var context = await Scenario.Define<Context>()
+    public void Should_throw_when_sending() =>
+        Assert.That(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
             {
                 try
@@ -20,34 +18,21 @@ public class When_sending_non_message_with_routing_configured_by_assembly : NSer
                 }
                 catch (Exception ex)
                 {
-                    c.Exception = ex;
-                    c.GotTheException = true;
+                    c.MarkAsFailed(ex);
                 }
             }))
-            .Done(c => c.GotTheException)
-            .Run();
+            .Run(), Throws.Exception.Message.Contains("No destination specified for message"));
 
-        Assert.That(context.Exception.ToString(), Does.Contain("No destination specified for message"));
-    }
-
-    public class Context : ScenarioContext
-    {
-        public bool GotTheException { get; set; }
-        public Exception Exception { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(NonMessage).Assembly, "Destination");
             });
-        }
     }
 
-    public class NonMessage
-    {
-    }
+    public class NonMessage;
 }

@@ -14,7 +14,6 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new MyRequest())))
-            .Done(c => c.GotTheReply)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -32,66 +31,38 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("MessageTypeSpy", new MessageTypeSpy((Context)r.ScenarioContext), "MessageTypeSpy"));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("MessageTypeSpy", new MessageTypeSpy((Context)r.ScenarioContext), "MessageTypeSpy"));
 
-        public class StartMessageHandler : IHandleMessages<MyRequest>
+        public class StartMessageHandler(IMessageCreator messageCreator) : IHandleMessages<MyRequest>
         {
-            public StartMessageHandler(IMessageCreator messageCreator)
-            {
-                this.messageCreator = messageCreator;
-            }
-
             public Task Handle(MyRequest message, IMessageHandlerContext context)
             {
                 var interfaceMessage = messageCreator.CreateInstance<IMyReply>();
                 return context.Reply(interfaceMessage);
             }
-
-            IMessageCreator messageCreator;
         }
 
-        public class MyMessageHandler : IHandleMessages<IMyReply>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<IMyReply>
         {
-            public MyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(IMyReply message, IMessageHandlerContext context)
             {
                 testContext.GotTheReply = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class MessageTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
+        class MessageTypeSpy(Context testContext) : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
         {
-            public MessageTypeSpy(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
             {
                 testContext.MessageTypeInPipeline = context.Message.MessageType;
                 return next(context);
             }
-
-            Context testContext;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
-    public interface IMyReply : IMessage
-    {
-    }
+    public interface IMyReply : IMessage;
 }

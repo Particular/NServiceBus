@@ -14,7 +14,6 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new MyRequest())))
-            .Done(c => c.GotTheRequest)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -29,25 +28,16 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
 
     public class Context : ScenarioContext
     {
-        public bool GotTheRequest { get; set; }
         public bool GotExceptionFromReply { get; set; }
         public bool WasAbleToInterceptBeforeCoreThrows { get; set; }
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(CallbacksAssumptionVerifier), "Makes sure that callbacks can allow int replies"));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(CallbacksAssumptionVerifier), "Makes sure that callbacks can allow int replies"));
 
-        public class StartMessageHandler : IHandleMessages<MyRequest>
+        public class StartMessageHandler(Context testContext) : IHandleMessages<MyRequest>
         {
-            public StartMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public async Task Handle(MyRequest message, IMessageHandlerContext context)
             {
                 try
@@ -59,30 +49,19 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
                     testContext.GotExceptionFromReply = true;
                 }
 
-                testContext.GotTheRequest = true;
+                testContext.MarkAsCompleted();
             }
-
-            Context testContext;
         }
 
-        class CallbacksAssumptionVerifier : Behavior<IOutgoingLogicalMessageContext>
+        class CallbacksAssumptionVerifier(Context testContext) : Behavior<IOutgoingLogicalMessageContext>
         {
-            public CallbacksAssumptionVerifier(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
             {
                 testContext.WasAbleToInterceptBeforeCoreThrows = true;
                 return next();
             }
-
-            Context testContext;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 }
