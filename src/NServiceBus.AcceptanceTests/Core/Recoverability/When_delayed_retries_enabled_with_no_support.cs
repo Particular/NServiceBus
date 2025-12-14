@@ -25,13 +25,11 @@ public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanc
 
     public class StartedEndpoint : EndpointConfigurationBuilder
     {
-        public StartedEndpoint()
-        {
+        public StartedEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var recoverability = config.Recoverability();
                 recoverability.Delayed(i => i.NumberOfRetries(1));
             });
-        }
     }
 }

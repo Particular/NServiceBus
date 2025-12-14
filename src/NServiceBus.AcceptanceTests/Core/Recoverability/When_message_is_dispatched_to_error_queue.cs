@@ -20,7 +20,6 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
                 .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         Assert.That(context.MessageBodyWasEmpty, Is.True);
@@ -28,7 +27,6 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
 
     class Context : ScenarioContext
     {
-        public bool MessageMovedToErrorQueue { get; set; }
         public bool MessageBodyWasEmpty { get; internal set; }
     }
 
@@ -36,14 +34,12 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
     {
         static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(errorQueueAddress);
                 config.Pipeline.Register(typeof(ErrorBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
             });
-        }
 
         public class ErrorBodyStorageBehavior : Behavior<IDispatchContext>
         {
@@ -66,39 +62,24 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
 
         class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-            {
-                throw new SimulatedException("Some failure");
-            }
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
 
-        class ErrorMessageDetector : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public ErrorMessageDetector(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
-                testContext.MessageMovedToErrorQueue = true;
+                testContext.MarkAsCompleted();
                 return next(context);
             }
-
-            Context testContext;
         }
     }
 
-    public class InitiatingMessage : IMessage
-    {
-    }
+    public class InitiatingMessage : IMessage;
 }

@@ -30,7 +30,6 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
                 .When((session, ctx) => session.SendLocal(new InitiatingMessage()))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,7 +41,6 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageMovedToErrorQueue { get; set; }
         public bool MessageBodyWasEmpty { get; set; }
     }
 
@@ -50,14 +48,12 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
     {
         static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(ErrorQueueAddress);
                 config.Pipeline.Register(typeof(CustomRecoverabilityActionBehavior), "Applies a custom recoverability actions");
             });
-        }
 
         public class CustomRecoverabilityActionBehavior : Behavior<IRecoverabilityContext>
         {
@@ -73,12 +69,8 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
                 return next();
             }
 
-            class CustomOnErrorAction : MoveToError
+            class CustomOnErrorAction(string errorQueue) : MoveToError(errorQueue)
             {
-                public CustomOnErrorAction(string errorQueue) : base(errorQueue)
-                {
-                }
-
                 public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
                 {
                     var routingContexts = base.GetRoutingContexts(context);
@@ -97,39 +89,24 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
 
         class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-            {
-                throw new SimulatedException("Some failure");
-            }
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
 
-        class ErrorMessageDetector : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public ErrorMessageDetector(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.MessageBodyWasEmpty = context.Message.Body.IsEmpty;
-                testContext.MessageMovedToErrorQueue = true;
+                testContext.MarkAsCompleted();
                 return next(context);
             }
-
-            Context testContext;
         }
     }
 
-    public class InitiatingMessage : IMessage
-    {
-    }
+    public class InitiatingMessage : IMessage;
 }

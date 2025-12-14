@@ -24,7 +24,6 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
                     Id = c.Id
                 }));
             })
-            .Done(c => c.MessageSentToError)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -45,14 +44,12 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
         public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
         public int TotalNumberOfHandlerInvocations { get; set; }
         public int NumberOfDelayedRetriesPerformed { get; set; }
-        public bool MessageSentToError { get; set; }
         public Exception MessageSentToErrorException { get; set; }
     }
 
     public class DelayedRetriesEndpoint : EndpointConfigurationBuilder
     {
-        public DelayedRetriesEndpoint()
-        {
+        public DelayedRetriesEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var testContext = (Context)context.ScenarioContext;
@@ -61,14 +58,14 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
                 recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                 {
                     testContext.MessageSentToErrorException = failedMessage.Exception;
-                    testContext.MessageSentToError = true;
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
                 recoverability.Delayed(settings =>
                 {
                     settings.NumberOfRetries(2);
                     settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                    settings.OnMessageBeingRetried((retry, _) =>
+                    settings.OnMessageBeingRetried((_, _) =>
                     {
                         testContext.NumberOfDelayedRetriesPerformed++;
                         return Task.CompletedTask;
@@ -77,22 +74,16 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
                 recoverability.Immediate(settings =>
                 {
                     settings.NumberOfRetries(3);
-                    settings.OnMessageBeingRetried((retry, _) =>
+                    settings.OnMessageBeingRetried((_, _) =>
                     {
                         testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                         return Task.CompletedTask;
                     });
                 });
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 if (message.Id != testContext.Id)
@@ -104,11 +95,8 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
 
                 throw new SimulatedException("Simulated exception message");
             }
-
-            Context testContext;
         }
     }
-
 
     public class MessageToBeRetried : IMessage
     {

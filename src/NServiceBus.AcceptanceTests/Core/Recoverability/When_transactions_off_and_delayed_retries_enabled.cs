@@ -22,14 +22,12 @@ public class When_transactions_off_and_delayed_retries_enabled : NServiceBusAcce
 
     public class StartedEndpoint : EndpointConfigurationBuilder
     {
-        public StartedEndpoint()
-        {
+        public StartedEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
                 var recoverability = config.Recoverability();
                 recoverability.Delayed(i => i.NumberOfRetries(1));
             });
-        }
     }
 }
