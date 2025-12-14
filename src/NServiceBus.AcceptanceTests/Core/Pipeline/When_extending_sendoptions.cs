@@ -26,7 +26,6 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
 
                 return session.Send(new SendMessage(), options);
             }))
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.Secret, Is.EqualTo("I did it"));
@@ -34,32 +33,21 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool WasCalled { get; set; }
         public string Secret { get; set; }
     }
 
     public class SendOptionsExtensions : EndpointConfigurationBuilder
     {
-        public SendOptionsExtensions()
-        {
-            EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", new TestingSendOptionsExtensionBehavior(), "Testing send options extensions"));
-        }
+        public SendOptionsExtensions() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", new TestingSendOptionsExtensionBehavior(), "Testing send options extensions"));
 
-        class SendMessageHandler : IHandleMessages<SendMessage>
+        class SendMessageHandler(Context testContext) : IHandleMessages<SendMessage>
         {
-            public SendMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SendMessage message, IMessageHandlerContext context)
             {
                 testContext.Secret = message.Secret;
-                testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         public class TestingSendOptionsExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>

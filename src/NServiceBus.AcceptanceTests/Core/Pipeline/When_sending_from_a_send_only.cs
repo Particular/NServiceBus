@@ -18,7 +18,6 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
                 Id = c.Id
             })))
             .WithEndpoint<Receiver>()
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.WasCalled, Is.True, "The message handler should be called");
@@ -28,36 +27,26 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
     {
         public bool WasCalled { get; set; }
         public Guid Id { get; set; }
-
-        public bool SendOnlyEndpointWasStarted { get; set; }
     }
 
     public class SendOnlyEndpoint : EndpointConfigurationBuilder
     {
-        public SendOnlyEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.SendOnly());
-        }
+        public SendOnlyEndpoint() => EndpointSetup<DefaultServer>(c => c.SendOnly());
     }
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.SendOnly();
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Receiver() => EndpointSetup<DefaultServer>();
     }
 
     public class MyMessage : ICommand
@@ -65,13 +54,8 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
         public Guid Id { get; set; }
     }
 
-    public class MyMessageHandler : IHandleMessages<MyMessage>
+    public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public MyMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             if (testContext.Id != message.Id)
@@ -80,9 +64,8 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
             }
 
             testContext.WasCalled = true;
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 }

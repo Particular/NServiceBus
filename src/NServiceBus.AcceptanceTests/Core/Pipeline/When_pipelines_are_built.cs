@@ -28,22 +28,14 @@ public class When_pipelines_are_built : NServiceBusAcceptanceTest
 
     class LoggerNameComparer : IEqualityComparer<ScenarioContext.LogItem>
     {
-        public static LoggerNameComparer Instance = new LoggerNameComparer();
+        public static readonly LoggerNameComparer Instance = new LoggerNameComparer();
 
-        public bool Equals(ScenarioContext.LogItem x, ScenarioContext.LogItem y)
-        {
-            return x?.LoggerName == y?.LoggerName;
-        }
+        public bool Equals(ScenarioContext.LogItem x, ScenarioContext.LogItem y) => x?.LoggerName == y?.LoggerName;
 
-        public int GetHashCode(ScenarioContext.LogItem obj)
-        {
-            return obj.LoggerName != null ? obj.LoggerName.GetHashCode() : 0;
-        }
+        public int GetHashCode(ScenarioContext.LogItem obj) => obj.LoggerName != null ? obj.LoggerName.GetHashCode() : 0;
     }
 
-    class Context : ScenarioContext
-    {
-    }
+    class Context : ScenarioContext;
 
     class RegularEndpoint : EndpointConfigurationBuilder
     {

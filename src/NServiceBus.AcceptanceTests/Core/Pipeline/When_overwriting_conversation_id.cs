@@ -23,7 +23,6 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
                     options.SetHeader(Headers.ConversationId, initialConversationId);
                     return s.Send(new IntermediateMessage(), options);
                 }))
-            .Done(c => c.ReceivedMessage)
             .Run());
 
         Assert.That(exception.InnerException.Message, Does.Contain($"Cannot set the {Headers.ConversationId} header to 'intermediate message header' as it cannot override the incoming header value ('{initialConversationId}')."));
@@ -32,45 +31,29 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool ReceivedMessage { get; set; }
         public bool SentOutgoingMessage { get; set; }
     }
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint()
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
+
+        public class IntermediateMessageHandler(Context testContext) : IHandleMessages<IntermediateMessage>
         {
-            EndpointSetup<DefaultServer>();
-        }
-
-        public class IntermediateMessageHandler : IHandleMessages<IntermediateMessage>
-        {
-            Context testContext;
-
-            public IntermediateMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public async Task Handle(IntermediateMessage message, IMessageHandlerContext context)
             {
-                testContext.ReceivedMessage = true;
-
                 var options = new SendOptions();
                 options.RouteToThisEndpoint();
                 options.SetHeader(Headers.ConversationId, "intermediate message header");
                 await context.Send(new MessageWithConversationId(), options);
 
                 testContext.SentOutgoingMessage = true;
+                testContext.MarkAsCompleted();
             }
         }
     }
 
-    public class MessageWithConversationId : ICommand
-    {
-    }
+    public class MessageWithConversationId : ICommand;
 
-    public class IntermediateMessage : ICommand
-    {
-    }
+    public class IntermediateMessage : ICommand;
 }

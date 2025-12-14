@@ -12,7 +12,6 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
-            .Done(c => c.FirstHandlerInvoked)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -41,9 +40,7 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.FirstHandlerInvoked = true;
-
                 context.DoNotContinueDispatchingCurrentMessageToHandlers();
-
                 return Task.CompletedTask;
             }
         }
@@ -53,7 +50,7 @@ public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondHandlerInvoked = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
