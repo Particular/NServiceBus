@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer.Handlers;
 
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Utility;
 
@@ -29,7 +30,7 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
             });
     }
 
-    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, string Name, string HandlerType, ImmutableEquatableArray<RegistrationSpec> Registrations);
+    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, HandlerTypeSpec HandlerType, ImmutableEquatableArray<RegistrationSpec> Registrations);
 
     internal readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
@@ -41,4 +42,23 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
     }
 
     internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy);
+
+    internal readonly record struct HandlerTypeSpec(string FullyQualifiedName, string InterceptorMethodName)
+    {
+        public static HandlerTypeSpec From(INamedTypeSymbol handlerType)
+        {
+            const string NamePrefix = "AddHandler_";
+
+            var sb = new StringBuilder(NamePrefix, 50)
+                .Append(handlerType.Name)
+                .Append('_');
+
+            var fullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var hash = NonCryptographicHash.GetHash(fullyQualifiedName);
+
+            sb.Append(hash.ToString("x16"));
+
+            return new HandlerTypeSpec { FullyQualifiedName = fullyQualifiedName, InterceptorMethodName = sb.ToString() };
+        }
+    }
 }
