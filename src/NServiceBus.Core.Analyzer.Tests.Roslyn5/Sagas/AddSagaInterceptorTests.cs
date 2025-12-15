@@ -577,7 +577,7 @@ public class AddSagaInterceptorTests
     }
 
     [Test]
-    public void SagaWithInappropriateDoubleMessageMapping()
+    public void SagaWithTypeThatMustBeMappedAsHandleAndTimeout()
     {
         var source = """
                      using System.Threading.Tasks;
