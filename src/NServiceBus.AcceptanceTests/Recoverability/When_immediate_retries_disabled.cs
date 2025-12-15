@@ -20,7 +20,6 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
                     ContextId = c.Id
                 }));
             })
-            .Done(c => c.GaveUp)
             .Run();
 
         Assert.That(context.NumberOfTimesInvoked, Is.EqualTo(1), "No Immediate Retry should be in use if NumberOfRetries is set to 0");
@@ -30,33 +29,24 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
     {
         public Guid Id { get; set; }
         public int NumberOfTimesInvoked { get; set; }
-
-        public bool GaveUp { get; set; }
     }
 
     public class RetryEndpoint : EndpointConfigurationBuilder
     {
-        public RetryEndpoint()
-        {
+        public RetryEndpoint() =>
             EndpointSetup<DefaultServer>((configure, context) =>
             {
                 var scenarioContext = (Context)context.ScenarioContext;
                 configure.Recoverability().Immediate(immediate => immediate.NumberOfRetries(0));
                 configure.Recoverability().Failed(f => f.OnMessageSentToErrorQueue((message, _) =>
                 {
-                    scenarioContext.GaveUp = true;
+                    scenarioContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 if (testContext.Id != message.ContextId)
@@ -66,8 +56,6 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
                 testContext.NumberOfTimesInvoked++;
                 throw new SimulatedException();
             }
-
-            Context testContext;
         }
     }
 

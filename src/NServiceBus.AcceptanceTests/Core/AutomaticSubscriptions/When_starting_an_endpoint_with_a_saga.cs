@@ -16,7 +16,6 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Subscriber>()
-            .Done(c => c.EventsSubscribedTo.Count >= 2)
             .Run();
 
         Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
@@ -26,6 +25,8 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public List<Type> EventsSubscribedTo { get; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(EventsSubscribedTo.Count >= 2);
     }
 
     class Subscriber : EndpointConfigurationBuilder
@@ -45,6 +46,7 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
                 await next(context).ConfigureAwait(false);
 
                 testContext.EventsSubscribedTo.AddRange(context.EventTypes);
+                testContext.MaybeCompleted();
             }
         }
 
@@ -83,9 +85,6 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
         public string SomeId { get; set; }
     }
 
-    public class MyEventWithParent : MyEventBase
-    {
-    }
 
     public class MyEvent : IEvent
     {

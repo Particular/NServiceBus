@@ -16,7 +16,6 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
             {
                 DataId = Guid.NewGuid()
             })))
-            .Done(c => c.DidSaga2ReceiveMessage)
             .Run();
 
         Assert.That(context.DidSaga2ReceiveMessage, Is.True);
@@ -69,7 +68,7 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
             {
                 Data.DataId = message.DataId;
                 testContext.DidSaga2ReceiveMessage = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

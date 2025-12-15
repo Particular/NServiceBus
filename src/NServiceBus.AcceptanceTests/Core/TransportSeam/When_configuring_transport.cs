@@ -27,10 +27,7 @@ public class When_configuring_transport : NServiceBusAcceptanceTest
 
     class EndpointWithFeature : EndpointConfigurationBuilder
     {
-        public EndpointWithFeature()
-        {
-            EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureAccessingInfrastructure>());
-        }
+        public EndpointWithFeature() => EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureAccessingInfrastructure>());
 
         class FeatureAccessingInfrastructure : Feature
         {

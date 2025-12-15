@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Faults;
 using Logging;
 
@@ -23,7 +24,7 @@ public class ScenarioContext
 
     public Guid TestRunId { get; } = Guid.NewGuid();
 
-    public bool EndpointsStarted { get; set; }
+    public TaskCompletionSource EndpointsStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public bool HasNativePubSubSupport { get; set; }
 
@@ -35,11 +36,29 @@ public class ScenarioContext
             Message = trace
         });
 
+    public void MarkAsCompleted(params ReadOnlySpan<bool> flags)
+    {
+        foreach (var flag in flags)
+        {
+            if (!flag)
+            {
+                return;
+            }
+        }
+
+        Completed.TrySetResult();
+    }
+
+    public void MarkAsFailed(Exception exception) => Completed.TrySetException(exception);
+    public void MarkAsCanceled(CancellationToken cancellationToken = default) => Completed.TrySetCanceled(cancellationToken);
+
     public readonly ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new();
 
     public readonly ConcurrentQueue<LogItem> Logs = new();
 
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
+
+    internal TaskCompletionSource Completed { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     internal readonly ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new();
 

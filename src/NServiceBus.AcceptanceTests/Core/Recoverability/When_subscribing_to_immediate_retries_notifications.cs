@@ -18,7 +18,6 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                 b.DoNotFailOnErrorMessages();
                 b.When((session, c) => session.SendLocal(new MessageToBeRetried()));
             })
-            .Done(c => c.MessageSentToError)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -41,8 +40,7 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
 
     public class RetryingEndpoint : EndpointConfigurationBuilder
     {
-        public RetryingEndpoint()
-        {
+        public RetryingEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var testContext = (Context)context.ScenarioContext;
@@ -51,6 +49,7 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                 recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                 {
                     testContext.MessageSentToError = true;
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
 
@@ -65,23 +64,15 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                     });
                 });
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 testContext.TotalNumberOfHandlerInvocations++;
 
                 throw new SimulatedException("Simulated exception message");
             }
-
-            Context testContext;
         }
     }
 

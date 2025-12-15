@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -24,7 +23,6 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -36,29 +34,21 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
 
     class Context : ScenarioContext
     {
-        public bool MessageMovedToErrorQueue { get; set; }
         public bool OutgoingMessageSent { get; set; }
     }
 
     class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
     {
-        public EndpointWithOutgoingMessages()
-        {
+        public EndpointWithOutgoingMessages() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.TransactionScope;
                 config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
@@ -69,61 +59,38 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
                     });
                 }
             }
-
-            Context testContext;
         }
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
-            EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
-        }
+        public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
 
         class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
-            public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException("message should be moved to the error queue");
-            }
+            public Task Handle(InitiatingMessage message, IMessageHandlerContext context) => throw new SimulatedException("message should be moved to the error queue");
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
-                    testContext.MessageMovedToErrorQueue = true;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class SubsequentMessageHandler : IHandleMessages<SubsequentMessage>
+        class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
         {
-            public SubsequentMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
             {
                 if (message.Id == testContext.TestRunId)
@@ -133,8 +100,6 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

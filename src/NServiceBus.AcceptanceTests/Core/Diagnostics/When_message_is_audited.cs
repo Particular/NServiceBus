@@ -19,7 +19,6 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
         var processingStarted = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingStarted]);
@@ -45,47 +44,31 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>(c => c
                 .AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
-        }
 
         class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1) => Task.CompletedTask;
         }
     }
 
     public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesAuditMessages()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public AuditMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.IsMessageHandledByTheAuditEndpoint = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

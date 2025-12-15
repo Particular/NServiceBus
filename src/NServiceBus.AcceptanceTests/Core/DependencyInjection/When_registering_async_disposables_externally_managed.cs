@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -11,8 +10,8 @@ using NUnit.Framework;
 [TestFixture]
 public class When_registering_async_disposables_externally_managed : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(10_000)]
-    public async Task Should_dispose(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
             .WithServices(static services =>
@@ -29,8 +28,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
                 })
                 .When(e => e.SendLocal(new SomeMessage()));
             })
-            .Done(c => c.ScopedAsyncDisposableDisposed)
-            .Run(cancellationToken);
+            .Run();
 
         // the acceptance test infrastructure disposes the managed provider
 
@@ -135,6 +133,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         public override ValueTask DisposeAsync()
         {
             context.ScopedAsyncDisposableDisposed = true;
+            context.MarkAsCompleted();
             return new ValueTask();
         }
     }

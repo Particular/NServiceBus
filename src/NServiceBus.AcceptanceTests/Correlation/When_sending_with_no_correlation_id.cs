@@ -12,7 +12,6 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<CorrelationEndpoint>(b => b.When(session => session.SendLocal(new MyRequest())))
-            .Done(c => c.GotRequest)
             .Run();
 
         Assert.That(context.CorrelationIdReceived, Is.EqualTo(context.MessageIdReceived), "Correlation id should match MessageId");
@@ -21,39 +20,24 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
     public class Context : ScenarioContext
     {
         public string MessageIdReceived { get; set; }
-        public bool GotRequest { get; set; }
         public string CorrelationIdReceived { get; set; }
     }
 
     public class CorrelationEndpoint : EndpointConfigurationBuilder
     {
-        public CorrelationEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public CorrelationEndpoint() => EndpointSetup<DefaultServer>();
 
-        public class MyResponseHandler : IHandleMessages<MyRequest>
+        public class MyResponseHandler(Context testContext) : IHandleMessages<MyRequest>
         {
-            public MyResponseHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MyRequest message, IMessageHandlerContext context)
             {
                 testContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
                 testContext.MessageIdReceived = context.MessageId;
-                testContext.GotRequest = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 }

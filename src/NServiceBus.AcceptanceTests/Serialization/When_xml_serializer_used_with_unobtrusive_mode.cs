@@ -17,7 +17,6 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
             {
                 Data = expectedData
             })))
-            .Done(c => c.WasCalled)
             .Run();
 
         Assert.That(context.Data, Is.EqualTo(expectedData));
@@ -25,36 +24,26 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
 
     public class Context : ScenarioContext
     {
-        public bool WasCalled { get; set; }
         public int Data { get; set; }
     }
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Conventions().DefiningMessagesAs(t => t == typeof(MyMessage));
                 c.UseSerialization<XmlSerializer>();
             });
-        }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.Data = message.Data;
-                testContext.WasCalled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

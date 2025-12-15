@@ -14,7 +14,6 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new StartSaga())))
-                .Done(c => c.MessageReceived)
                 .Run();
         }, Throws.Exception.With.Message.Contains("DisableFeature<Sagas>()"));
 
@@ -35,8 +34,8 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
 
         public Task Handle(StartSaga message, IMessageHandlerContext context)
         {
-            TestContext.MessageReceived = true;
             MarkAsComplete();
+            TestContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
 
@@ -50,10 +49,7 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
         }
     }
 
-    public class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class StartSaga : ICommand
     {

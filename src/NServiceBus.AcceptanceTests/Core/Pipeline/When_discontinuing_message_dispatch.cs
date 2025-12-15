@@ -16,7 +16,6 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             {
                 SomeId = Guid.NewGuid().ToString()
             })))
-            .Done(c => c.InterceptingHandlerCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -62,7 +61,7 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             {
                 testContext.InterceptingHandlerCalled = true;
                 context.DoNotContinueDispatchingCurrentMessageToHandlers();
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -20,24 +20,16 @@ public class When_sending_non_message_with_routing_configured_by_type : NService
         Assert.That(exception.ToString(), Does.Contain("Cannot configure routing for type"));
     }
 
-    public class Context : ScenarioContext
-    {
-        public bool GotTheException { get; set; }
-        public Exception Exception { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(NonMessage), "Destination");
             });
-        }
     }
 
-    public class NonMessage
-    {
-    }
+    public class NonMessage;
 }

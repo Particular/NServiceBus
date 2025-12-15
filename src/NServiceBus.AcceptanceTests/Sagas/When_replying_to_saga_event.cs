@@ -28,7 +28,6 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
                         c.Subscribed = true;
                     }
                 }))
-            .Done(c => c.CorrelatedResponseReceived)
             .Run();
 
         Assert.That(context.CorrelatedResponseReceived, Is.True);
@@ -74,6 +73,7 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
             public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
             {
                 testContext.CorrelatedResponseReceived = message.ReceivedDataId == Data.DataId;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

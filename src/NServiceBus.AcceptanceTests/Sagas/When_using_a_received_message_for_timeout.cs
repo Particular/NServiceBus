@@ -18,7 +18,6 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
             {
                 SomeId = Guid.NewGuid()
             })))
-            .Done(c => c.TimeoutReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -51,6 +50,7 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
             {
                 MarkAsComplete();
                 testContext.TimeoutReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

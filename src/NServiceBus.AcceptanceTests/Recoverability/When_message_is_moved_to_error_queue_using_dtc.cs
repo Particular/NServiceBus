@@ -24,7 +24,6 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
@@ -39,21 +38,14 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
-        }
 
-        class FailingHandler : IHandleMessages<MessageToFail>
+        class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
         {
-            public FailingHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {
                 if (message.Id == testContext.Id)
@@ -64,40 +56,26 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
                 throw new SimulatedException();
             }
 
-            void CaptureTransactionStatus(object sender, TransactionEventArgs args)
-            {
-                testContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
-            }
-
-            Context testContext;
+            void CaptureTransactionStatus(object sender, TransactionEventArgs args) => testContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>();
 
-        class Handler : IHandleMessages<MessageToFail>
+        class Handler(Context testContext) : IHandleMessages<MessageToFail>
         {
-            public Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {
                 if (message.Id == testContext.Id)
                 {
                     testContext.MessageMovedToErrorQueue = true;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

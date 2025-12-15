@@ -2,7 +2,9 @@ namespace NServiceBus.AcceptanceTests;
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using NUnit.Framework;
@@ -16,25 +18,29 @@ using NUnit.Framework.Internal;
 public abstract partial class NServiceBusAcceptanceTest
 {
     [SetUp]
-    public void SetUp()
-    {
+    public void SetUp() =>
         Conventions.EndpointNamingConvention = t =>
         {
-            var classAndEndpoint = t.FullName.Split('.').Last();
+            var fullNameSpan = t.FullName.AsSpan();
+            var lastDot = fullNameSpan.LastIndexOf('.');
+            var classAndEndpointSpan = lastDot >= 0 ? fullNameSpan[(lastDot + 1)..] : fullNameSpan;
 
-            var testName = classAndEndpoint.Split('+').First();
+            var plusIndex = classAndEndpointSpan.IndexOf('+');
+            var testNameSpan = plusIndex >= 0 ? classAndEndpointSpan[..plusIndex] : classAndEndpointSpan;
+            var endpointBuilderSpan = plusIndex >= 0 ? classAndEndpointSpan[(plusIndex + 1)..] : ReadOnlySpan<char>.Empty;
 
-            testName = testName.Replace("When_", "");
+            if (testNameSpan.StartsWith("When_"))
+            {
+                testNameSpan = testNameSpan[5..];
+            }
 
-            var endpointBuilder = classAndEndpoint.Split('+').Last();
-
-            testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
-
+            var testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testNameSpan.ToString());
             testName = testName.Replace("_", "");
 
-            return testName + "." + endpointBuilder;
+            var endpointBuilder = endpointBuilderSpan.Length > 0 ? endpointBuilderSpan.ToString() : string.Empty;
+
+            return $"{testName}.{endpointBuilder}";
         };
-    }
 
     [TearDown]
     public void TearDown()
@@ -52,7 +58,7 @@ public abstract partial class NServiceBusAcceptanceTest
 {string.Join(Environment.NewLine, runDescriptor.Settings.Select(setting => $"   {setting.Key}: {setting.Value}"))}");
 
             TestContext.Out.WriteLine($@"Context:
-{string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {p.GetValue(scenarioContext, null)}"))}");
+{string.Join(Environment.NewLine, scenarioContext.GetType().GetProperties().Select(p => $"{p.Name} = {ExtractScenarioContextValues(scenarioContext, p)}"))}");
         }
 
         if (TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Failure || TestExecutionContext.CurrentContext.CurrentResult.ResultState == ResultState.Error)
@@ -65,6 +71,14 @@ public abstract partial class NServiceBusAcceptanceTest
                 TestContext.Out.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? TestContext.CurrentContext.Test.Name}: {logEntry.Message}");
             }
             TestContext.Out.WriteLine("--- End log entries ---------------------------------------------------");
+        }
+
+        return;
+
+        static object ExtractScenarioContextValues(ScenarioContext scenarioContext, PropertyInfo property)
+        {
+            var contextPropertyValue = property.GetValue(scenarioContext, null);
+            return contextPropertyValue is TaskCompletionSource tcs ? tcs.Task.IsCompletedSuccessfully : contextPropertyValue;
         }
     }
 }

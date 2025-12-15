@@ -16,7 +16,6 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(e => e.When(session => session.Send(new Message())))
             .WithEndpoint<ReceivingEndpoint>()
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.MessageReceived, Is.True);
@@ -57,6 +56,7 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
             public Task Handle(BaseMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

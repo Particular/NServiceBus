@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
@@ -81,7 +80,7 @@ public class EndpointRunner(
     {
         ArgumentNullException.ThrowIfNull(scenarioContext);
         endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
-        endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
+        endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, doNotFailOnErrorMessages, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
     }
 
     void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
@@ -197,22 +196,6 @@ public class EndpointRunner(
             {
                 await asyncDisposable.DisposeAsync().ConfigureAwait(false);
             }
-        }
-
-        if (!doNotFailOnErrorMessages)
-        {
-            ThrowOnFailedMessages();
-        }
-    }
-
-    void ThrowOnFailedMessages()
-    {
-        ArgumentNullException.ThrowIfNull(scenarioContext);
-        ArgumentNullException.ThrowIfNull(configuration);
-
-        foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == configuration.EndpointName))
-        {
-            throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
         }
     }
 

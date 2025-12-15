@@ -23,7 +23,6 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
                 }))
             )
             .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -36,14 +35,12 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
 
     class Context : ScenarioContext
     {
-        public bool MessageMovedToErrorQueue { get; set; }
         public Dictionary<string, string> Headers { get; set; }
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.Recoverability()
@@ -56,43 +53,29 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
 
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
-        }
 
         class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
-            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
-            {
-                throw new SimulatedException("THIS IS A LARGE MESSAGE");
-            }
+            public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("THIS IS A LARGE MESSAGE");
         }
     }
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ErrorSpy() => EndpointSetup<DefaultServer>();
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (initiatingMessage.Id == testContext.TestRunId)
                 {
                     testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
-                    testContext.MessageMovedToErrorQueue = true;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

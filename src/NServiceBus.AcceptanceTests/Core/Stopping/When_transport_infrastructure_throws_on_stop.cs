@@ -26,14 +26,12 @@ public class When_transport_infrastructure_throws_on_stop : NServiceBusAcceptanc
 
     public class EndpointThatThrowsOnInfrastructureStop : EndpointConfigurationBuilder
     {
-        public EndpointThatThrowsOnInfrastructureStop()
-        {
+        public EndpointThatThrowsOnInfrastructureStop() =>
             EndpointSetup<DefaultServer>(builder =>
             {
                 var fakeTransport = new FakeTransport();
                 fakeTransport.RaiseExceptionOnTransportDispose(new InvalidOperationException("ExceptionInInfrastructureStop"));
                 builder.UseTransport(fakeTransport);
             });
-        }
     }
 }

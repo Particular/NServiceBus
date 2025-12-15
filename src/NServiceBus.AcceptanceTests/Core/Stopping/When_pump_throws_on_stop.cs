@@ -28,14 +28,12 @@ public class When_pump_throws_on_stop : NServiceBusAcceptanceTest
 
     public class EndpointThatThrowsOnPumpStop : EndpointConfigurationBuilder
     {
-        public EndpointThatThrowsOnPumpStop()
-        {
+        public EndpointThatThrowsOnPumpStop() =>
             EndpointSetup<DefaultServer>(builder =>
             {
                 var fakeTransport = new FakeTransport();
                 fakeTransport.RaiseExceptionOnReceiverStop(new InvalidOperationException("ExceptionInPumpStop"));
                 builder.UseTransport(fakeTransport);
             });
-        }
     }
 }

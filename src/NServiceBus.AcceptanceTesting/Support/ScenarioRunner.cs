@@ -13,8 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class ScenarioRunner(
     RunDescriptor runDescriptor,
-    List<IComponentBehavior> behaviorDescriptors,
-    Func<ScenarioContext, Task<bool>> done)
+    List<IComponentBehavior> behaviorDescriptors)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0023:Use DateTime.UtcNow or DateTimeOffset.UtcNow", Justification = "Test logging")]
     public async Task<RunSummary> Run(CancellationToken cancellationToken = default)
@@ -74,34 +73,37 @@ public class ScenarioRunner(
         try
         {
             await StartEndpoints(runners, cancellationToken).ConfigureAwait(false);
-            runDescriptor.ScenarioContext.EndpointsStarted = true;
+            runDescriptor.ScenarioContext.EndpointsStarted.SetResult();
             await ExecuteWhens(runners, cancellationToken).ConfigureAwait(false);
 
-            var startTime = DateTime.UtcNow;
-            var maxTime = cancellationToken.CanBeCanceled ? TimeSpan.MaxValue : TimeSpan.FromSeconds(90);
-            while (!await done(runDescriptor.ScenarioContext).ConfigureAwait(false))
+            var maxTime = cancellationToken.CanBeCanceled ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(90);
+            using (var doneTokenSource = CreateCancellationTokenSource(maxTime))
+            using (var combinedDoneTokenSource = CancellationTokenSource.CreateLinkedTokenSource(doneTokenSource.Token, cancellationToken))
             {
-                if (!Debugger.IsAttached)
+                var registration = combinedDoneTokenSource.Token.Register(() => runDescriptor.ScenarioContext.Completed.TrySetCanceled(combinedDoneTokenSource.Token));
+                await using var _ = registration.ConfigureAwait(false);
+                try
                 {
-                    if (DateTime.UtcNow - startTime > maxTime || cancellationToken.IsCancellationRequested)
-                    {
-                        throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
-                    }
+                    await runDescriptor.ScenarioContext.Completed.Task.ConfigureAwait(false);
                 }
-
-                await Task.Delay(100, CancellationToken.None).ConfigureAwait(false);
+                catch (OperationCanceledException e)
+                {
+                    throw new TimeoutException(GenerateTestTimedOutMessage(maxTime), e);
+                }
             }
 
-            startTime = DateTime.UtcNow;
-            var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
+            using var unfinishedTokenSource = CreateCancellationTokenSource(TimeSpan.FromSeconds(30));
+            using var combinedUnfinishedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(unfinishedTokenSource.Token, cancellationToken);
             while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
             {
-                if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime || cancellationToken.IsCancellationRequested)
+                try
                 {
-                    throw new Exception("Some failed messages were not handled by the recoverability feature.");
+                    await Task.Delay(100, combinedUnfinishedTokenSource.Token).ConfigureAwait(false);
                 }
-
-                await Task.Delay(100, CancellationToken.None).ConfigureAwait(false);
+                catch (OperationCanceledException e) when (combinedUnfinishedTokenSource.Token.IsCancellationRequested)
+                {
+                    throw new Exception("Some failed messages were not handled by the recoverability feature.", e);
+                }
             }
         }
         finally
@@ -110,13 +112,11 @@ public class ScenarioRunner(
         }
     }
 
-    static string GenerateTestTimedOutMessage(TimeSpan maxTime)
+    internal static string GenerateTestTimedOutMessage(TimeSpan maxTime)
     {
         var sb = new StringBuilder();
-
         sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
         sb.AppendLine("----------------------------------------------------------------------------");
-
         return sb.ToString();
     }
 
@@ -124,7 +124,7 @@ public class ScenarioRunner(
     {
         using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
         // separate (linked) CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException and hide the original error
-        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token);
+        using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token, cancellationToken);
 
         await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, combinedSource)))
             .WaitAsync(allEndpointsStartTimeout.Token)
@@ -153,19 +153,18 @@ public class ScenarioRunner(
         // separate (linked) CTS as otherwise a failure during 'When' blocks will cause WaitAsync to throw an OperationCanceledException and hide the original error
         using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allWhensTimeout.Token, cancellationToken);
 
-        await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource)))
+        await Task.WhenAll(endpoints.Select(endpoint => ExecuteWhens(endpoint, combinedSource, combinedSource.Token)))
             .WaitAsync(allWhensTimeout.Token)
             .ConfigureAwait(false);
     }
 
-    async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
+    async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts, CancellationToken cancellationToken)
     {
-        var token = cts.Token;
         try
         {
-            await component.ComponentsStarted(token).ConfigureAwait(false);
+            await component.ComponentsStarted(cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (!ex.IsCausedBy(token))
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             // signal other endpoints to stop evaluating the when conditions
             await cts.CancelAsync().ConfigureAwait(false);
@@ -217,7 +216,7 @@ public class ScenarioRunner(
         return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
     }
 
-    static CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeout)
+    internal static CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeout)
     {
         if (Debugger.IsAttached)
         {

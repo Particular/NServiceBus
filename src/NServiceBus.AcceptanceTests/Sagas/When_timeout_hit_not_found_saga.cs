@@ -15,7 +15,6 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
-            .Done(c => c.NotFoundHandlerCalledForRegularMessage)
             .Run();
 
         Assert.That(context.NotFoundHandlerCalledForTimeout, Is.False);
@@ -68,6 +67,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
                     if (message is SomeOtherMessage)
                     {
                         testContext.NotFoundHandlerCalledForRegularMessage = true;
+                        testContext.MarkAsCompleted();
                     }
 
                     if (message is MyTimeout)

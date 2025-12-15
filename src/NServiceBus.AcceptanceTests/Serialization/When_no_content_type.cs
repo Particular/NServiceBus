@@ -9,17 +9,14 @@ using NUnit.Framework;
 public class When_no_content_type : NServiceBusAcceptanceTest
 {
     [Test]
-    public Task Should_handle_message()
-    {
-        return Scenario.Define<Context>()
+    public Task Should_handle_message() =>
+        Scenario.Define<Context>()
             .WithEndpoint<EndpointViaType>(b => b.When(
-                (session, c) => session.SendLocal(new Message
+                (session, _) => session.SendLocal(new Message
                 {
                     Property = "value"
                 })))
-            .Done(c => c.ReceivedMessage)
             .Run();
-    }
 
     public class Context : ScenarioContext
     {
@@ -28,25 +25,16 @@ public class When_no_content_type : NServiceBusAcceptanceTest
 
     public class EndpointViaType : EndpointConfigurationBuilder
     {
-        public EndpointViaType()
-        {
-            EndpointSetup<DefaultServer>(config => config.RegisterMessageMutator(new ContentTypeMutator()));
-        }
+        public EndpointViaType() => EndpointSetup<DefaultServer>(config => config.RegisterMessageMutator(new ContentTypeMutator()));
 
-        public class Handler : IHandleMessages<Message>
+        public class Handler(Context testContext) : IHandleMessages<Message>
         {
-            public Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(Message request, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = request.Property == "value";
+                testContext.MarkAsCompleted(testContext.ReceivedMessage);
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         class ContentTypeMutator : IMutateIncomingTransportMessages
@@ -58,7 +46,6 @@ public class When_no_content_type : NServiceBusAcceptanceTest
             }
         }
     }
-
 
     public class Message : IMessage
     {

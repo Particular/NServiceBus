@@ -27,7 +27,6 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
                     return session.Send(new MyRequest());
                 }))
             .WithEndpoint<XmlCustomSerializationReceiver>()
-            .Done(c => c.HandlerGotTheRequest)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -49,47 +48,35 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
 
     class CustomSerializationSender : EndpointConfigurationBuilder
     {
-        public CustomSerializationSender()
-        {
+        public CustomSerializationSender() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "");
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyRequest), typeof(XmlCustomSerializationReceiver));
             });
-        }
     }
 
     class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
     {
-        public XmlCustomSerializationReceiver()
-        {
+        public XmlCustomSerializationReceiver() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.UseSerialization<XmlSerializer>();
                 c.AddDeserializer<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "SomeFancySettings");
             });
-        }
 
-        class MyRequestHandler : IHandleMessages<MyRequest>
+        class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
-            public MyRequestHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
                 testContext.HandlerGotTheRequest = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
     public class MyCustomSerializer : SerializationDefinition
     {
@@ -127,10 +114,7 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
                 context.DeserializeCalled = true;
                 context.ValueFromSettings = valueFromSettings;
 
-                return new[]
-                {
-                    msg
-                };
+                return [msg];
             }
         }
 

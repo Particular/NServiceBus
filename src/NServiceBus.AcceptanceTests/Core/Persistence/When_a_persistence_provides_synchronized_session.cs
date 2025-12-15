@@ -13,7 +13,6 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
     {
         var result = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -28,7 +27,6 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
     {
         public ISynchronizedStorageSession SynchronizedStorageSessionInstanceInContainer { get; set; }
         public ISynchronizedStorageSession SynchronizedStorageSessionInstanceInHandlingContext { get; set; }
-        public bool MessageReceived { get; set; }
     }
 
     class Endpoint : EndpointConfigurationBuilder
@@ -46,7 +44,7 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.SynchronizedStorageSessionInstanceInHandlingContext = context.SynchronizedStorageSession;
-                testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
@@ -54,7 +52,5 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }

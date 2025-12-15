@@ -15,7 +15,6 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithReplacement>(e => e
                 .When(s => s.SendLocal<Message>(m => { })))
-            .Done(c => c.MessageHandled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -29,72 +28,45 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
     {
         public bool OriginalBehaviorInvoked { get; set; }
         public bool ReplacementBehaviorInvoked { get; set; }
-
-        public bool MessageHandled { get; set; }
     }
 
-    class OriginalBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+    class OriginalBehavior(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
     {
-        public OriginalBehavior(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
             testContext.OriginalBehaviorInvoked = true;
             return next(context);
         }
-
-        Context testContext;
     }
 
-    class ReplacementBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+    class ReplacementBehavior(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
     {
-        public ReplacementBehavior(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
             testContext.ReplacementBehaviorInvoked = true;
             return next(context);
         }
-
-        Context testContext;
     }
 
     class EndpointWithReplacement : EndpointConfigurationBuilder
     {
-        public EndpointWithReplacement()
-        {
+        public EndpointWithReplacement() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 // replace before register to ensure out-of-order replacements work correctly.
                 c.Pipeline.Replace("demoBehavior", new ReplacementBehavior((Context)r.ScenarioContext));
                 c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)r.ScenarioContext), "test behavior replacement");
             });
-        }
 
-        public class Handler : IHandleMessages<Message>
+        public class Handler(Context testContext) : IHandleMessages<Message>
         {
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(Message message, IMessageHandlerContext context)
             {
-                testContext.MessageHandled = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class Message : IMessage
-    {
-    }
+    public class Message : IMessage;
 }

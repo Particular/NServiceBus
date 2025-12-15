@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Support;
+using static Support.ScenarioRunner;
 
 public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
     where TContext : ScenarioContext, new()
@@ -31,8 +32,17 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
+        if (doneFunc is not null)
+        {
+            scenarioContext.Completed = doneFunc(scenarioContext);
+        }
+        else
+        {
+            kickOffTcs.SetResult((scenarioContext, cancellationToken));
+        }
+
         var sw = new Stopwatch();
-        var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors, done);
+        var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors);
 
         sw.Start();
         var runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
@@ -88,8 +98,48 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, Task<bool>> func)
     {
-        done = c => func((TContext)c);
+        if (doneTask is not null || doneFunc is not null)
+        {
+            throw new InvalidOperationException("Done condition has already been defined.");
+        }
 
+        doneTask = Task.Run(async () =>
+        {
+            var (context, cancellationToken) = await kickOffTcs.Task.ConfigureAwait(false);
+            var maxTime = cancellationToken.CanBeCanceled ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(90);
+            using var doneTokenSource = CreateCancellationTokenSource(maxTime);
+            using var combinedDoneTokenSource = CancellationTokenSource.CreateLinkedTokenSource(doneTokenSource.Token, cancellationToken);
+            var registration = combinedDoneTokenSource.Token.Register(() => context.MarkAsCanceled(combinedDoneTokenSource.Token));
+            await using var _ = registration.ConfigureAwait(false);
+            try
+            {
+                while (true)
+                {
+                    if (await func(context).ConfigureAwait(false))
+                    {
+                        context.MarkAsCompleted();
+                        break;
+                    }
+
+                    await Task.Delay(100, combinedDoneTokenSource.Token).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException e) when (combinedDoneTokenSource.Token.IsCancellationRequested)
+            {
+                throw new TimeoutException(GenerateTestTimedOutMessage(maxTime), e);
+            }
+        });
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, TaskCompletionSource> func)
+    {
+        if (doneTask is not null || doneFunc is not null)
+        {
+            throw new InvalidOperationException("Done condition has already been defined.");
+        }
+
+        doneFunc = func;
         return this;
     }
 
@@ -106,5 +156,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
     readonly List<IComponentBehavior> behaviors = [];
     int componentCount = 0;
     readonly IServiceCollection services = new ServiceCollection();
-    Func<ScenarioContext, Task<bool>> done = static _ => Task.FromResult(true);
+    Task? doneTask;
+    readonly TaskCompletionSource<(TContext scenarioContext, CancellationToken cancellationToken)> kickOffTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    Func<TContext, TaskCompletionSource>? doneFunc;
 }

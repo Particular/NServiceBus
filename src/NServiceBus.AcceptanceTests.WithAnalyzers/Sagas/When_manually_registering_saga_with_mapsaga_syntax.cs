@@ -18,7 +18,6 @@ public class When_manually_registering_saga_with_mapsaga_syntax : NServiceBusAcc
             .WithEndpoint<MapSagaSyntaxEndpoint>(b => b
                 .When(session => session.SendLocal(new OrderPlaced { OrderId = orderId }))
                 .When(c => c.OrderPlaced, session => session.SendLocal(new OrderPaid { OrderId = orderId })))
-            .Done(c => c.OrderPaid)
             .Run();
 
         Assert.That(context.OrderPlaced, Is.True);
@@ -57,6 +56,7 @@ public class When_manually_registering_saga_with_mapsaga_syntax : NServiceBusAcc
             {
                 testContext.OrderPaid = true;
                 MarkAsComplete();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

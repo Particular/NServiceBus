@@ -25,14 +25,11 @@ public class When_used_with_default_transaction_mode : NServiceBusAcceptanceTest
              .Done(c => c.EndpointsStarted)
              .Run();
 
-        Assert.That(context.EndpointsStarted, Is.True);
+        Assert.That(context.EndpointsStarted.Task.IsCompletedSuccessfully, Is.True);
     }
 
     public class ScopeEndpoint : EndpointConfigurationBuilder
     {
-        public ScopeEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public ScopeEndpoint() => EndpointSetup<DefaultServer>();
     }
 }

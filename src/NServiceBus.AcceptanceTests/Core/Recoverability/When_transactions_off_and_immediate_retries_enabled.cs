@@ -20,14 +20,12 @@ public class When_transactions_off_and_immediate_retries_enabled : NServiceBusAc
 
     public class StartedEndpoint : EndpointConfigurationBuilder
     {
-        public StartedEndpoint()
-        {
+        public StartedEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
                 var recoverability = config.Recoverability();
                 recoverability.Immediate(i => i.NumberOfRetries(3));
             });
-        }
     }
 }

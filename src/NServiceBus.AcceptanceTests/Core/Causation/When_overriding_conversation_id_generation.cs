@@ -31,7 +31,6 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
                 await session.Send(myBusinessMessage, options);
                 await session.SendLocal(new MessageSentOutsideOfHandlerNotMatchingTheConvention());
             }))
-            .Done(c => c.MatchingMessageReceived && c.NonMatchingMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -47,14 +46,13 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
         public bool MatchingMessageReceived { get; set; }
         public string NonMatchingConversationIdReceived { get; set; }
         public bool NonMatchingMessageReceived { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(MatchingMessageReceived, NonMatchingMessageReceived);
     }
 
     public class CustomGeneratorEndpoint : EndpointConfigurationBuilder
     {
-        public CustomGeneratorEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(MyCustomConversationIdStrategy));
-        }
+        public CustomGeneratorEndpoint() => EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(MyCustomConversationIdStrategy));
 
         ConversationId MyCustomConversationIdStrategy(ConversationIdStrategyContext context)
         {
@@ -66,40 +64,26 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
             return ConversationId.Default;
         }
 
-        public Context Context { get; set; }
-
-        public class MessageSentOutsideOfHandlerMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerMatchingTheConvention>
+        public class MessageSentOutsideOfHandlerMatchingTheConventionHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandlerMatchingTheConvention>
         {
-            public MessageSentOutsideOfHandlerMatchingTheConventionHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
             {
                 testContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                 testContext.MatchingMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
+        public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
         {
-            public MessageSentOutsideOfHandlerNotMatchingTheConventionHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)
             {
                 testContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
                 testContext.NonMatchingMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -108,7 +92,5 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
         public string MyBusinessId { get; set; }
     }
 
-    public class MessageSentOutsideOfHandlerNotMatchingTheConvention : IMessage
-    {
-    }
+    public class MessageSentOutsideOfHandlerNotMatchingTheConvention : IMessage;
 }

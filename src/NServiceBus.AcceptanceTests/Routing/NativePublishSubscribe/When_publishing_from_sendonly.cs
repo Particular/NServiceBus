@@ -16,7 +16,6 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SendOnlyPublisher>(b => b.When((session, c) => session.Publish(new MyEvent())))
             .WithEndpoint<Subscriber>()
-            .Done(c => c.SubscriberGotTheEvent)
             .Run();
 
         Assert.That(context.SubscriberGotTheEvent, Is.True);
@@ -29,41 +28,27 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
 
     public class SendOnlyPublisher : EndpointConfigurationBuilder
     {
-        public SendOnlyPublisher()
-        {
+        public SendOnlyPublisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.SendOnly();
             }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
-        }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
-            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, SendOnlyPublisher>());
-        }
+        public Subscriber() => EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, SendOnlyPublisher>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.SubscriberGotTheEvent = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

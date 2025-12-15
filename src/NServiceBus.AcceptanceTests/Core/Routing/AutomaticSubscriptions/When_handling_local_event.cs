@@ -22,7 +22,6 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             })
             .When(c => c.EventSubscribed || c.HasNativePubSubSupport, (session, context) => session.Publish(new Event { ContextId = context.Id })))
-            .Done(c => c.GotEvent)
             .Run().ConfigureAwait(false);
 
         Assert.That(ctx.GotEvent, Is.True);
@@ -37,8 +36,7 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
 
     public class PublisherAndSubscriber : EndpointConfigurationBuilder
     {
-        public PublisherAndSubscriber()
-        {
+        public PublisherAndSubscriber() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 // Make sure the subscription message isn't purged on startup
@@ -51,15 +49,9 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                     }
                 });
             }, metadata => metadata.RegisterPublisherFor<Event, PublisherAndSubscriber>());
-        }
 
-        public class Handler : IHandleMessages<Event>
+        public class Handler(Context testContext) : IHandleMessages<Event>
         {
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(Event @event, IMessageHandlerContext context)
             {
                 if (@event.ContextId != testContext.Id)
@@ -67,11 +59,9 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                     return Task.CompletedTask;
                 }
                 testContext.GotEvent = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

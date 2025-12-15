@@ -12,7 +12,6 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
-            .Done(c => c.Done)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -24,7 +23,6 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
 
     public class Context : ScenarioContext
     {
-        public bool Done { get; set; }
         public string FirstConversationId { get; set; }
         public string ConversationIdReceived { get; set; }
         public string MessageIdOfFirstMessage { get; set; }
@@ -33,20 +31,12 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
 
     public class CausationEndpoint : EndpointConfigurationBuilder
     {
-        public CausationEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public CausationEndpoint() => EndpointSetup<DefaultServer>();
 
         public Context Context { get; set; }
 
-        public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
+        public class MessageSentOutsideHandlersHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandler>
         {
-            public MessageSentOutsideHandlersHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
             {
                 testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
@@ -54,37 +44,23 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
 
                 return context.SendLocal(new MessageSentInsideHandler());
             }
-
-            Context testContext;
         }
 
-        public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
+        public class MessageSentInsideHandlersHandler(Context testContext) : IHandleMessages<MessageSentInsideHandler>
         {
-            public MessageSentInsideHandlersHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
             {
                 testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 
                 testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
 
-                testContext.Done = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageSentOutsideOfHandler : IMessage
-    {
-    }
+    public class MessageSentOutsideOfHandler : IMessage;
 
-    public class MessageSentInsideHandler : IMessage
-    {
-    }
+    public class MessageSentInsideHandler : IMessage;
 }

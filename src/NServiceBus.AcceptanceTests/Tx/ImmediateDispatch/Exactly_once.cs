@@ -14,7 +14,6 @@ public class Exactly_once : NServiceBusAcceptanceTest
             .WithEndpoint<ExactlyOnceEndpoint>(b => b
                 .When(session => session.SendLocal(new InitiatingMessage()))
                 .DoNotFailOnErrorMessages())
-            .Done(c => c.MessageDispatched)
             .Run();
 
         Assert.That(context.MessageDispatched, Is.True, "Should dispatch the message immediately");
@@ -27,11 +26,9 @@ public class Exactly_once : NServiceBusAcceptanceTest
 
     public class ExactlyOnceEndpoint : EndpointConfigurationBuilder
     {
-        public ExactlyOnceEndpoint()
-        {
+        public ExactlyOnceEndpoint() =>
             //note: We don't have a explicit way to request "ExactlyOnce" yet so we have to rely on it being the default
             EndpointSetup<DefaultServer>();
-        }
 
         public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
@@ -48,28 +45,18 @@ public class Exactly_once : NServiceBusAcceptanceTest
             }
         }
 
-        public class MessageToBeDispatchedImmediatelyHandler : IHandleMessages<MessageToBeDispatchedImmediately>
+        public class MessageToBeDispatchedImmediatelyHandler(Context testContext) : IHandleMessages<MessageToBeDispatchedImmediately>
         {
-            public MessageToBeDispatchedImmediatelyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
             {
                 testContext.MessageDispatched = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class InitiatingMessage : ICommand
-    {
-    }
+    public class InitiatingMessage : ICommand;
 
-    public class MessageToBeDispatchedImmediately : ICommand
-    {
-    }
+    public class MessageToBeDispatchedImmediately : ICommand;
 }

@@ -23,7 +23,6 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                     Id = c.Id
                 }));
             })
-            .Done(c => c.MessageSentToError)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,14 +41,12 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
         public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
         public int TotalNumberOfHandlerInvocations { get; set; }
         public int NumberOfDelayedRetriesPerformed { get; set; }
-        public bool MessageSentToError { get; set; }
         public DelayedRetryMessage LastDelayedRetryInfo { get; set; }
     }
 
     public class DelayedRetriesEndpoint : EndpointConfigurationBuilder
     {
-        public DelayedRetriesEndpoint()
-        {
+        public DelayedRetriesEndpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var testContext = (Context)context.ScenarioContext;
@@ -57,13 +54,13 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                 var recoverability = config.Recoverability();
                 recoverability.Failed(f => f.OnMessageSentToErrorQueue((failedMessage, _) =>
                 {
-                    testContext.MessageSentToError = true;
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
                 recoverability.Immediate(settings =>
                 {
                     settings.NumberOfRetries(3);
-                    settings.OnMessageBeingRetried((retry, _) =>
+                    settings.OnMessageBeingRetried((_, _) =>
                     {
                         testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                         return Task.CompletedTask;
@@ -81,15 +78,9 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                     });
                 });
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 if (message.Id != testContext.Id)
@@ -101,8 +92,6 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
 
                 throw new SimulatedException("Simulated exception message");
             }
-
-            Context testContext;
         }
     }
 

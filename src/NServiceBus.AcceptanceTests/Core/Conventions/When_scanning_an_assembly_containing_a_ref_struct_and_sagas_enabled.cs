@@ -14,6 +14,7 @@ public class When_scanning_an_assembly_containing_a_ref_struct_and_sagas_enabled
         => Assert.DoesNotThrowAsync(
             () => Scenario.Define<ScenarioContext>()
                           .WithEndpoint<EndpointWithASaga>()
+                          .Done(c => c.EndpointsStarted)
                           .Run()
     );
 

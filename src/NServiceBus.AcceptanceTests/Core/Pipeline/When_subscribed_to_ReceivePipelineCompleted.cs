@@ -14,7 +14,6 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SubscribingEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
-            .Done(c => c.NotificationEventFired)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -35,8 +34,7 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
 
     class SubscribingEndpoint : EndpointConfigurationBuilder
     {
-        public SubscribingEndpoint()
-        {
+        public SubscribingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.Pipeline.OnReceivePipelineCompleted((e, _) =>
@@ -44,29 +42,20 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
                     var testContext = (Context)c.GetSettings().Get<ScenarioContext>();
                     testContext.ReceivePipelineCompletedMessage = e;
                     testContext.NotificationEventFired = true;
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 });
             });
-        }
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public SomeMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageId = context.MessageId;
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 }

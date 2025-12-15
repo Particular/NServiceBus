@@ -24,7 +24,6 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
                     return s.Send(new DelayedMessage(), sendOptions);
                 }))
             .WithEndpoint<Receiver>()
-            .Done(c => c.ReceivedNonDelayedMessage && c.ReceivedDelayedMessage)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -41,6 +40,8 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
 
         public bool ReceivedNonDelayedMessage { get; set; }
         public bool ReceivedDelayedMessage { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ReceivedDelayedMessage, ReceivedNonDelayedMessage);
     }
 
     class SenderWithNestedSend : EndpointConfigurationBuilder
@@ -68,20 +69,13 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
-        class DelayedMessageHandler : IHandleMessages<DelayedMessage>, IHandleMessages<NonDelayedMessage>
+        class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>, IHandleMessages<NonDelayedMessage>
         {
-            Context testContext;
-
-            public DelayedMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedDelayedMessage = true;
                 testContext.DelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager
-
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -89,17 +83,13 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
             {
                 testContext.ReceivedNonDelayedMessage = true;
                 testContext.NonDelayedMessageDelayed = context.MessageHeaders.TryGetValue(Headers.DeliverAt, out var _); // header value not set when routing to timeout manager
-
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class DelayedMessage : IMessage
-    {
-    }
+    public class DelayedMessage : IMessage;
 
-    public class NonDelayedMessage : IMessage
-    {
-    }
+    public class NonDelayedMessage : IMessage;
 }

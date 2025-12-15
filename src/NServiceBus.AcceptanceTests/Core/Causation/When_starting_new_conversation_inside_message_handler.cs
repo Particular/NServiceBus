@@ -15,12 +15,8 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
     public async Task With_specified_conversation_id()
     {
         var context = await Scenario.Define<NewConversationScenario>(ctx => ctx.PropsedConversationId = UserDefinedConverstionId)
-            .WithEndpoint<Sender>(b => b.When(session =>
-            {
-                return session.Send(new AnyMessage());
-            }))
+            .WithEndpoint<Sender>(b => b.When(session => session.Send(new AnyMessage())))
             .WithEndpoint<Receiver>()
-            .Done(ctx => ctx.MessageHandled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -34,12 +30,8 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
     public async Task Without_specified_conversation_id()
     {
         var context = await Scenario.Define<NewConversationScenario>()
-            .WithEndpoint<Sender>(b => b.When(session =>
-            {
-                return session.Send(new AnyMessage());
-            }))
+            .WithEndpoint<Sender>(b => b.When(session => session.Send(new AnyMessage())))
             .WithEndpoint<Receiver>()
-            .Done(ctx => ctx.MessageHandled)
             .Run();
 
         Assert.That(context.NewConversationId, Is.EqualTo(GeneratedConversationId), "ConversationId should be generated.");
@@ -53,7 +45,6 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
     class NewConversationScenario : ScenarioContext
     {
         public string PropsedConversationId { get; set; }
-        public bool MessageHandled { get; set; }
         public string OriginalConversationId { get; set; }
         public string NewConversationId { get; set; }
         public string PreviousConversationId { get; set; }
@@ -61,22 +52,13 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
 
     class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>(
                 c => c.ConfigureRouting()
-                      .RouteToEndpoint(typeof(AnyMessage), typeof(Receiver)));
-        }
+                    .RouteToEndpoint(typeof(AnyMessage), typeof(Receiver)));
 
-        class AnyResponseMessageHandler : IHandleMessages<AnyResponseMessage>
+        class AnyResponseMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyResponseMessage>
         {
-            NewConversationScenario scenario;
-
-            public AnyResponseMessageHandler(NewConversationScenario scenario)
-            {
-                this.scenario = scenario;
-            }
-
             public Task Handle(AnyResponseMessage message, IMessageHandlerContext context)
             {
                 if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
@@ -87,7 +69,7 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
                 {
                     scenario.PreviousConversationId = previousConversationId;
                 }
-                scenario.MessageHandled = true;
+                scenario.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -95,27 +77,18 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
 
     class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
+        public Receiver() =>
             EndpointSetup<DefaultServer>(
                 c =>
                 {
                     c.ConfigureRouting()
-                          .RouteToEndpoint(typeof(AnyResponseMessage), typeof(Sender));
+                        .RouteToEndpoint(typeof(AnyResponseMessage), typeof(Sender));
 
                     c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId));
                 });
-        }
 
-        class AnyMessageHandler : IHandleMessages<AnyMessage>
+        class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
         {
-            NewConversationScenario scenario;
-
-            public AnyMessageHandler(NewConversationScenario scenario)
-            {
-                this.scenario = scenario;
-            }
-
             public Task Handle(AnyMessage message, IMessageHandlerContext context)
             {
                 scenario.OriginalConversationId = context.MessageHeaders[Headers.ConversationId];
@@ -128,6 +101,6 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
         }
     }
 
-    public class AnyMessage : IMessage { }
-    public class AnyResponseMessage : IMessage { }
+    public class AnyMessage : IMessage;
+    public class AnyResponseMessage : IMessage;
 }

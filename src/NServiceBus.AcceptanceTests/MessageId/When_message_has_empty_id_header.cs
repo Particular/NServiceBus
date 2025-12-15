@@ -16,7 +16,6 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(g => g.When(b => b.SendLocal(new Message())))
-            .Done(c => c.MessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -38,39 +37,25 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; set; }
         public string MessageId { get; set; }
         public Dictionary<string, string> Headers { get; set; }
     }
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", new CorruptionBehavior(), "Corrupting the message id"));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", new CorruptionBehavior(), "Corrupting the message id"));
 
-        class Handler : IHandleMessages<Message>
+        class Handler(Context testContext) : IHandleMessages<Message>
         {
-            public Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.MessageId = context.MessageId;
                 testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
-                testContext.MessageReceived = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class Message : IMessage
-    {
-    }
+    public class Message : IMessage;
 }

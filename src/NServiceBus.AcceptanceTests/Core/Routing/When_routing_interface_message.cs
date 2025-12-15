@@ -13,7 +13,6 @@ public class When_routing_interface_message : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new StartMessage())))
-            .Done(c => c.GotTheMessage)
             .Run();
 
         Assert.That(context.GotTheMessage, Is.True);
@@ -26,45 +25,30 @@ public class When_routing_interface_message : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(IMyMessage), typeof(Endpoint));
             });
-        }
 
         public class StartMessageHandler : IHandleMessages<StartMessage>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
-            {
-                return context.Send<IMyMessage>(_ => { });
-            }
+            public Task Handle(StartMessage message, IMessageHandlerContext context) => context.Send<IMyMessage>(_ => { });
         }
 
-        public class MyMessageHandler : IHandleMessages<IMyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<IMyMessage>
         {
-            public MyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(IMyMessage message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
 
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class StartMessage : IMessage
-    {
-    }
+    public class StartMessage : IMessage;
 
-    public interface IMyMessage : IMessage
-    {
-    }
+    public interface IMyMessage : IMessage;
 }

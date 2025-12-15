@@ -17,7 +17,6 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             {
                 Id = c.Id
             })))
-            .Done(c => c.FirstHandlerWasCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -36,10 +35,7 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Endpoint)));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(Endpoint)));
     }
 
     public class MyMessage : IMessage
@@ -47,13 +43,8 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
         public Guid Id { get; set; }
     }
 
-    public class FirstMessageHandler : IHandleMessages<MyMessage>
+    public class FirstMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public FirstMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             if (testContext.Id != message.Id)
@@ -62,20 +53,12 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             }
 
             testContext.FirstHandlerWasCalled = true;
-
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 
-    public class SecondMessageHandler : IHandleMessages<MyMessage>
+    public class SecondMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public SecondMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             if (testContext.Id != message.Id)
@@ -84,10 +67,8 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
             }
 
             testContext.SecondHandlerWasCalled = true;
-
+            testContext.MarkAsCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 }

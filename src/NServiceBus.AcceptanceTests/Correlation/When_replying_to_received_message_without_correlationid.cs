@@ -21,7 +21,6 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
                 sendOptions.SetMessageId(mycustomid);
                 return session.Send(new MyRequest(), sendOptions);
             }))
-            .Done(c => c.GotResponse)
             .Run();
 
         Assert.That(context.CorrelationIdReceived, Is.EqualTo(mycustomid), "Correlation id should match MessageId");
@@ -29,41 +28,26 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
 
     public class Context : ScenarioContext
     {
-        public bool GotResponse { get; set; }
         public string CorrelationIdReceived { get; set; }
     }
 
     public class CorrelationEndpoint : EndpointConfigurationBuilder
     {
-        public CorrelationEndpoint()
-        {
-            EndpointSetup<DefaultServer>(c => c.RegisterMessageMutator(new RemoveCorrelationIdMutator()));
-        }
+        public CorrelationEndpoint() => EndpointSetup<DefaultServer>(c => c.RegisterMessageMutator(new RemoveCorrelationIdMutator()));
 
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
-            public Task Handle(MyRequest message, IMessageHandlerContext context)
-            {
-                return context.Reply(new MyResponse());
-            }
+            public Task Handle(MyRequest message, IMessageHandlerContext context) => context.Reply(new MyResponse());
         }
 
-        public class MyResponseHandler : IHandleMessages<MyResponse>
+        public class MyResponseHandler(Context context) : IHandleMessages<MyResponse>
         {
-            public MyResponseHandler(Context context)
-            {
-                this.context = context;
-            }
-
             public Task Handle(MyResponse message, IMessageHandlerContext c)
             {
                 context.CorrelationIdReceived = c.MessageHeaders[Headers.CorrelationId];
-                context.GotResponse = true;
-
+                context.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            readonly Context context;
         }
 
         class RemoveCorrelationIdMutator : IMutateIncomingTransportMessages
@@ -80,11 +64,7 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
-    public class MyResponse : IMessage
-    {
-    }
+    public class MyResponse : IMessage;
 }

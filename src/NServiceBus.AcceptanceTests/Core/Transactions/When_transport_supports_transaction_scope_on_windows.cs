@@ -35,9 +35,6 @@ public class When_transport_supports_transaction_scope_on_windows : NServiceBusA
 
     public class TransactionScopeEndpoint : EndpointConfigurationBuilder
     {
-        public TransactionScopeEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public TransactionScopeEndpoint() => EndpointSetup<DefaultServer>();
     }
 }

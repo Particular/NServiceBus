@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using NServiceBus.AcceptanceTesting.Customization;
@@ -11,8 +10,8 @@ using NUnit.Framework;
 
 public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(15_000)]
-    public async Task Should_not_apply_immediate_dispatch_to_inner_send(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_not_apply_immediate_dispatch_to_inner_send()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointA>(c => c
@@ -20,8 +19,7 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
                 .When(s => s.SendLocal(new TriggerMessage())))
             .WithEndpoint<EndpointB>()
             .WithEndpoint<EndpointC>()
-            .Done(c => c.MessageBReceived)
-            .Run(cancellationToken);
+            .Run();
 
         using (Assert.EnterMultipleScope())
         {
@@ -38,15 +36,13 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
 
     class EndpointA : EndpointConfigurationBuilder
     {
-        public EndpointA()
-        {
+        public EndpointA() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MessageToEndpointB), typeof(EndpointB));
                 c.ConfigureRouting().RouteToEndpoint(typeof(MessageToEndpointC), typeof(EndpointC));
                 c.Pipeline.Register(new OutgoingBehaviorWithSend(), "sends a message as part of an incoming message pipeline");
             });
-        }
 
         class TriggerMessageHandler : IHandleMessages<TriggerMessage>
         {
@@ -78,15 +74,12 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
-        public class EndpointBHandler : IHandleMessages<MessageToEndpointB>
+        public class EndpointBHandler(Context testContext) : IHandleMessages<MessageToEndpointB>
         {
-            Context testContext;
-
-            public EndpointBHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MessageToEndpointB message, IMessageHandlerContext context)
             {
                 testContext.MessageBReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -96,12 +89,8 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
     {
         public EndpointC() => EndpointSetup<DefaultServer>();
 
-        public class EndpointCHandler : IHandleMessages<MessageToEndpointC>
+        public class EndpointCHandler(Context testContext) : IHandleMessages<MessageToEndpointC>
         {
-            Context testContext;
-
-            public EndpointCHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MessageToEndpointC message, IMessageHandlerContext context)
             {
                 testContext.MessageCReceived = true;
@@ -110,15 +99,9 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
         }
     }
 
-    public class MessageToEndpointB : IMessage
-    {
-    }
+    public class MessageToEndpointB : IMessage;
 
-    public class MessageToEndpointC : IMessage
-    {
-    }
+    public class MessageToEndpointC : IMessage;
 
-    public class TriggerMessage : IMessage
-    {
-    }
+    public class TriggerMessage : IMessage;
 }

@@ -16,7 +16,6 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
-            .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run(cancellationToken);
 
         Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
@@ -45,9 +44,8 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
             public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
             {
                 testContext.DidRequestingSagaGetTheResponse = true;
-
                 MarkAsComplete();
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

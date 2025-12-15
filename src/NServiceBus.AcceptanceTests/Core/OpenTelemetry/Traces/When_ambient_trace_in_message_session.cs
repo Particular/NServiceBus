@@ -23,15 +23,12 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
                     // Otherwise the activity is created with a hierarchical ID format on .NET Framework which resets the RootId once it's converted to W3C format in the send pipeline.
                     var activityTraceContext = new ActivityContext(ActivityTraceId.CreateRandom(),
                         ActivitySpanId.CreateRandom(), ActivityTraceFlags.Recorded);
-                    using (var wrapperActivity = externalActivitySource.StartActivity("ambient span", ActivityKind.Server, activityTraceContext))
-                    {
-                        wrapperActivity.TraceStateString = wrapperActivityTraceState;
-                        ctx.WrapperActivityId = wrapperActivity.Id;
-                        ctx.WrapperActivityRootId = wrapperActivity.RootId;
-                        await s.SendLocal(new LocalMessage());
-                    }
+                    using var wrapperActivity = externalActivitySource.StartActivity("ambient span", ActivityKind.Server, activityTraceContext);
+                    wrapperActivity.TraceStateString = wrapperActivityTraceState;
+                    ctx.WrapperActivityId = wrapperActivity.Id;
+                    ctx.WrapperActivityRootId = wrapperActivity.RootId;
+                    await s.SendLocal(new LocalMessage());
                 }))
-            .Done(c => c.OutgoingMessageReceived)
             .Run();
 
         var outgoingMessageActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single();
@@ -50,7 +47,6 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool OutgoingMessageReceived { get; set; }
         public string WrapperActivityId { get; set; }
         public string WrapperActivityRootId { get; set; }
     }
@@ -59,21 +55,15 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
     {
         public EndpointWithAmbientActivity() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        public class MessageHandler : IHandleMessages<LocalMessage>
+        public class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {
-                testContext.OutgoingMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class LocalMessage : IMessage
-    {
-    }
+    public class LocalMessage : IMessage;
 }

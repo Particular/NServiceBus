@@ -22,7 +22,6 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
                 options.SetHeader("X-Correlation-Id", correlationId);
                 await session.Send(new StartWithHeader(), options);
             }))
-            .Done(c => c.SagaWasInvoked)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -53,6 +52,7 @@ public class When_manually_registering_saga_with_header_mapping : NServiceBusAcc
             {
                 testContext.SagaWasInvoked = true;
                 testContext.CorrelationId = Data.CorrelationId;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

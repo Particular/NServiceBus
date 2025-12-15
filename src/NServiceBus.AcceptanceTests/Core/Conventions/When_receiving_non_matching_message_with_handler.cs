@@ -14,7 +14,6 @@ public class When_receiving_non_matching_message_with_handler : NServiceBusAccep
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Sender>(c => c.When(s => s.Send(new NonMatchingMessageWithHandler())))
             .WithEndpoint<Receiver>()
-            .Done(c => c.GotTheMessage)
             .Run();
 
         Assert.That(context.GotTheMessage, Is.True);
@@ -40,12 +39,11 @@ public class When_receiving_non_matching_message_with_handler : NServiceBusAccep
             public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
             {
                 testContext.GotTheMessage = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class NonMatchingMessageWithHandler : IMessage
-    {
-    }
+    public class NonMatchingMessageWithHandler : IMessage;
 }

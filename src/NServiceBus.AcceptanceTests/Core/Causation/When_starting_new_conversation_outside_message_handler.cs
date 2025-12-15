@@ -23,7 +23,6 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
 
                 await session.Send(new AnyMessage(), sendOptions);
             }))
-            .Done(ctx => ctx.MessageHandled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -45,7 +44,6 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
 
                 await session.Send(new AnyMessage(), sendOptions);
             }))
-            .Done(ctx => ctx.MessageHandled)
             .Run();
 
         Assert.That(context.ConversationId, Is.EqualTo(GeneratedConversationId), "ConversationId should be generated.");
@@ -57,60 +55,42 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
     }
 
     [Test]
-    public async Task Cannot_set_value_for_header_directly()
+    public void Cannot_set_value_for_header_directly()
     {
         var overrideConversationId = "Some conversationid";
-
-        var context = await Scenario.Define<NewConversationScenario>()
-            .WithEndpoint<NewConversationEndpoint>(b => b.When(async (session, ctx) =>
-            {
-                var sendOptions = new SendOptions();
-                sendOptions.RouteToThisEndpoint();
-                sendOptions.StartNewConversation();
-                sendOptions.SetHeader(Headers.ConversationId, overrideConversationId);
-
-                try
-                {
-                    await session.Send(new AnyMessage(), sendOptions);
-                }
-                catch (Exception ex)
-                {
-                    ctx.ExceptionMessage = ex.Message;
-                    ctx.ExceptionThrown = true;
-                }
-            }))
-            .Done(ctx => ctx.ExceptionThrown)
-            .Run();
-
         var expectedExceptionMessage = $"Cannot set the NServiceBus.ConversationId header to '{overrideConversationId}' as StartNewConversation() was called.";
-        using (Assert.EnterMultipleScope())
+
+        Assert.That(async () =>
         {
-            Assert.That(context.ExceptionThrown, Is.True, "Exception should be thrown when trying to directly set conversationId");
-            Assert.That(context.ExceptionMessage, Is.EqualTo(expectedExceptionMessage));
-        }
+            await Scenario.Define<NewConversationScenario>()
+                .WithEndpoint<NewConversationEndpoint>(b => b.When(async (session, ctx) =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.RouteToThisEndpoint();
+                    sendOptions.StartNewConversation();
+                    sendOptions.SetHeader(Headers.ConversationId, overrideConversationId);
+
+                    try
+                    {
+                        await session.Send(new AnyMessage(), sendOptions);
+                    }
+                    catch (Exception ex)
+                    {
+                        ctx.MarkAsFailed(ex);
+                    }
+                }))
+                .Run();
+        }, Throws.Exception.Message.EqualTo(expectedExceptionMessage));
     }
 
-    public class AnyMessage : IMessage
-    {
-
-    }
+    public class AnyMessage : IMessage;
 
     class NewConversationEndpoint : EndpointConfigurationBuilder
     {
-        public NewConversationEndpoint()
+        public NewConversationEndpoint() => EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId)));
+
+        class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
         {
-            EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId)));
-        }
-
-        class AnyMessageHandler : IHandleMessages<AnyMessage>
-        {
-            NewConversationScenario scenario;
-
-            public AnyMessageHandler(NewConversationScenario scenario)
-            {
-                this.scenario = scenario;
-            }
-
             public Task Handle(AnyMessage message, IMessageHandlerContext context)
             {
                 if (context.MessageHeaders.TryGetValue(Headers.ConversationId, out var conversationId))
@@ -123,8 +103,7 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
                     scenario.PreviousConversationId = previousConversationId;
                 }
 
-                scenario.MessageHandled = true;
-
+                scenario.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -132,9 +111,6 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
 
     class NewConversationScenario : ScenarioContext
     {
-        public bool ExceptionThrown { get; set; }
-        public string ExceptionMessage { get; set; }
-        public bool MessageHandled { get; set; }
         public string ConversationId { get; set; }
         public string PreviousConversationId { get; set; }
     }

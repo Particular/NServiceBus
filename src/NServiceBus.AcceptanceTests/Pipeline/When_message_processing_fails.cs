@@ -15,7 +15,6 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
             .WithEndpoint<EndpointWithFailingHandler>(e => e
                 .When(s => s.SendLocal(new FailingMessage()))
                 .DoNotFailOnErrorMessages())
-            .Done(c => c.MessageFailed)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -37,8 +36,7 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue((failure, _) =>
@@ -46,22 +44,16 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
                     var testContext = (Context)r.ScenarioContext;
                     testContext.MessageFailed = true;
                     testContext.Exception = failure.Exception;
+                    testContext.MarkAsCompleted();
                     return Task.CompletedTask;
                 }));
             });
-        }
 
         class FailingMessageHandler : IHandleMessages<FailingMessage>
         {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-
-    }
+    public class FailingMessage : IMessage;
 }

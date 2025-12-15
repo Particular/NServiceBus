@@ -15,7 +15,6 @@ public class When_auditing : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOff>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete)
             .Run();
 
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.False);
@@ -27,7 +26,6 @@ public class When_auditing : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.True);
@@ -37,12 +35,15 @@ public class When_auditing : NServiceBusAcceptanceTest
     {
         public bool IsMessageHandlingComplete { get; set; }
         public bool IsMessageHandledByTheAuditEndpoint { get; set; }
+
+        public void MarkAsCompletedForAuditingDisabled() => MarkAsCompleted(IsMessageHandlingComplete);
+
+        public void MarkAsCompletedForAuditingEnabled() => MarkAsCompleted(IsMessageHandlingComplete, IsMessageHandledByTheAuditEndpoint);
     }
 
     public class EndpointWithAuditOff : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOff()
-        {
+        public EndpointWithAuditOff() =>
             // Although the AuditProcessedMessagesTo seems strange here, this test tries to fake the scenario where
             // even though the user has specified audit config, because auditing is explicitly turned
             // off, no messages should be audited.
@@ -51,75 +52,48 @@ public class When_auditing : NServiceBusAcceptanceTest
                 c.DisableFeature<Audit>();
                 c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
             });
-        }
 
-        class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.IsMessageHandlingComplete = true;
+                testContext.MarkAsCompletedForAuditingDisabled();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
-            EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
-        }
+        public EndpointWithAuditOn() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
-        class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public MessageToBeAuditedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.IsMessageHandlingComplete = true;
+                testContext.MarkAsCompletedForAuditingEnabled();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesAuditMessages()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public AuditMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.IsMessageHandledByTheAuditEndpoint = true;
+                testContext.MarkAsCompletedForAuditingEnabled();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

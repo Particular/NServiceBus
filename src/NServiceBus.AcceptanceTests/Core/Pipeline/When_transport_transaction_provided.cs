@@ -17,7 +17,6 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ContextExtendingEndpoint>(e => e
                 .When((session, _) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.AnotherMessageReceived)
             .Run();
 
         Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
@@ -27,7 +26,6 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
     {
         public TransportTransaction IncomingPipelineTransportTransaction { get; set; }
         public TransportTransaction DispatchPipelineTransportTransaction { get; set; }
-        public bool AnotherMessageReceived { get; set; }
         public bool SomeMessageReceived { get; set; }
     }
 
@@ -40,36 +38,26 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
                 c.Pipeline.Register(nameof(DispatchContextBehavior), b => new DispatchContextBehavior(b.GetRequiredService<Context>()), "Tries to read the transport transaction in the dispatch pipeline");
             });
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public SomeMessageHandler(Context context) => testContext = context;
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SomeMessageReceived = true;
                 return context.SendLocal(new AnotherMessage());
             }
-
-            Context testContext;
         }
 
-        class AnotherMessageHandler : IHandleMessages<AnotherMessage>
+        class AnotherMessageHandler(Context testContext) : IHandleMessages<AnotherMessage>
         {
-            public AnotherMessageHandler(Context context) => testContext = context;
-
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {
-                testContext.AnotherMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class IncomingTransportReceivePipelineBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        class IncomingTransportReceivePipelineBehavior(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public IncomingTransportReceivePipelineBehavior(Context testContext) => this.testContext = testContext;
-
             public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 if (!testContext.SomeMessageReceived)
@@ -78,14 +66,10 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
                 }
                 return next(context);
             }
-
-            readonly Context testContext;
         }
 
-        class DispatchContextBehavior : IBehavior<IDispatchContext, IDispatchContext>
+        class DispatchContextBehavior(Context testContext) : IBehavior<IDispatchContext, IDispatchContext>
         {
-            public DispatchContextBehavior(Context testContext) => this.testContext = testContext;
-
             public Task Invoke(IDispatchContext context, Func<IDispatchContext, Task> next)
             {
                 if (context.Extensions.TryGet<IncomingMessage>(out _))
@@ -95,16 +79,10 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
 
                 return next(context);
             }
-
-            readonly Context testContext;
         }
     }
 
-    public class SomeMessage : ICommand
-    {
-    }
+    public class SomeMessage : ICommand;
 
-    public class AnotherMessage : ICommand
-    {
-    }
+    public class AnotherMessage : ICommand;
 }

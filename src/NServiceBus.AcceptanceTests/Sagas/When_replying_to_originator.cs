@@ -13,7 +13,6 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
-            .Done(c => c.DidRequestingSagaGetTheResponse)
             .Run();
 
         Assert.That(context.DidRequestingSagaGetTheResponse, Is.True);
@@ -42,9 +41,8 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
             public Task Handle(ResponseFromOtherSaga message, IMessageHandlerContext context)
             {
                 testContext.DidRequestingSagaGetTheResponse = true;
-
                 MarkAsComplete();
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

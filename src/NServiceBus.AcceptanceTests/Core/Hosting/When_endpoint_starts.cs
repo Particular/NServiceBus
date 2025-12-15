@@ -35,28 +35,19 @@ public class When_endpoint_starts : NServiceBusAcceptanceTest
         await TestContext.Out.WriteLineAsync(await File.ReadAllTextAsync(pathToFile));
     }
 
-    class Context : ScenarioContext
-    {
-    }
+    class Context : ScenarioContext;
 
     class MyEndpoint : EndpointConfigurationBuilder
     {
-        public MyEndpoint()
-        {
+        public MyEndpoint() =>
             EndpointSetup<DefaultServer>(c => c.SetDiagnosticsPath(basePath))
-               .EnableStartupDiagnostics();
-        }
+                .EnableStartupDiagnostics();
     }
 
     class MyMessageHandler : IHandleMessages<MyMessage>
     {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
-        {
-            throw new System.NotImplementedException();
-        }
+        public Task Handle(MyMessage message, IMessageHandlerContext context) => throw new System.NotImplementedException();
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }

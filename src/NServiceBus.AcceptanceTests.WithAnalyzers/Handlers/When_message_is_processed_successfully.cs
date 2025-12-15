@@ -15,7 +15,6 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithComplexMessageHierarchy>(b =>
                 b.When(async (session, _) => await session.SendLocal(new ComplexMessage())))
-            .Done(c => c.ComplexMessageReceived)
             .Run();
 
         Assert.That(context.ComplexMessageReceived, Is.True);
@@ -38,6 +37,7 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
             public Task Handle(ComplexMessage message, IMessageHandlerContext context)
             {
                 testContext.ComplexMessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

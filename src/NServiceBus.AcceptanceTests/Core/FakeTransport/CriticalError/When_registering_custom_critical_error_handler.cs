@@ -11,32 +11,31 @@ using NUnit.Framework;
 public class When_registering_custom_critical_error_handler : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Critical_error_should_be_raised_inside_delegate()
+    public void Critical_error_should_be_raised_inside_delegate()
     {
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
-                session => session.SendLocal(new MyRequest())))
-            .Done(c => c.ExceptionReceived)
-            .Run();
+        Context context = null;
+        var exception = Assert.CatchAsync<Exception>(async () =>
+        {
+            await Scenario.Define<Context>(c => context = c)
+                .WithEndpoint<EndpointWithLocalCallback>(b => b.When(session => session.SendLocal(new MyRequest())))
+                .Run();
+        });
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Message, Does.StartWith("Startup task failed to complete."));
-            Assert.That(context.Exception.Message, Is.EqualTo("ExceptionInBusStarts"));
+            Assert.That(exception.Message, Is.EqualTo("ExceptionInBusStarts"));
         }
     }
 
     public class Context : ScenarioContext
     {
-        public Exception Exception { get; set; }
         public string Message { get; set; }
-        public bool ExceptionReceived { get; set; }
     }
 
     public class EndpointWithLocalCallback : EndpointConfigurationBuilder
     {
-        public EndpointWithLocalCallback()
-        {
+        public EndpointWithLocalCallback() =>
             EndpointSetup<DefaultServer>(builder =>
             {
                 var fakeTransport = new FakeTransport();
@@ -47,24 +46,18 @@ public class When_registering_custom_critical_error_handler : NServiceBusAccepta
                 {
                     var aggregateException = (AggregateException)errorContext.Exception;
                     var context = builder.GetSettings().Get<Context>();
-                    context.Exception = aggregateException.InnerExceptions.First();
                     context.Message = errorContext.Error;
-                    context.ExceptionReceived = true;
+
+                    context.MarkAsFailed(aggregateException.GetBaseException());
                     return Task.CompletedTask;
                 });
             });
-        }
 
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
-            public Task Handle(MyRequest request, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MyRequest request, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 }
