@@ -24,6 +24,18 @@ public class When_auditing : NServiceBusAcceptanceTest
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.False);
     }
 
+    [Test]
+    public async Task Should_not_be_forwarded_to_auditQueue_when_no_audit_queue_is_configured()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithNoAuditQueueConfiguredInCode>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<EndpointThatHandlesAuditMessages>()
+            .Done(c => c.IsMessageHandlingComplete)
+            .Run();
+
+        Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.False);
+    }
+
     [TestCase("false")]
     [TestCase("FALSE")]
     [TestCase("False")]
@@ -62,14 +74,19 @@ public class When_auditing : NServiceBusAcceptanceTest
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.True);
     }
 
-    [Test]
+    [TestCase("true")]
+    [TestCase("TRUE")]
+    [TestCase("True")]
+    [TestCase(null)]
     [NonParallelizable]
-    public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_configured_by_environment_variable()
+    public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_configured_by_environment_variable(string auditEnabledValue)
     {
-        var originalValue = Environment.GetEnvironmentVariable(AuditAddressEnvironmentVariableKey);
+        var originalAuditAddressValue = Environment.GetEnvironmentVariable(AuditAddressEnvironmentVariableKey);
+        var originalAuditEnabledValue = Environment.GetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey);
 
         var auditAddress = Conventions.EndpointNamingConvention(typeof(EndpointThatHandlesAuditMessages));
         Environment.SetEnvironmentVariable(AuditAddressEnvironmentVariableKey, auditAddress);
+        Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, auditEnabledValue);
 
         try
         {
@@ -82,7 +99,8 @@ public class When_auditing : NServiceBusAcceptanceTest
         }
         finally
         {
-            Environment.SetEnvironmentVariable(AuditAddressEnvironmentVariableKey, originalValue);
+            Environment.SetEnvironmentVariable(AuditAddressEnvironmentVariableKey, originalAuditAddressValue);
+            Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, originalAuditEnabledValue);
         }
     }
 
