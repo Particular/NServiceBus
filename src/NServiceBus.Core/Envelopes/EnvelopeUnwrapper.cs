@@ -36,9 +36,11 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers)
             }
         }
 
-if(envelopeHandlers.Length > 0) {
-        Log.Info($"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
-}
+        if (envelopeHandlers.Length > 0)
+        {
+            Log.Info($"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+        }
+
         return GetDefaultIncomingMessage(messageContext);
     }
 
