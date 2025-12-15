@@ -43,13 +43,8 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
 
     internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy);
 
-    internal sealed record HandlerTypeSpec
+    internal readonly record struct HandlerTypeSpec(string FullyQualifiedName, string InterceptorMethodName)
     {
-        public required string FullyQualifiedName { get; init; }
-        public required string InterceptorMethodName { get; init; }
-
-        HandlerTypeSpec() { }
-
         public static HandlerTypeSpec From(INamedTypeSymbol handlerType)
         {
             const string NamePrefix = "AddHandler_";

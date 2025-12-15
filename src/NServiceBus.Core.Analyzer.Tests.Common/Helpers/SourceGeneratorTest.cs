@@ -520,6 +520,7 @@ public enum GeneratorTestOutput
     All = 2
 }
 
+#pragma warning disable RS1001 // Missing DiagnosticAnalyzer attribute - but we don't actually want it to be "found"
 public class NoOpAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [];
@@ -532,3 +533,4 @@ public class NoOpAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(static context => { }, SyntaxKind.ModuleKeyword);
     }
 }
+#pragma warning enable RS1001
