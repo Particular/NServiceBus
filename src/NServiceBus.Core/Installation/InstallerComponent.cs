@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
             set => settings.Set(UsernameSettingsKey, value);
         }
 
-        public void Add<TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(new Installer<TInstaller>());
+        public void Add<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TInstaller>() where TInstaller : class, INeedToInstallSomething => installers.Add(new Installer<TInstaller>());
 
         public void AddScannedInstallers(IEnumerable<Type> scannedTypes)
         {
@@ -62,7 +63,7 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        sealed class Installer<T> : IInstaller where T : class, INeedToInstallSomething
+        sealed class Installer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T> : IInstaller where T : class, INeedToInstallSomething
         {
             public async Task Install(IServiceProvider serviceProvider, string identity, CancellationToken cancellationToken = default)
             {

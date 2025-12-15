@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Sagas;
 
 /// <summary>
@@ -13,7 +14,8 @@ public static class SagaRegistrationExtensions
     /// <summary>
     /// Registers a saga.
     /// </summary>
-    public static void AddSaga<TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
+    [RequiresUnreferencedCode("Uses reflection to create instances of saga types.")]
+    public static void AddSaga<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
 

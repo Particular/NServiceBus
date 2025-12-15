@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Sagas;
 
@@ -20,7 +21,7 @@ public partial class SagaPropertyMapper<TSagaData> where TSagaData : class, ICon
     /// </summary>
     /// <typeparam name="TMessage">The message type to map to.</typeparam>
     /// <typeparam name="TFinder">The saga finder that will return the saga.</typeparam>
-    public void ConfigureFinderMapping<TMessage, TFinder>() where TFinder : class, ISagaFinder<TSagaData, TMessage>
+    public void ConfigureFinderMapping<TMessage, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TFinder>() where TFinder : class, ISagaFinder<TSagaData, TMessage>
     {
         if (sagaMessageFindingConfiguration is not IConfigureHowToFindSagaWithFinder sagaMapperFindingConfiguration)
         {
@@ -48,7 +49,7 @@ public partial class SagaPropertyMapper<TSagaData> where TSagaData : class, ICon
     /// <summary>
     /// Configures the given handler to be invoked when instances of this saga can't be found by any of the handled messages.
     /// </summary>
-    public void ConfigureNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler
+    public void ConfigureNotFoundHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler
     {
         if (sagaMessageFindingConfiguration is not IConfigureSagaNotFoundHandler sagaNotFoundConfiguration)
         {
