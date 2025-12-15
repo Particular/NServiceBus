@@ -11,29 +11,20 @@ using NUnit.Framework;
 public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Message_should_not_be_received()
-    {
-        var start = DateTime.UtcNow;
-
-        var context = await Scenario.Define<Context>()
+    public async Task Message_should_not_be_received() =>
+        await Assert.ThatAsync(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Done(c => c.WasCalled || DateTime.UtcNow - start > TimeSpan.FromSeconds(15))
-            .Run();
+            .Run(), Throws.Nothing);
 
-        Assert.That(context.WasCalled, Is.False);
-    }
-
-    public class Context : ScenarioContext
-    {
-        public bool WasCalled { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     class DelayReceiverFromStartingTask : FeatureStartupTask
     {
         protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
-            await session.SendLocal(new MyMessage(), cancellationToken: cancellationToken);
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            await session.SendLocal(new MyMessageWithTimeToBeReceived(), cancellationToken: cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken);
+            await session.SendLocal(new MyRegularMessage(), cancellationToken: cancellationToken);
         }
 
         protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
@@ -41,18 +32,33 @@ public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint() => EndpointSetup<DefaultServer>(c => c.RegisterStartupTask(new DelayReceiverFromStartingTask()));
-
-        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
+        public Endpoint() => EndpointSetup<DefaultServer>(c =>
         {
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            c.LimitMessageProcessingConcurrencyTo(1);
+            c.RegisterStartupTask(new DelayReceiverFromStartingTask());
+        });
+
+        public class MyMessageWithTimeToBeReceivedHandler(Context testContext) : IHandleMessages<MyMessageWithTimeToBeReceived>
+        {
+            public Task Handle(MyMessageWithTimeToBeReceived messageWithTimeToBeReceived, IMessageHandlerContext context)
             {
-                testContext.WasCalled = true;
+                testContext.MarkAsFailed(new InvalidOperationException("Should not be called"));
+                return Task.CompletedTask;
+            }
+        }
+
+        public class MyRegularMessageHandler(Context testContext) : IHandleMessages<MyRegularMessage>
+        {
+            public Task Handle(MyRegularMessage messageWithTimeToBeReceived, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    [TimeToBeReceived("00:00:02")]
-    public class MyMessage : IMessage;
+    [TimeToBeReceived("00:00:01")]
+    public class MyMessageWithTimeToBeReceived : IMessage;
+
+    public class MyRegularMessage : IMessage;
 }
