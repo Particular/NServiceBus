@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -62,13 +63,14 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the handler type.
     /// </summary>
-    public void AddHandler<THandler>() where THandler : IHandleMessages
+    [RequiresUnreferencedCode("Uses reflection to inspect handler types.")]
+    public void AddHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
 
         if (handlerType.IsAbstract)
         {
-            return;
+            throw new ArgumentException($"The handler type '{handlerType.FullName}' is abstract and cannot be registered as a message handler.");
         }
 
         foreach (var interfaceType in handlerType.GetInterfaces())
@@ -95,7 +97,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -112,7 +114,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific timeout type. Should only be called by a source generator.
     /// </summary>
-    public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
+    public void AddTimeoutHandlerForMessage<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -148,7 +150,7 @@ public class MessageHandlerRegistry
         }
     }
 
-    internal static bool IsMessageHandler(Type type)
+    internal static bool IsMessageHandler([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
     {
         if (type.IsAbstract || type.IsGenericTypeDefinition)
         {
@@ -200,7 +202,7 @@ public class MessageHandlerRegistry
         MessageHandler Create();
     }
 
-    sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class TimeoutHandlerFactory<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -220,7 +222,7 @@ public class MessageHandlerRegistry
             static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
-    sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
