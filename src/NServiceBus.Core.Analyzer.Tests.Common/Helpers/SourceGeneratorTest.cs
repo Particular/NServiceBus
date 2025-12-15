@@ -533,4 +533,4 @@ public class NoOpAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(static context => { }, SyntaxKind.ModuleKeyword);
     }
 }
-#pragma warning enable RS1001
+#pragma warning restore RS1001
