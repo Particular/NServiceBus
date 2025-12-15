@@ -463,11 +463,10 @@ namespace NServiceBus
     }
     public interface IEnvelopeHandler
     {
-        bool CanUnwrapEnvelope(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, NServiceBus.Extensibility.ContextBag extensions, System.ReadOnlyMemory<byte> incomingBody);
         [return: System.Runtime.CompilerServices.TupleElementNames(new string[] {
                 "headers",
                 "body"})]
-        System.ValueTuple<System.Collections.Generic.Dictionary<string, string>, System.ReadOnlyMemory<byte>> UnwrapEnvelope(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, NServiceBus.Extensibility.ContextBag extensions, System.ReadOnlyMemory<byte> incomingBody);
+        System.ValueTuple<System.Collections.Generic.Dictionary<string, string>, System.ReadOnlyMemory<byte>>? UnwrapEnvelope(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, NServiceBus.Extensibility.ContextBag extensions, System.ReadOnlyMemory<byte> incomingBody);
     }
     public interface IHandleMessages { }
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages

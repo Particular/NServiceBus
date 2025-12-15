@@ -17,11 +17,22 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers)
         // https://stackoverflow.com/questions/45651325/performance-before-using-a-foreach-loop-check-if-the-list-is-empty
         foreach (var envelopeHandler in envelopeHandlers)
         {
-            if (envelopeHandler.CanUnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body))
+            try
             {
-                Log.Debug($"Unwrapping the current message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
-                (Dictionary<string, string> headers, ReadOnlyMemory<byte> body) = envelopeHandler.UnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions, messageContext.Body);
-                return new IncomingMessage(messageContext.NativeMessageId, headers, body);
+                Log.Debug(
+                    $"Unwrapping the current message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
+                (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? unwrappingResult = envelopeHandler.UnwrapEnvelope(
+                    messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
+                    messageContext.Body);
+
+                if (unwrappingResult.HasValue)
+                {
+                    return new IncomingMessage(messageContext.NativeMessageId, unwrappingResult.Value.headers, unwrappingResult.Value.body);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Unwrapper {envelopeHandler} failed to unwrap the message {messageContext.NativeMessageId}", e);
             }
         }
 
