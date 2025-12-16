@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -200,6 +201,7 @@ public class MessageHandlerRegistry
         MessageHandler Create();
     }
 
+    [DebuggerNonUserCode]
     sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
@@ -220,6 +222,7 @@ public class MessageHandlerRegistry
             static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
+    [DebuggerNonUserCode]
     sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
