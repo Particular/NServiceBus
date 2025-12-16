@@ -13,6 +13,7 @@ public static class MessageHandlerRegistrationExtensions
     /// <summary>
     /// Registers a message handler.
     /// </summary>
+    [RequiresUnreferencedCode("Uses reflection to inspect handler types.")]
     public static void AddHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
