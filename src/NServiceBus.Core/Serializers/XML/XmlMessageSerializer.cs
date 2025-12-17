@@ -2,11 +2,13 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using MessageInterfaces;
 using Serialization;
 
+[RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 class XmlMessageSerializer : IMessageSerializer
 {
     /// <summary>
