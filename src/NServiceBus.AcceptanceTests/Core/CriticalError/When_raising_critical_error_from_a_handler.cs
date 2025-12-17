@@ -14,18 +14,10 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
     [Test]
     public async Task Should_trigger_critical_error_action()
     {
-        var exceptions = new ConcurrentDictionary<string, Exception>();
-
-        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, CancellationToken _)
-        {
-            exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
-            return Task.CompletedTask;
-        }
-
-        await Scenario.Define<TestContext>()
+        var context = await Scenario.Define<TestContext>()
             .WithEndpoint<EndpointWithCriticalError>(b =>
             {
-                b.CustomConfig(config => config.DefineCriticalErrorAction(CollectCriticalErrors));
+                b.CustomConfig((config, ctx) => config.DefineCriticalErrorAction((errorContext, token) => CollectCriticalErrors(errorContext, ctx, token)));
                 b.When((session, c) =>
                 {
                     c.ContextId = Guid.NewGuid().ToString();
@@ -37,13 +29,21 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
             })
             .Run();
 
-        Assert.That(exceptions.Keys, Has.Count.EqualTo(1));
+        Assert.That(context.Exceptions.Keys, Has.Count.EqualTo(1));
+
+        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, TestContext testContext, CancellationToken cancellationToken)
+        {
+            testContext.Exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
+            testContext.MarkAsCompleted(!testContext.Exceptions.IsEmpty);
+            return Task.CompletedTask;
+        }
     }
 
     public class TestContext : ScenarioContext
     {
         public string ContextId { get; set; }
         public int CriticalErrorsRaised { get; set; }
+        public ConcurrentDictionary<string, Exception> Exceptions { get; } = [];
     }
 
     public class EndpointWithCriticalError : EndpointConfigurationBuilder
@@ -58,7 +58,6 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
                 {
                     criticalError.Raise("a critical error", new SimulatedException());
                     testContext.CriticalErrorsRaised++;
-                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;

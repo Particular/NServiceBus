@@ -15,29 +15,31 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_call_critical_error_action_for_every_error_that_occurred_before_startup()
     {
-        var exceptions = new ConcurrentDictionary<string, Exception>();
-
-        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, CancellationToken _)
-        {
-            exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
-            return Task.CompletedTask;
-        }
-
         var context = await Scenario.Define<TestContext>()
             .WithEndpoint<EndpointWithCriticalErrorStartup>(b =>
-                b.CustomConfig(config => config.DefineCriticalErrorAction(CollectCriticalErrors)))
+                b.CustomConfig((config, ctx) => config.DefineCriticalErrorAction((errorContext, token) => CollectCriticalErrors(errorContext, ctx, token))))
             .Run();
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.CriticalErrorsRaised, Is.EqualTo(2));
-            Assert.That(exceptions, Has.Count.EqualTo(context.CriticalErrorsRaised));
+            Assert.That(context.Exceptions, Has.Count.EqualTo(context.CriticalErrorsRaised));
+        }
+
+        return;
+
+        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, TestContext testContext, CancellationToken cancellationToken)
+        {
+            testContext.Exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
+            testContext.MarkAsCompleted(testContext.Exceptions.Count >= 2);
+            return Task.CompletedTask;
         }
     }
 
     public class TestContext : ScenarioContext
     {
         public int CriticalErrorsRaised { get; set; }
+        public ConcurrentDictionary<string, Exception> Exceptions { get; } = [];
     }
 
     public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
@@ -53,8 +55,6 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
 
                 criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
                 testContext.CriticalErrorsRaised++;
-
-                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }
