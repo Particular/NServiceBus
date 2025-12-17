@@ -12,25 +12,21 @@ public class When_outbox_enabled_with_transaction_mode_above_receive_only : NSer
     {
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Done(_ => false)
+            .Done(c => c.EndpointsStarted)
             .Run());
 
         Assert.That(exception.Message, Does.Contain($"Outbox requires transport to be running in `{nameof(TransportTransactionMode.ReceiveOnly)}` mode"));
     }
 
-    public class Context : ScenarioContext
-    {
-    }
+    public class Context : ScenarioContext;
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableOutbox();
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
             });
-        }
     }
 }
