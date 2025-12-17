@@ -15,7 +15,6 @@ public class When_disabling_payload_restrictions : NServiceBusAcceptanceTest
             {
                 LargeProperty = new byte[1024 * 64]
             })))
-            .Done(c => c.MessageReceived)
             .Run();
 
         Assert.That(context.MessageReceived, Is.True, "Message was not received");
@@ -28,29 +27,21 @@ public class When_disabling_payload_restrictions : NServiceBusAcceptanceTest
 
     class LargePayloadEndpoint : EndpointConfigurationBuilder
     {
-        public LargePayloadEndpoint()
-        {
+        public LargePayloadEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 var transport = c.ConfigureTransport<LearningTransport>();
                 transport.RestrictPayloadSize = false;
             });
-        }
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public SomeMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
