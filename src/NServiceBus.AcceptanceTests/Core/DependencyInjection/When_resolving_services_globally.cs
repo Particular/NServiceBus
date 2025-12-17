@@ -32,9 +32,9 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
                 // demonstrates using AnyKey to get the keyed services of that type
                 allServices.AddRange(provider.GetKeyedServices<IMyComponent>(KeyedService.AnyKey));
                 context.Components = allServices;
+                context.MaybeCompleted();
                 return Task.CompletedTask;
             })
-            .Done(c => c.Components.Count != 0)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -47,6 +47,7 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public List<IMyComponent> Components { get; set; } = [];
+        public void MaybeCompleted() => MarkAsCompleted(Components.Count >= 3);
     }
 
     interface IMyComponent;
