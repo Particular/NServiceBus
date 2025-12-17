@@ -11,8 +11,8 @@ using Unicast;
 
 public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(10_000)]
-    public async Task Should_invoke_manually_registered_handlers(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_invoke_manually_registered_handlers()
     {
         Requires.MessageDrivenPubSub();
 
@@ -20,11 +20,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
             .WithEndpoint<EndpointWithRegularHandler>(e => e
                 .When(s => s.SendLocal(new SomeCommand()))
                 .When(ctx => ctx.EventSubscribed, s => s.Publish(new SomeEvent()))) // verify autosubscribe picks up the handlers too
-            .Done(c => c.RegularCommandHandlerInvoked
-                       && c.ManuallyRegisteredCommandHandlerInvoked
-                       && c.RegularEventHandlerInvoked
-                       && c.ManuallyRegisteredEventHandlerInvoked)
-            .Run(cancellationToken);
+            .Run();
 
         using (Assert.EnterMultipleScope())
         {
@@ -42,41 +38,43 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public bool RegularEventHandlerInvoked { get; set; }
         public bool ManuallyRegisteredEventHandlerInvoked { get; set; }
         public bool EventSubscribed { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(RegularCommandHandlerInvoked, ManuallyRegisteredCommandHandlerInvoked, RegularEventHandlerInvoked, ManuallyRegisteredEventHandlerInvoked);
     }
 
     class EndpointWithRegularHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithRegularHandler()
-        {
+        public EndpointWithRegularHandler() =>
             EndpointSetup<DefaultServer>(c =>
+            {
+                var registry = new MessageHandlerRegistry();
+                registry.AddHandler<ManuallyRegisteredHandler>();
+                c.GetSettings().Set(registry);
+                // the handler isn't registered for DI automatically
+                c.RegisterComponents(components => components
+                    .AddTransient<ManuallyRegisteredHandler>());
+                c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
-                    var registry = new MessageHandlerRegistry();
-                    registry.AddHandler<ManuallyRegisteredHandler>();
-                    c.GetSettings().Set(registry);
-                    // the handler isn't registered for DI automatically
-                    c.RegisterComponents(components => components
-                        .AddTransient<ManuallyRegisteredHandler>());
-                    c.OnEndpointSubscribed<Context>((t, ctx) =>
+                    if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
                     {
-                        if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
-                        {
-                            ctx.EventSubscribed = true;
-                        }
-                    });
-                }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
-        }
+                        ctx.EventSubscribed = true;
+                    }
+                });
+            }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
 
         class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.RegularCommandHandlerInvoked = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
                 testContext.RegularEventHandlerInvoked = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -87,21 +85,19 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public Task Handle(SomeCommand message, IMessageHandlerContext context)
         {
             testContext.ManuallyRegisteredCommandHandlerInvoked = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
 
         public Task Handle(SomeEvent message, IMessageHandlerContext context)
         {
             testContext.ManuallyRegisteredEventHandlerInvoked = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
     }
 
-    public class SomeCommand : ICommand
-    {
-    }
+    public class SomeCommand : ICommand;
 
-    public class SomeEvent : IEvent
-    {
-    }
+    public class SomeEvent : IEvent;
 }

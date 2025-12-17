@@ -20,7 +20,6 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
                     await session.Send(new SomeMessage(), sendOptions);
                 })
             )
-            .Done(ctx => ctx.MessageReceived)
             .Run();
 
         var incomingMessageTraces = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -44,30 +43,18 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        public class SomeMessageHandler : IHandleMessages<SomeMessage>
+        public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
-            Context scenarioContext;
-
-            public SomeMessageHandler(Context scenarioContext)
-            {
-                this.scenarioContext = scenarioContext;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                scenarioContext.MessageReceived = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
 
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 
-    class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; internal set; }
-    }
+    class Context : ScenarioContext;
 }

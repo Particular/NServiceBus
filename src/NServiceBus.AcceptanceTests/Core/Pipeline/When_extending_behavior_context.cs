@@ -17,7 +17,6 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ContextExtendingEndpoint>(e => e
                 .When((session, c) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.HandlerAExtensionValue != null && c.HandlerBExtensionValue != null)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -33,50 +32,38 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
     {
         public string HandlerAExtensionValue { get; set; }
         public string HandlerBExtensionValue { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(HandlerAExtensionValue != null, HandlerBExtensionValue != null);
     }
 
     class ContextExtendingEndpoint : EndpointConfigurationBuilder
     {
-        public ContextExtendingEndpoint()
-        {
+        public ContextExtendingEndpoint() =>
             EndpointSetup<DefaultServer>(c => c.Pipeline.Register(
                 "CustomContextExtensionBehavior",
                 new CustomContextExtensionBehavior(),
                 "Puts customized data on the message context"));
-        }
 
-        class MessageHandlerA : IHandleMessages<SomeMessage>
+        class MessageHandlerA(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public MessageHandlerA(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 context.Extensions.TryGet("CustomExtension", out string extensionValue);
                 testContext.HandlerAExtensionValue = extensionValue;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class MessageHandlerB : IHandleMessages<SomeMessage>
+        class MessageHandlerB(Context testContext) : IHandleMessages<SomeMessage>
         {
-            public MessageHandlerB(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 context.Extensions.TryGet("CustomExtension", out string extensionValue);
                 testContext.HandlerBExtensionValue = extensionValue;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
         class CustomContextExtensionBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
@@ -89,7 +76,5 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
         }
     }
 
-    public class SomeMessage : ICommand
-    {
-    }
+    public class SomeMessage : ICommand;
 }

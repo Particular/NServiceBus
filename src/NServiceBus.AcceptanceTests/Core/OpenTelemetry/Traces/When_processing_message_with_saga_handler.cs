@@ -18,7 +18,6 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
             .WithEndpoint<TestEndpoint>(b =>
                 b.When(session => session.SendLocal(new SomeMessage { BusinessId = businessId }))
             )
-            .Done(ctx => ctx.MessageHandled)
             .Run();
 
         var invokedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
@@ -33,27 +32,22 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
     public class Context : ScenarioContext
     {
         public string SagaId { get; set; }
-        public bool MessageHandled { get; set; }
     }
 
     public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        public class TracedSaga : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
+        public class TracedSaga(Context testContext) : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
         {
-            Context testContext;
-
-            public TracedSaga(Context testContext) => this.testContext = testContext;
-
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TracedSagaData> mapper)
                 => mapper.MapSaga(saga => saga.BusinessId)
                         .ToMessage<SomeMessage>(msg => msg.BusinessId);
 
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
-                testContext.MessageHandled = true;
                 testContext.SagaId = Data.Id.ToString();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -24,7 +24,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                     sendOptions.RouteToThisEndpoint();
                     return s.Send(new DelayedMessage(), sendOptions);
                 }))
-            .Done(c => c.DelayedMessageReceived)
             .Run();
 
         Assert.That(context.DelayedMessageCurrentActivityId, Is.Not.Null, "delayed message current activityId is not null");
@@ -43,7 +42,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                     return s.Send(new IncomingMessage(), sendOptions);
                 }))
             .WithEndpoint<ReplyingEndpoint>()
-            .Done(c => c.ReplyMessageReceived)
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -69,20 +67,21 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
 
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
-        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
+        Assert.That(link, Is.Not.Default, "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
-    [Test, CancelAfter(120_000)]
-    public async Task By_retry_Should_create_new_trace_and_link_to_send(CancellationToken cancellationToken = default)
+    [Test]
+    public void By_retry_Should_create_new_trace_and_link_to_send()
     {
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<RetryEndpoint>(b => b
-                .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
-                .When(session => session.SendLocal(new MessageToBeRetried()))
-                .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run(cancellationToken);
+        _ = Assert.CatchAsync(async () =>
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<RetryEndpoint>(b => b
+                    .CustomConfig(c => c.ConfigureRouting().RouteToEndpoint(typeof(IncomingMessage), typeof(ReplyingEndpoint)))
+                    .When(session => session.SendLocal(new MessageToBeRetried())))
+                .Run();
+        });
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
         var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
@@ -105,17 +104,16 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             Assert.That(secondAttemptReceiveRequest.ParentId, Is.Null, "first incoming message does not have a parent, it's a root");
         }
         ActivityLink link = secondAttemptReceiveRequest.Links.FirstOrDefault();
-        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "second receive has a link");
+        Assert.That(link, Is.Not.Default, "second receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "second receive is linked to send operation");
     }
 
     [Test]
     public async Task By_saga_timeout_Should_create_new_trace_and_link_to_send()
     {
-        var context = await Scenario.Define<SagaContext>()
+        await Scenario.Define<SagaContext>()
             .WithEndpoint<SagaOtelEndpoint>(b => b
                 .When(s => s.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
-            .Done(c => c.SagaMarkedComplete)
             .Run();
 
         var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -143,7 +141,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             Assert.That(timeoutReceive.ParentId, Is.Null, "timeout receive operation does not have a parent, it's a root");
         }
         ActivityLink timeoutReceiveLink = timeoutReceive.Links.FirstOrDefault();
-        Assert.That(timeoutReceiveLink, Is.Not.EqualTo(default(ActivityLink)), "timeout receive operation is linked");
+        Assert.That(timeoutReceiveLink, Is.Not.Default, "timeout receive operation is linked");
         using (Assert.EnterMultipleScope())
         {
             Assert.That(timeoutReceiveLink.Context.TraceId, Is.EqualTo(timeoutSend.TraceId), "imeout receive operation links to the timeout send operation");
@@ -164,6 +162,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 #nullable enable
         public string? DelayedMessageCurrentActivityId { get; set; }
 #nullable disable
+
+        public void MaybeCompleted() => MarkAsCompleted(ReplyMessageReceived || IncomingMessageReceived || DelayedMessageReceived);
     }
     class SagaContext : ScenarioContext
     {
@@ -175,17 +175,14 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     class ReplyingEndpoint : EndpointConfigurationBuilder
     {
         public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
-        class MessageHandler : IHandleMessages<IncomingMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
                 testContext.IncomingMessageId = context.MessageId;
                 testContext.IncomingMessageReceived = true;
                 //testContext.IncomingMessageCurrentActivityId = Activity.Current?.Id;
+                testContext.MaybeCompleted();
                 return context.Reply(new ReplyMessage());
             }
         }
@@ -209,30 +206,24 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
-        class MessageHandler : IHandleMessages<ReplyMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
                 testContext.ReplyMessageId = context.MessageId;
                 testContext.ReplyMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
 
-        class DelayedMessageHandler : IHandleMessages<DelayedMessage>
+        class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>
         {
-            Context testContext;
-
-            public DelayedMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {
                 testContext.DelayedMessageReceived = true;
                 testContext.DelayedMessageCurrentActivityId = Activity.Current?.Id;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -281,6 +272,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             {
                 MarkAsComplete();
                 testContext.SagaMarkedComplete = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
