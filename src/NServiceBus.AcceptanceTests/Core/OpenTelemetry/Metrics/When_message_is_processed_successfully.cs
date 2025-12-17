@@ -24,7 +24,6 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
                         await session.SendLocal(new OutgoingMessage());
                     }
                 }))
-            .Done(c => c.OutgoingMessagesReceived == 5)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
@@ -91,7 +90,6 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
                         await session.SendLocal(new OutgoingWithComplexHierarchyMessage());
                     }
                 }))
-            .Done(c => c.ComplexOutgoingMessagesReceived == 5)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
@@ -134,7 +132,8 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
 
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                var numberOfMessages = Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                testContext.MarkAsCompleted(numberOfMessages == 5);
                 return Task.CompletedTask;
             }
         }
@@ -147,7 +146,8 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
 
             public Task Handle(OutgoingWithComplexHierarchyMessage message, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.ComplexOutgoingMessagesReceived);
+                var numberOfMessages = Interlocked.Increment(ref testContext.ComplexOutgoingMessagesReceived);
+                testContext.MarkAsCompleted(numberOfMessages == 5);
                 return Task.CompletedTask;
             }
         }

@@ -17,7 +17,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.InvocationCounter == 2)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.recoverability.immediate", 1);
@@ -41,7 +40,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 })
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.InvocationCounter == 2)
             .Run();
 
         metricsListener.AssertMetric("nservicebus.recoverability.immediate", 0);
@@ -54,17 +52,18 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        await Scenario.Define<Context>()
-            .WithEndpoint<RetryingEndpoint>(e => e
-                .CustomConfig(c =>
-                {
-                    c.Recoverability().Immediate(i => i.NumberOfRetries(0));
-                    c.Recoverability().Delayed(i => i.NumberOfRetries(0));
-                })
-                .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.FailedMessages.Count == 1)
-            .Run();
+        Assert.That(async () =>
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<RetryingEndpoint>(e => e
+                    .CustomConfig(c =>
+                    {
+                        c.Recoverability().Immediate(i => i.NumberOfRetries(0));
+                        c.Recoverability().Delayed(i => i.NumberOfRetries(0));
+                    })
+                    .When(s => s.SendLocal(new FailingMessage())))
+                .Run();
+        }, Throws.Exception);
 
         metricsListener.AssertMetric("nservicebus.recoverability.immediate", 0);
         metricsListener.AssertMetric("nservicebus.recoverability.delayed", 0);
@@ -84,18 +83,11 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             {
                 TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
             };
-            EndpointSetup(template, (endpointConfiguration, descriptor) => { });
+            EndpointSetup(template, (_, _) => { });
         }
 
-        class Handler : IHandleMessages<FailingMessage>
+        class Handler(Context testContext) : IHandleMessages<FailingMessage>
         {
-            Context testContext;
-
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {
                 testContext.InvocationCounter++;
@@ -105,12 +97,11 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                     throw new SimulatedException("first attempt fails");
                 }
 
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-    }
+    public class FailingMessage : IMessage;
 }
