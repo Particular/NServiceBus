@@ -12,7 +12,7 @@ static partial class HeaderSerializer
     public static Dictionary<string, string> Deserialize(string value) =>
         JsonSerializer.Deserialize(value, HeaderSerializationContext.Default.DictionaryStringString);
 
-    [JsonSourceGenerationOptions(WriteIndented = true, IndentSize = 2)]
+    [JsonSourceGenerationOptions(WriteIndented = true, IndentSize = 2, NewLine = "\r\n")]
     [JsonSerializable(typeof(Dictionary<string, string>))]
     sealed partial class HeaderSerializationContext : JsonSerializerContext;
 }
