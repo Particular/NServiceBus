@@ -20,7 +20,6 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())).DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .Done(c => c.IsMessageHandledByTheAuditEndpoint && c.IsMessageHandledByTheFaultEndpoint)
             .Run();
 
         var processingStarted = DateTimeOffsetHelper.ToDateTimeOffset(context.Headers[Headers.ProcessingStarted]);
@@ -53,95 +52,64 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
         public IReadOnlyDictionary<string, string> Headers { get; set; }
         public IReadOnlyDictionary<string, string> FaultHeaders { get; set; }
         public DateTimeOffset TimeSentOnTheFailingMessageWhenItWasHandled { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(IsMessageHandledByTheAuditEndpoint, IsMessageHandledByTheFaultEndpoint);
     }
 
     public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
-        public EndpointWithAuditOn()
-        {
+        public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>();
                 c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
             });
-        }
 
         class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
-            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new MessageThatFails());
-            }
+            public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => context.SendLocal(new MessageThatFails());
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
             {
-                public Context TestContext { get; set; }
-
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
-                {
-                    throw new SimulatedException();
-                }
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context) => throw new SimulatedException();
             }
         }
     }
 
     public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesAuditMessages()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
-            public AuditMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
                 testContext.Headers = context.MessageHeaders;
                 testContext.IsMessageHandledByTheAuditEndpoint = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
-        public EndpointThatHandlesErrorMessages()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>();
 
-        class ErrorMessageHandler : IHandleMessages<MessageThatFails>
+        class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
-            public ErrorMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageThatFails message, IMessageHandlerContext context)
             {
                 testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeOffsetHelper.ToDateTimeOffset(context.MessageHeaders[Headers.TimeSent]);
                 testContext.FaultHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.IsMessageHandledByTheFaultEndpoint = true;
-
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 
-    public class MessageThatFails : IMessage
-    {
-    }
+    public class MessageThatFails : IMessage;
 }
