@@ -1141,6 +1141,7 @@ namespace NServiceBus
         public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
         public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
     }
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("XmlSerializer is not supported in trimming scenarios.")]
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public XmlSerializer() { }

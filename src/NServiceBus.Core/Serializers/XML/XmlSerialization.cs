@@ -3,12 +3,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
+[RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 sealed class XmlSerialization : IDisposable
 {
     public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)

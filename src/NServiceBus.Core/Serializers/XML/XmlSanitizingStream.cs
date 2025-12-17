@@ -1,10 +1,12 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
 // A StreamReader that excludes XML-illegal characters while reading.
+[RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 class XmlSanitizingStream : StreamReader
 {
     public XmlSanitizingStream(Stream streamToSanitize)
