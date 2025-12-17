@@ -17,7 +17,6 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
                 await session.SendLocal<MyMessage>(m => m.Id = c.Id);
                 await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);
             }))
-            .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -32,14 +31,13 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
         public bool MessageClassReceived { get; set; }
         public bool MessageInterfaceReceived { get; set; }
         public Guid Id { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(MessageClassReceived, MessageInterfaceReceived);
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")));
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")));
     }
 
     public class MyMessage
@@ -52,13 +50,8 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
         Guid Id { get; set; }
     }
 
-    public class MyMessageHandler : IHandleMessages<MyMessage>
+    public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        public MyMessageHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             if (testContext.Id != message.Id)
@@ -67,20 +60,14 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
             }
 
             testContext.MessageClassReceived = true;
+            testContext.MaybeCompleted();
 
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 
-    public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+    public class MyMessageInterfaceHandler(Context testContext) : IHandleMessages<IMyInterfaceMessage>
     {
-        public MyMessageInterfaceHandler(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
         {
             if (testContext.Id != interfaceMessage.Id)
@@ -89,10 +76,9 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
             }
 
             testContext.MessageInterfaceReceived = true;
+            testContext.MaybeCompleted();
 
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 }
