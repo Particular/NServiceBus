@@ -17,16 +17,15 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
     {
         var exceptions = new ConcurrentDictionary<string, Exception>();
 
-        Func<ICriticalErrorContext, CancellationToken, Task> addCritical = (criticalContext, _) =>
+        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, CancellationToken _)
         {
             exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
             return Task.CompletedTask;
-        };
+        }
 
         var context = await Scenario.Define<TestContext>()
             .WithEndpoint<EndpointWithCriticalErrorStartup>(b =>
-                b.CustomConfig(config => config.DefineCriticalErrorAction(addCritical)))
-            .Done(c => c.CriticalErrorsRaised >= 2 && exceptions.Count >= 2)
+                b.CustomConfig(config => config.DefineCriticalErrorAction(CollectCriticalErrors)))
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -38,7 +37,6 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
 
     public class TestContext : ScenarioContext
     {
-        public string ContextId { get; set; }
         public int CriticalErrorsRaised { get; set; }
     }
 
@@ -55,6 +53,8 @@ public class When_raising_critical_error_at_startup : NServiceBusAcceptanceTest
 
                 criticalError.Raise("critical error 2", new SimulatedException(), cancellationToken);
                 testContext.CriticalErrorsRaised++;
+
+                testContext.MarkAsCompleted();
 
                 return Task.CompletedTask;
             }

@@ -16,17 +16,16 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
     {
         var exceptions = new ConcurrentDictionary<string, Exception>();
 
-        Func<ICriticalErrorContext, CancellationToken, Task> addCritical = (criticalContext, _) =>
+        Task CollectCriticalErrors(ICriticalErrorContext criticalContext, CancellationToken _)
         {
             exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
             return Task.CompletedTask;
-        };
+        }
 
         await Scenario.Define<TestContext>()
             .WithEndpoint<EndpointWithCriticalError>(b =>
             {
-                b.CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); });
-
+                b.CustomConfig(config => config.DefineCriticalErrorAction(CollectCriticalErrors));
                 b.When((session, c) =>
                 {
                     c.ContextId = Guid.NewGuid().ToString();
@@ -36,7 +35,6 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
                     });
                 });
             })
-            .Done(c => c.CriticalErrorsRaised > 0 && exceptions.Keys.Count > 0)
             .Run();
 
         Assert.That(exceptions.Keys, Has.Count.EqualTo(1));
@@ -60,6 +58,7 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
                 {
                     criticalError.Raise("a critical error", new SimulatedException());
                     testContext.CriticalErrorsRaised++;
+                    testContext.MarkAsCompleted();
                 }
 
                 return Task.CompletedTask;
