@@ -46,7 +46,7 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        static bool IsHandlerInterface(INamedTypeSymbol type) => type is
+        internal static bool IsHandlerInterface(INamedTypeSymbol type) => type is
         {
             // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
             Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
@@ -62,7 +62,8 @@ public sealed partial class AddHandlerInterceptor
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            foreach (var invocation in GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(ctx, cancellationToken))
+
+            foreach (var invocation in ctx.TargetSymbol.GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(cancellationToken))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -73,39 +74,6 @@ public sealed partial class AddHandlerInterceptor
             }
 
             return builder.ToImmutable();
-        }
-
-        static IEnumerable<TNode> GetDescendantsAcrossDeclarations<TNode>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
-            where TNode : CSharpSyntaxNode
-        {
-            foreach (var syntaxRef in GetAllDeclaringSyntaxReferences(ctx.TargetSymbol))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var declarationNode = syntaxRef.GetSyntax(cancellationToken);
-                foreach (var node in declarationNode.DescendantNodes().OfType<TNode>())
-                {
-                    yield return node;
-                }
-            }
-        }
-
-        static ImmutableArray<SyntaxReference> GetAllDeclaringSyntaxReferences(ISymbol symbol)
-        {
-            return symbol switch
-            {
-                ITypeSymbol type => type.DeclaringSyntaxReferences,
-                IMethodSymbol method => MergePartial(method),
-                _ => symbol.DeclaringSyntaxReferences,
-            };
-
-            static ImmutableArray<SyntaxReference> MergePartial(IMethodSymbol method)
-            {
-                var def = method.PartialDefinitionPart?.DeclaringSyntaxReferences ?? [];
-                var impl = method.PartialImplementationPart?.DeclaringSyntaxReferences ?? [];
-                var self = method.DeclaringSyntaxReferences;
-                return [.. ((SyntaxReference[])[.. def, .. impl, .. self]).Distinct()];
-            }
         }
 
         static HandlerSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)

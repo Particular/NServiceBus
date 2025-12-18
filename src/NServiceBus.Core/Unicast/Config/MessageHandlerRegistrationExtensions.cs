@@ -19,4 +19,16 @@ public static class MessageHandlerRegistrationExtensions
         var messageHandlerRegistry = config.Settings.GetOrCreate<MessageHandlerRegistry>();
         messageHandlerRegistry.AddHandler<THandler>();
     }
+
+    /// <summary>
+    /// Registers all message handlers from an assembly, defined by a literal string. Requires source generator support.
+    /// </summary>
+    public static void AddHandlersFromAssembly(this EndpointConfiguration config, string assemblyName) =>
+        throw new NotImplementedException("Requires source generator support");
+
+    /// <summary>
+    /// Registers all message handlers from an assembly, defined by a literal string. Requires source generator support.
+    /// </summary>
+    public static void AddHandlersFromNamespace(this EndpointConfiguration config, string namespaceName) =>
+        throw new NotImplementedException("Requires source generator support");
 }
