@@ -5,25 +5,9 @@ using System.Collections.Generic;
 
 class SagaLookupValues
 {
-    public void Add<TSagaData>(string propertyName, object propertyValue)
-    {
-        entries[typeof(TSagaData)] = new LookupValue
-        {
-            PropertyName = propertyName,
-            PropertyValue = propertyValue
-        };
-    }
+    public void Add<TSagaData>(object propertyValue) => entries[typeof(TSagaData)] = propertyValue;
 
-    public bool TryGet(Type sagaType, out LookupValue value)
-    {
-        return entries.TryGetValue(sagaType, out value);
-    }
+    public bool TryGet(Type sagaType, out object value) => entries.TryGetValue(sagaType, out value);
 
-    readonly Dictionary<Type, LookupValue> entries = [];
-
-    public class LookupValue
-    {
-        public string PropertyName { get; set; }
-        public object PropertyValue { get; set; }
-    }
+    readonly Dictionary<Type, object> entries = [];
 }

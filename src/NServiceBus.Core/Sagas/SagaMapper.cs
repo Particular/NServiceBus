@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Sagas;
 
-class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) :
+class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors, CorrelationPropertyAccessor? correlationPropertyAccessor = null) :
     IConfigureHowToFindSagaWithMessage,
     IConfigureHowToFindSagaWithMessageHeaders,
     IConfigureHowToFindSagaWithFinder,
@@ -26,7 +26,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        AssignCorrelationProperty<TMessage>(sagaProp);
+        AssignCorrelationProperty<TMessage>(sagaProp, correlationPropertyAccessor);
 
         if (!mappers.TryGetValue(typeof(TMessage), out var mapper) ||
             mapper is not MessagePropertyAccessor<TMessage> propertyMapper)
@@ -138,14 +138,15 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
         return sagaProp;
     }
 
-    void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp)
+    void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp, CorrelationPropertyAccessor? propertyAccessor = null)
     {
         if (correlationProperty != null && correlationProperty.Name != sagaProp.Name)
         {
             throw new ArgumentException($"The saga already has a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
         }
 
-        correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
+        propertyAccessor ??= new ReflectionBasedCorrelationPropertyAccessor(sagaProp);
+        correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType, propertyAccessor);
     }
 
     public SagaMapping FinalizeMapping()

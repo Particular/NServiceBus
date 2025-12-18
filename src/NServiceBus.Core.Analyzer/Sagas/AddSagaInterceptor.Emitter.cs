@@ -163,7 +163,7 @@ public sealed partial class AddSagaInterceptor
                 }
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("];");
-                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors: propertyAccessors);");
             }
             else
             {

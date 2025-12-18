@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -131,9 +130,9 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             {
                 var sagaCorrelationProperty = SagaCorrelationProperty.None;
 
-                if (sagaInstanceState.TryGetCorrelationProperty(out var correlationProperty))
+                if (currentSagaMetadata.TryGetCorrelationProperty(out var propertyMetadata))
                 {
-                    sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.PropertyInfo.GetValue(sagaInstanceState.Instance.Entity));
+                    sagaCorrelationProperty = new SagaCorrelationProperty(propertyMetadata.Name, propertyMetadata.Accessor.AccessFrom(sagaInstanceState.Instance.Entity));
                 }
 
                 await persister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
@@ -265,21 +264,15 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         {
             sagaEntity.Originator = replyToAddress;
         }
-
         var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
         SagaCorrelationProperty correlationProperty;
 
-        if (lookupValues.TryGet(sagaEntityType, out var value))
+        if (lookupValues.TryGet(sagaEntityType, out var value) && metadata.TryGetCorrelationProperty(out var propertyMetadata))
         {
-            var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
+            propertyMetadata.Accessor.WriteTo(sagaEntity, value);
 
-            var convertedValue = TypeDescriptor.GetConverter(propertyInfo.PropertyType)
-                .ConvertFromInvariantString(value.PropertyValue.ToString());
-
-            propertyInfo.SetValue(sagaEntity, convertedValue);
-
-            correlationProperty = new SagaCorrelationProperty(value.PropertyName, value.PropertyValue);
+            correlationProperty = new SagaCorrelationProperty(propertyMetadata.Name, value);
         }
         else
         {

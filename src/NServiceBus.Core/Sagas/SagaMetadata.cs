@@ -118,18 +118,19 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        return CreateSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null], [sagaType, sagaEntityType])!;
+        return CreateSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null, null], [sagaType, sagaEntityType])!;
     }
 
     /// <summary>
     /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
     /// </summary>
     /// <param name="associatedMessages">The list of associated saga messages.</param>
+    /// <param name="correlationPropertyAccessor">An optional accessor for the correlation property.</param>
     /// <param name="propertyAccessors">An optional list of property accessors.</param>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
+    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, CorrelationPropertyAccessor? correlationPropertyAccessor = null, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
         where TSagaData : class, IContainSagaData, new()
     {
@@ -238,7 +239,7 @@ public partial class SagaMetadata
         .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
 
     static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
@@ -248,7 +249,8 @@ public partial class SagaMetadata
     /// </remarks>
     /// <param name="name">The name of the correlation property.</param>
     /// <param name="type">The type of the correlation property.</param>
-    public class CorrelationPropertyMetadata(string name, Type type)
+    /// <param name="propertyAccessor">The correlation property accessor.</param>
+    public class CorrelationPropertyMetadata(string name, Type type, CorrelationPropertyAccessor propertyAccessor)
     {
         /// <summary>
         /// The name of the correlation property.
@@ -259,5 +261,10 @@ public partial class SagaMetadata
         /// The type of the correlation property.
         /// </summary>
         public Type Type { get; } = type;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public CorrelationPropertyAccessor Accessor { get; } = propertyAccessor;
     }
 }

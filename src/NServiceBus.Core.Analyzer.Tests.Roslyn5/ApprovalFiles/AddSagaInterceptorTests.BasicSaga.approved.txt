@@ -43,7 +43,7 @@ namespace NServiceBus
                     OrderCreatedOrderIdAccessor_16edcde3129fe540.Instance,
                     OrderShippedOrderIdAccessor_24f0d05d0a48e6ff.Instance,
                 ];
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors);
+                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors: propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
