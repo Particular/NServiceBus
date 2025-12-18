@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -195,4 +196,17 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
     [
         typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
     ];
+
+    // Keep this in sync with AllowedCorrelationPropertyTypes
+    internal static readonly FrozenDictionary<Type, object?> CorrelationPropertyTypeDefaultValues = new Dictionary<Type, object?>
+    {
+        { typeof(Guid), default(Guid) },
+        { typeof(string), default(string) },
+        { typeof(long), default(long) },
+        { typeof(ulong), default(ulong) },
+        { typeof(int), default(int) },
+        { typeof(uint), default(uint) },
+        { typeof(short), default(short) },
+        { typeof(ushort), default(ushort) },
+    }.ToFrozenDictionary();
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Sagas;
 
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Represents a saga instance being processed on the pipeline.
@@ -83,8 +84,8 @@ public class ActiveSagaInstance
         }
 
         var propertyValue = correlatedPropertyMetadata.Accessor.AccessFrom(sagaEntity);
-        var defaultValue = GetDefault(correlatedPropertyMetadata.Type);
-        var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
+        var defaultValue = SagaMapper.CorrelationPropertyTypeDefaultValues.GetValueOrDefault(correlatedPropertyMetadata.Type);
+        var hasValue = propertyValue is not null && !propertyValue.Equals(defaultValue);
         correlationProperty = new CorrelationPropertyInfo(correlatedPropertyMetadata.Name, correlatedPropertyMetadata.Type, propertyValue, hasValue);
     }
 
@@ -155,8 +156,6 @@ Changing the value of correlated properties at runtime is currently not supporte
             throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + Metadata.SagaType.FullName);
         }
     }
-
-    static object GetDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
 
     CorrelationPropertyInfo correlationProperty;
     Guid sagaId;
