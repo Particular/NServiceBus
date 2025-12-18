@@ -21,6 +21,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         _ = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x =>
                 {
+                    x.MakeInstanceUniquelyAddressable("discriminator");
                     x.EnableFeature<TestEnvelopeFeature>();
                 })
                 .When(async (session, ctx) =>
@@ -36,7 +37,9 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName
+                ["nservicebus.discriminator"] = "discriminator",
+                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName,
+                ["error.type"] = typeof(InvalidOperationException).FullName
             });
     }
 
