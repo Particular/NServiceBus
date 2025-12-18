@@ -123,6 +123,7 @@ public class MainPipelineExecutorTests
 
     static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
+        var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
@@ -130,8 +131,8 @@ public class MainPipelineExecutorTests
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
             new ActivityFactory(),
-            new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"),
-            new EnvelopeUnwrapper([]));
+            incomingPipelineMetrics,
+            new EnvelopeUnwrapper([], incomingPipelineMetrics));
 
         return executor;
     }
