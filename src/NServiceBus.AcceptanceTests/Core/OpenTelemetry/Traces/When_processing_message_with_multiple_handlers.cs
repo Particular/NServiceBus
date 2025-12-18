@@ -17,7 +17,6 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             .WithEndpoint<ReceivingEndpoint>(b =>
                 b.When(session => session.SendLocal(new SomeMessage()))
             )
-            .Done(c => c.FirstHandlerRun && c.SecondHandlerRun)
             .Run();
 
         var invokedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities();
@@ -53,6 +52,8 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
     {
         public bool FirstHandlerRun { get; set; }
         public bool SecondHandlerRun { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(FirstHandlerRun && SecondHandlerRun);
     }
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
@@ -73,6 +74,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.FirstHandlerRun = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -82,6 +84,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondHandlerRun = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

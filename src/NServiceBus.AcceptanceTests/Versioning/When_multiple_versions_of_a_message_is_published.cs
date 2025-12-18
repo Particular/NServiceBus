@@ -38,7 +38,6 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
                     c.V2Subscribed = true;
                 }
             }))
-            .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -57,12 +56,13 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
         public bool V1Subscribed { get; set; }
 
         public bool V2Subscribed { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(V1SubscriberGotTheMessage, V2SubscriberGotTheMessage);
     }
 
     public class V2Publisher : EndpointConfigurationBuilder
     {
-        public V2Publisher()
-        {
+        public V2Publisher() =>
             EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
             {
                 if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(V1Subscriber))))
@@ -75,56 +75,39 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
                     context.V2Subscribed = true;
                 }
             }), metadata => metadata.RegisterSelfAsPublisherFor<V2Event>(this));
-        }
     }
 
     public class V1Subscriber : EndpointConfigurationBuilder
     {
-        public V1Subscriber()
-        {
+        public V1Subscriber() =>
             EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<V1Event, V2Publisher>());
-        }
 
-        class V1Handler : IHandleMessages<V1Event>
+        class V1Handler(Context testContext) : IHandleMessages<V1Event>
         {
-            public V1Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(V1Event message, IMessageHandlerContext context)
             {
                 testContext.V1SubscriberGotTheMessage = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class V2Subscriber : EndpointConfigurationBuilder
     {
-        public V2Subscriber()
-        {
+        public V2Subscriber() =>
             EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
-                 metadata => metadata.RegisterPublisherFor<V2Event, V2Publisher>());
-        }
+                metadata => metadata.RegisterPublisherFor<V2Event, V2Publisher>());
 
-        class V2Handler : IHandleMessages<V2Event>
+        class V2Handler(Context testContext) : IHandleMessages<V2Event>
         {
-            public V2Handler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(V2Event message, IMessageHandlerContext context)
             {
                 testContext.V2SubscriberGotTheMessage = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

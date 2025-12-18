@@ -23,9 +23,9 @@ public class When_resolving_endpoint_specific_keyed_service_globally : NServiceB
                 var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ComponentRegistrationEndpoint));
                 var context = provider.GetRequiredService<Context>();
                 context.KeyedComponent = provider.GetRequiredKeyedService<IMyComponent>(new KeyedServiceKey($"{endpointName}0", 42));
+                context.MarkAsCompleted();
                 return Task.CompletedTask;
             })
-            .Done(c => c.KeyedComponent != null)
             .Run();
 
         Assert.That(result.KeyedComponent, Is.InstanceOf<EndpointComponent>());

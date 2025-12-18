@@ -30,7 +30,6 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
                     await session.SendLocal(new SomeMessage());
                 })
             )
-            .Done(ctx => ctx.MessageReceived)
             .Run();
 
         Assert.That(context.BaggageHeader, Is.EqualTo("key3=,key2=value2,key1=value1"));
@@ -48,7 +47,7 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
                 {
                     scenarioContext.BaggageHeader = baggageValue;
                 }
-                scenarioContext.MessageReceived = true;
+                scenarioContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -58,7 +57,6 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public bool MessageReceived { get; internal set; }
         public string BaggageHeader { get; internal set; }
     }
 }

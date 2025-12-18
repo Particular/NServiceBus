@@ -14,7 +14,7 @@ public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAc
     {
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
-            .Done(_ => false)
+            .Done(c => c.EndpointsStarted)
             .Run());
 
         Assert.That(exception.Message, Does.Contain("The selected persistence doesn't have support for outbox storage"));

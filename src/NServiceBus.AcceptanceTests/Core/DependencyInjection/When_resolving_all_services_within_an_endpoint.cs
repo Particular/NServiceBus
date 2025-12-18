@@ -26,7 +26,6 @@ public class When_resolving_all_services_within_an_endpoint : NServiceBusAccepta
                         services.AddSingleton<IMyComponent, EndpointComponent2>();
                     })
                     .When((session, _) => session.SendLocal(new SomeMessage())))
-            .Done(c => c.Components.Count != 0)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -39,6 +38,8 @@ public class When_resolving_all_services_within_an_endpoint : NServiceBusAccepta
     class Context : ScenarioContext
     {
         public IReadOnlyCollection<IMyComponent> Components { get; set; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(Components.Count >= 3);
     }
 
     interface IMyComponent;
@@ -57,6 +58,7 @@ public class When_resolving_all_services_within_an_endpoint : NServiceBusAccepta
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 testContext.Components = [.. components];
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

@@ -21,9 +21,9 @@ public class When_resolving_endpoint_specific_service_globally : NServiceBusAcce
                 var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ComponentRegistrationEndpoint));
                 var context = provider.GetRequiredService<Context>();
                 context.Component = provider.GetRequiredKeyedService<IMyComponent>($"{endpointName}0");
+                context.MarkAsCompleted();
                 return Task.CompletedTask;
             })
-            .Done(c => c.Component != null)
             .Run();
 
         Assert.That(result.Component, Is.InstanceOf<EndpointComponent>());

@@ -25,7 +25,6 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
                 b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint2"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage())))
-            .Done(c => c.Dependencies.Count == 2)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,6 +41,8 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
     class Context : ScenarioContext
     {
         public ConcurrentBag<IDependency> Dependencies { get; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(Dependencies.Count >= 2);
     }
 
     class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
@@ -116,6 +117,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         {
             var context = serviceProvider.GetRequiredService<Context>();
             context.Dependencies.Add(serviceProvider.GetRequiredService<IDependency>());
+            context.MaybeCompleted();
         }
     }
 

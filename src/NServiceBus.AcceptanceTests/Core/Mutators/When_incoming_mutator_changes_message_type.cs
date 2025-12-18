@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Mutators;
 
+using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -14,7 +15,6 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MutatorEndpoint>(e => e
                 .When(s => s.SendLocal(new OriginalMessage { SomeId = "TestId" })))
-            .Done(c => c.NewMessageHandlerCalled || c.OriginalMessageHandlerCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -32,6 +32,8 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
         public bool NewMessageHandlerCalled { get; set; }
         public bool OriginalMessageSagaHandlerCalled { get; set; }
         public bool NewMessageSagaHandlerCalled { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(NewMessageHandlerCalled, NewMessageSagaHandlerCalled);
     }
 
     public class MutatorEndpoint : EndpointConfigurationBuilder
@@ -53,6 +55,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             public Task Handle(OriginalMessage message, IMessageHandlerContext context)
             {
                 testContext.OriginalMessageHandlerCalled = true;
+                testContext.MarkAsFailed(new InvalidOperationException("Should not be called"));
                 return Task.CompletedTask;
             }
         }
@@ -62,6 +65,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             public Task Handle(NewMessage message, IMessageHandlerContext context)
             {
                 testContext.NewMessageHandlerCalled = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -72,12 +76,14 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             public Task Handle(NewMessage message, IMessageHandlerContext context)
             {
                 testContext.NewMessageSagaHandlerCalled = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Handle(OriginalMessage message, IMessageHandlerContext context)
             {
                 testContext.OriginalMessageSagaHandlerCalled = true;
+                testContext.MarkAsFailed(new InvalidOperationException("Should not be called"));
                 return Task.CompletedTask;
             }
 

@@ -25,13 +25,12 @@ public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
 
                 return session.Send(new MyMessage(), options);
             }))
-            .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.ExceptionThrown, Is.EqualTo(true));
-            Assert.That(context.SecondMessageReceived, Is.EqualTo(false));
+            Assert.That(context.ExceptionThrown, Is.True);
+            Assert.That(context.SecondMessageReceived, Is.False);
         }
 
     }
@@ -44,18 +43,10 @@ public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
         {
-            public MyMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 try
@@ -70,25 +61,20 @@ public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
                 {
                     Console.WriteLine(x.Message);
                     testContext.ExceptionThrown = true;
+                    testContext.MarkAsCompleted();
                 }
             }
 
             public Task Handle(MyOtherMessage message, IMessageHandlerContext context)
             {
                 testContext.SecondMessageReceived = true;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 
-    public class MyOtherMessage : IMessage
-    {
-    }
+    public class MyOtherMessage : IMessage;
 }

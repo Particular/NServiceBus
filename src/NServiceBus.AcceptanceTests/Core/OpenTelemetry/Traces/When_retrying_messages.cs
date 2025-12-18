@@ -16,7 +16,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.InvocationCounter == 2)
             .Run();
 
         var receiveActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -46,7 +45,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .CustomConfig(c => c.Recoverability().Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.InvocationCounter == 2)
             .Run();
 
         var receiveActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
@@ -73,20 +71,10 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
 
     class RetryingEndpoint : EndpointConfigurationBuilder
     {
-        public RetryingEndpoint()
+        public RetryingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+
+        class Handler(Context testContext) : IHandleMessages<FailingMessage>
         {
-            EndpointSetup<OpenTelemetryEnabledEndpoint>();
-        }
-
-        class Handler : IHandleMessages<FailingMessage>
-        {
-            Context testContext;
-
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {
                 testContext.InvocationCounter++;
@@ -96,6 +84,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                     throw new SimulatedException("first attempt fails");
                 }
 
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

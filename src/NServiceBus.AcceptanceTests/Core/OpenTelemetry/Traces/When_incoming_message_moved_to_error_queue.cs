@@ -2,6 +2,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AcceptanceTesting.Support;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
@@ -9,16 +10,17 @@ using NUnit.Framework;
 public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_add_start_new_trace_header()
+    public void Should_add_start_new_trace_header()
     {
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<FailingEndpoint>(e => e
-                .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.FailedMessages.Count == 1)
-            .Run();
+        var exception = Assert.CatchAsync<MessageFailedException>(async () =>
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<FailingEndpoint>(e => e
+                    .When(s => s.SendLocal(new FailingMessage())))
+                .Run();
+        });
 
-        var failedMessage = context.FailedMessages.First().Value.First();
+        var failedMessage = exception.FailedMessage;
         using (Assert.EnterMultipleScope())
         {
             Assert.That(failedMessage.Headers.ContainsKey(Headers.StartNewTrace), Is.True);

@@ -14,7 +14,6 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(c => c
                 .When(b => b.SendLocal(new MyMessage { SomeId = Guid.NewGuid() })))
-            .Done(c => c.HandlerGotMessage && c.SagaGotMessage)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -28,6 +27,8 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
     {
         public bool HandlerGotMessage { get; set; }
         public bool SagaGotMessage { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(HandlerGotMessage, SagaGotMessage);
     }
 
     class MyEndpoint : EndpointConfigurationBuilder
@@ -44,6 +45,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.HandlerGotMessage = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -55,6 +57,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
                 Data.SomeId = message.SomeId;
                 testContext.SagaGotMessage = true;
                 MarkAsComplete();
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
