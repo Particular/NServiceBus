@@ -26,7 +26,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        AssignCorrelationProperty<TMessage>(sagaProp, correlationPropertyAccessor);
+        AssignCorrelationProperty<TSagaEntity, TMessage>(sagaProp, correlationPropertyAccessor);
 
         if (!mappers.TryGetValue(typeof(TMessage), out var mapper) ||
             mapper is not MessagePropertyAccessor<TMessage> propertyMapper)
@@ -47,7 +47,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        AssignCorrelationProperty<TMessage>(sagaProp);
+        AssignCorrelationProperty<TSagaEntity, TMessage>(sagaProp);
 
         finders.Add(new SagaFinderDefinition(
             new HeaderPropertySagaFinder<TSagaEntity>(headerName, sagaProp.Name, sagaProp.PropertyType, typeof(TMessage)),
@@ -138,14 +138,15 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
         return sagaProp;
     }
 
-    void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp, CorrelationPropertyAccessor? propertyAccessor = null)
+    void AssignCorrelationProperty<TSagaEntity, TMessage>(PropertyInfo sagaProp, CorrelationPropertyAccessor? propertyAccessor = null)
+        where TSagaEntity : IContainSagaData
     {
         if (correlationProperty != null && correlationProperty.Name != sagaProp.Name)
         {
             throw new ArgumentException($"The saga already has a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
         }
 
-        propertyAccessor ??= new ReflectionBasedCorrelationPropertyAccessor(sagaProp);
+        propertyAccessor ??= new ExpressionBasedCorrelationPropertyAccessor<TSagaEntity>(sagaProp);
         correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType, propertyAccessor);
     }
 
