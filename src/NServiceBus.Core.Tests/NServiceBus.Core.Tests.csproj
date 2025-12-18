@@ -27,8 +27,4 @@
     <None Update="TestDlls/**/*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Envelopes\" />
-  </ItemGroup>
-
 </Project>
