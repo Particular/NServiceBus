@@ -57,7 +57,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
         return builder.ToImmutable();
     }
 
-    static IEnumerable<RegistrationSpec>? GetRegistrations(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+    static IEnumerable<ClassRegistrationSpec>? GetRegistrations(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
     {
         if (!SyntaxLooksLikeAddMultiple(invocation))
         {
@@ -118,7 +118,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
         return null;
     }
 
-    static IEnumerable<RegistrationSpec> EnumerateNamespaceHandlers(INamespaceSymbol ns)
+    static IEnumerable<ClassRegistrationSpec> EnumerateNamespaceHandlers(INamespaceSymbol ns)
     {
         foreach (var member in ns.GetMembers())
         {
@@ -133,7 +133,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
             {
                 if (namedType.AllInterfaces.Any(AddHandlerInterceptor.Parser.IsHandlerInterface))
                 {
-                    yield return new RegistrationSpec(namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                    yield return new ClassRegistrationSpec(namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
                 }
             }
             else
@@ -172,8 +172,8 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
     };
 
     internal record GenerationSpec(ImmutableEquatableArray<AddMultipleSpec> Methods);
-    internal record AddMultipleSpec(InterceptLocationSpec LocationSpec, ImmutableEquatableArray<RegistrationSpec> Registrations);
-    internal record RegistrationSpec(string TypeName);
+    internal record AddMultipleSpec(InterceptLocationSpec LocationSpec, ImmutableEquatableArray<ClassRegistrationSpec> Registrations);
+    internal record ClassRegistrationSpec(string TypeName);
 
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {

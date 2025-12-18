@@ -30,7 +30,7 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
             });
     }
 
-    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, HandlerTypeSpec HandlerType, ImmutableEquatableArray<RegistrationSpec> Registrations);
+    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, HandlerTypeSpec HandlerType, ImmutableEquatableArray<MessageRegistrationSpec> Registrations);
 
     internal readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
@@ -41,7 +41,7 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
         TimeoutHandler,
     }
 
-    internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy);
+    internal readonly record struct MessageRegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy);
 
     internal readonly record struct HandlerTypeSpec(string FullyQualifiedName, string InterceptorMethodName)
     {

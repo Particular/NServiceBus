@@ -100,7 +100,7 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var allRegistrations = new List<RegistrationSpec>();
+            var allRegistrations = new List<MessageRegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
 
@@ -126,7 +126,7 @@ public sealed partial class AddHandlerInterceptor
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
+                var spec = new MessageRegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
