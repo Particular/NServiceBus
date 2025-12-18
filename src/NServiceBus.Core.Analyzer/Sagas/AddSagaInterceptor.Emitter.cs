@@ -76,6 +76,7 @@ public sealed partial class AddSagaInterceptor
                 GenerateBuilderCode(sourceWriter, sagaSpec, options);
                 sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 sourceWriter.WriteLine();
+                AddHandlerInterceptor.Emitter.EmitHandlerRegistryLocals(sourceWriter);
                 AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
 
                 sourceWriter.Indentation--;

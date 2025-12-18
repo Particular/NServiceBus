@@ -105,11 +105,11 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var registrationSpec = Parse(invocationSemanticModel, handlerType);
+            var registrationSpec = GetRegistrationsForType(invocationSemanticModel, handlerType);
             return registrationSpec is not null ? new HandlerSpec(InterceptLocationSpec.From(location), registrationSpec) : null;
         }
 
-        public static HandlerRegistrationSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType)
+        public static HandlerRegistrationSpec? GetRegistrationsForType(SemanticModel semanticModel, INamedTypeSymbol handlerType)
         {
             var allRegistrations = new List<MessageRegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();

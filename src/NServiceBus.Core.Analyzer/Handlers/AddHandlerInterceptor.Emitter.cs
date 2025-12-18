@@ -58,6 +58,7 @@ public sealed partial class AddHandlerInterceptor
 
                 sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
+                EmitHandlerRegistryLocals(sourceWriter);
                 EmitHandlerRegistryCode(sourceWriter, first.RegistrationInfo);
 
                 sourceWriter.Indentation--;
@@ -74,13 +75,15 @@ public sealed partial class AddHandlerInterceptor
             context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
         }
 
-        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerRegistrationSpec handlerSpec)
-        {
+        public static void EmitHandlerRegistryLocals(SourceWriter sourceWriter) =>
             sourceWriter.WriteLine("""
                                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                    """);
+
+        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerRegistrationSpec handlerSpec)
+        {
             foreach (var registration in handlerSpec.Registrations)
             {
                 var addType = registration.RegistrationType switch

@@ -84,7 +84,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
         {
             if (compilation.AssemblyName == argument)
             {
-                return EnumerateNamespaceHandlers(compilation.Assembly.GlobalNamespace);
+                return EnumerateNamespaceHandlers(semanticModel, compilation.Assembly.GlobalNamespace);
             }
 
             foreach (var reference in compilation.References)
@@ -93,7 +93,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
                 {
                     if (string.Equals(assemblySymbol.Identity.Name, argument))
                     {
-                        return EnumerateNamespaceHandlers(assemblySymbol.GlobalNamespace);
+                        return EnumerateNamespaceHandlers(semanticModel, assemblySymbol.GlobalNamespace);
                     }
                 }
             }
@@ -112,19 +112,19 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
                 }
             }
 
-            return EnumerateNamespaceHandlers(currentNamespace);
+            return EnumerateNamespaceHandlers(semanticModel, currentNamespace);
         }
 
         return null;
     }
 
-    static IEnumerable<ClassRegistrationSpec> EnumerateNamespaceHandlers(INamespaceSymbol ns)
+    static IEnumerable<ClassRegistrationSpec> EnumerateNamespaceHandlers(SemanticModel semanticModel, INamespaceSymbol ns)
     {
         foreach (var member in ns.GetMembers())
         {
             if (member is INamespaceSymbol childNamespace)
             {
-                foreach (var handler in EnumerateNamespaceHandlers(childNamespace))
+                foreach (var handler in EnumerateNamespaceHandlers(semanticModel, childNamespace))
                 {
                     yield return handler;
                 }
@@ -133,7 +133,11 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
             {
                 if (namedType.AllInterfaces.Any(AddHandlerInterceptor.Parser.IsHandlerInterface))
                 {
-                    yield return new ClassRegistrationSpec(namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                    var handlerRegistration = AddHandlerInterceptor.Parser.GetRegistrationsForType(semanticModel, namedType);
+                    if (handlerRegistration is not null)
+                    {
+                        yield return new ClassRegistrationSpec(handlerRegistration);
+                    }
                 }
             }
             else
@@ -173,7 +177,7 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
 
     internal record GenerationSpec(ImmutableEquatableArray<AddMultipleSpec> Methods);
     internal record AddMultipleSpec(InterceptLocationSpec LocationSpec, ImmutableEquatableArray<ClassRegistrationSpec> Registrations);
-    internal record ClassRegistrationSpec(string TypeName);
+    internal record ClassRegistrationSpec(AddHandlerInterceptor.HandlerRegistrationSpec HandlerRegistration);
 
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
@@ -207,9 +211,15 @@ public sealed partial class AddMultipleHandlersInterceptor : IIncrementalGenerat
                 sourceWriter.WriteLine($"public void RegisterMultipleHandlers_{++i}()");
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
+
+                AddHandlerInterceptor.Emitter.EmitHandlerRegistryLocals(sourceWriter);
                 foreach (var registration in method.Registrations)
                 {
-                    sourceWriter.WriteLine($"// Register {registration.TypeName}");
+                    sourceWriter.WriteLine($"""
+
+                                            // Register {registration.HandlerRegistration.HandlerType.FullyQualifiedName}
+                                            """);
+                    AddHandlerInterceptor.Emitter.EmitHandlerRegistryCode(sourceWriter, registration.HandlerRegistration);
                 }
             }
 
