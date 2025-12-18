@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 class EnvelopeComponent(EnvelopeComponent.Settings settings)
 {
     public EnvelopeUnwrapper CreateUnwrapper(IServiceProvider serviceProvider)
-        => new([.. settings.HandlerFactories.Select(factory => factory(serviceProvider))]);
+        => new([.. settings.HandlerFactories.Select(factory => factory(serviceProvider))], serviceProvider.GetRequiredService<IncomingPipelineMetrics>());
 
     public class Settings
     {
