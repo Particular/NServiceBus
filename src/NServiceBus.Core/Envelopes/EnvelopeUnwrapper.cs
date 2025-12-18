@@ -13,8 +13,6 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
     internal IncomingMessage UnwrapEnvelope(MessageContext messageContext)
     {
-        // TODO: Is there any point in optimizing this to never hit the foreach if the translators list is empty.
-        // https://stackoverflow.com/questions/45651325/performance-before-using-a-foreach-loop-check-if-the-list-is-empty
         foreach (var envelopeHandler in envelopeHandlers)
         {
             try
