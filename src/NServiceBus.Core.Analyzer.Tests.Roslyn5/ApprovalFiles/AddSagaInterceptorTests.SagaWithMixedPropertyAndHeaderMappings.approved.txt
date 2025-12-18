@@ -39,7 +39,7 @@ namespace NServiceBus
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderCreated), true, false),
                     new NServiceBus.Sagas.SagaMessage(typeof(global::OrderShipped), false, false),
                 };
-                MessagePropertyAccessor[] propertyAccessors = [
+                NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                     OrderCreatedOrderIdAccessor_16edcde3129fe540.Instance,
                 ];
                 var correlationPropertyAccessor = OrderIdAccessor_b94e13ff8504264a.Instance;
@@ -58,7 +58,7 @@ namespace NServiceBus
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-    file sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.MessagePropertyAccessor<global::OrderCreated>
+    file sealed class OrderCreatedOrderIdAccessor_16edcde3129fe540 : NServiceBus.Sagas.MessagePropertyAccessor<global::OrderCreated>
     {
         OrderCreatedOrderIdAccessor_16edcde3129fe540() { }
 
@@ -67,11 +67,11 @@ namespace NServiceBus
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
         static extern string AccessFrom_Property(global::OrderCreated message);
 
-        public static readonly NServiceBus.MessagePropertyAccessor Instance = new OrderCreatedOrderIdAccessor_16edcde3129fe540();
+        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderCreatedOrderIdAccessor_16edcde3129fe540();
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-    file sealed class OrderIdAccessor_b94e13ff8504264a : NServiceBus.CorrelationPropertyAccessor
+    file sealed class OrderIdAccessor_b94e13ff8504264a : NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAccessor_b94e13ff8504264a() { }
 
@@ -85,6 +85,6 @@ namespace NServiceBus
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
         static extern void WriteTo_Property(NServiceBus.IContainSagaData sagaData, string value);
 
-        public static readonly NServiceBus.CorrelationPropertyAccessor Instance = new OrderIdAccessor_b94e13ff8504264a();
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAccessor_b94e13ff8504264a();
     }
 }

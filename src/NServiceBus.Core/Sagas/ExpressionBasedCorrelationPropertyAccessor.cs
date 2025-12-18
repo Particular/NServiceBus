@@ -1,10 +1,11 @@
 #nullable enable
-namespace NServiceBus.Sagas;
+namespace NServiceBus;
 
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using FastExpressionCompiler;
+using Sagas;
 
 sealed class ExpressionBasedCorrelationPropertyAccessor<TSagaData>(PropertyInfo propertyInfo) : CorrelationPropertyAccessor
     where TSagaData : IContainSagaData

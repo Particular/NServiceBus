@@ -112,7 +112,7 @@ public sealed partial class AddSagaInterceptor
                     var mapping = allPropertyMappings[index];
                     var accessorClassName = AccessorName(mapping);
                     _ = sourceWriter.WithGeneratedCodeAttribute();
-                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
                     sourceWriter.WriteLine("{");
 
                     sourceWriter.Indentation++;
@@ -124,7 +124,7 @@ public sealed partial class AddSagaInterceptor
                     sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
                     sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
                     sourceWriter.WriteLine();
-                    sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
+                    sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new {accessorClassName}();");
                     sourceWriter.Indentation--;
 
                     sourceWriter.WriteLine("}");
@@ -152,7 +152,7 @@ public sealed partial class AddSagaInterceptor
                     var mapping = allCorrelationPropertyMappings[index];
                     var accessorClassName = AccessorName(mapping);
                     _ = sourceWriter.WithGeneratedCodeAttribute();
-                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.CorrelationPropertyAccessor");
+                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.CorrelationPropertyAccessor");
                     sourceWriter.WriteLine("{");
 
                     sourceWriter.Indentation++;
@@ -169,7 +169,7 @@ public sealed partial class AddSagaInterceptor
                     sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
                     sourceWriter.WriteLine($"static extern void WriteTo_Property(NServiceBus.IContainSagaData sagaData, {mapping.PropertyType} value);");
                     sourceWriter.WriteLine();
-                    sourceWriter.WriteLine($"public static readonly NServiceBus.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
+                    sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
                     sourceWriter.Indentation--;
 
                     sourceWriter.WriteLine("}");
@@ -200,7 +200,7 @@ public sealed partial class AddSagaInterceptor
 
             if (options.GenerateUnsafeAccessors)
             {
-                sourceWriter.WriteLine("MessagePropertyAccessor[] propertyAccessors = [");
+                sourceWriter.WriteLine("NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [");
                 sourceWriter.Indentation++;
                 foreach (var mapping in details.PropertyMappings)
                 {

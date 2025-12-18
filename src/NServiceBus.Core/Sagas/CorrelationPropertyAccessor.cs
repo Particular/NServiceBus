@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus;
+namespace NServiceBus.Sagas;
 
 /// <summary>
 /// Accessor for the correlation property value.

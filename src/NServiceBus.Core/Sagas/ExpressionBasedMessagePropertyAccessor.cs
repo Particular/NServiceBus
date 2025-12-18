@@ -4,6 +4,7 @@ namespace NServiceBus;
 using System;
 using System.Linq.Expressions;
 using FastExpressionCompiler;
+using Sagas;
 
 sealed class ExpressionBasedMessagePropertyAccessor<TMessage>(Expression<Func<TMessage, object?>> propertyExpression)
     : MessagePropertyAccessor<TMessage>

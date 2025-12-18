@@ -154,12 +154,6 @@ namespace NServiceBus
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName) { }
     }
-    public abstract class CorrelationPropertyAccessor
-    {
-        protected CorrelationPropertyAccessor() { }
-        public abstract object? AccessFrom(NServiceBus.IContainSagaData sagaData);
-        public abstract void WriteTo(NServiceBus.IContainSagaData sagaData, object value);
-    }
     public class CriticalError
     {
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task>? onCriticalErrorAction) { }
@@ -664,19 +658,6 @@ namespace NServiceBus
         {
             public void LimitMessageProcessingConcurrencyTo(int maxConcurrency) { }
         }
-    }
-    public abstract class MessagePropertyAccessor
-    {
-        protected MessagePropertyAccessor() { }
-        public abstract System.Type MessageType { get; }
-        public abstract object? AccessFrom(object message);
-    }
-    public abstract class MessagePropertyAccessor<TMessage> : NServiceBus.MessagePropertyAccessor
-    {
-        protected MessagePropertyAccessor() { }
-        public override sealed System.Type MessageType { get; }
-        protected abstract object? AccessFrom(TMessage message);
-        public override sealed object? AccessFrom(object message) { }
     }
     public static class MessageSessionExtensions
     {
@@ -2109,6 +2090,12 @@ namespace NServiceBus.Sagas
         public string SagaId { get; }
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
+    public abstract class CorrelationPropertyAccessor
+    {
+        protected CorrelationPropertyAccessor() { }
+        public abstract object? AccessFrom(NServiceBus.IContainSagaData sagaData);
+        public abstract void WriteTo(NServiceBus.IContainSagaData sagaData, object value);
+    }
     public interface IFinder { }
     [System.Obsolete(@"Saga not found handlers are no longer automatically registered during assembly scanning. Handlers are no longer global and should be registered for each saga using mapper.ConfigureNotFoundHandler<MyNotFoundHandler>(). Use 'ISagaNotFoundHandler' instead. Will be removed in version 11.0.0.", true)]
     public interface IHandleSagaNotFound
@@ -2133,6 +2120,19 @@ namespace NServiceBus.Sagas
             where TSagaData :  class, NServiceBus.IContainSagaData;
         System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public abstract class MessagePropertyAccessor
+    {
+        protected MessagePropertyAccessor() { }
+        public abstract System.Type MessageType { get; }
+        public abstract object? AccessFrom(object message);
+    }
+    public abstract class MessagePropertyAccessor<TMessage> : NServiceBus.Sagas.MessagePropertyAccessor
+    {
+        protected MessagePropertyAccessor() { }
+        public override sealed System.Type MessageType { get; }
+        protected abstract object? AccessFrom(TMessage message);
+        public override sealed object? AccessFrom(object message) { }
     }
     public class SagaCorrelationProperty
     {
@@ -2186,14 +2186,14 @@ namespace NServiceBus.Sagas
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public static NServiceBus.Sagas.SagaMetadata Create<TSaga>()
             where TSaga : NServiceBus.Saga { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
+        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.Sagas.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
         public static System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> CreateMany(System.Collections.Generic.IEnumerable<System.Type> sagaTypes) { }
         public class CorrelationPropertyMetadata
         {
-            public CorrelationPropertyMetadata(string name, System.Type type, NServiceBus.CorrelationPropertyAccessor propertyAccessor) { }
-            public NServiceBus.CorrelationPropertyAccessor Accessor { get; }
+            public CorrelationPropertyMetadata(string name, System.Type type, NServiceBus.Sagas.CorrelationPropertyAccessor propertyAccessor) { }
+            public NServiceBus.Sagas.CorrelationPropertyAccessor Accessor { get; }
             public string Name { get; }
             public System.Type Type { get; }
         }
