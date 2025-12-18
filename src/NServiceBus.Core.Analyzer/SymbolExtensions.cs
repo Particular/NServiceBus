@@ -2,8 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
+    using System.Threading;
     using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
 
     static class SymbolExtensions
     {
@@ -121,6 +124,39 @@
                 NullableAnnotation.Annotated or NullableAnnotation.None => true,
                 _ => throw new ArgumentException("Not expecting a non-annotated type expression."),
             };
+        }
+
+        public static IEnumerable<TNode> GetDescendantsAcrossDeclarations<TNode>(this ISymbol targetSymbol, CancellationToken cancellationToken = default)
+            where TNode : CSharpSyntaxNode
+        {
+            foreach (var syntaxRef in GetAllDeclaringSyntaxReferences(targetSymbol))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var declarationNode = syntaxRef.GetSyntax(cancellationToken);
+                foreach (var node in declarationNode.DescendantNodes().OfType<TNode>())
+                {
+                    yield return node;
+                }
+            }
+        }
+
+        static ImmutableArray<SyntaxReference> GetAllDeclaringSyntaxReferences(ISymbol symbol)
+        {
+            return symbol switch
+            {
+                ITypeSymbol type => type.DeclaringSyntaxReferences,
+                IMethodSymbol method => MergePartial(method),
+                _ => symbol.DeclaringSyntaxReferences,
+            };
+
+            static ImmutableArray<SyntaxReference> MergePartial(IMethodSymbol method)
+            {
+                var def = method.PartialDefinitionPart?.DeclaringSyntaxReferences ?? [];
+                var impl = method.PartialImplementationPart?.DeclaringSyntaxReferences ?? [];
+                var self = method.DeclaringSyntaxReferences;
+                return [.. ((SyntaxReference[])[.. def, .. impl, .. self]).Distinct()];
+            }
         }
     }
 }
