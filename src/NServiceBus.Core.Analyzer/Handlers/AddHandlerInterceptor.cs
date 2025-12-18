@@ -30,7 +30,9 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
             });
     }
 
-    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, HandlerTypeSpec HandlerType, ImmutableEquatableArray<MessageRegistrationSpec> Registrations);
+    internal sealed record HandlerSpec(InterceptLocationSpec LocationSpec, HandlerRegistrationSpec RegistrationInfo);
+
+    internal sealed record HandlerRegistrationSpec(HandlerTypeSpec HandlerType, ImmutableEquatableArray<MessageRegistrationSpec> Registrations);
 
     internal readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 

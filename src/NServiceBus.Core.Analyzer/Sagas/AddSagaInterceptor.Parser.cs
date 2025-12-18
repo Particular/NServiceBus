@@ -73,7 +73,7 @@ public sealed partial class AddSagaInterceptor
                     continue;
                 }
 
-                if (HandlerParser.Parse(ctx.SemanticModel, operation, invocation, cancellationToken) is not { } handlerSpec)
+                if (HandlerParser.Parse(ctx.SemanticModel, sagaType) is not { } handlerSpec)
                 {
                     continue;
                 }

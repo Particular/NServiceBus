@@ -90,16 +90,27 @@ public sealed partial class AddHandlerInterceptor
             }
 
             // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            return !IsAddHandlerMethod(operation.TargetMethod) ? null : Parse(invocationSemanticModel, operation, invocation, cancellationToken);
-        }
+            if (!IsAddHandlerMethod(operation.TargetMethod))
+            {
+                return null;
+            }
 
-        public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
-        {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
                 return null;
             }
 
+            if (invocationSemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            {
+                return null;
+            }
+
+            var registrationSpec = Parse(invocationSemanticModel, handlerType);
+            return registrationSpec is not null ? new HandlerSpec(InterceptLocationSpec.From(location), registrationSpec) : null;
+        }
+
+        public static HandlerRegistrationSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType)
+        {
             var allRegistrations = new List<MessageRegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
@@ -144,13 +155,13 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (registrations.Count == 0)
             {
                 return null;
             }
 
             var handlerTypeSpec = HandlerTypeSpec.From(handlerType);
-            return new HandlerSpec(InterceptLocationSpec.From(location), handlerTypeSpec, registrations);
+            return new HandlerRegistrationSpec(handlerTypeSpec, registrations);
         }
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
