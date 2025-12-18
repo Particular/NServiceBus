@@ -1,0 +1,86 @@
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NServiceBus;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.Extensibility;
+using NServiceBus.Features;
+using NUnit.Framework;
+using Conventions = AcceptanceTesting.Customization.Conventions;
+
+public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
+{
+    [Test]
+    public async Task Should_report_successful_message_metric()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        _ = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x =>
+                {
+                    x.EnableFeature<TestEnvelopeFeature>();
+                })
+                .When(async (session, ctx) =>
+                {
+                    await session.SendLocal(new OutgoingMessage());
+                }))
+            .Done(c => c.OutgoingMessagesReceived == 1)
+            .Run();
+
+        metricsListener.AssertMetric("nservicebus.envelope.unwrapping_error", 1);
+
+        metricsListener.AssertTags("nservicebus.envelope.unwrapping_error",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName
+            });
+    }
+
+    class ThrowingHandler : IEnvelopeHandler
+    {
+        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
+        {
+            throw new InvalidOperationException("Some exception");
+        }
+    }
+
+    class TestEnvelopeFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context)
+        {
+            context.AddEnvelopeHandler<ThrowingHandler>();
+        }
+    }
+
+    class Context : ScenarioContext
+    {
+        public int OutgoingMessagesReceived;
+    }
+
+    class EndpointWithMetrics : EndpointConfigurationBuilder
+    {
+        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+
+        public class MessageHandler : IHandleMessages<OutgoingMessage>
+        {
+            readonly Context testContext;
+
+            public MessageHandler(Context testContext) => this.testContext = testContext;
+
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
+                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    public class OutgoingMessage : IMessage
+    {
+    }
+}
