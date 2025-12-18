@@ -256,7 +256,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
     {
         var sagaEntityType = metadata.SagaEntityType;
 
-        var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
+        var sagaEntity = metadata.SagaDataFactory();
 
         sagaEntity.OriginalMessageId = context.MessageId;
 

@@ -48,6 +48,8 @@ public partial class SagaMetadata
 
     internal ISagaLoader Loader { get; }
 
+    internal Func<IContainSagaData> SagaDataFactory { get; }
+
     /// <summary>
     /// Property this saga is correlated on.
     /// </summary>
@@ -143,10 +145,10 @@ public partial class SagaMetadata
 
         saga.ConfigureHowToFindSaga(mapper);
 
-        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping(), new LoadSagaByIdWrapper<TSagaData>());
+        return new SagaMetadata(sagaType, sagaEntityType, associatedMessages, mapper.FinalizeMapping(), static () => new TSagaData(), new LoadSagaByIdWrapper<TSagaData>());
     }
 
-    SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping, ISagaLoader sagaLoader)
+    SagaMetadata(Type sagaType, Type sagaEntityType, IReadOnlyCollection<SagaMessage> messages, SagaMapping mapping, Func<IContainSagaData> sagaDataFactory, ISagaLoader sagaLoader)
     {
         correlationProperty = mapping.CorrelationProperty;
         Name = sagaType.FullName!;
@@ -154,6 +156,7 @@ public partial class SagaMetadata
         SagaEntityType = sagaEntityType;
         SagaType = sagaType;
         NotFoundHandler = mapping.NotFoundHandler;
+        SagaDataFactory = sagaDataFactory;
         Loader = sagaLoader;
         AssociatedMessages = messages;
 
