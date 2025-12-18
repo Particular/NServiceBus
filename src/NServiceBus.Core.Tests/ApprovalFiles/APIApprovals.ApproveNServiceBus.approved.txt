@@ -154,6 +154,12 @@ namespace NServiceBus
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessage<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> ToMessageHeader<TMessage>(string headerName) { }
     }
+    public abstract class CorrelationPropertyAccessor
+    {
+        protected CorrelationPropertyAccessor() { }
+        public abstract object? AccessFrom(NServiceBus.IContainSagaData sagaData);
+        public abstract void WriteTo(NServiceBus.IContainSagaData sagaData, object value);
+    }
     public class CriticalError
     {
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task>? onCriticalErrorAction) { }
@@ -2180,13 +2186,14 @@ namespace NServiceBus.Sagas
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public static NServiceBus.Sagas.SagaMetadata Create<TSaga>()
             where TSaga : NServiceBus.Saga { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
+        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
         public static System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> CreateMany(System.Collections.Generic.IEnumerable<System.Type> sagaTypes) { }
         public class CorrelationPropertyMetadata
         {
-            public CorrelationPropertyMetadata(string name, System.Type type) { }
+            public CorrelationPropertyMetadata(string name, System.Type type, NServiceBus.CorrelationPropertyAccessor propertyAccessor) { }
+            public NServiceBus.CorrelationPropertyAccessor Accessor { get; }
             public string Name { get; }
             public System.Type Type { get; }
         }
