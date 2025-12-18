@@ -82,13 +82,14 @@ public sealed partial class AddSagaInterceptor
                 var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Analyze ConfigureHowToFindSaga to extract mappings
-                var propertyMappings = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
+                var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, ctx.SemanticModel, cancellationToken);
 
                 var spec = new SagaSpec(
                     InterceptLocationSpec.From(location),
                     sagaType.Name,
                     sagaFullyQualifiedName,
                     sagaDataFullyQualifiedName,
+                    correlationProperty,
                     propertyMappings,
                     handlerSpec);
 
@@ -116,7 +117,7 @@ public sealed partial class AddSagaInterceptor
             return null;
         }
 
-        static ImmutableEquatableArray<PropertyMappingSpec> ExtractPropertyMappings(
+        static (CorrelationPropertyMappingSpec CorrelationProperty, ImmutableEquatableArray<PropertyMappingSpec> Properties) ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
             SemanticModel semanticModel,
             CancellationToken cancellationToken)
@@ -129,23 +130,21 @@ public sealed partial class AddSagaInterceptor
             var methodSyntax = syntaxRef?.GetSyntax(cancellationToken);
             if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
             {
-                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
+                return (default, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
 
             // Get method body (block or expression body)
             SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
             if (methodBody == null)
             {
-                return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
+                return (default, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
 
-            var mappings = new List<PropertyMappingSpec>();
-            var walker = new ConfigureMappingWalker(semanticModel, mappings, cancellationToken);
+            var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
             walker.Visit(methodBody);
 
             // Sort mappings to ensure deterministic ordering
-            return mappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ToImmutableEquatableArray();
+            return (walker.CorrelationPropertyMapping, walker.PropertyMappings);
         }
 
         static IMethodSymbol? FindConfigureHowToFindSagaMethod(
@@ -184,13 +183,22 @@ public sealed partial class AddSagaInterceptor
 
         sealed class ConfigureMappingWalker(
             SemanticModel semanticModel,
-            List<PropertyMappingSpec> propertyMappings,
             CancellationToken cancellationToken)
             : CSharpSyntaxWalker
         {
+            public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings => propertyMappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
+                .ToImmutableEquatableArray();
+            public CorrelationPropertyMappingSpec CorrelationPropertyMapping { get; private set; }
+
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
                 base.VisitInvocationExpression(node);
+
+                // Look for .MapSaga(...) calls
+                if (node.Expression is MemberAccessExpressionSyntax { Name: IdentifierNameSyntax { Identifier.ValueText: "MapSaga" } })
+                {
+                    AnalyzeMapSagaCall(node);
+                }
 
                 // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
                 if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } })
@@ -199,6 +207,49 @@ public sealed partial class AddSagaInterceptor
                     // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
                     AnalyzeMapSagaToMessageCall(node);
                 }
+            }
+
+            void AnalyzeMapSagaCall(InvocationExpressionSyntax mapSagaCall)
+            {
+                if (mapSagaCall.ArgumentList.Arguments.Count <= 0)
+                {
+                    return;
+                }
+
+                if (mapSagaCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+                {
+                    return;
+                }
+
+                // Normalize body to a MemberAccessExpressionSyntax
+                MemberAccessExpressionSyntax? memberAccess = lambda.Body switch
+                {
+                    MemberAccessExpressionSyntax m => m,
+                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember,
+                    _ => null
+                };
+
+                if (memberAccess is null)
+                {
+                    return;
+                }
+
+                // Property name (syntax)
+                var propertyName = memberAccess.Name.Identifier.ValueText;
+                if (string.IsNullOrWhiteSpace(propertyName))
+                {
+                    return;
+                }
+
+                // Property symbol & type
+                var symbolInfo = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
+                if (symbolInfo.Symbol is not IPropertySymbol propertySymbol)
+                {
+                    return;
+                }
+
+                var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -257,6 +308,8 @@ public sealed partial class AddSagaInterceptor
 
                 propertyMappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
             }
+
+            readonly List<PropertyMappingSpec> propertyMappings = [];
         }
     }
 }

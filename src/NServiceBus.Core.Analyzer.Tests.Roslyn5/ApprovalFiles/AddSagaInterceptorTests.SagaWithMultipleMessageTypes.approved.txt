@@ -46,7 +46,8 @@ namespace NServiceBus
                     OrderCreatedOrderIdAccessor_16edcde3129fe540.Instance,
                     OrderShippedOrderIdAccessor_24f0d05d0a48e6ff.Instance,
                 ];
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, propertyAccessors: propertyAccessors);
+                var correlationPropertyAccessor = OrderIdAccessor_b94e13ff8504264a.Instance;
+                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderSaga, global::OrderSagaData>(associatedMessages, correlationPropertyAccessor: correlationPropertyAccessor, propertyAccessors: propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
@@ -101,5 +102,23 @@ namespace NServiceBus
         static extern string AccessFrom_Property(global::OrderShipped message);
 
         public static readonly NServiceBus.MessagePropertyAccessor Instance = new OrderShippedOrderIdAccessor_24f0d05d0a48e6ff();
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+    file sealed class OrderIdAccessor_b94e13ff8504264a : NServiceBus.CorrelationPropertyAccessor
+    {
+        OrderIdAccessor_b94e13ff8504264a() { }
+
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+        static extern string AccessFrom_Property(NServiceBus.IContainSagaData sagaData);
+
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, (string)value);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
+        static extern void WriteTo_Property(NServiceBus.IContainSagaData sagaData, string value);
+
+        public static readonly NServiceBus.CorrelationPropertyAccessor Instance = new OrderIdAccessor_b94e13ff8504264a();
     }
 }
