@@ -31,12 +31,24 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
                 if (unwrappingResult.HasValue)
                 {
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.Debug(
+                            $"Unwrapped the message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
+                    }
+
                     return new IncomingMessage(messageContext.NativeMessageId, unwrappingResult.Value.headers, unwrappingResult.Value.body);
+                }
+
+                if (Log.IsDebugEnabled)
+                {
+                    Log.Debug(
+                        $"Did not unwrap the message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
                 }
             }
             catch (Exception e)
             {
-                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler);
+                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, e);
                 if (Log.IsWarnEnabled)
                 {
                     Log.Warn(

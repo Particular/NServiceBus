@@ -243,7 +243,7 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public void RecordEnvelopeUnwrappingError(MessageContext messageContext, IEnvelopeHandler type)
+    public void RecordEnvelopeUnwrappingError(MessageContext messageContext, IEnvelopeHandler type, Exception exception)
     {
         if (!totalEnvelopeUnwrappingErrors.Enabled)
         {
@@ -254,10 +254,9 @@ class IncomingPipelineMetrics
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
-            MeterTags.EndpointDiscriminator,
-            MeterTags.MessageType,
-            MeterTags.MessageHandlerType]);
+            MeterTags.EndpointDiscriminator]);
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.EnvelopeUnwrapperType, type.GetType().FullName));
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, exception.GetType().FullName));
         totalEnvelopeUnwrappingErrors.Add(1, meterTags);
     }
 
