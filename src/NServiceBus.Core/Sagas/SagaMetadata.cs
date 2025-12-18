@@ -263,7 +263,7 @@ public partial class SagaMetadata
         public Type Type { get; } = type;
 
         /// <summary>
-        ///
+        /// The correlation property accessor.
         /// </summary>
         public CorrelationPropertyAccessor Accessor { get; } = propertyAccessor;
     }
