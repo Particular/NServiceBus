@@ -4,6 +4,7 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
@@ -80,7 +81,7 @@ public class FeatureConfigurationContext
     /// </summary>
     /// <remarks>The startup task will automatically have all it's constructor parameters resolved from the dependency injection container.</remarks>
     /// <typeparam name="TTask">The startup task type to register.</typeparam>
-    public void RegisterStartupTask<TTask>() where TTask : FeatureStartupTask
+    public void RegisterStartupTask<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TTask>() where TTask : FeatureStartupTask
         => TaskControllers.Add(new ActivatorUtilityBasedFeatureStartupTaskController<TTask>());
 
     /// <summary>

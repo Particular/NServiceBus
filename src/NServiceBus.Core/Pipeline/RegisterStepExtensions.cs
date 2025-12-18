@@ -3,16 +3,17 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Pipeline;
 
 static class RegisterStepExtensions
 {
-    public static bool IsBehavior(this Type behaviorType) =>
+    public static bool IsBehavior([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type behaviorType) =>
         behaviorType.GetInterfaces()
             .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
 
-    public static Type GetBehaviorInterface(this Type behaviorType) =>
+    public static Type GetBehaviorInterface([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type behaviorType) =>
         behaviorType.GetInterfaces()
             .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
 

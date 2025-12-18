@@ -5,6 +5,7 @@ namespace NServiceBus.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -20,7 +21,7 @@ public abstract class RegisterStep
     /// <param name="behavior">The type of <see cref="Behavior{TContext}" /> to register.</param>
     /// <param name="description">A brief description of what this step does.</param>
     /// <param name="factoryMethod">A factory method for creating the behavior.</param>
-    protected RegisterStep(string stepId, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
+    protected RegisterStep(string stepId, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
     {
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
@@ -51,6 +52,7 @@ public abstract class RegisterStep
     /// <summary>
     /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type BehaviorType { get; private set; }
 
     /// <summary>
@@ -123,14 +125,14 @@ public abstract class RegisterStep
 
     internal IBehavior CreateBehavior(IServiceProvider defaultBuilder) => factoryMethod(defaultBuilder);
 
-    internal static RegisterStep Create(string pipelineStep, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
+    internal static RegisterStep Create(string pipelineStep, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
         => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
 
     Func<IServiceProvider, IBehavior> factoryMethod;
     Func<IServiceProvider, IBehavior> DefaultFactoryMethod => provider => (IBehavior)ActivatorUtilities.CreateInstance(provider, BehaviorType);
 
     class DefaultRegisterStep(
-        Type behavior,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type behavior,
         string stepId,
         string? description,
         Func<IServiceProvider, IBehavior>? factoryMethod)

@@ -37,6 +37,8 @@ public partial class SagaMetadata
     /// <summary>
     /// The type of the related saga entity.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+
     public Type SagaEntityType { get; }
 
     /// <summary>
@@ -84,6 +86,7 @@ public partial class SagaMetadata
     /// </summary>
     /// <param name="sagaTypes">Potential saga types.</param>
     /// <returns>Saga metadata for all the found saga types.</returns>
+    [RequiresUnreferencedCode("Uses reflection to create metadata instances of saga data types.")]
     public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
     {
         ArgumentNullException.ThrowIfNull(sagaTypes);
@@ -105,7 +108,8 @@ public partial class SagaMetadata
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga>() where TSaga : Saga
+    [RequiresUnreferencedCode("Uses reflection to create metadata instances of saga data types.")]
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TSaga>() where TSaga : Saga
     {
         var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
@@ -129,7 +133,7 @@ public partial class SagaMetadata
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicConstructors | DynamicallyAccessedMemberTypes.None | DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
         where TSagaData : class, IContainSagaData, new()
     {
@@ -169,7 +173,8 @@ public partial class SagaMetadata
         }
     }
 
-    static List<SagaMessage> GetAssociatedMessages(Type sagaType)
+    [RequiresUnreferencedCode("Uses reflection to create closed types from the filter type.")]
+    static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
             .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
@@ -193,7 +198,8 @@ public partial class SagaMetadata
         return result;
     }
 
-    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
+    [RequiresUnreferencedCode("Uses reflection to create closed types from the filter type.")]
+    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType, Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
         {
