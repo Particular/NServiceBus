@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
+using Microsoft.Extensions.DependencyInjection;
 using Settings;
 
 /// <summary>
@@ -16,7 +17,7 @@ using Settings;
 public abstract class TransportDefinition
 {
     TransportTransactionMode transportTransactionMode;
-    List<IEnabled>? featuresToEnable;
+    List<IEnabled> featuresToEnable = [Enabled<TransportServiceCollectionProviderFeature>.Instance];
 
     /// <summary>
     /// Creates a new transport definition.
@@ -35,11 +36,7 @@ public abstract class TransportDefinition
     /// </summary>
     /// <remarks>This method needs to be called within the constructor(s) of the transport definition.</remarks>
     /// <typeparam name="T">The feature to enable.</typeparam>
-    protected void EnableEndpointFeature<T>() where T : Feature, new()
-    {
-        featuresToEnable ??= [];
-        featuresToEnable.Add(Enabled<T>.Instance);
-    }
+    protected void EnableEndpointFeature<T>() where T : Feature, new() => featuresToEnable.Add(Enabled<T>.Instance);
 
     /// <summary>
     /// Initializes transport factories and transport-specific behavior.
@@ -87,13 +84,16 @@ public abstract class TransportDefinition
     /// </summary>
     public bool SupportsTTBR { get; }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="services"></param>
+    public virtual void ConfigureServices(IServiceCollection services)
+    {
+    }
+
     internal void Configure(SettingsHolder settings)
     {
-        if (featuresToEnable is null)
-        {
-            return;
-        }
-
         foreach (var featureToEnable in featuresToEnable)
         {
             featureToEnable.Apply(settings);
@@ -115,5 +115,10 @@ public abstract class TransportDefinition
         public static readonly IEnabled Instance = new Enabled<TFeature>();
 
         public void Apply(SettingsHolder settingsHolder) => settingsHolder.EnableFeature<TFeature>();
+    }
+
+    sealed class TransportServiceCollectionProviderFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context) => context.Settings.Get<TransportDefinition>().ConfigureServices(context.Services);
     }
 }
