@@ -3,6 +3,7 @@
 namespace NServiceBus.Transport;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Settings;
 
@@ -19,6 +20,12 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// Transports can use these settings to validate the hosting endpoint settings.
     /// </summary>
     public IReadOnlySettings? CoreSettings { get; } = coreSettings;
+
+    /// <summary>
+    /// Service provider available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
+    /// Transports can use the provider in hosted scenarios to resolve dependencies from the provider.
+    /// </summary>
+    public IServiceProvider? ServiceProvider { get; internal set; }
 
     /// <summary>
     /// A name that describes the host (e.g. the endpoint name).
@@ -44,10 +51,4 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// A flag that indicates whether the transport should automatically setup necessary infrastructure.
     /// </summary>
     public bool SetupInfrastructure { get; } = setupInfrastructure;
-
-    /// <summary>
-    /// The service provider of the NServiceBus endpoint using the transport.
-    /// NOTE: When running outside an endpoint this will be null.
-    /// </summary>
-    public IServiceProvider? ServiceProvider { get; internal set; }
 }
