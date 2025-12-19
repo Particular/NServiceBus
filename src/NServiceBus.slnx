@@ -20,5 +20,9 @@
     <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />
     <Project Path="NServiceBus.TransportTests/NServiceBus.TransportTests.csproj" />
   </Folder>
+  <Project Path="Client/Client.csproj" />
+  <Project Path="LoanBroker.Messages/LoanBroker.Messages.csproj" />
+  <Project Path="LoanBroker\LoanBroker.csproj" />
   <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
+  <Project Path="Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan\Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan.csproj" />
 </Solution>
