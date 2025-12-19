@@ -3,6 +3,7 @@
 namespace NServiceBus.Transport;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Settings;
 
@@ -15,6 +16,12 @@ using Settings;
 public class HostSettings(string name, string hostDisplayName, StartupDiagnosticEntries startupDiagnostic, Action<string, Exception, CancellationToken> criticalErrorAction, bool setupInfrastructure, IReadOnlySettings? coreSettings = null)
 {
     /// <summary>
+    /// Indicates whether the transport is running in an NServiceBus endpoint.
+    /// </summary>
+    [MemberNotNullWhen(true, nameof(CoreSettings), nameof(ServiceProvider))]
+    public bool IsHosted => CoreSettings is not null && ServiceProvider is not null;
+
+    /// <summary>
     /// Settings available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
     /// Transports can use these settings to validate the hosting endpoint settings.
     /// </summary>
@@ -24,7 +31,7 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// Service provider available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
     /// Transports can use the provider in hosted scenarios to resolve dependencies from the provider.
     /// </summary>
-    public IServiceProvider? ServiceProvider { get; internal set; }
+    public IServiceProvider? ServiceProvider { get; set; }
 
     /// <summary>
     /// A name that describes the host (e.g. the endpoint name).
