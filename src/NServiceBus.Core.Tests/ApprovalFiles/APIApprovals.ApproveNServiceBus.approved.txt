@@ -2315,6 +2315,7 @@ namespace NServiceBus.Transport
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
         public string Name { get; }
+        public System.IServiceProvider? ServiceProvider { get; }
         public bool SetupInfrastructure { get; }
         public NServiceBus.StartupDiagnosticEntries StartupDiagnostic { get; }
     }

@@ -44,4 +44,10 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// A flag that indicates whether the transport should automatically setup necessary infrastructure.
     /// </summary>
     public bool SetupInfrastructure { get; } = setupInfrastructure;
+
+    /// <summary>
+    /// The service provider of the NServiceBus endpoint using the transport.
+    /// NOTE: When running outside an endpoint this will be null.
+    /// </summary>
+    public IServiceProvider? ServiceProvider { get; internal set; }
 }

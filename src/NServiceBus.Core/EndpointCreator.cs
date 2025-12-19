@@ -169,7 +169,7 @@ class EndpointCreator
         });
     }
 
-    public StartableEndpoint CreateStartableEndpoint(IServiceProvider builder, bool serviceProviderIsExternallyManaged)
+    public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
     {
         hostingConfiguration.AddStartupDiagnosticsSection("Container", new
         {
@@ -184,7 +184,7 @@ class EndpointCreator
             recoverabilityComponent,
             hostingComponent,
             sendComponent,
-            builder,
+            serviceProvider,
             serviceProviderIsExternallyManaged);
     }
 
