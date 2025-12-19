@@ -13,6 +13,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
     internal IncomingMessage UnwrapEnvelope(MessageContext messageContext)
     {
+        // TODO: Is there any point in optimizing this to never hit the foreach if the translators list is empty.
+        // https://stackoverflow.com/questions/45651325/performance-before-using-a-foreach-loop-check-if-the-list-is-empty
         foreach (var envelopeHandler in envelopeHandlers)
         {
             try
@@ -26,6 +28,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                 (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? unwrappingResult = envelopeHandler.UnwrapEnvelope(
                     messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
                     messageContext.Body);
+
+                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, null, true);
 
                 if (unwrappingResult.HasValue)
                 {
@@ -46,7 +50,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
             }
             catch (Exception e)
             {
-                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, e);
+                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, e, false);
                 if (Log.IsWarnEnabled)
                 {
                     Log.Warn(
@@ -58,8 +62,16 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
         if (Log.IsDebugEnabled)
         {
-            Log.Debug(
-                $"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+            if (envelopeHandlers.Length > 0)
+            {
+                Log.Debug(
+                    $"No envelope handler unwrapped the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+            }
+            else
+            {
+                Log.Debug(
+                    $"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+            }
         }
 
         return GetDefaultIncomingMessage(messageContext);
