@@ -112,66 +112,63 @@ public sealed partial class AddHandlerGenerator
         {
             var root = BuildNamespaceTree(handlers);
 
-            sourceWriter.WriteLine("namespace NServiceBus");
+            sourceWriter.WriteLine("public static class HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine("public static class Handlers");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
+            EmitExtensionProperties(sourceWriter, root);
 
-            EmitNamespaceContents(sourceWriter, root);
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-        }
-
-        static void EmitNamespaceContents(SourceWriter sourceWriter, NamespaceNode node)
-        {
-            EmitAddMethod(sourceWriter, node);
-
-            if (node.Handlers.Count > 0)
-            {
-                for (int index = 0; index < node.Handlers.Count; index++)
-                {
-                    sourceWriter.WriteLine();
-                    EmitSingleHandlerMethod(sourceWriter, node.Handlers[index]);
-                }
-            }
-
-            for (int index = 0; index < node.Children.Count; index++)
+            foreach (var child in root.Children)
             {
                 sourceWriter.WriteLine();
-                EmitNamespaceClass(sourceWriter, node.Children[index]);
+                EmitNamespaceRegistry(sourceWriter, child);
             }
-        }
-
-        static void EmitNamespaceClass(SourceWriter sourceWriter, NamespaceNode node)
-        {
-            sourceWriter.WriteLine($"public static class {node.Name}");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-
-            EmitNamespaceContents(sourceWriter, node);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitAddMethod(SourceWriter sourceWriter, NamespaceNode node)
+        static void EmitExtensionProperties(SourceWriter sourceWriter, NamespaceNode root)
         {
-            sourceWriter.WriteLine("public static void Add(EndpointConfiguration cfg)");
+            sourceWriter.WriteLine("extension (global::NServiceBus.HandlersRegistry registry)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(cfg);");
+            foreach (var child in root.Children)
+            {
+                sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(registry.Configuration);");
+            }
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node)
+        {
+            sourceWriter.WriteLine($"public class {node.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            sourceWriter.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
+
+            if (node.Children.Count > 0 || node.Handlers.Count > 0)
+            {
+                sourceWriter.WriteLine();
+            }
 
             foreach (var child in node.Children)
             {
-                sourceWriter.WriteLine($"{child.Name}.Add(cfg);");
+                sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
+            }
+
+            sourceWriter.WriteLine();
+            sourceWriter.WriteLine("public void AddAll()");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            foreach (var child in node.Children)
+            {
+                sourceWriter.WriteLine($"{child.Name}.AddAll();");
             }
 
             if (node.Children.Count > 0 && node.Handlers.Count > 0)
@@ -179,47 +176,65 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine();
             }
 
+            for (int index = 0; index < node.Handlers.Count; index++)
+            {
+                var methodName = GetSingleHandlerMethodName(node.Handlers[index].Name);
+                sourceWriter.WriteLine($"{methodName}();");
+            }
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+
             if (node.Handlers.Count > 0)
             {
-                foreach (var handler in node.Handlers)
-                {
-                    var methodName = GetSingleHandlerMethodName(handler.Name);
-                    sourceWriter.WriteLine($"{methodName}(cfg);");
-                }
+                sourceWriter.WriteLine();
+                EmitHandlerMethods(sourceWriter, node.Handlers);
+            }
+
+            foreach (var child in node.Children)
+            {
+                sourceWriter.WriteLine();
+                EmitNamespaceRegistry(sourceWriter, child);
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitHandlerRegistrationBlock(SourceWriter sourceWriter, IReadOnlyList<HandlerSpec> handlerSpecs)
+        static void EmitHandlerMethods(SourceWriter sourceWriter, List<HandlerSpec> handlerSpecs)
         {
-            sourceWriter.WriteLine("""
-                                   var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+            for (int index = 0; index < handlerSpecs.Count; index++)
+            {
+                var handlerSpec = handlerSpecs[index];
+                var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
+                sourceWriter.WriteLine($"public void {methodName}()");
+                sourceWriter.WriteLine("{");
+                sourceWriter.Indentation++;
+
+                EmitHandlerRegistrationBlock(sourceWriter, [handlerSpec], "_configuration");
+
+                sourceWriter.Indentation--;
+                sourceWriter.WriteLine("}");
+
+                if (index < handlerSpecs.Count - 1)
+                {
+                    sourceWriter.WriteLine();
+                }
+            }
+        }
+
+        static void EmitHandlerRegistrationBlock(SourceWriter sourceWriter, IReadOnlyList<HandlerSpec> handlerSpecs, string configurationVariable)
+        {
+            sourceWriter.WriteLine($"""
+                                   var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable});
                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                    """);
 
             foreach (var handlerSpec in handlerSpecs)
             {
-                sourceWriter.WriteLine($"// {handlerSpec.HandlerType}");
                 EmitHandlerRegistryCode(sourceWriter, handlerSpec);
             }
-        }
-
-        static void EmitSingleHandlerMethod(SourceWriter sourceWriter, HandlerSpec handlerSpec)
-        {
-            var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
-            sourceWriter.WriteLine($"public static void {methodName}(EndpointConfiguration cfg)");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-
-            sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(cfg);");
-
-            EmitHandlerRegistrationBlock(sourceWriter, new[] { handlerSpec });
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
         }
 
         static string GetSingleHandlerMethodName(string handlerName)
@@ -290,6 +305,8 @@ public sealed partial class AddHandlerGenerator
             public List<NamespaceNode> Children { get; } = [];
 
             public List<HandlerSpec> Handlers { get; } = [];
+
+            public string RegistryName => $"{Name}Registry";
 
             public NamespaceNode GetOrAddChild(string childName)
             {
