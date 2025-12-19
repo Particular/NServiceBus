@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -11,10 +12,10 @@ using NServiceBus.Features;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
+public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_report_failed_unwrapping_metric()
+    public async Task Should_report_successful_unwrapping_metric()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
@@ -31,15 +32,15 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
             .Done(c => c.OutgoingMessagesReceived == 1)
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.envelope.unwrapping_error", 1);
+        // The metric should be explicitly emitted with a value of 0 to indicate no errors occurred
+        Assert.That(metricsListener.ReportedMeters["nservicebus.envelope.unwrapping_error"], Is.EqualTo(0));
 
         metricsListener.AssertTags("nservicebus.envelope.unwrapping_error",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "discriminator",
-                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName,
-                ["error.type"] = typeof(InvalidOperationException).FullName
+                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName
             });
     }
 
@@ -48,7 +49,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
             ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
         {
-            throw new InvalidOperationException("Some exception");
+            return (incomingHeaders.ToDictionary(), incomingBody);
         }
     }
 
