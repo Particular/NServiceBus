@@ -8,6 +8,9 @@ using System.ComponentModel;
 /// </summary>
 public sealed class HandlerRegistry(EndpointConfiguration configuration)
 {
+    /// <summary>
+    /// The endpoint configuration.
+    /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public EndpointConfiguration Configuration { get; } = configuration;
 }

@@ -7,6 +7,7 @@ endpointConfiguration.UsePersistence<LearningPersistence>();
 endpointConfiguration.UseTransport<LearningTransport>();
 
 var handlersRegistry = endpointConfiguration.Handlers;
-handlersRegistry.LoanBroker.AddAll();
-handlersRegistry.Client.AddAll();
-handlersRegistry.Ubs_Switzerland_Central_Lucerne_Kriens_Division_Loan.AddAll();
+handlersRegistry.LoanBrokerAssembly.LoanBroker.Handlers.AddAll();
+handlersRegistry.ClientAssembly.AddAll();
+handlersRegistry.UbsAssembly.Ubs.AddAll();
+handlersRegistry.UbsSwitzerlandCentralLucerneKriensDivisionLoanAssembly.Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan.AddQuoteRequested();

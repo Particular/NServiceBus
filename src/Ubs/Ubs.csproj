@@ -1,19 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>SomeEndpoint</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan\Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan.csproj" />
-    <ProjectReference Include="..\Client\Client.csproj" />
-    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
+    <ProjectReference Include="..\LoanBroker.Messages\LoanBroker.Messages.csproj" />
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-    <ProjectReference Include="..\Ubs\Ubs.csproj" />
   </ItemGroup>
 
   <ItemGroup>

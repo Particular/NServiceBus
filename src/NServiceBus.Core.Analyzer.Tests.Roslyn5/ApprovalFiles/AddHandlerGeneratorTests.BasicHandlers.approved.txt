@@ -6,7 +6,7 @@ namespace NServiceBus
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
-            public BasicHandlersRootRegistry BasicHandlers => new(registry.Configuration);
+            public BasicHandlersRootRegistry BasicHandlersAssembly => new(registry.Configuration);
         }
 
         public class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)

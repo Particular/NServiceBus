@@ -25,4 +25,5 @@
   <Project Path="LoanBroker\LoanBroker.csproj" />
   <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
   <Project Path="Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan\Ubs.Switzerland.Central.Lucerne.Kriens.Division.Loan.csproj" />
+  <Project Path="Ubs/Ubs.csproj" />
 </Solution>

@@ -86,7 +86,7 @@ namespace NServiceBus
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
-            public InterfaceLessHandlersRootRegistry InterfaceLessHandlers => new(registry.Configuration);
+            public InterfaceLessHandlersRootRegistry InterfaceLessHandlersAssembly => new(registry.Configuration);
         }
 
         public class InterfaceLessHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)

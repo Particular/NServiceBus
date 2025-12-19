@@ -27,8 +27,9 @@ namespace NServiceBus.AcceptanceTests.Handlers
         {
             public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
             {
-                config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.Shipping.AddAll();
-                config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.Orders.AddAll();
+                var testingAssembly = config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly;
+                testingAssembly.Shipping.AddAll();
+                testingAssembly.Orders.AddAll();
             });
         }
     }

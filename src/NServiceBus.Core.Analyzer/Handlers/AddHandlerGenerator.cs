@@ -140,7 +140,7 @@ public sealed partial class AddHandlerGenerator
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine($"public {rootRegistryName} {assemblyId} => new(registry.Configuration);");
+            sourceWriter.WriteLine($"public {rootRegistryName} {assemblyId}Assembly => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -310,38 +310,14 @@ public sealed partial class AddHandlerGenerator
 
         static string SanitizeIdentifier(string value)
         {
-            Span<char> buffer = stackalloc char[value.Length + 1];
-            int index = 0;
-
-            foreach (var ch in value)
-            {
-                if (char.IsLetterOrDigit(ch) || ch == '_')
-                {
-                    buffer[index++] = ch;
-                }
-                else
-                {
-                    buffer[index++] = '_';
-                }
-            }
-
-            if (index == 0)
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return "Assembly";
             }
 
-            if (!char.IsLetter(buffer[0]) && buffer[0] != '_')
-            {
-                buffer = buffer[..(index + 1)];
-                for (int i = index; i > 0; i--)
-                {
-                    buffer[i] = buffer[i - 1];
-                }
-                buffer[0] = '_';
-                index++;
-            }
+            var sanitized = System.Text.RegularExpressions.Regex.Replace(value, @"[^a-zA-Z0-9]", "");
 
-            return new string(buffer[..index].ToArray());
+            return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
         sealed class NamespaceNode(string? name)
