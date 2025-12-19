@@ -39,6 +39,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
         string Name,
         string HandlerType,
         string HandlerNamespace,
+        string AssemblyName,
         ImmutableEquatableArray<RegistrationSpec> Registrations,
         ImmutableEquatableArray<InterfaceLessHandlerSpec> InterfaceLessHandlers);
 
@@ -79,9 +80,7 @@ public sealed partial class AddHandlerGenerator
                 return;
             }
 
-            var sourceWriter = new SourceWriter()
-                .WithGeneratedCodeAttribute();
-
+            var sourceWriter = new SourceWriter();
             var interfaceLessHandlers = handlers
                 .SelectMany(handler => handler.InterfaceLessHandlers)
                 .OrderBy(spec => spec.GeneratedHandlerType, StringComparer.Ordinal)
@@ -103,7 +102,14 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine();
             }
 
+            sourceWriter.WriteLine("""
+                                   namespace NServiceBus
+                                   {
+                                   """);
+            sourceWriter.Indentation++;
+
             EmitHandlers(sourceWriter, handlers);
+            sourceWriter.CloseCurlies();
 
             context.AddSource("Handlers.g.cs", sourceWriter.ToSourceText());
         }
@@ -111,41 +117,38 @@ public sealed partial class AddHandlerGenerator
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers)
         {
             var root = BuildNamespaceTree(handlers);
+            var assemblyId = GetAssemblyIdentifier(handlers);
+            var rootRegistryName = $"{assemblyId}RootRegistry";
 
-            sourceWriter.WriteLine("public static class HandlerRegistryExtensions");
+            sourceWriter.WithGeneratedCodeAttribute();
+            sourceWriter.WriteLine($"public static class {assemblyId}HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitExtensionProperties(sourceWriter, root);
+            EmitExtensionProperties(sourceWriter, assemblyId, rootRegistryName);
 
-            foreach (var child in root.Children)
-            {
-                sourceWriter.WriteLine();
-                EmitNamespaceRegistry(sourceWriter, child);
-            }
+            sourceWriter.WriteLine();
+            EmitNamespaceRegistry(sourceWriter, root, rootRegistryName);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitExtensionProperties(SourceWriter sourceWriter, NamespaceNode root)
+        static void EmitExtensionProperties(SourceWriter sourceWriter, string assemblyId, string rootRegistryName)
         {
-            sourceWriter.WriteLine("extension (global::NServiceBus.HandlersRegistry registry)");
+            sourceWriter.WriteLine("extension (global::NServiceBus.HandlerRegistry registry)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            foreach (var child in root.Children)
-            {
-                sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(registry.Configuration);");
-            }
+            sourceWriter.WriteLine($"public {rootRegistryName} {assemblyId} => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node)
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string registryName)
         {
-            sourceWriter.WriteLine($"public class {node.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
+            sourceWriter.WriteLine($"public class {registryName}(global::NServiceBus.EndpointConfiguration configuration)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
@@ -194,7 +197,7 @@ public sealed partial class AddHandlerGenerator
             foreach (var child in node.Children)
             {
                 sourceWriter.WriteLine();
-                EmitNamespaceRegistry(sourceWriter, child);
+                EmitNamespaceRegistry(sourceWriter, child, child.RegistryName);
             }
 
             sourceWriter.Indentation--;
@@ -298,6 +301,49 @@ public sealed partial class AddHandlerGenerator
             }
         }
 
+        static string GetAssemblyIdentifier(ImmutableEquatableArray<HandlerSpec> handlers)
+        {
+            var assemblyName = handlers.Count > 0 ? handlers[0].AssemblyName : "Assembly";
+            var sanitizedAssemblyName = SanitizeIdentifier(assemblyName);
+            return sanitizedAssemblyName;
+        }
+
+        static string SanitizeIdentifier(string value)
+        {
+            Span<char> buffer = stackalloc char[value.Length + 1];
+            int index = 0;
+
+            foreach (var ch in value)
+            {
+                if (char.IsLetterOrDigit(ch) || ch == '_')
+                {
+                    buffer[index++] = ch;
+                }
+                else
+                {
+                    buffer[index++] = '_';
+                }
+            }
+
+            if (index == 0)
+            {
+                return "Assembly";
+            }
+
+            if (!char.IsLetter(buffer[0]) && buffer[0] != '_')
+            {
+                buffer = buffer[..(index + 1)];
+                for (int i = index; i > 0; i--)
+                {
+                    buffer[i] = buffer[i - 1];
+                }
+                buffer[0] = '_';
+                index++;
+            }
+
+            return new string(buffer[..index].ToArray());
+        }
+
         sealed class NamespaceNode(string? name)
         {
             public string? Name { get; } = name;
@@ -338,6 +384,7 @@ public sealed partial class AddHandlerGenerator
 
         static void EmitInterfaceLessHandler(SourceWriter sourceWriter, InterfaceLessHandlerSpec handlerSpec)
         {
+            sourceWriter.WithGeneratedCodeAttribute();
             sourceWriter.WriteLine($$"""
                                      [System.Diagnostics.DebuggerNonUserCode]
                                      file sealed class {{handlerSpec.GeneratedHandlerName}} : NServiceBus.IHandleMessages<{{handlerSpec.MessageType}}>
@@ -425,6 +472,7 @@ public sealed partial class AddHandlerGenerator
         {
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var handlerNamespace = GetHandlerNamespace(handlerType);
+            var assemblyName = handlerType.ContainingAssembly?.Name ?? "Assembly";
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
@@ -494,7 +542,7 @@ public sealed partial class AddHandlerGenerator
                     .ToList();
             }
 
-            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, registrations.ToImmutableEquatableArray(), interfaceLessHandlers);
+            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray(), interfaceLessHandlers);
         }
 
         static ImmutableEquatableArray<InterfaceLessHandlerSpec> ParseInterfaceLessHandlers(

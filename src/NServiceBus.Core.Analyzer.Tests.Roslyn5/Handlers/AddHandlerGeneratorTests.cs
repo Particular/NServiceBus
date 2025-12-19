@@ -19,7 +19,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             new HandlerRegistry(cfg).Orders.AddAll();
+                             cfg.Handlers.BasicHandlers.AddAll();
                          }
                      }
 
@@ -80,7 +80,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             new HandlerRegistry(cfg).Foo.AddAll();
+                             cfg.Handlers.InterfaceLessHandlers.AddAll();
                          }
                      }
 

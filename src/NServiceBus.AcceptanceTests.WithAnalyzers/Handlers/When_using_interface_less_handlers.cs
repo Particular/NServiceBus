@@ -34,7 +34,9 @@ public class When_using_interface_less_handlers : NServiceBusAcceptanceTest
     {
         public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
         {
-            //config.AddEndpointUsingInterfaceLessHandlersHandlers();
+            config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.AcceptanceTests.Handlers.AddInterfaceLessHandlerWithCtorDependency();
+            config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.AcceptanceTests.Handlers.AddInterfaceLessHandlerWithMethodDependency();
+            config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.AcceptanceTests.Handlers.AddInterfaceLessHandlerWithCtorAndMethodDependency();
         });
 
         [Handler]

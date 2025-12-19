@@ -11,6 +11,6 @@ public static class RegistrationExtensions
         /// <summary>
         ///
         /// </summary>
-        public HandlersRegistry Handlers => new(endpointConfiguration);
+        public HandlerRegistry Handlers => new(endpointConfiguration);
     }
 }

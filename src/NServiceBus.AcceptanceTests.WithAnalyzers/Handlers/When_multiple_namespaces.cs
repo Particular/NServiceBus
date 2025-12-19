@@ -1,10 +1,8 @@
-using NServiceBus;
-using NServiceBus.AcceptanceTesting;
-
 namespace NServiceBus.AcceptanceTests.Handlers
 {
     using System.Threading.Tasks;
     using EndpointTemplates;
+    using MyMessages;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
@@ -29,31 +27,37 @@ namespace NServiceBus.AcceptanceTests.Handlers
         {
             public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
             {
-                Handlers.Orders.AddInterfaceLessHandlerWithCtorAndMethodDependency(config);
-                Handlers.Add(config);
-                Handlers.Orders.MySubDomain.AddInterfaceLessHandlerWithCtorDependency(config);
-                Handlers.Shipping.Add(config);
+                config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.Shipping.AddAll();
+                config.Handlers.NServiceBus_AcceptanceTests_WithAnalyzers.Orders.AddAll();
             });
         }
     }
 }
 
-public class ComplexMessage : ConcreteParent1, IInterfaceParent1;
-public class ConcreteParent1 : ConcreteParentBase;
-public class ConcreteParentBase : IMessage;
-public interface IInterfaceParent1 : IInterfaceParent1Base;
-public interface IInterfaceParent1Base : IMessage;
-public class Context : ScenarioContext
+namespace MyMessages
 {
-    public bool WithCtorDependencyReceived;
-    public bool WithMethodDependencyReceived;
-    public bool WithCtorAndMethodDependencyReceived;
+    using NServiceBus;
+    using NServiceBus.AcceptanceTesting;
+
+    public class ComplexMessage : ConcreteParent1, IInterfaceParent1;
+    public class ConcreteParent1 : ConcreteParentBase;
+    public class ConcreteParentBase : IMessage;
+    public interface IInterfaceParent1 : IInterfaceParent1Base;
+    public interface IInterfaceParent1Base : IMessage;
+    public class Context : ScenarioContext
+    {
+        public bool WithCtorDependencyReceived;
+        public bool WithMethodDependencyReceived;
+        public bool WithCtorAndMethodDependencyReceived;
+    }
 }
 
 namespace Shipping
 {
     using System;
     using System.Threading.Tasks;
+    using MyMessages;
+    using NServiceBus;
 
     [Handler]
     public class InterfaceLessHandlerWithCtorDependency(Context testContext)
@@ -94,6 +98,8 @@ namespace Orders
 {
     using System;
     using System.Threading.Tasks;
+    using MyMessages;
+    using NServiceBus;
 
     [Handler]
     public class InterfaceLessHandlerWithMethodDependency
@@ -123,6 +129,8 @@ namespace Orders
 namespace Orders.MySubDomain
 {
     using System.Threading.Tasks;
+    using MyMessages;
+    using NServiceBus;
 
     [Handler]
     public class InterfaceLessHandlerWithCtorDependency(Context testContext)
