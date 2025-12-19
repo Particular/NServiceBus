@@ -1,8 +1,7 @@
 namespace NServiceBus.Sagas;
 
 using System;
-using System.Linq;
-using System.Reflection;
+using System.Collections.Generic;
 
 /// <summary>
 /// Represents a saga instance being processed on the pipeline.
@@ -59,13 +58,6 @@ public class ActiveSagaInstance
     /// </summary>
     public DateTimeOffset Modified { get; private set; }
 
-    internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)
-    {
-        sagaCorrelationProperty = correlationProperty;
-
-        return sagaCorrelationProperty != null;
-    }
-
     /// <summary>
     /// Provides a way to update the actual saga entity.
     /// </summary>
@@ -77,10 +69,7 @@ public class ActiveSagaInstance
         AttachEntity(sagaEntity);
     }
 
-    internal void AttachExistingEntity(IContainSagaData loadedEntity)
-    {
-        AttachEntity(loadedEntity);
-    }
+    internal void AttachExistingEntity(IContainSagaData loadedEntity) => AttachEntity(loadedEntity);
 
     void AttachEntity(IContainSagaData sagaEntity)
     {
@@ -89,28 +78,18 @@ public class ActiveSagaInstance
         Instance.Entity = sagaEntity;
         SagaId = sagaEntity.Id.ToString();
 
-        var properties = sagaEntity.GetType().GetProperties();
-
-        if (Metadata.TryGetCorrelationProperty(out var correlatedPropertyMetadata))
+        if (!Metadata.TryGetCorrelationProperty(out var correlatedPropertyMetadata))
         {
-            var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
-            var propertyValue = propertyInfo.GetValue(sagaEntity);
-            var defaultValue = GetDefault(propertyInfo.PropertyType);
-            var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
-
-            correlationProperty = new CorrelationPropertyInfo
-            {
-                PropertyInfo = propertyInfo,
-                InitialValue = propertyValue,
-                HasInitialValue = hasValue
-            };
+            return;
         }
+
+        var propertyValue = correlatedPropertyMetadata.Accessor.AccessFrom(sagaEntity);
+        var defaultValue = SagaMapper.CorrelationPropertyTypeDefaultValues.GetValueOrDefault(correlatedPropertyMetadata.Type);
+        var hasValue = propertyValue is not null && !propertyValue.Equals(defaultValue);
+        correlationProperty = new CorrelationPropertyInfo(correlatedPropertyMetadata.Name, correlatedPropertyMetadata.Type, propertyValue, hasValue);
     }
 
-    void UpdateModified()
-    {
-        Modified = currentDateTimeOffsetProvider();
-    }
+    void UpdateModified() => Modified = currentDateTimeOffsetProvider();
 
     internal void MarkAsNotFound()
     {
@@ -118,26 +97,20 @@ public class ActiveSagaInstance
         UpdateModified();
     }
 
-    internal void Completed()
-    {
-        UpdateModified();
-    }
+    internal void Completed() => UpdateModified();
 
-    internal void Updated()
-    {
-        UpdateModified();
-    }
+    internal void Updated() => UpdateModified();
 
     internal void ValidateChanges()
     {
         ValidateSagaIdIsNotModified();
 
-        if (correlationProperty == null)
+        if (!Metadata.TryGetCorrelationProperty(out var correlatedPropertyMetadata))
         {
             return;
         }
 
-        var currentCorrelationPropertyValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
+        var currentCorrelationPropertyValue = correlatedPropertyMetadata.Accessor.AccessFrom(Instance.Entity);
 
         if (IsNew)
         {
@@ -155,7 +128,7 @@ public class ActiveSagaInstance
         }
 
         throw new Exception(
-            $@"The correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value.
+            $@"The correlated property '{correlationProperty.Name}' on saga '{Metadata.SagaType.Name}' does not have a value.
 A correlated property must have a non-null value assigned when a new saga instance is created.");
     }
 
@@ -166,13 +139,13 @@ A correlated property must have a non-null value assigned when a new saga instan
             return;
         }
 
-        if (correlationProperty.InitialValue.ToString() == currentCorrelationPropertyValue.ToString())
+        if (correlationProperty.InitialValue.Equals(currentCorrelationPropertyValue))
         {
             return;
         }
 
         throw new Exception(
-            $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{currentCorrelationPropertyValue}'.
+            $@"The value of the correlated property '{correlationProperty.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{currentCorrelationPropertyValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
     }
 
@@ -184,22 +157,8 @@ Changing the value of correlated properties at runtime is currently not supporte
         }
     }
 
-    static object GetDefault(Type type)
-    {
-        if (type.IsValueType)
-        {
-            return Activator.CreateInstance(type);
-        }
-        return null;
-    }
-
     CorrelationPropertyInfo correlationProperty;
     Guid sagaId;
 
-    internal class CorrelationPropertyInfo
-    {
-        public bool HasInitialValue;
-        public PropertyInfo PropertyInfo;
-        public object InitialValue;
-    }
+    record CorrelationPropertyInfo(string Name, Type Type, object InitialValue, bool HasInitialValue);
 }

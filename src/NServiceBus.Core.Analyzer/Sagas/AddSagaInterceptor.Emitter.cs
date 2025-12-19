@@ -112,7 +112,7 @@ public sealed partial class AddSagaInterceptor
                     var mapping = allPropertyMappings[index];
                     var accessorClassName = AccessorName(mapping);
                     _ = sourceWriter.WithGeneratedCodeAttribute();
-                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.MessagePropertyAccessor<{mapping.MessageType}>");
+                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
                     sourceWriter.WriteLine("{");
 
                     sourceWriter.Indentation++;
@@ -124,11 +124,57 @@ public sealed partial class AddSagaInterceptor
                     sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
                     sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
                     sourceWriter.WriteLine();
-                    sourceWriter.WriteLine($"public static readonly NServiceBus.MessagePropertyAccessor Instance = new {accessorClassName}();");
+                    sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new {accessorClassName}();");
                     sourceWriter.Indentation--;
 
                     sourceWriter.WriteLine("}");
                     if (index < allPropertyMappings.Length - 1)
+                    {
+                        sourceWriter.WriteLine();
+                    }
+                }
+
+                var allCorrelationPropertyMappings = sagas
+                    .Select(i => i.CorrelationPropertyMapping)
+                    .GroupBy(m => (m.PropertyName, m.PropertyType))
+                    .Select(g => g.First())
+                    .OrderBy(m => m.PropertyName, StringComparer.Ordinal)
+                    .ThenBy(m => m.PropertyType, StringComparer.Ordinal)
+                    .ToArray();
+
+                if (allCorrelationPropertyMappings.Length > 0)
+                {
+                    sourceWriter.WriteLine();
+                }
+
+                for (int index = 0; index < allCorrelationPropertyMappings.Length; index++)
+                {
+                    var mapping = allCorrelationPropertyMappings[index];
+                    var accessorClassName = AccessorName(mapping);
+                    _ = sourceWriter.WithGeneratedCodeAttribute();
+                    sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.CorrelationPropertyAccessor");
+                    sourceWriter.WriteLine("{");
+
+                    sourceWriter.Indentation++;
+
+                    sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine("public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.PropertyName}\")]");
+                    sourceWriter.WriteLine($"static extern {mapping.PropertyType} AccessFrom_Property(NServiceBus.IContainSagaData sagaData);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, ({mapping.PropertyType})value);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
+                    sourceWriter.WriteLine($"static extern void WriteTo_Property(NServiceBus.IContainSagaData sagaData, {mapping.PropertyType} value);");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
+                    sourceWriter.Indentation--;
+
+                    sourceWriter.WriteLine("}");
+
+                    if (index < allCorrelationPropertyMappings.Length - 1)
                     {
                         sourceWriter.WriteLine();
                     }
@@ -154,7 +200,7 @@ public sealed partial class AddSagaInterceptor
 
             if (options.GenerateUnsafeAccessors)
             {
-                sourceWriter.WriteLine("MessagePropertyAccessor[] propertyAccessors = [");
+                sourceWriter.WriteLine("NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [");
                 sourceWriter.Indentation++;
                 foreach (var mapping in details.PropertyMappings)
                 {
@@ -163,12 +209,20 @@ public sealed partial class AddSagaInterceptor
                 }
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("];");
-                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, propertyAccessors);");
+
+                sourceWriter.WriteLine($"var correlationPropertyAccessor = {AccessorName(details.CorrelationPropertyMapping)}.Instance;");
+                sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages, correlationPropertyAccessor: correlationPropertyAccessor, propertyAccessors: propertyAccessors);");
             }
             else
             {
                 sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.SagaType}, {details.SagaDataType}>(associatedMessages);");
             }
+        }
+
+        static string AccessorName(CorrelationPropertyMappingSpec mapping)
+        {
+            var hash = NonCryptographicHash.GetHash(mapping.PropertyName, "_", mapping.PropertyType);
+            return $"{mapping.PropertyName}Accessor_{hash:x16}";
         }
 
         static string AccessorName(PropertyMappingSpec mapping)

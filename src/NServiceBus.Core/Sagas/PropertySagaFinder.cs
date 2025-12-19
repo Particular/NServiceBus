@@ -18,9 +18,6 @@ class PropertySagaFinder<TSagaData, TMessage>(string sagaPropertyName, MessagePr
     {
         var propertyValue = messagePropertyAccessor.AccessFrom(message);
 
-        var lookupValues = context.GetOrCreate<SagaLookupValues>();
-        lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
-
         if (propertyValue == null)
         {
             var saga = context.Get<ActiveSagaInstance>();
@@ -29,6 +26,9 @@ class PropertySagaFinder<TSagaData, TMessage>(string sagaPropertyName, MessagePr
 
             throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {sagaPropertyName}. Correlation properties cannot be assigned null.");
         }
+
+        var lookupValues = context.GetOrCreate<SagaLookupValues>();
+        lookupValues.Add<TSagaData>(propertyValue);
 
         var sagaPersister = builder.GetRequiredService<ISagaPersister>();
 

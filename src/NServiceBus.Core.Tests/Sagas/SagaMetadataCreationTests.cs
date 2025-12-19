@@ -248,7 +248,7 @@ public class SagaMetadataCreationTests
         services.AddSingleton<ISagaPersister>(fakeSagaPersister);
         await using var provider = services.BuildServiceProvider();
 
-        var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)], [new StartingMessageAccessor()]);
+        var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)], propertyAccessors: [new StartingMessageAccessor()]);
         var finder = metadata.Finders.Single();
 
         await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);

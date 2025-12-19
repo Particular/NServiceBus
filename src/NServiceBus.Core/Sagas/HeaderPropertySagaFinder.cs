@@ -45,7 +45,7 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
         }
 
         var lookupValues = context.GetOrCreate<SagaLookupValues>();
-        lookupValues.Add<TSagaData>(correlationPropertyName, convertedHeaderValue);
+        lookupValues.Add<TSagaData>(convertedHeaderValue);
 
         var persister = builder.GetRequiredService<ISagaPersister>();
         if (correlationPropertyName.Equals("id", StringComparison.OrdinalIgnoreCase))

@@ -44,8 +44,11 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
         string SagaName,
         string SagaType,
         string SagaDataType,
+        CorrelationPropertyMappingSpec CorrelationPropertyMapping,
         ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings,
         HandlerSpec Handler);
 
-    internal record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
+    internal readonly record struct PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
+
+    internal readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType);
 }

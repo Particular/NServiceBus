@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,7 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Sagas;
 
-class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors) :
+class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, IReadOnlyCollection<MessagePropertyAccessor> propertyAccessors, CorrelationPropertyAccessor? correlationPropertyAccessor = null) :
     IConfigureHowToFindSagaWithMessage,
     IConfigureHowToFindSagaWithMessageHeaders,
     IConfigureHowToFindSagaWithFinder,
@@ -26,7 +27,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        AssignCorrelationProperty<TMessage>(sagaProp);
+        AssignCorrelationProperty<TSagaEntity, TMessage>(sagaProp, correlationPropertyAccessor);
 
         if (!mappers.TryGetValue(typeof(TMessage), out var mapper) ||
             mapper is not MessagePropertyAccessor<TMessage> propertyMapper)
@@ -47,7 +48,7 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
 
         ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
 
-        AssignCorrelationProperty<TMessage>(sagaProp);
+        AssignCorrelationProperty<TSagaEntity, TMessage>(sagaProp, correlationPropertyAccessor);
 
         finders.Add(new SagaFinderDefinition(
             new HeaderPropertySagaFinder<TSagaEntity>(headerName, sagaProp.Name, sagaProp.PropertyType, typeof(TMessage)),
@@ -138,14 +139,16 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
         return sagaProp;
     }
 
-    void AssignCorrelationProperty<TMessage>(PropertyInfo sagaProp)
+    void AssignCorrelationProperty<TSagaEntity, TMessage>(PropertyInfo sagaProp, CorrelationPropertyAccessor? propertyAccessor = null)
+        where TSagaEntity : IContainSagaData
     {
         if (correlationProperty != null && correlationProperty.Name != sagaProp.Name)
         {
             throw new ArgumentException($"The saga already has a mapping to property {correlationProperty.Name} and sagas can only have mappings that correlate on a single saga property. Use a custom finder to correlate {typeof(TMessage)} to saga {sagaType.Name}");
         }
 
-        correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType);
+        propertyAccessor ??= new ExpressionBasedCorrelationPropertyAccessor<TSagaEntity>(sagaProp);
+        correlationProperty = new SagaMetadata.CorrelationPropertyMetadata(sagaProp.Name, sagaProp.PropertyType, propertyAccessor);
     }
 
     public SagaMapping FinalizeMapping()
@@ -193,4 +196,17 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
     [
         typeof(Guid), typeof(string), typeof(long), typeof(ulong), typeof(int), typeof(uint), typeof(short), typeof(ushort)
     ];
+
+    // Keep this in sync with AllowedCorrelationPropertyTypes
+    internal static readonly FrozenDictionary<Type, object?> CorrelationPropertyTypeDefaultValues = new Dictionary<Type, object?>
+    {
+        { typeof(Guid), default(Guid) },
+        { typeof(string), default(string) },
+        { typeof(long), default(long) },
+        { typeof(ulong), default(ulong) },
+        { typeof(int), default(int) },
+        { typeof(uint), default(uint) },
+        { typeof(short), default(short) },
+        { typeof(ushort), default(ushort) },
+    }.ToFrozenDictionary();
 }
