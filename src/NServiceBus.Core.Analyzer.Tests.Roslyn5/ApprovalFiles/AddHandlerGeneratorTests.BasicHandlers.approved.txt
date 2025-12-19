@@ -1,33 +1,103 @@
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/InterceptionsOfAddHandlerMethod.g.cs ==
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/Handlers.g.cs ==
 [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
-static class InterceptionsOfAddHandlerMethod
+namespace NServiceBus
 {
-    extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+    public static class Handlers
     {
-        public void AddBarHandlers()
+        public static void Add(EndpointConfiguration cfg)
         {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-            var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-            // global::Handles3
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Cmd1>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Cmd2>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles3, global::Evt1>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
+            System.ArgumentNullException.ThrowIfNull(cfg);
+            Orders.Add(cfg);
+            Payments.Add(cfg);
         }
 
-        public void AddFunny_name_for_kicksHandlers()
+        public static class Orders
         {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-            var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-            // global::Handles1
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::Handles1, global::Cmd1>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+            public static void Add(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+                Billing.Add(cfg);
+                Shipping.Add(cfg);
+            }
+
+            public static class Billing
+            {
+                public static void Add(EndpointConfiguration cfg)
+                {
+                    System.ArgumentNullException.ThrowIfNull(cfg);
+
+                    AddInvoiceCreated(cfg);
+                }
+
+                public static void AddInvoiceCreated(EndpointConfiguration cfg)
+                {
+                    System.ArgumentNullException.ThrowIfNull(cfg);
+
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    // global::Orders.Billing.InvoiceCreatedHandler
+                    messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Billing.InvoiceCreatedHandler, global::Evt1>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
+                }
+            }
+
+            public static class Shipping
+            {
+                public static void Add(EndpointConfiguration cfg)
+                {
+                    System.ArgumentNullException.ThrowIfNull(cfg);
+
+                    AddOrderShipped(cfg);
+                    AddShipmentDelayed(cfg);
+                }
+
+                public static void AddOrderShipped(EndpointConfiguration cfg)
+                {
+                    System.ArgumentNullException.ThrowIfNull(cfg);
+
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    // global::Orders.Shipping.OrderShippedHandler
+                    messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OrderShippedHandler, global::Cmd1>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                }
+
+                public static void AddShipmentDelayed(EndpointConfiguration cfg)
+                {
+                    System.ArgumentNullException.ThrowIfNull(cfg);
+
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    // global::Orders.Shipping.ShipmentDelayedHandler
+                    messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.ShipmentDelayedHandler, global::Cmd2>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
+                }
+            }
+        }
+
+        public static class Payments
+        {
+            public static void Add(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                AddPaymentCaptured(cfg);
+            }
+
+            public static void AddPaymentCaptured(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                // global::Payments.PaymentCapturedHandler
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentCapturedHandler, global::Cmd1>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+            }
         }
     }
 }

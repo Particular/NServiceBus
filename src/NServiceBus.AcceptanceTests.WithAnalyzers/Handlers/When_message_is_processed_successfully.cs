@@ -30,10 +30,10 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
     {
         public EndpointWithComplexMessageHierarchy() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.AddEndpointWithComplexMessageHierarchyHandlers();
+            //config.AddEndpointWithComplexMessageHierarchyHandlers();
         });
 
-        [Handler("EndpointWithComplexMessageHierarchy")]
+        [Handler]
         public class ComplexMessageHandler(Context testContext) : IHandleMessages<ComplexMessage>
         {
             public Task Handle(ComplexMessage message, IMessageHandlerContext context)

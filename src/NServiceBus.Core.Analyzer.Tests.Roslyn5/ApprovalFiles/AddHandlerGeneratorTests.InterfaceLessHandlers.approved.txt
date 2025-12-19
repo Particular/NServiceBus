@@ -1,4 +1,4 @@
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/InterceptionsOfAddHandlerMethod.g.cs ==
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/Handlers.g.cs ==
 [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
 [System.Diagnostics.DebuggerNonUserCode]
 file sealed class InterfaceLessNoDependencies_Handle_6062ca642b6fffa8 : NServiceBus.IHandleMessages<global::MyEvent>
@@ -76,28 +76,75 @@ file sealed class InterfaceLess_Handle_b3fa17f9f27eec91 : NServiceBus.IHandleMes
     }
 }
 
-static class InterceptionsOfAddHandlerMethod
+namespace NServiceBus
 {
-    extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+    public static class Handlers
     {
-        public void AddFooHandlers()
+        public static void Add(EndpointConfiguration cfg)
         {
-            System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-            var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-            var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-            var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-            // global::InterfaceLess
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLess_Handle_b3fa17f9f27eec91, global::MyCommand>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::MyCommand), []);
-            // global::InterfaceLessNoDependencies
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessNoDependencies_Handle_6062ca642b6fffa8, global::MyEvent>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::MyEvent), []);
-            // global::InterfaceLessStatic
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessStatic_Handle_595f2b953f121004, global::MyCommand>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::MyCommand), []);
-            // global::InterfaceLessStaticWithDependencies
-            messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessStaticWithDependencies_Handle_d924617e35a88ffc, global::MyCommand>();
-            messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::MyCommand), []);
+            System.ArgumentNullException.ThrowIfNull(cfg);
+            Foo.Add(cfg);
+        }
+
+        public static class Foo
+        {
+            public static void Add(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                AddInterfaceLess(cfg);
+                AddInterfaceLessNoDependencies(cfg);
+                AddInterfaceLessStatic(cfg);
+                AddInterfaceLessStaticWithDependencies(cfg);
+            }
+
+            public static void AddInterfaceLess(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                // global::Foo.InterfaceLess
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLess_Handle_b3fa17f9f27eec91, global::Foo.MyCommand>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Foo.MyCommand), []);
+            }
+
+            public static void AddInterfaceLessNoDependencies(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                // global::Foo.InterfaceLessNoDependencies
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessNoDependencies_Handle_6062ca642b6fffa8, global::Foo.MyEvent>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Foo.MyEvent), []);
+            }
+
+            public static void AddInterfaceLessStatic(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                // global::Foo.InterfaceLessStatic
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessStatic_Handle_595f2b953f121004, global::Foo.MyCommand>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Foo.MyCommand), []);
+            }
+
+            public static void AddInterfaceLessStaticWithDependencies(EndpointConfiguration cfg)
+            {
+                System.ArgumentNullException.ThrowIfNull(cfg);
+
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                // global::Foo.InterfaceLessStaticWithDependencies
+                messageHandlerRegistry.AddMessageHandlerForMessage<global::InterfaceLessStaticWithDependencies_Handle_d924617e35a88ffc, global::Foo.MyCommand>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Foo.MyCommand), []);
+            }
         }
     }
 }

@@ -38,7 +38,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
     internal sealed record HandlerSpec(
         string Name,
         string HandlerType,
-        string Category,
+        string HandlerNamespace,
         ImmutableEquatableArray<RegistrationSpec> Registrations,
         ImmutableEquatableArray<InterfaceLessHandlerSpec> InterfaceLessHandlers);
 
@@ -79,7 +79,6 @@ public sealed partial class AddHandlerGenerator
                 return;
             }
 
-            // TODO: we could even place this into the user namespace
             var sourceWriter = new SourceWriter()
                 .WithGeneratedCodeAttribute();
 
@@ -104,61 +103,167 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine();
             }
 
-            sourceWriter.WriteLine("""
-                                   static class InterceptionsOfAddHandlerMethod
-                                   {
-                                   """);
+            EmitHandlers(sourceWriter, handlers);
 
+            context.AddSource("Handlers.g.cs", sourceWriter.ToSourceText());
+        }
+
+        static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers)
+        {
+            var root = BuildNamespaceTree(handlers);
+
+            sourceWriter.WriteLine("namespace NServiceBus");
+            sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine("""
-                                   extension (NServiceBus.EndpointConfiguration endpointConfiguration)
-                                   {
-                                   """);
+            sourceWriter.WriteLine("public static class Handlers");
+            sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
+            EmitNamespaceContents(sourceWriter, root);
 
-            var groups = handlers
-                .GroupBy(i => i.Category, StringComparer.Ordinal)
-                .OrderBy(g => g.Key, StringComparer.Ordinal)
-                .ToArray();
-            for (int index = 0; index < groups.Length; index++)
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static void EmitNamespaceContents(SourceWriter sourceWriter, NamespaceNode node)
+        {
+            EmitAddMethod(sourceWriter, node);
+
+            if (node.Handlers.Count > 0)
             {
-                var group = groups[index];
-                // method name stuff can be more sophisticated. This is just a demo
-                var methodName = $"Add{group.Key.Replace(" ", "_")}Handlers";
-                sourceWriter.WriteLine($$"""
-                                         public void {{methodName}}()
-                                         {
-                                         """);
-                sourceWriter.Indentation++;
-
-                sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
-
-                sourceWriter.WriteLine("""
-                                       var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-                                       var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                       var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                                       """);
-
-                foreach (var handlerSpec in group)
-                {
-                    sourceWriter.WriteLine($"// {handlerSpec.HandlerType}");
-                    EmitHandlerRegistryCode(sourceWriter, handlerSpec);
-                }
-
-                sourceWriter.Indentation--;
-                sourceWriter.WriteLine("}");
-
-                if (index < groups.Length - 1)
+                for (int index = 0; index < node.Handlers.Count; index++)
                 {
                     sourceWriter.WriteLine();
+                    EmitSingleHandlerMethod(sourceWriter, node.Handlers[index]);
                 }
             }
 
-            sourceWriter.CloseCurlies();
+            for (int index = 0; index < node.Children.Count; index++)
+            {
+                sourceWriter.WriteLine();
+                EmitNamespaceClass(sourceWriter, node.Children[index]);
+            }
+        }
 
-            context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
+        static void EmitNamespaceClass(SourceWriter sourceWriter, NamespaceNode node)
+        {
+            sourceWriter.WriteLine($"public static class {node.Name}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            EmitNamespaceContents(sourceWriter, node);
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static void EmitAddMethod(SourceWriter sourceWriter, NamespaceNode node)
+        {
+            sourceWriter.WriteLine("public static void Add(EndpointConfiguration cfg)");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(cfg);");
+
+            foreach (var child in node.Children)
+            {
+                sourceWriter.WriteLine($"{child.Name}.Add(cfg);");
+            }
+
+            if (node.Children.Count > 0 && node.Handlers.Count > 0)
+            {
+                sourceWriter.WriteLine();
+            }
+
+            if (node.Handlers.Count > 0)
+            {
+                foreach (var handler in node.Handlers)
+                {
+                    var methodName = GetSingleHandlerMethodName(handler.Name);
+                    sourceWriter.WriteLine($"{methodName}(cfg);");
+                }
+            }
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static void EmitHandlerRegistrationBlock(SourceWriter sourceWriter, IReadOnlyList<HandlerSpec> handlerSpecs)
+        {
+            sourceWriter.WriteLine("""
+                                   var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(cfg);
+                                   var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                                   var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                                   """);
+
+            foreach (var handlerSpec in handlerSpecs)
+            {
+                sourceWriter.WriteLine($"// {handlerSpec.HandlerType}");
+                EmitHandlerRegistryCode(sourceWriter, handlerSpec);
+            }
+        }
+
+        static void EmitSingleHandlerMethod(SourceWriter sourceWriter, HandlerSpec handlerSpec)
+        {
+            var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
+            sourceWriter.WriteLine($"public static void {methodName}(EndpointConfiguration cfg)");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(cfg);");
+
+            EmitHandlerRegistrationBlock(sourceWriter, new[] { handlerSpec });
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static string GetSingleHandlerMethodName(string handlerName)
+        {
+            const string HandlerSuffix = "Handler";
+
+            if (handlerName.EndsWith(HandlerSuffix, StringComparison.Ordinal))
+            {
+                handlerName = handlerName[..^HandlerSuffix.Length];
+            }
+
+            return $"Add{handlerName}";
+        }
+
+        static NamespaceNode BuildNamespaceTree(ImmutableEquatableArray<HandlerSpec> handlers)
+        {
+            var root = new NamespaceNode(null);
+
+            foreach (var handler in handlers.OrderBy(spec => spec.HandlerNamespace, StringComparer.Ordinal)
+                         .ThenBy(spec => spec.HandlerType, StringComparer.Ordinal))
+            {
+                var current = root;
+                foreach (var part in GetNamespaceParts(handler.HandlerNamespace))
+                {
+                    current = current.GetOrAddChild(part);
+                }
+
+                current.Handlers.Add(handler);
+            }
+
+            root.Sort();
+            return root;
+        }
+
+        static string[] GetNamespaceParts(string handlerNamespace)
+        {
+            var parts = handlerNamespace.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length > 0 && string.Equals(parts[0], "NServiceBus", StringComparison.Ordinal))
+            {
+                return parts[1..];
+            }
+
+            return parts;
         }
 
         public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)
@@ -175,6 +280,42 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{registration.HandlerType}, {registration.MessageType}>();");
                 var hierarchyLiteral = $"[{string.Join(", ", registration.MessageHierarchy.Select(type => $"typeof({type})"))}]";
                 sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({registration.MessageType}), {hierarchyLiteral});");
+            }
+        }
+
+        sealed class NamespaceNode(string? name)
+        {
+            public string? Name { get; } = name;
+
+            public List<NamespaceNode> Children { get; } = [];
+
+            public List<HandlerSpec> Handlers { get; } = [];
+
+            public NamespaceNode GetOrAddChild(string childName)
+            {
+                for (int i = 0; i < Children.Count; i++)
+                {
+                    var child = Children[i];
+                    if (StringComparer.Ordinal.Equals(child.Name, childName))
+                    {
+                        return child;
+                    }
+                }
+
+                var newChild = new NamespaceNode(childName);
+                Children.Add(newChild);
+                return newChild;
+            }
+
+            public void Sort()
+            {
+                Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
+                Handlers.Sort((left, right) => StringComparer.Ordinal.Compare(left.HandlerType, right.HandlerType));
+
+                foreach (var child in Children)
+                {
+                    child.Sort();
+                }
             }
         }
 
@@ -256,19 +397,17 @@ public sealed partial class AddHandlerGenerator
 
         public static HandlerSpec? Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
-            var attr = ctx.Attributes.Single(); // AllowMultiple = false, so this is safe
-            var category = (string?)attr.ConstructorArguments[0].Value;
-
-            if (ctx.TargetSymbol is INamedTypeSymbol namedTypeSymbol && Parse(ctx.SemanticModel, namedTypeSymbol, category!, cancellationToken) is { } spec)
+            if (ctx.TargetSymbol is INamedTypeSymbol namedTypeSymbol && Parse(ctx.SemanticModel, namedTypeSymbol, cancellationToken) is { } spec)
             {
                 return spec;
             }
             return null;
         }
 
-        static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, string category, CancellationToken cancellationToken)
+        static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, CancellationToken cancellationToken)
         {
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var handlerNamespace = GetHandlerNamespace(handlerType);
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
@@ -338,7 +477,7 @@ public sealed partial class AddHandlerGenerator
                     .ToList();
             }
 
-            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, category, registrations.ToImmutableEquatableArray(), interfaceLessHandlers);
+            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, registrations.ToImmutableEquatableArray(), interfaceLessHandlers);
         }
 
         static ImmutableEquatableArray<InterfaceLessHandlerSpec> ParseInterfaceLessHandlers(
@@ -439,6 +578,30 @@ public sealed partial class AddHandlerGenerator
             }
 
             return identifier;
+        }
+
+        static string GetHandlerNamespace(INamedTypeSymbol handlerType)
+        {
+            var handlerNamespace = handlerType.ContainingNamespace;
+            if (handlerNamespace is null || handlerNamespace.IsGlobalNamespace)
+            {
+                return string.Empty;
+            }
+
+            var parts = new Stack<string>();
+
+            while (handlerNamespace is { IsGlobalNamespace: false })
+            {
+                parts.Push(handlerNamespace.Name);
+                handlerNamespace = handlerNamespace.ContainingNamespace;
+            }
+
+            if (parts.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            return string.Join(".", parts);
         }
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>

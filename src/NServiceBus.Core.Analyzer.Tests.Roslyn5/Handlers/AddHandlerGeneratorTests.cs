@@ -19,24 +19,43 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.AddFunny_name_for_kicksHandlers();
-                             cfg.AddBarHandlers();
+                             Handlers.Add(cfg);
                          }
                      }
 
-                     [HandlerAttribute("Funny name for kicks")]
-                     public class Handles1 : IHandleMessages<Cmd1>
+                     namespace Orders.Shipping
                      {
-                         public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         [HandlerAttribute]
+                         public class OrderShippedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         [HandlerAttribute]
+                         public class ShipmentDelayedHandler : IHandleMessages<Cmd2>
+                         {
+                             public Task Handle(Cmd2 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
                      }
 
-                     [HandlerAttribute("Bar")]
-                     public class Handles3 : IHandleMessages<Cmd1>, IHandleMessages<Cmd2>, IHandleMessages<Evt1>
+                     namespace Orders.Billing
                      {
-                         public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
-                         public Task Handle(Cmd2 cmd, IMessageHandlerContext context) => Task.CompletedTask;
-                         public Task Handle(Evt1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         [HandlerAttribute]
+                         public class InvoiceCreatedHandler : IHandleMessages<Evt1>
+                         {
+                             public Task Handle(Evt1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
                      }
+
+                     namespace Payments
+                     {
+                         [HandlerAttribute]
+                         public class PaymentCapturedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
                      public class Cmd1 : CmdBase { }
                      public class Cmd2 : ICommand { }
                      public class Evt1 : IEvent { }
@@ -61,37 +80,40 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.AddFooHandlers();
+                             Handlers.Add(cfg);
                          }
                      }
 
-                     [HandlerAttribute("Foo")]
-                     public class InterfaceLess
+                     namespace Foo
                      {
-                         public Task Handle(MyCommand message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
-                     }
+                         [HandlerAttribute]
+                         public class InterfaceLess
+                         {
+                             public Task Handle(MyCommand message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                         }
 
-                     [HandlerAttribute("Foo")]
-                     public class InterfaceLessNoDependencies
-                     {
-                         public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
-                     }
+                         [HandlerAttribute]
+                         public class InterfaceLessNoDependencies
+                         {
+                             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
                      
-                     [HandlerAttribute("Foo")]
-                     public class InterfaceLessStatic
-                     {
-                         public static Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;
-                     }
+                         [HandlerAttribute]
+                         public class InterfaceLessStatic
+                         {
+                             public static Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
                      
-                     [HandlerAttribute("Foo")]
-                     public class InterfaceLessStaticWithDependencies
-                     {
-                         public static Task Handle(MyCommand message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
-                     }
+                         [HandlerAttribute]
+                         public class InterfaceLessStaticWithDependencies
+                         {
+                             public static Task Handle(MyCommand message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                         }
 
-                     public class MyCommand : ICommand { }
-                     public class MyEvent : IEvent { }
-                     public interface IMyService { }
+                         public class MyCommand : ICommand { }
+                         public class MyEvent : IEvent { }
+                         public interface IMyService { }
+                     }
                      """;
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()

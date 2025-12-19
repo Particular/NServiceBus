@@ -34,10 +34,10 @@ public class When_using_interface_less_handlers : NServiceBusAcceptanceTest
     {
         public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.AddEndpointUsingInterfaceLessHandlersHandlers();
+            //config.AddEndpointUsingInterfaceLessHandlersHandlers();
         });
 
-        [Handler("EndpointUsingInterfaceLessHandlers")]
+        [Handler]
         public class InterfaceLessHandlerWithCtorDependency(Context testContext)
         {
             public Task Handle(ComplexMessage message, IMessageHandlerContext context)
@@ -47,7 +47,7 @@ public class When_using_interface_less_handlers : NServiceBusAcceptanceTest
             }
         }
 
-        [Handler("EndpointUsingInterfaceLessHandlers")]
+        [Handler]
         public class InterfaceLessHandlerWithMethodDependency
         {
             public static Task Handle(ComplexMessage message, IMessageHandlerContext context, Context testContext)
@@ -57,7 +57,7 @@ public class When_using_interface_less_handlers : NServiceBusAcceptanceTest
             }
         }
 
-        [Handler("EndpointUsingInterfaceLessHandlers")]
+        [Handler]
 #pragma warning disable CS9113 // Parameter is unread.
         public class InterfaceLessHandlerWithCtorAndMethodDependency(IServiceProvider provider)
 #pragma warning restore CS9113 // Parameter is unread.
