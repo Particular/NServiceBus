@@ -2,9 +2,11 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 
+[DebuggerNonUserCode]
 sealed class MessageHandlerInvoker<THandler, TMessage>(
     Func<IServiceProvider, THandler> createHandler,
     Func<THandler, TMessage, IMessageHandlerContext, Task> invocation,
