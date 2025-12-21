@@ -38,6 +38,7 @@ public class EndpointConfiguration : ExposeSettings
         Settings.Set(new ReceiveComponent.Settings(Settings));
         Settings.Set(new RecoverabilityComponent.Configuration());
         Settings.Set(new ConsecutiveFailuresConfiguration());
+        Settings.Set(new EnvelopeComponent.Settings());
         Settings.Set(Pipeline = new PipelineSettings(Settings));
 
         var featureSettings = new FeatureComponent.Settings();
