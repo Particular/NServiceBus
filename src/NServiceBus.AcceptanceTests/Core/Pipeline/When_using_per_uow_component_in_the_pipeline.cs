@@ -21,7 +21,6 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
                     await SendMessage(s).ConfigureAwait(false);
                     await SendMessage(s).ConfigureAwait(false);
                 }))
-            .Done(c => c.MessagesProcessed >= 2)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -50,36 +49,26 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         int messagesProcessed;
         public int MessagesProcessed => messagesProcessed;
 
-        public void OnMessageProcessed()
-        {
-            Interlocked.Increment(ref messagesProcessed);
-        }
+        public void OnMessageProcessed() => Interlocked.Increment(ref messagesProcessed);
 
         public bool ValueEmpty { get; set; }
         public bool ValueAlreadyInitialized { get; set; }
+
+        public void MaybeComplete() => MarkAsCompleted(MessagesProcessed >= 2);
     }
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.RegisterComponents(r => r.AddScoped<UnitOfWorkComponent>());
                 c.Pipeline.Register(b => new HeaderProcessingBehavior(b.GetService<Context>()), "Populates UoW component.");
                 c.LimitMessageProcessingConcurrencyTo(1);
             });
-        }
 
-        class HeaderProcessingBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
+        class HeaderProcessingBehavior(Context testContext) : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
         {
-            Context testContext;
-
-            public HeaderProcessingBehavior(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
             {
                 var uowScopeComponent = context.Builder.GetService<UnitOfWorkComponent>();
@@ -95,23 +84,15 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
             public string ValueFromHeader { get; set; }
         }
 
-        class Handler : IHandleMessages<Message>
+        class Handler(Context testContext, UnitOfWorkComponent component) : IHandleMessages<Message>
         {
-            public Handler(Context testContext, UnitOfWorkComponent component)
-            {
-                this.testContext = testContext;
-                this.component = component;
-            }
-
             public Task Handle(Message message, IMessageHandlerContext context)
             {
                 testContext.ValueEmpty |= component.ValueFromHeader == null;
                 testContext.OnMessageProcessed();
+                testContext.MaybeComplete();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
-            UnitOfWorkComponent component;
         }
     }
 

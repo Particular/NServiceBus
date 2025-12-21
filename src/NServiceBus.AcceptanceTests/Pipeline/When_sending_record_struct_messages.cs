@@ -16,7 +16,6 @@ public class When_sending_record_struct_messages : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RecordHandlingEndpoint>(e =>
                 e.When(s => s.SendLocal(new RecordStructMessage { SomeText = expectedText })))
-            .Done(c => c.ReceivedText != null)
             .Run();
 
         Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
@@ -30,7 +29,6 @@ public class When_sending_record_struct_messages : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RecordHandlingEndpoint>(e =>
                 e.When(s => s.SendLocal(new ReadonlyRecordStructMessage(expectedText))))
-            .Done(c => c.ReceivedText != null)
             .Run();
 
         Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
@@ -52,12 +50,14 @@ public class When_sending_record_struct_messages : NServiceBusAcceptanceTest
             public Task Handle(RecordStructMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedText = message.SomeText;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Handle(ReadonlyRecordStructMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedText = message.SomeText;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -68,7 +68,5 @@ public class When_sending_record_struct_messages : NServiceBusAcceptanceTest
         public string SomeText { get; set; }
     }
 
-    public readonly record struct ReadonlyRecordStructMessage(string SomeText) : IMessage
-    {
-    }
+    public readonly record struct ReadonlyRecordStructMessage(string SomeText) : IMessage;
 }

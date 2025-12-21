@@ -22,7 +22,6 @@ public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
                     options.SetHeader(Headers.ConversationId, customConversationId);
                     return s.Send(new MessageWithConversationId(), options);
                 }))
-            .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
             .Run();
 
         Assert.That(context.ReceivedConversationId, Is.EqualTo(customConversationId));
@@ -35,29 +34,18 @@ public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint()
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
+
+        public class ConversationIdMessageHandler(Context testContext) : IHandleMessages<MessageWithConversationId>
         {
-            EndpointSetup<DefaultServer>();
-        }
-
-        public class ConversationIdMessageHandler : IHandleMessages<MessageWithConversationId>
-        {
-            Context testContext;
-
-            public ConversationIdMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
             {
                 testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class MessageWithConversationId : ICommand
-    {
-    }
+    public class MessageWithConversationId : ICommand;
 }

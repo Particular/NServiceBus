@@ -22,7 +22,6 @@ public class When_reusing_sendoptions : NServiceBusAcceptanceTest
                     await s.Send(new SomeCommand(), sendOptions);
                     await s.Send(new SomeCommand(), sendOptions);
                 }))
-            .Done(c => c.ReceivedMessageIds.Count >= 3)
             .Run();
 
         Assert.That(context.ReceivedMessageIds, Has.Count.EqualTo(3));
@@ -31,34 +30,25 @@ public class When_reusing_sendoptions : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public ConcurrentQueue<string> ReceivedMessageIds = new ConcurrentQueue<string>();
+        public ConcurrentQueue<string> ReceivedMessageIds = [];
+
+        public void MaybeComplete() => MarkAsCompleted(ReceivedMessageIds.Count >= 3);
     }
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
 
-        class CommandHandler : IHandleMessages<SomeCommand>
+        class CommandHandler(When_reusing_sendoptions.Context testContext) : IHandleMessages<SomeCommand>
         {
-            public CommandHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessageIds.Enqueue(context.MessageId);
+                testContext.MaybeComplete();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SomeCommand : ICommand
-    {
-    }
+    public class SomeCommand : ICommand;
 }
