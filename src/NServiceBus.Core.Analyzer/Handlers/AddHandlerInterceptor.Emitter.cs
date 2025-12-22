@@ -38,7 +38,7 @@ public sealed partial class AddHandlerInterceptor
             sourceWriter.Indentation++;
 
             var groups = handlers
-                .GroupBy(h => h.HandlerType)
+                .GroupBy(h => h.RegistrationInfo.HandlerType)
                 .OrderBy(g => g.Key.InterceptorMethodName, StringComparer.Ordinal)
                 .ToArray();
             for (int index = 0; index < groups.Length; index++)
@@ -51,14 +51,15 @@ public sealed partial class AddHandlerInterceptor
 
                 HandlerSpec first = group.First();
                 sourceWriter.WriteLine($$"""
-                                         public void {{first.HandlerType.InterceptorMethodName}}()
+                                         public void {{first.RegistrationInfo.HandlerType.InterceptorMethodName}}()
                                          {
                                          """);
                 sourceWriter.Indentation++;
 
                 sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
-                EmitHandlerRegistryCode(sourceWriter, first);
+                EmitHandlerRegistryLocals(sourceWriter);
+                EmitHandlerRegistryCode(sourceWriter, first.RegistrationInfo);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -74,13 +75,15 @@ public sealed partial class AddHandlerInterceptor
             context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
         }
 
-        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)
-        {
+        public static void EmitHandlerRegistryLocals(SourceWriter sourceWriter) =>
             sourceWriter.WriteLine("""
                                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                    """);
+
+        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerRegistrationSpec handlerSpec)
+        {
             foreach (var registration in handlerSpec.Registrations)
             {
                 var addType = registration.RegistrationType switch

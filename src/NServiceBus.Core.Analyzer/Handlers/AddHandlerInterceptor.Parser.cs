@@ -46,7 +46,7 @@ public sealed partial class AddHandlerInterceptor
             }
         };
 
-        static bool IsHandlerInterface(INamedTypeSymbol type) => type is
+        internal static bool IsHandlerInterface(INamedTypeSymbol type) => type is
         {
             // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
             Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
@@ -62,7 +62,8 @@ public sealed partial class AddHandlerInterceptor
         {
             var builder = ImmutableArray.CreateBuilder<HandlerSpec>();
 
-            foreach (var invocation in GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(ctx, cancellationToken))
+
+            foreach (var invocation in ctx.TargetSymbol.GetDescendantsAcrossDeclarations<InvocationExpressionSyntax>(cancellationToken))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -73,39 +74,6 @@ public sealed partial class AddHandlerInterceptor
             }
 
             return builder.ToImmutable();
-        }
-
-        static IEnumerable<TNode> GetDescendantsAcrossDeclarations<TNode>(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
-            where TNode : CSharpSyntaxNode
-        {
-            foreach (var syntaxRef in GetAllDeclaringSyntaxReferences(ctx.TargetSymbol))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var declarationNode = syntaxRef.GetSyntax(cancellationToken);
-                foreach (var node in declarationNode.DescendantNodes().OfType<TNode>())
-                {
-                    yield return node;
-                }
-            }
-        }
-
-        static ImmutableArray<SyntaxReference> GetAllDeclaringSyntaxReferences(ISymbol symbol)
-        {
-            return symbol switch
-            {
-                ITypeSymbol type => type.DeclaringSyntaxReferences,
-                IMethodSymbol method => MergePartial(method),
-                _ => symbol.DeclaringSyntaxReferences,
-            };
-
-            static ImmutableArray<SyntaxReference> MergePartial(IMethodSymbol method)
-            {
-                var def = method.PartialDefinitionPart?.DeclaringSyntaxReferences ?? [];
-                var impl = method.PartialImplementationPart?.DeclaringSyntaxReferences ?? [];
-                var self = method.DeclaringSyntaxReferences;
-                return [.. ((SyntaxReference[])[.. def, .. impl, .. self]).Distinct()];
-            }
         }
 
         static HandlerSpec? Parse(SemanticModel semanticModel, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
@@ -122,17 +90,28 @@ public sealed partial class AddHandlerInterceptor
             }
 
             // Make sure the method we're looking at is ours and not some (extremely unlikely) copycat
-            return !IsAddHandlerMethod(operation.TargetMethod) ? null : Parse(invocationSemanticModel, operation, invocation, cancellationToken);
-        }
+            if (!IsAddHandlerMethod(operation.TargetMethod))
+            {
+                return null;
+            }
 
-        public static HandlerSpec? Parse(SemanticModel semanticModel, IInvocationOperation operation, InvocationExpressionSyntax invocation, CancellationToken cancellationToken = default)
-        {
             if (operation.TargetMethod.TypeArguments[0] is not INamedTypeSymbol handlerType)
             {
                 return null;
             }
 
-            var allRegistrations = new List<RegistrationSpec>();
+            if (invocationSemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            {
+                return null;
+            }
+
+            var registrationSpec = GetRegistrationsForType(invocationSemanticModel, handlerType);
+            return registrationSpec is not null ? new HandlerSpec(InterceptLocationSpec.From(location), registrationSpec) : null;
+        }
+
+        public static HandlerRegistrationSpec? GetRegistrationsForType(SemanticModel semanticModel, INamedTypeSymbol handlerType)
+        {
+            var allRegistrations = new List<MessageRegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
 
@@ -158,7 +137,7 @@ public sealed partial class AddHandlerInterceptor
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
+                var spec = new MessageRegistrationSpec(registrationType.Value, messageTypeName, hierarchy);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
@@ -176,13 +155,13 @@ public sealed partial class AddHandlerInterceptor
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToImmutableEquatableArray();
 
-            if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
+            if (registrations.Count == 0)
             {
                 return null;
             }
 
             var handlerTypeSpec = HandlerTypeSpec.From(handlerType);
-            return new HandlerSpec(InterceptLocationSpec.From(location), handlerTypeSpec, registrations);
+            return new HandlerRegistrationSpec(handlerTypeSpec, registrations);
         }
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
