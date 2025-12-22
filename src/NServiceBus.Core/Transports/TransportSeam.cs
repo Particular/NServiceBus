@@ -15,13 +15,14 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
     // The dependency in IServiceProvider ensures that the TransportInfrastructure can't be resolved too early.
     public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => transportInfrastructure;
 
-    public async Task<TransportInfrastructure> CreateTransportInfrastructure(CancellationToken cancellationToken = default)
+    public async Task<TransportInfrastructure> CreateTransportInfrastructure(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsWindows() && TransportDefinition.TransportTransactionMode == TransportTransactionMode.TransactionScope)
         {
             TransactionManager.ImplicitDistributedTransactions = true;
         }
 
+        hostSettings.ServiceProvider = serviceProvider;
         transportInfrastructure = await TransportDefinition.Initialize(hostSettings, receiverSettings, [.. QueueBindings.SendingAddresses], cancellationToken)
             .ConfigureAwait(false);
 

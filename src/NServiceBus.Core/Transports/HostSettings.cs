@@ -21,6 +21,12 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     public IReadOnlySettings? CoreSettings { get; } = coreSettings;
 
     /// <summary>
+    /// Service provider available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
+    /// Transports can use the provider in hosted scenarios to resolve dependencies from the provider.
+    /// </summary>
+    public IServiceProvider? ServiceProvider { get; internal set; }
+
+    /// <summary>
     /// A name that describes the host (e.g. the endpoint name).
     /// </summary>
     public string Name { get; } = name;

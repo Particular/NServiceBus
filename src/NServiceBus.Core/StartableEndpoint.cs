@@ -25,7 +25,7 @@ class StartableEndpoint(
 
     public async Task Setup(CancellationToken cancellationToken = default)
     {
-        transportInfrastructure = await transportSeam.CreateTransportInfrastructure(cancellationToken).ConfigureAwait(false);
+        transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, cancellationToken).ConfigureAwait(false);
 
         var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
         var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
