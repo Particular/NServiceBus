@@ -2314,13 +2314,9 @@ namespace NServiceBus.Transport
         public NServiceBus.Settings.IReadOnlySettings? CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
-        [System.Diagnostics.CodeAnalysis.MemberNotNullWhen(true, new string[] {
-                "CoreSettings",
-                "ServiceProvider"})]
-        [get: System.Diagnostics.CodeAnalysis.MemberNotNullWhen(true, new string[] {
-                "CoreSettings",
-                "ServiceProvider"})]
-        public bool IsHosted { get; }
+        [System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
+        [get: System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
+        public bool IsRawMode { get; }
         public string Name { get; }
         public System.IServiceProvider? ServiceProvider { get; set; }
         public bool SetupInfrastructure { get; }
