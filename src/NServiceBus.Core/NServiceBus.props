@@ -8,8 +8,4 @@
     <CompilerVisibleProperty Include="NServiceBusDisableSagaPropertyAccessor" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
-  </PropertyGroup>
-
 </Project>
