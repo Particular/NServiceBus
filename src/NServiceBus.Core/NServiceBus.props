@@ -4,8 +4,4 @@
     <Using Include="NServiceBus" />
   </ItemGroup>
 
-  <ItemGroup Label="Compiler visible properties">
-    <CompilerVisibleProperty Include="NServiceBusDisableSagaPropertyAccessor" />
-  </ItemGroup>
-
 </Project>
