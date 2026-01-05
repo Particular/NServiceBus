@@ -1426,13 +1426,9 @@ namespace NServiceBus.Features
     {
         public static void EnableFeature<TFeature>(this NServiceBus.Settings.SettingsHolder settings)
             where TFeature : NServiceBus.Features.Feature, new () { }
-        [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
-            "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
-            " be removed in version 11.0.0.", true)]
+        [System.Obsolete(@"It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault(this NServiceBus.Settings.SettingsHolder settings, System.Type featureType) { }
-        [System.Obsolete("It is no longer possible to enable features by default on the settings. Features " +
-            "can enable other features by calling EnableByDefault<T> in the constructor. Will" +
-            " be removed in version 11.0.0.", true)]
+        [System.Obsolete(@"It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings. Will be removed in version 11.0.0.", true)]
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
         [System.Obsolete("Use \'IsFeatureActive<T>(this IReadOnlySettings settings)\' instead. Will be remove" +

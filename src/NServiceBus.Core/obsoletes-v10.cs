@@ -460,17 +460,17 @@ namespace NServiceBus.Features
     public static partial class SettingsExtensions
     {
         [ObsoleteMetadata(
-            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor",
+            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
-        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor. Will be removed in version 11.0.0.", true)]
+        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings. Will be removed in version 11.0.0.", true)]
         public static SettingsHolder EnableFeatureByDefault<T>(this SettingsHolder settings) where T : Feature => throw new NotImplementedException();
 
         [ObsoleteMetadata(
-            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor",
+            Message = "It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings",
             RemoveInVersion = "11",
             TreatAsErrorFromVersion = "10")]
-        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling EnableByDefault<T> in the constructor. Will be removed in version 11.0.0.", true)]
+        [Obsolete("It is no longer possible to enable features by default on the settings. Features can enable other features by calling Enable<T> in the constructor. Enabling a feature outside the context of another feature can be done by calling EnableFeature<T> on the endpoint configuration or settings. Will be removed in version 11.0.0.", true)]
         public static SettingsHolder EnableFeatureByDefault(this SettingsHolder settings, Type featureType) => throw new NotImplementedException();
 
         [ObsoleteMetadata(
