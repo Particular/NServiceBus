@@ -10,24 +10,21 @@ using Traces;
 public class When_OpenTelemetry_disabled : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_not_record_metrics()
+    public async Task Should_still_report_metrics()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithOpenTelemetryDisabled>(b =>
-                b.When(async (session, _) =>
-                {
-                    for (var x = 0; x < 5; x++)
-                    {
-                        await session.SendLocal(new MyMessage());
-                    }
-                }))
-            .Done(c => c.HandledMessages >= 5)
+                b.When(async (session, _) => await session.SendLocal(new MyMessage())))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.messaging.handler_time", 0);
-        metricsListener.AssertMetric("nservicebus.messaging.critical_time", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.successes", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.fetches", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
+        metricsListener.AssertMetric("nservicebus.messaging.critical_time", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.processing_time", 1);
+        metricsListener.AssertMetric("nservicebus.messaging.handler_time", 1);
     }
 
     [Test]
@@ -37,21 +34,14 @@ public class When_OpenTelemetry_disabled : OpenTelemetryAcceptanceTest
 
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithOpenTelemetryDisabled>(b =>
-                b.When(async (session, _) =>
-                {
-                    await session.SendLocal(new MyMessage());
-                }))
-            .Done(c => c.HandledMessages >= 1)
+                b.When(async (session, _) => await session.SendLocal(new MyMessage())))
             .Run();
 
         activityListener.VerifyAllActivitiesCompleted();
         Assert.That(activityListener.CompletedActivities, Is.Empty, "No activities should be recorded when OpenTelemetry is disabled");
     }
 
-    class Context : ScenarioContext
-    {
-        public int HandledMessages { get; set; }
-    }
+    class Context : ScenarioContext;
 
     class EndpointWithOpenTelemetryDisabled : EndpointConfigurationBuilder
     {
@@ -65,7 +55,7 @@ public class When_OpenTelemetry_disabled : OpenTelemetryAcceptanceTest
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                testContext.HandledMessages++;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
