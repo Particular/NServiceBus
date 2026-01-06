@@ -43,7 +43,7 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
 
     class EndpointWithAmbientActivity : EndpointConfigurationBuilder
     {
-        public EndpointWithAmbientActivity() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithAmbientActivity() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
         {

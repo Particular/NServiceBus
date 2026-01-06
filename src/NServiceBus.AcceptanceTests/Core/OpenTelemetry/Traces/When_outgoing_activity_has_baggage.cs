@@ -37,7 +37,7 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class SomeMessageHandler(Context scenarioContext) : IHandleMessages<SomeMessage>
         {

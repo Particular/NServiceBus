@@ -48,7 +48,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     class Publisher : EndpointConfigurationBuilder
     {
         public Publisher() =>
-            EndpointSetup<OpenTelemetryEnabledEndpoint>(b =>
+            EndpointSetup<DefaultServer>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
@@ -76,7 +76,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
     public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
-            EndpointSetup<OpenTelemetryEnabledEndpoint>(_ =>
+            EndpointSetup<DefaultServer>(_ =>
                 {
                 },
                 metadata =>

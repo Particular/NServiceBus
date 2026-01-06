@@ -33,7 +33,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>, IHandleMessages<TriggerMessage>
         {

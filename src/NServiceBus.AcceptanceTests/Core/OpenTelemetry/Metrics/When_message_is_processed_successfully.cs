@@ -122,7 +122,7 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
         public class MessageHandler : IHandleMessages<OutgoingMessage>
         {

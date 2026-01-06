@@ -58,7 +58,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {

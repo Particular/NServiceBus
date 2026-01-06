@@ -26,7 +26,7 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(c => c
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c
             .Pipeline.Register(new StopTraceBehavior(), "removes tracing headers from outgoing messages"));
 
         class StopTraceBehavior : Behavior<IDispatchContext>

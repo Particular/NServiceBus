@@ -36,7 +36,7 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
 
     public class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         public class TracedSaga(Context testContext) : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
         {

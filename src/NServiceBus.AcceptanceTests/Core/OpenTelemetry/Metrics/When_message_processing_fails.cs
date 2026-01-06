@@ -60,7 +60,7 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 
     class FailingEndpoint : EndpointConfigurationBuilder
     {
-        public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
         class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
         {

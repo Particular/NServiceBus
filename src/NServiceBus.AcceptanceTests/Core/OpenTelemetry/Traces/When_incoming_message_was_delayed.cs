@@ -174,7 +174,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
     class ReplyingEndpoint : EndpointConfigurationBuilder
     {
-        public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)

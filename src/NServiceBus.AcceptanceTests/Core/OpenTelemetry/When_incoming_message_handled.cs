@@ -111,7 +111,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
     }
 
     class MyMessageHandler : IHandleMessages<MyMessage>

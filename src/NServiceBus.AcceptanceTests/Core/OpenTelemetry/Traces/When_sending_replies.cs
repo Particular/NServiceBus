@@ -36,7 +36,7 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
             IHandleMessages<OutgoingReply>

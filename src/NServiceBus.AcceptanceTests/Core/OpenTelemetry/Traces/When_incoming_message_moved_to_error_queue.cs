@@ -35,7 +35,7 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
 
     class FailingEndpoint : EndpointConfigurationBuilder
     {
-        public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
         class FailingMessageHandler : IHandleMessages<FailingMessage>
         {

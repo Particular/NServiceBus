@@ -41,7 +41,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {

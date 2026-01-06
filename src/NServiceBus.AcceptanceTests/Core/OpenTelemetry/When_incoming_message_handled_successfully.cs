@@ -44,7 +44,7 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
     }
 
     class MyMessageHandler : IHandleMessages<MyMessage>

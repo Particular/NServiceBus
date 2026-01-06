@@ -79,7 +79,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     {
         public RetryingEndpoint()
         {
-            var template = new OpenTelemetryEnabledEndpoint
+            var template = new DefaultServer
             {
                 TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
             };
