@@ -2314,10 +2314,16 @@ namespace NServiceBus.Transport
         public NServiceBus.Settings.IReadOnlySettings? CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
         public string HostDisplayName { get; }
+        [System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
+        [get: System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
+        public bool IsRawMode { get; }
         public string Name { get; }
-        public System.IServiceProvider? ServiceProvider { get; }
+        public System.IServiceProvider? ServiceProvider { get; set; }
         public bool SetupInfrastructure { get; }
         public NServiceBus.StartupDiagnosticEntries StartupDiagnostic { get; }
+        [System.Diagnostics.CodeAnalysis.MemberNotNullWhen(true, "ServiceProvider")]
+        [get: System.Diagnostics.CodeAnalysis.MemberNotNullWhen(true, "ServiceProvider")]
+        public bool SupportsDependencyInjection { get; }
     }
     public interface IMessageDispatcher
     {
@@ -2427,6 +2433,8 @@ namespace NServiceBus.Transport
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }
         public virtual NServiceBus.TransportTransactionMode TransportTransactionMode { get; set; }
+        public void ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
+        protected virtual void ConfigureServicesCore(Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
         protected void EnableEndpointFeature<T>()
             where T : NServiceBus.Features.Feature, new () { }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes();
