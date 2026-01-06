@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Helpers;
 using NServiceBus.Extensibility;
 using NServiceBus.Pipeline;
@@ -27,6 +26,28 @@ public class ActivityFactoryTests
 
     [OneTimeTearDown]
     public void TearDown() => nsbActivityListener.Dispose();
+
+    class NoDiagnosticListeners
+    {
+        readonly ActivityFactory activityFactory = new();
+
+        [Test]
+        public void Should_return_null_incoming_activity_when_no_listeners()
+        {
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
+            Assert.That(activity, Is.Null, "should return null when no listeners");
+        }
+
+        [Test]
+        public void Should_return_null_outgoing_activity_when_no_listeners()
+        {
+            var activity = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", new FakeRootContext());
+            Assert.That(activity, Is.Null, "should return null when no listeners");
+        }
+
+        static MessageContext CreateMessageContext() =>
+            new(Guid.NewGuid().ToString(), [], Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
+    }
 
     class StartIncomingActivity : ActivityFactoryTests
     {

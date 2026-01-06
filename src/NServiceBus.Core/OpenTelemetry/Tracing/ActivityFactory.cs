@@ -10,6 +10,11 @@ class ActivityFactory : IActivityFactory
 {
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
+        if (!ActivitySources.Main.HasListeners())
+        {
+            return null;
+        }
+
         Activity? activity;
         var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
@@ -27,7 +32,6 @@ class ActivityFactory : IActivityFactory
 
             activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
                 ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
@@ -71,6 +75,11 @@ class ActivityFactory : IActivityFactory
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
+        if (!ActivitySources.Main.HasListeners())
+        {
+            return null;
+        }
+
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
 
         if (activity != null)
