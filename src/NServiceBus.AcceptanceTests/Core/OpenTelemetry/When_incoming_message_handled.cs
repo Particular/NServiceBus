@@ -9,7 +9,8 @@ using Metrics;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
+[NonParallelizable]
+public class When_incoming_message_handled : NServiceBusAcceptanceTest
 {
     static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
     static readonly string CriticalTimeMetricName = "nservicebus.messaging.critical_time";
@@ -17,7 +18,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_record_critical_time()
     {
-        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        using var metricsListener = await WhenMessagesHandled(() => new MyMessage());
         metricsListener.AssertMetric(CriticalTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
     }
@@ -25,7 +26,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_record_success_handling_time()
     {
-        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        using var metricsListener = await WhenMessagesHandled(() => new MyMessage());
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
@@ -37,7 +38,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_record_failure_handling_time()
     {
-        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
+        using var metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
@@ -51,7 +52,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_not_record_critical_time_on_failure()
     {
-        using TestingMetricListener metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
+        using var metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
         metricsListener.AssertMetric(CriticalTimeMetricName, 0);
     }
 
@@ -133,11 +134,7 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 
-    public class MyExceptionalMessage : IMessage
-    {
-    }
+    public class MyExceptionalMessage : IMessage;
 }
