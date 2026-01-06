@@ -24,4 +24,25 @@ public class EndpointConfigurationTests
 
         Assert.That(exception.Message, Does.Contain("Endpoint name must not contain an '@' character.").And.Contain("endpointName"));
     }
+
+    [Test]
+    public void OpenTelemetry_should_be_enabled_by_default()
+    {
+        var configuration = new EndpointConfiguration("TestEndpoint");
+
+        var hostingSettings = configuration.Settings.Get<HostingComponent.Settings>();
+
+        Assert.That(hostingSettings.EnableOpenTelemetry, Is.True);
+    }
+
+    [Test]
+    public void DisableOpenTelemetry_should_disable_OpenTelemetry()
+    {
+        var configuration = new EndpointConfiguration("TestEndpoint");
+
+        configuration.DisableOpenTelemetry();
+
+        var hostingSettings = configuration.Settings.Get<HostingComponent.Settings>();
+        Assert.That(hostingSettings.EnableOpenTelemetry, Is.False);
+    }
 }
