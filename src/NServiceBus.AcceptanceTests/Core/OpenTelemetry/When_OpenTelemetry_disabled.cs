@@ -30,15 +30,13 @@ public class When_OpenTelemetry_disabled : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_not_record_activities()
     {
-        using var activityListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core");
-
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithOpenTelemetryDisabled>(b =>
                 b.When(async (session, _) => await session.SendLocal(new MyMessage())))
             .Run();
 
-        activityListener.VerifyAllActivitiesCompleted();
-        Assert.That(activityListener.CompletedActivities, Is.Empty, "No activities should be recorded when OpenTelemetry is disabled");
+        NServiceBusActivityListener.VerifyAllActivitiesCompleted();
+        Assert.That(NServiceBusActivityListener.CompletedActivities, Is.Empty, "No activities should be recorded when OpenTelemetry is disabled");
     }
 
     class Context : ScenarioContext;
