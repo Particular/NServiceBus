@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting.Support;
+using EndpointTemplates;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;

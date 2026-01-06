@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.Pipeline;
 using NServiceBus.Transport;

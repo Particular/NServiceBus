@@ -5,6 +5,7 @@ using AcceptanceTesting;
 using EndpointTemplates;
 using Metrics;
 using NUnit.Framework;
+using Traces;
 
 public class When_OpenTelemetry_disabled : NServiceBusAcceptanceTest
 {
@@ -54,20 +55,14 @@ public class When_OpenTelemetry_disabled : NServiceBusAcceptanceTest
 
     class EndpointWithOpenTelemetryDisabled : EndpointConfigurationBuilder
     {
-        public EndpointWithOpenTelemetryDisabled()
-        {
+        public EndpointWithOpenTelemetryDisabled() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableOpenTelemetry();
             });
-        }
 
-        class MyMessageHandler : IHandleMessages<MyMessage>
+        class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            readonly Context testContext;
-
-            public MyMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 testContext.HandledMessages++;
@@ -76,7 +71,5 @@ public class When_OpenTelemetry_disabled : NServiceBusAcceptanceTest
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }

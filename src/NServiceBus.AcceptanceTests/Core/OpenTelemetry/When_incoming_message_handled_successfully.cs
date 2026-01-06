@@ -3,6 +3,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using EndpointTemplates;
 using Metrics;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
@@ -47,12 +48,8 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
     }
 
-    class MyMessageHandler : IHandleMessages<MyMessage>
+    class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        readonly Context testContext;
-
-        public MyMessageHandler(Context testContext) => this.testContext = testContext;
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             Interlocked.Increment(ref testContext.TotalHandledMessages);
@@ -60,7 +57,5 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }

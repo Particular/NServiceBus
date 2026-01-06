@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_publishing_messages : OpenTelemetryAcceptanceTest

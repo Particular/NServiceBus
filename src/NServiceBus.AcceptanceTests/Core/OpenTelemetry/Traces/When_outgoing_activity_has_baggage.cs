@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 

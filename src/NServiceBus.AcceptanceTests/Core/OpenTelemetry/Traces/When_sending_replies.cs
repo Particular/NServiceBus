@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 

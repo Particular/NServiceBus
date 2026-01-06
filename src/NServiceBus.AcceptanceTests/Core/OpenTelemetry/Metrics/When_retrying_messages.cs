@@ -3,6 +3,7 @@
 using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_retrying_messages : OpenTelemetryAcceptanceTest
@@ -48,7 +49,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_increment_error_meter()
+    public void Should_increment_error_meter()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 

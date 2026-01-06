@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using EndpointTemplates;
 using Metrics;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
@@ -114,12 +115,8 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
     }
 
-    class MyMessageHandler : IHandleMessages<MyMessage>
+    class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
-        readonly Context testContext;
-
-        public MyMessageHandler(Context testContext) => this.testContext = testContext;
-
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
             Interlocked.Increment(ref testContext.TotalHandledMessages);
@@ -127,12 +124,8 @@ public class When_incoming_message_handled : OpenTelemetryAcceptanceTest
         }
     }
 
-    class MyExceptionalHandler : IHandleMessages<MyExceptionalMessage>
+    class MyExceptionalHandler(Context testContext) : IHandleMessages<MyExceptionalMessage>
     {
-        readonly Context testContext;
-
-        public MyExceptionalHandler(Context testContext) => this.testContext = testContext;
-
         public Task Handle(MyExceptionalMessage message, IMessageHandlerContext context)
         {
             Interlocked.Increment(ref testContext.TotalHandledMessages);
