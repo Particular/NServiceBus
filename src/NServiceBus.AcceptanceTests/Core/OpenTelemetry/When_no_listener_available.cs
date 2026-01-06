@@ -15,16 +15,16 @@ public class When_no_listener_available : NServiceBusAcceptanceTest
         Assert.DoesNotThrowAsync(async () =>
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithOpenTelemetryDisabled>(b =>
+                .WithEndpoint<EndpointWithNoListener>(b =>
                     b.When(async (session, _) => await session.SendLocal(new MyMessage())))
                 .Run();
         });
 
     class Context : ScenarioContext;
 
-    class EndpointWithOpenTelemetryDisabled : EndpointConfigurationBuilder
+    class EndpointWithNoListener : EndpointConfigurationBuilder
     {
-        public EndpointWithOpenTelemetryDisabled() =>
+        public EndpointWithNoListener() =>
             EndpointSetup<DefaultServer>();
 
         class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
