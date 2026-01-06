@@ -617,13 +617,7 @@ namespace NServiceBus.Unicast.Messages
             TreatAsErrorFromVersion = "10",
             RemoveInVersion = "11")]
         [Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will be removed in version 11.0.0.", true)]
-        public static void EnableOpenTelemetry(this EndpointConfiguration endpointConfiguration)
-        {
-            ArgumentNullException.ThrowIfNull(endpointConfiguration);
-
-            endpointConfiguration.Settings.Get<HostingComponent.Settings>().EnableOpenTelemetry = true;
-            endpointConfiguration.EnableFeature<OpenTelemetryFeature>();
-        }
+        public static void EnableOpenTelemetry(this EndpointConfiguration endpointConfiguration) => throw new NotImplementedException();
     }
 }
 
