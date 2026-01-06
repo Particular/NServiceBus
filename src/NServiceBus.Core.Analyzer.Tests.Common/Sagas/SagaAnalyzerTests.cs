@@ -11,7 +11,7 @@ using NUnit.Framework;
 public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
 {
     [Test]
-    public Task InfoDiagnosticForSingleOldMapping()
+    public Task ErrorDiagnosticForSingleOldMapping()
     {
         var source =
 @"using System;

@@ -132,10 +132,10 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
 
         public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeRewritten = new(
             id: DiagnosticIds.SagaMappingExpressionCanBeRewritten,
-            title: "Saga mapping expressions can be simplified",
-            messageFormat: "This saga mapping expression can be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax which avoids duplicate .ToSaga(…) expressions.",
+            title: "Saga mapping expressions must be rewritten",
+            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Info,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
     }
 }
