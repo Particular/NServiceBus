@@ -609,6 +609,12 @@ namespace NServiceBus.Unicast.Messages
         {
         }
     }
+}
+
+namespace NServiceBus
+{
+    using System;
+    using Particular.Obsoletes;
 
     public static partial class OpenTelemetryConfigurationExtensions
     {
