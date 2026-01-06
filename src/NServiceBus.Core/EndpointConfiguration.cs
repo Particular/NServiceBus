@@ -2,13 +2,16 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
+using Support;
 
 /// <summary>
 /// Configuration used to create an endpoint instance.
@@ -99,10 +102,13 @@ public class EndpointConfiguration : ExposeSettings
     {
         Settings.SetDefault(conventionsBuilder.Conventions);
 
-        ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
+        if (RuntimeFeature.IsDynamicCodeSupported)
+        {
+            ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
 #pragma warning disable CS0618 // Type or member is obsolete
-        ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
+            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
 #pragma warning restore CS0618 // Type or member is obsolete
+        }
     }
 
     readonly ConventionsBuilder conventionsBuilder;
@@ -120,6 +126,9 @@ public class EndpointConfiguration : ExposeSettings
         }
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+    [RequiresDynamicCode($"Only used for {nameof(INeedInitialization)}) and {nameof(IWantToRunBeforeConfigurationIsFinalized)}")]
+#pragma warning restore CS0618 // Type or member is obsolete
     static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class =>
         ForAllTypes<T>(types, t =>
         {

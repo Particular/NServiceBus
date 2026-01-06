@@ -63,6 +63,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the handler type.
     /// </summary>
+    [RequiresUnreferencedCode(WithReflection.TrimWarning)]
     public void AddHandler<THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
@@ -83,12 +84,12 @@ public class MessageHandlerRegistry
             var messageType = interfaceType.GetGenericArguments()[0];
             if (genericTypeDefinition == typeof(IHandleMessages<>))
             {
-                _ = AddMessageHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
+                _ = WithReflection.AddMessageHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
 
             if (genericTypeDefinition == typeof(IHandleTimeouts<>))
             {
-                _ = AddTimeoutHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
+                _ = WithReflection.AddTimeoutHandlerForMessageMethod.InvokeGeneric(this, [handlerType, messageType]);
             }
         }
     }
@@ -141,6 +142,7 @@ public class MessageHandlerRegistry
     /// Add handlers from types scanned at runtime.
     /// </summary>
     /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
+    [RequiresUnreferencedCode(WithReflection.TrimWarning)]
     public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
     {
         foreach (var type in orderedTypes.Where(IsMessageHandler))
@@ -149,7 +151,7 @@ public class MessageHandlerRegistry
         }
     }
 
-    internal static bool IsMessageHandler(Type type)
+    internal static bool IsMessageHandler([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
     {
         if (type.IsAbstract || type.IsGenericTypeDefinition)
         {
@@ -171,18 +173,25 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
+
+    [RequiresUnreferencedCode(WithReflection.TrimWarning)]
     void AddHandlerWithReflection(Type handlerType) =>
-        AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
+        WithReflection.AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
-    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
+    [RequiresUnreferencedCode(TrimWarning)]
+    static class WithReflection
+    {
+        public static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
+            .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
-    static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+        public static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+            .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
-    static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
+        public static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
+            .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
+        public const string TrimWarning = "When adding handlers from assembly scanning using reflection, the methods cannot be trimmed.";
+    }
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];

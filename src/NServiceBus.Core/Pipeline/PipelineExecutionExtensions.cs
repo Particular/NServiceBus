@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,6 +18,7 @@ static class PipelineExecutionExtensions
 {
     extension(IBehavior[] behaviors)
     {
+        [RequiresUnreferencedCode("Requires FastExpressionCompiler")]
         public Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(List<Expression>? expressions = null)
             where TRootContext : IBehaviorContext =>
             (Func<TRootContext, Task>)behaviors.CreatePipelineExecutionExpression(expressions);
@@ -29,6 +31,7 @@ static class PipelineExecutionExtensions
         ///          context{N} => GetBehavior(context{N}, {N-1}).Invoke(context{N},
         ///             context{N+1} => TaskEx.Completed))
         /// </code>
+        [RequiresUnreferencedCode("Requires FastExpressionCompiler")]
         public Delegate CreatePipelineExecutionExpression(List<Expression>? expressions = null)
         {
             Delegate? lambdaExpression = null;
@@ -64,6 +67,7 @@ static class PipelineExecutionExtensions
     /// <code>
     /// context{i} => GetBehavior(context{i}, {i}).Invoke(context{i+1} => previous)
     /// </code>>
+    [RequiresUnreferencedCode("Requires FastExpressionCompiler")]
     static Delegate CreateBehaviorCallDelegate(MethodInfo methodInfo, ParameterExpression outerContextParam, Type behaviorType, Delegate previous, int i, List<Expression>? expressions = null)
     {
         MethodInfo getBehaviorMethodInfo = GetBehaviorMethodInfo.MakeGenericMethod(outerContextParam.Type, behaviorType);
@@ -84,6 +88,7 @@ static class PipelineExecutionExtensions
     /// <code>
     /// context{i} => return TaskEx.CompletedTask;
     /// </code>>
+    [RequiresUnreferencedCode("Requires FastExpressionCompiler")]
     static Delegate CreateDoneDelegate(Type inContextType, int i)
     {
         var innerContextParam = Expression.Parameter(inContextType, $"context{i + 1}");

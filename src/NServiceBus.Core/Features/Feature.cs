@@ -4,6 +4,7 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Particular.Obsoletes;
 using Settings;
@@ -191,7 +192,7 @@ public abstract partial class Feature
 
     static IEnabled Enables<TFeature>() where TFeature : Feature, new() => Enabled<TFeature>.Instance;
     static IDependency Depends<TFeature>() where TFeature : Feature, new() => Dependency<TFeature>.Instance;
-    static IDependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
+    static IDependency Depends([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.AllConstructors)] Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
     static IDependency Depends(string featureName) => new WeakDependency(featureName);
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
@@ -221,7 +222,7 @@ public abstract partial class Feature
         public static readonly IDependency Instance = new Dependency<TFeature>();
     }
 
-    sealed class TypeDependency(Type featureType) : IDependency
+    sealed class TypeDependency([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.AllConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] Type featureType) : IDependency
     {
         public string FeatureName { get; } = GetFeatureName(featureType);
         public Feature Create(FeatureFactory factory) => factory.CreateFeature(featureType);

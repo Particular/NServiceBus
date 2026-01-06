@@ -2,9 +2,11 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using IODirectory = System.IO.Directory;
 
+[RequiresUnreferencedCode("Attempts to determine application path using Reflection to avoid referencing web assemblies.")]
 static class Host
 {
     public static string GetOutputDirectory()
