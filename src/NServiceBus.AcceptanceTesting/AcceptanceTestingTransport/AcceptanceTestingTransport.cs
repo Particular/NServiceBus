@@ -17,7 +17,6 @@ public class AcceptanceTestingTransport(
     public override async Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(hostSettings);
-        ArgumentNullException.ThrowIfNull(hostSettings.ServiceProvider);
 
         var infrastructure = new AcceptanceTestingTransportInfrastructure(hostSettings, this, receivers);
         infrastructure.ConfigureDispatcher();
