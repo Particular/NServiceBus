@@ -26,7 +26,7 @@ public class AddHandlerOnSagaTypeAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (!AddHandlerInterceptor.Parser.SyntaxLooksLikeAddHandlerMethod(context.Node))
+        if (!HandlerSyntaxConventions.SyntaxLooksLikeAddHandlerMethod(context.Node))
         {
             return;
         }
@@ -36,7 +36,7 @@ public class AddHandlerOnSagaTypeAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (!AddHandlerInterceptor.Parser.IsAddHandlerMethod(operation.TargetMethod))
+        if (!HandlerSyntaxConventions.IsAddHandlerMethod(operation.TargetMethod))
         {
             return;
         }

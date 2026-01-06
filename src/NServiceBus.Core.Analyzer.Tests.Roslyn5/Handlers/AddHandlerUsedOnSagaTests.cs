@@ -15,7 +15,6 @@ public class AddHandlerUsedOnSagaTests : AnalyzerTestFixture<AddHandlerOnSagaTyp
                      using System.Threading.Tasks;
                      using NServiceBus;
 
-                     [NServiceBus.NServiceBusRegistrations]
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
