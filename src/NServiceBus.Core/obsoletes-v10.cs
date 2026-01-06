@@ -609,6 +609,22 @@ namespace NServiceBus.Unicast.Messages
         {
         }
     }
+
+    public static partial class OpenTelemetryConfigurationExtensions
+    {
+        [ObsoleteMetadata(
+            Message = "OpenTelemetry is now enabled by default. This method is no longer required.",
+            TreatAsErrorFromVersion = "10",
+            RemoveInVersion = "11")]
+        [Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will be removed in version 11.0.0.", true)]
+        public static void EnableOpenTelemetry(this EndpointConfiguration endpointConfiguration)
+        {
+            ArgumentNullException.ThrowIfNull(endpointConfiguration);
+
+            endpointConfiguration.Settings.Get<HostingComponent.Settings>().EnableOpenTelemetry = true;
+            endpointConfiguration.EnableFeature<OpenTelemetryFeature>();
+        }
+    }
 }
 
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.

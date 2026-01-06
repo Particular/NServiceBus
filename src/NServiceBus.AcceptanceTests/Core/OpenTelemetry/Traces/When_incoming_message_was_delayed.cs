@@ -200,7 +200,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 template,
                 (c, _) =>
                 {
-                    c.EnableOpenTelemetry();
                     var recoverability = c.Recoverability();
                     recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 }, metadata => { });
@@ -241,7 +240,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 template,
                 (c, _) =>
                 {
-                    c.EnableOpenTelemetry();
                     var recoverability = c.Recoverability();
                     recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 }, metadata => { });
@@ -294,7 +292,6 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 template,
                 (c, _) =>
                 {
-                    c.EnableOpenTelemetry();
                     var recoverability = c.Recoverability();
                     recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 }, metadata => { });
