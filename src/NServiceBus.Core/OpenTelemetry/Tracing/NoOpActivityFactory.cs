@@ -6,7 +6,7 @@ using System.Diagnostics;
 using Pipeline;
 using Transport;
 
-class NoOpActivityFactory : IActivityFactory
+sealed class NoOpActivityFactory : IActivityFactory
 {
     public Activity? StartIncomingPipelineActivity(MessageContext context) => null;
 

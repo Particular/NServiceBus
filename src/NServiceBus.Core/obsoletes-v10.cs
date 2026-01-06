@@ -315,7 +315,7 @@ namespace NServiceBus
         public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty) => throw new NotImplementedException();
     }
 
-    public static partial class OpenTelemetryConfigurationExtensions
+    public static class OpenTelemetryConfigurationExtensions
     {
         [ObsoleteMetadata(
             Message = "OpenTelemetry is now enabled by default. This method is no longer required",
