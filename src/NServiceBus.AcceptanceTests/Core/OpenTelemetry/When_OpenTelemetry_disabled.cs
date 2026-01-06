@@ -7,7 +7,7 @@ using Metrics;
 using NUnit.Framework;
 using Traces;
 
-public class When_OpenTelemetry_disabled : NServiceBusAcceptanceTest
+public class When_OpenTelemetry_disabled : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_not_record_metrics()
