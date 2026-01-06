@@ -29,8 +29,12 @@
   <ItemGroup>
     <AddSourceFileToPackage Include="..\NServiceBus.Core\IdGeneration\CombGuid.cs" />
     <AddSourceFileToPackage Include="..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs" />
-    <AddSourceFileToPackage Include="..\NServiceBus.Core\DeepCopy.cs" />
     <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NServiceBus.AcceptanceTesting\Support\DeepCopy.cs" />
+    <AddSourceFileToPackage Include="..\NServiceBus.AcceptanceTesting\Support\DeepCopy.cs" />
   </ItemGroup>
 
 </Project>

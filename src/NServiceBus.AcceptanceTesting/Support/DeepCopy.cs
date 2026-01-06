@@ -1,4 +1,6 @@
-﻿/* This file is copied from https://github.com/Burtsev-Alexey/net-object-deep-copy
+﻿#nullable disable
+
+/* This file is copied from https://github.com/Burtsev-Alexey/net-object-deep-copy
 Source code is released under the MIT license.
 
 The MIT License(MIT)
