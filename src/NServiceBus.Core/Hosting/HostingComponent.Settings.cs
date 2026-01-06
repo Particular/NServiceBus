@@ -79,7 +79,7 @@ partial class HostingComponent
             set => settings.Set("Installers.Enable", value);
         }
 
-        public bool EnableOpenTelemetry { get; set; }
+        public bool EnableOpenTelemetry { get; set; } = true;
 
         internal void ApplyHostIdDefaultIfNeeded()
         {
