@@ -16,10 +16,10 @@
 
         public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeSimplified = new(
             id: DiagnosticIds.SagaMappingExpressionCanBeSimplified,
-            title: "Saga mapping expressions can be simplified",
-            messageFormat: "The saga mapping contains multiple .ToSaga(…) expressions which can be simplified using mapper.MapSaga(…).ToMessage<T>(…) syntax.",
+            title: "Saga mapping expressions must be rewritten",
+            messageFormat: "The saga mapping contains multiple .ToSaga(…) expressions which must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor MultipleCorrelationIdValues = new(
