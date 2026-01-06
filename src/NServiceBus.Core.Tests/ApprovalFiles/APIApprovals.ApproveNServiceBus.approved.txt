@@ -694,7 +694,8 @@ namespace NServiceBus
     public static class OpenTelemetryConfigurationExtensions
     {
         public static void DisableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
-        [System.Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will be removed in version 11.0.0.", true)]
+        [System.Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will " +
+            "be removed in version 11.0.0.", true)]
         public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public static class OpenTelemetryExtensions
