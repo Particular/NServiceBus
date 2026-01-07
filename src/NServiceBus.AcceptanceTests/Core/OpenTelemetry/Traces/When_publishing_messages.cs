@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_publishing_messages : OpenTelemetryAcceptanceTest
@@ -135,7 +136,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
     class Publisher : EndpointConfigurationBuilder
     {
         public Publisher() =>
-            EndpointSetup<OpenTelemetryEnabledEndpoint>(b =>
+            EndpointSetup<DefaultServer>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
@@ -153,7 +154,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
     public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
-            EndpointSetup<OpenTelemetryEnabledEndpoint>(c =>
+            EndpointSetup<DefaultServer>(c =>
             {
             },
                 metadata =>

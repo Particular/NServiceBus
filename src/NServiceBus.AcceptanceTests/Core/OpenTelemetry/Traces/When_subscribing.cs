@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.Features;
 using NUnit.Framework;
@@ -67,14 +68,14 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
 
     class SubscribingEndpoint : EndpointConfigurationBuilder
     {
-        public SubscribingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(
+        public SubscribingEndpoint() => EndpointSetup<DefaultServer>(
             c => c.DisableFeature<AutoSubscribe>(),
             p => p.RegisterPublisherFor<DemoEvent, PublishingEndpoint>());
     }
 
     class PublishingEndpoint : EndpointConfigurationBuilder
     {
-        public PublishingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(c =>
+        public PublishingEndpoint() => EndpointSetup<DefaultServer>(c =>
         {
             c.DisableFeature<AutoSubscribe>();
             c.OnEndpointSubscribed<Context>((e, ctx) =>

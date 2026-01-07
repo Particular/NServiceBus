@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
@@ -58,7 +59,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {

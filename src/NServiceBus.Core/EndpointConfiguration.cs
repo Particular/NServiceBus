@@ -61,6 +61,7 @@ public class EndpointConfiguration : ExposeSettings
         featureSettings.EnableFeature<SubscriptionMigrationMode>();
         featureSettings.EnableFeature<AutoCorrelationFeature>();
         featureSettings.EnableFeature<PlatformRetryNotifications>();
+        featureSettings.EnableFeature<OpenTelemetryFeature>();
 
         Settings.Set(featureSettings);
 

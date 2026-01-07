@@ -693,6 +693,8 @@ namespace NServiceBus
     public delegate System.Threading.Tasks.Task OnSatelliteMessage(System.IServiceProvider serviceProvider, NServiceBus.Transport.MessageContext messageContext, System.Threading.CancellationToken cancellationToken = default);
     public static class OpenTelemetryConfigurationExtensions
     {
+        [System.Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will " +
+            "be removed in version 11.0.0.", true)]
         public static void EnableOpenTelemetry(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public static class OpenTelemetryExtensions

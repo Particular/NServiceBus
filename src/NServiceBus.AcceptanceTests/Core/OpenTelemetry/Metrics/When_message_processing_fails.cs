@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using NUnit.Framework;
 using AcceptanceTesting.Customization;
+using EndpointTemplates;
 
 public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 {
@@ -60,7 +61,7 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
 
     class FailingEndpoint : EndpointConfigurationBuilder
     {
-        public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
         class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
         {

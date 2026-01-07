@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
@@ -53,7 +54,7 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
 
     class EndpointWithAmbientActivity : EndpointConfigurationBuilder
     {
-        public EndpointWithAmbientActivity() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithAmbientActivity() => EndpointSetup<DefaultServer>();
 
         public class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {

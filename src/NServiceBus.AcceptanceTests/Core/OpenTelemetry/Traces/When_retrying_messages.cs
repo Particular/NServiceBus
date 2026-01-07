@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
@@ -71,7 +72,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
 
     class RetryingEndpoint : EndpointConfigurationBuilder
     {
-        public RetryingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public RetryingEndpoint() => EndpointSetup<DefaultServer>();
 
         class Handler(Context testContext) : IHandleMessages<FailingMessage>
         {

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
@@ -49,7 +50,7 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
 
     class FailingEndpoint : EndpointConfigurationBuilder
     {
-        public FailingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
         class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
         {

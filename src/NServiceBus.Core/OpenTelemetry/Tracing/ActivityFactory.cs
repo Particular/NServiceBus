@@ -6,10 +6,17 @@ using System.Diagnostics;
 using Pipeline;
 using Transport;
 
-class ActivityFactory : IActivityFactory
+sealed class ActivityFactory : IActivityFactory
 {
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
+        // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
+        // here nonetheless to avoid having to parse headers, access the extension bag, etc.
+        if (!ActivitySources.Main.HasListeners())
+        {
+            return null;
+        }
+
         Activity? activity;
         var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
@@ -27,7 +34,6 @@ class ActivityFactory : IActivityFactory
 
             activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
                 ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
@@ -53,18 +59,20 @@ class ActivityFactory : IActivityFactory
             activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
         }
 
-        if (activity is not null)
+        if (activity is null)
         {
-            ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
-            activity.DisplayName = ActivityDisplayNames.ProcessMessage;
-            activity.SetIdFormat(ActivityIdFormat.W3C);
-            activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
-
-            ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
-
-            activity.Start();
+            return activity;
         }
+
+        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
+
+        activity.DisplayName = ActivityDisplayNames.ProcessMessage;
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
+
+        ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
+
+        activity.Start();
 
         return activity;
     }
@@ -72,15 +80,16 @@ class ActivityFactory : IActivityFactory
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
     {
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-
-        if (activity != null)
+        if (activity == null)
         {
-            activity.SetIdFormat(ActivityIdFormat.W3C);
-            activity.DisplayName = displayName;
-            activity.Start();
-
-            outgoingContext.Extensions.SetOutgoingPipelineActivity(activity);
+            return activity;
         }
+
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.DisplayName = displayName;
+        activity.Start();
+
+        outgoingContext.Extensions.SetOutgoingPipelineActivity(activity);
 
         return activity;
     }
@@ -95,12 +104,13 @@ class ActivityFactory : IActivityFactory
 
         var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
-        if (activity is not null)
+        if (activity is null)
         {
-            activity.DisplayName = messageHandler.HandlerType.Name;
-            activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
+            return activity;
         }
 
+        activity.DisplayName = messageHandler.HandlerType.Name;
+        activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
         return activity;
     }
 }

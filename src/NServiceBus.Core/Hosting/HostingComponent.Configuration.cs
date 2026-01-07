@@ -24,7 +24,7 @@ partial class HostingComponent
             serviceCollection,
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
-            settings.EnableOpenTelemetry ? new ActivityFactory() : new NoOpActivityFactory(),
+            new ActivityFactory(),
             persistenceConfiguration,
             installerComponent);
 
@@ -86,7 +86,7 @@ partial class HostingComponent
 
         public List<Action<IServiceCollection>> UserRegistrations { get; }
 
-        public IActivityFactory ActivityFactory { get; set; }
+        public IActivityFactory ActivityFactory { get; }
 
         public PersistenceComponent.Configuration PersistenceConfiguration { get; }
         public InstallerComponent InstallerComponent { get; }

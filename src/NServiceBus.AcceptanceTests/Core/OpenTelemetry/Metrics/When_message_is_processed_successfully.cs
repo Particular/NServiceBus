@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
@@ -122,14 +123,10 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
-        public class MessageHandler : IHandleMessages<OutgoingMessage>
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
                 var numberOfMessages = Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
@@ -138,12 +135,8 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
             }
         }
 
-        public class ComplexMessageHandler : IHandleMessages<OutgoingWithComplexHierarchyMessage>
+        public class ComplexMessageHandler(Context testContext) : IHandleMessages<OutgoingWithComplexHierarchyMessage>
         {
-            readonly Context testContext;
-
-            public ComplexMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OutgoingWithComplexHierarchyMessage message, IMessageHandlerContext context)
             {
                 var numberOfMessages = Interlocked.Increment(ref testContext.ComplexOutgoingMessagesReceived);
@@ -153,15 +146,9 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         }
     }
 
-    public class OutgoingMessage : IMessage
-    {
-    }
+    public class OutgoingMessage : IMessage;
 
-    public class BaseOutgoingMessage : IMessage
-    {
-    }
+    public class BaseOutgoingMessage : IMessage;
 
-    public class OutgoingWithComplexHierarchyMessage : BaseOutgoingMessage
-    {
-    }
+    public class OutgoingWithComplexHierarchyMessage : BaseOutgoingMessage;
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
@@ -58,7 +59,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>(c => c.Pipeline.Register(typeof(AddTagToHandlerSpanBehavior), "Adds a custom tag to the handler span"));
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(AddTagToHandlerSpanBehavior), "Adds a custom tag to the handler span"));
 
         class AddTagToHandlerSpanBehavior : Behavior<IInvokeHandlerContext>
         {

@@ -314,6 +314,16 @@ namespace NServiceBus
         public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty) => throw new NotImplementedException();
         public void ToSaga(Expression<Func<TSagaData, object?>> sagaEntityProperty) => throw new NotImplementedException();
     }
+
+    public static class OpenTelemetryConfigurationExtensions
+    {
+        [ObsoleteMetadata(
+            Message = "OpenTelemetry is now enabled by default. This method is no longer required",
+            TreatAsErrorFromVersion = "10",
+            RemoveInVersion = "11")]
+        [Obsolete("OpenTelemetry is now enabled by default. This method is no longer required. Will be removed in version 11.0.0.", true)]
+        public static void EnableOpenTelemetry(this EndpointConfiguration endpointConfiguration) => throw new NotImplementedException();
+    }
 }
 
 namespace NServiceBus.DataBus

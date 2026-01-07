@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
@@ -36,7 +37,7 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
             IHandleMessages<OutgoingReply>

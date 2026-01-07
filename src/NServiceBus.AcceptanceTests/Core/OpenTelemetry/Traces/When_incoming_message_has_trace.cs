@@ -56,7 +56,7 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
     class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
@@ -71,7 +71,7 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
     class ReplyingEndpoint : EndpointConfigurationBuilder
     {
-        public ReplyingEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
@@ -86,7 +86,7 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {

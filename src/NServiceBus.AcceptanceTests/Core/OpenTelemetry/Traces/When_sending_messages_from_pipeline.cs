@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
@@ -33,7 +34,7 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
 
     class TestEndpoint : EndpointConfigurationBuilder
     {
-        public TestEndpoint() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public TestEndpoint() => EndpointSetup<DefaultServer>();
 
         class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>, IHandleMessages<TriggerMessage>
         {
