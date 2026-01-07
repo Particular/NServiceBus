@@ -17,7 +17,7 @@
         public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeSimplified = new(
             id: DiagnosticIds.SagaMappingExpressionCanBeSimplified,
             title: "Saga mapping expressions must be rewritten",
-            messageFormat: "The saga mapping contains multiple .ToSaga(…) expressions which must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
+            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
