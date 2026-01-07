@@ -129,13 +129,5 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
-
-        public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeRewritten = new(
-            id: DiagnosticIds.SagaMappingExpressionCanBeRewritten,
-            title: "Saga mapping expressions must be rewritten",
-            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
-            category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
     }
 }
