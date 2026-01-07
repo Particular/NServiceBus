@@ -34,10 +34,7 @@ public class EnvelopeUnwrapperTests
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        meterFactory.Dispose();
-    }
+    public void TearDown() => meterFactory.Dispose();
 
     [Test]
     public void ReturnsDefaultIncomingMessageWhenNoHandlers()
@@ -111,44 +108,26 @@ public class EnvelopeUnwrapperTests
         Assert.That(result.Body, Is.EqualTo(firstBody));
     }
 
-    IncomingMessage RunTest()
+    IncomingMessage RunTest() => new EnvelopeUnwrapper(envelopeHandlers.ToArray(), incomingPipelineMetrics).UnwrapEnvelope(messageContext);
+
+    class ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn) : IEnvelopeHandler
     {
-        return new EnvelopeUnwrapper(envelopeHandlers.ToArray(), incomingPipelineMetrics).UnwrapEnvelope(messageContext);
-    }
-
-    class ReturningHandler : IEnvelopeHandler
-    {
-        readonly Dictionary<string, string> headersToReturn;
-        readonly ReadOnlyMemory<byte> bodyToReturn;
-
-        public ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn)
-        {
-            this.headersToReturn = headersToReturn;
-            this.bodyToReturn = bodyToReturn;
-        }
-
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
-        {
-            return (headersToReturn, bodyToReturn);
-        }
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
+            (headersToReturn, bodyToReturn);
     }
 
     class NullReturningHandler : IEnvelopeHandler
     {
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
-        {
-            return null;
-        }
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
+            null;
     }
 
     class ThrowingHandler : IEnvelopeHandler
     {
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
-        {
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
             throw new InvalidOperationException("Some exception");
-        }
     }
 }

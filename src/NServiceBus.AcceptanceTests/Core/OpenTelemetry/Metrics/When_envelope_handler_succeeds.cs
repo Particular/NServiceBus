@@ -47,18 +47,13 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
     class SuccessfulCloudEventHandler : IEnvelopeHandler
     {
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
-        {
-            return (incomingHeaders.ToDictionary(), incomingBody);
-        }
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
+            (incomingHeaders.ToDictionary(), incomingBody);
     }
 
     class TestEnvelopeFeature : Feature
     {
-        protected override void Setup(FeatureConfigurationContext context)
-        {
-            context.AddEnvelopeHandler<SuccessfulCloudEventHandler>();
-        }
+        protected override void Setup(FeatureConfigurationContext context) => context.AddEnvelopeHandler<SuccessfulCloudEventHandler>();
     }
 
     class Context : ScenarioContext
@@ -70,12 +65,8 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
     {
         public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        public class MessageHandler : IHandleMessages<OutgoingMessage>
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
                 Interlocked.Increment(ref testContext.OutgoingMessagesReceived);

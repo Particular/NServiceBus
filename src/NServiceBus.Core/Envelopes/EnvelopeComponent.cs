@@ -23,8 +23,8 @@ class EnvelopeComponent(EnvelopeComponent.Settings settings)
                 return;
             }
 
-            // create and cache the factory because the service provider is only available later
-            // using CreateInstance instead of CreateFactory because the envelop handlers are instantiated only once and
+            // Create and cache the factory because the service provider is only available later
+            // using CreateInstance instead of CreateFactory because the envelope handlers are instantiated only once and
             // kept alive for the lifetime of the endpoint
             factories.Add(typeof(THandler), static sp => ActivatorUtilities.CreateInstance<THandler>(sp));
         }

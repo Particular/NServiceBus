@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using NServiceBus.Transport;
+using Transport;
 using Pipeline;
 
 class IncomingPipelineMetrics

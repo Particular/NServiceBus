@@ -54,10 +54,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
 
     class TestEnvelopeFeature : Feature
     {
-        protected override void Setup(FeatureConfigurationContext context)
-        {
-            context.AddEnvelopeHandler<ThrowingHandler>();
-        }
+        protected override void Setup(FeatureConfigurationContext context) => context.AddEnvelopeHandler<ThrowingHandler>();
     }
 
     class Context : ScenarioContext
@@ -69,12 +66,8 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
     {
         public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
 
-        public class MessageHandler : IHandleMessages<OutgoingMessage>
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
-            readonly Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
                 Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
@@ -83,7 +76,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class OutgoingMessage : IMessage
+    class OutgoingMessage : IMessage
     {
     }
 }
