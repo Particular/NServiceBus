@@ -17,7 +17,7 @@
         public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeSimplified = new(
             id: DiagnosticIds.SagaMappingExpressionCanBeSimplified,
             title: "Saga mapping expressions must be rewritten",
-            messageFormat: "The saga mapping contains multiple .ToSaga(…) expressions which must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
+            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -126,14 +126,6 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
             id: DiagnosticIds.ToSagaMappingMustBeToAProperty,
             title: "ToSaga mapping must point to a property",
             messageFormat: "Mapping expressions for saga members must point to properties.",
-            category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
-
-        public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeRewritten = new(
-            id: DiagnosticIds.SagaMappingExpressionCanBeRewritten,
-            title: "Saga mapping expressions must be rewritten",
-            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);

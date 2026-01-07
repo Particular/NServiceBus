@@ -29,8 +29,7 @@
             SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass,
             SagaDiagnostics.SagaShouldNotImplementNotFoundHandler,
             SagaDiagnostics.ToSagaMappingMustBeToAProperty,
-            SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions,
-            SagaDiagnostics.SagaMappingExpressionCanBeRewritten
+            SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions
         ];
 
         public override void Initialize(AnalysisContext context)
@@ -153,17 +152,6 @@
                         }
                     }
                 }
-                else if (nonCustomFinderMapping.Select(m => m.ToSagaSyntax).Distinct().Count() > 1)
-                {
-                    Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
-                        fixerTitle: "Simplify saga mapping expression",
-                        descriptor: SagaDiagnostics.SagaMappingExpressionCanBeSimplified,
-                        location: saga.ConfigureHowToFindMethod.Identifier.GetLocation(),
-                        newMappingForLocation: null,
-                        correlationId: assumedCorrelationId,
-                        saga: saga);
-                    context.ReportDiagnostic(diagnostic);
-                }
                 else
                 {
                     var mappingMethodNames = nonCustomFinderMapping.Select(m => (m.MessageTypeSyntax?.Parent?.Parent as GenericNameSyntax)?.Identifier.ValueText);
@@ -171,7 +159,7 @@
                     {
                         Diagnostic diagnostic = CreateMappingRewritingDiagnostic(
                             fixerTitle: "Rewrite saga mapping expression",
-                            descriptor: SagaDiagnostics.SagaMappingExpressionCanBeRewritten,
+                            descriptor: SagaDiagnostics.SagaMappingExpressionCanBeSimplified,
                             location: saga.ConfigureHowToFindMethod.Identifier.GetLocation(),
                             newMappingForLocation: null,
                             correlationId: assumedCorrelationId,
