@@ -32,9 +32,4 @@
     <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\NServiceBus.AcceptanceTesting\Support\DeepCopy.cs" />
-    <AddSourceFileToPackage Include="..\NServiceBus.AcceptanceTesting\Support\DeepCopy.cs" />
-  </ItemGroup>
-
 </Project>
