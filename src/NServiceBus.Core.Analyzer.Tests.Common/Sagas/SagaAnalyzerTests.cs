@@ -11,7 +11,7 @@ using NUnit.Framework;
 public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
 {
     [Test]
-    public Task InfoDiagnosticForSingleOldMapping()
+    public Task ErrorDiagnosticForSingleOldMapping()
     {
         var source =
 @"using System;
@@ -35,7 +35,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert([DiagnosticIds.SagaMappingExpressionCanBeRewritten], source, mustCompile: false);
+        return Assert([DiagnosticIds.SagaMappingExpressionCanBeSimplified], source, mustCompile: false);
     }
 
     [Test]
@@ -141,6 +141,40 @@ public class Msg1 : ICommand;
 ";
 
         return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnosticForConfigureNotFoundHandler()
+    {
+        var source =
+            @"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => saga.CorrId).ToMessage<Msg1>(msg => msg.CorrId);
+
+        mapper.ConfigureNotFoundHandler<MyNotFoundHandler>();
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+public class MyData : ContainSagaData
+{
+    public string CorrId { get; set; }
+    public string OtherId { get; set; }
+}
+public class Msg1 : ICommand
+{
+    public string CorrId { get; set; }
+}
+public class MyNotFoundHandler : ISagaNotFoundHandler
+{
+	public Task Handle(object message, IMessageProcessingContext context) => Task.CompletedTask;
+}";
+
+        return Assert([], source, mustCompile: false);
     }
 
     [Test]

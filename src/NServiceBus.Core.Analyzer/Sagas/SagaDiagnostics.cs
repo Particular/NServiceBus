@@ -16,10 +16,10 @@
 
         public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeSimplified = new(
             id: DiagnosticIds.SagaMappingExpressionCanBeSimplified,
-            title: "Saga mapping expressions can be simplified",
-            messageFormat: "The saga mapping contains multiple .ToSaga(…) expressions which can be simplified using mapper.MapSaga(…).ToMessage<T>(…) syntax.",
+            title: "Saga mapping expressions must be rewritten",
+            messageFormat: "This saga mapping expression must be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax. Use the code fix to transition to the new syntax.",
             category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor MultipleCorrelationIdValues = new(
@@ -128,14 +128,6 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
             messageFormat: "Mapping expressions for saga members must point to properties.",
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
-
-        public static readonly DiagnosticDescriptor SagaMappingExpressionCanBeRewritten = new(
-            id: DiagnosticIds.SagaMappingExpressionCanBeRewritten,
-            title: "Saga mapping expressions can be simplified",
-            messageFormat: "This saga mapping expression can be rewritten using mapper.MapSaga(…).ToMessage<T>(…) syntax which avoids duplicate .ToSaga(…) expressions.",
-            category: DiagnosticCategory,
-            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true);
     }
 }
