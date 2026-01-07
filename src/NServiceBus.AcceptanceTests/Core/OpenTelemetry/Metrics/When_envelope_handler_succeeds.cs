@@ -40,11 +40,11 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "discriminator",
-                ["nservicebus.envelope.unwrapper_type"] = typeof(ThrowingHandler).FullName
+                ["nservicebus.envelope.unwrapper_type"] = typeof(SuccessfulHandler).FullName
             });
     }
 
-    class ThrowingHandler : IEnvelopeHandler
+    class SuccessfulHandler : IEnvelopeHandler
     {
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
             ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
@@ -57,7 +57,7 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.AddEnvelopeHandler<ThrowingHandler>();
+            context.AddEnvelopeHandler<SuccessfulHandler>();
         }
     }
 
