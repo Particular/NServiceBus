@@ -2,9 +2,11 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 
+// Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
 sealed class MessageHandlerInvoker<THandler, TMessage>(
     Func<IServiceProvider, THandler> createHandler,
     Func<THandler, TMessage, IMessageHandlerContext, Task> invocation,
@@ -33,6 +35,9 @@ sealed class MessageHandlerInvoker<THandler, TMessage>(
         instance = createHandler(provider);
     }
 
+    [DebuggerNonUserCode]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
     public override Task Invoke(object message, IMessageHandlerContext handlerContext)
     {
         ArgumentNullException.ThrowIfNull(message);

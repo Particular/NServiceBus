@@ -2,9 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
@@ -200,6 +202,7 @@ public class MessageHandlerRegistry
         MessageHandler Create();
     }
 
+    // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
     sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
@@ -208,11 +211,16 @@ public class MessageHandlerRegistry
         public MessageHandler Create() =>
             new MessageHandlerInvoker<IHandleTimeouts<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
-                static (handler, message, handlerContext) => handler.Timeout(message, handlerContext),
+                InvokeTimeout, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: true)
             {
                 HandlerType = typeof(THandler)
             };
+
+        [DebuggerNonUserCode]
+        [DebuggerStepThrough]
+        [StackTraceHidden]
+        static Task InvokeTimeout(IHandleTimeouts<TMessage> handler, TMessage message, IMessageHandlerContext handlerContext) => handler.Timeout(message, handlerContext);
 
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
@@ -220,6 +228,7 @@ public class MessageHandlerRegistry
             static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
+    // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
     sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
@@ -228,11 +237,16 @@ public class MessageHandlerRegistry
         public MessageHandler Create() =>
             new MessageHandlerInvoker<IHandleMessages<TMessage>, TMessage>(
                 static provider => handlerFactory(provider, []),
-                static (handler, message, handlerContext) => handler.Handle(message, handlerContext),
+                InvokeHandler, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: false)
             {
                 HandlerType = typeof(THandler)
             };
+
+        [DebuggerNonUserCode]
+        [DebuggerStepThrough]
+        [StackTraceHidden]
+        static Task InvokeHandler(IHandleMessages<TMessage> handler, TMessage message, IMessageHandlerContext handlerContext) => handler.Handle(message, handlerContext);
 
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
