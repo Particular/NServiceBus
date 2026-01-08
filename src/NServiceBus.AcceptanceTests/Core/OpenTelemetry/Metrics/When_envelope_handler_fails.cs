@@ -8,6 +8,7 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NServiceBus.Extensibility;
 using NServiceBus.Features;
+using NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
