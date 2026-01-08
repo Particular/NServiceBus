@@ -78,7 +78,5 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         }
     }
 
-    class OutgoingMessage : IMessage
-    {
-    }
+    public class OutgoingMessage : IMessage;
 }
