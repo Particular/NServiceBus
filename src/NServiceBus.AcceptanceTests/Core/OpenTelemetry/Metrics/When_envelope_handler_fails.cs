@@ -65,7 +65,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<NServiceBus.AcceptanceTests.Core.OpenTelemetry.OpenTelemetryEnabledEndpoint>();
 
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
