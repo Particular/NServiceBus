@@ -7,9 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NServiceBus.Extensibility;
 using NServiceBus.Features;
-using NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
@@ -64,7 +65,7 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
-        public EndpointWithMetrics() => EndpointSetup<NServiceBus.AcceptanceTests.Core.OpenTelemetry.OpenTelemetryEnabledEndpoint>();
+        public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
