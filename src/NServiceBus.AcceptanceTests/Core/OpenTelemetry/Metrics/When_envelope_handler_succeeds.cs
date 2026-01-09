@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
@@ -27,11 +26,7 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
                     x.MakeInstanceUniquelyAddressable("discriminator");
                     x.EnableFeature<TestEnvelopeFeature>();
                 })
-                .When(async (session, ctx) =>
-                {
-                    await session.SendLocal(new OutgoingMessage());
-                }))
-            .Done(c => c.OutgoingMessagesReceived == 1)
+                .When(session => session.SendLocal(new OutgoingMessage())))
             .Run();
 
         // The metric should be explicitly emitted with a value of 0 to indicate no errors occurred
@@ -58,10 +53,7 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
         protected override void Setup(FeatureConfigurationContext context) => context.AddEnvelopeHandler<SuccessfulCloudEventHandler>();
     }
 
-    class Context : ScenarioContext
-    {
-        public int OutgoingMessagesReceived;
-    }
+    class Context : ScenarioContext;
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
@@ -71,13 +63,11 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
         {
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class OutgoingMessage : IMessage
-    {
-    }
+    public class OutgoingMessage : IMessage;
 }
