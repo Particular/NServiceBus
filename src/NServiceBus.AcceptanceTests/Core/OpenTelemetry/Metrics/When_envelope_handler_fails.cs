@@ -26,11 +26,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
                     x.MakeInstanceUniquelyAddressable("discriminator");
                     x.EnableFeature<TestEnvelopeFeature>();
                 })
-                .When(async (session, ctx) =>
-                {
-                    await session.SendLocal(new OutgoingMessage());
-                }))
-            .Done(c => c.OutgoingMessagesReceived == 1)
+                .When(session => session.SendLocal(new OutgoingMessage())))
             .Run();
 
         metricsListener.AssertMetric("nservicebus.envelope.unwrapping_error", 1);
@@ -48,10 +44,8 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
     class ThrowingHandler : IEnvelopeHandler
     {
         public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody)
-        {
+            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
             throw new InvalidOperationException("Some exception");
-        }
     }
 
     class TestEnvelopeFeature : Feature
@@ -59,10 +53,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         protected override void Setup(FeatureConfigurationContext context) => context.AddEnvelopeHandler<ThrowingHandler>();
     }
 
-    class Context : ScenarioContext
-    {
-        public int OutgoingMessagesReceived;
-    }
+    class Context : ScenarioContext;
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
     {
@@ -72,7 +63,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         {
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.OutgoingMessagesReceived);
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
