@@ -466,7 +466,7 @@ namespace NServiceBus
     }
     public interface IEnvelopeHandler
     {
-        System.Collections.Generic.Dictionary<string, string>? UnwrapEnvelope(System.Buffers.IBufferWriter<byte> bodyWriter, string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, NServiceBus.Extensibility.ContextBag extensions, System.ReadOnlySpan<byte> incomingBody);
+        System.Collections.Generic.Dictionary<string, string>? UnwrapEnvelope(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, System.ReadOnlySpan<byte> incomingBody, NServiceBus.Extensibility.ContextBag extensions, System.Buffers.IBufferWriter<byte> bodyWriter);
     }
     public interface IHandleMessages { }
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages
