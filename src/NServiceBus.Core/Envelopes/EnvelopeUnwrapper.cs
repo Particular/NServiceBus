@@ -28,7 +28,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
                 metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, null, true);
 
-                if (headers is not null && bufferWriter.WrittenCount > 0)
+                if (headers is not null)
                 {
                     if (Log.IsDebugEnabled)
                     {
