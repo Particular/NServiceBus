@@ -41,9 +41,9 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public void MaybeCompleted() => MarkAsCompleted(Interlocked.Increment(ref TotalHandledMessages) == NumberOfMessages);
+        public void MaybeCompleted() => MarkAsCompleted(Interlocked.Increment(ref totalHandledMessages) == NumberOfMessages);
 
-        int TotalHandledMessages;
+        int totalHandledMessages;
     }
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
