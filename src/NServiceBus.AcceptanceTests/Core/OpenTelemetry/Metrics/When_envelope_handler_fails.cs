@@ -44,7 +44,7 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
 
     class ThrowingHandler : IEnvelopeHandler
     {
-        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        public Dictionary<string, string> UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ReadOnlySpan<byte> incomingBody, ContextBag extensions, IBufferWriter<byte> bodyWriter)
             => throw new InvalidOperationException("Some exception");
     }
 

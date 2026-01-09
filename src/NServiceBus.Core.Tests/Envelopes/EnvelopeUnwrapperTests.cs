@@ -136,7 +136,7 @@ public class EnvelopeUnwrapperTests
 
     class ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn) : IEnvelopeHandler
     {
-        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        public Dictionary<string, string> UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ReadOnlySpan<byte> incomingBody, ContextBag extensions, IBufferWriter<byte> bodyWriter)
         {
             bodyWriter.Write(bodyToReturn.Span);
             return headersToReturn;
@@ -145,17 +145,17 @@ public class EnvelopeUnwrapperTests
 
     class NullReturningHandler : IEnvelopeHandler
     {
-        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody) => null;
+        public Dictionary<string, string> UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ReadOnlySpan<byte> incomingBody, ContextBag extensions, IBufferWriter<byte> bodyWriter) => null;
     }
 
     class ThrowingHandler : IEnvelopeHandler
     {
-        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody) => throw new InvalidOperationException("Some exception");
+        public Dictionary<string, string> UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ReadOnlySpan<byte> incomingBody, ContextBag extensions, IBufferWriter<byte> bodyWriter) => throw new InvalidOperationException("Some exception");
     }
 
     class ModifiedBodyWriterResetHandler : IEnvelopeHandler
     {
-        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        public Dictionary<string, string> UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders, ReadOnlySpan<byte> incomingBody, ContextBag extensions, IBufferWriter<byte> bodyWriter)
         {
             bodyWriter.Write("modifiedPayload"u8);
             return null;

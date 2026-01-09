@@ -26,9 +26,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                         "Unwrapping the current message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                 }
 
-                var headers = envelopeHandler.UnwrapEnvelope(bufferWriter,
-                    messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
-                    messageContext.Body.Span);
+                var headers = envelopeHandler.UnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers,
+                    messageContext.Body.Span, messageContext.Extensions, bufferWriter);
 
                 metrics.EnvelopeUnwrappingSucceeded(messageContext, envelopeHandler);
 
