@@ -32,7 +32,9 @@ class MainPipelineExecutor(
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            var message = envelopeUnwrapper.UnwrapEnvelope(messageContext);
+            using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
+            IncomingMessage message = incomingMessageHandle;
+
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
                 messageOperations,
