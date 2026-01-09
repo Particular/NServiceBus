@@ -12,14 +12,11 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
     internal IncomingMessageHandle UnwrapEnvelope(MessageContext messageContext)
     {
-        ArrayPoolBufferWriter<byte>? bufferWriter = null;
-
+        var bufferWriter = new LazyArrayPoolBufferWriter<byte>(messageContext.Body.Length);
         foreach (var envelopeHandler in envelopeHandlers)
         {
             try
             {
-                bufferWriter ??= new ArrayPoolBufferWriter<byte>();
-
                 if (Log.IsDebugEnabled)
                 {
                     Log.DebugFormat(
@@ -76,14 +73,14 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
             }
         }
 
-        return new IncomingMessageHandle(GetDefaultIncomingMessage(messageContext));
+        return new IncomingMessageHandle(GetDefaultIncomingMessage(messageContext), bufferWriter);
     }
 
-    internal readonly struct IncomingMessageHandle(IncomingMessage message, IDisposable? disposable = null) : IDisposable
+    internal readonly struct IncomingMessageHandle(IncomingMessage message, IDisposable disposable) : IDisposable
     {
         public IncomingMessage Message { get; } = message;
 
-        public void Dispose() => disposable?.Dispose();
+        public void Dispose() => disposable.Dispose();
 
         public static implicit operator IncomingMessage(IncomingMessageHandle handle) => handle.Message;
     }
