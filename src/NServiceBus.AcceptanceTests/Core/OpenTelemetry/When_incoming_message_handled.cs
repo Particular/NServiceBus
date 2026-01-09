@@ -64,7 +64,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
         metricsListener.AssertMetric(CriticalTimeMetricName, 0);
     }
 
-    static Task WhenMessagesHandled(Func<IMessage> messageFactory) =>
+    static Task<Context> WhenMessagesHandled(Func<IMessage> messageFactory) =>
         Scenario.Define<Context>()
             .WithEndpoint<EndpointWithMetrics>(b =>
                 b.DoNotFailOnErrorMessages()
