@@ -11,6 +11,8 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 [NonParallelizable]
 public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 {
+    const int NumberOfMessages = 5;
+
     [Test]
     public async Task Should_record_handling_time()
     {
@@ -18,14 +20,13 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 
         _ = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithMetrics>(b =>
-                b.When(async (session, _) =>
+                b.When(async session =>
                 {
-                    for (var x = 0; x < 5; x++)
+                    for (var x = 0; x < NumberOfMessages; x++)
                     {
                         await session.SendLocal(new MyMessage());
                     }
                 }))
-            .Done(c => c.TotalHandledMessages == 5)
             .Run();
 
         string handlingTime = "nservicebus.messaging.handler_time";
@@ -40,7 +41,9 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public int TotalHandledMessages;
+        public void MaybeCompleted() => MarkAsCompleted(Interlocked.Increment(ref TotalHandledMessages) == NumberOfMessages);
+
+        int TotalHandledMessages;
     }
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
@@ -52,7 +55,7 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            Interlocked.Increment(ref testContext.TotalHandledMessages);
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
     }
