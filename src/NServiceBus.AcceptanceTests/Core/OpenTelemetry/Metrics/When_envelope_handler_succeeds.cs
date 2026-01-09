@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,9 +44,11 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
 
     class SuccessfulCloudEventHandler : IEnvelopeHandler
     {
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
-            (incomingHeaders.ToDictionary(), incomingBody);
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        {
+            bodyWriter.Write(incomingBody);
+            return incomingHeaders.ToDictionary();
+        }
     }
 
     class TestEnvelopeFeature : Feature

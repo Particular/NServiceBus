@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,9 +44,8 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
 
     class ThrowingHandler : IEnvelopeHandler
     {
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
-            throw new InvalidOperationException("Some exception");
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+            => throw new InvalidOperationException("Some exception");
     }
 
     class TestEnvelopeFeature : Feature

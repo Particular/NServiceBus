@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Envelopes;
 
 using OpenTelemetry;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using Extensibility;
@@ -27,7 +28,7 @@ public class EnvelopeUnwrapperTests
         {
             ["HeaderA"] = "ValueA"
         };
-        originalBody = Encoding.UTF8.GetBytes("payload").AsMemory();
+        originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
         incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, "queue", "disc");
@@ -85,13 +86,13 @@ public class EnvelopeUnwrapperTests
         {
             ["HeaderB"] = "ValueB"
         };
-        var firstBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes("firstPayload"));
+        var firstBody = new ReadOnlyMemory<byte>("firstPayload"u8.ToArray());
 
         var secondHeaders = new Dictionary<string, string>
         {
             ["HeaderC"] = "ValueC"
         };
-        var secondBody = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes("secondPayload"));
+        var secondBody = new ReadOnlyMemory<byte>("secondPayload"u8.ToArray());
         envelopeHandlers = [
             new NullReturningHandler(),
             new ThrowingHandler(),
@@ -105,29 +106,59 @@ public class EnvelopeUnwrapperTests
 
         Assert.That(result.NativeMessageId, Is.EqualTo(nativeId));
         Assert.That(result.Headers, Is.EqualTo(firstHeaders));
-        Assert.That(result.Body, Is.EqualTo(firstBody));
+        Assert.That(result.Body.Span.SequenceEqual(firstBody.Span), Is.True);
     }
 
-    IncomingMessage RunTest() => new EnvelopeUnwrapper(envelopeHandlers.ToArray(), incomingPipelineMetrics).UnwrapEnvelope(messageContext);
+    [Test]
+    public void ModifiedBodyWriterIsReset()
+    {
+        var firstHeaders = new Dictionary<string, string>
+        {
+            ["HeaderB"] = "ValueB"
+        };
+        var firstBody = new ReadOnlyMemory<byte>("firstPayload"u8.ToArray());
+
+        envelopeHandlers = [
+            new NullReturningHandler(),
+            new ThrowingHandler(),
+            new ModifiedBodyWriterResetHandler(),
+            new ReturningHandler(firstHeaders, firstBody),
+        ];
+
+        IncomingMessage result = RunTest();
+
+        Assert.That(result.NativeMessageId, Is.EqualTo(nativeId));
+        Assert.That(result.Headers, Is.EquivalentTo(firstHeaders));
+        Assert.That(result.Body.Span.SequenceEqual(firstBody.Span), Is.True);
+    }
+
+    EnvelopeUnwrapper.IncomingMessageHandle RunTest() => new EnvelopeUnwrapper([.. envelopeHandlers], incomingPipelineMetrics).UnwrapEnvelope(messageContext);
 
     class ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn) : IEnvelopeHandler
     {
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
-            (headersToReturn, bodyToReturn);
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        {
+            bodyWriter.Write(bodyToReturn.Span);
+            return headersToReturn;
+        }
     }
 
     class NullReturningHandler : IEnvelopeHandler
     {
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
-            null;
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody) => null;
     }
 
     class ThrowingHandler : IEnvelopeHandler
     {
-        public (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? UnwrapEnvelope(string nativeMessageId, IDictionary<string, string> incomingHeaders,
-            ContextBag extensions, ReadOnlyMemory<byte> incomingBody) =>
-            throw new InvalidOperationException("Some exception");
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody) => throw new InvalidOperationException("Some exception");
+    }
+
+    class ModifiedBodyWriterResetHandler : IEnvelopeHandler
+    {
+        public Dictionary<string, string> UnwrapEnvelope(IBufferWriter<byte> bodyWriter, string nativeMessageId, IDictionary<string, string> incomingHeaders, ContextBag extensions, ReadOnlySpan<byte> incomingBody)
+        {
+            bodyWriter.Write("modifiedPayload"u8);
+            return null;
+        }
     }
 }

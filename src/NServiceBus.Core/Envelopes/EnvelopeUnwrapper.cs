@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using Logging;
 using Transport;
 
@@ -11,25 +10,29 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-    internal IncomingMessage UnwrapEnvelope(MessageContext messageContext)
+    internal IncomingMessageHandle UnwrapEnvelope(MessageContext messageContext)
     {
+        ArrayPoolBufferWriter<byte>? bufferWriter = null;
+
         foreach (var envelopeHandler in envelopeHandlers)
         {
             try
             {
+                bufferWriter ??= new ArrayPoolBufferWriter<byte>();
+
                 if (Log.IsDebugEnabled)
                 {
                     Log.Debug(
                         $"Unwrapping the current message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
                 }
 
-                (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? unwrappingResult = envelopeHandler.UnwrapEnvelope(
+                var headers = envelopeHandler.UnwrapEnvelope(bufferWriter,
                     messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
-                    messageContext.Body);
+                    messageContext.Body.Span);
 
                 metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, null, true);
 
-                if (unwrappingResult.HasValue)
+                if (headers is not null && bufferWriter.WrittenCount > 0)
                 {
                     if (Log.IsDebugEnabled)
                     {
@@ -37,8 +40,11 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                             $"Unwrapped the message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
                     }
 
-                    return new IncomingMessage(messageContext.NativeMessageId, unwrappingResult.Value.headers, unwrappingResult.Value.body);
+                    return new IncomingMessageHandle(new IncomingMessage(messageContext.NativeMessageId, headers, bufferWriter.WrittenMemory), bufferWriter);
                 }
+
+                // No-op when nothing written
+                bufferWriter.Clear();
 
                 if (Log.IsDebugEnabled)
                 {
@@ -60,19 +66,19 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
         if (Log.IsDebugEnabled)
         {
-            if (envelopeHandlers.Length > 0)
-            {
-                Log.Debug(
-                    $"No envelope handler unwrapped the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
-            }
-            else
-            {
-                Log.Debug(
-                    $"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
-            }
+            Log.Debug(envelopeHandlers.Length > 0 ? $"No envelope handler unwrapped the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format" : $"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
         }
 
-        return GetDefaultIncomingMessage(messageContext);
+        return new IncomingMessageHandle(GetDefaultIncomingMessage(messageContext));
+    }
+
+    internal readonly struct IncomingMessageHandle(IncomingMessage message, IDisposable? disposable = null) : IDisposable
+    {
+        public IncomingMessage Message { get; } = message;
+
+        public void Dispose() => disposable?.Dispose();
+
+        public static implicit operator IncomingMessage(IncomingMessageHandle handle) => handle.Message;
     }
 
     static readonly ILog Log = LogManager.GetLogger<EnvelopeUnwrapper>();
