@@ -20,7 +20,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
-    const string EnvelopeUnwrappingError = "nservicebus.envelope.unwrapping_error";
+    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -43,8 +43,8 @@ class IncomingPipelineMetrics
             description: "Total number of delayed retries requested.");
         totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
             description: "Total number of messages sent to the error queue.");
-        totalEnvelopeUnwrappingErrors = meter.CreateCounter<long>(EnvelopeUnwrappingError,
-            description: "Total number of messages unwrapped unsuccessfully by the endpoint.");
+        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+            description: "Total number of unwrapping attempts by the endpoint.");
 
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
@@ -243,9 +243,11 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public void RecordEnvelopeUnwrappingError(MessageContext messageContext, IEnvelopeHandler type, Exception? exception, bool succeeded)
+    public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
+    public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
+    void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
     {
-        if (!totalEnvelopeUnwrappingErrors.Enabled)
+        if (!totalEnvelopeUnwrapping.Enabled)
         {
             return;
         }
@@ -261,7 +263,7 @@ class IncomingPipelineMetrics
             meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, exception.GetType().FullName));
         }
 
-        totalEnvelopeUnwrappingErrors.Add(succeeded ? 0 : 1, meterTags);
+        totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, meterTags);
     }
 
     readonly Counter<long> totalProcessedSuccessfully;
@@ -273,7 +275,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalImmediateRetries;
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;
-    readonly Counter<long> totalEnvelopeUnwrappingErrors;
+    readonly Counter<long> totalEnvelopeUnwrapping;
     string queueNameBase;
     string endpointDiscriminator;
 }

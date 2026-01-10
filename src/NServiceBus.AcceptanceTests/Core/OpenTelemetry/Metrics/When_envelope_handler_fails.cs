@@ -29,9 +29,9 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
                 .When(session => session.SendLocal(new OutgoingMessage())))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.envelope.unwrapping_error", 1);
+        metricsListener.AssertMetric("nservicebus.envelope.unwrapped", 1);
 
-        metricsListener.AssertTags("nservicebus.envelope.unwrapping_error",
+        metricsListener.AssertTags("nservicebus.envelope.unwrapped",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
