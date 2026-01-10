@@ -2,14 +2,13 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.Core.OpenTelemetry;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NServiceBus.Extensibility;
-using NServiceBus.Features;
+using AcceptanceTesting;
+using OpenTelemetry;
+using EndpointTemplates;
+using Extensibility;
+using Features;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
@@ -29,9 +28,9 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
                 .When(session => session.SendLocal(new OutgoingMessage())))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.envelope.unwrapping_error", 1);
+        metricsListener.AssertMetric("nservicebus.envelope.unwrapped", 1);
 
-        metricsListener.AssertTags("nservicebus.envelope.unwrapping_error",
+        metricsListener.AssertTags("nservicebus.envelope.unwrapped",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
