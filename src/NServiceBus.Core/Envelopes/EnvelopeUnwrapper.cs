@@ -27,7 +27,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                     messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
                     messageContext.Body);
 
-                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, null, true);
+                metrics.RecordEnvelopeUnwrapping(messageContext, envelopeHandler, true, null);
 
                 if (unwrappingResult.HasValue)
                 {
@@ -48,7 +48,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
             }
             catch (Exception e)
             {
-                metrics.RecordEnvelopeUnwrappingError(messageContext, envelopeHandler, e, false);
+                metrics.RecordEnvelopeUnwrapping(messageContext, envelopeHandler, false, e);
                 if (Log.IsWarnEnabled)
                 {
                     Log.Warn(
