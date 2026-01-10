@@ -30,9 +30,9 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
             .Run();
 
         // The metric should be explicitly emitted with a value of 0 to indicate no errors occurred
-        Assert.That(metricsListener.ReportedMeters["nservicebus.envelope.unwrapping_error"], Is.EqualTo(0));
+        Assert.That(metricsListener.ReportedMeters["nservicebus.envelope.unwrapped"], Is.EqualTo(0));
 
-        metricsListener.AssertTags("nservicebus.envelope.unwrapping_error",
+        metricsListener.AssertTags("nservicebus.envelope.unwrapped",
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
