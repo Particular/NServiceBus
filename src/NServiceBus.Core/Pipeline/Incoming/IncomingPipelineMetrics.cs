@@ -20,7 +20,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
-    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapping";
+    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -243,7 +243,7 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
+    public void EnvelopeUnwrapped(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
     {
         if (!totalEnvelopeUnwrapping.Enabled)
         {
