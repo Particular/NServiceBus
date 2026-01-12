@@ -19,8 +19,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
             {
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(
-                        $"Unwrapping the current message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
+                    Log.DebugFormat(
+                        "Unwrapping the current message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                 }
 
                 (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? unwrappingResult = envelopeHandler.UnwrapEnvelope(
@@ -33,8 +33,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                 {
                     if (Log.IsDebugEnabled)
                     {
-                        Log.Debug(
-                            $"Unwrapped the message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
+                        Log.DebugFormat(
+                            "Unwrapped the message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                     }
 
                     return new IncomingMessage(messageContext.NativeMessageId, unwrappingResult.Value.headers, unwrappingResult.Value.body);
@@ -42,8 +42,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(
-                        $"Did not unwrap the message (NativeID: {messageContext.NativeMessageId} using {envelopeHandler.GetType().Name}");
+                    Log.DebugFormat(
+                        "Did not unwrap the message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                 }
             }
             catch (Exception e)
@@ -51,9 +51,8 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                 metrics.EnvelopeUnwrappingFailed(messageContext, envelopeHandler, e);
                 if (Log.IsWarnEnabled)
                 {
-                    Log.Warn(
-                        $"Unwrapper {envelopeHandler} failed to unwrap the message {messageContext.NativeMessageId}",
-                        e);
+                    Log.WarnFormat(
+                        "Unwrapper {0} failed to unwrap the message {1}: {2}", envelopeHandler, messageContext.NativeMessageId, e);
                 }
             }
         }
@@ -62,13 +61,13 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
         {
             if (envelopeHandlers.Length > 0)
             {
-                Log.Debug(
-                    $"No envelope handler unwrapped the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+                Log.DebugFormat(
+                    "No envelope handler unwrapped the current message (NativeID: {0}, assuming the default NServiceBus format", messageContext.NativeMessageId);
             }
             else
             {
-                Log.Debug(
-                    $"No envelope handler found for the current message (NativeID: {messageContext.NativeMessageId}, assuming the default NServiceBus format");
+                Log.DebugFormat(
+                    "No envelope handler found for the current message (NativeID: {0}, assuming the default NServiceBus format", messageContext.NativeMessageId);
             }
         }
 
