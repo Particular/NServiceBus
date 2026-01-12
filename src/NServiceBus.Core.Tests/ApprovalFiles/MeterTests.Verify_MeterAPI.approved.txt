@@ -13,7 +13,7 @@
     "nservicebus.queue"
   ],
   "Metrics": [
-    "nservicebus.envelope.unwrapping_error => Counter",
+    "nservicebus.envelope.unwrapped => Counter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
