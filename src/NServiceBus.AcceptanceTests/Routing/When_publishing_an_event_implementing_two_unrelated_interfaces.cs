@@ -14,9 +14,9 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
     [Test, CancelAfter(20_000)]
     public async Task Event_should_be_published_using_instance_type(CancellationToken cancellationToken = default)
     {
-        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+        var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
             .WithEndpoint<Publisher>(b =>
-                b.When(c => c.EventASubscribed && c.EventBSubscribed, (session, ctx) =>
+                b.When(c => c is { EventASubscribed: true, EventBSubscribed: true }, (session, ctx) =>
                 {
                     var message = new CompositeEvent
                     {
@@ -35,7 +35,6 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     ctx.EventBSubscribed = true;
                 }
             }))
-            .Done(c => c.GotEventA && c.GotEventB)
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -52,12 +51,13 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
         public bool EventBSubscribed { get; set; }
         public bool GotEventA { get; set; }
         public bool GotEventB { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(GotEventA, GotEventB);
     }
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(b =>
             {
                 b.OnEndpointSubscribed<Context>((s, context) =>
@@ -75,13 +75,11 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     }
                 });
             }, metadata => metadata.RegisterSelfAsPublisherFor<CompositeEvent>(this));
-        }
     }
 
     public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
@@ -91,15 +89,9 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     metadata.RegisterPublisherFor<IEventA, Publisher>();
                     metadata.RegisterPublisherFor<IEventB, Publisher>();
                 });
-        }
 
-        public class EventAHandler : IHandleMessages<IEventA>
+        public class EventAHandler(Context testContext) : IHandleMessages<IEventA>
         {
-            public EventAHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IEventA @event, IMessageHandlerContext context)
             {
                 if (@event.ContextId != testContext.Id)
@@ -107,20 +99,14 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     return Task.CompletedTask;
                 }
                 testContext.GotEventA = true;
+                testContext.MaybeCompleted();
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        public class EventBHandler : IHandleMessages<IEventB>
+        public class EventBHandler(Context testContext) : IHandleMessages<IEventB>
         {
-            public EventBHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IEventB @event, IMessageHandlerContext context)
             {
                 if (@event.ContextId != testContext.Id)
@@ -129,11 +115,10 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                 }
 
                 testContext.GotEventB = true;
+                testContext.MaybeCompleted();
 
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
@@ -147,12 +132,10 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
     public interface IEventA : IEvent
     {
         Guid ContextId { get; set; }
-        string StringProperty { get; set; }
     }
 
     public interface IEventB : IEvent
     {
         Guid ContextId { get; set; }
-        int IntProperty { get; set; }
     }
 }

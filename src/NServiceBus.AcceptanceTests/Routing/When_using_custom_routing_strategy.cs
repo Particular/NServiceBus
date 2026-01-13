@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +29,6 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
             )
             .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator1)))
             .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator2)))
-            .Done(c => c.MessageDeliveredReceiver1 >= 3 && c.MessageDeliveredReceiver2 >= 1)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -40,13 +38,15 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
         }
     }
 
-    static string Discriminator1 = "553E9649";
-    static string Discriminator2 = "F9D0022C";
+    const string Discriminator1 = "553E9649";
+    const string Discriminator2 = "F9D0022C";
 
     public class Context : ScenarioContext
     {
         public int MessageDeliveredReceiver1;
         public int MessageDeliveredReceiver2;
+
+        public void MaybeCompleted() => MarkAsCompleted(MessageDeliveredReceiver1 >= 3, MessageDeliveredReceiver2 >= 1);
     }
 
     public class Sender : EndpointConfigurationBuilder
@@ -73,12 +73,8 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
             });
         }
 
-        class ContentBasedRoutingStrategy : DistributionStrategy
+        class ContentBasedRoutingStrategy(string endpoint) : DistributionStrategy(endpoint, DistributionStrategyScope.Send)
         {
-            public ContentBasedRoutingStrategy(string endpoint) : base(endpoint, DistributionStrategyScope.Send)
-            {
-            }
-
             public override string SelectDestination(DistributionContext context)
             {
                 if (context.Message.Instance is MyCommand message)
@@ -93,19 +89,10 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Receiver() => EndpointSetup<DefaultServer>();
 
-        public class MyCommandHandler : IHandleMessages<MyCommand>
+        public class MyCommandHandler(Context testContext, IReadOnlySettings settings) : IHandleMessages<MyCommand>
         {
-            public MyCommandHandler(Context testContext, IReadOnlySettings settings)
-            {
-                this.testContext = testContext;
-                this.settings = settings;
-            }
-
             public Task Handle(MyCommand message, IMessageHandlerContext context)
             {
                 var instanceDiscriminator = settings.Get<string>("EndpointInstanceDiscriminator");
@@ -119,11 +106,9 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
                     Interlocked.Increment(ref testContext.MessageDeliveredReceiver2);
                 }
 
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
-            IReadOnlySettings settings;
         }
     }
 

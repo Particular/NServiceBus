@@ -19,7 +19,6 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Receiver>()
             .WithEndpoint<Sender>(b => b.When(s => s.Send(new MyRequest())))
-            .Done(c => c.ReplyToAddress != null)
             .Run();
 
         Assert.That(context.ReplyToAddress, Does.Not.Contain("XZY"));
@@ -32,8 +31,7 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
 
     public class Sender : EndpointConfigurationBuilder
     {
-        public Sender()
-        {
+        public Sender() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
@@ -43,46 +41,29 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
                         new EndpointInstance(ReceiverEndpoint, "XYZ")
                     ]);
             });
-        }
 
-        public class MyResponseHandler : IHandleMessages<MyResponse>
+        public class MyResponseHandler(Context testContext) : IHandleMessages<MyResponse>
         {
-            public MyResponseHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyResponse message, IMessageHandlerContext context)
             {
                 testContext.ReplyToAddress = context.MessageHeaders[Headers.ReplyToAddress];
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable("XYZ"); });
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable("XYZ"); });
 
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
-            public Task Handle(MyRequest message, IMessageHandlerContext context)
-            {
-                return context.Reply(new MyResponse());
-            }
+            public Task Handle(MyRequest message, IMessageHandlerContext context) => context.Reply(new MyResponse());
         }
     }
 
-    public class MyRequest : IMessage
-    {
-    }
+    public class MyRequest : IMessage;
 
-    public class MyResponse : IMessage
-    {
-    }
+    public class MyResponse : IMessage;
 }

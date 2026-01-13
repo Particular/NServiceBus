@@ -24,7 +24,6 @@ public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
                 await session.Subscribe<IBaseEvent>();
                 c.SubscriberSubscribed = true;
             }))
-            .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -39,35 +38,28 @@ public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
         public bool SubscriberGotBaseEvent { get; set; }
         public bool SubscriberGotSpecificEvent { get; set; }
         public bool SubscriberSubscribed { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(SubscriberGotBaseEvent, SubscriberGotSpecificEvent);
     }
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultPublisher>(_ => { }, metadata =>
             {
                 metadata.RegisterSelfAsPublisherFor<SpecificEvent>(this);
                 metadata.RegisterSelfAsPublisherFor<IBaseEvent>(this);
             });
-        }
     }
 
     public class GeneralSubscriber : EndpointConfigurationBuilder
     {
-        public GeneralSubscriber()
-        {
+        public GeneralSubscriber() =>
             EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
                 metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
-        }
 
-        public class MyHandler : IHandleMessages<IBaseEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<IBaseEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 if (messageThatIsEnlisted is SpecificEvent)
@@ -78,18 +70,13 @@ public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
                 {
                     testContext.SubscriberGotBaseEvent = true;
                 }
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SpecificEvent : IBaseEvent
-    {
-    }
+    public class SpecificEvent : IBaseEvent;
 
-    public interface IBaseEvent : IEvent
-    {
-    }
+    public interface IBaseEvent : IEvent;
 }

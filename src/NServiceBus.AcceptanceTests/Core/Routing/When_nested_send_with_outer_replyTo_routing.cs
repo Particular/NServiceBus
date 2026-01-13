@@ -25,7 +25,6 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
                     return s.Send(new OuterMessage(), sendOptions);
                 }))
             .WithEndpoint<ReplyEndpoint>()
-            .Done(c => c.OuterMessageReceived && c.InnerMessageReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -41,6 +40,8 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
         public bool InnerMessageReceived { get; set; }
         public string OuterMessageReplyAddress { get; set; }
         public string InnerMessageReplyAddress { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(OuterMessageReceived, InnerMessageReceived);
     }
 
     class SenderEndpoint : EndpointConfigurationBuilder
@@ -69,16 +70,13 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
     {
         public ReplyEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler : IHandleMessages<OuterMessage>, IHandleMessages<InnerMessage>
+        class MessageHandler(Context testContext) : IHandleMessages<OuterMessage>, IHandleMessages<InnerMessage>
         {
-            Context testContext;
-
-            public MessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(OuterMessage message, IMessageHandlerContext context)
             {
                 testContext.OuterMessageReceived = true;
                 testContext.OuterMessageReplyAddress = context.ReplyToAddress;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -86,16 +84,13 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
             {
                 testContext.InnerMessageReceived = true;
                 testContext.InnerMessageReplyAddress = context.ReplyToAddress;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class OuterMessage : IMessage
-    {
-    }
+    public class OuterMessage : IMessage;
 
-    public class InnerMessage : IMessage
-    {
-    }
+    public class InnerMessage : IMessage;
 }

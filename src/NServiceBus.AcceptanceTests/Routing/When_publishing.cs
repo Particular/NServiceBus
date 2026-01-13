@@ -73,7 +73,6 @@ public class When_publishing : NServiceBusAcceptanceTest
                     ctx.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -93,6 +92,8 @@ public class When_publishing : NServiceBusAcceptanceTest
         public bool Subscriber2Subscribed { get; set; }
         public bool Subscriber3Subscribed { get; set; }
         public string HeaderValue { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(Subscriber1GotTheEvent, Subscriber2GotTheEvent);
     }
 
     public class Publisher : EndpointConfigurationBuilder
@@ -163,6 +164,7 @@ public class When_publishing : NServiceBusAcceptanceTest
             {
                 testContext.HeaderValue = context.MessageHeaders["MyHeader"];
                 testContext.Subscriber1GotTheEvent = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -170,35 +172,22 @@ public class When_publishing : NServiceBusAcceptanceTest
 
     public class Subscriber2 : EndpointConfigurationBuilder
     {
-        public Subscriber2()
-        {
+        public Subscriber2() =>
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
-        }
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber2GotTheEvent = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public interface IFoo : IEvent
-    {
-    }
+    public interface IFoo : IEvent;
 
-
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }
