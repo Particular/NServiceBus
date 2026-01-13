@@ -22,7 +22,6 @@ public class ImmediateRetryMessage
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
         ArgumentNullException.ThrowIfNull(headers);
-        ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(exception);
 
         MessageId = messageId;

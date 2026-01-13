@@ -21,7 +21,6 @@ public partial class MessageContext : IExtendable
     public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, string receiveAddress, ContextBag context)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nativeMessageId);
-        ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(headers);
         ArgumentNullException.ThrowIfNull(transportTransaction);
         ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);

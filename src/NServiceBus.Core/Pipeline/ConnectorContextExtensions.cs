@@ -198,7 +198,6 @@ public static class ConnectorContextExtensions
     /// </summary>
     public static IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext> stageConnector, ReadOnlyMemory<byte> messageBody, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext sourceContext)
     {
-        ArgumentNullException.ThrowIfNull(messageBody);
         ArgumentNullException.ThrowIfNull(routingStrategies);
         ArgumentNullException.ThrowIfNull(sourceContext);
 

@@ -17,7 +17,6 @@ public class IncomingMessage
     public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nativeMessageId);
-        ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(headers);
 
         if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
