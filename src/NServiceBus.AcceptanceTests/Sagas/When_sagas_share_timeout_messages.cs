@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -9,8 +8,8 @@ using NUnit.Framework;
 
 public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
 {
-    [Test, CancelAfter(30_000)]
-    public async Task Should_invoke_instance_that_requested_the_timeout(CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_invoke_instance_that_requested_the_timeout()
     {
         Requires.DelayedDelivery();
 
@@ -19,8 +18,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
             {
                 Id = Guid.NewGuid().ToString()
             })))
-            .Done(c => c.Saga1ReceivedTimeout || c.Saga2ReceivedTimeout)
-            .Run(cancellationToken);
+            .Run();
 
         using (Assert.EnterMultipleScope())
         {
@@ -52,6 +50,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
             public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
             {
                 testContext.Saga1ReceivedTimeout = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
@@ -68,11 +67,12 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
                 mapper.MapSaga(s => s.CorrelationProperty)
                     .ToMessage<StartSagaMessage>(m => m.Id);
 
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => RequestTimeout<MySagaTimeout>(context, TimeSpan.FromSeconds(10));
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => RequestTimeout<MySagaTimeout>(context, TimeSpan.FromMilliseconds(1));
 
             public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
             {
                 testContext.Saga2ReceivedTimeout = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
             public class TimeoutSharingSagaData2 : ContainSagaData
