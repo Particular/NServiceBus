@@ -30,7 +30,6 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
                     await s.Subscribe<AllowedEvent>();
                 }))
             .WithEndpoint<PublisherWithAuthorizer>()
-            .Done(c => c.ReceivedAllowedEventSubscriptionMessage && c.ReceivedForbiddenEventSubscriptionMessage)
             .Run();
 
         Assert.That(context.SubscriptionStorage.SubscribedEvents, Has.Count.EqualTo(1));
@@ -42,6 +41,8 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
         public bool ReceivedAllowedEventSubscriptionMessage { get; set; }
         public bool ReceivedForbiddenEventSubscriptionMessage { get; set; }
         public FakePersistence.FakeSubscriptionStorage SubscriptionStorage { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ReceivedAllowedEventSubscriptionMessage, ReceivedForbiddenEventSubscriptionMessage);
     }
 
     class Subscriber : EndpointConfigurationBuilder
@@ -86,6 +87,7 @@ public class When_configuring_subscription_authorizer : NServiceBusAcceptanceTes
                     {
                         ctx.ReceivedForbiddenEventSubscriptionMessage = true;
                     }
+                    ctx.MaybeCompleted();
                 });
 
                 var routingSettings =
