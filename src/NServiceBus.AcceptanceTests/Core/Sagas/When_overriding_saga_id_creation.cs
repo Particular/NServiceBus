@@ -21,7 +21,6 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
                 {
                     CustomerId = "42",
                 })))
-            .Done(c => c.SagaId.HasValue)
             .Run();
 
         Assert.That(context.SagaId, Is.EqualTo(new Guid("1d99288a-418d-9e4d-46e4-d49a27908fc8")));
@@ -62,7 +61,7 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
             {
                 Data.CustomerId = message.CustomerId;
                 testContext.SagaId = Data.Id;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Support;
@@ -19,7 +18,6 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
         using (Assert.EnterMultipleScope())

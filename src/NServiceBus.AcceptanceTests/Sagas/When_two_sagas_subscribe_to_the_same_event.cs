@@ -24,7 +24,6 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                     DataId = Guid.NewGuid()
                 }))
             )
-            .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
             .Run();
 
         Assert.That(context.DidSaga1EventHandlerGetInvoked && context.DidSaga2EventHandlerGetInvoked, Is.True);
@@ -35,6 +34,8 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
         public bool Subscribed { get; set; }
         public bool DidSaga1EventHandlerGetInvoked { get; set; }
         public bool DidSaga2EventHandlerGetInvoked { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(DidSaga1EventHandlerGetInvoked, DidSaga2EventHandlerGetInvoked);
     }
 
     public class Publisher : EndpointConfigurationBuilder
@@ -77,6 +78,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
             public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
             {
                 testContext.DidSaga1EventHandlerGetInvoked = true;
+                testContext.MaybeCompleted();
 
                 MarkAsComplete();
 
@@ -107,6 +109,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
             public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
             {
                 testContext.DidSaga2EventHandlerGetInvoked = true;
+                testContext.MaybeCompleted();
                 MarkAsComplete();
                 return Task.CompletedTask;
             }

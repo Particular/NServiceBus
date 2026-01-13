@@ -18,7 +18,6 @@ class When_correlating_special_chars : NServiceBusAcceptanceTest
                 {
                     SpecialCharacterValues = propertyValue
                 })))
-            .Done(c => c.RehydratedValueForCorrelatedHandler != null)
             .Run();
 
         Assert.That(context.RehydratedValueForCorrelatedHandler, Is.EqualTo(propertyValue));
@@ -57,6 +56,7 @@ class When_correlating_special_chars : NServiceBusAcceptanceTest
             public Task Handle(FollowupMessageWithSpecialPropertyValues message, IMessageHandlerContext context)
             {
                 testContext.RehydratedValueForCorrelatedHandler = Data.SpecialCharacterValues;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

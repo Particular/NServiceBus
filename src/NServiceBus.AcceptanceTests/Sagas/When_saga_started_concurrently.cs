@@ -27,7 +27,6 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
                     return Task.WhenAll(t1, t2);
                 });
             })
-            .Done(c => c.PlacedSagaId != Guid.Empty && c.BilledSagaId != Guid.Empty)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -44,6 +43,8 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
         public Guid PlacedSagaId { get; set; }
         public Guid BilledSagaId { get; set; }
         public bool SagaCompleted { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(PlacedSagaId != Guid.Empty, BilledSagaId != Guid.Empty);
     }
 
     public class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
@@ -122,6 +123,7 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
                     throw new Exception("Unknown type");
                 }
 
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

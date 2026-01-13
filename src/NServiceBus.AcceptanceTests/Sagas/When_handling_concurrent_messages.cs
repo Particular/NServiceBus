@@ -33,7 +33,6 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
                 });
                 b.When((session, ctx) => session.SendLocal(new StartMsg { OrderId = "12345" }));
             })
-            .Done(c => c.SagaData != null)
             .Run();
 
         Assert.That(context.SagaData, Is.Not.Null);
@@ -88,6 +87,7 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
             {
                 MarkAsComplete();
                 testContext.SagaData = Data;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

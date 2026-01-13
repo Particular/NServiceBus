@@ -27,7 +27,6 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
                             SagaCorrelationId = sagaCorrelationId
                         }))
             )
-            .Done(c => c.CorrelationIdOnReply != null)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -81,6 +80,7 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
             {
                 testContext.Intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.MessageHeaders[Headers.MessageIntent]);
                 testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
