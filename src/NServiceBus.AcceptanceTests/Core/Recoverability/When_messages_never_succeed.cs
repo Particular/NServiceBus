@@ -24,10 +24,7 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                 {
                     for (var x = 0; x < 10; x++)
                     {
-                        await session.SendLocal(new InitiatingMessage
-                        {
-                            Id = ctx.TestRunId
-                        });
+                        await session.SendLocal(new InitiatingMessage());
                     }
                 })
             )
@@ -46,10 +43,7 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                 {
                     for (var x = 0; x < 10; x++)
                     {
-                        await session.SendLocal(new InitiatingMessage
-                        {
-                            Id = ctx.TestRunId
-                        });
+                        await session.SendLocal(new InitiatingMessage());
                     }
                 })
             )
@@ -115,8 +109,5 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
         }
     }
 
-    public class InitiatingMessage : IMessage
-    {
-        public Guid Id { get; set; }
-    }
+    public class InitiatingMessage : IMessage;
 }

@@ -18,10 +18,7 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
                 {
                     for (var x = 0; x < 5; x++)
                     {
-                        await session.SendLocal(new InitiatingMessage
-                        {
-                            Id = ctx.TestRunId
-                        });
+                        await session.SendLocal(new InitiatingMessage());
                     }
                 })
             )
@@ -76,8 +73,5 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
         }
     }
 
-    public class InitiatingMessage : IMessage
-    {
-        public Guid Id { get; set; }
-    }
+    public class InitiatingMessage : IMessage;
 }
