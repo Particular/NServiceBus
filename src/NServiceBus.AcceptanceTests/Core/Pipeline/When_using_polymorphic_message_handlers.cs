@@ -15,7 +15,6 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
             {
                 b.When(session => session.SendLocal(new SomeCommand()));
             })
-            .Done(c => c.SpecificHandlerInvoked && c.CatchAllHandlerInvoked)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -29,49 +28,34 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
     {
         public bool CatchAllHandlerInvoked { get; set; }
         public bool SpecificHandlerInvoked { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(SpecificHandlerInvoked, CatchAllHandlerInvoked);
     }
 
     public class EndpointWithPolymorphicHandlers : EndpointConfigurationBuilder
     {
-        public EndpointWithPolymorphicHandlers()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public EndpointWithPolymorphicHandlers() => EndpointSetup<DefaultServer>();
 
-        class CatchAllHandler : IHandleMessages<ICommand>
+        class CatchAllHandler(Context testContext) : IHandleMessages<ICommand>
         {
-            public CatchAllHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(ICommand message, IMessageHandlerContext context)
             {
                 testContext.CatchAllHandlerInvoked = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
 
-        class SpecificHandler : IHandleMessages<SomeCommand>
+        class SpecificHandler(Context testContext) : IHandleMessages<SomeCommand>
         {
-            public SpecificHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
                 testContext.SpecificHandlerInvoked = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class SomeCommand : ICommand
-    {
-    }
+    public class SomeCommand : ICommand;
 }

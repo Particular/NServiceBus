@@ -20,7 +20,6 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
             .WithEndpoint<PublisherWithTtbr>(e => e
                 .When(s => s.Publish(new OuterEvent())))
             .WithEndpoint<Subscriber>()
-            .Done(c => c.OuterEventReceived && c.InnerEventReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -36,18 +35,18 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
         public bool OuterEventReceived { get; set; }
         public DiscardIfNotReceivedBefore OuterEventTtbr { get; set; }
         public DiscardIfNotReceivedBefore InnerEventTtbr { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(OuterEventReceived, InnerEventReceived);
     }
 
     class PublisherWithTtbr : EndpointConfigurationBuilder
     {
-        public PublisherWithTtbr()
-        {
+        public PublisherWithTtbr() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.Pipeline.Register(new InnerPublishBehavior(), "publishes an additional event when publishing an OuterEvent");
                 c.Pipeline.Register(new TtbrObserver((Context)r.ScenarioContext), "Checks outgoing messages for their TTBR setting");
             });
-        }
 
         // Behavior needs to be in the OutgoingPhysical stage as the TTBR settings are applied in the OutgoingLogical stage
         class InnerPublishBehavior : Behavior<IOutgoingPhysicalMessageContext>
@@ -63,15 +62,8 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
             }
         }
 
-        class TtbrObserver : Behavior<IDispatchContext>
+        class TtbrObserver(Context testContext) : Behavior<IDispatchContext>
         {
-            Context testContext;
-
-            public TtbrObserver(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
                 var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
@@ -92,40 +84,28 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
+        public Subscriber() => EndpointSetup<DefaultServer>();
+
+        class EventHandler(Context testContext) : IHandleMessages<OuterEvent>, IHandleMessages<InnerEvent>
         {
-            EndpointSetup<DefaultServer>();
-        }
-
-        class EventHandler : IHandleMessages<OuterEvent>, IHandleMessages<InnerEvent>
-        {
-            Context testContext;
-
-            public EventHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(OuterEvent message, IMessageHandlerContext context)
             {
                 testContext.OuterEventReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Handle(InnerEvent message, IMessageHandlerContext context)
             {
                 testContext.InnerEventReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
     [TimeToBeReceived("00:30:00")]
-    public class OuterEvent : IEvent
-    {
-    }
+    public class OuterEvent : IEvent;
 
-    public class InnerEvent : IEvent
-    {
-    }
+    public class InnerEvent : IEvent;
 }

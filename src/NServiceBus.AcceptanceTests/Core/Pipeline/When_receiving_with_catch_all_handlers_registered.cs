@@ -16,7 +16,6 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
             {
                 Id = c.Id
             })))
-            .Done(c => c.ObjectHandlerWasCalled && c.DynamicHandlerWasCalled && c.IMessageHandlerWasCalled)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -33,14 +32,13 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
         public bool DynamicHandlerWasCalled { get; set; }
         public bool IMessageHandlerWasCalled { get; set; }
         public Guid Id { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ObjectHandlerWasCalled, DynamicHandlerWasCalled, IMessageHandlerWasCalled);
     }
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public Endpoint() => EndpointSetup<DefaultServer>();
     }
 
     public class MyMessage : IMessage
@@ -48,13 +46,8 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
         public Guid Id { get; set; }
     }
 
-    public class CatchAllHandler_object : IHandleMessages<object>
+    public class CatchAllHandler_object(Context testContext) : IHandleMessages<object>
     {
-        public CatchAllHandler_object(Context context)
-        {
-            testContext = context;
-        }
-
         public Task Handle(object message, IMessageHandlerContext context)
         {
             var myMessage = (MyMessage)message;
@@ -64,19 +57,13 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
             }
 
             testContext.ObjectHandlerWasCalled = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 
-    public class CatchAllHandler_dynamic : IHandleMessages<object>
+    public class CatchAllHandler_dynamic(Context testContext) : IHandleMessages<object>
     {
-        public CatchAllHandler_dynamic(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Handle(dynamic message, IMessageHandlerContext context)
         {
             var myMessage = (MyMessage)message;
@@ -86,20 +73,13 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
             }
 
             testContext.DynamicHandlerWasCalled = true;
-
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 
-    public class CatchAllHandler_IMessage : IHandleMessages<IMessage>
+    public class CatchAllHandler_IMessage(Context testContext) : IHandleMessages<IMessage>
     {
-        public CatchAllHandler_IMessage(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Handle(IMessage message, IMessageHandlerContext context)
         {
             var myMessage = (MyMessage)message;
@@ -109,9 +89,8 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
             }
 
             testContext.IMessageHandlerWasCalled = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
-
-        Context testContext;
     }
 }
