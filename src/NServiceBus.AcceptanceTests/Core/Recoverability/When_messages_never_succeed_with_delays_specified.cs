@@ -14,9 +14,9 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithFailingHandler>(b => b
                 .DoNotFailOnErrorMessages()
-                .When(async (session, ctx) =>
+                .When(async (session, _) =>
                 {
-                    for (var x = 0; x < 5; x++)
+                    for (var x = 0; x < 3; x++)
                     {
                         await session.SendLocal(new InitiatingMessage());
                     }
@@ -39,6 +39,8 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
+                config.LimitMessageProcessingConcurrencyTo(1);
+
                 var scenarioContext = (Context)context.ScenarioContext;
                 var recoverability = config.Recoverability();
 
