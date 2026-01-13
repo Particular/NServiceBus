@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Support;
@@ -26,7 +25,6 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
                         Id = ctx.TestRunId
                     }))
                 )
-                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run();
         });
 
@@ -45,36 +43,25 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.Recoverability().AddUnrecoverableException(typeof(CustomException));
                 config.Recoverability().Immediate(i => i.NumberOfRetries(2));
                 config.Recoverability().Delayed(d => d.NumberOfRetries(2));
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 testContext.HandlerInvoked++;
                 throw new CustomException();
             }
-
-            Context testContext;
         }
     }
 
-    class CustomException : SimulatedException
-    {
-    }
+    class CustomException : SimulatedException;
 
     public class InitiatingMessage : IMessage
     {

@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using MessageMutator;
 using NUnit.Framework;
@@ -11,17 +12,16 @@ using NUnit.Framework;
 public class When_failing_mutated_message : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_preserve_the_original_body()
+    public void Should_preserve_the_original_body()
     {
         Requires.DelayedDelivery();
 
-        var context = await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
-                .When(session => session.SendLocal(new MessageToBeRetried()))
-                .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+                .When(session => session.SendLocal(new MessageToBeRetried())))
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         var errorBody = context.FailedMessages.Single().Value.Single().Body;
 
         Assert.That(errorBody.ToArray(), Is.EqualTo(context.OriginalBody).AsCollection, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
@@ -34,23 +34,17 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
 
     public class RetryEndpoint : EndpointConfigurationBuilder
     {
-        public RetryEndpoint()
-        {
+        public RetryEndpoint() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
-             {
-                 config.RegisterMessageMutator(new BodyMutator(context));
-                 config.Recoverability().Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
-                 config.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
-             });
-        }
-
-        class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages
-        {
-            public BodyMutator(Context testContext)
             {
-                this.testContext = testContext;
-            }
+                config.RegisterMessageMutator(new BodyMutator(context));
+                var recoverability = config.Recoverability();
+                recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                recoverability.Immediate(settings => settings.NumberOfRetries(3));
+            });
 
+        class BodyMutator(Context testContext) : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages
+        {
             public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
             {
                 var originalBody = transportMessage.Body;
@@ -63,24 +57,14 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
-            {
-                return Task.CompletedTask;
-            }
-
-            Context testContext;
+            public Task MutateOutgoing(MutateOutgoingTransportMessageContext context) => Task.CompletedTask;
         }
 
         class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
         {
-            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-            {
-                return Task.CompletedTask;
-            }
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    public class MessageToBeRetried : IMessage
-    {
-    }
+    public class MessageToBeRetried : IMessage;
 }

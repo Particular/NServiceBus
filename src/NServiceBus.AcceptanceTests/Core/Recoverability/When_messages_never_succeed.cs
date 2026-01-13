@@ -10,7 +10,7 @@ using NUnit.Framework;
 public class When_messages_never_succeed : NServiceBusAcceptanceTest
 {
     static int NumberOfConsecutiveFailuresBeforeThrottling = 1;
-    static TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
+    static readonly TimeSpan TimeToWaitBetweenThrottledAttempts = TimeSpan.FromSeconds(0);
 
     [Test]
     public async Task Should_throttle_pipeline_after_configured_number_of_consecutive_failures()
@@ -31,7 +31,6 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                     }
                 })
             )
-            .Done(c => c.ThrottleModeEntered && Context.FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling)
             .Run();
     }
 
@@ -54,24 +53,28 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                     }
                 })
             )
-            .Done(c => Context.FailuresBeforeThrottling == 10 && !c.ThrottleModeEntered)
+            .Done(c => c is { FailuresBeforeThrottling: 10, ThrottleModeEntered: false })
             .Run();
     }
 
     class Context : ScenarioContext
     {
         public bool ThrottleModeEntered { get; set; }
-        public static int failuresBeforeThrottling;
         public DateTime LastProcessedTimeStamp { get; set; }
         public TimeSpan TimeBetweenProcessingAttempts { get; set; }
 
-        public static int FailuresBeforeThrottling => failuresBeforeThrottling;
+        public int FailuresBeforeThrottling => failuresBeforeThrottling;
+
+        public void MaybeCompleted() => MarkAsCompleted(ThrottleModeEntered, FailuresBeforeThrottling >= NumberOfConsecutiveFailuresBeforeThrottling);
+
+        public void IncrementFailuresBeforeThrottling() => Interlocked.Increment(ref failuresBeforeThrottling);
+
+        int failuresBeforeThrottling;
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.LimitMessageProcessingConcurrencyTo(3);
@@ -83,22 +86,18 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                 recoverability.Delayed(d => d.NumberOfRetries(0));
 
                 var rateLimitingSettings = new RateLimitSettings(TimeToWaitBetweenThrottledAttempts, cancellation =>
-                    {
-                        scenarioContext.ThrottleModeEntered = true;
+                {
+                    scenarioContext.ThrottleModeEntered = true;
+                    scenarioContext.MaybeCompleted();
 
-                        return Task.CompletedTask;
-                    });
+                    return Task.CompletedTask;
+                });
 
                 recoverability.OnConsecutiveFailures(NumberOfConsecutiveFailuresBeforeThrottling, rateLimitingSettings);
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context context)
-            {
-                testContext = context;
-            }
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (testContext.ThrottleModeEntered)
@@ -108,11 +107,11 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
 
                 testContext.LastProcessedTimeStamp = DateTime.UtcNow;
 
-                Interlocked.Increment(ref Context.failuresBeforeThrottling);
+                testContext.IncrementFailuresBeforeThrottling();
 
+                testContext.MaybeCompleted();
                 throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
             }
-            Context testContext;
         }
     }
 

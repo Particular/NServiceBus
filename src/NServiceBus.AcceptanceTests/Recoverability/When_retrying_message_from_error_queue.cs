@@ -27,7 +27,6 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
                 }))
             .WithEndpoint<RetryAckSpy>()
             .WithEndpoint<AuditSpy>()
-            .Done(c => c.ConfirmedRetryId != null && c.AuditHeaders != null)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -50,27 +49,20 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
         public string RetryProcessingTimestamp { get; set; }
         public bool MessageProcessed { get; set; }
         public IReadOnlyDictionary<string, string> AuditHeaders { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ConfirmedRetryId != null, AuditHeaders != null);
     }
 
     class ProcessingEndpoint : EndpointConfigurationBuilder
     {
-        public ProcessingEndpoint()
-        {
+        public ProcessingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.AuditProcessedMessagesTo<AuditSpy>();
             });
-        }
 
-        class FailedMessageHandler : IHandleMessages<FailedMessage>
+        class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
         {
-            Context testContext;
-
-            public FailedMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(FailedMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageProcessed = true;
@@ -85,21 +77,15 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
             new ControlMessageBehavior(r.ScenarioContext as Context),
             "Checks for confirmation control message"));
 
-        class ControlMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
+        class ControlMessageBehavior(Context testContext) : Behavior<IIncomingPhysicalMessageContext>
         {
-            Context testContext;
-
-            public ControlMessageBehavior(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
             {
                 await next();
 
                 testContext.ConfirmedRetryId = context.MessageHeaders["ServiceControl.Retry.UniqueMessageId"];
                 testContext.RetryProcessingTimestamp = context.MessageHeaders["ServiceControl.Retry.Successful"];
+                testContext.MaybeCompleted();
             }
         }
     }
@@ -108,24 +94,16 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
     {
         public AuditSpy() => EndpointSetup<DefaultServer>();
 
-        class FailedMessageHandler : IHandleMessages<FailedMessage>
+        class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
         {
-            Context testContext;
-
-            public FailedMessageHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(FailedMessage message, IMessageHandlerContext context)
             {
                 testContext.AuditHeaders = context.MessageHeaders;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public class FailedMessage : IMessage
-    {
-    }
+    public class FailedMessage : IMessage;
 }

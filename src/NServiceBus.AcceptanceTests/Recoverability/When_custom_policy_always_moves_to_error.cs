@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NUnit.Framework;
 
@@ -14,7 +15,7 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
     {
         var messageId = Guid.NewGuid().ToString();
 
-        var context = await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
                 .When(bus =>
                 {
@@ -22,13 +23,15 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
                     sendOptions.RouteToThisEndpoint();
                     sendOptions.SetMessageId(messageId);
                     return bus.Send(new MessageToBeRetried(), sendOptions);
-                })
-                .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+                }))
+            .Run());
 
-        Assert.That(context.Count, Is.EqualTo(1));
-        Assert.That(context.FailedMessages.Single().Value.Single().MessageId, Is.EqualTo(messageId));
+        var context = (Context)exception.ScenarioContext;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.Count, Is.EqualTo(1));
+            Assert.That(exception.FailedMessage.MessageId, Is.EqualTo(messageId));
+        }
     }
 
     class Context : ScenarioContext
@@ -38,33 +41,22 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
 
     public class RetryEndpoint : EndpointConfigurationBuilder
     {
-        public RetryEndpoint()
-        {
+        public RetryEndpoint() =>
             EndpointSetup<DefaultServer>((configure, context) =>
             {
                 configure.Recoverability()
                     .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 testContext.Count++;
                 throw new SimulatedException();
             }
-
-            Context testContext;
         }
     }
 
-    public class MessageToBeRetried : IMessage
-    {
-    }
+    public class MessageToBeRetried : IMessage;
 }

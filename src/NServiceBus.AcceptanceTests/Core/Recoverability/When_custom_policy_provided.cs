@@ -3,23 +3,23 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_custom_policy_provided : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_pass_recoverability_configuration()
+    public void Should_pass_recoverability_configuration()
     {
         Requires.DelayedDelivery();
 
-        var context = await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>
-                b.When(bus => bus.SendLocal(new MessageToBeRetried()))
-                    .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+                b.When(bus => bus.SendLocal(new MessageToBeRetried())))
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Configuration.Immediate.MaxNumberOfRetries, Is.EqualTo(MaxImmediateRetries));
@@ -28,7 +28,7 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
         }
     }
 
-    static TimeSpan DelayedRetryDelayIncrease = TimeSpan.FromMinutes(1);
+    static readonly TimeSpan DelayedRetryDelayIncrease = TimeSpan.FromMinutes(1);
     const int MaxImmediateRetries = 2;
     const int MaxDelayedRetries = 2;
 
@@ -39,8 +39,7 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var testContext = (Context)context.ScenarioContext;
@@ -55,18 +54,12 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
                         return RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue);
                     });
             });
-        }
 
         class Handler : IHandleMessages<MessageToBeRetried>
         {
-            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    public class MessageToBeRetried : IMessage
-    {
-    }
+    public class MessageToBeRetried : IMessage;
 }

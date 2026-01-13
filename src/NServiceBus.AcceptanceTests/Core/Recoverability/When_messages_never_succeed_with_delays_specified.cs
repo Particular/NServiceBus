@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -26,25 +25,23 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
                     }
                 })
             )
-            .Done(c => c.ThrottleModeEntered && c.TimeBetweenProcessingAttempts >= TimeSpan.FromSeconds(2))
             .Run();
     }
 
     class Context : ScenarioContext
     {
         public bool ThrottleModeEntered { get; set; }
-        public static int failuresBeforeThrottling;
         public DateTime LastProcessedTimeStamp { get; set; }
         public TimeSpan TimeBetweenProcessingAttempts { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(ThrottleModeEntered, TimeBetweenProcessingAttempts >= TimeSpan.FromSeconds(2));
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
-                config.LimitMessageProcessingConcurrencyTo(1);
                 var scenarioContext = (Context)context.ScenarioContext;
                 var recoverability = config.Recoverability();
 
@@ -54,20 +51,16 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
                 var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(2), cancellation =>
                 {
                     scenarioContext.ThrottleModeEntered = true;
+                    scenarioContext.MaybeCompleted();
 
                     return Task.CompletedTask;
                 });
 
                 recoverability.OnConsecutiveFailures(1, rateLimitingSettings);
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context context)
-            {
-                testContext = context;
-            }
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (testContext.ThrottleModeEntered)
@@ -77,11 +70,9 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
 
                 testContext.LastProcessedTimeStamp = DateTime.UtcNow;
 
-                Interlocked.Increment(ref Context.failuresBeforeThrottling);
-
+                testContext.MaybeCompleted();
                 throw new SimulatedException("THIS IS A MESSAGE THAT WILL NEVER SUCCEED");
             }
-            Context testContext;
         }
     }
 
