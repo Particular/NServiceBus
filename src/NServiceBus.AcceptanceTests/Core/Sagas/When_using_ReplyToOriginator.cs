@@ -79,7 +79,7 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
         {
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {
-                testContext.Intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.MessageHeaders[Headers.MessageIntent]);
+                testContext.Intent = Enum.Parse<MessageIntent>(context.MessageHeaders[Headers.MessageIntent]);
                 testContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
                 return Task.CompletedTask;
             }

@@ -84,7 +84,7 @@ public class MessageMapper : IMessageMapper
     /// </summary>
     public T CreateInstance<T>(Action<T> action)
     {
-        var result = (T)CreateInstance(typeof(T));
+        var result = CreateInstance<T>();
 
         action(result);
 

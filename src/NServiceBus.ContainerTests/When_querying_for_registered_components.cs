@@ -36,8 +36,8 @@ public class When_querying_for_registered_components
 
     static void InitializeBuilder(IServiceCollection c)
     {
-        c.AddTransient(typeof(ExistingComponent));
-        c.AddTransient(typeof(ExistingComponentWithUnsatisfiedDependency));
+        c.AddTransient<ExistingComponent>();
+        c.AddTransient<ExistingComponentWithUnsatisfiedDependency>();
     }
 
     public class NonExistingComponent

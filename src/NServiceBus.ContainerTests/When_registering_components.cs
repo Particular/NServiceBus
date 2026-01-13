@@ -14,11 +14,11 @@ public class When_registering_components
     public void Multiple_registrations_of_the_same_component_should_be_allowed()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient(typeof(DuplicateClass));
-        serviceCollection.AddTransient(typeof(DuplicateClass));
+        serviceCollection.AddTransient<DuplicateClass>();
+        serviceCollection.AddTransient<DuplicateClass>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
-        Assert.That(serviceProvider.GetServices(typeof(DuplicateClass)).Count(), Is.EqualTo(2));
+        Assert.That(serviceProvider.GetServices<DuplicateClass>().Count(), Is.EqualTo(2));
     }
 
     [Test]
@@ -36,8 +36,8 @@ public class When_registering_components
     public void A_registration_should_be_allowed_to_be_updated()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(typeof(ISingletonComponent), new SingletonComponent());
-        serviceCollection.AddSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
+        serviceCollection.AddSingleton<ISingletonComponent>(new SingletonComponent());
+        serviceCollection.AddSingleton<ISingletonComponent>(new AnotherSingletonComponent());
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetService(typeof(ISingletonComponent)), Is.InstanceOf<AnotherSingletonComponent>());
@@ -48,8 +48,8 @@ public class When_registering_components
     {
         var singleton = new SingletonComponent();
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(typeof(ISingletonComponent), singleton);
-        serviceCollection.AddSingleton(typeof(SingletonComponent), singleton);
+        serviceCollection.AddSingleton<ISingletonComponent>(singleton);
+        serviceCollection.AddSingleton(singleton);
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(singleton, Is.EqualTo(serviceProvider.GetService(typeof(SingletonComponent))));
@@ -61,9 +61,9 @@ public class When_registering_components
     {
         var serviceCollection = new ServiceCollection();
         var singleton = new SingletonThatImplementsToInterfaces();
-        serviceCollection.AddSingleton(typeof(ISingleton1), singleton);
-        serviceCollection.AddSingleton(typeof(ISingleton2), singleton);
-        serviceCollection.AddTransient(typeof(ComponentThatDependsOnMultiSingletons));
+        serviceCollection.AddSingleton<ISingleton1>(singleton);
+        serviceCollection.AddSingleton<ISingleton2>(singleton);
+        serviceCollection.AddTransient<ComponentThatDependsOnMultiSingletons>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
         var dependency = (ComponentThatDependsOnMultiSingletons)serviceProvider.GetService(typeof(ComponentThatDependsOnMultiSingletons));
@@ -83,7 +83,7 @@ public class When_registering_components
     {
         var serviceCollection = new ServiceCollection();
         var expected = new InheritedFromSomeClass();
-        serviceCollection.AddSingleton(typeof(SomeClass), expected);
+        serviceCollection.AddSingleton<SomeClass>(expected);
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
         Assert.That(serviceProvider.GetService(typeof(SomeClass)), Is.EqualTo(expected));

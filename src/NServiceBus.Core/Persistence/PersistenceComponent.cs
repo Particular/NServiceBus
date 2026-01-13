@@ -47,7 +47,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
         return new Configuration(settings, persistenceSettings.Enabled, resultingSupportedStorages);
     }
 
-    static readonly ILog Logger = LogManager.GetLogger(typeof(PersistenceComponent));
+    static readonly ILog Logger = LogManager.GetLogger<PersistenceComponent>();
 
     public class Settings
     {

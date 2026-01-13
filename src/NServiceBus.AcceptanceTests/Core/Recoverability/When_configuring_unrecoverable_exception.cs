@@ -49,7 +49,7 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
         {
             EndpointSetup<DefaultServer>((config, context) =>
             {
-                config.Recoverability().AddUnrecoverableException(typeof(CustomException));
+                config.Recoverability().AddUnrecoverableException<CustomException>();
                 config.Recoverability().Immediate(i => i.NumberOfRetries(2));
                 config.Recoverability().Delayed(d => d.NumberOfRetries(2));
             });
