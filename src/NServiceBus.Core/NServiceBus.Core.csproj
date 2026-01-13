@@ -14,7 +14,7 @@
 
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" AutomaticVersionRange="false" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.0.1" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="10.0.2" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.2" AutomaticVersionRange="false" />
   </ItemGroup>
