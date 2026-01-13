@@ -15,7 +15,6 @@ public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAccep
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
-            .Done(c => c.OrderAckReceived == 1)
             .Run(cancellationToken);
 
         Assert.That(context.OrderAckReceived, Is.EqualTo(1), "Order ack should have been received");
@@ -28,45 +27,30 @@ public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAccep
 
     public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public NonDtcReceivingEndpoint()
-        {
+        public NonDtcReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 b.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 b.EnableOutbox();
             });
-        }
 
         class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
-            public Task Handle(PlaceOrder message, IMessageHandlerContext context)
-            {
-                return context.SendLocal(new SendOrderAcknowledgement());
-            }
+            public Task Handle(PlaceOrder message, IMessageHandlerContext context) => context.SendLocal(new SendOrderAcknowledgement());
         }
 
-        class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
+        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
-            public SendOrderAcknowledgementHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {
                 testContext.OrderAckReceived++;
+                testContext.MarkAsCompleted(testContext.OrderAckReceived == 1);
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class PlaceOrder : ICommand
-    {
-    }
+    public class PlaceOrder : ICommand;
 
-    public class SendOrderAcknowledgement : IMessage
-    {
-    }
+    public class SendOrderAcknowledgement : IMessage;
 }
