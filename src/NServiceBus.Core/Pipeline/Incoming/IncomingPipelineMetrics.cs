@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using Transport;
 using Pipeline;
 
 class IncomingPipelineMetrics
@@ -19,6 +20,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
+    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -41,6 +43,8 @@ class IncomingPipelineMetrics
             description: "Total number of delayed retries requested.");
         totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
             description: "Total number of messages sent to the error queue.");
+        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+            description: "Total number of unwrapping attempts by the endpoint.");
 
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
@@ -239,6 +243,29 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
+    public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
+    public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
+    void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
+    {
+        if (!totalEnvelopeUnwrapping.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList meterTags;
+        incomingPipelineMetricTags.ApplyTags(ref meterTags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator]);
+        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.EnvelopeUnwrapperType, type.GetType().FullName));
+        if (exception != null)
+        {
+            meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, exception.GetType().FullName));
+        }
+
+        totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, meterTags);
+    }
+
     readonly Counter<long> totalProcessedSuccessfully;
     readonly Counter<long> totalFetched;
     readonly Counter<long> totalFailures;
@@ -248,6 +275,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalImmediateRetries;
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;
+    readonly Counter<long> totalEnvelopeUnwrapping;
     string queueNameBase;
     string endpointDiscriminator;
 }
