@@ -59,7 +59,7 @@ public class SerializingArrayTests
         Assert.That(messages, Is.Not.Null);
         Assert.That(messages, Has.Length.EqualTo(1));
 
-        Assert.That(messages[0], Is.TypeOf(typeof(MessageWithArray)));
+        Assert.That(messages[0], Is.TypeOf<MessageWithArray>());
         var m = (MessageWithArray)messages[0];
 
         Assert.That(m.SomeInts, Is.Not.Null);

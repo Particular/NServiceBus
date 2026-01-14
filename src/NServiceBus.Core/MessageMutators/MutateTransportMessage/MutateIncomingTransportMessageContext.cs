@@ -17,7 +17,6 @@ public class MutateIncomingTransportMessageContext : ICancellableContext
     public MutateIncomingTransportMessageContext(ReadOnlyMemory<byte> body, Dictionary<string, string> headers, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(headers);
-        ArgumentNullException.ThrowIfNull(body);
         Headers = headers;
 
         // Intentionally assign to field to not set the MessageBodyChanged flag.
@@ -37,7 +36,6 @@ public class MutateIncomingTransportMessageContext : ICancellableContext
         }
         set
         {
-            ArgumentNullException.ThrowIfNull(value);
             MessageBodyChanged = true;
             body = value;
         }

@@ -29,7 +29,7 @@ class SubscriptionBehavior<TContext>(
                 endpointName = string.Empty;
             }
 
-            var intent = (MessageIntent)Enum.Parse(typeof(MessageIntent), context.Message.Headers[Headers.MessageIntent], true);
+            var intent = Enum.Parse<MessageIntent>(context.Message.Headers[Headers.MessageIntent], true);
             if (intent != intentToHandle)
             {
                 return;

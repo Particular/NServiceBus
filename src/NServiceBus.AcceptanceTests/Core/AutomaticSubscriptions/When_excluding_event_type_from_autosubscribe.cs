@@ -40,7 +40,7 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
                 {
                     c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made");
                     c.AutoSubscribe().DisableFor<EventToExclude>();
-                    c.AutoSubscribe().DisableFor(typeof(EventWithNoPublisher));
+                    c.AutoSubscribe().DisableFor<EventWithNoPublisher>();
                 },
                 metadata =>
                 {

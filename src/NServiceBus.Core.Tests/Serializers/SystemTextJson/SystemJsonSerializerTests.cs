@@ -94,7 +94,7 @@ public class JsonMessageSerializerTest
 
         Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
 
-        Assert.That(result[0], Is.TypeOf(typeof(A)));
+        Assert.That(result[0], Is.TypeOf<A>());
         var a = (A)result[0];
 
         using (Assert.EnterMultipleScope())
@@ -108,7 +108,7 @@ public class JsonMessageSerializerTest
             Assert.That(a.DateTimeLocal, Is.EqualTo(expectedDateLocal));
             Assert.That(a.DateTimeUtc.Kind, Is.EqualTo(expectedDateUtc.Kind));
             Assert.That(a.DateTimeUtc, Is.EqualTo(expectedDateUtc));
-            Assert.That(a.Bs[0].C, Is.TypeOf(typeof(JsonElement)));
+            Assert.That(a.Bs[0].C, Is.TypeOf<JsonElement>());
             Assert.That(((JsonElement)a.Bs[0].C).GetProperty("Cstr").GetString(), Is.EqualTo("ccc"));
 
             Assert.That(a.AGuid, Is.EqualTo(expectedGuid));
@@ -168,7 +168,7 @@ public class JsonMessageSerializerTest
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Length.EqualTo(1));
 
-        Assert.That(result[0], Is.AssignableTo(typeof(IA)));
+        Assert.That(result[0], Is.AssignableTo<IA>());
         var a = (IA)result[0];
 
         using (Assert.EnterMultipleScope())
@@ -181,7 +181,7 @@ public class JsonMessageSerializerTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(a.B.BString, Is.EqualTo("BOO"));
-            Assert.That(a.B.C, Is.TypeOf(typeof(JsonElement)));
+            Assert.That(a.B.C, Is.TypeOf<JsonElement>());
             Assert.That(((JsonElement)a.B.C).GetProperty("Cstr").GetString(), Is.EqualTo("COO"));
         }
 

@@ -14,8 +14,8 @@ public class When_disposing_the_builder
         DisposableComponent.DisposeCalled = false;
         AnotherSingletonComponent.DisposeCalled = false;
 
-        serviceCollection.AddSingleton(typeof(DisposableComponent));
-        serviceCollection.AddSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+        serviceCollection.AddSingleton<DisposableComponent>();
+        serviceCollection.AddSingleton(new AnotherSingletonComponent());
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
         serviceProvider.GetService(typeof(DisposableComponent));

@@ -91,7 +91,7 @@ public class When_building_components
         InitializeServices(serviceCollection);
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        Assert.That(serviceProvider.GetServices(typeof(UnregisteredComponent)), Is.Empty);
+        Assert.That(serviceProvider.GetServices<UnregisteredComponent>(), Is.Empty);
     }
 
     [Test]
@@ -112,9 +112,9 @@ public class When_building_components
 
     static void InitializeServices(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton(typeof(SingletonComponent));
-        serviceCollection.AddTransient(typeof(TransientComponent));
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddSingleton<SingletonComponent>();
+        serviceCollection.AddTransient<TransientComponent>();
+        serviceCollection.AddScoped<ScopedComponent>();
         serviceCollection.AddSingleton(_ => new SingletonLambdaComponent());
         serviceCollection.AddTransient(_ => new TransientLambdaComponent());
         serviceCollection.AddScoped(_ => new ScopedLambdaComponent());

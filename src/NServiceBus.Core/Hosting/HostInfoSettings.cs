@@ -36,7 +36,6 @@ public class HostInfoSettings
     /// </remarks>
     public HostInfoSettings UsingCustomIdentifier(Guid id)
     {
-        ArgumentNullException.ThrowIfNull(id);
         config.Settings.Get<HostingComponent.Settings>().HostId = id;
         return this;
     }

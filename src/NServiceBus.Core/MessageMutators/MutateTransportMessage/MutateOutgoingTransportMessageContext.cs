@@ -18,7 +18,6 @@ public class MutateOutgoingTransportMessageContext : ICancellableContext
     public MutateOutgoingTransportMessageContext(ReadOnlyMemory<byte> outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object? incomingMessage, IReadOnlyDictionary<string, string>? incomingHeaders, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(outgoingHeaders);
-        ArgumentNullException.ThrowIfNull(outgoingBody);
         ArgumentNullException.ThrowIfNull(outgoingMessage);
 
         OutgoingHeaders = outgoingHeaders;
@@ -44,7 +43,6 @@ public class MutateOutgoingTransportMessageContext : ICancellableContext
         get => outgoingBody;
         set
         {
-            ArgumentNullException.ThrowIfNull(value);
             MessageBodyChanged = true;
             outgoingBody = value;
         }

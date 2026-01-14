@@ -18,7 +18,7 @@ public static class SerializationConfigExtensions
     public static SerializationExtensions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
     {
         ArgumentNullException.ThrowIfNull(config);
-        var definition = (T)Activator.CreateInstance(typeof(T));
+        var definition = Activator.CreateInstance<T>();
 
         return UseSerialization(config, definition);
     }
@@ -47,7 +47,7 @@ public static class SerializationConfigExtensions
     public static SerializationExtensions<T> AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
     {
         ArgumentNullException.ThrowIfNull(config);
-        var definition = (T)Activator.CreateInstance(typeof(T));
+        var definition = Activator.CreateInstance<T>();
 
         return AddDeserializer(config, definition);
     }

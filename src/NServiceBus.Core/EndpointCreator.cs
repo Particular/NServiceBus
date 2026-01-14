@@ -75,7 +75,7 @@ class EndpointCreator
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
-        hostingConfiguration.Services.AddSingleton(typeof(IReadOnlySettings), settings);
+        hostingConfiguration.Services.AddSingleton<IReadOnlySettings>(settings);
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 

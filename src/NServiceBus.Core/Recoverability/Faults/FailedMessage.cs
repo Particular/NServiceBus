@@ -20,7 +20,6 @@ public class FailedMessage
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
         ArgumentNullException.ThrowIfNull(headers);
-        ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(exception);
         ArgumentException.ThrowIfNullOrWhiteSpace(errorQueue);
 

@@ -11,7 +11,7 @@ public class When_using_nested_containers
     public async Task Scoped__components_should_be_disposed_when_the_child_container_is_disposed()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddScoped<ScopedComponent>();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
         await using (serviceProvider.ConfigureAwait(false))
@@ -30,7 +30,7 @@ public class When_using_nested_containers
     public void Scoped_components_should_yield_different_instances_between_parent_and_child_containers()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddScoped<ScopedComponent>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -47,7 +47,7 @@ public class When_using_nested_containers
     public void Scoped_components_should_yield_different_instances_between_different_instances_of_child_containers()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddScoped<ScopedComponent>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -69,7 +69,7 @@ public class When_using_nested_containers
     public void Transient_components_should_not_be_shared_across_child_containers()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient(typeof(TransientComponent));
+        serviceCollection.AddTransient<TransientComponent>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -92,7 +92,7 @@ public class When_using_nested_containers
     public void Scoped_components_in_the_parent_container_should_be_singletons_in_the_same_child_container()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddScoped<ScopedComponent>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -109,7 +109,7 @@ public class When_using_nested_containers
     public void Scoped_components_built_on_root_container_should_be_singletons_even_with_child_builder_present()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped(typeof(ScopedComponent));
+        serviceCollection.AddScoped<ScopedComponent>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -128,8 +128,8 @@ public class When_using_nested_containers
     {
         var serviceCollection = new ServiceCollection();
         var singletonInMainContainer = new SingletonComponent();
-        serviceCollection.AddSingleton(typeof(ISingletonComponent), singletonInMainContainer);
-        serviceCollection.AddScoped(typeof(ComponentThatDependsOfSingleton));
+        serviceCollection.AddSingleton<ISingletonComponent>(singletonInMainContainer);
+        serviceCollection.AddScoped<ComponentThatDependsOfSingleton>();
 
         using var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -146,8 +146,8 @@ public class When_using_nested_containers
         var serviceCollection = new ServiceCollection();
         DisposableComponent.DisposeCalled = false;
         AnotherDisposableComponent.DisposeCalled = false;
-        serviceCollection.AddSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
-        serviceCollection.AddScoped(typeof(DisposableComponent));
+        serviceCollection.AddSingleton(new AnotherDisposableComponent());
+        serviceCollection.AddScoped<DisposableComponent>();
 
 
         using (var serviceProvider = serviceCollection.BuildServiceProvider())

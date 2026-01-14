@@ -16,8 +16,6 @@ public class ReceivePipelineCompleted
     public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTimeOffset startedAt, DateTimeOffset completedAt)
     {
         ArgumentNullException.ThrowIfNull(processedMessage);
-        ArgumentNullException.ThrowIfNull(startedAt);
-        ArgumentNullException.ThrowIfNull(completedAt);
 
         ProcessedMessage = processedMessage;
         StartedAt = startedAt;
