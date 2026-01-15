@@ -39,9 +39,6 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                     return new IncomingMessageHandle(new IncomingMessage(messageContext.NativeMessageId, headers, bufferWriter.WrittenMemory), bufferWriter);
                 }
 
-                // No-op when nothing written
-                bufferWriter.Clear();
-
                 if (Log.IsDebugEnabled)
                 {
                     Log.DebugFormat(
@@ -57,6 +54,9 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                         "Unwrapper {0} failed to unwrap the message {1}: {2}", envelopeHandler, messageContext.NativeMessageId, e);
                 }
             }
+
+            // Always clear the buffer before trying the following unwrapper
+            bufferWriter.Clear();
         }
 
         if (Log.IsDebugEnabled)
