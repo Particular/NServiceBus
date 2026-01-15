@@ -119,8 +119,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
-            testContext.MarkAsCompleted(count == 5);
+            testContext.MarkAsCompleted(Interlocked.Increment(ref testContext.TotalHandledMessages) == 5);
             return Task.CompletedTask;
         }
     }
