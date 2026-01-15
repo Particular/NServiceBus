@@ -32,7 +32,6 @@ public class When_serializing_a_message : NServiceBusAcceptanceTest
                     DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
                     DateTimeOffsetUtc = expectedDateTimeOffsetUtc
                 })))
-            .Done(c => c.ReceivedMessage != null)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -55,26 +54,16 @@ public class When_serializing_a_message : NServiceBusAcceptanceTest
 
     class DateTimeReceiver : EndpointConfigurationBuilder
     {
-        public DateTimeReceiver()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public DateTimeReceiver() => EndpointSetup<DefaultServer>();
 
-        class DateTimeMessageHandler : IHandleMessages<DateTimeMessage>
+        class DateTimeMessageHandler(Context testContext) : IHandleMessages<DateTimeMessage>
         {
-            public DateTimeMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedMessage = message;
-
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

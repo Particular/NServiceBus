@@ -27,7 +27,6 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
                 return session.Send(new MyCommand(), sendOptions);
             }).CustomConfig(c => c.MakeInstanceUniquelyAddressable(Discriminator1)))
             .WithEndpoint<Endpoint>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable(Discriminator2)))
-            .Done(c => c.MessageDelivered >= 1)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -45,8 +44,7 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.GetSettings().GetOrCreate<UnicastRoutingTable>()
@@ -62,38 +60,22 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
                 c.GetSettings().GetOrCreate<DistributionPolicy>()
                     .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)r.ScenarioContext));
             });
-        }
 
-        public class MyCommandHandler : IHandleMessages<MyCommand>
+        public class MyCommandHandler(Context testContext, IReadOnlySettings settings) : IHandleMessages<MyCommand>
         {
-            Context testContext;
-            IReadOnlySettings settings;
-
-            public MyCommandHandler(Context context, IReadOnlySettings settings)
-            {
-                this.settings = settings;
-                testContext = context;
-            }
-
             public Task Handle(MyCommand message, IMessageHandlerContext context)
             {
                 if (settings.Get<string>("EndpointInstanceDiscriminator") == Discriminator2)
                 {
-                    Interlocked.Increment(ref testContext.MessageDelivered);
+                    var count = Interlocked.Increment(ref testContext.MessageDelivered);
+                    testContext.MarkAsCompleted(count >= 1);
                 }
                 return Task.CompletedTask;
             }
         }
 
-        class SelectFirstDistributionStrategy : DistributionStrategy
+        class SelectFirstDistributionStrategy(string endpoint, Context testContext) : DistributionStrategy(endpoint, DistributionStrategyScope.Send)
         {
-            Context testContext;
-
-            public SelectFirstDistributionStrategy(string endpoint, Context testContext) : base(endpoint, DistributionStrategyScope.Send)
-            {
-                this.testContext = testContext;
-            }
-
             public override string SelectDestination(DistributionContext context)
             {
                 testContext.StrategyCalled = true;
@@ -102,7 +84,5 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
         }
     }
 
-    public class MyCommand : ICommand
-    {
-    }
+    public class MyCommand : ICommand;
 }

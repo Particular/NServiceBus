@@ -16,7 +16,6 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
             {
                 SomeId = Guid.NewGuid().ToString()
             })))
-            .Done(c => c.InterceptingHandlerCalled && c.SagaStarted)
             .Run();
 
         Assert.That(context.InterceptingHandlerCalledFirst, Is.True, "The intercepting message handler should be called first");
@@ -27,6 +26,8 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
         public bool InterceptingHandlerCalled { get; set; }
         public bool InterceptingHandlerCalledFirst { get; set; }
         public bool SagaStarted { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(InterceptingHandlerCalled, SagaStarted);
     }
 
     public class SagaEndpoint : EndpointConfigurationBuilder
@@ -42,6 +43,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
                     testContext.InterceptingHandlerCalledFirst = true;
                 }
                 testContext.SagaStarted = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -60,7 +62,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.InterceptingHandlerCalled = true;
-
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

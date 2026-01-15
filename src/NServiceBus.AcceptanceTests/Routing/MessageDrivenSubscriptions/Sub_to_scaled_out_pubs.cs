@@ -20,7 +20,6 @@ public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
             .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
             .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
             .WithEndpoint<Subscriber>(b => b.When(s => s.Subscribe<MyEvent>()))
-            .Done(c => c.PublisherReceivedSubscription.Count >= 2)
             .Run();
 
         // each instance should receive a subscription message
@@ -32,23 +31,25 @@ public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public ConcurrentBag<string> PublisherReceivedSubscription { get; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(PublisherReceivedSubscription.Count >= 2);
     }
 
     class ScaledOutPublisher : EndpointConfigurationBuilder
     {
-        public ScaledOutPublisher()
-        {
+        public ScaledOutPublisher() =>
             // store the instance discriminator of each instance receiving a subscription message:
             EndpointSetup<DefaultServer>(c => c
                 .OnEndpointSubscribed<Context>((subscription, context) =>
-                    context.PublisherReceivedSubscription.Add(c.GetSettings().Get<string>("EndpointInstanceDiscriminator"))));
-        }
+                {
+                    context.PublisherReceivedSubscription.Add(c.GetSettings().Get<string>("EndpointInstanceDiscriminator"));
+                    context.MaybeCompleted();
+                }));
     }
 
     class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(
                 c =>
                 {
@@ -60,10 +61,7 @@ public class Sub_to_scaled_out_pubs : NServiceBusAcceptanceTest
                     ]);
                 },
                 metadata => metadata.RegisterPublisherFor<MyEvent, ScaledOutPublisher>());
-        }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

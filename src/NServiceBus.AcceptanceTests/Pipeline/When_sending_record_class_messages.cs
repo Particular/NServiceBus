@@ -16,7 +16,6 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RecordHandlingEndpoint>(e =>
                 e.When(s => s.SendLocal(new RecordClassMessage() { SomeText = expectedText })))
-            .Done(c => c.ReceivedText != null)
             .Run();
 
         Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
@@ -30,7 +29,6 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RecordHandlingEndpoint>(e =>
                 e.When(s => s.SendLocal(new ReadonlyRecordClassMessage(expectedText))))
-            .Done(c => c.ReceivedText != null)
             .Run();
 
         Assert.That(context.ReceivedText, Is.EqualTo(expectedText));
@@ -52,23 +50,23 @@ public class When_sending_record_class_messages : NServiceBusAcceptanceTest
             public Task Handle(RecordClassMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedText = message.SomeText;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Handle(ReadonlyRecordClassMessage message, IMessageHandlerContext context)
             {
                 testContext.ReceivedText = message.SomeText;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
     }
 
-    public record class RecordClassMessage : IMessage
+    public record RecordClassMessage : IMessage
     {
         public string SomeText { get; set; }
     }
 
-    public record class ReadonlyRecordClassMessage(string SomeText) : IMessage
-    {
-    }
+    public record ReadonlyRecordClassMessage(string SomeText) : IMessage;
 }

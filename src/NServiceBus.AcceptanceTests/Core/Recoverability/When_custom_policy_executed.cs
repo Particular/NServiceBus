@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NUnit.Framework;
 using Transport;
@@ -11,17 +12,16 @@ using Transport;
 public class When_custom_policy_executed : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_provide_error_context_to_policy()
+    public void Should_provide_error_context_to_policy()
     {
         Requires.DelayedDelivery();
 
-        var context = await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>
-                b.When(bus => bus.SendLocal(new MessageToBeRetried()))
-                 .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+                b.When(bus => bus.SendLocal(new MessageToBeRetried())))
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         Assert.That(context.ErrorContexts, Has.Count.EqualTo(2), "because the custom policy should have been invoked twice");
         using (Assert.EnterMultipleScope())
         {
@@ -41,8 +41,7 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 var testContext = (Context)context.ScenarioContext;
@@ -60,18 +59,12 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
                         return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(1));
                     });
             });
-        }
 
         class Handler : IHandleMessages<MessageToBeRetried>
         {
-            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-            {
-                throw new SimulatedException();
-            }
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    public class MessageToBeRetried : IMessage
-    {
-    }
+    public class MessageToBeRetried : IMessage;
 }

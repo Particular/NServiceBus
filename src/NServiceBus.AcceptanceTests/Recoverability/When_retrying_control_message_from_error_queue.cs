@@ -25,7 +25,6 @@ public class When_retrying_control_message_from_error_queue : NServiceBusAccepta
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ProcessingEndpoint>()
             .WithEndpoint<RetryAckSpy>()
-            .Done(c => c.ConfirmedRetryId != null)
             .Run();
 
         Assert.That(context.ConfirmedRetryId, Is.EqualTo(RetryId));
@@ -79,6 +78,7 @@ public class When_retrying_control_message_from_error_queue : NServiceBusAccepta
 
                 testContext.ConfirmedRetryId = context.MessageHeaders["ServiceControl.Retry.UniqueMessageId"];
                 testContext.RetryProcessingTimestamp = context.MessageHeaders["ServiceControl.Retry.Successful"];
+                testContext.MarkAsCompleted();
             }
         }
     }

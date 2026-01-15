@@ -27,7 +27,6 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
                 }));
             })
             .WithEndpoint<EndpointB>()
-            .Done(c => c.SagaContinued && c.ReplyToOriginatorReceived && c.BehaviorMessageReceived && c.BehaviorEventReceived)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -51,6 +50,8 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
         public bool ReplyToOriginatorReceived { get; set; }
         public string HandlingBehaviorEventCorrId { get; set; }
         public bool BehaviorEventReceived { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(SagaContinued, ReplyToOriginatorReceived, BehaviorMessageReceived, BehaviorEventReceived);
     }
 
     public class EndPointA : EndpointConfigurationBuilder
@@ -68,6 +69,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             {
                 testContext.ReplyToOriginatorReceivedCorrId = context.MessageHeaders[Headers.CorrelationId];
                 testContext.ReplyToOriginatorReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -88,6 +90,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             {
                 testContext.ContinueSagaMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
                 testContext.SagaContinued = true;
+                testContext.MaybeCompleted();
                 return ReplyToOriginator(context, new ReplyToOriginatorMessage());
             }
 
@@ -127,6 +130,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             {
                 testContext.HandlingBehaviorMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
                 testContext.BehaviorMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -134,6 +138,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             {
                 testContext.HandlingBehaviorEventCorrId = context.MessageHeaders[Headers.CorrelationId];
                 testContext.BehaviorEventReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

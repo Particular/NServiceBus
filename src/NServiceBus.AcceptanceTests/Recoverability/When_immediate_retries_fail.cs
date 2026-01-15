@@ -3,26 +3,26 @@
 using System;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_immediate_retries_fail : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_do_delayed_retries()
+    public void Should_do_delayed_retries()
     {
         Requires.DelayedDelivery();
 
-        var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<DelayedRetryEndpoint>(b => b
                 .When((session, ctx) => session.SendLocal(new MessageToBeRetried
                 {
                     Id = ctx.Id
-                }))
-                .DoNotFailOnErrorMessages())
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+                })))
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         Assert.That(context.NumberOfRetriesAttempted, Is.GreaterThanOrEqualTo(1), "Should retry one or more times");
     }
 
@@ -39,8 +39,7 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
 
     public class DelayedRetryEndpoint : EndpointConfigurationBuilder
     {
-        public DelayedRetryEndpoint()
-        {
+        public DelayedRetryEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 config.Recoverability().Immediate(i => i.NumberOfRetries(0));
@@ -51,15 +50,9 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
                         settings.TimeIncrease(Delay);
                     });
             });
-        }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
-            public MessageToBeRetriedHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {
                 if (message.Id != testContext.Id)
@@ -71,8 +64,6 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
 
                 throw new SimulatedException();
             }
-
-            Context testContext;
         }
     }
 

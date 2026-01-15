@@ -23,7 +23,6 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
                 })
                 .When(s => s.SendLocal(new LocalMessage())))
             .WithEndpoint<EndpointB>()
-            .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -44,7 +43,6 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
                 })
                 .When(s => s.SendLocal(new LocalMessage())))
             .WithEndpoint<EndpointB>()
-            .Done(c => c.LocalMessageReceived && c.BehaviorMessageReceived)
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -58,21 +56,20 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         public bool BehaviorMessageReceived { get; set; }
         public bool LocalMessageReceived { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(LocalMessageReceived, BehaviorMessageReceived);
     }
 
     public class EndpointA : EndpointConfigurationBuilder
     {
         public EndpointA() => EndpointSetup<DefaultServer>();
 
-        public class LocalMessageHandler : IHandleMessages<LocalMessage>
+        public class LocalMessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
-            Context testContext;
-
-            public LocalMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {
                 testContext.LocalMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -82,15 +79,12 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
-        public class BehaviorMessageHandler : IHandleMessages<BehaviorMessage>
+        public class BehaviorMessageHandler(Context testContext) : IHandleMessages<BehaviorMessage>
         {
-            Context testContext;
-
-            public BehaviorMessageHandler(Context testContext) => this.testContext = testContext;
-
             public Task Handle(BehaviorMessage message, IMessageHandlerContext context)
             {
                 testContext.BehaviorMessageReceived = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -122,11 +116,7 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
         }
     }
 
-    public class LocalMessage : IMessage
-    {
-    }
+    public class LocalMessage : IMessage;
 
-    public class BehaviorMessage : IMessage
-    {
-    }
+    public class BehaviorMessage : IMessage;
 }

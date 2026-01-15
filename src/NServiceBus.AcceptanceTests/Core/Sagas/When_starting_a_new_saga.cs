@@ -18,7 +18,6 @@ public class When_starting_a_new_saga : NServiceBusAcceptanceTest
             {
                 SomeId = id
             })))
-            .Done(c => c.SomeId != Guid.Empty)
             .Run();
 
         Assert.That(id, Is.EqualTo(context.SomeId));
@@ -39,6 +38,7 @@ public class When_starting_a_new_saga : NServiceBusAcceptanceTest
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SomeId = Data.SomeId;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 

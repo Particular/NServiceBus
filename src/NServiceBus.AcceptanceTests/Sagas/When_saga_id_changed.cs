@@ -20,7 +20,6 @@ public class When_saga_id_changed : NServiceBusAcceptanceTest
                     {
                         DataId = Guid.NewGuid()
                     })))
-                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
         using (Assert.EnterMultipleScope())

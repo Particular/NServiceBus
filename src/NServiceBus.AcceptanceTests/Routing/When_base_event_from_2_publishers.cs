@@ -30,7 +30,6 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
                     c.SubscribedToPublisher2 = true;
                 }
             }))
-            .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -46,6 +45,8 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
         public bool GotTheEventFromPublisher2 { get; set; }
         public bool SubscribedToPublisher1 { get; set; }
         public bool SubscribedToPublisher2 { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(GotTheEventFromPublisher1, GotTheEventFromPublisher2);
     }
 
     public class Publisher1 : EndpointConfigurationBuilder
@@ -98,6 +99,7 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
                     testContext.GotTheEventFromPublisher2 = true;
                 }
 
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

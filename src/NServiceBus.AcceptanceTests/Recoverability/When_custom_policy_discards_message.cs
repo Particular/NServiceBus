@@ -13,7 +13,6 @@ public class When_custom_policy_discards_failed_message : NServiceBusAcceptanceT
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithDiscardPolicy>(e => e
                 .When(s => s.SendLocal(new FailingMessage())))
-            .Done(c => c.HandlerInvoked >= 1)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -36,23 +35,15 @@ public class When_custom_policy_discards_failed_message : NServiceBusAcceptanceT
                 .CustomPolicy((config, context) => RecoverabilityAction.Discard("discard on purpose")));
     }
 
-    class FailingMessageHandler : IHandleMessages<FailingMessage>
+    class FailingMessageHandler(Context testContext) : IHandleMessages<FailingMessage>
     {
-        Context testContext;
-
-        public FailingMessageHandler(Context testContext)
-        {
-            this.testContext = testContext;
-        }
-
         public Task Handle(FailingMessage message, IMessageHandlerContext context)
         {
             testContext.HandlerInvoked++;
+            testContext.MarkAsCompleted();
             throw new SimulatedException();
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-    }
+    public class FailingMessage : IMessage;
 }

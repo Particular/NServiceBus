@@ -5,27 +5,28 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_commit_distributed_transaction()
+    public void Should_not_commit_distributed_transaction()
     {
         Requires.DtcSupport();
         Requires.DelayedDelivery();
 
-        var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
-            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
+            .WithEndpoint<Endpoint>(b => b
                 .When((session, c) => session.SendLocal(new MessageToFail
                 {
                     Id = c.Id
                 }))
              )
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.NumberOfRetriesAttempted, Is.GreaterThanOrEqualTo(3), "Should retry at least three times");
@@ -43,8 +44,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
                 var recoverability = config.Recoverability();
@@ -54,15 +54,9 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
                     settings.TimeIncrease(TimeSpan.FromSeconds(1));
                 });
             });
-        }
 
-        class FailingHandler : IHandleMessages<MessageToFail>
+        class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
         {
-            public FailingHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {
                 if (message.Id == testContext.Id)
@@ -75,12 +69,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
                 throw new SimulatedException();
             }
 
-            void CaptureTransactionStatus(object sender, TransactionEventArgs args)
-            {
-                testContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
-            }
-
-            Context testContext;
+            void CaptureTransactionStatus(object sender, TransactionEventArgs args) => testContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
         }
     }
 

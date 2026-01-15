@@ -15,7 +15,6 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
-                .Done(c => !c.FailedMessages.IsEmpty)
                 .Run());
 
         Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
@@ -34,25 +33,15 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
 
     public class RetryEndpoint : EndpointConfigurationBuilder
     {
-        public RetryEndpoint()
-        {
-            EndpointSetup<DefaultServer>();
-        }
+        public RetryEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler : IHandleMessages<MessageWhichFailsRetries>
+        class MessageHandler(Context testContext) : IHandleMessages<MessageWhichFailsRetries>
         {
-            public MessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context)
             {
                 testContext.PhysicalMessageId = context.MessageId;
                 throw new SimulatedException();
             }
-
-            Context testContext;
         }
     }
 
@@ -61,7 +50,5 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         public string PhysicalMessageId { get; set; }
     }
 
-    public class MessageWhichFailsRetries : IMessage
-    {
-    }
+    public class MessageWhichFailsRetries : IMessage;
 }

@@ -13,7 +13,6 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceiverWithSagas>(b => b.When(session => session.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
-            .Done(c => c.Saga1NotFound && c.Saga2NotFound && c.Saga3Started)
             .Run();
 
         Assert.That(context.Saga1NotFound, Is.True);
@@ -28,6 +27,8 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
         public bool Saga2NotFound { get; set; }
         public bool Saga3Started { get; set; }
         public bool Saga3NotFound { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(Saga1NotFound, Saga2NotFound, Saga3Started);
     }
 
     public class ReceiverWithSagas : EndpointConfigurationBuilder
@@ -64,6 +65,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
                     testContext.Saga1NotFound = true;
+                    testContext.MaybeCompleted();
                     return Task.CompletedTask;
                 }
             }
@@ -94,6 +96,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
                     testContext.Saga2NotFound = true;
+                    testContext.MaybeCompleted();
                     return Task.CompletedTask;
                 }
             }
@@ -105,6 +108,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
         public Task Handle(MessageToSaga message, IMessageHandlerContext context)
         {
             testContext.Saga3Started = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
 

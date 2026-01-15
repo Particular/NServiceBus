@@ -22,7 +22,6 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
             .WithEndpoint<Receiver>()
             .WithEndpoint<UnawareOfInstanceSender>(b => b.When(s => s.Send(new MyMessage())))
             .WithEndpoint<InstanceAwareSender>(b => b.When(s => s.Send(new MyMessage())))
-            .Done(c => c.MessagesReceived > 1)
             .Run();
 
         Assert.That(context.MessagesReceived, Is.EqualTo(2));
@@ -35,19 +34,16 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
 
     public class UnawareOfInstanceSender : EndpointConfigurationBuilder
     {
-        public UnawareOfInstanceSender()
-        {
+        public UnawareOfInstanceSender() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
             });
-        }
     }
 
     public class InstanceAwareSender : EndpointConfigurationBuilder
     {
-        public InstanceAwareSender()
-        {
+        public InstanceAwareSender() =>
             EndpointSetup<DefaultServer>((c, r) =>
             {
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
@@ -57,34 +53,22 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
                         new EndpointInstance(ReceiverEndpoint, InstanceDiscriminator)
                     ]);
             });
-        }
     }
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable(InstanceDiscriminator); });
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable(InstanceDiscriminator); });
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public MyMessageHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.MessagesReceived);
+                var count = Interlocked.Increment(ref testContext.MessagesReceived);
+                testContext.MarkAsCompleted(count > 1);
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyMessage : IMessage
-    {
-    }
+    public class MyMessage : IMessage;
 }

@@ -32,7 +32,6 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
                 });
             }))
             .WithEndpoint<DownstreamEndpoint>()
-            .Done(c => c.Done && c.MessagesReceivedByDownstreamEndpoint >= 2 && c.MessagesReceivedByOutboxEndpoint >= 2)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -45,42 +44,34 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     public class Context : ScenarioContext
     {
         public int MessagesReceivedByDownstreamEndpoint { get; set; }
-        public bool Done { get; set; }
+        public bool TerminatorReceived { get; set; }
         public int MessagesReceivedByOutboxEndpoint { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(TerminatorReceived, MessagesReceivedByDownstreamEndpoint >= 2, MessagesReceivedByOutboxEndpoint >= 2);
     }
 
     public class DownstreamEndpoint : EndpointConfigurationBuilder
     {
-        public DownstreamEndpoint()
-        {
-            EndpointSetup<DefaultServer>(b => { b.LimitMessageProcessingConcurrencyTo(1); });
-        }
+        public DownstreamEndpoint() => EndpointSetup<DefaultServer>(b => { b.LimitMessageProcessingConcurrencyTo(1); });
 
-        class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
+        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
-            public SendOrderAcknowledgementHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {
                 testContext.MessagesReceivedByDownstreamEndpoint++;
                 if (message.Terminator)
                 {
-                    testContext.Done = true;
+                    testContext.TerminatorReceived = true;
                 }
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class OutboxEndpoint : EndpointConfigurationBuilder
     {
-        public OutboxEndpoint()
-        {
+        public OutboxEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
                 // limit to one to avoid race conditions on dispatch and this allows us to reliably check whether deduplication happens properly
@@ -89,25 +80,18 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
                 b.EnableOutbox();
                 b.ConfigureRouting().RouteToEndpoint(typeof(SendOrderAcknowledgement), typeof(DownstreamEndpoint));
             });
-        }
 
-        class PlaceOrderHandler : IHandleMessages<PlaceOrder>
+        class PlaceOrderHandler(Context testContext) : IHandleMessages<PlaceOrder>
         {
-            public PlaceOrderHandler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
             public Task Handle(PlaceOrder message, IMessageHandlerContext context)
             {
                 testContext.MessagesReceivedByOutboxEndpoint++;
+                testContext.MaybeCompleted();
                 return context.Send(new SendOrderAcknowledgement
                 {
                     Terminator = message.Terminator
                 });
             }
-
-            Context testContext;
         }
     }
 

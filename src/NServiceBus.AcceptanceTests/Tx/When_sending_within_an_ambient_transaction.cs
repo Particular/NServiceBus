@@ -37,7 +37,6 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
                     tx.Complete();
                 }
             }))
-            .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
             .Run();
 
         Assert.That(context.SequenceNumberOfFirstMessage, Is.EqualTo(1), "The transport should preserve the order in which the transactional messages are delivered to the queuing system");
@@ -74,6 +73,8 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
         public int SequenceNumberOfFirstMessage { get; set; }
 
         public bool NonTransactionalHandlerCalledFirst { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(MessageThatIsNotEnlistedHandlerWasCalled, TimesCalled >= 2);
     }
 
     public class TransactionalEndpoint : EndpointConfigurationBuilder
@@ -99,6 +100,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
                     testContext.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
                 }
 
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -109,7 +111,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
             {
                 testContext.MessageThatIsNotEnlistedHandlerWasCalled = true;
                 testContext.NonTransactionalHandlerCalledFirst = !testContext.MessageThatIsEnlistedHandlerWasCalled;
-                testContext.MarkAsCompleted();
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

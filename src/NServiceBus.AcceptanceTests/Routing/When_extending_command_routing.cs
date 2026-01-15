@@ -29,7 +29,6 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
                 })
             )
             .WithEndpoint<Receiver>()
-            .Done(c => c.MessageDelivered >= 4)
             .Run();
 
         Assert.That(ctx.MessageDelivered, Is.GreaterThanOrEqualTo(4));
@@ -78,29 +77,18 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
 
     public class Receiver : EndpointConfigurationBuilder
     {
-        public Receiver()
-        {
-            EndpointSetup<DefaultServer>(c => c.MakeInstanceUniquelyAddressable("XYZ"));
-        }
+        public Receiver() => EndpointSetup<DefaultServer>(c => c.MakeInstanceUniquelyAddressable("XYZ"));
 
-        public class MyCommandHandler : IHandleMessages<MyCommand>
+        public class MyCommandHandler(Context testContext) : IHandleMessages<MyCommand>
         {
-            public MyCommandHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyCommand evnt, IMessageHandlerContext context)
             {
-                Interlocked.Increment(ref testContext.MessageDelivered);
+                var count = Interlocked.Increment(ref testContext.MessageDelivered);
+                testContext.MarkAsCompleted(count >= 4);
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyCommand : ICommand
-    {
-    }
+    public class MyCommand : ICommand;
 }

@@ -46,7 +46,6 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
                     ctx.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                 }
             }))
-            .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
             .Run(cancellationToken);
 
         using (Assert.EnterMultipleScope())
@@ -63,6 +62,8 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
 
         public bool Subscriber1GotTheEvent { get; set; }
         public bool Subscriber2GotTheEvent { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(Subscriber1GotTheEvent, Subscriber2GotTheEvent);
     }
 
     public class Publisher : EndpointConfigurationBuilder
@@ -104,6 +105,7 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
                 testContext.Subscriber1GotTheEvent = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -125,6 +127,7 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
             {
                 testContext.Subscriber2GotTheEvent = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
         }

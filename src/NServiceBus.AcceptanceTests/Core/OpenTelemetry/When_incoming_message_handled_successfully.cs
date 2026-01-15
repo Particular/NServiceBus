@@ -25,7 +25,6 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
                         await session.SendLocal(new MyMessage());
                     }
                 }))
-            .Done(c => c.TotalHandledMessages == 5)
             .Run();
 
         string handlingTime = "nservicebus.messaging.handler_time";
@@ -52,7 +51,8 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            Interlocked.Increment(ref testContext.TotalHandledMessages);
+            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
+            testContext.MarkAsCompleted(count == 5);
             return Task.CompletedTask;
         }
     }

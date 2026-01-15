@@ -33,7 +33,6 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                         c.IsEventSubscriptionReceived = true;
                     }
                 }))
-            .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
             .Run();
 
         Assert.That(context.DidSaga1Complete && context.DidSaga2Complete, Is.True);
@@ -44,6 +43,8 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
         public bool DidSaga1Complete { get; set; }
         public bool DidSaga2Complete { get; set; }
         public bool IsEventSubscriptionReceived { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(DidSaga1Complete, DidSaga2Complete);
     }
 
     public class SagaThatPublishesAnEvent : EndpointConfigurationBuilder
@@ -73,6 +74,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             {
                 MarkAsComplete();
                 testContext.DidSaga1Complete = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 
@@ -85,9 +87,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                 public virtual Guid DataId { get; set; }
             }
 
-            public class Timeout1
-            {
-            }
+            public class Timeout1;
         }
     }
 
@@ -115,6 +115,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
             {
                 MarkAsComplete();
                 testContext.DidSaga2Complete = true;
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
 

@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
@@ -13,19 +13,18 @@ using Transport;
 public class When_transport_transaction_provided : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_be_available_in_pipeline()
+    public void Should_be_available_in_pipeline()
     {
-        var context = await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<ContextExtendingEndpoint>(e => e
-                .DoNotFailOnErrorMessages()
                 .CustomConfig(config =>
                 {
                     config.Recoverability().AddUnrecoverableException<SimulatedException>();
                 })
                 .When((session, _) => session.SendLocal(new SomeMessage())))
-            .Done(c => !c.FailedMessages.IsEmpty)
-            .Run();
+            .Run());
 
+        var context = (Context)exception.ScenarioContext;
         Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
     }
 
@@ -49,34 +48,24 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
             public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new SimulatedException();
         }
 
-        class IncomingTransportReceivePipelineBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        class IncomingTransportReceivePipelineBehavior(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public IncomingTransportReceivePipelineBehavior(Context testContext) => this.testContext = testContext;
-
             public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.IncomingPipelineTransportTransaction = context.Extensions.GetOrCreate<TransportTransaction>();
                 return next(context);
             }
-
-            readonly Context testContext;
         }
 
-        class RecoverabilityContextBehavior : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
+        class RecoverabilityContextBehavior(Context testContext) : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
         {
-            public RecoverabilityContextBehavior(Context testContext) => this.testContext = testContext;
-
             public Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
             {
                 testContext.DispatchPipelineTransportTransaction = context.Extensions.GetOrCreate<TransportTransaction>();
                 return next(context);
             }
-
-            readonly Context testContext;
         }
     }
 
-    public class SomeMessage : ICommand
-    {
-    }
+    public class SomeMessage : ICommand;
 }

@@ -25,7 +25,6 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
                     }
                 })
             )
-            .Done(c => c.MessageProcessedNormally && c.ThrottleModeEnded)
             .Run();
     }
 
@@ -34,12 +33,13 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
         public bool ThrottleModeEntered { get; set; }
         public bool ThrottleModeEnded { get; set; }
         public bool MessageProcessedNormally { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(MessageProcessedNormally, ThrottleModeEnded);
     }
 
     class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithFailingHandler()
-        {
+        public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.LimitMessageProcessingConcurrencyTo(3);
@@ -50,28 +50,24 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
                 recoverability.Delayed(d => d.NumberOfRetries(0));
 
                 var rateLimitingSettings = new RateLimitSettings(TimeSpan.FromSeconds(5), cancellation =>
-                {
-                    scenarioContext.ThrottleModeEntered = true;
+                    {
+                        scenarioContext.ThrottleModeEntered = true;
 
-                    return Task.CompletedTask;
-                },
-                cancellation =>
-                {
-                    scenarioContext.ThrottleModeEnded = true;
+                        return Task.CompletedTask;
+                    },
+                    cancellation =>
+                    {
+                        scenarioContext.ThrottleModeEnded = true;
+                        scenarioContext.MaybeCompleted();
 
-                    return Task.CompletedTask;
-                });
+                        return Task.CompletedTask;
+                    });
 
                 recoverability.OnConsecutiveFailures(2, rateLimitingSettings);
             });
-        }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
-            public InitiatingHandler(Context context)
-            {
-                testContext = context;
-            }
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
                 if (!testContext.ThrottleModeEntered)
@@ -80,11 +76,9 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
                 }
 
                 testContext.MessageProcessedNormally = true;
-
+                testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 

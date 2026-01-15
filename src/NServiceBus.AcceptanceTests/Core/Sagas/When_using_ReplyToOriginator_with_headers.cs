@@ -19,7 +19,6 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             {
                 CustomHeaderValue = customHeaderValue
             })))
-            .Done(c => c.CustomHeaderOnReply != null)
             .Run();
 
         Assert.That(context.CustomHeaderOnReply, Is.EqualTo(customHeaderValue.ToString()), "Header values should be forwarded");
@@ -61,6 +60,7 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {
                 testContext.CustomHeaderOnReply = context.MessageHeaders["CustomHeader"];
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -71,7 +71,5 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
         public Guid CustomHeaderValue { get; set; }
     }
 
-    public class MyReplyToOriginator : IMessage
-    {
-    }
+    public class MyReplyToOriginator : IMessage;
 }

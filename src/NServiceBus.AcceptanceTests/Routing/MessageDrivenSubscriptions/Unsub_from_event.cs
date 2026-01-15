@@ -35,7 +35,6 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                 .When(
                     ctx => ctx.Subscriber2ReceivedMessages >= 1,
                     s => s.Unsubscribe<Event>()))
-            .Done(c => c.Subscriber1ReceivedMessages >= 4)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -57,8 +56,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
+        public Publisher() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.OnEndpointSubscribed<Context>((args, ctx) =>
@@ -81,68 +79,48 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                     }
                 });
             }, metadata => metadata.RegisterSelfAsPublisherFor<Event>(this));
-        }
     }
 
     public class Subscriber1 : EndpointConfigurationBuilder
     {
-        public Subscriber1()
-        {
-            EndpointSetup<DefaultServer>(c =>
-               {
-                   c.DisableFeature<AutoSubscribe>();
-                   c.LimitMessageProcessingConcurrencyTo(1);
-               },
-               metadata => metadata.RegisterPublisherFor<Event, Publisher>());
-        }
-
-        public class Handler : IHandleMessages<Event>
-        {
-            public Handler(Context testContext)
-            {
-                this.testContext = testContext;
-            }
-
-            public Task Handle(Event message, IMessageHandlerContext context)
-            {
-                Interlocked.Increment(ref testContext.Subscriber1ReceivedMessages);
-                return Task.CompletedTask;
-            }
-
-            Context testContext;
-        }
-    }
-
-    public class Subscriber2 : EndpointConfigurationBuilder
-    {
-        public Subscriber2()
-        {
+        public Subscriber1() =>
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
                     c.LimitMessageProcessingConcurrencyTo(1);
                 },
                 metadata => metadata.RegisterPublisherFor<Event, Publisher>());
-        }
 
-        public class Handler : IHandleMessages<Event>
+        public class Handler(Context testContext) : IHandleMessages<Event>
         {
-            public Handler(Context testContext)
+            public Task Handle(Event message, IMessageHandlerContext context)
             {
-                this.testContext = testContext;
+                var count = Interlocked.Increment(ref testContext.Subscriber1ReceivedMessages);
+                testContext.MarkAsCompleted(count >= 4);
+                return Task.CompletedTask;
             }
+        }
+    }
 
+    public class Subscriber2 : EndpointConfigurationBuilder
+    {
+        public Subscriber2() =>
+            EndpointSetup<DefaultServer>(c =>
+                {
+                    c.DisableFeature<AutoSubscribe>();
+                    c.LimitMessageProcessingConcurrencyTo(1);
+                },
+                metadata => metadata.RegisterPublisherFor<Event, Publisher>());
+
+        public class Handler(Context testContext) : IHandleMessages<Event>
+        {
             public Task Handle(Event message, IMessageHandlerContext context)
             {
                 Interlocked.Increment(ref testContext.Subscriber2ReceivedMessages);
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class Event : IEvent
-    {
-    }
+    public class Event : IEvent;
 }

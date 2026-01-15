@@ -81,7 +81,6 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
                                 }
                             }
                         }))
-                .Done(c => c.TotalHandledMessages == 5)
                 .Run();
             return metricsListener;
         }
@@ -120,7 +119,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            Interlocked.Increment(ref testContext.TotalHandledMessages);
+            testContext.MarkAsCompleted(Interlocked.Increment(ref testContext.TotalHandledMessages) == 5);
             return Task.CompletedTask;
         }
     }
@@ -129,7 +128,8 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     {
         public Task Handle(MyExceptionalMessage message, IMessageHandlerContext context)
         {
-            Interlocked.Increment(ref testContext.TotalHandledMessages);
+            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
+            testContext.MarkAsCompleted(count == 5);
             throw new Exception();
         }
     }

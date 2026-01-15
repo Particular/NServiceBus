@@ -77,7 +77,7 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
         Assert.That(exception.FailedMessage.Exception.Message, Does.Contain(typeof(int).ToString()));
     }
 
-    public class StartSaga : ICommand { }
+    public class StartSaga : ICommand;
 
     public class SagaDataWithHeaderMapping : ContainSagaData
     {

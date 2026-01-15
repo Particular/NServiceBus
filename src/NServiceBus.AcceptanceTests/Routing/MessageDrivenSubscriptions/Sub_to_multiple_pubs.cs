@@ -20,15 +20,22 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
                 .CustomConfig(cfg =>
                 {
                     cfg.OverrideLocalAddress("Publisher1");
-                    cfg.OnEndpointSubscribed<Context>((args, ctx) => ctx.SubscribedToPublisher1 = true);
+                    cfg.OnEndpointSubscribed<Context>((args, ctx) =>
+                    {
+                        ctx.SubscribedToPublisher1 = true;
+                        ctx.MaybeCompleted();
+                    });
                 }))
             .WithEndpoint<Publisher>(e => e
                 .CustomConfig(cfg =>
                 {
                     cfg.OverrideLocalAddress("Publisher2");
-                    cfg.OnEndpointSubscribed<Context>((args, ctx) => ctx.SubscribedToPublisher2 = true);
+                    cfg.OnEndpointSubscribed<Context>((args, ctx) =>
+                    {
+                        ctx.SubscribedToPublisher2 = true;
+                        ctx.MaybeCompleted();
+                    });
                 }))
-            .Done(c => c.SubscribedToPublisher1 && c.SubscribedToPublisher2)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,6 +49,8 @@ public class Sub_to_multiple_pubs : NServiceBusAcceptanceTest
     {
         public bool SubscribedToPublisher1 { get; set; }
         public bool SubscribedToPublisher2 { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(SubscribedToPublisher1, SubscribedToPublisher2);
     }
 
     class Subscriber : EndpointConfigurationBuilder

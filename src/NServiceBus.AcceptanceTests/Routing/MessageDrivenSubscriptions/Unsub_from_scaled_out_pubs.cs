@@ -20,7 +20,6 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
             .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
             .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
             .WithEndpoint<Unsubscriber>(b => b.When(s => s.Unsubscribe<MyEvent>()))
-            .Done(c => c.PublisherReceivedUnsubscribeMessage.Count >= 2)
             .Run();
 
         // each instance should receive an unsubscribe message
@@ -32,25 +31,27 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
     class Context : ScenarioContext
     {
         public ConcurrentBag<string> PublisherReceivedUnsubscribeMessage { get; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(PublisherReceivedUnsubscribeMessage.Count >= 2);
     }
 
     class ScaledOutPublisher : EndpointConfigurationBuilder
     {
-        public ScaledOutPublisher()
-        {
+        public ScaledOutPublisher() =>
             // store the instance discriminator of each instance receiving a unsubscribe message:
             EndpointSetup<DefaultServer>(c =>
             {
                 c.OnEndpointUnsubscribed<Context>((subscription, context) =>
-                        context.PublisherReceivedUnsubscribeMessage.Add(c.GetSettings().Get<string>("EndpointInstanceDiscriminator")));
+                {
+                    context.PublisherReceivedUnsubscribeMessage.Add(c.GetSettings().Get<string>("EndpointInstanceDiscriminator"));
+                    context.MaybeCompleted();
+                });
             });
-        }
     }
 
     class Unsubscriber : EndpointConfigurationBuilder
     {
-        public Unsubscriber()
-        {
+        public Unsubscriber() =>
             EndpointSetup<DefaultServer>(
                 c =>
                 {
@@ -62,10 +63,7 @@ public class Unsub_from_scaled_out_pubs : NServiceBusAcceptanceTest
                     ]);
                 },
                 metadata => metadata.RegisterPublisherFor<MyEvent, ScaledOutPublisher>());
-        }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

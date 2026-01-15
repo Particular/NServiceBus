@@ -16,19 +16,13 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
             {
                 SomeId = Guid.NewGuid()
             })))
-            .Done(c => c.HandlerInvoked || c.TimeoutHandlerInvoked)
             .Run();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.HandlerInvoked, Is.True, "Regular handler should be invoked");
-            Assert.That(context.TimeoutHandlerInvoked, Is.False, "Timeout handler should not be invoked");
-        }
+        Assert.That(context.HandlerInvoked, Is.True, "Regular handler should be invoked");
     }
 
     public class Context : ScenarioContext
     {
-        public bool TimeoutHandlerInvoked { get; set; }
         public bool HandlerInvoked { get; set; }
     }
 
@@ -43,12 +37,13 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.HandlerInvoked = true;
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
 
             public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
             {
-                testContext.TimeoutHandlerInvoked = true;
+                testContext.MarkAsFailed(new InvalidOperationException("Timeout handler invoked"));
                 return Task.CompletedTask;
             }
 

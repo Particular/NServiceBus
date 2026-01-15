@@ -20,7 +20,6 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
             .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
             .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
             .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
-            .Done(c => c.SubscriberACounter > 0 && c.SubscriberBCounter > 0)
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -39,12 +38,16 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
         public void IncrementSubscriberACounter()
         {
             Interlocked.Increment(ref subscriberACounter);
+            MaybeCompleted();
         }
 
         public void IncrementSubscriberBCounter()
         {
             Interlocked.Increment(ref subscriberBCounter);
+            MaybeCompleted();
         }
+
+        void MaybeCompleted() => MarkAsCompleted(SubscriberACounter > 0, SubscriberBCounter > 0);
 
         int subscriberACounter;
         int subscriberBCounter;
@@ -52,61 +55,36 @@ public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTe
 
     public class Publisher : EndpointConfigurationBuilder
     {
-        public Publisher()
-        {
-            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
-        }
+        public Publisher() => EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
     }
 
     public class SubscriberA : EndpointConfigurationBuilder
     {
-        public SubscriberA()
-        {
-            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
-        }
+        public SubscriberA() => EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
                 testContext.IncrementSubscriberACounter();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
     public class SubscriberB : EndpointConfigurationBuilder
     {
-        public SubscriberB()
-        {
-            EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
-        }
+        public SubscriberB() => EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public MyHandler(Context context)
-            {
-                testContext = context;
-            }
-
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
                 testContext.IncrementSubscriberBCounter();
                 return Task.CompletedTask;
             }
-
-            Context testContext;
         }
     }
 
-    public class MyEvent : IEvent
-    {
-    }
+    public class MyEvent : IEvent;
 }

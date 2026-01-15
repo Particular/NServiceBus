@@ -28,7 +28,6 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
                             SomeId = someId
                         });
                 }))
-            .Done(c => c.SagaIds.Count >= 2)
             .Run();
 
         Assert.That(context.SagaIds, Has.Count.EqualTo(2));
@@ -49,7 +48,7 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 testContext.SagaIds.Add(Data.Id);
-
+                testContext.MarkAsCompleted(testContext.SagaIds.Count >= 2);
                 return Task.CompletedTask;
             }
 
@@ -67,7 +66,5 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
     public class StartSagaMessage : ICommand
     {
         public Guid SomeId { get; set; }
-
-        public bool SecondMessage { get; set; }
     }
 }
