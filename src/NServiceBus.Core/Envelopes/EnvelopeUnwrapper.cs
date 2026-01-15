@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using Logging;
 using Transport;
 
@@ -11,8 +10,9 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
 
-    internal IncomingMessage UnwrapEnvelope(MessageContext messageContext)
+    internal IncomingMessageHandle UnwrapEnvelope(MessageContext messageContext)
     {
+        var bufferWriter = new LazyArrayPoolBufferWriter<byte>(messageContext.Body.Length);
         foreach (var envelopeHandler in envelopeHandlers)
         {
             try
@@ -23,13 +23,12 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                         "Unwrapping the current message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                 }
 
-                (Dictionary<string, string> headers, ReadOnlyMemory<byte> body)? unwrappingResult = envelopeHandler.UnwrapEnvelope(
-                    messageContext.NativeMessageId, messageContext.Headers, messageContext.Extensions,
-                    messageContext.Body);
+                var headers = envelopeHandler.UnwrapEnvelope(messageContext.NativeMessageId, messageContext.Headers,
+                    messageContext.Body.Span, messageContext.Extensions, bufferWriter);
 
                 metrics.EnvelopeUnwrappingSucceeded(messageContext, envelopeHandler);
 
-                if (unwrappingResult.HasValue)
+                if (headers is not null)
                 {
                     if (Log.IsDebugEnabled)
                     {
@@ -37,7 +36,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                             "Unwrapped the message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                     }
 
-                    return new IncomingMessage(messageContext.NativeMessageId, unwrappingResult.Value.headers, unwrappingResult.Value.body);
+                    return new IncomingMessageHandle(new IncomingMessage(messageContext.NativeMessageId, headers, bufferWriter.WrittenMemory), bufferWriter);
                 }
 
                 if (Log.IsDebugEnabled)
@@ -55,6 +54,9 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                         "Unwrapper {0} failed to unwrap the message {1}: {2}", envelopeHandler, messageContext.NativeMessageId, e);
                 }
             }
+
+            // Always clear the buffer before trying the following unwrapper
+            bufferWriter.Clear();
         }
 
         if (Log.IsDebugEnabled)
@@ -71,7 +73,16 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
             }
         }
 
-        return GetDefaultIncomingMessage(messageContext);
+        return new IncomingMessageHandle(GetDefaultIncomingMessage(messageContext), bufferWriter);
+    }
+
+    internal readonly struct IncomingMessageHandle(IncomingMessage message, IDisposable disposable) : IDisposable
+    {
+        public IncomingMessage Message { get; } = message;
+
+        public void Dispose() => disposable.Dispose();
+
+        public static implicit operator IncomingMessage(IncomingMessageHandle handle) => handle.Message;
     }
 
     static readonly ILog Log = LogManager.GetLogger<EnvelopeUnwrapper>();
