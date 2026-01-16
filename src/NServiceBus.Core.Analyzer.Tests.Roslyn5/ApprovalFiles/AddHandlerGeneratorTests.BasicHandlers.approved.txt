@@ -1,0 +1,110 @@
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/Handlers.g.cs ===================
+namespace NServiceBus
+{
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+    public static class BasicHandlersHandlerRegistryExtensions
+    {
+        extension (global::NServiceBus.HandlerRegistry registry)
+        {
+            public BasicHandlersRootRegistry BasicHandlersAssembly => new(registry.Configuration);
+        }
+
+        public class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        {
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+            public OrdersRegistry Orders => new(_configuration);
+            public PaymentsRegistry Payments => new(_configuration);
+
+            public void AddAll()
+            {
+                Orders.AddAll();
+                Payments.AddAll();
+            }
+
+            public class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                public BillingRegistry Billing => new(_configuration);
+                public ShippingRegistry Shipping => new(_configuration);
+
+                public void AddAll()
+                {
+                    Billing.AddAll();
+                    Shipping.AddAll();
+                }
+
+                public class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+
+                    public void AddAll()
+                    {
+                        AddInvoiceCreated();
+                    }
+
+                    public void AddInvoiceCreated()
+                    {
+                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Billing.InvoiceCreatedHandler, global::Evt1>();
+                        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
+                    }
+                }
+
+                public class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+
+                    public void AddAll()
+                    {
+                        AddOrderShipped();
+                        AddShipmentDelayed();
+                    }
+
+                    public void AddOrderShipped()
+                    {
+                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OrderShippedHandler, global::Cmd1>();
+                        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                    }
+
+                    public void AddShipmentDelayed()
+                    {
+                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.ShipmentDelayedHandler, global::Cmd2>();
+                        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
+                    }
+                }
+            }
+
+            public class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+
+                public void AddAll()
+                {
+                    AddPaymentCaptured();
+                }
+
+                public void AddPaymentCaptured()
+                {
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentCapturedHandler, global::Cmd1>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                }
+            }
+        }
+    }
+}
