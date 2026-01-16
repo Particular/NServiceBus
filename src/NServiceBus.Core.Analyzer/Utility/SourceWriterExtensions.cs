@@ -57,7 +57,7 @@ static class SourceWriterExtensions
 
         public SourceWriter WithGeneratedCodeAttribute(AssemblyName assemblyName)
         {
-            writer.WriteLine($"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{assemblyName.Name}", "{assemblyName.Version}")]""");
+            writer.WriteLine($"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{assemblyName.Name}", "{assemblyName.Version.ToString(3)}")]""");
             return writer;
         }
 
