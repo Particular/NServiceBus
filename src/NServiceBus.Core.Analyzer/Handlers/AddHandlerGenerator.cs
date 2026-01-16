@@ -11,7 +11,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
     {
         var addHandlers = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
-                predicate: static (node, _) => true, // TODO sensible check
+                predicate: static (node, _) => true,
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
