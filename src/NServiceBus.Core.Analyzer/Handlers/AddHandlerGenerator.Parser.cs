@@ -43,17 +43,17 @@ public sealed partial class AddHandlerGenerator
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
 
-            foreach (var iface in handlerType.AllInterfaces.Where(IsHandlerInterface))
+            foreach (var @interface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (iface.TypeArguments[0] is not INamedTypeSymbol messageType)
+                if (@interface.TypeArguments[0] is not INamedTypeSymbol messageType)
                 {
                     continue;
                 }
 
                 var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                RegistrationType? registrationType = iface.Name switch
+                RegistrationType? registrationType = @interface.Name switch
                 {
                     "IHandleMessages" => RegistrationType.MessageHandler,
                     "IHandleTimeouts" => RegistrationType.TimeoutHandler,
@@ -238,7 +238,7 @@ public sealed partial class AddHandlerGenerator
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
             // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.
             // It would be more efficient to yield the base types (except where type.SpecialType is not SpecialType.System_Object)
-            // and then to yield the the interfaces from type.AllInterfaces except those in the MarkerTypes.
+            // and then to yield the interfaces from type.AllInterfaces except those in the MarkerTypes.
             // We're hesitant to change the implementation, however, due to wire compatibility concerns of outputting
             // an EnclosedMessageTypes header with a different ordering.
             GetParentTypes(type)

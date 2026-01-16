@@ -89,7 +89,7 @@ namespace NServiceBus
             public InterfaceLessHandlersRootRegistry InterfaceLessHandlersAssembly => new(registry.Configuration);
         }
 
-        public class InterfaceLessHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed class InterfaceLessHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
@@ -100,10 +100,9 @@ namespace NServiceBus
                 Foo.AddAll();
             }
 
-            public class FooRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            public sealed class FooRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
 
                 public void AddAll()
                 {

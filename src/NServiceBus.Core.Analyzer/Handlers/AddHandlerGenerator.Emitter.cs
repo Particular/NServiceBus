@@ -89,13 +89,13 @@ public sealed partial class AddHandlerGenerator
 
         static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string registryName)
         {
-            sourceWriter.WriteLine($"public class {registryName}(global::NServiceBus.EndpointConfiguration configuration)");
+            sourceWriter.WriteLine($"public sealed class {registryName}(global::NServiceBus.EndpointConfiguration configuration)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
             sourceWriter.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
 
-            if (node.Children.Count > 0 || node.Handlers.Count > 0)
+            if (node.Children.Count > 0)
             {
                 sourceWriter.WriteLine();
             }

@@ -9,7 +9,7 @@ namespace NServiceBus
             public BasicHandlersRootRegistry BasicHandlersAssembly => new(registry.Configuration);
         }
 
-        public class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
@@ -22,7 +22,7 @@ namespace NServiceBus
                 Payments.AddAll();
             }
 
-            public class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            public sealed class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
@@ -35,10 +35,9 @@ namespace NServiceBus
                     Shipping.AddAll();
                 }
 
-                public class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                public sealed class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
                     readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
 
                     public void AddAll()
                     {
@@ -55,10 +54,9 @@ namespace NServiceBus
                     }
                 }
 
-                public class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                public sealed class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
                     readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
 
                     public void AddAll()
                     {
@@ -86,10 +84,9 @@ namespace NServiceBus
                 }
             }
 
-            public class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            public sealed class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
 
                 public void AddAll()
                 {
