@@ -369,6 +369,8 @@ public partial class SourceGeneratorTest
 
         var output = GetCompilationOutput();
         var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+        toApprove = ScrubVersionSpecificAttributeData().Replace(toApprove, m => m.Value.Replace(m.Groups["AssemblyName"].Value, "NService.Core.Analyzer.Tests")
+            .Replace(m.Groups["Version"].Value, "1.0.0"));
         Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
         return this;
     }
@@ -390,6 +392,9 @@ public partial class SourceGeneratorTest
 
     [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
     private static partial Regex ScrubPlatformSpecificInterceptorData();
+
+    [GeneratedRegex("""System\.CodeDom\.Compiler\.GeneratedCodeAttribute\("(?<AssemblyName>[^"]+)",\s*"(?<Version>[^"]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex ScrubVersionSpecificAttributeData();
 
     public SourceGeneratorTest ToConsole()
     {
