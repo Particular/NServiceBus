@@ -105,7 +105,7 @@ sealed class SourceWriter
             lineLength--;
         }
 
-        ReadOnlySpan<char> next = remainingText.Slice(0, lineLength);
+        ReadOnlySpan<char> next = remainingText[..lineLength];
         remainingText = rest;
         return next;
     }
