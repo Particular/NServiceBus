@@ -1,5 +1,5 @@
 // == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/Handlers.g.cs ===================
-[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
 [System.Diagnostics.DebuggerNonUserCode]
 file sealed class InterfaceLessNoDependencies_Handle_8fc91ff8a5cc294e : NServiceBus.IHandleMessages<global::Foo.MyEvent>
 {
@@ -18,7 +18,7 @@ file sealed class InterfaceLessNoDependencies_Handle_8fc91ff8a5cc294e : NService
     }
 }
 
-[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
 [System.Diagnostics.DebuggerNonUserCode]
 file sealed class InterfaceLessStaticWithDependencies_Handle_78b81537073b3f1a : NServiceBus.IHandleMessages<global::Foo.MyCommand>
 {
@@ -39,7 +39,7 @@ file sealed class InterfaceLessStaticWithDependencies_Handle_78b81537073b3f1a : 
     }
 }
 
-[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
 [System.Diagnostics.DebuggerNonUserCode]
 file sealed class InterfaceLessStatic_Handle_cc5b04e69a344262 : NServiceBus.IHandleMessages<global::Foo.MyCommand>
 {
@@ -58,7 +58,7 @@ file sealed class InterfaceLessStatic_Handle_cc5b04e69a344262 : NServiceBus.IHan
     }
 }
 
-[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
 [System.Diagnostics.DebuggerNonUserCode]
 file sealed class InterfaceLess_Handle_b488fd37e2f63483 : NServiceBus.IHandleMessages<global::Foo.MyCommand>
 {
@@ -81,7 +81,7 @@ file sealed class InterfaceLess_Handle_b488fd37e2f63483 : NServiceBus.IHandleMes
 
 namespace NServiceBus
 {
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NServiceBus.Core.Analyzer", "10.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     public static class InterfaceLessHandlersHandlerRegistryExtensions
     {
         extension (global::NServiceBus.HandlerRegistry registry)
