@@ -14,25 +14,20 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
 {
     static readonly string HandlerTimeMetricName = "nservicebus.messaging.handler_time";
     static readonly string CriticalTimeMetricName = "nservicebus.messaging.critical_time";
-    const int NumberOfMessages = 5;
 
     [Test]
     public async Task Should_record_critical_time()
     {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-
-        await WhenMessagesHandled(() => new MyMessage());
-        metricsListener.AssertMetric(CriticalTimeMetricName, NumberOfMessages);
+        using var metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        metricsListener.AssertMetric(CriticalTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, CriticalTimeMetricName, typeof(MyMessage));
     }
 
     [Test]
     public async Task Should_record_success_handling_time()
     {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-
-        await WhenMessagesHandled(() => new MyMessage());
-        metricsListener.AssertMetric(HandlerTimeMetricName, NumberOfMessages);
+        using var metricsListener = await WhenMessagesHandled(() => new MyMessage());
+        metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.That(handlerType, Is.EqualTo(typeof(MyMessageHandler).FullName));
@@ -43,10 +38,8 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_record_failure_handling_time()
     {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-
-        await WhenMessagesHandled(() => new MyExceptionalMessage());
-        metricsListener.AssertMetric(HandlerTimeMetricName, NumberOfMessages);
+        using var metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
+        metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.That(handlerType, Is.EqualTo(typeof(MyExceptionalHandler).FullName));
@@ -59,24 +52,45 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_not_record_critical_time_on_failure()
     {
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
-        await WhenMessagesHandled(() => new MyExceptionalMessage());
+        using var metricsListener = await WhenMessagesHandled(() => new MyExceptionalMessage());
         metricsListener.AssertMetric(CriticalTimeMetricName, 0);
     }
 
-    static Task<Context> WhenMessagesHandled(Func<IMessage> messageFactory) =>
-        Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithMetrics>(b =>
-                b.DoNotFailOnErrorMessages()
-                    .CustomConfig(c => c.MakeInstanceUniquelyAddressable("discriminator"))
-                    .When(async session =>
-                    {
-                        for (var x = 0; x < NumberOfMessages; x++)
+    static async Task<TestingMetricListener> WhenMessagesHandled(Func<IMessage> messageFactory)
+    {
+        TestingMetricListener metricsListener = null;
+        try
+        {
+            metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+            _ = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithMetrics>(b =>
+                    b.DoNotFailOnErrorMessages()
+                        .CustomConfig(c => c.MakeInstanceUniquelyAddressable("discriminator"))
+                        .When(async (session, _) =>
                         {
-                            await session.SendLocal(messageFactory.Invoke());
-                        }
-                    }))
-            .Run();
+                            for (var x = 0; x < 5; x++)
+                            {
+                                try
+                                {
+                                    await session.SendLocal(messageFactory.Invoke());
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                }
+                            }
+                        }))
+                .Run();
+            return metricsListener;
+        }
+        catch
+        {
+            metricsListener?.Dispose();
+            throw;
+        }
+    }
+
 
     static void AssertMandatoryTags(
         TestingMetricListener metricsListener,
@@ -93,9 +107,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext
     {
-        public void MaybeCompleted() => MarkAsCompleted(Interlocked.Increment(ref totalHandledMessages) == NumberOfMessages);
-
-        int totalHandledMessages;
+        public int TotalHandledMessages;
     }
 
     class EndpointWithMetrics : EndpointConfigurationBuilder
@@ -107,7 +119,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
         {
-            testContext.MaybeCompleted();
+            testContext.MarkAsCompleted(Interlocked.Increment(ref testContext.TotalHandledMessages) == 5);
             return Task.CompletedTask;
         }
     }
@@ -116,7 +128,8 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
     {
         public Task Handle(MyExceptionalMessage message, IMessageHandlerContext context)
         {
-            testContext.MaybeCompleted();
+            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
+            testContext.MarkAsCompleted(count == 5);
             throw new Exception();
         }
     }
