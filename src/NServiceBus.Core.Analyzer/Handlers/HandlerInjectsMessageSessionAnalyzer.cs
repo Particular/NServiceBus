@@ -27,7 +27,6 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-
             var knownTypes = new KnownTypes(iHandleMessages, iMessageSession);
 
             Analyze(context, knownTypes);
@@ -41,24 +40,9 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        // fast path: check directly implemented interfaces first
-        var directlyDeclared = classType.Interfaces;
-        foreach (var iface in directlyDeclared)
+        if (classType.ImplementsGenericInterface(knownTypes.IHandleMessages))
         {
-            if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, knownTypes.IHandleMessages))
-            {
-                AnalyzeMessageHandlerClass(context, classType, knownTypes);
-                return;
-            }
-        }
-
-        foreach (var iface in classType.AllInterfaces)
-        {
-            if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, knownTypes.IHandleMessages))
-            {
-                AnalyzeMessageHandlerClass(context, classType, knownTypes);
-                return;
-            }
+            AnalyzeMessageHandlerClass(context, classType, knownTypes);
         }
     }
 
