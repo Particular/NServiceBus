@@ -41,14 +41,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 var normalizedType = classType.OriginalDefinition;
+                if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages))
+                {
+                    return;
+                }
+
                 if (classType.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
                 {
                     baseTypes.TryAdd(baseType.OriginalDefinition, 0);
-                }
-
-                if (!ImplementsHandleMessages(classType, knownTypes.IHandleMessages))
-                {
-                    return;
                 }
 
                 var attributeLocations = GetAttributeLocations(classType, knownTypes.HandlerAttribute, context);
@@ -107,18 +107,6 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         return builder.ToImmutable();
     }
 
-    static bool ImplementsHandleMessages(INamedTypeSymbol classType, INamedTypeSymbol iHandleMessages)
-    {
-        foreach (var iface in classType.AllInterfaces)
-        {
-            if (SymbolEqualityComparer.IncludeNullability.Equals(iface.OriginalDefinition, iHandleMessages))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     static Location? GetClassIdentifierLocation(INamedTypeSymbol classType, CancellationToken cancellationToken)
     {
