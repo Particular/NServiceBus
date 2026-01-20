@@ -96,29 +96,49 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 return solution;
             }
 
-            var handlerTypes = GetAllNamedTypes(compilation.GlobalNamespace)
-                .Where(static type => type.TypeKind == TypeKind.Class)
-                .Where(type => type.ImplementsGenericInterface(iHandleMessages))
-                .ToArray();
-
+            var handlerTypes = new List<INamedTypeSymbol>();
             var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            foreach (var type in handlerTypes)
+
+            foreach (var type in GetAllNamedTypes(compilation.GlobalNamespace))
             {
+                if (type.TypeKind != TypeKind.Class)
+                {
+                    continue;
+                }
+
+                if (!type.ImplementsGenericInterface(iHandleMessages))
+                {
+                    continue;
+                }
+
+                handlerTypes.Add(type);
+
                 if (type.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
                 {
                     baseTypes.Add(baseType.OriginalDefinition);
                 }
             }
 
-            var leafHandlers = handlerTypes
-                .Where(type => !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition))
-                .Where(type => !type.HasAttribute(handlerAttributeSymbol))
-                .ToArray();
+            var leafHandlers = new List<INamedTypeSymbol>();
+            var nonLeafHandlersWithAttribute = new List<INamedTypeSymbol>();
 
-            var nonLeafHandlersWithAttribute = handlerTypes
-                .Where(type => type.IsAbstract || baseTypes.Contains(type.OriginalDefinition))
-                .Where(type => type.HasAttribute(handlerAttributeSymbol))
-                .ToArray();
+            foreach (var type in handlerTypes)
+            {
+                var isLeaf = !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition);
+                var hasAttribute = type.HasAttribute(handlerAttributeSymbol);
+
+                if (isLeaf)
+                {
+                    if (!hasAttribute)
+                    {
+                        leafHandlers.Add(type);
+                    }
+                }
+                else if (hasAttribute)
+                {
+                    nonLeafHandlersWithAttribute.Add(type);
+                }
+            }
 
             var editors = new Dictionary<DocumentId, DocumentEditor>();
 
