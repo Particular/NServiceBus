@@ -329,6 +329,16 @@ namespace NServiceBus
             "heck\'. Will be removed in version 11.0.0.", true)]
         protected override System.Type ProvidedByFeature() { }
     }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class HandlerAttribute : System.Attribute
+    {
+        public HandlerAttribute() { }
+    }
+    public sealed class HandlerRegistry
+    {
+        public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
+        public NServiceBus.EndpointConfiguration Configuration { get; }
+    }
     public static class HeaderOptionExtensions
     {
         public static System.Collections.Generic.IReadOnlyDictionary<string, string> GetHeaders(this NServiceBus.Extensibility.ExtendableOptions options) { }
@@ -846,6 +856,13 @@ namespace NServiceBus
     public static class RecoverabilitySettingsExtensions
     {
         public static void AddUnrecoverableException(this NServiceBus.Settings.SettingsHolder settings, System.Type exceptionType) { }
+    }
+    public static class RegistrationExtensions
+    {
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
+        {
+            public NServiceBus.HandlerRegistry Handlers { get; }
+        }
     }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
