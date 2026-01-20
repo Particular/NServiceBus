@@ -28,7 +28,7 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
     {
         public EndpointWithComplexMessageHierarchy() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly.AcceptanceTests.Handlers.AddComplexMessage();
+            config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly.AcceptanceTests.Handlers.AddComplexMessageHandler();
         });
 
         [Handler]
