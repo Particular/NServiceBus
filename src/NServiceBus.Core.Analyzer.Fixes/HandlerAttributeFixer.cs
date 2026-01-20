@@ -1,0 +1,315 @@
+namespace NServiceBus.Core.Analyzer.Fixes
+{
+    using System.Collections.Generic;
+    using System.Collections.Immutable;
+    using System.Composition;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CodeActions;
+    using Microsoft.CodeAnalysis.CodeFixes;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
+    using Microsoft.CodeAnalysis.Editing;
+    using Microsoft.CodeAnalysis.Formatting;
+
+    [Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(HandlerAttributeFixer))]
+    public class HandlerAttributeFixer : CodeFixProvider
+    {
+        public override ImmutableArray<string> FixableDiagnosticIds =>
+            [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced];
+
+        public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        {
+            var diagnostic = context.Diagnostics.First();
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+
+            if (root?.FindNode(context.Span, getInnermostNodeForTie: true) is not { } node)
+            {
+                return;
+            }
+
+            var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+            if (classDecl is null)
+            {
+                return;
+            }
+
+            if (diagnostic.Id == DiagnosticIds.HandlerAttributeMissing)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        "Add HandlerAttribute",
+                        token => MoveHandlerAttribute(context.Document, classDecl, token),
+                        EquivalenceKeyMove),
+                    diagnostic);
+            }
+            else if (diagnostic.Id == DiagnosticIds.HandlerAttributeMisplaced)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        "Move HandlerAttribute to leaf handlers",
+                        token => MoveHandlerAttribute(context.Document, classDecl, token),
+                        EquivalenceKeyMove),
+                    diagnostic);
+            }
+        }
+
+        static async Task<Document> AddHandlerAttribute(
+            Document document,
+            ClassDeclarationSyntax classDeclaration,
+            CancellationToken cancellationToken)
+        {
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            var updatedClass = AddHandlerAttributeToClass(classDeclaration);
+            editor.ReplaceNode(classDeclaration, updatedClass);
+
+            var changed = editor.GetChangedDocument();
+            var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
+            return changed.WithSyntaxRoot(formattedRoot);
+        }
+
+        static async Task<Solution> MoveHandlerAttribute(
+            Document document,
+            ClassDeclarationSyntax baseClassDeclaration,
+            CancellationToken cancellationToken)
+        {
+            _ = baseClassDeclaration;
+            var solution = document.Project.Solution;
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+
+            if (semanticModel is null)
+            {
+                return solution;
+            }
+
+            var compilation = semanticModel.Compilation;
+            var iHandleMessages = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
+            var handlerAttributeSymbol = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
+            if (iHandleMessages is null || handlerAttributeSymbol is null)
+            {
+                return solution;
+            }
+
+            var handlerTypes = GetAllNamedTypes(compilation.GlobalNamespace)
+                .Where(static type => type.TypeKind == TypeKind.Class)
+                .Where(type => ImplementsHandleMessages(type, iHandleMessages))
+                .ToArray();
+
+            var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            foreach (var type in handlerTypes)
+            {
+                if (type.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
+                {
+                    baseTypes.Add(baseType.OriginalDefinition);
+                }
+            }
+
+            var leafHandlers = handlerTypes
+                .Where(type => !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition))
+                .Where(type => !HasHandlerAttribute(type, handlerAttributeSymbol))
+                .ToArray();
+
+            var nonLeafHandlersWithAttribute = handlerTypes
+                .Where(type => type.IsAbstract || baseTypes.Contains(type.OriginalDefinition))
+                .Where(type => HasHandlerAttribute(type, handlerAttributeSymbol))
+                .ToArray();
+
+            var editors = new Dictionary<DocumentId, DocumentEditor>();
+
+            foreach (var handlerType in nonLeafHandlersWithAttribute)
+            {
+                foreach (var syntaxRef in handlerType.DeclaringSyntaxReferences)
+                {
+                    var doc = solution.GetDocument(syntaxRef.SyntaxTree);
+                    if (doc is null)
+                    {
+                        continue;
+                    }
+
+                    var editor = await GetEditor(doc.Id).ConfigureAwait(false);
+                    if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
+                    {
+                        var updated = RemoveHandlerAttribute(classDecl, editor.SemanticModel, handlerAttributeSymbol, cancellationToken);
+                        editor.ReplaceNode(classDecl, updated);
+                    }
+                }
+            }
+
+            foreach (var leafHandler in leafHandlers)
+            {
+                var syntaxRef = leafHandler.DeclaringSyntaxReferences.FirstOrDefault();
+                if (syntaxRef is null)
+                {
+                    continue;
+                }
+
+                var doc = solution.GetDocument(syntaxRef.SyntaxTree);
+                if (doc is null)
+                {
+                    continue;
+                }
+
+                var editor = await GetEditor(doc.Id).ConfigureAwait(false);
+                if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
+                {
+                    var updated = AddHandlerAttributeToClass(classDecl);
+                    editor.ReplaceNode(classDecl, updated);
+                }
+            }
+
+            foreach (var editor in editors.Values)
+            {
+                var changed = editor.GetChangedDocument();
+                var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
+                solution = solution.WithDocumentSyntaxRoot(changed.Id, formattedRoot);
+            }
+
+            return solution;
+
+            async Task<DocumentEditor> GetEditor(DocumentId documentId)
+            {
+                if (editors.TryGetValue(documentId, out var existing))
+                {
+                    return existing;
+                }
+
+                var doc = solution.GetDocument(documentId);
+                var editor = await DocumentEditor.CreateAsync(doc, cancellationToken).ConfigureAwait(false);
+                editors[documentId] = editor;
+                return editor;
+            }
+        }
+
+        static ClassDeclarationSyntax AddHandlerAttributeToClass(ClassDeclarationSyntax classDeclaration)
+        {
+            var attribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("NServiceBus.HandlerAttribute"));
+            var attributeList = SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute))
+                .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed)
+                .WithAdditionalAnnotations(Formatter.Annotation);
+            return classDeclaration.AddAttributeLists(attributeList);
+        }
+
+        static ClassDeclarationSyntax RemoveHandlerAttribute(
+            ClassDeclarationSyntax classDeclaration,
+            SemanticModel semanticModel,
+            INamedTypeSymbol handlerAttributeSymbol,
+            CancellationToken cancellationToken)
+        {
+            var updatedClass = classDeclaration;
+            var listsToRemove = new List<AttributeListSyntax>();
+
+            foreach (var list in classDeclaration.AttributeLists)
+            {
+                var remaining = new List<AttributeSyntax>();
+                foreach (var attribute in list.Attributes)
+                {
+                    if (!IsHandlerAttribute(attribute, semanticModel, handlerAttributeSymbol, cancellationToken))
+                    {
+                        remaining.Add(attribute);
+                    }
+                }
+
+                if (remaining.Count == 0)
+                {
+                    listsToRemove.Add(list);
+                }
+                else if (remaining.Count != list.Attributes.Count)
+                {
+                    updatedClass = updatedClass.ReplaceNode(list, list.WithAttributes(SyntaxFactory.SeparatedList(remaining)));
+                }
+            }
+
+            if (listsToRemove.Count > 0)
+            {
+                updatedClass = updatedClass.RemoveNodes(listsToRemove, SyntaxRemoveOptions.KeepLeadingTrivia);
+            }
+
+            return updatedClass;
+        }
+
+        static bool IsHandlerAttribute(
+            AttributeSyntax attributeSyntax,
+            SemanticModel semanticModel,
+            INamedTypeSymbol handlerAttributeSymbol,
+            CancellationToken cancellationToken)
+        {
+            var symbol = semanticModel.GetSymbolInfo(attributeSyntax, cancellationToken).Symbol as IMethodSymbol;
+            return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol.ContainingType, handlerAttributeSymbol);
+        }
+
+        static bool HasHandlerAttribute(INamedTypeSymbol type, INamedTypeSymbol handlerAttributeSymbol)
+        {
+            foreach (var attribute in type.GetAttributes())
+            {
+                if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, handlerAttributeSymbol))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static bool ImplementsHandleMessages(INamedTypeSymbol classType, INamedTypeSymbol iHandleMessages)
+        {
+            foreach (var iface in classType.AllInterfaces)
+            {
+                if (SymbolEqualityComparer.IncludeNullability.Equals(iface.OriginalDefinition, iHandleMessages))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static IEnumerable<INamedTypeSymbol> GetAllNamedTypes(INamespaceSymbol rootNamespace)
+        {
+            foreach (var member in rootNamespace.GetMembers())
+            {
+                if (member is INamespaceSymbol namespaceSymbol)
+                {
+                    foreach (var type in GetAllNamedTypes(namespaceSymbol))
+                    {
+                        yield return type;
+                    }
+
+                    continue;
+                }
+
+                if (member is INamedTypeSymbol typeSymbol)
+                {
+                    yield return typeSymbol;
+
+                    foreach (var nestedType in GetNestedTypes(typeSymbol))
+                    {
+                        yield return nestedType;
+                    }
+                }
+            }
+        }
+
+        static IEnumerable<INamedTypeSymbol> GetNestedTypes(INamedTypeSymbol typeSymbol)
+        {
+            foreach (var nested in typeSymbol.GetTypeMembers())
+            {
+                yield return nested;
+
+                foreach (var child in GetNestedTypes(nested))
+                {
+                    yield return child;
+                }
+            }
+        }
+
+        static readonly string EquivalenceKeyAdd = typeof(HandlerAttributeFixer).FullName + ".Add";
+        static readonly string EquivalenceKeyMove = typeof(HandlerAttributeFixer).FullName + ".Move";
+    }
+}
