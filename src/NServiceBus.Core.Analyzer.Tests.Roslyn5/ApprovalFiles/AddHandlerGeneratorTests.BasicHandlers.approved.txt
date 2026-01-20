@@ -26,6 +26,7 @@ namespace NServiceBus
             /// Gets the handler registry for the <i>Orders</i> namespace part.
             /// </summary>
             public OrdersRegistry Orders => new(_configuration);
+
             /// <summary>
             /// Gets the handler registry for the <i>Payments</i> namespace part.
             /// </summary>
@@ -51,6 +52,7 @@ namespace NServiceBus
                 /// Gets the handler registry for the <i>Billing</i> namespace part.
                 /// </summary>
                 public BillingRegistry Billing => new(_configuration);
+
                 /// <summary>
                 /// Gets the handler registry for the <i>Shipping</i> namespace part.
                 /// </summary>

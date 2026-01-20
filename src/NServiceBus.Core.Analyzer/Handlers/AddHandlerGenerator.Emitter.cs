@@ -99,9 +99,13 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine($"/// Gets the handler registry for the <i>{child.Name}</i> namespace part.");
                 sourceWriter.WriteLine("/// </summary>");
                 sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
+                sourceWriter.WriteLine();
             }
 
-            sourceWriter.WriteLine();
+            if (node.Children.Count == 0)
+            {
+                sourceWriter.WriteLine();
+            }
             sourceWriter.WriteLine("/// <summary>");
             if (node.Children.Count > 0)
             {
