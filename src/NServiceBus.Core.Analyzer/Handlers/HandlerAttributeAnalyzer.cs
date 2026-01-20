@@ -138,7 +138,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         title: "HandlerAttribute should be applied to leaf handler classes only",
         messageFormat: "HandlerAttribute is applied to {0}, but should be placed on leaf handler classes instead.",
         category: "NServiceBus.Handlers",
-        defaultSeverity: DiagnosticSeverity.Info,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
 }
