@@ -57,6 +57,15 @@ namespace NServiceBus.Core.Analyzer.Fixes
                         EquivalenceKeyMove),
                     diagnostic);
             }
+            else if (diagnostic.Id == DiagnosticIds.HandlerAttributeOnNonHandler)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        "Remove HandlerAttribute",
+                        token => RemoveHandlerAttribute(context.Document, classDecl, token),
+                        EquivalenceKeyMove),
+                    diagnostic);
+            }
         }
 
         static async Task<Document> AddHandlerAttribute(
@@ -66,6 +75,32 @@ namespace NServiceBus.Core.Analyzer.Fixes
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             var updatedClass = AddHandlerAttributeToClass(classDeclaration);
+            editor.ReplaceNode(classDeclaration, updatedClass);
+
+            var changed = editor.GetChangedDocument();
+            var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
+            return changed.WithSyntaxRoot(formattedRoot);
+        }
+
+        static async Task<Document> RemoveHandlerAttribute(
+            Document document,
+            ClassDeclarationSyntax classDeclaration,
+            CancellationToken cancellationToken)
+        {
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            var semanticModel = editor.SemanticModel;
+
+            var compilation = semanticModel.Compilation;
+            // TODO cache?
+            var iHandleMessages = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
+            var handlerAttributeSymbol = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
+            if (iHandleMessages is null || handlerAttributeSymbol is null)
+            {
+                return document;
+            }
+
+            var updatedClass = RemoveHandlerAttribute(classDeclaration, semanticModel, handlerAttributeSymbol, cancellationToken);
             editor.ReplaceNode(classDeclaration, updatedClass);
 
             var changed = editor.GetChangedDocument();
