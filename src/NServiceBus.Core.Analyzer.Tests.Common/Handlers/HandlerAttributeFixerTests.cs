@@ -12,6 +12,31 @@ using NUnit.Framework;
 public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAnalyzer, HandlerAttributeFixer>
 {
     [Test]
+    public Task RemoveHandlerAttributeOnNonHandler()
+    {
+        var original =
+            """
+            using NServiceBus;
+
+            [NServiceBus.HandlerAttribute]
+            class NonHandler
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            
+            class NonHandler
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task AddsHandlerAttributeToLeafHandler()
     {
         var original =

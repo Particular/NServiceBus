@@ -79,6 +79,22 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task ReportsMisplacedAttributeOnNonHandler()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            [[|HandlerAttribute|]]
+            class NonHandler
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeOnNonHandler, source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnAbstractBase()
     {
         var source =

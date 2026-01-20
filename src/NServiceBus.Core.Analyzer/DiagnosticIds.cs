@@ -29,5 +29,6 @@
         public const string AddHandlerOnSagaType = "NSB0021";
         public const string HandlerAttributeMissing = "NSB0022";
         public const string HandlerAttributeMisplaced = "NSB0023";
+        public const string HandlerAttributeOnNonHandler = "NSB0024";
     }
 }
