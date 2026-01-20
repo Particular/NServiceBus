@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Compile Include="..\NServiceBus.Core.Analyzer\DiagnosticIds.cs" />
+    <Compile Include="..\NServiceBus.Core.Analyzer\TypeSymbolExtensions.cs" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Sagas\SagaMessageMapping.cs" LinkBase="Sagas" />
   </ItemGroup>
 
