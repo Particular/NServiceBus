@@ -173,4 +173,162 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
 
         return Assert(original, expected);
     }
+
+    [Test]
+    public Task MovesHandlerAttributeOnBaseHandlerToLeafHandlerEvenForComplexHierarchies()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            abstract class BaseBaseHandler : IHandleMessages<MyMessage>
+            {
+                public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+
+            [HandlerAttribute]
+            abstract class BaseHandler : BaseBaseHandler
+            {
+                public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    return HandleCore(message, context);
+                }
+                
+                protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
+            }
+
+            class ConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class AnotherConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            abstract class BaseBaseHandler : IHandleMessages<MyMessage>
+            {
+                public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+            
+            abstract class BaseHandler : BaseBaseHandler
+            {
+                public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    return HandleCore(message, context);
+                }
+                
+                protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
+            }
+            
+            [NServiceBus.HandlerAttribute]
+            class ConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            [NServiceBus.HandlerAttribute]
+            class AnotherConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MovesHandlerAttributeOnBaseBaseHandlerToLeafHandlerEvenForComplexHierarchies()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            [HandlerAttribute]
+            abstract class BaseBaseHandler : IHandleMessages<MyMessage>
+            {
+                public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+
+            abstract class BaseHandler : BaseBaseHandler
+            {
+                public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    return HandleCore(message, context);
+                }
+                
+                protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
+            }
+
+            class ConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class AnotherConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            abstract class BaseBaseHandler : IHandleMessages<MyMessage>
+            {
+                public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+            
+            abstract class BaseHandler : BaseBaseHandler
+            {
+                public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    return HandleCore(message, context);
+                }
+                
+                protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
+            }
+            
+            [NServiceBus.HandlerAttribute]
+            class ConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            [NServiceBus.HandlerAttribute]
+            class AnotherConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
 }
