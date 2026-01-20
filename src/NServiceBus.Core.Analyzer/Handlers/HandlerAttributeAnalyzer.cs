@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMisplaced];
+        [HandlerAttributeMissing, HandlerAttributeMisplaced, HandlerAttributeOnNonHandlerType];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -40,9 +40,21 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     return;
                 }
 
-                var normalizedType = classType.OriginalDefinition;
                 if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages))
                 {
+                    if (!classType.HasAttribute(handlerAttribute))
+                    {
+                        return;
+                    }
+
+                    foreach (var location in GetAttributeLocations(classType, handlerAttribute, context))
+                    {
+                        if (location is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                        }
+                    }
+
                     return;
                 }
 
@@ -53,7 +65,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var attributeLocations = GetAttributeLocations(classType, knownTypes.HandlerAttribute, context);
                 var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
-                handlerTypes.TryAdd(normalizedType, info);
+                handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
             compilationContext.RegisterCompilationEndAction(context =>
@@ -141,4 +153,12 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor HandlerAttributeOnNonHandlerType = new(
+        id: DiagnosticIds.HandlerAttributeOnNonHandler,
+        title: "HandlerAttribute should be applied to handler classes only",
+        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on a class implementing IHandleMessages.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }
