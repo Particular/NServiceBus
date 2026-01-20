@@ -27,5 +27,7 @@
         public const string DoNotEnableFeaturesInDefaults = "NSB0019";
         public const string HandlerInjectsMessageSession = "NSB0020";
         public const string AddHandlerOnSagaType = "NSB0021";
+        public const string HandlerAttributeMissing = "NSB0022";
+        public const string HandlerAttributeMisplaced = "NSB0023";
     }
 }
