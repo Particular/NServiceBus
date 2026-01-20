@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Utility;
 
 public sealed partial class AddHandlerGenerator
 {
@@ -85,130 +83,7 @@ public sealed partial class AddHandlerGenerator
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToList();
 
-            var interfaceLessHandlers = ParseInterfaceLessHandlers(semanticModel, handlerType, handlerFullyQualifiedName, markers, registrations, cancellationToken);
-
-            if (interfaceLessHandlers.Count > 0)
-            {
-                var existingMessageRegistrations = new HashSet<string>(registrations.Where(reg =>
-                        reg.RegistrationType is RegistrationType.MessageHandler or RegistrationType.StartMessageHandler)
-                    .Select(reg => reg.MessageType), StringComparer.Ordinal);
-
-                foreach (var handler in interfaceLessHandlers)
-                {
-                    if (existingMessageRegistrations.Contains(handler.MessageType))
-                    {
-                        continue;
-                    }
-
-                    registrations.Add(new RegistrationSpec(RegistrationType.MessageHandler, handler.MessageType, handler.MessageHierarchy, handler.GeneratedHandlerType));
-                }
-
-                registrations = registrations
-                    .OrderBy(r => r.MessageType, StringComparer.Ordinal)
-                    .ToList();
-            }
-
-            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray(), interfaceLessHandlers);
-        }
-
-        static ImmutableEquatableArray<InterfaceLessHandlerSpec> ParseInterfaceLessHandlers(
-            SemanticModel semanticModel,
-            INamedTypeSymbol handlerType,
-            string handlerFullyQualifiedName,
-            MarkerTypes markers,
-            IReadOnlyCollection<RegistrationSpec> registrations,
-            CancellationToken cancellationToken)
-        {
-            var taskType = semanticModel.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
-            var contextType = semanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-
-            if (taskType is null || contextType is null)
-            {
-                return ImmutableEquatableArray<InterfaceLessHandlerSpec>.Empty;
-            }
-
-            var registeredMessages = new HashSet<string>(registrations.Where(reg =>
-                    reg.RegistrationType is RegistrationType.MessageHandler or RegistrationType.StartMessageHandler)
-                .Select(reg => reg.MessageType), StringComparer.Ordinal);
-
-            var interfaceLessHandlers = new List<InterfaceLessHandlerSpec>();
-
-            foreach (var method in handlerType.GetMembers().OfType<IMethodSymbol>())
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (!IsInterfaceLessHandleMethod(method, taskType, contextType))
-                {
-                    continue;
-                }
-
-                if (method.Parameters[0].Type is not INamedTypeSymbol messageType || messageType.TypeKind == TypeKind.Error)
-                {
-                    continue;
-                }
-
-                var messageTypeName = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-                if (registeredMessages.Contains(messageTypeName))
-                {
-                    continue;
-                }
-
-                var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var constructorParameters = method.Parameters
-                    .Skip(2)
-                    .Select(CreateParameterSpec)
-                    .ToImmutableEquatableArray();
-
-                var parameterSignature = BuildParameterSignature(method);
-                var hash = NonCryptographicHash.GetHash(handlerFullyQualifiedName, parameterSignature);
-                var generatedHandlerName = $"{handlerType.Name}_Handle_{hash:x16}";
-                var generatedHandlerType = $"global::{generatedHandlerName}";
-
-                interfaceLessHandlers.Add(new InterfaceLessHandlerSpec(method.IsStatic,
-                    generatedHandlerName,
-                    generatedHandlerType,
-                    handlerFullyQualifiedName,
-                    messageTypeName,
-                    hierarchy,
-                    constructorParameters));
-            }
-
-            return interfaceLessHandlers
-                .OrderBy(spec => spec.GeneratedHandlerType, StringComparer.Ordinal)
-                .ToImmutableEquatableArray();
-        }
-
-        static string BuildParameterSignature(IMethodSymbol method) =>
-            string.Join(", ", method.Parameters.Select(p => p.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-
-        static bool IsInterfaceLessHandleMethod(IMethodSymbol method, INamedTypeSymbol taskType, INamedTypeSymbol contextType) =>
-            method is
-            {
-                Name: "Handle",
-                DeclaredAccessibility: Accessibility.Public,
-                Parameters.Length: >= 2,
-            } &&
-            SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType) &&
-            SymbolEqualityComparer.Default.Equals(method.Parameters[1].Type, contextType);
-
-        static ParameterSpec CreateParameterSpec(IParameterSymbol parameter)
-        {
-            var type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var parameterName = EscapeIdentifier(parameter.Name);
-            var fieldName = EscapeIdentifier($"_{parameter.Name}");
-            return new ParameterSpec(type, parameterName, fieldName);
-        }
-
-        static string EscapeIdentifier(string identifier)
-        {
-            if (SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None ||
-                SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None)
-            {
-                return $"@{identifier}";
-            }
-
-            return identifier;
+            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray());
         }
 
         static string GetHandlerNamespace(INamedTypeSymbol handlerType)
