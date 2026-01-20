@@ -104,4 +104,43 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
 
         return Assert(DiagnosticIds.HandlerAttributeMisplaced, source);
     }
+
+    [Test]
+    public Task ReportsMisplacedAttributeOnComplexBase()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [[|HandlerAttribute|]]
+            abstract class BaseBaseHandler : IHandleMessages<MyMessage>
+            {
+                public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+            
+            [[|HandlerAttribute|]]
+            abstract class BaseHandler : BaseBaseHandler
+            {
+                public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    return HandleCore(message, context);
+                }
+                
+                protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
+            }
+
+            [HandlerAttribute]
+            class ConcreteHandler : BaseHandler
+            {
+                protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeMisplaced, source);
+    }
 }
