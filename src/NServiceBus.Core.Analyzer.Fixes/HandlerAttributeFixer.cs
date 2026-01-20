@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         "Add HandlerAttribute",
-                        token => MoveHandlerAttribute(context.Document, classDecl, token),
+                        token => AddHandlerAttribute(context.Document, classDecl, token),
                         EquivalenceKeyMove),
                     diagnostic);
             }
@@ -98,7 +98,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
             var handlerTypes = GetAllNamedTypes(compilation.GlobalNamespace)
                 .Where(static type => type.TypeKind == TypeKind.Class)
-                .Where(type => ImplementsHandleMessages(type, iHandleMessages))
+                .Where(type => type.ImplementsGenericInterface(iHandleMessages))
                 .ToArray();
 
             var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -112,12 +112,12 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
             var leafHandlers = handlerTypes
                 .Where(type => !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition))
-                .Where(type => !HasHandlerAttribute(type, handlerAttributeSymbol))
+                .Where(type => !type.HasAttribute(handlerAttributeSymbol))
                 .ToArray();
 
             var nonLeafHandlersWithAttribute = handlerTypes
                 .Where(type => type.IsAbstract || baseTypes.Contains(type.OriginalDefinition))
-                .Where(type => HasHandlerAttribute(type, handlerAttributeSymbol))
+                .Where(type => type.HasAttribute(handlerAttributeSymbol))
                 .ToArray();
 
             var editors = new Dictionary<DocumentId, DocumentEditor>();
@@ -244,32 +244,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
             return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol.ContainingType, handlerAttributeSymbol);
         }
 
-        static bool HasHandlerAttribute(INamedTypeSymbol type, INamedTypeSymbol handlerAttributeSymbol)
-        {
-            foreach (var attribute in type.GetAttributes())
-            {
-                if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, handlerAttributeSymbol))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        static bool ImplementsHandleMessages(INamedTypeSymbol classType, INamedTypeSymbol iHandleMessages)
-        {
-            foreach (var iface in classType.AllInterfaces)
-            {
-                if (SymbolEqualityComparer.IncludeNullability.Equals(iface.OriginalDefinition, iHandleMessages))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         static IEnumerable<INamedTypeSymbol> GetAllNamedTypes(INamespaceSymbol rootNamespace)
         {
             foreach (var member in rootNamespace.GetMembers())
@@ -309,7 +283,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
             }
         }
 
-        static readonly string EquivalenceKeyAdd = typeof(HandlerAttributeFixer).FullName + ".Add";
         static readonly string EquivalenceKeyMove = typeof(HandlerAttributeFixer).FullName + ".Move";
     }
 }
