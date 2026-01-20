@@ -22,27 +22,6 @@ public sealed partial class AddHandlerGenerator
             }
 
             var sourceWriter = new SourceWriter();
-            var interfaceLessHandlers = handlers
-                .SelectMany(handler => handler.InterfaceLessHandlers)
-                .OrderBy(spec => spec.GeneratedHandlerType, StringComparer.Ordinal)
-                .ToArray();
-
-            for (int index = 0; index < interfaceLessHandlers.Length; index++)
-            {
-                var handler = interfaceLessHandlers[index];
-                EmitInterfaceLessHandler(sourceWriter, handler);
-
-                if (index < interfaceLessHandlers.Length - 1)
-                {
-                    sourceWriter.WriteLine();
-                }
-            }
-
-            if (interfaceLessHandlers.Length > 0)
-            {
-                sourceWriter.WriteLine();
-            }
-
             sourceWriter.WriteLine("""
                                    namespace NServiceBus
                                    {
@@ -297,65 +276,6 @@ public sealed partial class AddHandlerGenerator
                     child.Sort();
                 }
             }
-        }
-
-        static void EmitInterfaceLessHandler(SourceWriter sourceWriter, InterfaceLessHandlerSpec handlerSpec)
-        {
-            sourceWriter.WithGeneratedCodeAttribute();
-            sourceWriter.WriteLine($$"""
-                                     [System.Diagnostics.DebuggerNonUserCode]
-                                     file sealed class {{handlerSpec.GeneratedHandlerName}} : NServiceBus.IHandleMessages<{{handlerSpec.MessageType}}>
-                                     {
-                                     """);
-
-            sourceWriter.Indentation++;
-
-            foreach (var parameter in handlerSpec.ConstructorParameters)
-            {
-                sourceWriter.WriteLine($"readonly {parameter.Type} {parameter.FieldName};");
-            }
-
-            sourceWriter.WriteLine($"readonly {handlerSpec.DeclaringHandlerType} _instance;");
-            sourceWriter.WriteLine($"readonly System.IServiceProvider _serviceProvider;");
-
-            sourceWriter.WriteLine();
-
-            var constructorParameters = string.Join(", ", handlerSpec.ConstructorParameters.Select(p => $"{p.Type} {p.Name}"));
-            sourceWriter.WriteLine(handlerSpec.ConstructorParameters.Count > 0 ? $"public {handlerSpec.GeneratedHandlerName}({constructorParameters}, System.IServiceProvider serviceProvider)" : $"public {handlerSpec.GeneratedHandlerName}(System.IServiceProvider serviceProvider)");
-            sourceWriter.WriteLine("{");
-
-            sourceWriter.Indentation++;
-
-            foreach (var parameter in handlerSpec.ConstructorParameters)
-            {
-                sourceWriter.WriteLine($"{parameter.FieldName} = {parameter.Name};");
-            }
-
-            sourceWriter.WriteLine("_serviceProvider = serviceProvider ?? throw new System.ArgumentNullException(nameof(serviceProvider));");
-            sourceWriter.WriteLine($"_instance = Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<{handlerSpec.DeclaringHandlerType}>(_serviceProvider, []);");
-
-            sourceWriter.Indentation--;
-
-            sourceWriter.WriteLine("}");
-            sourceWriter.WriteLine();
-
-            sourceWriter.WriteLine($"public System.Threading.Tasks.Task Handle({handlerSpec.MessageType} message, NServiceBus.IMessageHandlerContext context)");
-            sourceWriter.WriteLine("{");
-
-            sourceWriter.Indentation++;
-
-            var arguments = handlerSpec.ConstructorParameters.Count == 0
-                ? "message, context"
-                : $"message, context, {string.Join(", ", handlerSpec.ConstructorParameters.Select(p => p.FieldName))}";
-            sourceWriter.WriteLine(!handlerSpec.IsStatic ? $"return _instance.Handle({arguments});" : $"return {handlerSpec.DeclaringHandlerType}.Handle({arguments});");
-
-            sourceWriter.Indentation--;
-
-            sourceWriter.WriteLine("}");
-
-            sourceWriter.Indentation--;
-
-            sourceWriter.WriteLine("}");
         }
     }
 }

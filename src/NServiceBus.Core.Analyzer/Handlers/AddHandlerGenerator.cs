@@ -34,8 +34,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
         string HandlerType,
         string HandlerNamespace,
         string AssemblyName,
-        ImmutableEquatableArray<RegistrationSpec> Registrations,
-        ImmutableEquatableArray<InterfaceLessHandlerSpec> InterfaceLessHandlers);
+        ImmutableEquatableArray<RegistrationSpec> Registrations);
 
     internal readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
@@ -47,15 +46,4 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
     }
 
     internal readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy, string HandlerType);
-
-    internal sealed record InterfaceLessHandlerSpec(
-        bool IsStatic,
-        string GeneratedHandlerName,
-        string GeneratedHandlerType,
-        string DeclaringHandlerType,
-        string MessageType,
-        ImmutableEquatableArray<string> MessageHierarchy,
-        ImmutableEquatableArray<ParameterSpec> ConstructorParameters);
-
-    internal readonly record struct ParameterSpec(string Type, string Name, string FieldName);
 }
