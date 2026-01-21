@@ -28,7 +28,8 @@ public class When_registering_handler_with_complex_hierarchy_using_registry : NS
     {
         public EndpointUsingRegistry() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly.AcceptanceTests.Handlers.AddComplexMessageHandler();
+            var acceptanceTestsHandlers = config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly.AcceptanceTests.Handlers;
+            acceptanceTestsHandlers.AddWhen_registering_handler_with_complex_hierarchy_using_registryEndpointUsingRegistryComplexMessageHandler();
         });
 
         [Handler]
