@@ -916,6 +916,11 @@ namespace NServiceBus
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTimeOffset at, TTimeoutMessageType timeoutMessage) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class SagaAttribute : System.Attribute
+    {
+        public SagaAttribute() { }
+    }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
