@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
-using static Handlers.Parser;
+using static Handlers;
 
 public sealed partial class AddHandlerGenerator
 {

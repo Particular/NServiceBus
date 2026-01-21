@@ -2,9 +2,8 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Linq;
 using Utility;
-using static Handlers.Parser;
 
-public static partial class Handlers
+static partial class Handlers
 {
     public static class Emitter
     {
