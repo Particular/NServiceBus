@@ -6,13 +6,13 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
-public class When_manually_registering_handler_with_complex_hierarchy : NServiceBusAcceptanceTest
+public class When_registering_handler_with_complex_hierarchy_using_add_handler : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_handle_message_with_manually_registered_handler()
+    public async Task Should_handle_message()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithComplexMessageHierarchy>(b =>
+            .WithEndpoint<EndpointUsingAddHandler>(b =>
                 b.When(async (session, _) => await session.SendLocal(new ComplexMessage())))
             .Run();
 
@@ -24,14 +24,13 @@ public class When_manually_registering_handler_with_complex_hierarchy : NService
         public bool ComplexMessageReceived;
     }
 
-    public class EndpointWithComplexMessageHierarchy : EndpointConfigurationBuilder
+    public class EndpointUsingAddHandler : EndpointConfigurationBuilder
     {
-        public EndpointWithComplexMessageHierarchy() => EndpointSetup<NonScanningServer>(config =>
+        public EndpointUsingAddHandler() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly.AcceptanceTests.Handlers.AddComplexMessageHandler();
+            config.AddHandler<ComplexMessageHandler>();
         });
 
-        [Handler]
         public class ComplexMessageHandler(Context testContext) : IHandleMessages<ComplexMessage>
         {
             public Task Handle(ComplexMessage message, IMessageHandlerContext context)
