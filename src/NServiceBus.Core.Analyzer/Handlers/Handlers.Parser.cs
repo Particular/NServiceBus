@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -33,7 +34,9 @@ static partial class Handlers
         public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, CancellationToken cancellationToken = default)
         {
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var handlerNamespace = GetHandlerNamespace(handlerType);
+            var displayParts = handlerType.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
+            var handlerNamespace = GetHandlerNamespace(displayParts);
+            var handlerName = string.Join(string.Empty, displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
             var assemblyName = handlerType.ContainingAssembly?.Name ?? "Assembly";
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
@@ -81,7 +84,7 @@ static partial class Handlers
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToList();
 
-            return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray());
+            return new HandlerSpec(handlerName, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray());
         }
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is
@@ -96,29 +99,7 @@ static partial class Handlers
             }
         };
 
-        static string GetHandlerNamespace(INamedTypeSymbol handlerType)
-        {
-            var handlerNamespace = handlerType.ContainingNamespace;
-            if (handlerNamespace is null || handlerNamespace.IsGlobalNamespace)
-            {
-                return string.Empty;
-            }
-
-            var parts = new Stack<string>();
-
-            while (handlerNamespace is { IsGlobalNamespace: false })
-            {
-                parts.Push(handlerNamespace.Name);
-                handlerNamespace = handlerNamespace.ContainingNamespace;
-            }
-
-            if (parts.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            return string.Join(".", parts);
-        }
+        static string GetHandlerNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
             // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.
