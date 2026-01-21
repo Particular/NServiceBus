@@ -90,7 +90,8 @@ public sealed partial class AddHandlerInterceptor
         {
             const string NamePrefix = "AddHandler_";
 
-            var sb = new StringBuilder(NamePrefix, 50)
+            var sb = new StringBuilder(NamePrefix.Length + name.Length + 1 + 16)
+                .Append(NamePrefix)
                 .Append(name)
                 .Append('_');
 
