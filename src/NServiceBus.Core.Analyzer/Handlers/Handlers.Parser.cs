@@ -30,18 +30,6 @@ static partial class Handlers
 
     public static class Parser
     {
-        public static bool IsHandlerInterface(INamedTypeSymbol type) => type is
-        {
-            // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
-            Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
-            IsGenericType: true,
-            ContainingNamespace:
-            {
-                Name: "NServiceBus",
-                ContainingNamespace.IsGlobalNamespace: true
-            }
-        };
-
         public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, CancellationToken cancellationToken = default)
         {
             var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -95,6 +83,18 @@ static partial class Handlers
 
             return new HandlerSpec(handlerType.Name, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray());
         }
+
+        static bool IsHandlerInterface(INamedTypeSymbol type) => type is
+        {
+            // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
+            Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
+            IsGenericType: true,
+            ContainingNamespace:
+            {
+                Name: "NServiceBus",
+                ContainingNamespace.IsGlobalNamespace: true
+            }
+        };
 
         static string GetHandlerNamespace(INamedTypeSymbol handlerType)
         {
