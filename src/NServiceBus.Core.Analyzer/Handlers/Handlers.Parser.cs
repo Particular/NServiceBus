@@ -8,28 +8,28 @@ using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-public static partial class Handlers
+static partial class Handlers
 {
+    public sealed record HandlerSpec(
+        string Name,
+        string HandlerType,
+        string HandlerNamespace,
+        string AssemblyName,
+        ImmutableEquatableArray<RegistrationSpec> Registrations);
+
+    public readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
+
+    public enum RegistrationType
+    {
+        MessageHandler,
+        StartMessageHandler,
+        TimeoutHandler,
+    }
+
+    public readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy, string HandlerType);
+
     public static class Parser
     {
-        public sealed record HandlerSpec(
-            string Name,
-            string HandlerType,
-            string HandlerNamespace,
-            string AssemblyName,
-            ImmutableEquatableArray<RegistrationSpec> Registrations);
-
-        public readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
-
-        public enum RegistrationType
-        {
-            MessageHandler,
-            StartMessageHandler,
-            TimeoutHandler,
-        }
-
-        public readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy, string HandlerType);
-
         public static bool IsHandlerInterface(INamedTypeSymbol type) => type is
         {
             // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas

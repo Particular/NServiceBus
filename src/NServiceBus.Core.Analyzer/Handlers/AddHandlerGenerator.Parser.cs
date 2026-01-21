@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using static Handlers.Parser;
+using static Handlers;
 
 public sealed partial class AddHandlerGenerator
 {
