@@ -61,6 +61,7 @@ public class AddHandlerGeneratorTests
                      """;
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
             .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
