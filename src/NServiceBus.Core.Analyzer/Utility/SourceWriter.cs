@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 
-sealed class SourceWriter
+public sealed class SourceWriter
 {
     const char IndentationChar = ' ';
     const int CharsPerIndentation = 4;

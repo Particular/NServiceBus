@@ -3,23 +3,24 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
+using Utility;
 using static Handlers.Parser;
 
 [Generator(LanguageNames.CSharp)]
-public sealed partial class AddHandlerGenerator : IIncrementalGenerator
+public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var addHandlers = context.SyntaxProvider
-            .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
-                predicate: static (node, _) => true,
+            .CreateSyntaxProvider(
+                predicate: static (node, _) => Parser.SyntaxLooksLikeAddHandlerMethod(node),
                 transform: Parser.Parse)
-            .Where(static spec => spec is not null)
-            .Select(static (spec, _) => spec!)
+            .Where(static spec => spec.HasValue)
+            .Select((spec, _) => spec!.Value)
             .WithTrackingName("HandlerSpec");
 
         var collected = addHandlers.Collect()
-            .Select((handlers, _) => new HandlerSpecs(handlers.ToImmutableEquatableArray()))
+            .Select((handlers, _) => new InterceptableHandlerSpecs(handlers.ToImmutableEquatableArray()))
             .WithTrackingName("HandlerSpecs");
 
         context.RegisterSourceOutput(collected,
@@ -29,4 +30,8 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
                 emitter.Emit(spec);
             });
     }
+
+    internal readonly record struct InterceptableHandlerSpec(InterceptLocationSpec LocationSpec, HandlerSpec HandlerSpec);
+
+    internal readonly record struct InterceptableHandlerSpecs(ImmutableEquatableArray<InterceptableHandlerSpec> Handlers);
 }
