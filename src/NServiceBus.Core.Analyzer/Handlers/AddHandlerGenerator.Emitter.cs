@@ -46,33 +46,11 @@ public sealed partial class AddHandlerGenerator
 
             var rootRegistryName = $"{assemblyId}RootRegistry";
 
-            sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// Provides extensions to register message handlers found in the <i>{assemblyName}</i> assembly.");
-            sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WithGeneratedCodeAttribute();
-            sourceWriter.WriteLine($"public static class {assemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"public static partial class {assemblyId}HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitExtensionProperties(sourceWriter, assemblyId, assemblyName, rootRegistryName);
-
-            sourceWriter.WriteLine();
             EmitNamespaceRegistry(sourceWriter, root, rootRegistryName);
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-        }
-
-        static void EmitExtensionProperties(SourceWriter sourceWriter, string assemblyId, string assemblyName, string rootRegistryName)
-        {
-            sourceWriter.WriteLine("extension (global::NServiceBus.HandlerRegistry registry)");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-
-            sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// Gets the handler registry for the <i>{assemblyName}</i> assembly.");
-            sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine($"public {rootRegistryName} {assemblyId}Assembly => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -80,76 +58,31 @@ public sealed partial class AddHandlerGenerator
 
         static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string registryName)
         {
-            sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// The handler registry for the <i>{node.Name ?? registryName.Replace("RootRegistry", string.Empty)}</i> part.");
-            sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine($"public sealed class {registryName}(global::NServiceBus.EndpointConfiguration configuration)");
+            sourceWriter.WriteLine($"public sealed partial class {registryName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
-
-            if (node.Children.Count > 0)
-            {
-                sourceWriter.WriteLine();
-            }
-
-            foreach (var child in node.Children)
-            {
-                sourceWriter.WriteLine("/// <summary>");
-                sourceWriter.WriteLine($"/// Gets the handler registry for the <i>{child.Name}</i> namespace part.");
-                sourceWriter.WriteLine("/// </summary>");
-                sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
-                sourceWriter.WriteLine();
-            }
-
-            if (node.Children.Count == 0)
-            {
-                sourceWriter.WriteLine();
-            }
-            sourceWriter.WriteLine("/// <summary>");
-            if (node.Children.Count > 0)
-            {
-                sourceWriter.WriteLine($"/// Adds handler registrations from the {string.Join(", ", node.Children.Select(c => $"<i>{c.Name}</i>"))} parts including all the subnamespaces.");
-            }
-
             if (node.Handlers.Count > 0)
             {
-                sourceWriter.WriteLine($"/// Adds {string.Join(", ", node.Handlers.Select(c => $"<see cref=\"{c.HandlerType}\"/>"))} handlers from <i>{node.Name}<i/> namespace.");
-            }
-            sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine("public void AddAll()");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
+                sourceWriter.WriteLine("partial void AddAllHandlersCore()");
+                sourceWriter.WriteLine("{");
+                sourceWriter.Indentation++;
 
-            foreach (var child in node.Children)
-            {
-                sourceWriter.WriteLine($"{child.Name}.AddAll();");
-            }
+                for (int index = 0; index < node.Handlers.Count; index++)
+                {
+                    var methodName = GetSingleHandlerMethodName(node.Handlers[index].Name);
+                    sourceWriter.WriteLine($"{methodName}();");
+                }
 
-            if (node.Children.Count > 0 && node.Handlers.Count > 0)
-            {
-                sourceWriter.WriteLine();
-            }
+                sourceWriter.Indentation--;
+                sourceWriter.WriteLine("}");
 
-            for (int index = 0; index < node.Handlers.Count; index++)
-            {
-                var methodName = GetSingleHandlerMethodName(node.Handlers[index].Name);
-                sourceWriter.WriteLine($"{methodName}();");
-            }
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-
-            if (node.Handlers.Count > 0)
-            {
                 sourceWriter.WriteLine();
                 EmitHandlerMethods(sourceWriter, node.Handlers);
             }
 
             foreach (var child in node.Children)
             {
-                sourceWriter.WriteLine();
                 EmitNamespaceRegistry(sourceWriter, child, child.RegistryName);
             }
 
