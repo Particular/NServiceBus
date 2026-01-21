@@ -147,8 +147,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     static readonly DiagnosticDescriptor HandlerAttributeMisplaced = new(
         id: DiagnosticIds.HandlerAttributeMisplaced,
-        title: "HandlerAttribute should be applied to leaf handler classes only",
-        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on leaf handler classes instead.",
+        title: "HandlerAttribute should be applied to concrete handler classes",
+        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on the concrete handler class (not a base class).",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -156,8 +156,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     static readonly DiagnosticDescriptor HandlerAttributeOnNonHandlerType = new(
         id: DiagnosticIds.HandlerAttributeOnNonHandler,
-        title: "HandlerAttribute should be applied to handler classes only",
-        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on a class implementing IHandleMessages.",
+        title: "HandlerAttribute should be applied to classes implementing",
+        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on a concrete handler class (not a base class) implementing IHandleMessages.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
