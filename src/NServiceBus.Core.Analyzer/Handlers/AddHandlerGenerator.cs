@@ -3,7 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
-using static Handlers.Parser;
+using static Handlers;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddHandlerGenerator : IIncrementalGenerator

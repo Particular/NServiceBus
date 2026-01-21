@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
 using Utility;
-using static Handlers.Parser;
+using static Handlers;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
