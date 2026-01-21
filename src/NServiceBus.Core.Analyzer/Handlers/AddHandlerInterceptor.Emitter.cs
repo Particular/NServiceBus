@@ -45,19 +45,22 @@ public sealed partial class AddHandlerInterceptor
             for (int index = 0; index < groups.Length; index++)
             {
                 IGrouping<string, (string MethodName, InterceptableHandlerSpec Handler)> group = groups[index];
-                (string MethodName, InterceptableHandlerSpec InterceptableHandlerSpec) first = default;
+                (string MethodName, InterceptableHandlerSpec InterceptableHandlerSpec)? first = null;
                 foreach (var location in group)
                 {
-                    if (first == default)
-                    {
-                        first = location;
-                    }
+                    first ??= location;
 
                     var (_, handler) = location;
                     sourceWriter.WriteLine($"{handler.LocationSpec.Attribute} // {handler.LocationSpec.DisplayLocation}");
                 }
 
-                (string methodName, InterceptableHandlerSpec interceptableHandlerSpec) = first;
+                if (!first.HasValue)
+                {
+                    // when we have no location let's skip
+                    continue;
+                }
+
+                (string methodName, InterceptableHandlerSpec interceptableHandlerSpec) = first.Value;
                 sourceWriter.WriteLine($$"""
                                          public void {{methodName}}()
                                          {
