@@ -72,10 +72,9 @@ class LearningTransportInfrastructure : TransportInfrastructure
         ISubscriptionManager subscriptionManager = null;
         if (receiveSettings.UsePublishSubscribe)
         {
-
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
+        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode, false);
         return pump;
     }
 
