@@ -3,6 +3,8 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Handlers;
 
 [Generator(LanguageNames.CSharp)]
@@ -12,7 +14,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
     {
         var addHandlers = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
-                predicate: static (node, _) => true,
+                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
