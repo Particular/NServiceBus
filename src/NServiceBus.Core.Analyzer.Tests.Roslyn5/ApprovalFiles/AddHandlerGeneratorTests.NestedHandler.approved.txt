@@ -1,0 +1,101 @@
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.g.cs =======
+namespace NServiceBus
+{
+    /// <summary>
+    /// Provides extensions to register message handlers found in the <i>NestedHandler</i> assembly.
+    /// </summary>
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    public static class NestedHandlerHandlerRegistryExtensions
+    {
+        extension (global::NServiceBus.HandlerRegistry registry)
+        {
+            /// <summary>
+            /// Gets the handler registry for the <i>NestedHandler</i> assembly.
+            /// </summary>
+            public NestedHandlerRootRegistry NestedHandlerAssembly => new(registry.Configuration);
+        }
+
+        /// <summary>
+        /// The handler registry for the <i>NestedHandler</i> part.
+        /// </summary>
+        public sealed class NestedHandlerRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        {
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+            /// <summary>
+            /// Gets the handler registry for the <i>Orders</i> namespace part.
+            /// </summary>
+            public OrdersRegistry Orders => new(_configuration);
+
+            /// <summary>
+            /// Adds handler registrations from the <i>Orders</i> parts including all the subnamespaces.
+            /// </summary>
+            public void AddAll()
+            {
+                Orders.AddAll();
+            }
+
+            /// <summary>
+            /// The handler registry for the <i>Orders</i> part.
+            /// </summary>
+            public sealed class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                /// <summary>
+                /// Gets the handler registry for the <i>Shipping</i> namespace part.
+                /// </summary>
+                public ShippingRegistry Shipping => new(_configuration);
+
+                /// <summary>
+                /// Adds handler registrations from the <i>Shipping</i> parts including all the subnamespaces.
+                /// </summary>
+                public void AddAll()
+                {
+                    Shipping.AddAll();
+                }
+
+                /// <summary>
+                /// The handler registry for the <i>Shipping</i> part.
+                /// </summary>
+                public sealed class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                    /// <summary>
+                    /// Adds <see cref="global::Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippedHandler"/>, <see cref="global::Orders.Shipping.OuterClass.OrderShippedHandler"/> handlers from <i>Shipping<i/> namespace.
+                    /// </summary>
+                    public void AddAll()
+                    {
+                        AddAnotherOuterClassInnerClassOrderShippedHandler();
+                        AddOuterClassOrderShippedHandler();
+                    }
+
+                    /// <summary>
+                    /// Adds the <see cref="global::Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippedHandler"/> handler to the registration.
+                    /// </summary>
+                    public void AddAnotherOuterClassInnerClassOrderShippedHandler()
+                    {
+                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippedHandler, global::Cmd1>();
+                        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                    }
+
+                    /// <summary>
+                    /// Adds the <see cref="global::Orders.Shipping.OuterClass.OrderShippedHandler"/> handler to the registration.
+                    /// </summary>
+                    public void AddOuterClassOrderShippedHandler()
+                    {
+                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OuterClass.OrderShippedHandler, global::Cmd1>();
+                        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
+                    }
+                }
+            }
+        }
+    }
+}

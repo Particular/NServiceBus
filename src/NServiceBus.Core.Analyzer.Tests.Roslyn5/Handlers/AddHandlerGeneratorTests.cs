@@ -66,4 +66,56 @@ public class AddHandlerGeneratorTests
             .Approve()
             .AssertRunsAreEqual();
     }
+
+    [Test]
+    public void NestedHandler()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.NestedHandlerAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders.Shipping
+                     {
+                         public class OuterClass
+                         {
+                             [HandlerAttribute]
+                             public class OrderShippedHandler : IHandleMessages<Cmd1>
+                             {
+                                 public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                             }
+                         }
+                         
+                         public class AnotherOuterClass
+                         {
+                             public class InnerClass 
+                             {
+                                  [HandlerAttribute]
+                                  public class OrderShippedHandler : IHandleMessages<Cmd1>
+                                  {
+                                      public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                                  }
+                             }
+                         }
+                     }
+
+                     public class Cmd1 : CmdBase { }
+                     public class Cmd2 : ICommand { }
+                     public class Evt1 : IEvent { }
+                     public class CmdBase : ICommand { }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithSource(source, "test.cs")
+            .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
 }
