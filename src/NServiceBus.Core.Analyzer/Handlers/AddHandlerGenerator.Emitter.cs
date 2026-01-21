@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
+using static Handlers.Parser;
 
 public sealed partial class AddHandlerGenerator
 {
@@ -191,7 +192,7 @@ public sealed partial class AddHandlerGenerator
 
             foreach (var handlerSpec in handlerSpecs)
             {
-                EmitHandlerRegistryCode(sourceWriter, handlerSpec);
+                Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, handlerSpec);
             }
         }
 
@@ -237,23 +238,6 @@ public sealed partial class AddHandlerGenerator
             }
 
             return parts;
-        }
-
-        public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)
-        {
-            foreach (var registration in handlerSpec.Registrations)
-            {
-                var addType = registration.RegistrationType switch
-                {
-                    RegistrationType.MessageHandler or RegistrationType.StartMessageHandler => "Message",
-                    RegistrationType.TimeoutHandler => "Timeout",
-                    _ => "Message"
-                };
-
-                sourceWriter.WriteLine($"messageHandlerRegistry.Add{addType}HandlerForMessage<{registration.HandlerType}, {registration.MessageType}>();");
-                var hierarchyLiteral = $"[{string.Join(", ", registration.MessageHierarchy.Select(type => $"typeof({type})"))}]";
-                sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({registration.MessageType}), {hierarchyLiteral});");
-            }
         }
 
         static string SanitizeIdentifier(string value)
