@@ -41,16 +41,18 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
             })
             .WithTrackingName("AssemblyInfo");
 
-        var rootTypeSpec = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => Parser.IsRootTypeCandidate(node),
-                transform: static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
-            .Combine(assemblyInfo)
-            .Select(static (pair, _) => Parser.TryGetRootTypeSpec(pair.Left, pair.Right.AssemblyName, pair.Right.AssemblyId))
+        var explicitRootTypeSpec = context.SyntaxProvider
+            .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryExtensionsAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                transform: Parser.ParseRootTypeSpec)
             .Where(static spec => spec.HasValue)
             .Select(static (spec, _) => spec!.Value)
             .Collect()
-            .Select(static (specs, _) => Parser.SelectRootTypeSpec(specs))
+            .WithTrackingName("ExplicitRootTypeSpec");
+
+        var rootTypeSpec = explicitRootTypeSpec
+            .Combine(assemblyInfo)
+            .Select(static (pair, _) => Parser.SelectRootTypeSpec(pair.Left, pair.Right.AssemblyId))
             .WithTrackingName("RootTypeSpec");
 
         var combined = collected.Combine(rootTypeSpec);

@@ -3,7 +3,6 @@
 namespace NServiceBus.Core.Analyzer;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -15,10 +14,13 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 {
     internal static class Parser
     {
+        const string HandlerRegistryExtensionsSuffix = "HandlerRegistryExtensions";
+
         internal record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName);
-        internal readonly record struct RootTypeSpec(string Namespace, string Visibility)
+        internal readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
         {
-            public static RootTypeSpec Default { get; } = new("NServiceBus", "public");
+            public static RootTypeSpec CreateDefault(string assemblyId)
+                => new("NServiceBus", "public", assemblyId, $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);
         }
 
         public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default) => context.TargetSymbol is not INamedTypeSymbol namedTypeSymbol ? null : Parse(namedTypeSymbol);
@@ -33,78 +35,43 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return new BaseSpec(Name: handlerOrSagaName, Namespace: handlerOrSagaNamespace, AssemblyName: assemblyName, FullyQualifiedName: fullyQualifiedName);
         }
 
-        public static RootTypeSpec? TryGetRootTypeSpec(ClassDeclarationSyntax classDeclarationSyntax, string assemblyName, string assemblyId)
+        public static RootTypeSpec? ParseRootTypeSpec(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(assemblyName))
+            if (context.TargetSymbol is not INamedTypeSymbol namedTypeSymbol)
             {
                 return null;
             }
 
-            var className = classDeclarationSyntax.Identifier.ValueText;
-            var expectedName = $"{assemblyId}HandlerRegistryExtensions";
-            if (!StringComparer.Ordinal.Equals(className, expectedName))
+            if (namedTypeSymbol.TypeKind != TypeKind.Class || !namedTypeSymbol.IsStatic || namedTypeSymbol.ContainingType is not null)
             {
                 return null;
             }
 
-            if (!classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) ||
-                !classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+            if (!IsPartial(namedTypeSymbol))
             {
                 return null;
             }
 
-            if (classDeclarationSyntax.Parent is TypeDeclarationSyntax)
-            {
-                return null;
-            }
-
-            if (classDeclarationSyntax.Parent is not BaseNamespaceDeclarationSyntax and not CompilationUnitSyntax)
-            {
-                return null;
-            }
-
-            var namespaceName = GetNamespace(classDeclarationSyntax);
-            var visibility = classDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal";
-            return new RootTypeSpec(namespaceName, visibility);
+            var namespaceName = namedTypeSymbol.ContainingNamespace is null || namedTypeSymbol.ContainingNamespace.IsGlobalNamespace
+                ? string.Empty
+                : namedTypeSymbol.ContainingNamespace.ToDisplayString();
+            var visibility = GetVisibility(namedTypeSymbol.DeclaredAccessibility);
+            return CreateRootTypeSpec(namespaceName, visibility, namedTypeSymbol.Name, true);
         }
-
-        public static bool IsRootTypeCandidate(SyntaxNode node)
-            => node is ClassDeclarationSyntax classDeclarationSyntax
-               && classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword)
-               && classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
-               && classDeclarationSyntax.Identifier.ValueText.EndsWith("HandlerRegistryExtensions", StringComparison.Ordinal);
 
         static string GetNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
 
-        static string GetNamespace(SyntaxNode syntaxNode)
+        public static RootTypeSpec SelectRootTypeSpec(ImmutableArray<RootTypeSpec> explicitSpecs, string assemblyId) => explicitSpecs.Length > 0 ? SelectPreferred(explicitSpecs) : RootTypeSpec.CreateDefault(assemblyId);
+
+        static RootTypeSpec SelectPreferred(ImmutableArray<RootTypeSpec> specs)
         {
-            Stack<string>? namespaces = null;
-            for (SyntaxNode? current = syntaxNode.Parent; current is not null; current = current.Parent)
-            {
-                if (current is not BaseNamespaceDeclarationSyntax namespaceDeclaration)
-                {
-                    continue;
-                }
-
-                namespaces ??= new Stack<string>();
-                namespaces.Push(namespaceDeclaration.Name.ToString());
-            }
-
-            return namespaces is null ? string.Empty : string.Join(".", namespaces);
-        }
-
-        public static RootTypeSpec SelectRootTypeSpec(ImmutableArray<RootTypeSpec> specs)
-        {
-            if (specs.Length == 0)
-            {
-                return RootTypeSpec.Default;
-            }
-
             var selected = specs[0];
             for (int i = 1; i < specs.Length; i++)
             {
                 var candidate = specs[i];
-                if (StringComparer.Ordinal.Compare(candidate.Namespace, selected.Namespace) < 0)
+                var namespaceComparison = StringComparer.Ordinal.Compare(candidate.Namespace, selected.Namespace);
+                if (namespaceComparison < 0 ||
+                    (namespaceComparison == 0 && StringComparer.Ordinal.Compare(candidate.ExtensionTypeName, selected.ExtensionTypeName) < 0))
                 {
                     selected = candidate;
                 }
@@ -113,5 +80,28 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return selected;
         }
 
+        static RootTypeSpec CreateRootTypeSpec(string namespaceName, string visibility, string typeName, bool isExplicit)
+        {
+            var rootName = typeName.EndsWith(HandlerRegistryExtensionsSuffix, StringComparison.Ordinal)
+                ? typeName[..^HandlerRegistryExtensionsSuffix.Length]
+                : typeName;
+            return new RootTypeSpec(namespaceName, visibility, rootName, typeName, isExplicit);
+        }
+
+        static bool IsPartial(INamedTypeSymbol symbol)
+        {
+            foreach (var syntaxReference in symbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax classDeclarationSyntax &&
+                    classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static string GetVisibility(Accessibility accessibility) => accessibility == Accessibility.Public ? "public" : "internal";
     }
 }
