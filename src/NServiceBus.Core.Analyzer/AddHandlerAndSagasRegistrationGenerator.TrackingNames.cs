@@ -1,6 +1,6 @@
 namespace NServiceBus.Core.Analyzer;
 
-public partial class AddHandlerAndSagasRegistrationGenerator
+public sealed partial class AddHandlerAndSagasRegistrationGenerator
 {
     internal static class TrackingNames
     {
