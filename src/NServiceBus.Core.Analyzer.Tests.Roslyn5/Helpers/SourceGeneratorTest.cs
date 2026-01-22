@@ -115,6 +115,11 @@ public partial class SourceGeneratorTest
 
     public SourceGeneratorTest WithIncrementalGenerator<TGenerator>(params string[] stages) where TGenerator : IIncrementalGenerator, new()
     {
+        if (stages.Length == 0 && TryGetTrackingNames(typeof(TGenerator), out var trackingNames))
+        {
+            stages = [.. trackingNames];
+        }
+
         generatorStages.Add(typeof(TGenerator).FullName!, new HashSet<string>(stages, StringComparer.OrdinalIgnoreCase));
         generators.Add(new TGenerator().AsSourceGenerator());
         return this;
@@ -457,6 +462,41 @@ public partial class SourceGeneratorTest
             generatorType = innerGenerator.GetType();
         }
         return generatorType;
+    }
+
+    static bool TryGetTrackingNames(Type generatorType, out IReadOnlyCollection<string> names)
+    {
+        const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+        var trackingNamesType = generatorType.GetNestedType("TrackingNames", BindingFlags.Public | BindingFlags.NonPublic);
+        if (trackingNamesType is null)
+        {
+            names = [];
+            return false;
+        }
+
+        object? value = null;
+        var property = trackingNamesType.GetProperty("All", Flags);
+        if (property is not null)
+        {
+            value = property.GetValue(null);
+        }
+        else
+        {
+            var field = trackingNamesType.GetField("All", Flags);
+            if (field is not null)
+            {
+                value = field.GetValue(null);
+            }
+        }
+
+        if (value is IEnumerable<string> enumerable)
+        {
+            names = [.. enumerable];
+            return names.Count > 0;
+        }
+
+        names = [];
+        return false;
     }
 
     IEnumerable<SyntaxTree> FilteredSyntaxTrees()

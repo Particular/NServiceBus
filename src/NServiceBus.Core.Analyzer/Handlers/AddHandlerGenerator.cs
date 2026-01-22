@@ -18,11 +18,11 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("HandlerSpec");
+            .WithTrackingName(TrackingNames.HandlerSpec);
 
         var collected = addHandlers.Collect()
             .Select((handlers, _) => new HandlerSpecs(handlers.ToImmutableEquatableArray()))
-            .WithTrackingName("HandlerSpecs");
+            .WithTrackingName(TrackingNames.HandlerSpecs);
 
         var rootTypeSpec = AddHandlerAndSagasRegistrationGenerator.BuildRootTypeSpecPipeline(context);
 
