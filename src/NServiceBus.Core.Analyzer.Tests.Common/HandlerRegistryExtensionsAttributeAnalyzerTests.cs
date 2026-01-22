@@ -25,4 +25,19 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
 
         return Assert(DiagnosticIds.MultipleHandlerRegistryExtensions, source);
     }
+
+    [Test]
+    public Task ReportsWhenNotPartial()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [[|HandlerRegistryExtensions|]]
+                     public static class MissingPartialHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsMustBePartial, source);
+    }
 }
