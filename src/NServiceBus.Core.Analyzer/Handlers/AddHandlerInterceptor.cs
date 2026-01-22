@@ -17,11 +17,11 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
                 transform: Parser.Parse)
             .Where(static spec => spec.HasValue)
             .Select((spec, _) => spec!.Value)
-            .WithTrackingName("HandlerSpec");
+            .WithTrackingName(TrackingNames.HandlerSpec);
 
         var collected = addHandlers.Collect()
             .Select((handlers, _) => new InterceptableHandlerSpecs(handlers.ToImmutableEquatableArray()))
-            .WithTrackingName("HandlerSpecs");
+            .WithTrackingName(TrackingNames.HandlerSpecs);
 
         context.RegisterSourceOutput(collected,
             static (productionContext, spec) =>
