@@ -2,8 +2,12 @@ namespace NServiceBus.Core.Analyzer;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 static class TypeSymbolExtensions
 {
@@ -28,6 +32,53 @@ static class TypeSymbolExtensions
             foreach (var iface in type.AllInterfaces)
             {
                 if (SymbolEqualityComparer.IncludeNullability.Equals(iface.OriginalDefinition, genericInterface))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public Location GetClassIdentifierLocation(CancellationToken cancellationToken = default)
+        {
+            foreach (var syntaxRef in type.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax(cancellationToken) is ClassDeclarationSyntax classDecl)
+                {
+                    return classDecl.Identifier.GetLocation();
+                }
+            }
+
+            return null;
+        }
+
+        public ImmutableArray<Location> GetAttributeLocations(INamedTypeSymbol attributeType, CancellationToken cancellationToken = default)
+        {
+            var builder = ImmutableArray.CreateBuilder<Location>();
+
+            foreach (var attribute in type.GetAttributes())
+            {
+                if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType))
+                {
+                    continue;
+                }
+
+                if (attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is AttributeSyntax syntax)
+                {
+                    builder.Add(syntax.GetLocation());
+                }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        public bool IsPartial()
+        {
+            foreach (var syntaxReference in type.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax classDeclarationSyntax &&
+                    classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
                 {
                     return true;
                 }

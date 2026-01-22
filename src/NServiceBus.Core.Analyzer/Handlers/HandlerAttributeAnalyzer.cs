@@ -4,9 +4,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -47,7 +45,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                         return;
                     }
 
-                    foreach (var location in GetAttributeLocations(classType, handlerAttribute, context))
+                    foreach (var location in classType.GetAttributeLocations(handlerAttribute, context.CancellationToken))
                     {
                         if (location is not null)
                         {
@@ -63,7 +61,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     baseTypes.TryAdd(baseType.OriginalDefinition, 0);
                 }
 
-                var attributeLocations = GetAttributeLocations(classType, knownTypes.HandlerAttribute, context);
+                var attributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
                 var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
                 handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
@@ -80,7 +78,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     {
                         if (handlerType.AttributeLocations.IsDefaultOrEmpty)
                         {
-                            var location = GetClassIdentifierLocation(type, context.CancellationToken);
+                            var location = type.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
                             {
                                 context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissing, location, type.Name));
@@ -97,40 +95,6 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
             });
         });
-    }
-
-    static ImmutableArray<Location> GetAttributeLocations(INamedTypeSymbol classType, INamedTypeSymbol handlerAttribute, SymbolAnalysisContext context)
-    {
-        var builder = ImmutableArray.CreateBuilder<Location>();
-
-        foreach (var attribute in classType.GetAttributes())
-        {
-            if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, handlerAttribute))
-            {
-                continue;
-            }
-
-            if (attribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) is AttributeSyntax syntax)
-            {
-                builder.Add(syntax.GetLocation());
-            }
-        }
-
-        return builder.ToImmutable();
-    }
-
-
-    static Location? GetClassIdentifierLocation(INamedTypeSymbol classType, CancellationToken cancellationToken)
-    {
-        foreach (var syntaxRef in classType.DeclaringSyntaxReferences)
-        {
-            if (syntaxRef.GetSyntax(cancellationToken) is ClassDeclarationSyntax classDecl)
-            {
-                return classDecl.Identifier.GetLocation();
-            }
-        }
-
-        return null;
     }
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
