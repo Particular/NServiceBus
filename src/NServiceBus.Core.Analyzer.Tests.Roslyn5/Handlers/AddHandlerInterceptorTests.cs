@@ -40,7 +40,7 @@ public class AddHandlerInterceptorTests
                      public class Evt1 : IEvent { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>(["HandlerSpec", "HandlerSpecs"])
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -95,7 +95,7 @@ public class AddHandlerInterceptorTests
                      public class CmdBase : ICommand { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>(["HandlerSpec", "HandlerSpecs"])
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -147,7 +147,7 @@ public class AddHandlerInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>(["HandlerSpec", "HandlerSpecs"])
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
