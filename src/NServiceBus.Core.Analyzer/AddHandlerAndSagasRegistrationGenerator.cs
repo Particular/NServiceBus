@@ -17,7 +17,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("HandlerSpec");
+            .WithTrackingName("HandlerSpecs");
 
         var addSagas = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.SagaAttribute",
@@ -25,7 +25,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("SagaSpec");
+            .WithTrackingName("SagaSpecs");
 
         var collected = addHandlers.Collect()
             .Combine(addSagas.Collect())

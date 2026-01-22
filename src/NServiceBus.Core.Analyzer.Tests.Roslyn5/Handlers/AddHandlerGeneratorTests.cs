@@ -60,10 +60,9 @@ public class AddHandlerGeneratorTests
                      public class CmdBase : ICommand { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>(["HandlerSpec", "HandlerSpecs"])
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>("HandlerSpecs", "SagaSpecs", "HandlerAndSagaSpecs")
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -113,9 +112,9 @@ public class AddHandlerGeneratorTests
                      public class CmdBase : ICommand { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>(["HandlerSpec", "HandlerSpecs"])
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>("HandlerSpecs", "SagaSpecs", "HandlerAndSagaSpecs")
             .WithSource(source, "test.cs")
-            .WithGeneratorStages("HandlerSpec", "HandlerSpecs")
             .Approve()
             .AssertRunsAreEqual();
     }
