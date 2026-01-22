@@ -34,9 +34,10 @@ public partial class SourceGeneratorTest
     bool wroteToConsole;
     GeneratorTestOutput outputType;
     OutputKind buildOutputType = OutputKind.DynamicallyLinkedLibrary;
-    readonly HashSet<string> generatorStages = new(StringComparer.OrdinalIgnoreCase);
-    readonly List<string> generatorStagesList = [];
+    readonly Dictionary<string, HashSet<string>> generatorStages = [];
 
+    static readonly Type WrapperType = typeof(ISourceGenerator).Assembly.GetType("Microsoft.CodeAnalysis.IncrementalGeneratorWrapper", throwOnError: true)!;
+    static readonly MethodInfo GeneratorPropertyGetter = WrapperType.GetProperty("Generator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetMethod!;
 
     SourceGeneratorTest(string? outputAssemblyName = null)
     {
@@ -67,9 +68,9 @@ public partial class SourceGeneratorTest
         where TGenerator : ISourceGenerator, new()
         => new SourceGeneratorTest(outputAssemblyName).WithSourceGenerator<TGenerator>();
 
-    public static SourceGeneratorTest ForIncrementalGenerator<TGenerator>([CallerMemberName] string? outputAssemblyName = null)
+    public static SourceGeneratorTest ForIncrementalGenerator<TGenerator>(string[]? stages = null, [CallerMemberName] string? outputAssemblyName = null)
         where TGenerator : IIncrementalGenerator, new()
-        => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>();
+        => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>(stages);
 
     public List<MetadataReference> References { get; } = [];
 
@@ -112,8 +113,9 @@ public partial class SourceGeneratorTest
         return this;
     }
 
-    public SourceGeneratorTest WithIncrementalGenerator<TGenerator>() where TGenerator : IIncrementalGenerator, new()
+    public SourceGeneratorTest WithIncrementalGenerator<TGenerator>(params string[] stages) where TGenerator : IIncrementalGenerator, new()
     {
+        generatorStages.Add(typeof(TGenerator).FullName!, new HashSet<string>(stages, StringComparer.OrdinalIgnoreCase));
         generators.Add(new TGenerator().AsSourceGenerator());
         return this;
     }
@@ -139,18 +141,6 @@ public partial class SourceGeneratorTest
     public SourceGeneratorTest ControlOutput(GeneratorTestOutput output)
     {
         outputType = output;
-        return this;
-    }
-
-    public SourceGeneratorTest WithGeneratorStages(params string[] stages)
-    {
-        foreach (var stage in stages)
-        {
-            if (generatorStages.Add(stage))
-            {
-                generatorStagesList.Add(stage);
-            }
-        }
         return this;
     }
 
@@ -239,16 +229,15 @@ public partial class SourceGeneratorTest
 
         RunClonedBuild();
 
-        Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>> GetTracked(GeneratorDriverRunResult result)
-            => result.Results.SelectMany(r => r.TrackedSteps.Where(step => generatorStages.Contains(step.Key)))
-                .ToDictionary();
-
         var trackedSteps1 = GetTracked(build.RunResult);
         var trackedSteps2 = GetTracked(clonedBuild.RunResult);
 
-        Assert.That(trackedSteps1, Is.Not.Empty);
-        Assert.That(trackedSteps2.Count, Is.EqualTo(trackedSteps1.Count));
-        Assert.That(trackedSteps1.Keys, Is.EquivalentTo(trackedSteps2.Keys));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trackedSteps1, Is.Not.Empty);
+            Assert.That(trackedSteps2, Has.Count.EqualTo(trackedSteps1.Count));
+            Assert.That(trackedSteps1.Keys, Is.EquivalentTo(trackedSteps2.Keys));
+        }
 
         using (Assert.EnterMultipleScope())
         {
@@ -261,6 +250,14 @@ public partial class SourceGeneratorTest
         }
 
         return this;
+
+        Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>> GetTracked(GeneratorDriverRunResult result)
+            => result.Results.SelectMany(r => r.TrackedSteps.Where(step =>
+                {
+                    var generatorName = GetUnderlyingGeneratorType(r.Generator).FullName!;
+                    return generatorStages[generatorName].Contains(step.Key);
+                }))
+                .ToDictionary();
     }
 
     static void AssertStepsAreEqual(string trackingName, ImmutableArray<IncrementalGeneratorRunStep> steps1, ImmutableArray<IncrementalGeneratorRunStep> steps2)
@@ -402,6 +399,7 @@ public partial class SourceGeneratorTest
         {
             return this;
         }
+
         if (build is null)
         {
             _ = Run();
@@ -413,29 +411,17 @@ public partial class SourceGeneratorTest
         return this;
     }
 
-    public SourceGeneratorTest OutputSteps(params string[] specificStages)
+    public SourceGeneratorTest OutputSteps(params ReadOnlySpan<string> specificStages)
     {
         RunClonedBuild();
 
-        var stagesToTrack = specificStages.Length != 0 ? specificStages : generatorStagesList.ToArray();
-        var wrapperType = typeof(ISourceGenerator).Assembly.GetType("Microsoft.CodeAnalysis.IncrementalGeneratorWrapper", throwOnError: true);
-        var generatorPropertyGetter = wrapperType!.GetProperty("Generator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetMethod!;
-
         foreach (var result in clonedBuild.RunResult.Results)
         {
-            var generatorType = result.Generator.GetType();
-            if (generatorType == wrapperType)
-            {
-                var innerGenerator = generatorPropertyGetter.Invoke(result.Generator, []);
-                if (innerGenerator is not null)
-                {
-                    generatorType = innerGenerator.GetType();
-                }
-            }
+            var generatorType = GetUnderlyingGeneratorType(result.Generator);
             Console.WriteLine($"## {generatorType.Name} Results");
             Console.WriteLine();
 
-            foreach (var stepName in stagesToTrack)
+            foreach (var stepName in specificStages.Length != 0 ? specificStages : generatorStages[generatorType.FullName!].ToArray())
             {
                 var namedStep = result.TrackedSteps[stepName];
                 var outputs = namedStep.SelectMany(runStep => runStep.Outputs).ToArray();
@@ -456,6 +442,22 @@ public partial class SourceGeneratorTest
         }
 
         return this;
+    }
+
+    static Type GetUnderlyingGeneratorType(ISourceGenerator generator)
+    {
+        var generatorType = generator.GetType();
+        if (generatorType != WrapperType)
+        {
+            return generatorType;
+        }
+
+        var innerGenerator = GeneratorPropertyGetter.Invoke(generator, []);
+        if (innerGenerator is not null)
+        {
+            generatorType = innerGenerator.GetType();
+        }
+        return generatorType;
     }
 
     IEnumerable<SyntaxTree> FilteredSyntaxTrees()
