@@ -22,8 +22,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 return;
             }
 
-            var sourceWriter = new SourceWriter();
-            OpenNamespace(sourceWriter, rootTypeSpec.Namespace);
+            var sourceWriter = new SourceWriter()
+                .WithOpenNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, spec, rootTypeSpec);
             sourceWriter.CloseCurlies();
@@ -77,93 +77,102 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string typeVisibility)
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string typeVisibility) =>
+            EmitNamespaceRegistry(
+                sourceWriter,
+                node,
+                typeVisibility,
+                static (writer, current, visibility) =>
+                {
+                    writer.WriteLine("/// <summary>");
+                    writer.WriteLine($"/// The registry for the <i>{(current.Name.EndsWith("Root") ? current.Name.TrimEnd('R', 'o', 'o', 't') : current.Name)}</i> part.");
+                    writer.WriteLine("/// </summary>");
+                    writer.WriteLine($"{visibility} sealed partial class {current.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
+                    writer.WriteLine("{");
+                },
+                static (writer, current, _) =>
+                {
+                    writer.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
+
+                    if (current.Children.Count > 0)
+                    {
+                        writer.WriteLine();
+                    }
+
+                    foreach (var child in current.Children)
+                    {
+                        writer.WriteLine("/// <summary>");
+                        writer.WriteLine($"/// Gets the registry for the <i>{child.Name}</i> namespace part.");
+                        writer.WriteLine("/// </summary>");
+                        writer.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
+                        writer.WriteLine();
+                    }
+
+                    if (current.Children.Count == 0)
+                    {
+                        writer.WriteLine();
+                    }
+                    writer.WriteLine("""
+                                     public void AddAll()
+                                     {
+                                         AddAllHandlers();
+                                         AddAllSagas();
+                                     }
+                                     """);
+                    writer.WriteLine();
+
+                    writer.WriteLine("public void AddAllHandlers()");
+                    writer.WriteLine("{");
+                    writer.Indentation++;
+                    writer.WriteLine("AddAllHandlersCore();");
+
+                    foreach (var child in current.Children)
+                    {
+                        writer.WriteLine($"{child.Name}.AddAllHandlers();");
+                    }
+                    writer.Indentation--;
+                    writer.WriteLine("}");
+                    writer.WriteLine();
+
+                    writer.WriteLine("public void AddAllSagas()");
+                    writer.WriteLine("{");
+                    writer.Indentation++;
+                    writer.WriteLine("AddAllSagasCore();");
+
+                    foreach (var child in current.Children)
+                    {
+                        writer.WriteLine($"{child.Name}.AddAllSagas();");
+                    }
+                    writer.Indentation--;
+                    writer.WriteLine("}");
+
+                    writer.WriteLine();
+                    writer.WriteLine("partial void AddAllHandlersCore();");
+                    writer.WriteLine("partial void AddAllSagasCore();");
+                },
+                static (writer, _, _) => writer.WriteLine());
+
+        internal static void EmitNamespaceRegistry(
+            SourceWriter sourceWriter,
+            NamespaceNode node,
+            string typeVisibility,
+            Action<SourceWriter, NamespaceNode, string> emitHeader,
+            Action<SourceWriter, NamespaceNode, string> emitBody,
+            Action<SourceWriter, NamespaceNode, NamespaceNode>? emitBeforeChild = null)
         {
-            sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// The registry for the <i>{(node.Name.EndsWith("Root") ? node.Name.TrimEnd('R', 'o', 'o', 't') : node.Name)}</i> part.");
-            sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine($"{typeVisibility} sealed partial class {node.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
-            sourceWriter.WriteLine("{");
+            emitHeader(sourceWriter, node, typeVisibility);
             sourceWriter.Indentation++;
 
-            sourceWriter.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
-
-            if (node.Children.Count > 0)
-            {
-                sourceWriter.WriteLine();
-            }
+            emitBody(sourceWriter, node, typeVisibility);
 
             foreach (var child in node.Children)
             {
-                sourceWriter.WriteLine("/// <summary>");
-                sourceWriter.WriteLine($"/// Gets the registry for the <i>{child.Name}</i> namespace part.");
-                sourceWriter.WriteLine("/// </summary>");
-                sourceWriter.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
-                sourceWriter.WriteLine();
-            }
-
-            if (node.Children.Count == 0)
-            {
-                sourceWriter.WriteLine();
-            }
-            sourceWriter.WriteLine("""
-                                   public void AddAll()
-                                   {
-                                       AddAllHandlers();
-                                       AddAllSagas();
-                                   }
-                                   """);
-            sourceWriter.WriteLine();
-
-            sourceWriter.WriteLine("public void AddAllHandlers()");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-            sourceWriter.WriteLine("AddAllHandlersCore();");
-
-            foreach (var child in node.Children)
-            {
-                sourceWriter.WriteLine($"{child.Name}.AddAllHandlers();");
-            }
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-            sourceWriter.WriteLine();
-
-            sourceWriter.WriteLine("public void AddAllSagas()");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-            sourceWriter.WriteLine("AddAllSagasCore();");
-
-            foreach (var child in node.Children)
-            {
-                sourceWriter.WriteLine($"{child.Name}.AddAllSagas();");
-            }
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-
-            sourceWriter.WriteLine();
-            sourceWriter.WriteLine("partial void AddAllHandlersCore();");
-            sourceWriter.WriteLine("partial void AddAllSagasCore();");
-
-            foreach (var child in node.Children)
-            {
-                sourceWriter.WriteLine();
-                EmitNamespaceRegistry(sourceWriter, child, typeVisibility);
+                emitBeforeChild?.Invoke(sourceWriter, node, child);
+                EmitNamespaceRegistry(sourceWriter, child, typeVisibility, emitHeader, emitBody, emitBeforeChild);
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
-        }
-
-        static void OpenNamespace(SourceWriter sourceWriter, string namespaceName)
-        {
-            if (string.IsNullOrWhiteSpace(namespaceName))
-            {
-                return;
-            }
-
-            sourceWriter.WriteLine($"namespace {namespaceName}");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
         }
 
         static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)
