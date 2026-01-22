@@ -239,25 +239,24 @@ public partial class SourceGeneratorTest
             Assert.That(trackedSteps1.Keys, Is.EquivalentTo(trackedSteps2.Keys));
         }
 
-        using (Assert.EnterMultipleScope())
+        foreach (var stepsPerGenerator in trackedSteps1)
         {
-            foreach (var step in trackedSteps1)
+            using (Assert.EnterMultipleScope())
             {
-                var runStep1 = step.Value;
-                var runStep2 = trackedSteps2[step.Key];
-                AssertStepsAreEqual(step.Key, runStep1, runStep2);
+                foreach ((string key, ImmutableArray<IncrementalGeneratorRunStep> runStep1) in stepsPerGenerator.Value)
+                {
+                    var runStep2 = trackedSteps2[stepsPerGenerator.Key][key];
+                    AssertStepsAreEqual(key, runStep1, runStep2);
+                }
             }
         }
 
         return this;
 
-        Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>> GetTracked(GeneratorDriverRunResult result)
-            => result.Results.SelectMany(r => r.TrackedSteps.Where(step =>
-                {
-                    var generatorName = GetUnderlyingGeneratorType(r.Generator).FullName!;
-                    return generatorStages[generatorName].Contains(step.Key);
-                }))
-                .ToDictionary();
+        Dictionary<string, Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>>> GetTracked(GeneratorDriverRunResult result) =>
+            result.Results.GroupBy(x => GetUnderlyingGeneratorType(x.Generator).FullName!)
+                .ToDictionary(g => g.Key, g =>
+                    g.SelectMany(r => r.TrackedSteps.Where(step => generatorStages[g.Key].Contains(step.Key))).ToDictionary());
     }
 
     static void AssertStepsAreEqual(string trackingName, ImmutableArray<IncrementalGeneratorRunStep> steps1, ImmutableArray<IncrementalGeneratorRunStep> steps2)
@@ -277,7 +276,7 @@ public partial class SourceGeneratorTest
             var outputReasons = step2.Outputs.Select(o => o.Reason).ToArray();
             var badReasons = outputReasons.Where(reason => reason is not IncrementalStepRunReason.Cached and not IncrementalStepRunReason.Unchanged).ToArray();
 
-            Assert.That(badReasons.Length, Is.EqualTo(0), $"Step '{trackingName}' outputs contain reasons: {string.Join(',', badReasons)}. Should all be Cached or Unchanged to be memoizable.");
+            Assert.That(badReasons.Length, Is.Zero, $"Step '{trackingName}' outputs contain reasons: {string.Join(',', badReasons)}. Should all be Cached or Unchanged to be memoizable.");
 
             // Not doing anything here to explicitly assert that types are not Compilation, ISymbol, SyntaxNode or other
             // types known to be bad ideas, but that would require nasty reflection to traverse an object graph
