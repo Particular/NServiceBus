@@ -24,8 +24,8 @@ public sealed partial class AddHandlerGenerator
                 return;
             }
 
-            var sourceWriter = new SourceWriter();
-            OpenNamespace(sourceWriter, rootTypeSpec.Namespace);
+            var sourceWriter = new SourceWriter()
+                .WithOpenNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();
@@ -43,56 +43,41 @@ public sealed partial class AddHandlerGenerator
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root, namespaceTree.Visibility);
-
-            sourceWriter.Indentation--;
-            sourceWriter.WriteLine("}");
-        }
-
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, BaseEmitter.NamespaceNode node, string typeVisibility)
-        {
-            sourceWriter.WriteLine($"{typeVisibility} sealed partial class {node.RegistryName}");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
-
-            if (node.Specs.Count > 0)
-            {
-                sourceWriter.WriteLine("partial void AddAllHandlersCore()");
-                sourceWriter.WriteLine("{");
-                sourceWriter.Indentation++;
-
-                for (int index = 0; index < node.Specs.Count; index++)
+            BaseEmitter.EmitNamespaceRegistry(
+                sourceWriter,
+                namespaceTree.Root,
+                namespaceTree.Visibility,
+                static (writer, node, visibility) =>
                 {
-                    var methodName = GetSingleHandlerMethodName(node.Specs[index].Name);
-                    sourceWriter.WriteLine($"{methodName}();");
-                }
+                    writer.WriteLine($"{visibility} sealed partial class {node.RegistryName}");
+                    writer.WriteLine("{");
+                },
+                static (writer, node, _) =>
+                {
+                    if (node.Specs.Count == 0)
+                    {
+                        return;
+                    }
 
-                sourceWriter.Indentation--;
-                sourceWriter.WriteLine("}");
+                    writer.WriteLine("partial void AddAllHandlersCore()");
+                    writer.WriteLine("{");
+                    writer.Indentation++;
 
-                sourceWriter.WriteLine();
-                EmitHandlerMethods(sourceWriter, [.. node.Specs.Cast<HandlerSpec>()]);
-            }
+                    for (int index = 0; index < node.Specs.Count; index++)
+                    {
+                        var methodName = GetSingleHandlerMethodName(node.Specs[index].Name);
+                        writer.WriteLine($"{methodName}();");
+                    }
 
-            foreach (var child in node.Children)
-            {
-                EmitNamespaceRegistry(sourceWriter, child, typeVisibility);
-            }
+                    writer.Indentation--;
+                    writer.WriteLine("}");
+
+                    writer.WriteLine();
+                    EmitHandlerMethods(writer, [.. node.Specs.Cast<HandlerSpec>()]);
+                });
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
-        }
-
-        static void OpenNamespace(SourceWriter sourceWriter, string namespaceName)
-        {
-            if (string.IsNullOrWhiteSpace(namespaceName))
-            {
-                return;
-            }
-
-            sourceWriter.WriteLine($"namespace {namespaceName}");
-            sourceWriter.WriteLine("{");
-            sourceWriter.Indentation++;
         }
 
         static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs)
