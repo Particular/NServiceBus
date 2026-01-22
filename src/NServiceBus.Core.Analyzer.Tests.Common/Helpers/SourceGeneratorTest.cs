@@ -70,7 +70,7 @@ public partial class SourceGeneratorTest
 
     public static SourceGeneratorTest ForIncrementalGenerator<TGenerator>(string[]? stages = null, [CallerMemberName] string? outputAssemblyName = null)
         where TGenerator : IIncrementalGenerator, new()
-        => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>(stages);
+        => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>(stages ?? []);
 
     public List<MetadataReference> References { get; } = [];
 
