@@ -32,6 +32,20 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
             .Select((pair, _) => pair.Left.AddRange(pair.Right))
             .WithTrackingName("HandlerAndSagaSpecs");
 
+        var rootTypeSpec = BuildRootTypeSpecPipeline(context);
+
+        var combined = collected.Combine(rootTypeSpec);
+
+        context.RegisterSourceOutput(combined,
+            static (productionContext, spec) =>
+            {
+                var emitter = new Emitter(productionContext);
+                emitter.Emit(spec.Left, spec.Right);
+            });
+    }
+
+    internal static IncrementalValueProvider<Parser.RootTypeSpec> BuildRootTypeSpecPipeline(IncrementalGeneratorInitializationContext context)
+    {
         var assemblyInfo = context.CompilationProvider
             .Select(static (compilation, _) =>
             {
@@ -50,18 +64,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
             .Collect()
             .WithTrackingName("ExplicitRootTypeSpec");
 
-        var rootTypeSpec = explicitRootTypeSpec
+        return explicitRootTypeSpec
             .Combine(assemblyInfo)
             .Select(static (pair, _) => Parser.SelectRootTypeSpec(pair.Left, pair.Right.AssemblyId))
             .WithTrackingName("RootTypeSpec");
-
-        var combined = collected.Combine(rootTypeSpec);
-
-        context.RegisterSourceOutput(combined,
-            static (productionContext, spec) =>
-            {
-                var emitter = new Emitter(productionContext);
-                emitter.Emit(spec.Left, spec.Right);
-            });
     }
 }
