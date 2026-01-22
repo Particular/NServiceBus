@@ -2,12 +2,11 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
-using BaseParser = NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator.Parser;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 using static Handlers;
 using BaseEmitter = AddHandlerAndSagasRegistrationGenerator.Emitter;
 
