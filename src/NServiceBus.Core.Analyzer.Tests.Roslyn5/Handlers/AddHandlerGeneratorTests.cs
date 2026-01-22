@@ -137,6 +137,7 @@ public class AddHandlerGeneratorTests
 
                      namespace CustomRegistrations
                      {
+                         [HandlerRegistryExtensions]
                          internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
                          {
                          }

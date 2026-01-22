@@ -39,7 +39,7 @@ public sealed partial class AddHandlerGenerator
 
             var namespaceTree = BaseEmitter.BuildNamespaceTree(handlers, rootTypeSpec);
 
-            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 

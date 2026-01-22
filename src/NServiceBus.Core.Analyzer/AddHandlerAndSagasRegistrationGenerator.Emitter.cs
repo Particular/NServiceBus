@@ -34,9 +34,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
         {
             var assemblyName = baseSpecs[0].AssemblyName;
-            var assemblyId = SanitizeIdentifier(assemblyName);
-            var root = BuildNamespaceNodeTree(baseSpecs, assemblyId);
-            return new NamespaceTree(root, assemblyId, assemblyName, rootTypeSpec.Namespace, rootTypeSpec.Visibility);
+            var rootName = rootTypeSpec.RootName;
+            var root = BuildNamespaceNodeTree(baseSpecs, rootName);
+            return new NamespaceTree(root, rootName, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec.Namespace, rootTypeSpec.Visibility);
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
@@ -49,11 +49,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine($"/// Provides extensions to register message handlers and sagas found in the <i>{namespaceTree.AssemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
-            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitExtensionProperties(sourceWriter, namespaceTree.AssemblyId, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName);
+            EmitExtensionProperties(sourceWriter, namespaceTree.RootName, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName);
 
             sourceWriter.WriteLine();
             EmitNamespaceRegistry(sourceWriter, namespaceTree.Root, namespaceTree.Visibility);
@@ -62,7 +62,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitExtensionProperties(SourceWriter sourceWriter, string assemblyId, string assemblyName, string rootRegistryName)
+        static void EmitExtensionProperties(SourceWriter sourceWriter, string rootName, string assemblyName, string rootRegistryName)
         {
             sourceWriter.WriteLine("extension (global::NServiceBus.HandlerRegistry registry)");
             sourceWriter.WriteLine("{");
@@ -71,7 +71,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("/// <summary>");
             sourceWriter.WriteLine($"/// Gets the registry for the <i>{assemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine($"public {rootRegistryName} {assemblyId}Assembly => new(registry.Configuration);");
+            sourceWriter.WriteLine($"public {rootRegistryName} {rootName}Assembly => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -166,9 +166,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.Indentation++;
         }
 
-        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string assemblyId)
+        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)
         {
-            var root = new NamespaceNode($"{assemblyId}Root");
+            var root = new NamespaceNode($"{rootName}Root");
 
             foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
                          .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
@@ -210,7 +210,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
-        internal record NamespaceTree(NamespaceNode Root, string AssemblyId, string AssemblyName, string Namespace, string Visibility);
+        internal record NamespaceTree(NamespaceNode Root, string RootName, string ExtensionTypeName, string AssemblyName, string Namespace, string Visibility);
 
         internal sealed class NamespaceNode(string name)
         {
