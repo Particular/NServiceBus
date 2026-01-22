@@ -95,7 +95,7 @@ namespace NServiceBus
             partial void AddAllSagasCore();
 
             /// <summary>
-            /// The registry for the <i>OrdersRegistry</i> part.
+            /// The registry for the <i>Orders</i> part.
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
@@ -128,7 +128,7 @@ namespace NServiceBus
                 partial void AddAllSagasCore();
 
                 /// <summary>
-                /// The registry for the <i>ShippingRegistry</i> part.
+                /// The registry for the <i>Shipping</i> part.
                 /// </summary>
                 public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {

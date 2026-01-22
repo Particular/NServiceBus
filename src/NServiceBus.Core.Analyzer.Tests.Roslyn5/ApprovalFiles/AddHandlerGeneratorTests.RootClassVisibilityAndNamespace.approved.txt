@@ -1,0 +1,109 @@
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.g.cs =======
+namespace CustomRegistrations
+{
+    internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
+    {
+        internal sealed partial class RootClassVisibilityAndNamespaceRootRegistry
+        {
+            internal sealed partial class OrdersRegistry
+            {
+                partial void AddAllHandlersCore()
+                {
+                    AddOrderShippedHandler();
+                }
+
+                /// <summary>
+                /// Adds the <see cref="global::Orders.OrderShippedHandler"/> handler to the registration.
+                /// </summary>
+                public void AddOrderShippedHandler()
+                {
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.OrderShippedHandler, global::Cmd1>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
+                }
+            }
+        }
+    }
+}
+
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+namespace CustomRegistrations
+{
+    /// <summary>
+    /// Provides extensions to register message handlers and sagas found in the <i>RootClassVisibilityAndNamespace</i> assembly.
+    /// </summary>
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
+    {
+        extension (global::NServiceBus.HandlerRegistry registry)
+        {
+            /// <summary>
+            /// Gets the registry for the <i>RootClassVisibilityAndNamespace</i> assembly.
+            /// </summary>
+            public RootClassVisibilityAndNamespaceRootRegistry RootClassVisibilityAndNamespaceAssembly => new(registry.Configuration);
+        }
+
+        /// <summary>
+        /// The registry for the <i>RootClassVisibilityAndNamespace</i> part.
+        /// </summary>
+        internal sealed partial class RootClassVisibilityAndNamespaceRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        {
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+            /// <summary>
+            /// Gets the registry for the <i>Orders</i> namespace part.
+            /// </summary>
+            public OrdersRegistry Orders => new(_configuration);
+
+            public void AddAll()
+            {
+                AddAllHandlers();
+                AddAllSagas();
+            }
+
+            public void AddAllHandlers()
+            {
+                AddAllHandlersCore();
+                Orders.AddAllHandlers();
+            }
+
+            public void AddAllSagas()
+            {
+                AddAllSagasCore();
+                Orders.AddAllSagas();
+            }
+
+            partial void AddAllHandlersCore();
+            partial void AddAllSagasCore();
+
+            /// <summary>
+            /// The registry for the <i>Orders</i> part.
+            /// </summary>
+            internal sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                public void AddAll()
+                {
+                    AddAllHandlers();
+                    AddAllSagas();
+                }
+
+                public void AddAllHandlers()
+                {
+                    AddAllHandlersCore();
+                }
+
+                public void AddAllSagas()
+                {
+                    AddAllSagasCore();
+                }
+
+                partial void AddAllHandlersCore();
+                partial void AddAllSagasCore();
+            }
+        }
+    }
+}

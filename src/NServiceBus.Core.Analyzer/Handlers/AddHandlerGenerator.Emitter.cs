@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
+using BaseParser = NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator.Parser;
 using static Handlers;
 using BaseEmitter = AddHandlerAndSagasRegistrationGenerator.Emitter;
 
@@ -14,9 +15,9 @@ public sealed partial class AddHandlerGenerator
 {
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(HandlerSpecs handlerSpecs) => Emit(sourceProductionContext, handlerSpecs);
+        public void Emit(HandlerSpecs handlerSpecs, BaseParser.RootTypeSpec rootTypeSpec) => Emit(sourceProductionContext, handlerSpecs, rootTypeSpec);
 
-        static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs)
+        static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs, BaseParser.RootTypeSpec rootTypeSpec)
         {
             var handlers = handlerSpecs.Handlers;
             if (handlers.Count == 0)
@@ -25,37 +26,33 @@ public sealed partial class AddHandlerGenerator
             }
 
             var sourceWriter = new SourceWriter();
-            sourceWriter.WriteLine("""
-                                   namespace NServiceBus
-                                   {
-                                   """);
-            sourceWriter.Indentation++;
+            OpenNamespace(sourceWriter, rootTypeSpec.Namespace);
 
-            EmitHandlers(sourceWriter, handlers);
+            EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
             context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
         }
 
-        static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers)
+        static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers, BaseParser.RootTypeSpec rootTypeSpec)
         {
             Debug.Assert(handlers.Count > 0);
 
-            var namespaceTree = BaseEmitter.BuildNamespaceTree(handlers);
+            var namespaceTree = BaseEmitter.BuildNamespaceTree(handlers, rootTypeSpec);
 
-            sourceWriter.WriteLine($"public static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root);
+            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root, namespaceTree.Visibility);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, BaseEmitter.NamespaceNode node)
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, BaseEmitter.NamespaceNode node, string typeVisibility)
         {
-            sourceWriter.WriteLine($"public sealed partial class {node.RegistryName}");
+            sourceWriter.WriteLine($"{typeVisibility} sealed partial class {node.RegistryName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
@@ -80,11 +77,23 @@ public sealed partial class AddHandlerGenerator
 
             foreach (var child in node.Children)
             {
-                EmitNamespaceRegistry(sourceWriter, child);
+                EmitNamespaceRegistry(sourceWriter, child, typeVisibility);
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
+        }
+
+        static void OpenNamespace(SourceWriter sourceWriter, string namespaceName)
+        {
+            if (string.IsNullOrWhiteSpace(namespaceName))
+            {
+                return;
+            }
+
+            sourceWriter.WriteLine($"namespace {namespaceName}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
         }
 
         static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs)
