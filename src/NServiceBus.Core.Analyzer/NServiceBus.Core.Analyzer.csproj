@@ -25,4 +25,14 @@
     </PropertyGroup>
   </Target>
 
+  <ItemGroup>
+    <Compile Update="**\*.Parser.cs">
+      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Parser','')).cs</DependentUpon>
+    </Compile>
+
+    <Compile Update="**\*.Emitter.cs">
+      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Emitter','')).cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
