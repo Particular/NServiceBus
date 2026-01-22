@@ -68,6 +68,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return new RootTypeSpec(namespaceName, visibility);
         }
 
+        public static bool IsRootTypeCandidate(SyntaxNode node)
+            => node is ClassDeclarationSyntax classDeclarationSyntax
+               && classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword)
+               && classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
+               && classDeclarationSyntax.Identifier.ValueText.EndsWith("HandlerRegistryExtensions", StringComparison.Ordinal);
+
         static string GetNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
 
         static string GetNamespace(SyntaxNode syntaxNode)

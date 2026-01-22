@@ -43,7 +43,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
 
         var rootTypeSpec = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                predicate: static (node, _) => Parser.IsRootTypeCandidate(node),
                 transform: static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
             .Combine(assemblyInfo)
             .Select(static (pair, _) => Parser.TryGetRootTypeSpec(pair.Left, pair.Right.AssemblyName, pair.Right.AssemblyId))
