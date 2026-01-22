@@ -17,7 +17,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("HandlerSpecs");
+            .WithTrackingName(TrackingNames.HandlerSpecs);
 
         var addSagas = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.SagaAttribute",
@@ -25,12 +25,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("SagaSpecs");
+            .WithTrackingName(TrackingNames.SagaSpecs);
 
         var collected = addHandlers.Collect()
             .Combine(addSagas.Collect())
             .Select((pair, _) => pair.Left.AddRange(pair.Right))
-            .WithTrackingName("HandlerAndSagaSpecs");
+            .WithTrackingName(TrackingNames.HandlerAndSagaSpecs);
 
         var rootTypeSpec = BuildRootTypeSpecPipeline(context);
 
@@ -53,7 +53,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 var assemblyId = Emitter.SanitizeIdentifier(assemblyName);
                 return (AssemblyName: assemblyName, AssemblyId: assemblyId);
             })
-            .WithTrackingName("AssemblyInfo");
+            .WithTrackingName(TrackingNames.AssemblyInfo);
 
         var explicitRootTypeSpec = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryExtensionsAttribute",
@@ -62,11 +62,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
             .Where(static spec => spec.HasValue)
             .Select(static (spec, _) => spec!.Value)
             .Collect()
-            .WithTrackingName("ExplicitRootTypeSpec");
+            .WithTrackingName(TrackingNames.ExplicitRootTypeSpec);
 
         return explicitRootTypeSpec
             .Combine(assemblyInfo)
             .Select(static (pair, _) => Parser.SelectRootTypeSpec(pair.Left, pair.Right.AssemblyId))
-            .WithTrackingName("RootTypeSpec");
+            .WithTrackingName(TrackingNames.RootTypeSpec);
     }
 }
