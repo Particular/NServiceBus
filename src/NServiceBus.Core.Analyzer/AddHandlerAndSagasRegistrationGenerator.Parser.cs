@@ -41,8 +41,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             var className = classDeclarationSyntax.Identifier.ValueText;
-            if (!StringComparer.Ordinal.Equals(className, assemblyName) &&
-                !StringComparer.Ordinal.Equals(className, assemblyId))
+            var expectedName = $"{assemblyId}HandlerRegistryExtensions";
+            if (!StringComparer.Ordinal.Equals(className, expectedName))
             {
                 return null;
             }
