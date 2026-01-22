@@ -109,7 +109,8 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
 
-                EmitHandlerRegistrationBlock(sourceWriter, [handlerSpec], "_configuration");
+                Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");
+                Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, handlerSpec);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -118,20 +119,6 @@ public sealed partial class AddHandlerGenerator
                 {
                     sourceWriter.WriteLine();
                 }
-            }
-        }
-
-        static void EmitHandlerRegistrationBlock(SourceWriter sourceWriter, IReadOnlyList<HandlerSpec> handlerSpecs, string configurationVariable)
-        {
-            sourceWriter.WriteLine($"""
-                                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable});
-                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                                    """);
-
-            foreach (var handlerSpec in handlerSpecs)
-            {
-                Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, handlerSpec);
             }
         }
 
