@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
 using static Handlers;
+using BaseEmitter = AddHandlerAndSagasRegistrationGenerator.Emitter;
 
 public sealed partial class AddHandlerGenerator
 {
@@ -40,37 +41,33 @@ public sealed partial class AddHandlerGenerator
         {
             Debug.Assert(handlers.Count > 0);
 
-            var root = BuildNamespaceTree(handlers);
-            var assemblyName = handlers[0].AssemblyName;
-            var assemblyId = SanitizeIdentifier(assemblyName);
+            var namespaceTree = BaseEmitter.BuildNamespaceTree(handlers);
 
-            var rootRegistryName = $"{assemblyId}RootRegistry";
-
-            sourceWriter.WriteLine($"public static partial class {assemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"public static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitNamespaceRegistry(sourceWriter, root, rootRegistryName);
+            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string registryName)
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, BaseEmitter.NamespaceNode node)
         {
-            sourceWriter.WriteLine($"public sealed partial class {registryName}");
+            sourceWriter.WriteLine($"public sealed partial class {node.RegistryName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            if (node.Handlers.Count > 0)
+            if (node.Specs.Count > 0)
             {
                 sourceWriter.WriteLine("partial void AddAllHandlersCore()");
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
 
-                for (int index = 0; index < node.Handlers.Count; index++)
+                for (int index = 0; index < node.Specs.Count; index++)
                 {
-                    var methodName = GetSingleHandlerMethodName(node.Handlers[index].Name);
+                    var methodName = GetSingleHandlerMethodName(node.Specs[index].Name);
                     sourceWriter.WriteLine($"{methodName}();");
                 }
 
@@ -78,21 +75,21 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.WriteLine("}");
 
                 sourceWriter.WriteLine();
-                EmitHandlerMethods(sourceWriter, node.Handlers);
+                EmitHandlerMethods(sourceWriter, [.. node.Specs.Cast<HandlerSpec>()]);
             }
 
             foreach (var child in node.Children)
             {
-                EmitNamespaceRegistry(sourceWriter, child, child.RegistryName);
+                EmitNamespaceRegistry(sourceWriter, child);
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitHandlerMethods(SourceWriter sourceWriter, List<HandlerSpec> handlerSpecs)
+        static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs)
         {
-            for (int index = 0; index < handlerSpecs.Count; index++)
+            for (int index = 0; index < handlerSpecs.Length; index++)
             {
                 var handlerSpec = handlerSpecs[index];
                 var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
@@ -108,7 +105,7 @@ public sealed partial class AddHandlerGenerator
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
 
-                if (index < handlerSpecs.Count - 1)
+                if (index < handlerSpecs.Length - 1)
                 {
                     sourceWriter.WriteLine();
                 }
@@ -139,88 +136,6 @@ public sealed partial class AddHandlerGenerator
             }
 
             return $"Add{handlerName}";
-        }
-
-        static NamespaceNode BuildNamespaceTree(ImmutableEquatableArray<HandlerSpec> handlers)
-        {
-            var root = new NamespaceNode(null);
-
-            foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
-                         .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
-            {
-                var current = root;
-                foreach (var part in GetNamespaceParts(handler.Namespace))
-                {
-                    current = current.GetOrAddChild(part);
-                }
-
-                current.Handlers.Add(handler);
-            }
-
-            root.Sort();
-            return root;
-        }
-
-        static string[] GetNamespaceParts(string handlerNamespace)
-        {
-            var parts = handlerNamespace.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length > 0 && string.Equals(parts[0], "NServiceBus", StringComparison.Ordinal))
-            {
-                return parts[1..];
-            }
-
-            return parts;
-        }
-
-        static string SanitizeIdentifier(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return "Assembly";
-            }
-
-            var sanitized = System.Text.RegularExpressions.Regex.Replace(value, @"[^a-zA-Z0-9]", "");
-
-            return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
-        }
-
-        sealed class NamespaceNode(string? name)
-        {
-            public string? Name { get; } = name;
-
-            public List<NamespaceNode> Children { get; } = [];
-
-            public List<HandlerSpec> Handlers { get; } = [];
-
-            public string RegistryName => $"{Name}Registry";
-
-            public NamespaceNode GetOrAddChild(string childName)
-            {
-                for (int i = 0; i < Children.Count; i++)
-                {
-                    var child = Children[i];
-                    if (StringComparer.Ordinal.Equals(child.Name, childName))
-                    {
-                        return child;
-                    }
-                }
-
-                var newChild = new NamespaceNode(childName);
-                Children.Add(newChild);
-                return newChild;
-            }
-
-            public void Sort()
-            {
-                Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-                Handlers.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
-
-                foreach (var child in Children)
-                {
-                    child.Sort();
-                }
-            }
         }
     }
 }

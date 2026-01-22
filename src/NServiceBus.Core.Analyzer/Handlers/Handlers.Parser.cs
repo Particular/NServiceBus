@@ -11,15 +11,8 @@ using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
 static partial class Handlers
 {
-    public sealed record HandlerSpec(
-        BaseParser.HandlerOrSagaBaseSpec HandlerBaseSpec,
-        ImmutableEquatableArray<RegistrationSpec> Registrations)
-    {
-        public string Name => HandlerBaseSpec.Name;
-        public string AssemblyName => HandlerBaseSpec.AssemblyName;
-        public string Namespace => HandlerBaseSpec.Namespace;
-        public string FullyQualifiedName => HandlerBaseSpec.FullyQualifiedName;
-    }
+    public sealed record HandlerSpec(BaseParser.BaseSpec HandlerBaseSpec,
+        ImmutableEquatableArray<RegistrationSpec> Registrations) : BaseParser.BaseSpec(HandlerBaseSpec);
 
     public readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 

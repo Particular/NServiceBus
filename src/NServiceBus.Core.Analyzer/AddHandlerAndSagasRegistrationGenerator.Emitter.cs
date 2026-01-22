@@ -9,12 +9,13 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Utility;
+using static AddHandlerAndSagasRegistrationGenerator.Parser;
 
 public partial class AddHandlerAndSagasRegistrationGenerator
 {
     internal class Emitter(SourceProductionContext context)
     {
-        public void Emit(ImmutableArray<Parser.HandlerOrSagaBaseSpec> spec)
+        public void Emit(ImmutableArray<BaseSpec> spec)
         {
             if (spec.Length == 0)
             {
@@ -34,28 +35,32 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             context.AddSource("Registrations.g.cs", sourceWriter.ToSourceText());
         }
 
-        static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<Parser.HandlerOrSagaBaseSpec> handlersOrSagas)
+        public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs)
         {
-            Debug.Assert(handlersOrSagas.Length > 0);
-
-            var root = BuildNamespaceTree(handlersOrSagas);
-            var assemblyName = handlersOrSagas[0].AssemblyName;
+            var assemblyName = baseSpecs[0].AssemblyName;
             var assemblyId = SanitizeIdentifier(assemblyName);
+            var root = BuildNamespaceNodeTree(baseSpecs, assemblyId);
+            return new NamespaceTree(root, assemblyId, assemblyName);
+        }
 
-            var rootRegistryName = $"{assemblyId}RootRegistry";
+        static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs)
+        {
+            Debug.Assert(baseSpecs.Length > 0);
+
+            var namespaceTree = BuildNamespaceTree(baseSpecs);
 
             sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// Provides extensions to register message handlers and sagas found in the <i>{assemblyName}</i> assembly.");
+            sourceWriter.WriteLine($"/// Provides extensions to register message handlers and sagas found in the <i>{namespaceTree.AssemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
-            sourceWriter.WriteLine($"public static partial class {assemblyId}HandlerRegistryExtensions");
+            sourceWriter.WriteLine($"public static partial class {namespaceTree.AssemblyId}HandlerRegistryExtensions");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitExtensionProperties(sourceWriter, assemblyId, assemblyName, rootRegistryName);
+            EmitExtensionProperties(sourceWriter, namespaceTree.AssemblyId, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName);
 
             sourceWriter.WriteLine();
-            EmitNamespaceRegistry(sourceWriter, root, rootRegistryName);
+            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -76,12 +81,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string registryName)
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node)
         {
             sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// The registry for the <i>{node.Name ?? registryName.Replace("RootRegistry", string.Empty)}</i> part.");
+            sourceWriter.WriteLine($"/// The registry for the <i>{node.RegistryName.Replace("RootRegistry", string.Empty)}</i> part.");
             sourceWriter.WriteLine("/// </summary>");
-            sourceWriter.WriteLine($"public sealed partial class {registryName}(global::NServiceBus.EndpointConfiguration configuration)");
+            sourceWriter.WriteLine($"public sealed partial class {node.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
@@ -146,16 +151,16 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             foreach (var child in node.Children)
             {
                 sourceWriter.WriteLine();
-                EmitNamespaceRegistry(sourceWriter, child, child.RegistryName);
+                EmitNamespaceRegistry(sourceWriter, child);
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        public static NamespaceNode BuildNamespaceTree(ImmutableArray<Parser.HandlerOrSagaBaseSpec> handlers)
+        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string assemblyId)
         {
-            var root = new NamespaceNode(null);
+            var root = new NamespaceNode($"{assemblyId}Root");
 
             foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
                          .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
@@ -166,7 +171,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     current = current.GetOrAddChild(part);
                 }
 
-                current.HandlersOrSagas.Add(handler);
+                current.Specs.Add(handler);
             }
 
             root.Sort();
@@ -197,13 +202,15 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
-        internal sealed class NamespaceNode(string? name)
+        internal record NamespaceTree(NamespaceNode Root, string AssemblyId, string AssemblyName);
+
+        internal sealed class NamespaceNode(string name)
         {
-            public string? Name { get; } = name;
+            public string Name { get; } = name;
 
             public List<NamespaceNode> Children { get; } = [];
 
-            public List<Parser.HandlerOrSagaBaseSpec> HandlersOrSagas { get; } = [];
+            public List<BaseSpec> Specs { get; } = [];
 
             public string RegistryName => $"{Name}Registry";
 
@@ -226,7 +233,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             public void Sort()
             {
                 Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-                HandlersOrSagas.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
+                Specs.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
 
                 foreach (var child in Children)
                 {
