@@ -24,28 +24,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
             .Select((handlers, _) => new HandlerSpecs(handlers.ToImmutableEquatableArray()))
             .WithTrackingName("HandlerSpecs");
 
-        var assemblyInfo = context.CompilationProvider
-            .Select(static (compilation, _) =>
-            {
-                var assemblyName = compilation.AssemblyName ?? string.Empty;
-                var assemblyId = AddHandlerAndSagasRegistrationGenerator.Emitter.SanitizeIdentifier(assemblyName);
-                return (AssemblyName: assemblyName, AssemblyId: assemblyId);
-            })
-            .WithTrackingName("AssemblyInfo");
-
-        var explicitRootTypeSpec = context.SyntaxProvider
-            .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryExtensionsAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: AddHandlerAndSagasRegistrationGenerator.Parser.ParseRootTypeSpec)
-            .Where(static spec => spec.HasValue)
-            .Select(static (spec, _) => spec!.Value)
-            .Collect()
-            .WithTrackingName("ExplicitRootTypeSpec");
-
-        var rootTypeSpec = explicitRootTypeSpec
-            .Combine(assemblyInfo)
-            .Select(static (pair, _) => AddHandlerAndSagasRegistrationGenerator.Parser.SelectRootTypeSpec(pair.Left, pair.Right.AssemblyId))
-            .WithTrackingName("RootTypeSpec");
+        var rootTypeSpec = AddHandlerAndSagasRegistrationGenerator.BuildRootTypeSpecPipeline(context);
 
         var combined = collected.Combine(rootTypeSpec);
 
