@@ -2,9 +2,6 @@
 
 namespace NServiceBus.Core.Analyzer;
 
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,7 +16,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
-            .Select(static (spec, _) => spec!.Value)
+            .Select(static (spec, _) => spec!)
             .WithTrackingName("HandlerSpec");
 
         var addSagas = context.SyntaxProvider
@@ -27,7 +24,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
-            .Select(static (spec, _) => spec!.Value)
+            .Select(static (spec, _) => spec!)
             .WithTrackingName("SagaSpec");
 
         var collected = addHandlers.Collect()
