@@ -35,7 +35,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
 
         var rootTypeSpec = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                predicate: static (node, _) => AddHandlerAndSagasRegistrationGenerator.Parser.IsRootTypeCandidate(node),
                 transform: static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
             .Combine(assemblyInfo)
             .Select(static (pair, _) => AddHandlerAndSagasRegistrationGenerator.Parser.TryGetRootTypeSpec(pair.Left, pair.Right.AssemblyName, pair.Right.AssemblyId))
