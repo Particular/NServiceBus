@@ -297,6 +297,14 @@ namespace NServiceBus
     {
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
+    public static class EnvelopeConfigExtensions
+    {
+        extension(NServiceBus.Features.FeatureConfigurationContext context)
+        {
+            public void AddEnvelopeHandler<THandler>()
+                where THandler :  class, NServiceBus.IEnvelopeHandler { }
+        }
+    }
     public static class ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -455,6 +463,10 @@ namespace NServiceBus
     public interface IEndpointInstance : NServiceBus.IMessageSession
     {
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
+    }
+    public interface IEnvelopeHandler
+    {
+        System.Collections.Generic.Dictionary<string, string>? UnwrapEnvelope(string nativeMessageId, System.Collections.Generic.IDictionary<string, string> incomingHeaders, System.ReadOnlySpan<byte> incomingBody, NServiceBus.Extensibility.ContextBag extensions, System.Buffers.IBufferWriter<byte> bodyWriter);
     }
     public interface IHandleMessages { }
     public interface IHandleMessages<T> : NServiceBus.IHandleMessages

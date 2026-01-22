@@ -117,6 +117,8 @@ class EndpointCreator
 
         sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
 
+        envelopeComponent = new EnvelopeComponent(settings.Get<EnvelopeComponent.Settings>());
+
         receiveComponent = ReceiveComponent.Configure(
             receiveConfiguration,
             settings.ErrorQueueAddress(),
@@ -178,6 +180,7 @@ class EndpointCreator
 
         return new StartableEndpoint(settings,
             featureComponent,
+            envelopeComponent,
             receiveComponent,
             transportSeam,
             pipelineComponent,
@@ -199,4 +202,5 @@ class EndpointCreator
     readonly SettingsHolder settings;
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
+    EnvelopeComponent envelopeComponent;
 }
