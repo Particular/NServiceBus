@@ -118,4 +118,46 @@ public class AddHandlerGeneratorTests
             .Approve()
             .AssertRunsAreEqual();
     }
+
+    [Test]
+    public void RootClassVisibilityAndNamespace()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using CustomRegistrations;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.RootClassVisibilityAndNamespaceAssembly.AddAll();
+                         }
+                     }
+
+                     namespace CustomRegistrations
+                     {
+                         internal static partial class RootClassVisibilityAndNamespace
+                         {
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [HandlerAttribute]
+                         public class OrderShippedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand { }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>(["HandlerSpec", "HandlerSpecs"])
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>("HandlerSpecs", "SagaSpecs", "HandlerAndSagaSpecs")
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
 }
