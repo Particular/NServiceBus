@@ -153,12 +153,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static NamespaceNode BuildNamespaceTree(ImmutableArray<Parser.HandlerOrSagaBaseSpec> handlers)
+        public static NamespaceNode BuildNamespaceTree(ImmutableArray<Parser.HandlerOrSagaBaseSpec> handlers)
         {
             var root = new NamespaceNode(null);
 
             foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
-                         .ThenBy(spec => spec.Type, StringComparer.Ordinal))
+                         .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
             {
                 var current = root;
                 foreach (var part in GetNamespaceParts(handler.Namespace))
@@ -197,7 +197,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
-        sealed class NamespaceNode(string? name)
+        internal sealed class NamespaceNode(string? name)
         {
             public string? Name { get; } = name;
 
@@ -226,7 +226,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             public void Sort()
             {
                 Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-                HandlersOrSagas.Sort((left, right) => StringComparer.Ordinal.Compare(left.Type, right.Type));
+                HandlersOrSagas.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
 
                 foreach (var child in Children)
                 {

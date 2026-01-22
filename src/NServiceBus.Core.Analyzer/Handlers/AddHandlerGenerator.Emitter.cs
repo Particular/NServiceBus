@@ -97,7 +97,7 @@ public sealed partial class AddHandlerGenerator
                 var handlerSpec = handlerSpecs[index];
                 var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
                 sourceWriter.WriteLine("/// <summary>");
-                sourceWriter.WriteLine($"""/// Adds the <see cref="{handlerSpec.HandlerType}"/> handler to the registration.""");
+                sourceWriter.WriteLine($"""/// Adds the <see cref="{handlerSpec.FullyQualifiedName}"/> handler to the registration.""");
                 sourceWriter.WriteLine("/// </summary>");
                 sourceWriter.WriteLine($"public void {methodName}()");
                 sourceWriter.WriteLine("{");
@@ -145,11 +145,11 @@ public sealed partial class AddHandlerGenerator
         {
             var root = new NamespaceNode(null);
 
-            foreach (var handler in handlers.OrderBy(spec => spec.HandlerNamespace, StringComparer.Ordinal)
-                         .ThenBy(spec => spec.HandlerType, StringComparer.Ordinal))
+            foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
+                         .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
             {
                 var current = root;
-                foreach (var part in GetNamespaceParts(handler.HandlerNamespace))
+                foreach (var part in GetNamespaceParts(handler.Namespace))
                 {
                     current = current.GetOrAddChild(part);
                 }
@@ -214,7 +214,7 @@ public sealed partial class AddHandlerGenerator
             public void Sort()
             {
                 Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-                Handlers.Sort((left, right) => StringComparer.Ordinal.Compare(left.HandlerType, right.HandlerType));
+                Handlers.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
 
                 foreach (var child in Children)
                 {
