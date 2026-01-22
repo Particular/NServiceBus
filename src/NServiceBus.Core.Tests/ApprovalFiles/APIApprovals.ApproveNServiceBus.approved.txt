@@ -326,15 +326,15 @@ namespace NServiceBus
     {
         public HandlerAttribute() { }
     }
-    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
-    public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
-    {
-        public HandlerRegistryExtensionsAttribute() { }
-    }
     public sealed class HandlerRegistry
     {
         public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
         public NServiceBus.EndpointConfiguration Configuration { get; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
+    {
+        public HandlerRegistryExtensionsAttribute() { }
     }
     public static class HeaderOptionExtensions
     {
