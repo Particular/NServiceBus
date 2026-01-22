@@ -5,13 +5,15 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [MultipleHandlerRegistryExtensions];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+        [MultipleHandlerRegistryExtensions, HandlerRegistryExtensionsMustBePartial];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -38,6 +40,14 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
                 if (!locations.IsDefaultOrEmpty)
                 {
                     annotatedTypes.TryAdd(classType.OriginalDefinition, locations);
+
+                    if (!IsPartial(classType))
+                    {
+                        foreach (var location in locations)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(HandlerRegistryExtensionsMustBePartial, location, classType.Name));
+                        }
+                    }
                 }
             }, SymbolKind.NamedType);
 
@@ -84,6 +94,20 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
         return builder.ToImmutable();
     }
 
+    static bool IsPartial(INamedTypeSymbol symbol)
+    {
+        foreach (var syntaxReference in symbol.DeclaringSyntaxReferences)
+        {
+            if (syntaxReference.GetSyntax() is ClassDeclarationSyntax classDeclarationSyntax &&
+                classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     static readonly DiagnosticDescriptor MultipleHandlerRegistryExtensions = new(
         id: DiagnosticIds.MultipleHandlerRegistryExtensions,
         title: "Multiple HandlerRegistryExtensionsAttribute declarations",
@@ -92,4 +116,12 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
         category: "Code",
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor HandlerRegistryExtensionsMustBePartial = new(
+        id: DiagnosticIds.HandlerRegistryExtensionsMustBePartial,
+        title: "Handler registry extensions class must be partial",
+        messageFormat: "The handler registry extensions class {0} must be partial.",
+        defaultSeverity: DiagnosticSeverity.Error,
+        category: "Code",
+        isEnabledByDefault: true);
 }

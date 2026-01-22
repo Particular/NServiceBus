@@ -31,5 +31,6 @@
         public const string HandlerAttributeMisplaced = "NSB0023";
         public const string HandlerAttributeOnNonHandler = "NSB0024";
         public const string MultipleHandlerRegistryExtensions = "NSB0025";
+        public const string HandlerRegistryExtensionsMustBePartial = "NSB0026";
     }
 }
