@@ -1,83 +1,15 @@
 // == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.g.cs =======
 namespace NServiceBus
 {
-    /// <summary>
-    /// Provides extensions to register message handlers found in the <i>BasicHandlers</i> assembly.
-    /// </summary>
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    public static class BasicHandlersHandlerRegistryExtensions
+    public static partial class BasicHandlersHandlerRegistryExtensions
     {
-        extension (global::NServiceBus.HandlerRegistry registry)
+        public sealed partial class BasicHandlersRootRegistry
         {
-            /// <summary>
-            /// Gets the handler registry for the <i>BasicHandlers</i> assembly.
-            /// </summary>
-            public BasicHandlersRootRegistry BasicHandlersAssembly => new(registry.Configuration);
-        }
-
-        /// <summary>
-        /// The handler registry for the <i>BasicHandlers</i> part.
-        /// </summary>
-        public sealed class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
-        {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
-            /// <summary>
-            /// Gets the handler registry for the <i>Orders</i> namespace part.
-            /// </summary>
-            public OrdersRegistry Orders => new(_configuration);
-
-            /// <summary>
-            /// Gets the handler registry for the <i>Payments</i> namespace part.
-            /// </summary>
-            public PaymentsRegistry Payments => new(_configuration);
-
-            /// <summary>
-            /// Adds handler registrations from the <i>Orders</i>, <i>Payments</i> parts including all the subnamespaces.
-            /// </summary>
-            public void AddAll()
+            public sealed partial class OrdersRegistry
             {
-                Orders.AddAll();
-                Payments.AddAll();
-            }
-
-            /// <summary>
-            /// The handler registry for the <i>Orders</i> part.
-            /// </summary>
-            public sealed class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
-            {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
-                /// <summary>
-                /// Gets the handler registry for the <i>Billing</i> namespace part.
-                /// </summary>
-                public BillingRegistry Billing => new(_configuration);
-
-                /// <summary>
-                /// Gets the handler registry for the <i>Shipping</i> namespace part.
-                /// </summary>
-                public ShippingRegistry Shipping => new(_configuration);
-
-                /// <summary>
-                /// Adds handler registrations from the <i>Billing</i>, <i>Shipping</i> parts including all the subnamespaces.
-                /// </summary>
-                public void AddAll()
+                public sealed partial class BillingRegistry
                 {
-                    Billing.AddAll();
-                    Shipping.AddAll();
-                }
-
-                /// <summary>
-                /// The handler registry for the <i>Billing</i> part.
-                /// </summary>
-                public sealed class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
-                {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
-                    /// <summary>
-                    /// Adds <see cref="global::Orders.Billing.InvoiceCreatedHandler"/> handlers from <i>Billing<i/> namespace.
-                    /// </summary>
-                    public void AddAll()
+                    partial void AddAllHandlersCore()
                     {
                         AddInvoiceCreatedHandler();
                     }
@@ -94,18 +26,9 @@ namespace NServiceBus
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
                     }
                 }
-
-                /// <summary>
-                /// The handler registry for the <i>Shipping</i> part.
-                /// </summary>
-                public sealed class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                public sealed partial class ShippingRegistry
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
-                    /// <summary>
-                    /// Adds <see cref="global::Orders.Shipping.OrderShippedHandler"/>, <see cref="global::Orders.Shipping.ShipmentDelayedHandler"/> handlers from <i>Shipping<i/> namespace.
-                    /// </summary>
-                    public void AddAll()
+                    partial void AddAllHandlersCore()
                     {
                         AddOrderShippedHandler();
                         AddShipmentDelayedHandler();
@@ -136,18 +59,9 @@ namespace NServiceBus
                     }
                 }
             }
-
-            /// <summary>
-            /// The handler registry for the <i>Payments</i> part.
-            /// </summary>
-            public sealed class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            public sealed partial class PaymentsRegistry
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
-
-                /// <summary>
-                /// Adds <see cref="global::Payments.PaymentCapturedHandler"/> handlers from <i>Payments<i/> namespace.
-                /// </summary>
-                public void AddAll()
+                partial void AddAllHandlersCore()
                 {
                     AddPaymentCapturedHandler();
                 }
@@ -163,6 +77,188 @@ namespace NServiceBus
                     messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentCapturedHandler, global::Cmd1>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
                 }
+            }
+        }
+    }
+}
+
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+namespace NServiceBus
+{
+    /// <summary>
+    /// Provides extensions to register message handlers and sagas found in the <i>BasicHandlers</i> assembly.
+    /// </summary>
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    public static partial class BasicHandlersHandlerRegistryExtensions
+    {
+        extension (global::NServiceBus.HandlerRegistry registry)
+        {
+            /// <summary>
+            /// Gets the registry for the <i>BasicHandlers</i> assembly.
+            /// </summary>
+            public BasicHandlersRootRegistry BasicHandlersAssembly => new(registry.Configuration);
+        }
+
+        /// <summary>
+        /// The registry for the <i>BasicHandlers</i> part.
+        /// </summary>
+        public sealed partial class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        {
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+            /// <summary>
+            /// Gets the registry for the <i>Orders</i> namespace part.
+            /// </summary>
+            public OrdersRegistry Orders => new(_configuration);
+
+            /// <summary>
+            /// Gets the registry for the <i>Payments</i> namespace part.
+            /// </summary>
+            public PaymentsRegistry Payments => new(_configuration);
+
+            public void AddAll()
+            {
+                AddAllHandlers();
+                AddAllSagas();
+            }
+
+            public void AddAllHandlers()
+            {
+                AddAllHandlersCore();
+                Orders.AddAllHandlers();
+                Payments.AddAllHandlers();
+            }
+
+            public void AddAllSagas()
+            {
+                AddAllSagasCore();
+                Orders.AddAllSagas();
+                Payments.AddAllSagas();
+            }
+
+            partial void AddAllHandlersCore();
+            partial void AddAllSagasCore();
+
+            /// <summary>
+            /// The registry for the <i>OrdersRegistry</i> part.
+            /// </summary>
+            public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                /// <summary>
+                /// Gets the registry for the <i>Billing</i> namespace part.
+                /// </summary>
+                public BillingRegistry Billing => new(_configuration);
+
+                /// <summary>
+                /// Gets the registry for the <i>Shipping</i> namespace part.
+                /// </summary>
+                public ShippingRegistry Shipping => new(_configuration);
+
+                public void AddAll()
+                {
+                    AddAllHandlers();
+                    AddAllSagas();
+                }
+
+                public void AddAllHandlers()
+                {
+                    AddAllHandlersCore();
+                    Billing.AddAllHandlers();
+                    Shipping.AddAllHandlers();
+                }
+
+                public void AddAllSagas()
+                {
+                    AddAllSagasCore();
+                    Billing.AddAllSagas();
+                    Shipping.AddAllSagas();
+                }
+
+                partial void AddAllHandlersCore();
+                partial void AddAllSagasCore();
+
+                /// <summary>
+                /// The registry for the <i>BillingRegistry</i> part.
+                /// </summary>
+                public sealed partial class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                    public void AddAll()
+                    {
+                        AddAllHandlers();
+                        AddAllSagas();
+                    }
+
+                    public void AddAllHandlers()
+                    {
+                        AddAllHandlersCore();
+                    }
+
+                    public void AddAllSagas()
+                    {
+                        AddAllSagasCore();
+                    }
+
+                    partial void AddAllHandlersCore();
+                    partial void AddAllSagasCore();
+                }
+
+                /// <summary>
+                /// The registry for the <i>ShippingRegistry</i> part.
+                /// </summary>
+                public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                    public void AddAll()
+                    {
+                        AddAllHandlers();
+                        AddAllSagas();
+                    }
+
+                    public void AddAllHandlers()
+                    {
+                        AddAllHandlersCore();
+                    }
+
+                    public void AddAllSagas()
+                    {
+                        AddAllSagasCore();
+                    }
+
+                    partial void AddAllHandlersCore();
+                    partial void AddAllSagasCore();
+                }
+            }
+
+            /// <summary>
+            /// The registry for the <i>PaymentsRegistry</i> part.
+            /// </summary>
+            public sealed partial class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                public void AddAll()
+                {
+                    AddAllHandlers();
+                    AddAllSagas();
+                }
+
+                public void AddAllHandlers()
+                {
+                    AddAllHandlersCore();
+                }
+
+                public void AddAllSagas()
+                {
+                    AddAllSagasCore();
+                }
+
+                partial void AddAllHandlersCore();
+                partial void AddAllSagasCore();
             }
         }
     }
