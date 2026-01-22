@@ -4,19 +4,22 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
 static partial class Handlers
 {
     public sealed record HandlerSpec(
-        string Name,
-        string HandlerType,
-        string HandlerNamespace,
-        string AssemblyName,
-        ImmutableEquatableArray<RegistrationSpec> Registrations);
+        BaseParser.HandlerOrSagaBaseSpec HandlerBaseSpec,
+        ImmutableEquatableArray<RegistrationSpec> Registrations)
+    {
+        public string Name => HandlerBaseSpec.Name;
+        public string AssemblyName => HandlerBaseSpec.AssemblyName;
+        public string Namespace => HandlerBaseSpec.Namespace;
+        public string FullyQualifiedName => HandlerBaseSpec.FullyQualifiedName;
+    }
 
     public readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
@@ -33,11 +36,8 @@ static partial class Handlers
     {
         public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, CancellationToken cancellationToken = default)
         {
-            var handlerFullyQualifiedName = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var displayParts = handlerType.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
-            var handlerNamespace = GetHandlerNamespace(displayParts);
-            var handlerName = string.Join(string.Empty, displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
-            var assemblyName = handlerType.ContainingAssembly?.Name ?? "Assembly";
+            var handlerSpec = BaseParser.Parse(handlerType);
+
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
             var markers = new MarkerTypes(semanticModel.Compilation);
@@ -66,7 +66,7 @@ static partial class Handlers
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy, handlerFullyQualifiedName);
+                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy, handlerSpec.FullyQualifiedName);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
@@ -84,7 +84,7 @@ static partial class Handlers
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToList();
 
-            return new HandlerSpec(handlerName, handlerFullyQualifiedName, handlerNamespace, assemblyName, registrations.ToImmutableEquatableArray());
+            return new HandlerSpec(handlerSpec, registrations.ToImmutableEquatableArray());
         }
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is
@@ -98,8 +98,6 @@ static partial class Handlers
                 ContainingNamespace.IsGlobalNamespace: true
             }
         };
-
-        static string GetHandlerNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
             // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.

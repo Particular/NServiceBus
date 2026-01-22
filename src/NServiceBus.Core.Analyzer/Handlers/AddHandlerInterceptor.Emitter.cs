@@ -38,7 +38,7 @@ public sealed partial class AddHandlerInterceptor
                                    """);
             sourceWriter.Indentation++;
 
-            var groups = interceptableHandlers.Select(h => (MethodName: AddMethodName(h.HandlerSpec.Name, h.HandlerSpec.HandlerType), InterceptableHandler: h))
+            var groups = interceptableHandlers.Select(h => (MethodName: AddMethodName(h.HandlerSpec.Name, h.HandlerSpec.FullyQualifiedName), InterceptableHandler: h))
                 .GroupBy(i => i.MethodName)
                 .OrderBy(g => g.Key, StringComparer.Ordinal)
                 .ToArray();
