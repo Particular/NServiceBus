@@ -85,7 +85,7 @@ public partial class AddSagaGenerator
                 var sagaSpec = sagaSpecs[index];
                 var methodName = GetSingleSagaMethodName(sagaSpec.Name);
                 sourceWriter.WriteLine("/// <summary>");
-                sourceWriter.WriteLine($"""/// Adds the <see cref="{sagaSpec.FullyQualifiedName}"/> saga to the registration.""");
+                sourceWriter.WriteLine($"""/// Registers the <see cref="{sagaSpec.FullyQualifiedName}"/> saga with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");
                 sourceWriter.WriteLine($"public void {methodName}()");
                 sourceWriter.WriteLine("{");

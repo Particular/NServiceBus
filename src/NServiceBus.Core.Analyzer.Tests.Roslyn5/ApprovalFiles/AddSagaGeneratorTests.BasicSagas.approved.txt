@@ -15,7 +15,7 @@ namespace NServiceBus
                     }
 
                     /// <summary>
-                    /// Adds the <see cref="global::Orders.Billing.OrderBillingPolicy"/> saga to the registration.
+                    /// Registers the <see cref="global::Orders.Billing.OrderBillingPolicy"/> saga with the endpoint configuration.
                     /// </summary>
                     public void AddOrderBillingPolicy()
                     {
@@ -29,7 +29,7 @@ namespace NServiceBus
                     }
 
                     /// <summary>
-                    /// Adds the <see cref="global::Orders.Shipping.OrderShippingPolicy"/> saga to the registration.
+                    /// Registers the <see cref="global::Orders.Shipping.OrderShippingPolicy"/> saga with the endpoint configuration.
                     /// </summary>
                     public void AddOrderShippingPolicy()
                     {
@@ -44,7 +44,7 @@ namespace NServiceBus
                 }
 
                 /// <summary>
-                /// Adds the <see cref="global::Payments.PaymentsPolicy"/> saga to the registration.
+                /// Registers the <see cref="global::Payments.PaymentsPolicy"/> saga with the endpoint configuration.
                 /// </summary>
                 public void AddPaymentsPolicy()
                 {
@@ -58,7 +58,7 @@ namespace NServiceBus
 namespace NServiceBus
 {
     /// <summary>
-    /// Provides extensions to register message handlers and sagas found in the <i>BasicSagas</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>BasicSagas</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     public static partial class BasicSagasHandlerRegistryExtensions
@@ -66,34 +66,49 @@ namespace NServiceBus
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the registry for the <i>BasicSagas</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>BasicSagas</i> assembly.
             /// </summary>
+            /// <remarks>
+            /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
+            /// </remarks>
             public BasicSagasRootRegistry BasicSagasAssembly => new(registry.Configuration);
         }
 
         /// <summary>
-        /// The registry for the <i>BasicSagas</i> part.
+        /// Registry for the <i>BasicSagas</i> namespace segment. Use this registry to add handlers and sagas for this branch.
         /// </summary>
         public sealed partial class BasicSagasRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
-            /// Gets the registry for the <i>Orders</i> namespace part.
+            /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
             /// </summary>
             public OrdersRegistry Orders => new(_configuration);
 
             /// <summary>
-            /// Gets the registry for the <i>Payments</i> namespace part.
+            /// Gets the registry for the <i>Payments</i> namespace segment under this branch.
             /// </summary>
             public PaymentsRegistry Payments => new(_configuration);
 
+            /// <summary>
+            /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>, <see cref="Payments"/>.
+            /// </remarks>
             public void AddAll()
             {
                 AddAllHandlers();
                 AddAllSagas();
             }
 
+            /// <summary>
+            /// Registers all handlers for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>, <see cref="Payments"/>.
+            /// </remarks>
             public void AddAllHandlers()
             {
                 AddAllHandlersCore();
@@ -101,6 +116,12 @@ namespace NServiceBus
                 Payments.AddAllHandlers();
             }
 
+            /// <summary>
+            /// Registers all sagas for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>, <see cref="Payments"/>.
+            /// </remarks>
             public void AddAllSagas()
             {
                 AddAllSagasCore();
@@ -112,28 +133,40 @@ namespace NServiceBus
             partial void AddAllSagasCore();
 
             /// <summary>
-            /// The registry for the <i>Orders</i> part.
+            /// Registry for the <i>Orders</i> namespace segment. Use this registry to add handlers and sagas for this branch.
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
-                /// Gets the registry for the <i>Billing</i> namespace part.
+                /// Gets the registry for the <i>Billing</i> namespace segment under this branch.
                 /// </summary>
                 public BillingRegistry Billing => new(_configuration);
 
                 /// <summary>
-                /// Gets the registry for the <i>Shipping</i> namespace part.
+                /// Gets the registry for the <i>Shipping</i> namespace segment under this branch.
                 /// </summary>
                 public ShippingRegistry Shipping => new(_configuration);
 
+                /// <summary>
+                /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+                /// </summary>
+                /// <remarks>
+                /// Includes child registries: <see cref="Billing"/>, <see cref="Shipping"/>.
+                /// </remarks>
                 public void AddAll()
                 {
                     AddAllHandlers();
                     AddAllSagas();
                 }
 
+                /// <summary>
+                /// Registers all handlers for this namespace segment and its child namespaces.
+                /// </summary>
+                /// <remarks>
+                /// Includes child registries: <see cref="Billing"/>, <see cref="Shipping"/>.
+                /// </remarks>
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
@@ -141,6 +174,12 @@ namespace NServiceBus
                     Shipping.AddAllHandlers();
                 }
 
+                /// <summary>
+                /// Registers all sagas for this namespace segment and its child namespaces.
+                /// </summary>
+                /// <remarks>
+                /// Includes child registries: <see cref="Billing"/>, <see cref="Shipping"/>.
+                /// </remarks>
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();
@@ -152,23 +191,32 @@ namespace NServiceBus
                 partial void AddAllSagasCore();
 
                 /// <summary>
-                /// The registry for the <i>Billing</i> part.
+                /// Registry for the <i>Billing</i> namespace segment. Use this registry to add handlers and sagas for this branch.
                 /// </summary>
                 public sealed partial class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
                     readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
+                    /// <summary>
+                    /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAll()
                     {
                         AddAllHandlers();
                         AddAllSagas();
                     }
 
+                    /// <summary>
+                    /// Registers all handlers for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
                     }
 
+                    /// <summary>
+                    /// Registers all sagas for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
@@ -179,23 +227,32 @@ namespace NServiceBus
                 }
 
                 /// <summary>
-                /// The registry for the <i>Shipping</i> part.
+                /// Registry for the <i>Shipping</i> namespace segment. Use this registry to add handlers and sagas for this branch.
                 /// </summary>
                 public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
                     readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
+                    /// <summary>
+                    /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAll()
                     {
                         AddAllHandlers();
                         AddAllSagas();
                     }
 
+                    /// <summary>
+                    /// Registers all handlers for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
                     }
 
+                    /// <summary>
+                    /// Registers all sagas for this namespace segment and its child namespaces.
+                    /// </summary>
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
@@ -207,23 +264,32 @@ namespace NServiceBus
             }
 
             /// <summary>
-            /// The registry for the <i>Payments</i> part.
+            /// Registry for the <i>Payments</i> namespace segment. Use this registry to add handlers and sagas for this branch.
             /// </summary>
             public sealed partial class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
+                /// <summary>
+                /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAll()
                 {
                     AddAllHandlers();
                     AddAllSagas();
                 }
 
+                /// <summary>
+                /// Registers all handlers for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
                 }
 
+                /// <summary>
+                /// Registers all sagas for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();

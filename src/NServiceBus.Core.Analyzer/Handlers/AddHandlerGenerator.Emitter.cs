@@ -87,7 +87,7 @@ public sealed partial class AddHandlerGenerator
                 var handlerSpec = handlerSpecs[index];
                 var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
                 sourceWriter.WriteLine("/// <summary>");
-                sourceWriter.WriteLine($"""/// Adds the <see cref="{handlerSpec.FullyQualifiedName}"/> handler to the registration.""");
+                sourceWriter.WriteLine($"""/// Registers the <see cref="{handlerSpec.FullyQualifiedName}"/> handler with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");
                 sourceWriter.WriteLine($"public void {methodName}()");
                 sourceWriter.WriteLine("{");
