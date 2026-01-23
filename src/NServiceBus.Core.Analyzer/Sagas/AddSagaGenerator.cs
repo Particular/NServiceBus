@@ -23,11 +23,15 @@ public sealed partial class AddSagaGenerator : IIncrementalGenerator
             .Select((sagas, _) => new Sagas.SagaSpecs(sagas.ToImmutableEquatableArray()))
             .WithTrackingName("SagaSpecs");
 
-        context.RegisterSourceOutput(collected,
+        var rootTypeSpec = AddHandlerAndSagasRegistrationGenerator.BuildRootTypeSpecPipeline(context);
+
+        var combined = collected.Combine(rootTypeSpec);
+
+        context.RegisterSourceOutput(combined,
             static (productionContext, spec) =>
             {
                 var emitter = new Emitter(productionContext);
-                emitter.Emit(spec);
+                emitter.Emit(spec.Left, spec.Right);
             });
     }
 }

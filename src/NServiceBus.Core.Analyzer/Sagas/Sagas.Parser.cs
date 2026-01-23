@@ -15,12 +15,19 @@ static partial class Sagas
 {
     public readonly record struct SagaSpecs(ImmutableEquatableArray<SagaSpec> Sagas);
 
-    public record SagaSpec(
-        string SagaName,
-        string SagaType,
-        string SagaDataType,
-        ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings,
-        HandlerSpec Handler);
+    public record SagaSpec : AddHandlerAndSagasRegistrationGenerator.Parser.BaseSpec
+    {
+        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings) : base(handler)
+        {
+            SagaDataFullyQualifiedName = sagaDataFullyQualifiedName;
+            PropertyMappings = propertyMappings;
+            Handler = handler;
+        }
+
+        public string SagaDataFullyQualifiedName { get; set; }
+        public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings { get; }
+        public HandlerSpec Handler { get; }
+    }
 
     public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
 
@@ -34,18 +41,12 @@ static partial class Sagas
         }
 
         var handlerSpec = Parser.Parse(semanticModel, sagaType, cancellationToken);
-        var sagaFullyQualifiedName = sagaType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         // Analyze ConfigureHowToFindSaga to extract mappings
         var propertyMappings = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
 
-        return new SagaSpec(
-            sagaType.Name,
-            sagaFullyQualifiedName,
-            sagaDataFullyQualifiedName,
-            propertyMappings,
-            handlerSpec);
+        return new SagaSpec(handlerSpec, sagaDataFullyQualifiedName, propertyMappings);
     }
 
     static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)

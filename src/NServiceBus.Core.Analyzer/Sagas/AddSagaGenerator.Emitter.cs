@@ -1,23 +1,123 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
+using System;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.CodeAnalysis;
-using static NServiceBus.Core.Analyzer.Sagas.Sagas;
+using Utility;
+using static Sagas;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
+using BaseEmitter = AddHandlerAndSagasRegistrationGenerator.Emitter;
 
 public partial class AddSagaGenerator
 {
     internal class Emitter(SourceProductionContext sourceProductionContext)
     {
-        public void Emit(SagaSpecs handlerSpecs) => Emit(sourceProductionContext, handlerSpecs);
+        public void Emit(SagaSpecs sagaSpecs, BaseParser.RootTypeSpec rootTypeSpec) => Emit(sourceProductionContext, sagaSpecs, rootTypeSpec);
 
-#pragma warning disable IDE0060
-        static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs)
-#pragma warning restore IDE0060
+        static void Emit(SourceProductionContext context, SagaSpecs sagaSpecs, BaseParser.RootTypeSpec rootTypeSpec)
         {
             var sagas = sagaSpecs.Sagas;
             if (sagas.Count == 0)
             {
                 return;
             }
+            var sourceWriter = new SourceWriter()
+                .WithOpenNamespace(rootTypeSpec.Namespace);
+
+            EmitHandlers(sourceWriter, sagas, rootTypeSpec);
+            sourceWriter.CloseCurlies();
+
+            context.AddSource("SagaRegistrations.g.cs", sourceWriter.ToSourceText());
+        }
+
+        static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas, BaseParser.RootTypeSpec rootTypeSpec)
+        {
+            Debug.Assert(sagas.Count > 0);
+
+            var namespaceTree = BaseEmitter.BuildNamespaceTree(sagas, rootTypeSpec);
+
+            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            BaseEmitter.EmitNamespaceRegistry(
+                sourceWriter,
+                namespaceTree.Root,
+                namespaceTree.Visibility,
+                static (writer, node, visibility) =>
+                {
+                    writer.WriteLine($"{visibility} sealed partial class {node.RegistryName}");
+                    writer.WriteLine("{");
+                },
+                static (writer, node, _) =>
+                {
+                    if (node.Specs.Count == 0)
+                    {
+                        return;
+                    }
+
+                    writer.WriteLine("partial void AddAllSagasCore()");
+                    writer.WriteLine("{");
+                    writer.Indentation++;
+
+                    for (int index = 0; index < node.Specs.Count; index++)
+                    {
+                        var methodName = GetSingleSagaMethodName(node.Specs[index].Name);
+                        writer.WriteLine($"{methodName}();");
+                    }
+
+                    writer.Indentation--;
+                    writer.WriteLine("}");
+
+                    writer.WriteLine();
+                    EmitHandlerMethods(writer, [.. node.Specs.Cast<SagaSpec>()]);
+                });
+
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
+        }
+
+        static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs)
+        {
+            for (int index = 0; index < sagaSpecs.Length; index++)
+            {
+                var sagaSpec = sagaSpecs[index];
+                var methodName = GetSingleSagaMethodName(sagaSpec.Name);
+                sourceWriter.WriteLine("/// <summary>");
+                sourceWriter.WriteLine($"""/// Adds the <see cref="{sagaSpec.FullyQualifiedName}"/> saga to the registration.""");
+                sourceWriter.WriteLine("/// </summary>");
+                sourceWriter.WriteLine($"public void {methodName}()");
+                sourceWriter.WriteLine("{");
+                sourceWriter.Indentation++;
+
+                // Analyzer.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");
+                // Analyzer.Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec);
+
+                sourceWriter.Indentation--;
+                sourceWriter.WriteLine("}");
+
+                if (index < sagaSpecs.Length - 1)
+                {
+                    sourceWriter.WriteLine();
+                }
+            }
+        }
+
+        static string GetSingleSagaMethodName(string sagaName)
+        {
+            const string SagaSuffix = "Saga";
+            const string PolicySuffix = "Policy";
+
+            ReadOnlySpan<char> name = sagaName.AsSpan();
+
+            if (!name.EndsWith(SagaSuffix.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
+                !name.EndsWith(PolicySuffix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            {
+                sagaName += SagaSuffix;
+            }
+
+            return $"Add{sagaName}";
         }
     }
 }

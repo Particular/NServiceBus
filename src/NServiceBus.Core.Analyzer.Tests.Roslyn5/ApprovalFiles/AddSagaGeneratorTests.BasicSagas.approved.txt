@@ -1,0 +1,225 @@
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Sagas.AddSagaGenerator/SagaRegistrations.g.cs ================
+namespace NServiceBus
+{
+    public static partial class BasicSagasHandlerRegistryExtensions
+    {
+        public sealed partial class BasicSagasRootRegistry
+        {
+            public sealed partial class OrdersRegistry
+            {
+                public sealed partial class BillingRegistry
+                {
+                    partial void AddAllSagasCore()
+                    {
+                        AddOrderBillingPolicy();
+                    }
+
+                    /// <summary>
+                    /// Adds the <see cref="global::Orders.Billing.OrderBillingPolicy"/> saga to the registration.
+                    /// </summary>
+                    public void AddOrderBillingPolicy()
+                    {
+                    }
+                }
+                public sealed partial class ShippingRegistry
+                {
+                    partial void AddAllSagasCore()
+                    {
+                        AddOrderShippingPolicy();
+                    }
+
+                    /// <summary>
+                    /// Adds the <see cref="global::Orders.Shipping.OrderShippingPolicy"/> saga to the registration.
+                    /// </summary>
+                    public void AddOrderShippingPolicy()
+                    {
+                    }
+                }
+            }
+            public sealed partial class PaymentsRegistry
+            {
+                partial void AddAllSagasCore()
+                {
+                    AddPaymentsPolicy();
+                }
+
+                /// <summary>
+                /// Adds the <see cref="global::Payments.PaymentsPolicy"/> saga to the registration.
+                /// </summary>
+                public void AddPaymentsPolicy()
+                {
+                }
+            }
+        }
+    }
+}
+
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+namespace NServiceBus
+{
+    /// <summary>
+    /// Provides extensions to register message handlers and sagas found in the <i>BasicSagas</i> assembly.
+    /// </summary>
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    public static partial class BasicSagasHandlerRegistryExtensions
+    {
+        extension (global::NServiceBus.HandlerRegistry registry)
+        {
+            /// <summary>
+            /// Gets the registry for the <i>BasicSagas</i> assembly.
+            /// </summary>
+            public BasicSagasRootRegistry BasicSagasAssembly => new(registry.Configuration);
+        }
+
+        /// <summary>
+        /// The registry for the <i>BasicSagas</i> part.
+        /// </summary>
+        public sealed partial class BasicSagasRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        {
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+            /// <summary>
+            /// Gets the registry for the <i>Orders</i> namespace part.
+            /// </summary>
+            public OrdersRegistry Orders => new(_configuration);
+
+            /// <summary>
+            /// Gets the registry for the <i>Payments</i> namespace part.
+            /// </summary>
+            public PaymentsRegistry Payments => new(_configuration);
+
+            public void AddAll()
+            {
+                AddAllHandlers();
+                AddAllSagas();
+            }
+
+            public void AddAllHandlers()
+            {
+                AddAllHandlersCore();
+                Orders.AddAllHandlers();
+                Payments.AddAllHandlers();
+            }
+
+            public void AddAllSagas()
+            {
+                AddAllSagasCore();
+                Orders.AddAllSagas();
+                Payments.AddAllSagas();
+            }
+
+            partial void AddAllHandlersCore();
+            partial void AddAllSagasCore();
+
+            /// <summary>
+            /// The registry for the <i>Orders</i> part.
+            /// </summary>
+            public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                /// <summary>
+                /// Gets the registry for the <i>Billing</i> namespace part.
+                /// </summary>
+                public BillingRegistry Billing => new(_configuration);
+
+                /// <summary>
+                /// Gets the registry for the <i>Shipping</i> namespace part.
+                /// </summary>
+                public ShippingRegistry Shipping => new(_configuration);
+
+                public void AddAll()
+                {
+                    AddAllHandlers();
+                    AddAllSagas();
+                }
+
+                public void AddAllHandlers()
+                {
+                    AddAllHandlersCore();
+                    Billing.AddAllHandlers();
+                    Shipping.AddAllHandlers();
+                }
+
+                public void AddAllSagas()
+                {
+                    AddAllSagasCore();
+                    Billing.AddAllSagas();
+                    Shipping.AddAllSagas();
+                }
+
+                partial void AddAllHandlersCore();
+                partial void AddAllSagasCore();
+
+                /// <summary>
+                /// The registry for the <i>Billing</i> part.
+                /// </summary>
+                public sealed partial class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                    public void AddAll()
+                    {
+                        AddAllHandlers();
+                        AddAllSagas();
+                    }
+
+                    public void AddAllHandlers()
+                    {
+                        AddAllHandlersCore();
+                    }
+
+                    public void AddAllSagas()
+                    {
+                        AddAllSagasCore();
+                    }
+
+                    partial void AddAllHandlersCore();
+                    partial void AddAllSagasCore();
+                }
+
+                /// <summary>
+                /// The registry for the <i>Shipping</i> part.
+                /// </summary>
+                public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
+                {
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                    public void AddAll()
+                    {
+                        AddAllHandlers();
+                        AddAllSagas();
+                    }
+
+                    public void AddAllHandlers()
+                    {
+                        AddAllHandlersCore();
+                    }
+
+                    public void AddAllSagas()
+                    {
+                        AddAllSagasCore();
+                    }
+
+                    partial void AddAllHandlersCore();
+                    partial void AddAllSagasCore();
+                }
+            }
+
+            /// <summary>
+            /// The registry for the <i>Payments</i> part.
+            /// </summary>
+            public sealed partial class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
+            {
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+
+                public void AddAll()
+                {
+                    AddAllHandlers();
+                    AddAllSagas();
+                }
+
+                public void AddAllHandlers()
+                {
+                    AddAllHandlersCore();
+                }
