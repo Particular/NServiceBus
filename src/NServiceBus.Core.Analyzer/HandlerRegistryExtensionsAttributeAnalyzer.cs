@@ -83,7 +83,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
 
             compilationContext.RegisterCompilationEndAction(context =>
             {
-                if (annotatedTypes.Count <= 1)
+                if (annotatedTypes is { Count: <= 1 })
                 {
                     return;
                 }
@@ -109,60 +109,42 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
         entryPointName = null;
         location = attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken).GetLocation() ?? Location.None;
 
-        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string ctorValue)
+        if (attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is not AttributeSyntax attributeSyntax)
         {
-            entryPointName = ctorValue;
-            location = GetAttributeArgumentLocation(attribute, 0, null, cancellationToken) ?? location;
-            return true;
+            return false;
         }
 
-        foreach (var kvp in attribute.NamedArguments)
+        var arguments = attributeSyntax.ArgumentList?.Arguments;
+        if (arguments is null || arguments.Value.Count == 0)
         {
-            if (kvp.Key != "EntryPointName" || kvp.Value.Value is not string namedValue)
+            return false;
+        }
+
+        if (arguments.Value.Count > 0)
+        {
+            var firstArg = arguments.Value[0];
+            if (firstArg.NameEquals is null && firstArg.Expression is LiteralExpressionSyntax { Token.ValueText: { } value })
+            {
+                entryPointName = value;
+                location = firstArg.GetLocation();
+                return true;
+            }
+        }
+
+        foreach (var argument in arguments.Value)
+        {
+            if (argument.NameEquals?.Name.Identifier.ValueText != "EntryPointName" ||
+                argument.Expression is not LiteralExpressionSyntax { Token.ValueText: { } namedValue })
             {
                 continue;
             }
 
             entryPointName = namedValue;
-            location = GetAttributeArgumentLocation(attribute, null, kvp.Key, cancellationToken) ?? location;
+            location = argument.GetLocation();
             return true;
         }
 
         return false;
-    }
-
-    static Location? GetAttributeArgumentLocation(AttributeData attribute, int? positionalIndex, string? namedArgument, CancellationToken cancellationToken)
-    {
-        if (attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is not AttributeSyntax attributeSyntax)
-        {
-            return null;
-        }
-
-        var arguments = attributeSyntax.ArgumentList?.Arguments;
-        if (arguments is null)
-        {
-            return null;
-        }
-
-        if (positionalIndex is not null && positionalIndex.Value < arguments.Value.Count)
-        {
-            return arguments.Value[positionalIndex.Value].GetLocation();
-        }
-
-        if (namedArgument is null)
-        {
-            return attributeSyntax.GetLocation();
-        }
-
-        foreach (var argument in arguments.Value)
-        {
-            if (argument.NameEquals?.Name.Identifier.ValueText == namedArgument)
-            {
-                return argument.GetLocation();
-            }
-        }
-
-        return attributeSyntax.GetLocation();
     }
 
     static bool IsValidPropertyIdentifier(string entryPointName)
