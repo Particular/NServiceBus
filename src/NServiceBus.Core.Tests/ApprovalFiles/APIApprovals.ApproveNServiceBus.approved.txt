@@ -342,7 +342,8 @@ namespace NServiceBus
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
     {
-        public HandlerRegistryExtensionsAttribute() { }
+        public HandlerRegistryExtensionsAttribute(string? entryPointName = null) { }
+        public string? EntryPointName { get; }
     }
     public static class HeaderOptionExtensions
     {

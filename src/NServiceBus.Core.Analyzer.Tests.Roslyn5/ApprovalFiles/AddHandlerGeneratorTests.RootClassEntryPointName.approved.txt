@@ -32,7 +32,7 @@ namespace CustomRegistrations
 namespace CustomRegistrations
 {
     /// <summary>
-    /// Provides access to handler and saga registries discovered in the <i>RootClassVisibilityAndNamespace</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>RootClassEntryPointName</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     internal static partial class MyCustomHandlerRegistryExtensions
@@ -40,12 +40,12 @@ namespace CustomRegistrations
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the root registry for handler and saga types in the <i>RootClassVisibilityAndNamespace</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>RootClassEntryPointName</i> assembly.
             /// </summary>
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public MyCustomRootRegistry RootClassVisibilityAndNamespaceAssembly => new(registry.Configuration);
+            public MyCustomRootRegistry CustomEntryPoint => new(registry.Configuration);
         }
 
         /// <summary>

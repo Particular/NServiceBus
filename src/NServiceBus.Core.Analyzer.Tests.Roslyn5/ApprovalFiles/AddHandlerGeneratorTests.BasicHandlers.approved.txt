@@ -103,7 +103,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registry for the <i>BasicHandlers</i> namespace segment. Use this registry to add handlers and sagas for this branch.
+        /// Root registry to add handlers and sagas for the entire assembly.
         /// </summary>
         public sealed partial class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
