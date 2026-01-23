@@ -14,7 +14,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
         var addHandlers = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
-                transform: Parser.Parse)
+                transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Handler, cancellationToken: cancellationToken))
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
             .WithTrackingName(TrackingNames.HandlerSpecs);
@@ -22,7 +22,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
         var addSagas = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.SagaAttribute",
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
-                transform: Parser.Parse)
+                transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Saga, cancellationToken: cancellationToken))
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
             .WithTrackingName(TrackingNames.SagaSpecs);

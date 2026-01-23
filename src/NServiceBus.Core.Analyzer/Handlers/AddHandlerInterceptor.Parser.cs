@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
 public sealed partial class AddHandlerInterceptor
 {
@@ -68,7 +69,7 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var handlerSpec = Handlers.Parser.Parse(semanticModel, handlerType, cancellationToken);
+            var handlerSpec = Handlers.Parser.Parse(semanticModel, handlerType, BaseParser.SpecKind.Handler, cancellationToken: cancellationToken);
             return new InterceptableHandlerSpec(InterceptLocationSpec.From(location), handlerSpec);
         }
 

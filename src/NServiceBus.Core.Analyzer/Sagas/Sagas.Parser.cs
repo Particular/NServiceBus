@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
 static partial class Sagas
 {
@@ -17,7 +18,8 @@ static partial class Sagas
 
     public record SagaSpec : AddHandlerAndSagasRegistrationGenerator.Parser.BaseSpec
     {
-        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings) : base(handler)
+        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
+            : base(handler)
         {
             SagaDataFullyQualifiedName = sagaDataFullyQualifiedName;
             PropertyMappings = propertyMappings;
@@ -40,13 +42,13 @@ static partial class Sagas
             return null;
         }
 
-        var handlerSpec = Parser.Parse(semanticModel, sagaType, cancellationToken);
+        var sagaBaseSpec = Parser.Parse(semanticModel, sagaType, BaseParser.SpecKind.Saga, cancellationToken);
         var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         // Analyze ConfigureHowToFindSaga to extract mappings
         var propertyMappings = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
 
-        return new SagaSpec(handlerSpec, sagaDataFullyQualifiedName, propertyMappings);
+        return new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, propertyMappings);
     }
 
     static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)

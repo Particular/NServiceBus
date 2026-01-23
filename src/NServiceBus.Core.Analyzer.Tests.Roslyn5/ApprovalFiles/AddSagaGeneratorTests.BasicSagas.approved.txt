@@ -200,6 +200,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes sagas in this namespace: <see cref="AddOrderBillingPolicy"/>.
+                    /// </remarks>
                     public void AddAll()
                     {
                         AddAllHandlers();
@@ -217,6 +220,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes sagas in this namespace: <see cref="AddOrderBillingPolicy"/>.
+                    /// </remarks>
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
@@ -236,6 +242,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes sagas in this namespace: <see cref="AddOrderShippingPolicy"/>.
+                    /// </remarks>
                     public void AddAll()
                     {
                         AddAllHandlers();
@@ -253,6 +262,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes sagas in this namespace: <see cref="AddOrderShippingPolicy"/>.
+                    /// </remarks>
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
@@ -273,6 +285,9 @@ namespace NServiceBus
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes sagas in this namespace: <see cref="AddPaymentsPolicy"/>.
+                /// </remarks>
                 public void AddAll()
                 {
                     AddAllHandlers();
@@ -290,6 +305,9 @@ namespace NServiceBus
                 /// <summary>
                 /// Registers all sagas for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes sagas in this namespace: <see cref="AddPaymentsPolicy"/>.
+                /// </remarks>
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();

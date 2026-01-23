@@ -106,6 +106,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     }
 
                     var childRegistryRefs = GetChildRegistryRefs(current);
+                    var handlerMethodRefs = GetHandlerMethodRefs(current);
+                    var sagaMethodRefs = GetSagaMethodRefs(current);
                     foreach (var child in current.Children)
                     {
                         writer.WriteLine("/// <summary>");
@@ -122,12 +124,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.WriteLine("/// <summary>");
                     writer.WriteLine("/// Registers all handlers and sagas for this namespace segment and its child namespaces.");
                     writer.WriteLine("/// </summary>");
-                    if (childRegistryRefs is not null)
-                    {
-                        writer.WriteLine("/// <remarks>");
-                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
-                        writer.WriteLine("/// </remarks>");
-                    }
+                    EmitRemarks(writer, childRegistryRefs, handlerMethodRefs, sagaMethodRefs, includeHandlers: true, includeSagas: true);
                     writer.WriteLine("""
                                      public void AddAll()
                                      {
@@ -140,12 +137,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.WriteLine("/// <summary>");
                     writer.WriteLine("/// Registers all handlers for this namespace segment and its child namespaces.");
                     writer.WriteLine("/// </summary>");
-                    if (childRegistryRefs is not null)
-                    {
-                        writer.WriteLine("/// <remarks>");
-                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
-                        writer.WriteLine("/// </remarks>");
-                    }
+                    EmitRemarks(writer, childRegistryRefs, handlerMethodRefs, sagaMethodRefs, includeHandlers: true, includeSagas: false);
                     writer.WriteLine("public void AddAllHandlers()");
                     writer.WriteLine("{");
                     writer.Indentation++;
@@ -162,12 +154,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.WriteLine("/// <summary>");
                     writer.WriteLine("/// Registers all sagas for this namespace segment and its child namespaces.");
                     writer.WriteLine("/// </summary>");
-                    if (childRegistryRefs is not null)
-                    {
-                        writer.WriteLine("/// <remarks>");
-                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
-                        writer.WriteLine("/// </remarks>");
-                    }
+                    EmitRemarks(writer, childRegistryRefs, handlerMethodRefs, sagaMethodRefs, includeHandlers: false, includeSagas: true);
                     writer.WriteLine("public void AddAllSagas()");
                     writer.WriteLine("{");
                     writer.Indentation++;
@@ -209,6 +196,37 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
+        static void EmitRemarks(SourceWriter writer, string? childRegistryRefs, string? handlerMethodRefs, string? sagaMethodRefs, bool includeHandlers, bool includeSagas)
+        {
+            var hasHandlers = includeHandlers && handlerMethodRefs is not null;
+            var hasSagas = includeSagas && sagaMethodRefs is not null;
+            var hasChildren = childRegistryRefs is not null;
+
+            if (!hasHandlers && !hasSagas && !hasChildren)
+            {
+                return;
+            }
+
+            writer.WriteLine("/// <remarks>");
+
+            if (hasHandlers)
+            {
+                writer.WriteLine($"/// Includes handlers in this namespace: {handlerMethodRefs}.");
+            }
+
+            if (hasSagas)
+            {
+                writer.WriteLine($"/// Includes sagas in this namespace: {sagaMethodRefs}.");
+            }
+
+            if (hasChildren)
+            {
+                writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
+            }
+
+            writer.WriteLine("/// </remarks>");
+        }
+
         static string? GetChildRegistryRefs(NamespaceNode current)
         {
             if (current.Children.Count == 0)
@@ -217,6 +235,54 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             return string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
+        }
+
+        static string? GetHandlerMethodRefs(NamespaceNode current)
+        {
+            var handlers = current.Specs
+                .Where(spec => spec.Kind == SpecKind.Handler)
+                .Select(spec => $"<see cref=\"{GetHandlerMethodName(spec.Name)}\"/>")
+                .ToArray();
+
+            return handlers.Length == 0 ? null : string.Join(", ", handlers);
+        }
+
+        static string? GetSagaMethodRefs(NamespaceNode current)
+        {
+            var sagas = current.Specs
+                .Where(spec => spec.Kind == SpecKind.Saga)
+                .Select(spec => $"<see cref=\"{GetSagaMethodName(spec.Name)}\"/>")
+                .ToArray();
+
+            return sagas.Length == 0 ? null : string.Join(", ", sagas);
+        }
+
+        static string GetHandlerMethodName(string handlerName)
+        {
+            const string HandlerSuffix = "Handler";
+
+            if (!handlerName.AsSpan().EndsWith(HandlerSuffix.AsSpan(), StringComparison.Ordinal))
+            {
+                handlerName += HandlerSuffix;
+            }
+
+            return $"Add{handlerName}";
+        }
+
+        static string GetSagaMethodName(string sagaName)
+        {
+            const string SagaSuffix = "Saga";
+            const string PolicySuffix = "Policy";
+
+            ReadOnlySpan<char> name = sagaName.AsSpan();
+
+            if (!name.EndsWith(SagaSuffix.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
+                !name.EndsWith(PolicySuffix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            {
+                sagaName += SagaSuffix;
+            }
+
+            return $"Add{sagaName}";
         }
 
         static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)

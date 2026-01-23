@@ -176,6 +176,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippedHandler"/>, <see cref="AddOuterClassOrderShippedHandler"/>.
+                    /// </remarks>
                     public void AddAll()
                     {
                         AddAllHandlers();
@@ -185,6 +188,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippedHandler"/>, <see cref="AddOuterClassOrderShippedHandler"/>.
+                    /// </remarks>
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();

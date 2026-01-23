@@ -16,23 +16,32 @@ public partial class AddHandlerAndSagasRegistrationGenerator
     {
         const string HandlerRegistryExtensionsSuffix = "HandlerRegistryExtensions";
 
-        internal record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName);
+        internal enum SpecKind
+        {
+            Handler,
+            Saga
+        }
+
+        internal record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName, SpecKind Kind);
         internal readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
                 => new("NServiceBus", "public", assemblyId, $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);
         }
 
-        public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default) => context.TargetSymbol is not INamedTypeSymbol namedTypeSymbol ? null : Parse(namedTypeSymbol);
+        public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, SpecKind kind, CancellationToken cancellationToken = default) =>
+            context.TargetSymbol is not INamedTypeSymbol namedTypeSymbol ? null : Parse(namedTypeSymbol, kind, cancellationToken);
 
-        public static BaseSpec Parse(INamedTypeSymbol namedTypeSymbol)
+        public static BaseSpec Parse(INamedTypeSymbol namedTypeSymbol, SpecKind kind, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var fullyQualifiedName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var displayParts = namedTypeSymbol.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
             var handlerOrSagaName = string.Join(string.Empty, displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
             var handlerOrSagaNamespace = GetNamespace(displayParts);
             var assemblyName = namedTypeSymbol.ContainingAssembly?.Name ?? "Assembly";
-            return new BaseSpec(Name: handlerOrSagaName, Namespace: handlerOrSagaNamespace, AssemblyName: assemblyName, FullyQualifiedName: fullyQualifiedName);
+            return new BaseSpec(Name: handlerOrSagaName, Namespace: handlerOrSagaNamespace, AssemblyName: assemblyName, FullyQualifiedName: fullyQualifiedName, Kind: kind);
         }
 
         public static RootTypeSpec? ParseRootTypeSpec(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default)
