@@ -11,8 +11,14 @@ using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
 static partial class Handlers
 {
-    public sealed record HandlerSpec(BaseParser.BaseSpec HandlerBaseSpec,
-        ImmutableEquatableArray<RegistrationSpec> Registrations) : BaseParser.BaseSpec(HandlerBaseSpec);
+    public sealed record HandlerSpec : BaseParser.BaseSpec
+    {
+        public HandlerSpec(BaseParser.BaseSpec handlerBaseSpec,
+            ImmutableEquatableArray<RegistrationSpec> registrations) : base(handlerBaseSpec) =>
+            Registrations = registrations;
+
+        public ImmutableEquatableArray<RegistrationSpec> Registrations { get; }
+    }
 
     public readonly record struct HandlerSpecs(ImmutableEquatableArray<HandlerSpec> Handlers);
 
