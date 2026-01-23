@@ -1,4 +1,4 @@
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.g.cs =======
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.Handlers.g.cs ==
 namespace CustomRegistrations
 {
     internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
@@ -28,7 +28,7 @@ namespace CustomRegistrations
     }
 }
 
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/HandlerRegistrations.g.cs ==
 namespace CustomRegistrations
 {
     /// <summary>

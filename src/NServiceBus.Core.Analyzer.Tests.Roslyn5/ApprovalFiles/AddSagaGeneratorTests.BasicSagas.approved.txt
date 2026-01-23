@@ -1,4 +1,4 @@
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Sagas.AddSagaGenerator/SagaRegistrations.g.cs ================
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Sagas.AddSagaGenerator/HandlerRegistrations.Sagas.g.cs =======
 namespace NServiceBus
 {
     public static partial class BasicSagasHandlerRegistryExtensions
@@ -54,7 +54,7 @@ namespace NServiceBus
     }
 }
 
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/HandlerRegistrations.g.cs ==
 namespace NServiceBus
 {
     /// <summary>

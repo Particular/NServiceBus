@@ -28,7 +28,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             EmitHandlers(sourceWriter, spec, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
-            context.AddSource("Registrations.g.cs", sourceWriter.ToSourceText());
+            context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
         }
 
         public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
@@ -227,15 +227,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             writer.WriteLine("/// </remarks>");
         }
 
-        static string? GetChildRegistryRefs(NamespaceNode current)
-        {
-            if (current.Children.Count == 0)
-            {
-                return null;
-            }
-
-            return string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
-        }
+        static string? GetChildRegistryRefs(NamespaceNode current) => current.Children.Count == 0 ? null : string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
 
         static string? GetHandlerMethodRefs(NamespaceNode current)
         {
@@ -257,7 +249,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return sagas.Length == 0 ? null : string.Join(", ", sagas);
         }
 
-        static string GetHandlerMethodName(string handlerName)
+        internal static string GetHandlerMethodName(string handlerName)
         {
             const string HandlerSuffix = "Handler";
 
@@ -269,7 +261,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return $"Add{handlerName}";
         }
 
-        static string GetSagaMethodName(string sagaName)
+        internal static string GetSagaMethodName(string sagaName)
         {
             const string SagaSuffix = "Saga";
             const string PolicySuffix = "Policy";

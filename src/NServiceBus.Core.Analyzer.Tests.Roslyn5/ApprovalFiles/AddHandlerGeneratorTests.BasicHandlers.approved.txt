@@ -1,4 +1,4 @@
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.g.cs =======
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.Handlers.AddHandlerGenerator/HandlerRegistrations.Handlers.g.cs ==
 namespace NServiceBus
 {
     public static partial class BasicHandlersHandlerRegistryExtensions
@@ -82,7 +82,7 @@ namespace NServiceBus
     }
 }
 
-// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/Registrations.g.cs ===
+// == NServiceBus.Core.Analyzer/NServiceBus.Core.Analyzer.AddHandlerAndSagasRegistrationGenerator/HandlerRegistrations.g.cs ==
 namespace NServiceBus
 {
     /// <summary>
