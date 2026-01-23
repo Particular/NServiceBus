@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Sagas;
 
-class CustomFinderAdapter<TFinder, TSagaData, TMessage> : ICoreSagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : class, IContainSagaData
+class CustomFinderAdapter<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaFinder)] TFinder, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaData)] TSagaData, TMessage> : ICoreSagaFinder where TFinder : ISagaFinder<TSagaData, TMessage> where TSagaData : class, IContainSagaData
 {
     public bool IsCustomFinder => true;
 
