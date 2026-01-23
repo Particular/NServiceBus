@@ -79,11 +79,28 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 return RootTypeSpec.CreateDefault(assemblyId);
             }
 
-            var selected = explicitSpecs.First();
+            var selected = SelectPreferred(explicitSpecs);
             if (string.IsNullOrEmpty(selected.RootName))
             {
                 return selected with { RootName = $"{assemblyId}Assembly" };
             }
+            return selected;
+        }
+
+        static RootTypeSpec SelectPreferred(ImmutableArray<RootTypeSpec> specs)
+        {
+            var selected = specs[0];
+            for (int i = 1; i < specs.Length; i++)
+            {
+                var candidate = specs[i];
+                var namespaceComparison = StringComparer.Ordinal.Compare(candidate.Namespace, selected.Namespace);
+                if (namespaceComparison < 0 ||
+                    (namespaceComparison == 0 && StringComparer.Ordinal.Compare(candidate.ExtensionTypeName, selected.ExtensionTypeName) < 0))
+                {
+                    selected = candidate;
+                }
+            }
+
             return selected;
         }
 
@@ -104,7 +121,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
                 foreach (var kvp in attribute.NamedArguments)
                 {
-                    if (kvp is { Key: "EntrypointName", Value.Value: string namedValue } &&
+                    if (kvp is { Key: "EntryPointName", Value.Value: string namedValue } &&
                         !string.IsNullOrWhiteSpace(namedValue))
                     {
                         return namedValue;

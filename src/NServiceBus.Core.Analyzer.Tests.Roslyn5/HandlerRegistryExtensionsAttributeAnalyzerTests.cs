@@ -40,4 +40,34 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
 
         return Assert(DiagnosticIds.HandlerRegistryExtensionsMustBePartial, source);
     }
+
+    [Test]
+    public Task ReportsWhenEntryPointNameIsInvalid()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions([[|"Not A Valid Identifier"|]])]
+                     public static partial class InvalidEntryPointHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+    }
+
+    [Test]
+    public Task ReportsWhenEntryPointNameIsKeyword()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions([[|"class"|]])]
+                     public static partial class KeywordEntryPointHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+    }
 }
