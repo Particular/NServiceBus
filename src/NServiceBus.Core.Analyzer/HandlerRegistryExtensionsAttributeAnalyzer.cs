@@ -59,7 +59,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzer : DiagnosticAnalyzer
                         continue;
                     }
 
-                    if (string.IsNullOrWhiteSpace(entryPointName))
+                    if (string.IsNullOrWhiteSpace(entryPointName) || entryPointName is null)
                     {
                         continue;
                     }
