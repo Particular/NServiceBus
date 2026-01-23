@@ -27,6 +27,21 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
     }
 
     [Test]
+    public Task DoesNotReportOnEmpty()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions]
+                     public static partial class FirstHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task ReportsWhenNotPartial()
     {
         var source = """
@@ -42,12 +57,17 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
     }
 
     [Test]
-    public Task ReportsWhenEntryPointNameIsInvalid()
+    [TestCase("Not A Valid Identifier")]
+    [TestCase("class")]
+    [TestCase("++invalid")]
+    [TestCase("event")]
+    [TestCase("$InvalidStart")]
+    public Task ReportsWhenEntryPointNameIsInvalid(string notValid)
     {
-        var source = """
+        var source = $$"""
                      using NServiceBus;
 
-                     [HandlerRegistryExtensions([[|"Not A Valid Identifier"|]])]
+                     [HandlerRegistryExtensions([|"{{notValid}}"|])]
                      public static partial class InvalidEntryPointHandlerRegistryExtensions
                      {
                      }
@@ -57,17 +77,20 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
     }
 
     [Test]
-    public Task ReportsWhenEntryPointNameIsKeyword()
+    [TestCase("ValidIdentifier")]
+    [TestCase("Valid_Identifier123")]
+    [TestCase("validIdentifier")]
+    public Task DoesNotReportOnValid(string valid)
     {
-        var source = """
-                     using NServiceBus;
+        var source = $$"""
+                       using NServiceBus;
 
-                     [HandlerRegistryExtensions([[|"class"|]])]
-                     public static partial class KeywordEntryPointHandlerRegistryExtensions
-                     {
-                     }
-                     """;
+                       [HandlerRegistryExtensions([|"{{valid}}"|])]
+                       public static partial class InvalidEntryPointHandlerRegistryExtensions
+                       {
+                       }
+                       """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+        return Assert(source);
     }
 }
