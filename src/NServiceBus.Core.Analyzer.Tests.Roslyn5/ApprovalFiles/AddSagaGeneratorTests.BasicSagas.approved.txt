@@ -223,3 +223,15 @@ namespace NServiceBus
                 {
                     AddAllHandlersCore();
                 }
+
+                public void AddAllSagas()
+                {
+                    AddAllSagasCore();
+                }
+
+                partial void AddAllHandlersCore();
+                partial void AddAllSagasCore();
+            }
+        }
+    }
+}
