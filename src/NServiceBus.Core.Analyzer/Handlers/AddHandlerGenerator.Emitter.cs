@@ -110,7 +110,7 @@ public sealed partial class AddHandlerGenerator
         {
             const string HandlerSuffix = "Handler";
 
-            if (!handlerName.EndsWith(HandlerSuffix, StringComparison.Ordinal))
+            if (!handlerName.AsSpan().EndsWith(HandlerSuffix.AsSpan(), StringComparison.Ordinal))
             {
                 handlerName += HandlerSuffix;
             }
