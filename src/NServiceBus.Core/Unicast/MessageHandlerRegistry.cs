@@ -60,11 +60,13 @@ public class MessageHandlerRegistry
         RemoveInVersion = "12",
         ReplacementTypeOrMember = "AddHandler<THandler>()")]
     [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
     /// <summary>
     /// Registers the handler type.
     /// </summary>
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
@@ -174,6 +176,7 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
+    [RequiresUnreferencedCode(TrimmingMessage)]
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
@@ -192,7 +195,7 @@ public class MessageHandlerRegistry
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
-    const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
+    internal const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
 
     readonly record struct HandlerAndMessage(Type HandlerType, Type MessageType, bool IsTimeoutHandler)
     {
