@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -64,7 +65,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the handler type.
     /// </summary>
-    public void AddHandler<THandler>() where THandler : IHandleMessages
+    public void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
 
@@ -97,7 +98,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -114,7 +115,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific timeout type. Should only be called by a source generator.
     /// </summary>
-    public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
+    public void AddTimeoutHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -142,6 +143,7 @@ public class MessageHandlerRegistry
     /// Add handlers from types scanned at runtime.
     /// </summary>
     /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
     {
         foreach (var type in orderedTypes.Where(IsMessageHandler))
@@ -150,7 +152,7 @@ public class MessageHandlerRegistry
         }
     }
 
-    internal static bool IsMessageHandler(Type type)
+    internal static bool IsMessageHandler([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] Type type)
     {
         if (type.IsAbstract || type.IsGenericTypeDefinition)
         {
@@ -190,6 +192,8 @@ public class MessageHandlerRegistry
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
+    const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
+
     readonly record struct HandlerAndMessage(Type HandlerType, Type MessageType, bool IsTimeoutHandler)
     {
         public static HandlerAndMessage New<THandler, TMessage>(bool isTimeoutHandler = false) =>
@@ -203,7 +207,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class TimeoutHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -229,7 +233,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
