@@ -17,11 +17,11 @@ public sealed partial class AddSagaGenerator : IIncrementalGenerator
                 transform: Parser.Parse)
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
-            .WithTrackingName("SagaSpec");
+            .WithTrackingName(TrackingNames.SagaSpec);
 
         var collected = addSagas.Collect()
             .Select((sagas, _) => new Sagas.SagaSpecs(sagas.ToImmutableEquatableArray()))
-            .WithTrackingName("SagaSpecs");
+            .WithTrackingName(TrackingNames.SagaSpecs);
 
         var rootTypeSpec = AddHandlerAndSagasRegistrationGenerator.BuildRootTypeSpecPipeline(context);
 
