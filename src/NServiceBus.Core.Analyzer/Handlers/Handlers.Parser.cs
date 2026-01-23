@@ -33,9 +33,9 @@ static partial class Handlers
 
     public static class Parser
     {
-        public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, CancellationToken cancellationToken = default)
+        public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, BaseParser.SpecKind specKind, CancellationToken cancellationToken = default)
         {
-            var handlerSpec = BaseParser.Parse(handlerType);
+            var baseHandlerSpec = BaseParser.Parse(handlerType, specKind, cancellationToken: cancellationToken);
 
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
@@ -65,7 +65,7 @@ static partial class Handlers
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy, handlerSpec.FullyQualifiedName);
+                var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy, baseHandlerSpec.FullyQualifiedName);
                 allRegistrations.Add(spec);
 
                 if (registrationType == RegistrationType.StartMessageHandler)
@@ -83,7 +83,7 @@ static partial class Handlers
                 .OrderBy(r => r.MessageType, StringComparer.Ordinal)
                 .ToList();
 
-            return new HandlerSpec(handlerSpec, registrations.ToImmutableEquatableArray());
+            return new HandlerSpec(baseHandlerSpec, registrations.ToImmutableEquatableArray());
         }
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is

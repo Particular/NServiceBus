@@ -109,6 +109,9 @@ namespace CustomRegistrations
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes handlers in this namespace: <see cref="AddOrderShippedHandler"/>.
+                /// </remarks>
                 public void AddAll()
                 {
                     AddAllHandlers();
@@ -118,6 +121,9 @@ namespace CustomRegistrations
                 /// <summary>
                 /// Registers all handlers for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes handlers in this namespace: <see cref="AddOrderShippedHandler"/>.
+                /// </remarks>
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();

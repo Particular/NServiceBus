@@ -228,6 +228,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddInvoiceCreatedHandler"/>.
+                    /// </remarks>
                     public void AddAll()
                     {
                         AddAllHandlers();
@@ -237,6 +240,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddInvoiceCreatedHandler"/>.
+                    /// </remarks>
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
@@ -264,6 +270,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddOrderShippedHandler"/>, <see cref="AddShipmentDelayedHandler"/>.
+                    /// </remarks>
                     public void AddAll()
                     {
                         AddAllHandlers();
@@ -273,6 +282,9 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers all handlers for this namespace segment and its child namespaces.
                     /// </summary>
+                    /// <remarks>
+                    /// Includes handlers in this namespace: <see cref="AddOrderShippedHandler"/>, <see cref="AddShipmentDelayedHandler"/>.
+                    /// </remarks>
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
@@ -301,6 +313,9 @@ namespace NServiceBus
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes handlers in this namespace: <see cref="AddPaymentCapturedHandler"/>.
+                /// </remarks>
                 public void AddAll()
                 {
                     AddAllHandlers();
@@ -310,6 +325,9 @@ namespace NServiceBus
                 /// <summary>
                 /// Registers all handlers for this namespace segment and its child namespaces.
                 /// </summary>
+                /// <remarks>
+                /// Includes handlers in this namespace: <see cref="AddPaymentCapturedHandler"/>.
+                /// </remarks>
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
