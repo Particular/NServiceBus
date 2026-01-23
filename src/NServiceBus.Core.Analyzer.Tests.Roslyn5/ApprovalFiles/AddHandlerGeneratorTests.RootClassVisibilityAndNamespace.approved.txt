@@ -13,7 +13,7 @@ namespace CustomRegistrations
                 }
 
                 /// <summary>
-                /// Adds the <see cref="global::Orders.OrderShippedHandler"/> handler to the registration.
+                /// Registers the <see cref="global::Orders.OrderShippedHandler"/> handler with the endpoint configuration.
                 /// </summary>
                 public void AddOrderShippedHandler()
                 {
@@ -32,7 +32,7 @@ namespace CustomRegistrations
 namespace CustomRegistrations
 {
     /// <summary>
-    /// Provides extensions to register message handlers and sagas found in the <i>RootClassVisibilityAndNamespace</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>RootClassVisibilityAndNamespace</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
@@ -40,35 +40,56 @@ namespace CustomRegistrations
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the registry for the <i>RootClassVisibilityAndNamespace</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>RootClassVisibilityAndNamespace</i> assembly.
             /// </summary>
+            /// <remarks>
+            /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
+            /// </remarks>
             public RootClassVisibilityAndNamespaceRootRegistry RootClassVisibilityAndNamespaceAssembly => new(registry.Configuration);
         }
 
         /// <summary>
-        /// The registry for the <i>RootClassVisibilityAndNamespace</i> part.
+        /// Registry for the <i>RootClassVisibilityAndNamespace</i> namespace segment. Use this registry to add handlers and sagas for this branch.
         /// </summary>
         internal sealed partial class RootClassVisibilityAndNamespaceRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
-            /// Gets the registry for the <i>Orders</i> namespace part.
+            /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
             /// </summary>
             public OrdersRegistry Orders => new(_configuration);
 
+            /// <summary>
+            /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>.
+            /// </remarks>
             public void AddAll()
             {
                 AddAllHandlers();
                 AddAllSagas();
             }
 
+            /// <summary>
+            /// Registers all handlers for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>.
+            /// </remarks>
             public void AddAllHandlers()
             {
                 AddAllHandlersCore();
                 Orders.AddAllHandlers();
             }
 
+            /// <summary>
+            /// Registers all sagas for this namespace segment and its child namespaces.
+            /// </summary>
+            /// <remarks>
+            /// Includes child registries: <see cref="Orders"/>.
+            /// </remarks>
             public void AddAllSagas()
             {
                 AddAllSagasCore();
@@ -79,23 +100,32 @@ namespace CustomRegistrations
             partial void AddAllSagasCore();
 
             /// <summary>
-            /// The registry for the <i>Orders</i> part.
+            /// Registry for the <i>Orders</i> namespace segment. Use this registry to add handlers and sagas for this branch.
             /// </summary>
             internal sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
                 readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
+                /// <summary>
+                /// Registers all handlers and sagas for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAll()
                 {
                     AddAllHandlers();
                     AddAllSagas();
                 }
 
+                /// <summary>
+                /// Registers all handlers for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
                 }
 
+                /// <summary>
+                /// Registers all sagas for this namespace segment and its child namespaces.
+                /// </summary>
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();

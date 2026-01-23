@@ -46,7 +46,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             var namespaceTree = BuildNamespaceTree(baseSpecs, rootTypeSpec);
 
             sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// Provides extensions to register message handlers and sagas found in the <i>{namespaceTree.AssemblyName}</i> assembly.");
+            sourceWriter.WriteLine($"/// Provides access to handler and saga registries discovered in the <i>{namespaceTree.AssemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
             sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
@@ -69,8 +69,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.Indentation++;
 
             sourceWriter.WriteLine("/// <summary>");
-            sourceWriter.WriteLine($"/// Gets the registry for the <i>{assemblyName}</i> assembly.");
+            sourceWriter.WriteLine($"/// Gets the root registry for handler and saga types in the <i>{assemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
+            sourceWriter.WriteLine("/// <remarks>");
+            sourceWriter.WriteLine("/// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.");
+            sourceWriter.WriteLine("/// </remarks>");
             sourceWriter.WriteLine($"public {rootRegistryName} {rootName}Assembly => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
@@ -84,8 +87,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 typeVisibility,
                 static (writer, current, visibility) =>
                 {
+                    var displayName = current.Name.EndsWith("Root", StringComparison.Ordinal)
+                        ? current.Name.TrimEnd('R', 'o', 'o', 't')
+                        : current.Name;
                     writer.WriteLine("/// <summary>");
-                    writer.WriteLine($"/// The registry for the <i>{(current.Name.EndsWith("Root") ? current.Name.TrimEnd('R', 'o', 'o', 't') : current.Name)}</i> part.");
+                    writer.WriteLine($"/// Registry for the <i>{displayName}</i> namespace segment. Use this registry to add handlers and sagas for this branch.");
                     writer.WriteLine("/// </summary>");
                     writer.WriteLine($"{visibility} sealed partial class {current.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
                     writer.WriteLine("{");
@@ -99,10 +105,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                         writer.WriteLine();
                     }
 
+                    var childRegistryRefs = GetChildRegistryRefs(current);
                     foreach (var child in current.Children)
                     {
                         writer.WriteLine("/// <summary>");
-                        writer.WriteLine($"/// Gets the registry for the <i>{child.Name}</i> namespace part.");
+                        writer.WriteLine($"/// Gets the registry for the <i>{child.Name}</i> namespace segment under this branch.");
                         writer.WriteLine("/// </summary>");
                         writer.WriteLine($"public {child.RegistryName} {child.Name} => new(_configuration);");
                         writer.WriteLine();
@@ -111,6 +118,15 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     if (current.Children.Count == 0)
                     {
                         writer.WriteLine();
+                    }
+                    writer.WriteLine("/// <summary>");
+                    writer.WriteLine("/// Registers all handlers and sagas for this namespace segment and its child namespaces.");
+                    writer.WriteLine("/// </summary>");
+                    if (childRegistryRefs is not null)
+                    {
+                        writer.WriteLine("/// <remarks>");
+                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
+                        writer.WriteLine("/// </remarks>");
                     }
                     writer.WriteLine("""
                                      public void AddAll()
@@ -121,6 +137,15 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                                      """);
                     writer.WriteLine();
 
+                    writer.WriteLine("/// <summary>");
+                    writer.WriteLine("/// Registers all handlers for this namespace segment and its child namespaces.");
+                    writer.WriteLine("/// </summary>");
+                    if (childRegistryRefs is not null)
+                    {
+                        writer.WriteLine("/// <remarks>");
+                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
+                        writer.WriteLine("/// </remarks>");
+                    }
                     writer.WriteLine("public void AddAllHandlers()");
                     writer.WriteLine("{");
                     writer.Indentation++;
@@ -134,6 +159,15 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.WriteLine("}");
                     writer.WriteLine();
 
+                    writer.WriteLine("/// <summary>");
+                    writer.WriteLine("/// Registers all sagas for this namespace segment and its child namespaces.");
+                    writer.WriteLine("/// </summary>");
+                    if (childRegistryRefs is not null)
+                    {
+                        writer.WriteLine("/// <remarks>");
+                        writer.WriteLine($"/// Includes child registries: {childRegistryRefs}.");
+                        writer.WriteLine("/// </remarks>");
+                    }
                     writer.WriteLine("public void AddAllSagas()");
                     writer.WriteLine("{");
                     writer.Indentation++;
@@ -173,6 +207,16 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
+        }
+
+        static string? GetChildRegistryRefs(NamespaceNode current)
+        {
+            if (current.Children.Count == 0)
+            {
+                return null;
+            }
+
+            return string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
         }
 
         static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)
