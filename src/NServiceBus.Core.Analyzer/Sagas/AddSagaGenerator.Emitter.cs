@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -28,7 +27,7 @@ public partial class AddSagaGenerator
             EmitHandlers(sourceWriter, sagas, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
-            context.AddSource("SagaRegistrations.g.cs", sourceWriter.ToSourceText());
+            context.AddSource("HandlerRegistrations.Sagas.g.cs", sourceWriter.ToSourceText());
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas, BaseParser.RootTypeSpec rootTypeSpec)
@@ -63,7 +62,7 @@ public partial class AddSagaGenerator
 
                     for (int index = 0; index < node.Specs.Count; index++)
                     {
-                        var methodName = GetSingleSagaMethodName(node.Specs[index].Name);
+                        var methodName = BaseEmitter.GetSagaMethodName(node.Specs[index].Name);
                         writer.WriteLine($"{methodName}();");
                     }
 
@@ -83,7 +82,7 @@ public partial class AddSagaGenerator
             for (int index = 0; index < sagaSpecs.Length; index++)
             {
                 var sagaSpec = sagaSpecs[index];
-                var methodName = GetSingleSagaMethodName(sagaSpec.Name);
+                var methodName = BaseEmitter.GetSagaMethodName(sagaSpec.Name);
                 sourceWriter.WriteLine("/// <summary>");
                 sourceWriter.WriteLine($"""/// Registers the <see cref="{sagaSpec.FullyQualifiedName}"/> saga with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");
@@ -102,22 +101,6 @@ public partial class AddSagaGenerator
                     sourceWriter.WriteLine();
                 }
             }
-        }
-
-        static string GetSingleSagaMethodName(string sagaName)
-        {
-            const string SagaSuffix = "Saga";
-            const string PolicySuffix = "Policy";
-
-            ReadOnlySpan<char> name = sagaName.AsSpan();
-
-            if (!name.EndsWith(SagaSuffix.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
-                !name.EndsWith(PolicySuffix.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                sagaName += SagaSuffix;
-            }
-
-            return $"Add{sagaName}";
         }
     }
 }

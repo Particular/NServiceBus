@@ -30,7 +30,7 @@ public sealed partial class AddHandlerGenerator
             EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
-            context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
+            context.AddSource("HandlerRegistrations.Handlers.g.cs", sourceWriter.ToSourceText());
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers, BaseParser.RootTypeSpec rootTypeSpec)
@@ -65,7 +65,7 @@ public sealed partial class AddHandlerGenerator
 
                     for (int index = 0; index < node.Specs.Count; index++)
                     {
-                        var methodName = GetSingleHandlerMethodName(node.Specs[index].Name);
+                        var methodName = BaseEmitter.GetHandlerMethodName(node.Specs[index].Name);
                         writer.WriteLine($"{methodName}();");
                     }
 
@@ -85,7 +85,7 @@ public sealed partial class AddHandlerGenerator
             for (int index = 0; index < handlerSpecs.Length; index++)
             {
                 var handlerSpec = handlerSpecs[index];
-                var methodName = GetSingleHandlerMethodName(handlerSpec.Name);
+                var methodName = BaseEmitter.GetHandlerMethodName(handlerSpec.Name);
                 sourceWriter.WriteLine("/// <summary>");
                 sourceWriter.WriteLine($"""/// Registers the <see cref="{handlerSpec.FullyQualifiedName}"/> handler with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");
@@ -104,18 +104,6 @@ public sealed partial class AddHandlerGenerator
                     sourceWriter.WriteLine();
                 }
             }
-        }
-
-        static string GetSingleHandlerMethodName(string handlerName)
-        {
-            const string HandlerSuffix = "Handler";
-
-            if (!handlerName.AsSpan().EndsWith(HandlerSuffix.AsSpan(), StringComparison.Ordinal))
-            {
-                handlerName += HandlerSuffix;
-            }
-
-            return $"Add{handlerName}";
         }
     }
 }
