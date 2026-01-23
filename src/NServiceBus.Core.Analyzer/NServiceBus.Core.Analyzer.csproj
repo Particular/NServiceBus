@@ -25,16 +25,9 @@
   </Target>
 
   <ItemGroup>
-    <Compile Update="**\*.Parser.cs">
-      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Parser','')).cs</DependentUpon>
-    </Compile>
-
-    <Compile Update="**\*.Emitter.cs">
-      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Emitter','')).cs</DependentUpon>
-    </Compile>
-
-    <Compile Update="**\*.TrackingNames.cs">
-      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.TrackingNames','')).cs</DependentUpon>
+    <!-- Nest Foo.Parser.cs, Foo.Emitter.cs, Foo.Anything.cs under Foo.cs if the parent exists -->
+    <Compile Update="**\*.*.cs">
+      <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '\..*$', '')).cs</DependentUpon>
     </Compile>
   </ItemGroup>
 
