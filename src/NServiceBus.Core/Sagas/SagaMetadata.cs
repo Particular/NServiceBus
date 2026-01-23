@@ -107,7 +107,8 @@ public partial class SagaMetadata
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga>() where TSaga : Saga
+    [RequiresUnreferencedCode("todo")]
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>() where TSaga : Saga
     {
         var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
@@ -132,7 +133,7 @@ public partial class SagaMetadata
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, CorrelationPropertyAccessor? correlationPropertyAccessor = null, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaData)] TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, CorrelationPropertyAccessor? correlationPropertyAccessor = null, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
         where TSagaData : class, IContainSagaData, new()
     {
@@ -173,7 +174,8 @@ public partial class SagaMetadata
         }
     }
 
-    static List<SagaMessage> GetAssociatedMessages(Type sagaType)
+    [RequiresUnreferencedCode("todo")]
+    static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
             .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
@@ -197,7 +199,8 @@ public partial class SagaMetadata
         return result;
     }
 
-    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
+    [RequiresUnreferencedCode("todo")]
+    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
         {

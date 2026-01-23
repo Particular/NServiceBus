@@ -1,6 +1,7 @@
 #nullable enable
 namespace NServiceBus;
 
+using System.Diagnostics.CodeAnalysis;
 using Sagas;
 
 /// <summary>
@@ -13,5 +14,5 @@ public interface IConfigureHowToFindSagaWithFinder
     /// <summary>
     /// Specify the custom saga finder to match the given message to a saga instance.
     /// </summary>
-    void ConfigureMapping<TSagaEntity, TMessage, TFinder>() where TFinder : class, ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : class, IContainSagaData;
+    void ConfigureMapping<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaData)] TSagaEntity, TMessage, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaFinder)] TFinder>() where TFinder : class, ISagaFinder<TSagaEntity, TMessage> where TSagaEntity : class, IContainSagaData;
 }

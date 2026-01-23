@@ -1,6 +1,8 @@
 #nullable enable
 namespace NServiceBus;
 
+using System.Diagnostics.CodeAnalysis;
+
 /// <summary>
 /// Implementation provided by the infrastructure - don't implement this
 /// unless you intend
@@ -11,5 +13,5 @@ public interface IConfigureSagaNotFoundHandler
     /// <summary>
     /// Specifies the optional saga not found handler for this saga instance.
     /// </summary>
-    void ConfigureSagaNotFoundHandler<TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler;
+    void ConfigureSagaNotFoundHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaNotFoundHandler)] TNotFoundHandler>() where TNotFoundHandler : ISagaNotFoundHandler;
 }
