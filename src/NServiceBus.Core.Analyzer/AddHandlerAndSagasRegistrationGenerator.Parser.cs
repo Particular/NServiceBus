@@ -26,7 +26,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         internal readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
-                => new("NServiceBus", "public", assemblyId, $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);
+                => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);
         }
 
         public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, SpecKind kind, CancellationToken cancellationToken = default) =>
@@ -65,36 +65,54 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 ? string.Empty
                 : namedTypeSymbol.ContainingNamespace.ToDisplayString();
             var visibility = GetVisibility(namedTypeSymbol.DeclaredAccessibility);
-            return CreateRootTypeSpec(namespaceName, visibility, namedTypeSymbol.Name, true);
+            var entryPointName = GetEntryPointName(context);
+            var rootName = entryPointName ?? string.Empty;
+            return new RootTypeSpec(namespaceName, visibility, rootName, namedTypeSymbol.Name, true);
         }
 
         static string GetNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
 
-        public static RootTypeSpec SelectRootTypeSpec(ImmutableArray<RootTypeSpec> explicitSpecs, string assemblyId) => explicitSpecs.Length > 0 ? SelectPreferred(explicitSpecs) : RootTypeSpec.CreateDefault(assemblyId);
-
-        static RootTypeSpec SelectPreferred(ImmutableArray<RootTypeSpec> specs)
+        public static RootTypeSpec SelectRootTypeSpec(ImmutableArray<RootTypeSpec> explicitSpecs, string assemblyId)
         {
-            var selected = specs[0];
-            for (int i = 1; i < specs.Length; i++)
+            if (explicitSpecs.Length == 0)
             {
-                var candidate = specs[i];
-                var namespaceComparison = StringComparer.Ordinal.Compare(candidate.Namespace, selected.Namespace);
-                if (namespaceComparison < 0 ||
-                    (namespaceComparison == 0 && StringComparer.Ordinal.Compare(candidate.ExtensionTypeName, selected.ExtensionTypeName) < 0))
-                {
-                    selected = candidate;
-                }
+                return RootTypeSpec.CreateDefault(assemblyId);
             }
 
+            var selected = explicitSpecs.First();
+            if (string.IsNullOrEmpty(selected.RootName))
+            {
+                return selected with { RootName = $"{assemblyId}Assembly" };
+            }
             return selected;
         }
 
-        static RootTypeSpec CreateRootTypeSpec(string namespaceName, string visibility, string typeName, bool isExplicit)
+        public static string GetRegistryRootName(string extensionTypeName) =>
+            extensionTypeName.EndsWith(HandlerRegistryExtensionsSuffix, StringComparison.Ordinal)
+                ? $"{extensionTypeName[..^HandlerRegistryExtensionsSuffix.Length]}Root"
+                : $"{extensionTypeName}Root";
+
+        static string? GetEntryPointName(GeneratorAttributeSyntaxContext context)
         {
-            var rootName = typeName.EndsWith(HandlerRegistryExtensionsSuffix, StringComparison.Ordinal)
-                ? typeName[..^HandlerRegistryExtensionsSuffix.Length]
-                : typeName;
-            return new RootTypeSpec(namespaceName, visibility, rootName, typeName, isExplicit);
+            foreach (var attribute in context.Attributes)
+            {
+                if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string ctorValue &&
+                    !string.IsNullOrWhiteSpace(ctorValue))
+                {
+                    return ctorValue;
+                }
+
+                foreach (var kvp in attribute.NamedArguments)
+                {
+                    if (kvp is { Key: "EntrypointName", Value.Value: string namedValue } &&
+                        !string.IsNullOrWhiteSpace(namedValue))
+                    {
+                        return namedValue;
+                    }
+                }
+            }
+
+            return null;
         }
 
         static bool IsPartial(INamedTypeSymbol symbol)

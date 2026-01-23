@@ -34,9 +34,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
         {
             var assemblyName = baseSpecs[0].AssemblyName;
-            var rootName = rootTypeSpec.RootName;
+            var rootName = GetRegistryRootName(rootTypeSpec.ExtensionTypeName);
             var root = BuildNamespaceNodeTree(baseSpecs, rootName);
-            return new NamespaceTree(root, rootName, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec.Namespace, rootTypeSpec.Visibility);
+            return new NamespaceTree(root, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec.Namespace, rootTypeSpec.Visibility, rootTypeSpec.RootName);
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
@@ -53,7 +53,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
-            EmitExtensionProperties(sourceWriter, namespaceTree.RootName, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName);
+            EmitExtensionProperties(sourceWriter, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName, rootTypeSpec.RootName);
 
             sourceWriter.WriteLine();
             EmitNamespaceRegistry(sourceWriter, namespaceTree.Root, namespaceTree.Visibility);
@@ -62,8 +62,10 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitExtensionProperties(SourceWriter sourceWriter, string rootName, string assemblyName, string rootRegistryName)
+        static void EmitExtensionProperties(SourceWriter sourceWriter, string assemblyName, string rootRegistryName, string entryPointName)
         {
+            var propertyName = string.IsNullOrWhiteSpace(entryPointName) ? $"{assemblyName}Assembly" : entryPointName;
+
             sourceWriter.WriteLine("extension (global::NServiceBus.HandlerRegistry registry)");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
@@ -74,7 +76,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("/// <remarks>");
             sourceWriter.WriteLine("/// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.");
             sourceWriter.WriteLine("/// </remarks>");
-            sourceWriter.WriteLine($"public {rootRegistryName} {rootName}Assembly => new(registry.Configuration);");
+            sourceWriter.WriteLine($"public {rootRegistryName} {propertyName} => new(registry.Configuration);");
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -87,12 +89,18 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 typeVisibility,
                 static (writer, current, visibility) =>
                 {
-                    var displayName = current.Name.EndsWith("Root", StringComparison.Ordinal)
-                        ? current.Name.TrimEnd('R', 'o', 'o', 't')
-                        : current.Name;
-                    writer.WriteLine("/// <summary>");
-                    writer.WriteLine($"/// Registry for the <i>{displayName}</i> namespace segment. Use this registry to add handlers and sagas for this branch.");
-                    writer.WriteLine("/// </summary>");
+                    if (current.IsRoot)
+                    {
+                        writer.WriteLine("/// <summary>");
+                        writer.WriteLine("/// Root registry to add handlers and sagas for the entire assembly.");
+                        writer.WriteLine("/// </summary>");
+                    }
+                    else
+                    {
+                        writer.WriteLine("/// <summary>");
+                        writer.WriteLine($"/// Registry for the <i>{current.Name}</i> namespace segment. Use this registry to add handlers and sagas for this branch.");
+                        writer.WriteLine("/// </summary>");
+                    }
                     writer.WriteLine($"{visibility} sealed partial class {current.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
                     writer.WriteLine("{");
                 },
@@ -279,7 +287,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
         static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)
         {
-            var root = new NamespaceNode($"{rootName}Root");
+            var root = new NamespaceNode($"{rootName}", isRoot: true);
 
             foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
                          .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
@@ -321,10 +329,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
-        internal record NamespaceTree(NamespaceNode Root, string RootName, string ExtensionTypeName, string AssemblyName, string Namespace, string Visibility);
+        internal record NamespaceTree(NamespaceNode Root, string ExtensionTypeName, string AssemblyName, string Namespace, string Visibility, string RootName);
 
-        internal sealed class NamespaceNode(string name)
+        internal sealed class NamespaceNode(string name, bool isRoot = false)
         {
+            public bool IsRoot { get; } = isRoot;
+
             public string Name { get; } = name;
 
             public List<NamespaceNode> Children { get; } = [];

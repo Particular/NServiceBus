@@ -138,7 +138,50 @@ public class AddHandlerGeneratorTests
                      namespace CustomRegistrations
                      {
                          [HandlerRegistryExtensions]
-                         internal static partial class RootClassVisibilityAndNamespaceHandlerRegistryExtensions
+                         internal static partial class MyCustomHandlerRegistryExtensions
+                         {
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [HandlerAttribute]
+                         public class OrderShippedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand { }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void RootClassEntryPointName()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using CustomRegistrations;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CustomEntryPoint.AddAll();
+                         }
+                     }
+
+                     namespace CustomRegistrations
+                     {
+                         [HandlerRegistryExtensions("CustomEntryPoint")]
+                         internal static partial class MyCustomHandlerRegistryExtensions
                          {
                          }
                      }
