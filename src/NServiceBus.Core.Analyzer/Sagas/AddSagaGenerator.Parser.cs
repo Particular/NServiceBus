@@ -10,6 +10,6 @@ public partial class AddSagaGenerator
     internal static class Parser
     {
         public static Sagas.SagaSpec? Parse(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken = default)
-            => ctx.TargetSymbol is not INamedTypeSymbol namedTypeSymbol ? null : Sagas.Parse(ctx.SemanticModel, namedTypeSymbol, cancellationToken);
+            => ctx.TargetSymbol is not INamedTypeSymbol namedTypeSymbol ? null : Sagas.Parser.Parse(ctx.SemanticModel, namedTypeSymbol, cancellationToken);
     }
 }
