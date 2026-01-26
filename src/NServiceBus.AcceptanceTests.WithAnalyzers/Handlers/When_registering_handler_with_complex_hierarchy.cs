@@ -1,19 +1,37 @@
 namespace NServiceBus.AcceptanceTests.Handlers;
 
+using System;
 using System.Threading.Tasks;
 using EndpointTemplates;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
-public class When_registering_handler_with_complex_hierarchy_using_add_handler : NServiceBusAcceptanceTest
+public class When_registering_handler_with_complex_hierarchy : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_handle_message()
+    public async Task Should_handle_message([Values] RegistrationApproach approach)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointUsingAddHandler>(b =>
-                b.When(async (session, _) => await session.SendLocal(new ComplexMessage())))
+            {
+                b.CustomConfig(config =>
+                {
+                    switch (approach)
+                    {
+                        case RegistrationApproach.Add:
+                            config.AddHandler<EndpointUsingAddHandler.ComplexMessageHandler>();
+                            break;
+                        case RegistrationApproach.Registry:
+                            var acceptanceTestsHandlers = config.Handlers.All.AcceptanceTests.Handlers;
+                            acceptanceTestsHandlers.AddWhen_registering_handler_with_complex_hierarchyEndpointUsingAddHandlerComplexMessageHandler();
+                            break;
+                        default:
+                           throw new InvalidOperationException("Unknown approach: " + approach + "");
+                    }
+                });
+                b.When(async (session, _) => await session.SendLocal(new ComplexMessage()));
+            })
             .Run();
 
         Assert.That(context.ComplexMessageReceived, Is.True);
@@ -26,11 +44,9 @@ public class When_registering_handler_with_complex_hierarchy_using_add_handler :
 
     public class EndpointUsingAddHandler : EndpointConfigurationBuilder
     {
-        public EndpointUsingAddHandler() => EndpointSetup<NonScanningServer>(config =>
-        {
-            config.AddHandler<ComplexMessageHandler>();
-        });
+        public EndpointUsingAddHandler() => EndpointSetup<NonScanningServer>();
 
+        [Handler]
         public class ComplexMessageHandler(Context testContext) : IHandleMessages<ComplexMessage>
         {
             public Task Handle(ComplexMessage message, IMessageHandlerContext context)

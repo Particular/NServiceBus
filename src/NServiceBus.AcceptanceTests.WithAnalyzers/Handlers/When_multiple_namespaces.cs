@@ -29,7 +29,7 @@ namespace NServiceBus.AcceptanceTests.Handlers
         {
             public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
             {
-                var testingAssembly = config.Handlers.NServiceBusAcceptanceTestsWithAnalyzersAssembly;
+                var testingAssembly = config.Handlers.All;
                 testingAssembly.Shipping.AddAll();
                 testingAssembly.Orders.AddAll();
             });
