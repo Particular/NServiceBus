@@ -67,7 +67,7 @@ public class MessageHandlerRegistry
     /// Registers the handler type.
     /// </summary>
     [RequiresUnreferencedCode(TrimmingMessage)]
-    public void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>() where THandler : IHandleMessages
+    public void AddHandler<THandler>() where THandler : IHandleMessages
     {
         var handlerType = typeof(THandler);
 
@@ -180,8 +180,10 @@ public class MessageHandlerRegistry
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
+#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
     static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
+#pragma warning restore IL2026
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));

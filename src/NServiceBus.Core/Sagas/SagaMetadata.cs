@@ -86,15 +86,19 @@ public partial class SagaMetadata
     /// </summary>
     /// <param name="sagaTypes">Potential saga types.</param>
     /// <returns>Saga metadata for all the found saga types.</returns>
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
     {
         ArgumentNullException.ThrowIfNull(sagaTypes);
 
         var sagaMetadata = new List<SagaMetadata>();
 
+        var createSagaOfTSagaMethod = typeof(SagaMetadata)
+            .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
+
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            sagaMetadata.Add(CreateSagaOfTSagaMethod.InvokeGeneric<SagaMetadata>(sagaType)!);
+            sagaMetadata.Add(createSagaOfTSagaMethod.InvokeGeneric<SagaMetadata>(sagaType)!);
         }
 
         return sagaMetadata;
@@ -107,8 +111,8 @@ public partial class SagaMetadata
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    [RequiresUnreferencedCode("todo")]
-    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>() where TSaga : Saga
+    [RequiresUnreferencedCode(TrimmingMessage)]
+    public static SagaMetadata Create<TSaga>() where TSaga : Saga
     {
         var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
@@ -121,7 +125,10 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        return CreateSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null, null], [sagaType, sagaEntityType])!;
+        var createSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+            .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
+
+        return createSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null, null], [sagaType, sagaEntityType])!;
     }
 
     /// <summary>
@@ -199,7 +206,7 @@ public partial class SagaMetadata
         return result;
     }
 
-    [RequiresUnreferencedCode("todo")]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
@@ -241,11 +248,7 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
-    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
-
-    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
-        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
+    internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code";
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
