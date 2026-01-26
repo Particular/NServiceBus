@@ -4,8 +4,8 @@ public sealed partial class AddHandlerInterceptor
 {
     internal static class TrackingNames
     {
-        public const string HandlerSpecs = "HandlerSpecs";
-        public const string HandlerSpec = "HandlerSpec";
+        public const string HandlerSpecs = nameof(HandlerSpecs);
+        public const string HandlerSpec = nameof(HandlerSpec);
 
         public static readonly string[] All =
         [

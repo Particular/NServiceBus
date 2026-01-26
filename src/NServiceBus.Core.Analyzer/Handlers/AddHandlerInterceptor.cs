@@ -3,8 +3,6 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using Microsoft.CodeAnalysis;
-using Utility;
-using static Handlers;
 
 [Generator(LanguageNames.CSharp)]
 public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
@@ -30,8 +28,4 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
                 emitter.Emit(spec);
             });
     }
-
-    internal readonly record struct InterceptableHandlerSpec(InterceptLocationSpec LocationSpec, HandlerSpec HandlerSpec);
-
-    internal readonly record struct InterceptableHandlerSpecs(ImmutableEquatableArray<InterceptableHandlerSpec> Handlers);
 }
