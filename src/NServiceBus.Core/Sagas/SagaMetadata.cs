@@ -175,7 +175,7 @@ public partial class SagaMetadata
         }
     }
 
-    [RequiresUnreferencedCode("todo")]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
