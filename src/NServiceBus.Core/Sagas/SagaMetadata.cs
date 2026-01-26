@@ -93,12 +93,9 @@ public partial class SagaMetadata
 
         var sagaMetadata = new List<SagaMetadata>();
 
-        var createSagaOfTSagaMethod = typeof(SagaMetadata)
-            .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
-
         foreach (var sagaType in sagaTypes.Where(IsSagaType))
         {
-            sagaMetadata.Add(createSagaOfTSagaMethod.InvokeGeneric<SagaMetadata>(sagaType)!);
+            sagaMetadata.Add(CreateSagaOfTSagaMethod.InvokeGeneric<SagaMetadata>(sagaType)!);
         }
 
         return sagaMetadata;
@@ -125,10 +122,7 @@ public partial class SagaMetadata
 
         var sagaEntityType = genericArguments.Single();
 
-        var createSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
-            .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
-
-        return createSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null, null], [sagaType, sagaEntityType])!;
+        return CreateSagaOfTSagaTEntityMethod.InvokeGeneric<SagaMetadata>([associatedMessages, null, null], [sagaType, sagaEntityType])!;
     }
 
     /// <summary>
@@ -247,6 +241,16 @@ public partial class SagaMetadata
     readonly HashSet<string> messageNamesAllowedToStartTheSaga = [];
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
+
+#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
+    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
+#pragma warning restore IL2026
+
+#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
+    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+        .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
+#pragma warning restore IL2026
 
     internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code";
 
