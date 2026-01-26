@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
-static partial class Sagas
+public static partial class Sagas
 {
     public readonly record struct SagaSpecs(ImmutableEquatableArray<SagaSpec> Sagas);
 

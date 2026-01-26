@@ -4,6 +4,7 @@ using Analyzer.Sagas;
 using Helpers;
 using NUnit.Framework;
 
+[TestFixture]
 public class AddSagaGeneratorTests
 {
     [Test]

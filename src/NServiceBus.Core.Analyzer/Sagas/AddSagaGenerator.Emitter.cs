@@ -22,6 +22,7 @@ public partial class AddSagaGenerator
                 return;
             }
             var sourceWriter = new SourceWriter()
+                .PreAmble()
                 .WithOpenNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, sagas, rootTypeSpec);
@@ -75,6 +76,8 @@ public partial class AddSagaGenerator
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
+
+            Sagas.Emitter.EmitMessagePropertyAccessors(sourceWriter, sagas);
         }
 
         static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs)
@@ -90,8 +93,14 @@ public partial class AddSagaGenerator
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
 
-                // Analyzer.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");
-                // Analyzer.Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec);
+                Sagas.Emitter.EmitSagaMetadataCollectionVariables(sourceWriter, "_configuration");
+                Sagas.Emitter.EmitSagaMetadataCreate(sourceWriter, sagaSpec);
+
+                sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
+                sourceWriter.WriteLine();
+
+                Handlers.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");
+                Handlers.Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
