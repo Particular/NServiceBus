@@ -33,6 +33,13 @@ public partial class MessageContext : IExtendable
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
 
+        if (context.TryGet<DispatchProperties>(out var dispatchProperties))
+        {
+            context.Remove<DispatchProperties>();
+            // Hack hardcoded string for now
+            context.Set("IncomingMessage.DispatchProperties", dispatchProperties);
+        }
+
         context.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
