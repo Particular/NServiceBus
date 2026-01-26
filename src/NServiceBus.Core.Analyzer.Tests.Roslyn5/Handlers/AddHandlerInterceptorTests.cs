@@ -4,6 +4,7 @@ using Analyzer.Handlers;
 using Helpers;
 using NUnit.Framework;
 
+[TestFixture]
 public class AddHandlerInterceptorTests
 {
     [Test]

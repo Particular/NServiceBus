@@ -23,6 +23,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             var sourceWriter = new SourceWriter()
+                .PreAmble()
                 .WithOpenNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, spec, rootTypeSpec);
