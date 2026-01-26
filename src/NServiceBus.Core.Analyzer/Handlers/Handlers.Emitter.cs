@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 using System.Linq;
 using Utility;
 
-static partial class Handlers
+public static partial class Handlers
 {
     public static class Emitter
     {

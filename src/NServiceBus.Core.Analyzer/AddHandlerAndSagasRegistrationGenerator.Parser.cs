@@ -12,18 +12,18 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public partial class AddHandlerAndSagasRegistrationGenerator
 {
-    internal static class Parser
+    public static class Parser
     {
         const string HandlerRegistryExtensionsSuffix = "HandlerRegistryExtensions";
 
-        internal enum SpecKind
+        public enum SpecKind
         {
             Handler,
             Saga
         }
 
-        internal record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName, SpecKind Kind);
-        internal readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
+        public record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName, SpecKind Kind);
+        public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
                 => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);

@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
-static partial class Handlers
+public static partial class Handlers
 {
     public sealed record HandlerSpec : BaseParser.BaseSpec
     {
