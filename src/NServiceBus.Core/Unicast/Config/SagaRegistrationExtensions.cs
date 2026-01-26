@@ -14,7 +14,8 @@ public static class SagaRegistrationExtensions
     /// <summary>
     /// Registers a saga.
     /// </summary>
-    public static void AddSaga<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
+    [RequiresUnreferencedCode(SagaMetadata.TrimmingMessage)]
+    public static void AddSaga<TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
 
