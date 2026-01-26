@@ -176,7 +176,7 @@ public partial class SagaMetadata
     }
 
     [RequiresUnreferencedCode(TrimmingMessage)]
-    static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType)
+    static List<SagaMessage> GetAssociatedMessages(Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
             .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
@@ -201,7 +201,7 @@ public partial class SagaMetadata
     }
 
     [RequiresUnreferencedCode(TrimmingMessage)]
-    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] Type sagaType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type filter)
+    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
         {
