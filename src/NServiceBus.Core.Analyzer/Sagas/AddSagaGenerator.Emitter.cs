@@ -78,6 +78,7 @@ public partial class AddSagaGenerator
             sourceWriter.WriteLine("}");
 
             Sagas.Emitter.EmitMessagePropertyAccessors(sourceWriter, sagas);
+            Sagas.Emitter.EmitCorrelationPropertyAccessors(sourceWriter, sagas);
         }
 
         static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs)
