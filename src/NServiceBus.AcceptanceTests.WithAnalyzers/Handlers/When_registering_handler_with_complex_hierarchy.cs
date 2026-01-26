@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Handlers;
 
-using System;
 using System.Threading.Tasks;
 using EndpointTemplates;
 using NServiceBus;
@@ -14,24 +13,10 @@ public class When_registering_handler_with_complex_hierarchy : NServiceBusAccept
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointUsingAddHandler>(b =>
-            {
-                b.CustomConfig(config =>
-                {
-                    switch (approach)
-                    {
-                        case RegistrationApproach.Add:
-                            config.AddHandler<EndpointUsingAddHandler.ComplexMessageHandler>();
-                            break;
-                        case RegistrationApproach.Registry:
-                            var acceptanceTestsHandlers = config.Handlers.All.AcceptanceTests.Handlers;
-                            acceptanceTestsHandlers.AddWhen_registering_handler_with_complex_hierarchyEndpointUsingAddHandlerComplexMessageHandler();
-                            break;
-                        default:
-                           throw new InvalidOperationException("Unknown approach: " + approach + "");
-                    }
-                });
-                b.When(async (session, _) => await session.SendLocal(new ComplexMessage()));
-            })
+                b.CustomRegistrations(approach,
+                        static config => config.AddHandler<EndpointUsingAddHandler.ComplexMessageHandler>(),
+                        static registry => registry.Handlers.AddWhen_registering_handler_with_complex_hierarchyEndpointUsingAddHandlerComplexMessageHandler())
+                    .When(async (session, _) => await session.SendLocal(new ComplexMessage())))
             .Run();
 
         Assert.That(context.ComplexMessageReceived, Is.True);
@@ -59,8 +44,12 @@ public class When_registering_handler_with_complex_hierarchy : NServiceBusAccept
     }
 
     public class ComplexMessage : ConcreteParent1, IInterfaceParent1;
+
     public class ConcreteParent1 : ConcreteParentBase;
+
     public class ConcreteParentBase : IMessage;
+
     public interface IInterfaceParent1 : IInterfaceParent1Base;
+
     public interface IInterfaceParent1Base : IMessage;
 }
