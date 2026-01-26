@@ -13,11 +13,11 @@ using Transport;
 public class When_using_custom_dispatch_properties : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_preserve_them_even_on_failure()
+    public async Task Should_preserve_them_on_failure()
     {
         Requires.OutboxPersistence();
 
-        Context context = await Scenario.Define<Context>()
+        var context = await Scenario.Define<Context>()
             .WithEndpoint<NonDtcReceivingEndpoint>(b => b
                 .DoNotFailOnErrorMessages()
                 .When(session => session.SendLocal(new KickoffMessage())))
