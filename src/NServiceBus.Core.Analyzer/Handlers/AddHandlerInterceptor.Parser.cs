@@ -9,9 +9,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
+using static Handlers;
 
 public sealed partial class AddHandlerInterceptor
 {
+    internal readonly record struct InterceptableHandlerSpec(InterceptLocationSpec LocationSpec, HandlerSpec HandlerSpec);
+
+    internal readonly record struct InterceptableHandlerSpecs(ImmutableEquatableArray<InterceptableHandlerSpec> Handlers);
+
     internal static class Parser
     {
         public static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node) => node is InvocationExpressionSyntax
