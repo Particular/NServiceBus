@@ -39,7 +39,7 @@ namespace NServiceBus
                             OrderBilledOrderIdAccessor_f7dc3394c771851e.Instance,
                             OrderPlacedOrderIdAccessor_ae6ad694572b9fcb.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, null, propertyAccessors);
+                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -77,7 +77,7 @@ namespace NServiceBus
                             OrderBilledOrderIdAccessor_08b7b00354e1d041.Instance,
                             OrderPlacedOrderIdAccessor_13dea9c2dc628538.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, null, propertyAccessors);
+                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -115,7 +115,7 @@ namespace NServiceBus
                         OrderBilledOrderIdAccessor_2fd27f5436ef20b9.Instance,
                         OrderPlacedOrderIdAccessor_c561311f0fcc5cf0.Instance,
                     ];
-                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, null, propertyAccessors);
+                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
                     sagaMetadataCollection.Add(metadata);
 
                     var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -206,6 +206,24 @@ namespace NServiceBus
         static extern string AccessFrom_Property(global::Payments.OrderPlaced message);
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_c561311f0fcc5cf0();
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    file sealed class OrderIdAsStringAccessor_4a76700cf8410b3a : NServiceBus.Sagas.CorrelationPropertyAccessor
+    {
+        OrderIdAsStringAccessor_4a76700cf8410b3a() { }
+
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+        static extern string AccessFrom_Property(NServiceBus.IContainSagaData sagaData);
+
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, ((string)value));
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
+        static extern string WriteTo_Property(NServiceBus.IContainSagaData sagaData, string value);
+
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_4a76700cf8410b3a();
     }
 }
 

@@ -18,20 +18,24 @@ public static partial class Sagas
 
     public record SagaSpec : AddHandlerAndSagasRegistrationGenerator.Parser.BaseSpec
     {
-        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
+        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, CorrelationPropertyMappingSpec correlationProperty, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
             : base(handler)
         {
             SagaDataFullyQualifiedName = sagaDataFullyQualifiedName;
+            CorrelationPropertyMapping = correlationProperty;
             PropertyMappings = propertyMappings;
             Handler = handler;
         }
 
-        public string SagaDataFullyQualifiedName { get; set; }
+        public string SagaDataFullyQualifiedName { get; }
+
+        public CorrelationPropertyMappingSpec CorrelationPropertyMapping { get; }
         public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings { get; }
         public HandlerSpec Handler { get; }
     }
 
     public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName);
 
     public static SagaSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol sagaType, CancellationToken cancellationToken = default)
     {
@@ -46,9 +50,9 @@ public static partial class Sagas
         var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         // Analyze ConfigureHowToFindSaga to extract mappings
-        var propertyMappings = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
+        var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
 
-        return new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, propertyMappings);
+        return correlationProperty is null ? null : new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty.Value, propertyMappings);
     }
 
     static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)
@@ -68,7 +72,7 @@ public static partial class Sagas
         return null;
     }
 
-    static ImmutableEquatableArray<PropertyMappingSpec> ExtractPropertyMappings(
+    static (CorrelationPropertyMappingSpec? CorrelationProperty, ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings) ExtractPropertyMappings(
         INamedTypeSymbol sagaType,
         SemanticModel semanticModel,
         CancellationToken cancellationToken)
@@ -81,23 +85,27 @@ public static partial class Sagas
         var methodSyntax = syntaxRef?.GetSyntax(cancellationToken);
         if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
         {
-            return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
+            return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
         }
 
         // Get method body (block or expression body)
         SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
         if (methodBody == null)
         {
-            return ImmutableEquatableArray<PropertyMappingSpec>.Empty;
+            return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
         }
 
-        var mappings = new List<PropertyMappingSpec>();
-        var walker = new ConfigureMappingWalker(semanticModel, mappings, cancellationToken);
+        var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
         walker.Visit(methodBody);
 
+        if (walker.CorrelationPropertyMapping is null)
+        {
+            return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
+        }
+
         // Sort mappings to ensure deterministic ordering
-        return mappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
-            .ToImmutableEquatableArray();
+        return (walker.CorrelationPropertyMapping, walker.Mappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
+            .ToImmutableEquatableArray());
     }
 
     static IMethodSymbol? FindConfigureHowToFindSagaMethod(
@@ -117,13 +125,22 @@ public static partial class Sagas
 
     sealed class ConfigureMappingWalker(
         SemanticModel semanticModel,
-        List<PropertyMappingSpec> propertyMappings,
         CancellationToken cancellationToken)
         : CSharpSyntaxWalker
     {
+        public List<PropertyMappingSpec> Mappings { get; } = [];
+        public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; private set; }
+
         public override void VisitInvocationExpression(InvocationExpressionSyntax node)
         {
             base.VisitInvocationExpression(node);
+
+            if (node.Expression is MemberAccessExpressionSyntax { Name: IdentifierNameSyntax { Identifier.ValueText: "MapSaga" } })
+            {
+                // This is a MapSaga call from MapSaga().ToMessage<TMessage>(...)
+                // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
+                AnalyzeToSagaCall(node);
+            }
 
             // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
             if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } })
@@ -132,6 +149,52 @@ public static partial class Sagas
                 // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
                 AnalyzeMapSagaToMessageCall(node);
             }
+        }
+
+        void AnalyzeToSagaCall(InvocationExpressionSyntax mapSagaCall)
+        {
+            if (mapSagaCall.ArgumentList.Arguments.Count <= 0)
+            {
+                return;
+            }
+
+            if (mapSagaCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+            {
+                return;
+            }
+
+            // Normalize body to a MemberAccessExpressionSyntax
+            MemberAccessExpressionSyntax? memberAccess = lambda.Body switch
+            {
+                MemberAccessExpressionSyntax m => m,
+                CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember,
+                _ => null
+            };
+
+            if (memberAccess is null)
+            {
+                return;
+            }
+
+            // Property name (syntax)
+            var propertyName = memberAccess.Name.Identifier.ValueText;
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                return;
+            }
+
+            // Property symbol & type
+            var symbolInfo = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
+            if (symbolInfo.Symbol is not IPropertySymbol propertySymbol)
+            {
+                return;
+            }
+
+            var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
+            // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
+            string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
+            CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName);
         }
 
         void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -170,7 +233,7 @@ public static partial class Sagas
             var messageExpression = memberAccess.Expression;
 
             // Message type (symbol)
-            var messageTypeSymbol = ModelExtensions.GetTypeInfo(semanticModel, messageExpression, cancellationToken).Type;
+            var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type;
             if (messageTypeSymbol is null)
             {
                 return;
@@ -188,7 +251,7 @@ public static partial class Sagas
 
             var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            propertyMappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+            Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
         }
     }
 }
