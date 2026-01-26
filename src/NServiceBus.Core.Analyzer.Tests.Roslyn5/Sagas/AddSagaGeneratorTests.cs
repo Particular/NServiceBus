@@ -134,4 +134,226 @@ public class AddSagaGeneratorTests
             .Approve()
             .AssertRunsAreEqual();
     }
+
+    [Test]
+    public void NestedSagas()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.NestedSagasAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders.Shipping
+                     {
+                         public class OuterClass
+                         {
+                             [SagaAttribute]
+                             public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
+                                 IAmStartedByMessages<OrderPlaced>,
+                                 IHandleMessages<OrderBilled>,
+                                 IHandleTimeouts<OrderPlaced>
+                             {
+                                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                                 {
+                                     mapper.MapSaga(saga => saga.OrderId)
+                                         .ToMessage<OrderPlaced>(msg => msg.OrderId)
+                                         .ToMessage<OrderBilled>(msg => msg.OrderId);
+                                 }
+                                 
+                                 public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                                 public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
+                                 public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             }
+                             
+                             public class OrderShippingPolicyData : ContainSagaData
+                             {
+                                 public string OrderId { get; set; }
+                             }
+                         }
+                         
+                         public class AnotherOuterClass
+                         {
+                             public class InnerClass 
+                             {
+                                 [SagaAttribute]
+                                 public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
+                                     IAmStartedByMessages<OrderPlaced>,
+                                     IHandleMessages<OrderBilled>,
+                                     IHandleTimeouts<OrderPlaced>
+                                 {
+                                     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                                     {
+                                         mapper.MapSaga(saga => saga.OrderId)
+                                             .ToMessage<OrderPlaced>(msg => msg.OrderId)
+                                             .ToMessage<OrderBilled>(msg => msg.OrderId);
+                                     }
+                                     
+                                     public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                                     public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
+                                     public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                                 }
+                                 
+                                 public class OrderShippingPolicyData : ContainSagaData
+                                 {
+                                     public string OrderId { get; set; }
+                                 }
+                             }
+                         }
+                     }
+
+                     public class OrderPlaced : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     public class OrderBilled : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void RootClassVisibilityAndNamespace()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using CustomRegistrations;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.RootClassVisibilityAndNamespaceAssembly.AddAll();
+                         }
+                     }
+
+                     namespace CustomRegistrations
+                     {
+                         [HandlerRegistryExtensions]
+                         internal static partial class MyCustomHandlerRegistryExtensions
+                         {
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [SagaAttribute]
+                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
+                             IAmStartedByMessages<OrderPlaced>,
+                             IHandleMessages<OrderBilled>,
+                             IHandleTimeouts<OrderPlaced>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                             {
+                                 mapper.MapSaga(saga => saga.OrderId)
+                                     .ToMessage<OrderPlaced>(msg => msg.OrderId)
+                                     .ToMessage<OrderBilled>(msg => msg.OrderId);
+                             }
+                             
+                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                         
+                         public class OrderShippingPolicyData : ContainSagaData
+                         {
+                             public string OrderId { get; set; }
+                         }
+                         public class OrderPlaced : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+                         public class OrderBilled : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void RootClassEntryPointName()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using CustomRegistrations;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CustomEntryPoint.AddAll();
+                         }
+                     }
+
+                     namespace CustomRegistrations
+                     {
+                         [HandlerRegistryExtensions("CustomEntryPoint")]
+                         internal static partial class MyCustomHandlerRegistryExtensions
+                         {
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [SagaAttribute]
+                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
+                             IAmStartedByMessages<OrderPlaced>,
+                             IHandleMessages<OrderBilled>,
+                             IHandleTimeouts<OrderPlaced>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                             {
+                                 mapper.MapSaga(saga => saga.OrderId)
+                                     .ToMessage<OrderPlaced>(msg => msg.OrderId)
+                                     .ToMessage<OrderBilled>(msg => msg.OrderId);
+                             }
+                             
+                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                         
+                         public class OrderShippingPolicyData : ContainSagaData
+                         {
+                             public string OrderId { get; set; }
+                         }
+                         public class OrderPlaced : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+                         public class OrderBilled : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
 }
