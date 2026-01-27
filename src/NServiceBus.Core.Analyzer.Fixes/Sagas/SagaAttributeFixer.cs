@@ -52,7 +52,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        "Move SagaAttribute to leaf handlers",
+                        "Move SagaAttribute to concrete sagas",
                         token => MoveSagaAttribute(context.Document, classDecl, token),
                         EquivalenceKeyMove),
                     diagnostic);
@@ -136,6 +136,11 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
             foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
             {
+                if (type.DeclaringSyntaxReferences.Length == 0)
+                {
+                    continue;
+                }
+
                 if (type.TypeKind != TypeKind.Class)
                 {
                     continue;
