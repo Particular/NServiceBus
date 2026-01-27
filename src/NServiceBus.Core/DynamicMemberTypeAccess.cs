@@ -7,19 +7,15 @@ static class DynamicMemberTypeAccess
     public const DynamicallyAccessedMemberTypes Handler =
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.Interfaces
-        | DynamicallyAccessedMemberTypes.AllConstructors;
+        | DynamicallyAccessedMemberTypes.PublicConstructors;
 
     public const DynamicallyAccessedMemberTypes Saga = Handler
-                                                       | DynamicallyAccessedMemberTypes.PublicProperties;
+                                                       | DynamicallyAccessedMemberTypes.NonPublicMethods; // we need this since we are calling the protected ConfigureHowToFindSaga
 
-    public const DynamicallyAccessedMemberTypes SagaData = DynamicallyAccessedMemberTypes.AllConstructors
+    public const DynamicallyAccessedMemberTypes SagaData = DynamicallyAccessedMemberTypes.PublicConstructors
                                                            | DynamicallyAccessedMemberTypes.PublicProperties;
 
-    public const DynamicallyAccessedMemberTypes SagaFinder = DynamicallyAccessedMemberTypes.AllConstructors
-                                                             | DynamicallyAccessedMemberTypes.Interfaces
-                                                             | DynamicallyAccessedMemberTypes.PublicMethods;
+    public const DynamicallyAccessedMemberTypes SagaFinder = Handler;
 
-    public const DynamicallyAccessedMemberTypes SagaNotFoundHandler = DynamicallyAccessedMemberTypes.AllConstructors
-                                                                      | DynamicallyAccessedMemberTypes.Interfaces
-                                                                      | DynamicallyAccessedMemberTypes.PublicMethods;
+    public const DynamicallyAccessedMemberTypes SagaNotFoundHandler = Handler;
 }
