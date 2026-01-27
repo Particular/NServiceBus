@@ -78,6 +78,32 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportWhenAttributePresentButHasBaseClass()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            class HandlerBase
+            {
+            }
+
+            [HandlerAttribute]
+            class MyHandler : HandlerBase, IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task ReportsMissingAttributeOnDerivedLeafHandler()
     {
         var source =
@@ -103,6 +129,67 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task ReportsWhenMixing()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            abstract class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class [|ConcreteHandler|] : BaseHandler, IHandleMessages<AnotherMessage>
+            {
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            
+            class AnotherMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+    }
+
+    [Test]
+    public Task DoesNotReportWhenMixingAndAttributeOnLeaveHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            abstract class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [HandlerAttribute]
+            class ConcreteHandler : BaseHandler, IHandleMessages<AnotherMessage>
+            {
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+
+            class AnotherMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnNonHandler()
     {
         var source =
@@ -111,6 +198,37 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
 
             [[|HandlerAttribute|]]
             class NonHandler
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeOnNonHandler, source);
+    }
+
+    [Test]
+    public Task ReportsMisplacedAttributeOnSaga()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [[|HandlerAttribute|]]
+            class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IHandleMessages<MyMessage>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                {
+                }
+                
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            
+            class MyMessage : IMessage
             {
             }
             """;
