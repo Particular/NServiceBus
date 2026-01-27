@@ -69,13 +69,7 @@ public sealed partial class AddSagaInterceptor
 
                 sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
-                Sagas.Emitter.EmitSagaMetadataCollectionVariables(sourceWriter, "endpointConfiguration");
-                Sagas.Emitter.EmitSagaMetadataAdd(sourceWriter, interceptableSagaSpec.SagaSpec);
-
-                sourceWriter.WriteLine();
-
-                Handlers.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "endpointConfiguration");
-                Handlers.Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, interceptableSagaSpec.SagaSpec.Handler);
+                Sagas.Emitter.EmitSagaRegistrationBlock(sourceWriter, interceptableSagaSpec.SagaSpec, "endpointConfiguration");
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -92,9 +86,7 @@ public sealed partial class AddSagaInterceptor
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
 
-            var sagaSpecs2 = interceptableSagaSpecs.Select(s => s.SagaSpec).ToImmutableEquatableArray();
-            Sagas.Emitter.EmitMessagePropertyAccessors(sourceWriter, sagaSpecs2);
-            Sagas.Emitter.EmitCorrelationPropertyAccessors(sourceWriter, sagaSpecs2);
+            Sagas.Emitter.EmitAccessors(sourceWriter, interceptableSagaSpecs.Select(s => s.SagaSpec).ToImmutableEquatableArray());
 
             sourceWriter.CloseCurlies();
 
