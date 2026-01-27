@@ -134,7 +134,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             var handlerTypes = new List<INamedTypeSymbol>();
             var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
-            foreach (var type in GetAllNamedTypes(compilation.GlobalNamespace))
+            foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
             {
                 if (type.TypeKind != TypeKind.Class)
                 {
@@ -297,32 +297,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
         {
             var symbol = semanticModel.GetSymbolInfo(attributeSyntax, cancellationToken).Symbol as IMethodSymbol;
             return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol.ContainingType, handlerAttributeSymbol);
-        }
-
-        static IEnumerable<INamedTypeSymbol> GetAllNamedTypes(INamespaceSymbol rootNamespace)
-        {
-            foreach (var member in rootNamespace.GetMembers())
-            {
-                if (member is INamespaceSymbol namespaceSymbol)
-                {
-                    foreach (var type in GetAllNamedTypes(namespaceSymbol))
-                    {
-                        yield return type;
-                    }
-
-                    continue;
-                }
-
-                if (member is INamedTypeSymbol typeSymbol)
-                {
-                    yield return typeSymbol;
-
-                    foreach (var nestedType in typeSymbol.GetNestedTypes())
-                    {
-                        yield return nestedType;
-                    }
-                }
-            }
         }
 
         static readonly string EquivalenceKeyMove = $"{typeof(HandlerAttributeFixer).FullName}.Move";
