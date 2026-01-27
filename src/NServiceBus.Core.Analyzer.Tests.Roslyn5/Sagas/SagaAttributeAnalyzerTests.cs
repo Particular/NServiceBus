@@ -85,6 +85,36 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
     }
 
     [Test]
+    public Task ReportsMissingAttributeOnNestedLeafSaga()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            public abstract class BaseShippingSaga : Saga<OrderShippingPolicyData>
+            {
+            }
+            
+            public class OuterClass
+            {
+                public class [|OrderShippingPolicy|] : BaseShippingSaga
+                {
+                    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                    {
+                    }
+                }
+            }
+
+            public class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            """;
+
+        return Assert(DiagnosticIds.SagaAttributeMissing, source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnNonSaga()
     {
         var source =

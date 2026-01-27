@@ -32,6 +32,30 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task ReportsMissingAttributeOnNestedLeafHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class OuterClass
+            {
+                class [|MyHandler|] : IHandleMessages<MyMessage>
+                {
+                    public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                }
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+    }
+
+    [Test]
     public Task DoesNotReportWhenAttributePresent()
     {
         var source =
