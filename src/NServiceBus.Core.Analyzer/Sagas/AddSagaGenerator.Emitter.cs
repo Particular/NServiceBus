@@ -77,8 +77,7 @@ public partial class AddSagaGenerator
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
 
-            Sagas.Emitter.EmitMessagePropertyAccessors(sourceWriter, sagas);
-            Sagas.Emitter.EmitCorrelationPropertyAccessors(sourceWriter, sagas);
+            Sagas.Emitter.EmitAccessors(sourceWriter, sagas);
         }
 
         static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs)
@@ -94,13 +93,7 @@ public partial class AddSagaGenerator
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
 
-                Sagas.Emitter.EmitSagaMetadataCollectionVariables(sourceWriter, "_configuration");
-                Sagas.Emitter.EmitSagaMetadataAdd(sourceWriter, sagaSpec);
-
-                sourceWriter.WriteLine();
-
-                Handlers.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");
-                Handlers.Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
+                Sagas.Emitter.EmitSagaRegistrationBlock(sourceWriter, sagaSpec, "_configuration");
 
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");

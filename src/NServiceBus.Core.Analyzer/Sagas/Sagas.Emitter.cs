@@ -11,13 +11,24 @@ public static partial class Sagas
 {
     public static class Emitter
     {
-        public static void EmitSagaMetadataCollectionVariables(SourceWriter sourceWriter, string configurationVariable) =>
+        public static void EmitSagaRegistrationBlock(SourceWriter sourceWriter, SagaSpec sagaSpec, string configurationVariable)
+        {
+            EmitSagaMetadataCollectionVariables(sourceWriter, configurationVariable);
+            EmitSagaMetadataAdd(sourceWriter, sagaSpec);
+
+            sourceWriter.WriteLine();
+
+            Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, configurationVariable);
+            Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, sagaSpec.Handler);
+        }
+
+        static void EmitSagaMetadataCollectionVariables(SourceWriter sourceWriter, string configurationVariable) =>
             sourceWriter.WriteLine($"""
                                     var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable})
                                        .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                                     """);
 
-        public static void EmitSagaMetadataAdd(SourceWriter sourceWriter, SagaSpec details)
+        static void EmitSagaMetadataAdd(SourceWriter sourceWriter, SagaSpec details)
         {
             sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
@@ -47,7 +58,13 @@ public static partial class Sagas
             sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
         }
 
-        public static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
+        public static void EmitAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
+        {
+            EmitMessagePropertyAccessors(sourceWriter, sagas);
+            EmitCorrelationPropertyAccessors(sourceWriter, sagas);
+        }
+
+        static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             var allPropertyMappings = sagas
                 .SelectMany(i => i.PropertyMappings)
@@ -96,7 +113,7 @@ public static partial class Sagas
             return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
         }
 
-        public static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
+        static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             var allPropertyMappings = sagas
                 .Select(i => i.CorrelationPropertyMapping)
