@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus.Core.Analyzer.Handlers;
+namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
