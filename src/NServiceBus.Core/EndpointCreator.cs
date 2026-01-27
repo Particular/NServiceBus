@@ -70,10 +70,7 @@ class EndpointCreator
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
 
-        if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
-        {
-            receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
-        }
+        TryAddScannedHandlers(receiveSettings, hostingConfiguration.AvailableTypes);
 
         ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
@@ -204,6 +201,15 @@ class EndpointCreator
         if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
         {
             installerSettings.AddScannedInstallers(availableTypes);
+        }
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Checks if dynamic code is supported")]
+    static void TryAddScannedHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes)
+    {
+        if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        {
+            receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
         }
     }
 
