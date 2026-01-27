@@ -300,8 +300,11 @@ namespace NServiceBus.Core.Analyzer.Fixes
             INamedTypeSymbol handlerAttributeSymbol,
             CancellationToken cancellationToken)
         {
-            var symbol = semanticModel.GetSymbolInfo(attributeSyntax, cancellationToken).Symbol as IMethodSymbol;
-            return symbol is not null && SymbolEqualityComparer.Default.Equals(symbol.ContainingType, handlerAttributeSymbol);
+            var symbolInfo = semanticModel.GetSymbolInfo(attributeSyntax, cancellationToken);
+
+            var ctor = symbolInfo.Symbol as IMethodSymbol ?? symbolInfo.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault();
+
+            return ctor is not null && SymbolEqualityComparer.Default.Equals(ctor.ContainingType, handlerAttributeSymbol);
         }
 
         static readonly string EquivalenceKeyMove = $"{typeof(HandlerAttributeFixer).FullName}.Move";

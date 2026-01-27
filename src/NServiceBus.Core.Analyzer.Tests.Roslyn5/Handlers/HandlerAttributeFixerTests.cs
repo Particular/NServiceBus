@@ -37,6 +37,61 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
     }
 
     [Test]
+    public Task RemoveHandlerAttributeOnSaga()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            [HandlerAttribute]
+            class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IHandleMessages<MyMessage>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                {
+                }
+                
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+            
+            class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IHandleMessages<MyMessage>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                {
+                }
+                
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task AddsHandlerAttributeToLeafHandler()
     {
         var original =
