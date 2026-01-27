@@ -109,7 +109,7 @@ public partial class SagaMetadata
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
     [RequiresUnreferencedCode(TrimmingMessage)]
-    public static SagaMetadata Create<TSaga>() where TSaga : Saga
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>() where TSaga : Saga
     {
         var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
@@ -175,8 +175,7 @@ public partial class SagaMetadata
         }
     }
 
-    [RequiresUnreferencedCode(TrimmingMessage)]
-    static List<SagaMessage> GetAssociatedMessages(Type sagaType)
+    static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
             .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
@@ -200,22 +199,28 @@ public partial class SagaMetadata
         return result;
     }
 
-    [RequiresUnreferencedCode(TrimmingMessage)]
-    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
+    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType, Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
         {
-            foreach (var argument in interfaceType.GetGenericArguments())
+            if (!interfaceType.IsGenericType)
             {
-                var genericType = filter.MakeGenericType(argument);
-                var isOfFilterType = genericType == interfaceType;
-                if (!isOfFilterType)
-                {
-                    continue;
-                }
-
-                yield return argument;
+                continue;
             }
+
+            var genericDefinition = interfaceType.GetGenericTypeDefinition();
+            if (genericDefinition != filter)
+            {
+                continue;
+            }
+
+            var args = interfaceType.GetGenericArguments();
+            if (args is not { Length: 1 })
+            {
+                continue;
+            }
+
+            yield return args[0];
         }
     }
 
