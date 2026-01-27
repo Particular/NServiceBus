@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Features;
 using Installation;
 
@@ -31,7 +32,7 @@ public static class InstallConfigExtensions
     /// <summary>
     /// Adds the installer type.
     /// </summary>
-    public static void AddInstaller<TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
+    public static void AddInstaller<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Installer)] TInstaller>(this EndpointConfiguration config) where TInstaller : class, INeedToInstallSomething
     {
         ArgumentNullException.ThrowIfNull(config);
 
@@ -41,7 +42,7 @@ public static class InstallConfigExtensions
     /// <summary>
     /// Adds the installer type.
     /// </summary>
-    public static void AddInstaller<TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
+    public static void AddInstaller<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Installer)] TInstaller>(this FeatureConfigurationContext context) where TInstaller : class, INeedToInstallSomething
     {
         ArgumentNullException.ThrowIfNull(context);
 
