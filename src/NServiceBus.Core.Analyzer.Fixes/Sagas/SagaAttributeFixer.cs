@@ -131,7 +131,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 return solution;
             }
 
-            var handlerTypes = new List<INamedTypeSymbol>();
+            var sagaTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
             foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
@@ -151,7 +151,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                     continue;
                 }
 
-                handlerTypes.Add(type);
+                sagaTypes.Add(type);
 
                 if (type.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
                 {
@@ -162,7 +162,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             var leafSagas = new List<INamedTypeSymbol>();
             var nonLeafSagasWithAttribute = new List<INamedTypeSymbol>();
 
-            foreach (var type in handlerTypes)
+            foreach (var type in sagaTypes)
             {
                 var isLeaf = !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition);
                 var hasAttribute = type.HasAttribute(sagaAttribute);
