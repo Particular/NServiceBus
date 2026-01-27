@@ -166,5 +166,18 @@ static class TypeSymbolExtensions
                 _ => throw new ArgumentException("Not expecting a non-annotated type expression."),
             };
         }
+
+        public IEnumerable<INamedTypeSymbol> GetNestedTypes()
+        {
+            foreach (var nested in type.GetTypeMembers())
+            {
+                yield return nested;
+
+                foreach (var child in nested.GetNestedTypes())
+                {
+                    yield return child;
+                }
+            }
+        }
     }
 }
