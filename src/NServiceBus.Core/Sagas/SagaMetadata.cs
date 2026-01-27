@@ -247,15 +247,14 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
-#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
         .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
-#pragma warning restore IL2026
-
-#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
-#pragma warning restore IL2026
 
     internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code";
 
