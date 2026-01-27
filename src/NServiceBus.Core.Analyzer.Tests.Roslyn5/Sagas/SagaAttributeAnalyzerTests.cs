@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Helpers;
-using NServiceBus.Core.Analyzer.Handlers;
+using NServiceBus.Core.Analyzer.Sagas;
 using NUnit.Framework;
 
 [TestFixture]
