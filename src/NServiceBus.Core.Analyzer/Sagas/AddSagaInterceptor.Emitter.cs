@@ -69,11 +69,9 @@ public sealed partial class AddSagaInterceptor
 
                 sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
-                // TODO streamline this between interceptor and generator
                 Sagas.Emitter.EmitSagaMetadataCollectionVariables(sourceWriter, "endpointConfiguration");
-                Sagas.Emitter.EmitSagaMetadataCreate(sourceWriter, interceptableSagaSpec.SagaSpec);
+                Sagas.Emitter.EmitSagaMetadataAdd(sourceWriter, interceptableSagaSpec.SagaSpec);
 
-                sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 sourceWriter.WriteLine();
 
                 Handlers.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "endpointConfiguration");
