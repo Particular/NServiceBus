@@ -95,9 +95,8 @@ public partial class AddSagaGenerator
                 sourceWriter.Indentation++;
 
                 Sagas.Emitter.EmitSagaMetadataCollectionVariables(sourceWriter, "_configuration");
-                Sagas.Emitter.EmitSagaMetadataCreate(sourceWriter, sagaSpec);
+                Sagas.Emitter.EmitSagaMetadataAdd(sourceWriter, sagaSpec);
 
-                sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
                 sourceWriter.WriteLine();
 
                 Handlers.Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "_configuration");

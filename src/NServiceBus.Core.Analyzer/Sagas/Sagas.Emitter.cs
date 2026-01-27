@@ -17,7 +17,7 @@ public static partial class Sagas
                                        .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
                                     """);
 
-        public static void EmitSagaMetadataCreate(SourceWriter sourceWriter, SagaSpec details)
+        public static void EmitSagaMetadataAdd(SourceWriter sourceWriter, SagaSpec details)
         {
             sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
@@ -44,6 +44,7 @@ public static partial class Sagas
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("];");
             sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.FullyQualifiedName}, {details.SagaDataFullyQualifiedName}>(associatedMessages, {correlationPropertyAccessor}, propertyAccessors);");
+            sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
         }
 
         public static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
