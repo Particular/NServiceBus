@@ -10,8 +10,8 @@ using NUnit.Framework;
 
 public class When_auditing : NServiceBusAcceptanceTest
 {
-    const string AuditAddressEnvironmentVariableKey = "NServiceBus__Audit__Address";
-    const string AuditIsEnabledEnvironmentVariableKey = "NServiceBus__Audit__IsEnabled";
+    const string AuditAddressEnvironmentVariableKey = "NSERVICEBUS__AUDIT__ADDRESS";
+    const string AuditIsDisabledEnvironmentVariableKey = "NSERVICEBUS__AUDIT__DISABLED";
 
     [Test]
     public async Task Should_not_be_forwarded_to_auditQueue_when_audit_feature_is_disabled_in_code()
@@ -36,14 +36,14 @@ public class When_auditing : NServiceBusAcceptanceTest
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.False);
     }
 
-    [TestCase("false")]
-    [TestCase("FALSE")]
-    [TestCase("False")]
+    [TestCase("true")]
+    [TestCase("TRUE")]
+    [TestCase("True")]
     [NonParallelizable]
-    public async Task Should_not_be_forwarded_to_auditQueue_when_audit_feature_is_disabled_by_environment_variable(string auditEnabledValue)
+    public async Task Should_not_be_forwarded_to_auditQueue_when_audit_feature_is_disabled_by_environment_variable(string auditDisabledValue)
     {
-        var originalValue = Environment.GetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey);
-        Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, auditEnabledValue);
+        var originalValue = Environment.GetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey);
+        Environment.SetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey, auditDisabledValue);
 
         try
         {
@@ -57,7 +57,7 @@ public class When_auditing : NServiceBusAcceptanceTest
         }
         finally
         {
-            Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, originalValue);
+            Environment.SetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey, originalValue);
         }
     }
 
@@ -74,19 +74,19 @@ public class When_auditing : NServiceBusAcceptanceTest
         Assert.That(context.IsMessageHandledByTheAuditEndpoint, Is.True);
     }
 
-    [TestCase("true")]
-    [TestCase("TRUE")]
-    [TestCase("True")]
+    [TestCase("false")]
+    [TestCase("FALSE")]
+    [TestCase("False")]
     [TestCase(null)]
     [NonParallelizable]
-    public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_configured_by_environment_variable(string auditEnabledValue)
+    public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_configured_by_environment_variable(string auditDisabledValue)
     {
         var originalAuditAddressValue = Environment.GetEnvironmentVariable(AuditAddressEnvironmentVariableKey);
-        var originalAuditEnabledValue = Environment.GetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey);
+        var originalAuditEnabledValue = Environment.GetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey);
 
         var auditAddress = Conventions.EndpointNamingConvention(typeof(EndpointThatHandlesAuditMessages));
         Environment.SetEnvironmentVariable(AuditAddressEnvironmentVariableKey, auditAddress);
-        Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, auditEnabledValue);
+        Environment.SetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey, auditDisabledValue);
 
         try
         {
@@ -100,7 +100,7 @@ public class When_auditing : NServiceBusAcceptanceTest
         finally
         {
             Environment.SetEnvironmentVariable(AuditAddressEnvironmentVariableKey, originalAuditAddressValue);
-            Environment.SetEnvironmentVariable(AuditIsEnabledEnvironmentVariableKey, originalAuditEnabledValue);
+            Environment.SetEnvironmentVariable(AuditIsDisabledEnvironmentVariableKey, originalAuditEnabledValue);
         }
     }
 

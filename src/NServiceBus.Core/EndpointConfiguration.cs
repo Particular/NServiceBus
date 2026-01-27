@@ -7,6 +7,7 @@ using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Logging;
 using Pipeline;
 using Settings;
 
@@ -15,6 +16,8 @@ using Settings;
 /// </summary>
 public class EndpointConfiguration : ExposeSettings
 {
+    static readonly ILog Log = LogManager.GetLogger("EndpointConfiguration");
+
     /// <summary>
     /// Initializes the endpoint configuration builder.
     /// </summary>
@@ -30,8 +33,15 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
-        var auditEnabledValue = Environment.GetEnvironmentVariable(Features.Audit.IsEnabledEnvironmentVariableKey);
-        Settings.SetDefault("Audit.Enabled", auditEnabledValue is null || !bool.TryParse(auditEnabledValue, out var isEnabled) || isEnabled);
+        var auditDisabledValue = Environment.GetEnvironmentVariable(Features.Audit.IsDisabledEnvironmentVariableKey);
+        var canParseAuditDisabledEnvironmentVariable = bool.TryParse(auditDisabledValue, out var isDisabled);
+
+        if (auditDisabledValue is not null && !canParseAuditDisabledEnvironmentVariable)
+        {
+            Log.Warn($"{Features.Audit.IsDisabledEnvironmentVariableKey} should be either `TRUE` or `FALSE`. `{auditDisabledValue}` is not a valid value.");
+        }
+
+        Settings.SetDefault("Audit.Enabled", !isDisabled);
 
         var defaultAuditQueue = Environment.GetEnvironmentVariable(Features.Audit.AddressEnvironmentVariableKey);
         if (defaultAuditQueue is not null)
@@ -104,7 +114,7 @@ public class EndpointConfiguration : ExposeSettings
     public ConventionsBuilder Conventions() => conventionsBuilder;
 
     //This needs to be here since we have downstreams that use reflection to access this property
-    internal void TypesToScanInternal(IEnumerable<Type> typesToScan) => Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = typesToScan.ToList();
+    internal void TypesToScanInternal(IEnumerable<Type> typesToScan) => Settings.Get<AssemblyScanningComponent.Configuration>().UserProvidedTypes = [.. typesToScan];
 
     internal void FinalizeConfiguration(IList<Type> availableTypes)
     {
