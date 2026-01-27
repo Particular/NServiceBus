@@ -3,6 +3,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Hosting.Helpers;
 using Settings;
@@ -21,28 +22,20 @@ class AssemblyScanningComponent
             return new AssemblyScanningComponent([]);
         }
 
-        var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-
-        var assemblyScanner = new AssemblyScanner(directoryToScan);
-        var availableTypes = new List<Type>();
+        if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new Exception("The assembly scanning is not supported on this system.");
+        }
 
         var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
 
-        assemblyScanner.AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies;
-        assemblyScanner.TypesToSkip = assemblyScannerSettings.ExcludedTypes;
-        assemblyScanner.ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories;
-        assemblyScanner.ThrowExceptions = assemblyScannerSettings.ThrowExceptions;
-        assemblyScanner.ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies;
-        assemblyScanner.ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies;
-        assemblyScanner.AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath;
-
-        if (!assemblyScanner.ScanAppDomainAssemblies && !assemblyScanner.ScanFileSystemAssemblies)
+        if (!assemblyScannerSettings.ScanAppDomainAssemblies && !assemblyScannerSettings.ScanFileSystemAssemblies)
         {
             throw new Exception($"Both file and appdomain scanning has been turned off which results in no assemblies being scanned. Enable `{nameof(AssemblyScannerConfiguration.ScanAppDomainAssemblies)}` or `{nameof(AssemblyScannerConfiguration.ScanFileSystemAssemblies)}` to scan assemblies, or set `{nameof(AssemblyScannerConfiguration.Disable)}` to 'true' to explicitly disable assembly scanning.");
         }
 
-        var scannableAssemblies = assemblyScanner.GetScannableAssemblies();
-        availableTypes = scannableAssemblies.Types.Union(availableTypes).ToList();
+        var scannableAssemblies = ScanAssemblies(assemblyScannerSettings);
+        var availableTypes = scannableAssemblies.Types.ToList();
 
         settings.AddStartupDiagnosticsSection("AssemblyScanning", new
         {
@@ -57,6 +50,25 @@ class AssemblyScanningComponent
         });
 
         return new AssemblyScanningComponent(availableTypes);
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Method will not be called if dynamic code is not supported")]
+    static AssemblyScannerResults ScanAssemblies(AssemblyScannerConfiguration assemblyScannerSettings)
+    {
+        var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+        var assemblyScanner = new AssemblyScanner(directoryToScan)
+        {
+            AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
+            TypesToSkip = assemblyScannerSettings.ExcludedTypes,
+            ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
+            ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
+            ScanFileSystemAssemblies = assemblyScannerSettings.ScanFileSystemAssemblies,
+            ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies,
+            AdditionalAssemblyScanningPath = assemblyScannerSettings.AdditionalAssemblyScanningPath
+        };
+
+        return assemblyScanner.GetScannableAssemblies();
     }
 
     AssemblyScanningComponent(IList<Type> availableTypes) => AvailableTypes = availableTypes;
