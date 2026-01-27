@@ -2,6 +2,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using FastExpressionCompiler;
@@ -17,6 +18,8 @@ sealed class ExpressionBasedCorrelationPropertyAccessor<TSagaData>(PropertyInfo 
 
     public override void WriteTo(IContainSagaData sagaData, object value) => propertySetter((TSagaData)sagaData, value);
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "Falls back to Expression.Compile when dynamic code is not supported")]
     static Func<TSagaData, object?> CreateGetter(PropertyInfo propertyInfo)
     {
         var instance = Expression.Parameter(typeof(TSagaData), "instance");
@@ -29,6 +32,8 @@ sealed class ExpressionBasedCorrelationPropertyAccessor<TSagaData>(PropertyInfo 
             : lambda.Compile();
     }
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "Falls back to Expression.Compile when dynamic code is not supported")]
     static Action<TSagaData, object?> CreateSetter(PropertyInfo propertyInfo)
     {
         var instance = Expression.Parameter(typeof(TSagaData), "instance");
