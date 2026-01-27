@@ -69,7 +69,10 @@ class EndpointCreator
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
 
-        receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+        if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        {
+            receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+        }
 
         ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
@@ -173,10 +176,7 @@ class EndpointCreator
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-        {
-            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
-        });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
 
         return new StartableEndpoint(settings,
             featureComponent,

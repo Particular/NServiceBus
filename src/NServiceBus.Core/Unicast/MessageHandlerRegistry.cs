@@ -180,10 +180,10 @@ public class MessageHandlerRegistry
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
-#pragma warning disable IL2026 //NOTE: We are making sure that the call site of this method has RequiresUnreferencedCode
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
-#pragma warning restore IL2026
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
