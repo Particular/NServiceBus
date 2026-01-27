@@ -131,7 +131,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 return solution;
             }
 
-            var handlerTypes = new List<INamedTypeSymbol>();
+            var handlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
             foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
