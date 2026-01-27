@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Features;
 using MessageInterfaces;
@@ -41,7 +42,7 @@ class EndpointCreator
 
         var installerSettings = settings.Get<InstallerComponent.Settings>();
 
-        installerSettings.AddScannedInstallers(availableTypes);
+        TryAddScannedInstallers(installerSettings, availableTypes);
 
         var installerComponent = new InstallerComponent(installerSettings);
 
@@ -195,6 +196,15 @@ class EndpointCreator
             sendComponent,
             serviceProvider,
             serviceProviderIsExternallyManaged);
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Checks if dynamic code is supported")]
+    static void TryAddScannedInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes)
+    {
+        if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        {
+            installerSettings.AddScannedInstallers(availableTypes);
+        }
     }
 
     PipelineComponent pipelineComponent;
