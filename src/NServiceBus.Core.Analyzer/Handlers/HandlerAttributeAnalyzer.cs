@@ -39,26 +39,13 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     return;
                 }
 
-                if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages))
+                if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || classType.ImplementsGenericType(knownTypes.SagaBase))
                 {
                     if (!classType.HasAttribute(handlerAttribute))
                     {
                         return;
                     }
 
-                    foreach (var location in classType.GetAttributeLocations(handlerAttribute, context.CancellationToken))
-                    {
-                        if (location is not null)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
-                        }
-                    }
-
-                    return;
-                }
-
-                if (classType.ImplementsGenericType(knownTypes.SagaBase) && classType.HasAttribute(handlerAttribute))
-                {
                     foreach (var location in classType.GetAttributeLocations(handlerAttribute, context.CancellationToken))
                     {
                         if (location is not null)
