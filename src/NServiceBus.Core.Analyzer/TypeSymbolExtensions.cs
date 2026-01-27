@@ -40,6 +40,26 @@ static class TypeSymbolExtensions
             return false;
         }
 
+        public bool ImplementsGenericType(INamedTypeSymbol genericType)
+        {
+            if (SymbolEqualityComparer.IncludeNullability.Equals(type.OriginalDefinition, genericType))
+            {
+                return true;
+            }
+
+            for (var baseType = type.BaseType;
+                 baseType is not null;
+                 baseType = baseType.BaseType)
+            {
+                if (SymbolEqualityComparer.IncludeNullability.Equals(baseType.OriginalDefinition, genericType))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public Location GetClassIdentifierLocation(CancellationToken cancellationToken = default)
         {
             foreach (var syntaxRef in type.DeclaringSyntaxReferences)
