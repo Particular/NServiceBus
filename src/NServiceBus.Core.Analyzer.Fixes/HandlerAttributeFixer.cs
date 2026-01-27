@@ -19,7 +19,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
     public class HandlerAttributeFixer : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds =>
-            [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced];
+            [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.HandlerAttributeOnNonHandler];
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -317,7 +317,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 {
                     yield return typeSymbol;
 
-                    foreach (var nestedType in GetNestedTypes(typeSymbol))
+                    foreach (var nestedType in typeSymbol.GetNestedTypes())
                     {
                         yield return nestedType;
                     }
@@ -325,19 +325,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
             }
         }
 
-        static IEnumerable<INamedTypeSymbol> GetNestedTypes(INamedTypeSymbol typeSymbol)
-        {
-            foreach (var nested in typeSymbol.GetTypeMembers())
-            {
-                yield return nested;
-
-                foreach (var child in GetNestedTypes(nested))
-                {
-                    yield return child;
-                }
-            }
-        }
-
-        static readonly string EquivalenceKeyMove = typeof(HandlerAttributeFixer).FullName + ".Move";
+        static readonly string EquivalenceKeyMove = $"{typeof(HandlerAttributeFixer).FullName}.Move";
     }
 }
