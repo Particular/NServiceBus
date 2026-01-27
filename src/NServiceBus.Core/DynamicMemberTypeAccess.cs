@@ -10,6 +10,7 @@ static class DynamicMemberTypeAccess
         | DynamicallyAccessedMemberTypes.PublicConstructors;
 
     public const DynamicallyAccessedMemberTypes Saga = Handler
+                                                       | DynamicallyAccessedMemberTypes.NonPublicConstructors // Needed since we use RuntimeHelpers.GetUninitializedObject
                                                        | DynamicallyAccessedMemberTypes.NonPublicMethods; // we need this since we are calling the protected ConfigureHowToFindSaga
 
     public const DynamicallyAccessedMemberTypes SagaData = DynamicallyAccessedMemberTypes.PublicConstructors
