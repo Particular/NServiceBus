@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMisplaced, HandlerAttributeOnNonHandlerType];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeOnNonHandlerType];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -63,6 +63,51 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 var attributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
+                // Abstract classes can't have the attribute
+                if (classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
+                {
+                    foreach (var location in attributeLocations)
+                    {
+                        if (location is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedImmediate, location, classType.Name));
+                        }
+                    }
+                }
+                // concrete classes that are used as base classes
+                if (!classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
+                {
+                    var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+
+                    if (isUsedAsBase)
+                    {
+                        foreach (var location in attributeLocations)
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+                }
+                // concrete leaf classes without the attribute
+                if (!classType.IsAbstract && attributeLocations.IsDefaultOrEmpty)
+                {
+                    var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+
+                    var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
+                    var isDefinitelyLeaf = classType.IsSealed || !isUsedAsBase || inheritsDirectlyFromObject;
+
+                    if (isDefinitelyLeaf)
+                    {
+                        var location = classType.GetClassIdentifierLocation(context.CancellationToken);
+                        if (location is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissingImmediate, location, classType.Name));
+                        }
+                    }
+                }
+
                 var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
                 handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
@@ -101,6 +146,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
     readonly record struct KnownTypeSpec(INamedTypeSymbol IHandleMessages, INamedTypeSymbol HandlerAttribute, INamedTypeSymbol SagaBase);
 
+    static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
+        id: DiagnosticIds.HandlerAttributeMissing,
+        title: "HandlerAttribute should be applied to message handlers",
+        messageFormat: "The message handler {0} should be marked with HandlerAttribute.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
+
     static readonly DiagnosticDescriptor HandlerAttributeMissing = new(
         id: DiagnosticIds.HandlerAttributeMissing,
         title: "HandlerAttribute should be applied to message handlers",
@@ -109,6 +162,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMisplacedImmediate = new(
+        id: DiagnosticIds.HandlerAttributeMisplaced,
+        title: "HandlerAttribute should be applied to concrete handler classes",
+        messageFormat: "HandlerAttribute is applied to {0}, but should be placed on the concrete handler class (not a base class).",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 
     static readonly DiagnosticDescriptor HandlerAttributeMisplaced = new(
         id: DiagnosticIds.HandlerAttributeMisplaced,
