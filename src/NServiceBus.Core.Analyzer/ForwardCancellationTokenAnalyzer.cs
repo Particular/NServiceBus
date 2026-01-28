@@ -75,7 +75,7 @@
             }
 
             // if method has no cancellable context param
-            if (method.Parameters.FirstOrDefault(param => param.Type.Implements(cancellableContextInterface)) is not IParameterSymbol cancellableContextParam)
+            if (method.Parameters.FirstOrDefault(param => param.Type.ImplementsNonGenericInterface(cancellableContextInterface)) is not IParameterSymbol cancellableContextParam)
             {
                 return;
             }

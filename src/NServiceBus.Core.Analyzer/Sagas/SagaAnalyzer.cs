@@ -60,7 +60,7 @@
             }
 
             // You can't make a red squiggly outside of the node you said you were going to analyze, so we have to analyze Saga/SagaData separately
-            if (classType.Implements(knownTypes.IContainSagaData))
+            if (classType.ImplementsNonGenericInterface(knownTypes.IContainSagaData))
             {
                 AnalyzeSagaDataClass(context, classDeclaration, classType, knownTypes);
             }

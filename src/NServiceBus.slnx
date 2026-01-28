@@ -11,6 +11,7 @@
     <Project Path="NServiceBus.Testing.Fakes/NServiceBus.Testing.Fakes.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="NServiceBus.AcceptanceTests.WithAnalyzers/NServiceBus.AcceptanceTests.WithAnalyzers.csproj" />
     <Project Path="NServiceBus.AcceptanceTests/NServiceBus.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.ContainerTests/NServiceBus.ContainerTests.csproj" />
     <Project Path="NServiceBus.Core.Analyzer.Tests.Roslyn5/NServiceBus.Core.Analyzer.Tests.Roslyn5.csproj" />

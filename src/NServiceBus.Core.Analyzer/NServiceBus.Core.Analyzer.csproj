@@ -24,4 +24,11 @@
     </PropertyGroup>
   </Target>
 
+  <ItemGroup>
+    <!-- Nest Foo.Parser.cs, Foo.Emitter.cs, Foo.Anything.cs under Foo.cs if the parent exists -->
+    <Compile Update="**\*.*.cs">
+      <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '\..*$', '')).cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

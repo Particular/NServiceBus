@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 
-sealed class SourceWriter
+public sealed class SourceWriter
 {
     const char IndentationChar = ' ';
     const int CharsPerIndentation = 4;
@@ -105,7 +105,7 @@ sealed class SourceWriter
             lineLength--;
         }
 
-        ReadOnlySpan<char> next = remainingText.Slice(0, lineLength);
+        ReadOnlySpan<char> next = remainingText[..lineLength];
         remainingText = rest;
         return next;
     }

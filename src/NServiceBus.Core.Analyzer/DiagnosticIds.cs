@@ -27,5 +27,20 @@
         public const string DoNotEnableFeaturesInDefaults = "NSB0019";
         public const string HandlerInjectsMessageSession = "NSB0020";
         public const string AddHandlerOnSagaType = "NSB0021";
+
+        // HandlerAttributeAnalyzer
+        public const string HandlerAttributeMissing = "NSB0022";
+        public const string HandlerAttributeMisplaced = "NSB0023";
+        public const string HandlerAttributeOnNonHandler = "NSB0024";
+
+        // HandlerRegistrationsExtensionsAttributeAnalyzer
+        public const string MultipleHandlerRegistryExtensions = "NSB0025";
+        public const string HandlerRegistryExtensionsMustBePartial = "NSB0026";
+        public const string HandlerRegistryExtensionsEntryPointInvalid = "NSB0027";
+
+        // SagaAttributeAnalyzer
+        public const string SagaAttributeMissing = "NSB0028";
+        public const string SagaAttributeMisplaced = "NSB0029";
+        public const string SagaAttributeOnNonSaga = "NSB0030";
     }
 }
