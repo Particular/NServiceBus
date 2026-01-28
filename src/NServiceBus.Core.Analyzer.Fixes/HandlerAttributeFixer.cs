@@ -25,46 +25,48 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var diagnostic = context.Diagnostics.First();
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-            if (root?.FindNode(context.Span, getInnermostNodeForTie: true) is not { } node)
+            foreach (var diagnostic in context.Diagnostics)
             {
-                return;
-            }
+                if (root?.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } node)
+                {
+                    continue;
+                }
 
-            var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-            if (classDecl is null)
-            {
-                return;
-            }
+                var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+                if (classDecl is null)
+                {
+                    continue;
+                }
 
-            if (diagnostic.Id == DiagnosticIds.HandlerAttributeMissing)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Add HandlerAttribute",
-                        token => AddHandlerAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
-            }
-            else if (diagnostic.Id == DiagnosticIds.HandlerAttributeMisplaced)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Move HandlerAttribute to concrete handlers",
-                        token => MoveHandlerAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
-            }
-            else if (diagnostic.Id == DiagnosticIds.HandlerAttributeOnNonHandler)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Remove HandlerAttribute",
-                        token => RemoveHandlerAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
+                if (diagnostic.Id == DiagnosticIds.HandlerAttributeMissing)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            "Add HandlerAttribute",
+                            token => AddHandlerAttribute(context.Document, classDecl, token),
+                            EquivalenceKeyAdd),
+                        diagnostic);
+                }
+                else if (diagnostic.Id == DiagnosticIds.HandlerAttributeMisplaced)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            "Move HandlerAttribute to concrete handlers",
+                            token => MoveHandlerAttribute(context.Document, classDecl, token),
+                            EquivalenceKeyMove),
+                        diagnostic);
+                }
+                else if (diagnostic.Id == DiagnosticIds.HandlerAttributeOnNonHandler)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            "Remove HandlerAttribute",
+                            token => RemoveHandlerAttribute(context.Document, classDecl, token),
+                            EquivalenceKeyRemove),
+                        diagnostic);
+                }
             }
         }
 
@@ -307,6 +309,8 @@ namespace NServiceBus.Core.Analyzer.Fixes
             return ctor is not null && SymbolEqualityComparer.Default.Equals(ctor.ContainingType, handlerAttributeSymbol);
         }
 
+        static readonly string EquivalenceKeyAdd = $"{typeof(HandlerAttributeFixer).FullName}.Add";
         static readonly string EquivalenceKeyMove = $"{typeof(HandlerAttributeFixer).FullName}.Move";
+        static readonly string EquivalenceKeyRemove = $"{typeof(HandlerAttributeFixer).FullName}.Remove";
     }
 }
