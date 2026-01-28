@@ -21,4 +21,6 @@ static class DynamicMemberTypeAccess
     public const DynamicallyAccessedMemberTypes SagaNotFoundHandler = Handler;
 
     public const DynamicallyAccessedMemberTypes Installer = Handler;
+
+    public const DynamicallyAccessedMemberTypes FeatureStartupTask = Handler;
 }
