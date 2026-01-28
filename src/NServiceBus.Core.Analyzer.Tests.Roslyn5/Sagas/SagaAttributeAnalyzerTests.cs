@@ -139,6 +139,28 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
     }
 
     [Test]
+    public Task ReportsMisplacedAttributeOnHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [[|SagaAttribute|]]
+            class NonSagaSaga : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+            
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.SagaAttributeOnNonSaga, source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnAbstractBase()
     {
         var source =
