@@ -52,7 +52,8 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+        // we get it twice because in some cases we only know things at compilation end
+        return Assert([DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMissing], source);
     }
 
     [Test]
@@ -101,6 +102,33 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             """;
 
         return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportWhenAttributePresentOnBaseClass()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [|[HandlerAttribute]|]
+            class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class ConcreteHandler : BaseHandler
+            {
+                public override Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeMisplaced, source);
     }
 
     [Test]
@@ -155,7 +183,8 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+        // we get it twice because in some cases we only know things at compilation end
+        return Assert([DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMissing], source);
     }
 
     [Test]
