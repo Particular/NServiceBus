@@ -52,6 +52,38 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
     }
 
     [Test]
+    public Task PreservesOtherAttributes()
+    {
+        var original =
+            """
+            using System.Diagnostics;
+            using NServiceBus;
+
+            [StackTraceHiddenAttribute]
+            [NServiceBus.SagaAttribute, DebuggerNonUserCodeAttribute]
+            [DebuggerStepThroughAttribute]
+            class NonHandler
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Diagnostics;
+            using NServiceBus;
+
+            [StackTraceHiddenAttribute]
+            [DebuggerNonUserCodeAttribute]
+            [DebuggerStepThroughAttribute]
+            class NonHandler
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task AddsSagaAttributeToLeafSaga()
     {
         var original =
