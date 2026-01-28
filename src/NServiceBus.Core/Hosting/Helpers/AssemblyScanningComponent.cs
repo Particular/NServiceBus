@@ -24,7 +24,7 @@ class AssemblyScanningComponent
 
         if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
         {
-            throw new Exception("The assembly scanning is not supported on this system.");
+            throw new Exception("Assembly scanning is not supported on this system. Please disable it and add manual registrations for handler, sagas, etc.");
         }
 
         var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
