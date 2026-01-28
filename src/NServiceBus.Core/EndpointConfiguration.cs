@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
@@ -103,6 +104,17 @@ public class EndpointConfiguration : ExposeSettings
     {
         Settings.SetDefault(conventionsBuilder.Conventions);
 
+        InvokeScannedInitializers(availableTypes);
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Checks if dynamic code is supported")]
+    void InvokeScannedInitializers(IList<Type> availableTypes)
+    {
+        if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        {
+            return;
+        }
+
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
 #pragma warning disable CS0618 // Type or member is obsolete
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));
@@ -124,25 +136,20 @@ public class EndpointConfiguration : ExposeSettings
         }
     }
 
-    static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class =>
-        ForAllTypes<T>(types, t =>
-        {
-            if (!HasDefaultConstructor(t))
-            {
-                throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
-            }
-
-            var instanceToInvoke = (T)Activator.CreateInstance(t);
-            action(instanceToInvoke);
-        });
-
-    static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
-
-    static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
+    [RequiresUnreferencedCode("INeedInitialization discovery using assembly scanning might require access to unreferenced code")]
+    static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
     {
         foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
         {
-            action(type);
+            if (!HasDefaultConstructor(type))
+            {
+                throw new Exception($"Unable to create the type '{type.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
+            }
+
+            var instanceToInvoke = (T)Activator.CreateInstance(type);
+            action(instanceToInvoke);
         }
+
+        static bool HasDefaultConstructor([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type) => type.GetConstructor(Type.EmptyTypes) != null;
     }
 }
