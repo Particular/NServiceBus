@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Handlers;
 
+using System.Threading;
 using System.Threading.Tasks;
 using EndpointTemplates;
 using NServiceBus;
@@ -15,7 +16,7 @@ public class When_registering_handler_with_complex_hierarchy : NServiceBusAccept
             .WithEndpoint<EndpointUsingAddHandler>(b =>
                 b.CustomRegistrations(approach,
                         static config => config.AddHandler<EndpointUsingAddHandler.ComplexMessageHandler>(),
-                        static registry => registry.Handlers.AddWhen_registering_handler_with_complex_hierarchyEndpointUsingAddHandlerComplexMessageHandler())
+                        static registry => registry.Handlers.AddWhen_registering_handler_with_complex_hierarchy__EndpointUsingAddHandler__ComplexMessageHandler())
                     .When(async (session, _) => await session.SendLocal(new ComplexMessage())))
             .Run();
 

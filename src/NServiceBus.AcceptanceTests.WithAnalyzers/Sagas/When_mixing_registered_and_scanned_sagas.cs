@@ -17,7 +17,7 @@ public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTes
         var context = await Scenario.Define<Context>()
             .WithEndpoint<HybridSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<HybridSagaEndpoint.ManuallyRegisteredOrderSaga>(),
-                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagasHybridSagaEndpointManuallyRegisteredOrderSaga())
+                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagas__HybridSagaEndpoint__ManuallyRegisteredOrderSaga())
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = manualId }))
                 .When(session => session.SendLocal(new StartScannedSaga { PaymentId = scannedId })))
             .Run();
@@ -39,7 +39,7 @@ public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTes
         var context = await Scenario.Define<Context>()
             .WithEndpoint<DuplicateRegistrationEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<DuplicateRegistrationEndpoint.DuplicateRegistrationSaga>(),
-                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagasDuplicateRegistrationEndpointDuplicateRegistrationSaga())
+                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagas__DuplicateRegistrationEndpoint__DuplicateRegistrationSaga())
                 .When(session => session.SendLocal(new StartDuplicateSaga { OrderId = orderId })))
             .Run();
 

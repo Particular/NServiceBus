@@ -16,7 +16,7 @@ public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanc
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<MultiHandlerSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<MultiHandlerSagaEndpoint.MultiMessageSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_multiple_handlersMultiHandlerSagaEndpointMultiMessageSaga())
+                    static registry => registry.Sagas.AddWhen_registering_saga_with_multiple_handlers__MultiHandlerSagaEndpoint__MultiMessageSaga())
                 .When(session => session.SendLocal(new StartOrder { OrderId = orderId }))
                 .When(c => c.OrderStarted, session => session.SendLocal(new UpdateOrder { OrderId = orderId }))
                 .When(c => c.OrderUpdated, session => session.SendLocal(new CompleteOrder { OrderId = orderId })))

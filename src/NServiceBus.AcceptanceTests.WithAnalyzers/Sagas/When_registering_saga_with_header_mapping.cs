@@ -16,7 +16,7 @@ public class When_registering_saga_with_header_mapping : NServiceBusAcceptanceTe
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<HeaderMappingSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<HeaderMappingSagaEndpoint.HeaderCorrelationSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_header_mappingHeaderMappingSagaEndpointHeaderCorrelationSaga())
+                    static registry => registry.Sagas.AddWhen_registering_saga_with_header_mapping__HeaderMappingSagaEndpoint__HeaderCorrelationSaga())
                 .When(async session =>
                 {
                     var options = new SendOptions();

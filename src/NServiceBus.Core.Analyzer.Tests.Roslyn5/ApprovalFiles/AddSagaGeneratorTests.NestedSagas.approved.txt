@@ -19,14 +19,14 @@ namespace NServiceBus
                 {
                     partial void AddAllSagasCore()
                     {
-                        AddAnotherOuterClassInnerClassOrderShippingPolicy();
-                        AddOuterClassOrderShippingPolicy();
+                        AddAnotherOuterClass__InnerClass__OrderShippingPolicy();
+                        AddOuterClass__OrderShippingPolicy();
                     }
 
                     /// <summary>
                     /// Registers the <see cref="global::Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippingPolicy"/> saga with the endpoint configuration.
                     /// </summary>
-                    public void AddAnotherOuterClassInnerClassOrderShippingPolicy()
+                    public void AddAnotherOuterClass__InnerClass__OrderShippingPolicy()
                     {
                         var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
                            .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
@@ -57,7 +57,7 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers the <see cref="global::Orders.Shipping.OuterClass.OrderShippingPolicy"/> saga with the endpoint configuration.
                     /// </summary>
-                    public void AddOuterClassOrderShippingPolicy()
+                    public void AddOuterClass__OrderShippingPolicy()
                     {
                         var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
                            .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
@@ -275,7 +275,7 @@ namespace NServiceBus
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
                     /// <remarks>
-                    /// Includes sagas in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippingPolicy"/>, <see cref="AddOuterClassOrderShippingPolicy"/>.
+                    /// Includes sagas in this namespace: <see cref="AddAnotherOuterClass__InnerClass__OrderShippingPolicy"/>, <see cref="AddOuterClass__OrderShippingPolicy"/>.
                     /// </remarks>
                     public void AddAll()
                     {
@@ -295,7 +295,7 @@ namespace NServiceBus
                     /// Registers all sagas for this namespace segment and its child namespaces.
                     /// </summary>
                     /// <remarks>
-                    /// Includes sagas in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippingPolicy"/>, <see cref="AddOuterClassOrderShippingPolicy"/>.
+                    /// Includes sagas in this namespace: <see cref="AddAnotherOuterClass__InnerClass__OrderShippingPolicy"/>, <see cref="AddOuterClass__OrderShippingPolicy"/>.
                     /// </remarks>
                     public void AddAllSagas()
                     {

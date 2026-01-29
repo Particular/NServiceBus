@@ -39,7 +39,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
             var fullyQualifiedName = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var displayParts = namedTypeSymbol.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
-            var handlerOrSagaName = string.Join(string.Empty, displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
+            var handlerOrSagaName = string.Join("__", displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
             var handlerOrSagaNamespace = GetNamespace(displayParts);
             var assemblyName = namedTypeSymbol.ContainingAssembly?.Name ?? "Assembly";
             return new BaseSpec(Name: handlerOrSagaName, Namespace: handlerOrSagaNamespace, AssemblyName: assemblyName, FullyQualifiedName: fullyQualifiedName, Kind: kind);

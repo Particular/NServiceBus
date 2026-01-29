@@ -16,7 +16,7 @@ public class When_registering_saga_with_timeouts : NServiceBusAcceptanceTest
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<ManualTimeoutSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<ManualTimeoutSagaEndpoint.TimeoutHandlingSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_timeoutsManualTimeoutSagaEndpointTimeoutHandlingSaga())
+                    static registry => registry.Sagas.AddWhen_registering_saga_with_timeouts__ManualTimeoutSagaEndpoint__TimeoutHandlingSaga())
                 .When(session => session.SendLocal(new StartSagaWithTimeout { OrderId = id })))
             .Run();
 

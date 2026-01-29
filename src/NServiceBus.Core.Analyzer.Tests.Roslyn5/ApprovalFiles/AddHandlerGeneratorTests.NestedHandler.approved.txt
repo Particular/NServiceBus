@@ -19,14 +19,14 @@ namespace NServiceBus
                 {
                     partial void AddAllHandlersCore()
                     {
-                        AddAnotherOuterClassInnerClassOrderShippedHandler();
-                        AddOuterClassOrderShippedHandler();
+                        AddAnotherOuterClass__InnerClass__OrderShippedHandler();
+                        AddOuterClass__OrderShippedHandler();
                     }
 
                     /// <summary>
                     /// Registers the <see cref="global::Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippedHandler"/> handler with the endpoint configuration.
                     /// </summary>
-                    public void AddAnotherOuterClassInnerClassOrderShippedHandler()
+                    public void AddAnotherOuterClass__InnerClass__OrderShippedHandler()
                     {
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
                         var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
@@ -38,7 +38,7 @@ namespace NServiceBus
                     /// <summary>
                     /// Registers the <see cref="global::Orders.Shipping.OuterClass.OrderShippedHandler"/> handler with the endpoint configuration.
                     /// </summary>
-                    public void AddOuterClassOrderShippedHandler()
+                    public void AddOuterClass__OrderShippedHandler()
                     {
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
                         var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
@@ -193,7 +193,7 @@ namespace NServiceBus
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                     /// </summary>
                     /// <remarks>
-                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippedHandler"/>, <see cref="AddOuterClassOrderShippedHandler"/>.
+                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClass__InnerClass__OrderShippedHandler"/>, <see cref="AddOuterClass__OrderShippedHandler"/>.
                     /// </remarks>
                     public void AddAll()
                     {
@@ -205,7 +205,7 @@ namespace NServiceBus
                     /// Registers all handlers for this namespace segment and its child namespaces.
                     /// </summary>
                     /// <remarks>
-                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClassInnerClassOrderShippedHandler"/>, <see cref="AddOuterClassOrderShippedHandler"/>.
+                    /// Includes handlers in this namespace: <see cref="AddAnotherOuterClass__InnerClass__OrderShippedHandler"/>, <see cref="AddOuterClass__OrderShippedHandler"/>.
                     /// </remarks>
                     public void AddAllHandlers()
                     {

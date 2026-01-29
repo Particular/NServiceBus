@@ -16,7 +16,7 @@ public class When_registering_saga : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ManualSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<ManualSagaEndpoint.ManuallyRegisteredSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_sagaManualSagaEndpointManuallyRegisteredSaga())
+                    static registry => registry.Sagas.AddWhen_registering_saga__ManualSagaEndpoint__ManuallyRegisteredSaga())
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = id })))
             .Run();
 

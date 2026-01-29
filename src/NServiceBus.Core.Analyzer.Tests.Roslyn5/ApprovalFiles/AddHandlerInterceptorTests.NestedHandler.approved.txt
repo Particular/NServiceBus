@@ -30,7 +30,7 @@ namespace NServiceBus
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
-            public void AddHandler_AnotherOuterClassInnerClassOrderShippedHandler_6c706c3ba6c39d8e()
+            public void AddHandler_AnotherOuterClass__InnerClass__OrderShippedHandler_6c706c3ba6c39d8e()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
@@ -41,7 +41,7 @@ namespace NServiceBus
             }
 
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
-            public void AddHandler_OuterClassOrderShippedHandler_19b4f9d8240759ab()
+            public void AddHandler_OuterClass__OrderShippedHandler_19b4f9d8240759ab()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
