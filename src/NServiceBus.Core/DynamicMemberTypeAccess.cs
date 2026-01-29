@@ -22,5 +22,7 @@ static class DynamicMemberTypeAccess
 
     public const DynamicallyAccessedMemberTypes Installer = Handler;
 
+    public const DynamicallyAccessedMemberTypes Feature = Handler
+                                                          | DynamicallyAccessedMemberTypes.NonPublicConstructors;
     public const DynamicallyAccessedMemberTypes FeatureStartupTask = Handler;
 }
