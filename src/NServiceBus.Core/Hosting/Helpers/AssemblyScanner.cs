@@ -16,6 +16,7 @@ using Logging;
 /// <summary>
 /// Helpers for assembly scanning operations.
 /// </summary>
+[RequiresUnreferencedCode("Assembly scanning require access to unreferenced code")]
 public class AssemblyScanner
 {
     /// <summary>

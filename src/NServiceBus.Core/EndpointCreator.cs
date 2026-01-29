@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Features;
 using MessageInterfaces;
@@ -41,7 +42,7 @@ class EndpointCreator
 
         var installerSettings = settings.Get<InstallerComponent.Settings>();
 
-        installerSettings.AddScannedInstallers(availableTypes);
+        DiscoverInstallers(installerSettings, availableTypes);
 
         var installerComponent = new InstallerComponent(installerSettings);
 
@@ -63,13 +64,16 @@ class EndpointCreator
 
             settings.Set("UsedToCreateEndpoint", true);
         }
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);
     }
 
     void Configure()
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
 
-        receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+        DiscoverHandlers(receiveSettings, hostingConfiguration.AvailableTypes);
 
         ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
@@ -148,6 +152,9 @@ class EndpointCreator
         _ = hostingConfiguration.Services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
@@ -156,7 +163,7 @@ class EndpointCreator
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
         messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
-        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes());
+        messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
@@ -173,10 +180,7 @@ class EndpointCreator
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-        {
-            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
-        });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
 
         return new StartableEndpoint(settings,
             featureComponent,
@@ -198,9 +202,11 @@ class EndpointCreator
     SendComponent sendComponent;
     TransportSeam transportSeam;
     HostingComponent hostingComponent;
+    EnvelopeComponent envelopeComponent;
 
     readonly SettingsHolder settings;
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
-    EnvelopeComponent envelopeComponent;
+
+    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }
