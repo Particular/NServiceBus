@@ -3,8 +3,8 @@ using NUnit.Framework;
 
 Console.WriteLine("Starting AOT tests");
 
-ShouldThrowIfAssemblyScanningEnabled();
-await ShouldStartEndpoint().ConfigureAwait(false);
+RunTest(ShouldThrowIfAssemblyScanningEnabled);
+await RunTestAsync(ShouldStartEndpoint).ConfigureAwait(false);
 
 Console.WriteLine("AOT tests complete");
 
@@ -32,4 +32,18 @@ async Task ShouldStartEndpoint()
 
     var endpointInstance = await Endpoint.Start(endpointConfiguration).ConfigureAwait(false);
     await endpointInstance.Stop().ConfigureAwait(false);
+}
+
+void RunTest(Action test)
+{
+    Console.Write($"Running {test.Method.Name}");
+    test();
+    Console.WriteLine($"- success");
+}
+
+async Task RunTestAsync(Func<Task> test)
+{
+    Console.Write($"Running {test.Method.Name}");
+    await test().ConfigureAwait(false);
+    Console.WriteLine($"- success");
 }
