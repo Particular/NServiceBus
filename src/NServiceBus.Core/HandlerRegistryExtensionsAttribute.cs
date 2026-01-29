@@ -35,6 +35,8 @@ public sealed class HandlerRegistryExtensionsAttribute : Attribute
     /// ^(.*)Policy$=&gt;Add$1Policy
     /// OrderShippingPolicy -&gt; AddOrderShippingPolicy
     /// </code>
+    /// The patterns are applied in the order they are specified, and the first matching pattern is used. If no patterns match, a default naming convention is used.
+    /// The more complex the patterns are the more time the source generator will take to execute.
     /// </remarks>
     public string[]? RegistrationMethodNamePatterns { get; init; }
 }
