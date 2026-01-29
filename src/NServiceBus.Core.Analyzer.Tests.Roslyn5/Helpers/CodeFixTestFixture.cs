@@ -19,7 +19,7 @@ public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixt
         var originalCodeFiles = SplitMarkupCodeIntoFiles(original);
         var expectedCodeFiles = SplitMarkupCodeIntoFiles(expected);
 
-        var actual = await Fix(originalCodeFiles, fixMustCompile, cancellationToken);
+        var actual = await Fix(originalCodeFiles, fixMustCompile, cancellationToken: cancellationToken);
 
         // normalize line endings, just in case
         for (int i = 0; i < originalCodeFiles.Length; i++)
@@ -31,14 +31,15 @@ public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixt
         NUnit.Framework.Assert.That(actual, Is.EqualTo(expectedCodeFiles));
     }
 
-    async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IEnumerable<Diagnostic> originalCompilerDiagnostics = null)
+    async Task<string[]> Fix(string[] codeFiles, bool fixMustCompile, CancellationToken cancellationToken, IReadOnlyCollection<Diagnostic> originalCompilerDiagnostics = null)
     {
         var project = CreateProject(codeFiles);
         await WriteCode(project);
 
         var compilerDiagnostics = (await Task.WhenAll(project.Documents
             .Select(doc => doc.GetCompilerDiagnostics(cancellationToken))))
-            .SelectMany(diagnostics => diagnostics);
+            .SelectMany(diagnostics => diagnostics)
+            .ToArray();
         WriteCompilerDiagnostics(compilerDiagnostics);
 
         if (originalCompilerDiagnostics == null)
@@ -69,7 +70,7 @@ public abstract class CodeFixTestFixture<TAnalyzer, TCodeFix> : AnalyzerTestFixt
             return codeFiles;
         }
 
-        if (VerboseLogging)
+        if (AnalyzerTestFixtureState.VerboseLogging)
         {
             Console.WriteLine("Applying code fix actions...");
         }

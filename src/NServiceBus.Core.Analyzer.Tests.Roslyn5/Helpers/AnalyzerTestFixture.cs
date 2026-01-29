@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,10 +12,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using NServiceBus.UniformSession;
 using NUnit.Framework;
 
-public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer, new()
+public partial class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer, new()
 {
     protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp14;
 
@@ -57,6 +55,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
 
         var actualSpansAndIds = analyzerDiagnostics
             .Select(diagnostic => (diagnostic.Location.SourceTree.FilePath, diagnostic.Location.SourceSpan, diagnostic.Id))
+            .Distinct() // in case the analyzer reports the same diagnostic multiple times for the same location. This is possible when reporting at the compilation end too.
             .ToList();
 
         NUnit.Framework.Assert.That(actualSpansAndIds, Is.EqualTo(expectedSpansAndIds).AsCollection);
@@ -64,7 +63,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
 
     protected static async Task WriteCode(Project project)
     {
-        if (!VerboseLogging)
+        if (!AnalyzerTestFixtureState.VerboseLogging)
         {
             return;
         }
@@ -91,7 +90,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
             .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithSpecificDiagnosticOptions(DiagnosticOptions))
             .WithParseOptions(new CSharpParseOptions(AnalyzerLanguageVersion))
-            .AddMetadataReferences(ProjectReferences);
+            .AddMetadataReferences(AnalyzerTestFixtureState.ProjectReferences);
 
         for (int i = 0; i < code.Length; i++)
         {
@@ -101,59 +100,49 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
         return project;
     }
 
-    static AnalyzerTestFixture() => ProjectReferences =
-    [
-        MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(System.Linq.Expressions.Expression).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
-        MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
-        MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
-        MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
-    ];
-
-    static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
-
-    static readonly Regex DocumentSplittingRegex = new Regex("^-{5,}.*", RegexOptions.Compiled | RegexOptions.Multiline);
+    [GeneratedRegex("^-{5,}.*", RegexOptions.Multiline)]
+    private static partial Regex DocumentSplittingRegex();
 
     protected static void WriteCompilerDiagnostics(IEnumerable<Diagnostic> diagnostics)
     {
-        if (!VerboseLogging)
+        if (!AnalyzerTestFixtureState.VerboseLogging)
         {
             return;
         }
 
         Console.WriteLine("Compiler diagnostics:");
 
-        foreach (var diagnostic in diagnostics)
-        {
-            Console.WriteLine($"  {diagnostic}");
-        }
+        LogAnalyzerDiagnostics(diagnostics);
     }
 
     protected static void WriteAnalyzerDiagnostics(IEnumerable<Diagnostic> diagnostics)
     {
-        if (!VerboseLogging)
+        if (!AnalyzerTestFixtureState.VerboseLogging)
         {
             return;
         }
 
         Console.WriteLine("Analyzer diagnostics:");
 
-        foreach (var diagnostic in diagnostics)
+        LogAnalyzerDiagnostics(diagnostics);
+    }
+
+    static void LogAnalyzerDiagnostics(IEnumerable<Diagnostic> diagnostics)
+    {
+        foreach (var byTags in diagnostics.GroupBy(d => d.Descriptor.CustomTags))
         {
-            Console.WriteLine($"  {diagnostic}");
+            var tags = string.Join(", ", byTags.Key);
+            Console.WriteLine($"  Tags: {tags}");
+            foreach (var diagnostic in byTags)
+            {
+                Console.WriteLine($"    {diagnostic}");
+            }
         }
     }
 
-    protected static string[] SplitMarkupCodeIntoFiles(string markupCode)
-    {
-        return DocumentSplittingRegex.Split(markupCode)
-            .Where(docCode => !string.IsNullOrWhiteSpace(docCode))
-            .ToArray();
-    }
+    protected static string[] SplitMarkupCodeIntoFiles(string markupCode) =>
+        [.. DocumentSplittingRegex().Split(markupCode)
+            .Where(docCode => !string.IsNullOrWhiteSpace(docCode))];
 
     static (string[] code, List<(string file, TextSpan span)>) Parse(string markupCode)
     {
@@ -176,7 +165,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
 
             while (remainingCode.Length > 0)
             {
-                var beforeAndAfterOpening = remainingCode.Split(openingSeparator, 2, StringSplitOptions.None);
+                var beforeAndAfterOpening = remainingCode.Split(AnalyzerTestFixtureState.OpeningSeparator, 2, StringSplitOptions.None);
 
                 if (beforeAndAfterOpening.Length == 1)
                 {
@@ -184,7 +173,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
                     break;
                 }
 
-                var midAndAfterClosing = beforeAndAfterOpening[1].Split(closingSeparator, 2, StringSplitOptions.None);
+                var midAndAfterClosing = beforeAndAfterOpening[1].Split(AnalyzerTestFixtureState.ClosingSeparator, 2, StringSplitOptions.None);
 
                 if (midAndAfterClosing.Length == 1)
                 {
@@ -205,10 +194,4 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
 
         return (documents, markupSpans);
     }
-
-    protected static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true"
-                                                    || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
-
-    static readonly string[] openingSeparator = ["[|"];
-    static readonly string[] closingSeparator = ["|]"];
 }
