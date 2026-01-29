@@ -104,17 +104,12 @@ public class EndpointConfiguration : ExposeSettings
     {
         Settings.SetDefault(conventionsBuilder.Conventions);
 
-        InvokeScannedInitializers(availableTypes);
+        InvokeDiscoveredInitializers(availableTypes);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Checks if dynamic code is supported")]
-    void InvokeScannedInitializers(IList<Type> availableTypes)
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = EndpointCreator.TrimmingSuppressJustification)]
+    void InvokeDiscoveredInitializers(IList<Type> availableTypes)
     {
-        if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
-        {
-            return;
-        }
-
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
 #pragma warning disable CS0618 // Type or member is obsolete
         ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(availableTypes, t => t.Run(Settings));

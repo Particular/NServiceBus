@@ -214,7 +214,5 @@ class EndpointCreator
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
 
-#pragma warning disable IDE0051
-    const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
-#pragma warning restore IDE0051
+    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }
