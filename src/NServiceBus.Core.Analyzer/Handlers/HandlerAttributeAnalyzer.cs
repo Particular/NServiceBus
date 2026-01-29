@@ -75,7 +75,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
                 }
                 // concrete classes that are used as base classes
-                if (!classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
+                else if (!classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
                 {
                     var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
 
@@ -91,7 +91,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
                 }
                 // concrete leaf classes without the attribute
-                if (!classType.IsAbstract && attributeLocations.IsDefaultOrEmpty)
+                else if (!classType.IsAbstract && attributeLocations.IsDefaultOrEmpty)
                 {
                     var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
 
@@ -109,7 +109,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
-                handlerTypes.TryAdd(classType.OriginalDefinition, info);
+                _ = handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
             compilationContext.RegisterCompilationEndAction(context =>
