@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class SagaAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [SagaAttributeMissing, SagaAttributeMisplaced, SagaAttributeOnNonSagaType];
+        [SagaAttributeMissing, SagaAttributeMissingImmediate, SagaAttributeMisplaced, SagaAttributeMisplacedImmediate, SagaAttributeOnNonSagaType];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -62,8 +62,53 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 var attributeLocations = classType.GetAttributeLocations(knownTypes.SagaAttribute, context.CancellationToken);
+                // Abstract classes can't have the attribute
+                if (classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
+                {
+                    foreach (var location in attributeLocations)
+                    {
+                        if (location is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SagaAttributeMisplacedImmediate, location, classType.Name));
+                        }
+                    }
+                }
+                // concrete classes that are used as base classes
+                else if (!classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
+                {
+                    var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+
+                    if (isUsedAsBase)
+                    {
+                        foreach (var location in attributeLocations)
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(SagaAttributeMisplacedImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+                }
+                // concrete leaf classes without the attribute
+                else if (!classType.IsAbstract && attributeLocations.IsDefaultOrEmpty)
+                {
+                    var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+
+                    var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
+                    var isDefinitelyLeaf = classType.IsSealed || !isUsedAsBase || inheritsDirectlyFromObject;
+
+                    if (isDefinitelyLeaf)
+                    {
+                        var location = classType.GetClassIdentifierLocation(context.CancellationToken);
+                        if (location is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SagaAttributeMissingImmediate, location, classType.Name));
+                        }
+                    }
+                }
+
                 var info = new SagaTypeSpec(classType.IsAbstract, attributeLocations);
-                sagaTypes.TryAdd(classType.OriginalDefinition, info);
+                _ = sagaTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
             compilationContext.RegisterCompilationEndAction(context =>
@@ -71,12 +116,12 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
                 foreach (var saga in sagaTypes)
                 {
                     var type = saga.Key;
-                    var handlerType = saga.Value;
-                    var isLeaf = !handlerType.IsAbstract && !baseTypes.ContainsKey(type);
+                    var sagaType = saga.Value;
+                    var isLeaf = !sagaType.IsAbstract && !baseTypes.ContainsKey(type);
 
                     if (isLeaf)
                     {
-                        if (handlerType.AttributeLocations.IsDefaultOrEmpty)
+                        if (sagaType.AttributeLocations.IsDefaultOrEmpty)
                         {
                             var location = type.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
@@ -88,7 +133,7 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
                         continue;
                     }
 
-                    foreach (var location in handlerType.AttributeLocations)
+                    foreach (var location in sagaType.AttributeLocations)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(SagaAttributeMisplaced, location, type.Name));
                     }
@@ -109,6 +154,14 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
 
+    static readonly DiagnosticDescriptor SagaAttributeMissingImmediate = new(
+        id: DiagnosticIds.SagaAttributeMissing,
+        title: "SagaAttribute should be applied to sagas",
+        messageFormat: "The saga {0} should be marked with SagaAttribute.",
+        category: SagaDiagnostics.DiagnosticCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
+
     static readonly DiagnosticDescriptor SagaAttributeMisplaced = new(
         id: DiagnosticIds.SagaAttributeMisplaced,
         title: "SagaAttribute should be applied to concrete saga classes",
@@ -117,6 +170,14 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor SagaAttributeMisplacedImmediate = new(
+        id: DiagnosticIds.SagaAttributeMisplaced,
+        title: "SagaAttribute should be applied to concrete saga classes",
+        messageFormat: "SagaAttribute is applied to {0}, but should be placed on the concrete saga class (not a base class).",
+        category: SagaDiagnostics.DiagnosticCategory,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 
     static readonly DiagnosticDescriptor SagaAttributeOnNonSagaType = new(
         id: DiagnosticIds.SagaAttributeOnNonSaga,

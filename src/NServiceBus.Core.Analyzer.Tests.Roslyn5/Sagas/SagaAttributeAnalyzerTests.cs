@@ -34,6 +34,36 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
     }
 
     [Test]
+    public Task ReportsMissingAttributeOnNestedLeafSaga()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            public abstract class BaseShippingSaga : Saga<OrderShippingPolicyData>
+            {
+            }
+            
+            public class OuterClass
+            {
+                public class [|OrderShippingPolicy|] : BaseShippingSaga
+                {
+                    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                    {
+                    }
+                }
+            }
+
+            public class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            """;
+
+        return Assert(DiagnosticIds.SagaAttributeMissing, source);
+    }
+
+    [Test]
     public Task DoesNotReportWhenAttributePresent()
     {
         var source =
@@ -58,6 +88,62 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
     }
 
     [Test]
+    public Task DoesNotReportWhenAttributePresentButHasBaseClass()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            public abstract class SagaBase : Saga<OrderShippingPolicyData>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                {
+                }
+            }
+
+            [SagaAttribute]
+            public class OrderShippingPolicy : SagaBase
+            {
+            }
+
+            public class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsWhenAttributePresentOnBaseClass()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            [[|SagaAttribute|]]
+            public class BaseShippingSaga : Saga<OrderShippingPolicyData>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                {
+                }
+            }
+
+            public class OrderShippingPolicy : BaseShippingSaga
+            {
+            }
+
+            public class OrderShippingPolicyData : ContainSagaData
+            {
+                public string OrderId { get; set; }
+            }
+            """;
+
+        return Assert(expectedDiagnosticIds: [DiagnosticIds.SagaAttributeMisplaced], source, ignoreDiagnosticIds: [DiagnosticIds.SagaAttributeMissing]);
+    }
+
+    [Test]
     public Task ReportsMissingAttributeOnDerivedLeafSaga()
     {
         var source =
@@ -72,36 +158,6 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                 {
-                }
-            }
-
-            public class OrderShippingPolicyData : ContainSagaData
-            {
-                public string OrderId { get; set; }
-            }
-            """;
-
-        return Assert(DiagnosticIds.SagaAttributeMissing, source);
-    }
-
-    [Test]
-    public Task ReportsMissingAttributeOnNestedLeafSaga()
-    {
-        var source =
-            """
-            using NServiceBus;
-
-            public abstract class BaseShippingSaga : Saga<OrderShippingPolicyData>
-            {
-            }
-            
-            public class OuterClass
-            {
-                public class [|OrderShippingPolicy|] : BaseShippingSaga
-                {
-                    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
-                    {
-                    }
                 }
             }
 
