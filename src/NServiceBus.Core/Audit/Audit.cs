@@ -10,18 +10,24 @@ using Transport;
 /// </summary>
 public sealed class Audit : Feature
 {
+    internal const string AddressEnvironmentVariableKey = "NSERVICEBUS__AUDIT__ADDRESS";
+    internal const string IsDisabledEnvironmentVariableKey = "NSERVICEBUS__AUDIT__DISABLED";
+
     /// <summary>
     /// Creates a new instance of the audit feature.
     /// </summary>
     public Audit()
     {
+        Prerequisite(context => context.Settings.GetOrDefault<bool>("Audit.Enabled"), $"Auditing was disabled via the `{IsDisabledEnvironmentVariableKey}` environment variable setting");
+        Prerequisite(context => !string.IsNullOrEmpty(context.Settings.GetOrDefault<AuditConfigReader.Result>()?.Address), "No configured audit queue was found");
+        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Auditing is only relevant for endpoints receiving messages.");
         Defaults(settings =>
         {
-            settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));
+            if (settings.HasExplicitValue("Audit.Address"))
+            {
+                settings.SetDefault(new AuditConfigReader.Result(settings.Get<string>("Audit.Address"), null));
+            }
         });
-        Prerequisite(config => config.Settings.GetOrDefault<AuditConfigReader.Result>() != null, "No configured audit queue was found");
-        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
-            "Auditing is only relevant for endpoints receiving messages.");
     }
 
 
