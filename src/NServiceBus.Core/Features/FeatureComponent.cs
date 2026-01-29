@@ -177,6 +177,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
             return state == FeatureState.Disabled;
         }
 
+        [RequiresUnreferencedCode("Feature discovery using assembly scanning might require access to unreferenced code")]
         public void AddScannedTypes(IEnumerable<Type> availableTypes)
         {
             foreach (var featureType in availableTypes.Where(IsFeature))

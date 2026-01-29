@@ -114,6 +114,7 @@ public abstract partial class Feature
     /// This also causes this feature to be activated after the other features.
     /// </summary>
     /// <param name="features">Features list that this feature require at least one of to be activated.</param>
+    [RequiresUnreferencedCode("Feature dependency using types might require access to unreferenced code")]
     protected void DependsOnAtLeastOne(params Type[] features)
     {
         ArgumentNullException.ThrowIfNull(features);

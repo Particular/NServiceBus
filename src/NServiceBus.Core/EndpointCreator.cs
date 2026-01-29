@@ -85,7 +85,7 @@ class EndpointCreator
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-        featureSettings.AddScannedTypes(hostingConfiguration.AvailableTypes);
+        DiscoverFeatures(hostingConfiguration.AvailableTypes, featureSettings);
 
         transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
@@ -161,6 +161,9 @@ class EndpointCreator
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
