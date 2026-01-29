@@ -67,7 +67,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
         var source = $$"""
                      using NServiceBus;
 
-                     [HandlerRegistryExtensions([|"{{notValid}}"|])]
+                     [HandlerRegistryExtensions(EntryPointName = [|"{{notValid}}"|])]
                      public static partial class InvalidEntryPointHandlerRegistryExtensions
                      {
                      }
@@ -85,12 +85,72 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
         var source = $$"""
                        using NServiceBus;
 
-                       [HandlerRegistryExtensions([|"{{valid}}"|])]
+                       [HandlerRegistryExtensions(EntryPointName = [|"{{valid}}"|])]
                        public static partial class InvalidEntryPointHandlerRegistryExtensions
                        {
                        }
                        """;
 
         return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportWhenPatternIsProvided()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions(RegistrationMethodNamePatterns = ["Handler$=>Register"])]
+                     public static partial class CustomHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsWhenEntryPointNameIsInvalidWithPattern()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions(EntryPointName = [|"Not A Valid Identifier"|], RegistrationMethodNamePatterns = ["Handler$=>Register"])]
+                     public static partial class InvalidEntryPointHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+    }
+
+    [Test]
+    public Task ReportsWhenPatternFormatIsInvalid()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions(RegistrationMethodNamePatterns = [[|"NoArrow"|]])]
+                     public static partial class InvalidPatternHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsPatternFormatInvalid, source);
+    }
+
+    [Test]
+    public Task ReportsWhenPatternRegexIsInvalid()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryExtensions(RegistrationMethodNamePatterns = [[|"[=>Register"|]])]
+                     public static partial class InvalidRegexHandlerRegistryExtensions
+                     {
+                     }
+                     """;
+
+        return Assert(DiagnosticIds.HandlerRegistryExtensionsPatternRegexInvalid, source);
     }
 }

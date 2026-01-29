@@ -42,5 +42,9 @@
         public const string SagaAttributeMissing = "NSB0028";
         public const string SagaAttributeMisplaced = "NSB0029";
         public const string SagaAttributeOnNonSaga = "NSB0030";
+
+        // HandlerRegistryExtensionsAttributeAnalyzer
+        public const string HandlerRegistryExtensionsPatternFormatInvalid = "NSB0031";
+        public const string HandlerRegistryExtensionsPatternRegexInvalid = "NSB0032";
     }
 }

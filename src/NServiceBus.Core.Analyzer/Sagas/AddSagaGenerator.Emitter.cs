@@ -37,22 +37,21 @@ public partial class AddSagaGenerator
 
             var namespaceTree = BaseEmitter.BuildNamespaceTree(sagas, rootTypeSpec);
 
-            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
+            sourceWriter.WriteLine($"{namespaceTree.RootTypeSpec.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
             BaseEmitter.EmitNamespaceRegistry(
                 sourceWriter,
                 namespaceTree.Root,
-                namespaceTree.Visibility,
-                static (writer, node, visibility) =>
+                static (writer, current) =>
                 {
-                    writer.WriteLine($"{visibility} sealed partial class {node.RegistryName}");
+                    writer.WriteLine($"{current.RootTypeSpec.Visibility} sealed partial class {current.RegistryName}");
                     writer.WriteLine("{");
                 },
-                static (writer, node, _) =>
+                 static (writer, current) =>
                 {
-                    if (node.Specs.Count == 0)
+                    if (current.Specs.Count == 0)
                     {
                         return;
                     }
@@ -61,9 +60,9 @@ public partial class AddSagaGenerator
                     writer.WriteLine("{");
                     writer.Indentation++;
 
-                    for (int index = 0; index < node.Specs.Count; index++)
+                    for (int index = 0; index < current.Specs.Count; index++)
                     {
-                        var methodName = BaseEmitter.GetSagaMethodName(node.Specs[index].Name);
+                        var methodName = BaseEmitter.GetSagaMethodName(current.Specs[index].Name, current.RootTypeSpec.RegistrationMethodNamePatterns);
                         writer.WriteLine($"{methodName}();");
                     }
 
@@ -71,7 +70,7 @@ public partial class AddSagaGenerator
                     writer.WriteLine("}");
 
                     writer.WriteLine();
-                    EmitHandlerMethods(writer, [.. node.Specs.Cast<SagaSpec>()]);
+                    EmitHandlerMethods(writer, [.. current.Specs.Cast<SagaSpec>()], current.RootTypeSpec);
                 });
 
             sourceWriter.Indentation--;
@@ -80,12 +79,12 @@ public partial class AddSagaGenerator
             Sagas.Emitter.EmitAccessors(sourceWriter, sagas);
         }
 
-        static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs)
+        static void EmitHandlerMethods(SourceWriter sourceWriter, SagaSpec[] sagaSpecs, BaseParser.RootTypeSpec rootTypeSpec)
         {
             for (int index = 0; index < sagaSpecs.Length; index++)
             {
                 var sagaSpec = sagaSpecs[index];
-                var methodName = BaseEmitter.GetSagaMethodName(sagaSpec.Name);
+                var methodName = BaseEmitter.GetSagaMethodName(sagaSpec.Name, rootTypeSpec.RegistrationMethodNamePatterns);
                 sourceWriter.WriteLine("/// <summary>");
                 sourceWriter.WriteLine($"""/// Registers the <see cref="{sagaSpec.FullyQualifiedName}"/> saga with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");

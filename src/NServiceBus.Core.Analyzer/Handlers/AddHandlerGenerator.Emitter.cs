@@ -1,7 +1,6 @@
 #nullable enable
 namespace NServiceBus.Core.Analyzer.Handlers;
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -40,22 +39,21 @@ public sealed partial class AddHandlerGenerator
 
             var namespaceTree = BaseEmitter.BuildNamespaceTree(handlers, rootTypeSpec);
 
-            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
+            sourceWriter.WriteLine($"{namespaceTree.RootTypeSpec.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
             BaseEmitter.EmitNamespaceRegistry(
                 sourceWriter,
                 namespaceTree.Root,
-                namespaceTree.Visibility,
-                static (writer, node, visibility) =>
+                static (writer, current) =>
                 {
-                    writer.WriteLine($"{visibility} sealed partial class {node.RegistryName}");
+                    writer.WriteLine($"{current.RootTypeSpec.Visibility} sealed partial class {current.RegistryName}");
                     writer.WriteLine("{");
                 },
-                static (writer, node, _) =>
+                 static (writer, current) =>
                 {
-                    if (node.Specs.Count == 0)
+                    if (current.Specs.Count == 0)
                     {
                         return;
                     }
@@ -64,9 +62,9 @@ public sealed partial class AddHandlerGenerator
                     writer.WriteLine("{");
                     writer.Indentation++;
 
-                    for (int index = 0; index < node.Specs.Count; index++)
+                    for (int index = 0; index < current.Specs.Count; index++)
                     {
-                        var methodName = BaseEmitter.GetHandlerMethodName(node.Specs[index].Name);
+                        var methodName = BaseEmitter.GetHandlerMethodName(current.Specs[index].Name, current.RootTypeSpec.RegistrationMethodNamePatterns);
                         writer.WriteLine($"{methodName}();");
                     }
 
@@ -74,19 +72,20 @@ public sealed partial class AddHandlerGenerator
                     writer.WriteLine("}");
 
                     writer.WriteLine();
-                    EmitHandlerMethods(writer, [.. node.Specs.Cast<HandlerSpec>()]);
+                    BaseParser.RootTypeSpec rootTypeSpec = current.RootTypeSpec;
+                    EmitHandlerMethods(writer, [.. current.Specs.Cast<HandlerSpec>()], rootTypeSpec.RegistrationMethodNamePatterns);
                 });
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs)
+        static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
             for (int index = 0; index < handlerSpecs.Length; index++)
             {
                 var handlerSpec = handlerSpecs[index];
-                var methodName = BaseEmitter.GetHandlerMethodName(handlerSpec.Name);
+                var methodName = BaseEmitter.GetHandlerMethodName(handlerSpec.Name, registrationMethodNamePatterns);
                 sourceWriter.WriteLine("/// <summary>");
                 sourceWriter.WriteLine($"""/// Registers the <see cref="{handlerSpec.FullyQualifiedName}"/> handler with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");

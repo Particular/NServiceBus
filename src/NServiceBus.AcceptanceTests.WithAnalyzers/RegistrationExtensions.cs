@@ -1,4 +1,4 @@
 namespace NServiceBus.AcceptanceTests;
 
-[HandlerRegistryExtensions("All")]
+[HandlerRegistryExtensions(EntryPointName = "All")]
 static partial class RegistrationExtensions;

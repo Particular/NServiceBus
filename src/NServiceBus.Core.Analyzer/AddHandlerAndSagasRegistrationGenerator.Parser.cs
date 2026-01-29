@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -23,10 +24,10 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         }
 
         public record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName, SpecKind Kind);
-        public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, bool IsExplicit)
+        public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, ImmutableEquatableArray<string> RegistrationMethodNamePatterns, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
-                => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", false);
+                => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", ImmutableEquatableArray<string>.Empty, false);
         }
 
         public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, SpecKind kind, CancellationToken cancellationToken = default) =>
@@ -67,7 +68,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             var visibility = GetVisibility(namedTypeSymbol.DeclaredAccessibility);
             var entryPointName = GetEntryPointName(context);
             var rootName = entryPointName ?? string.Empty;
-            return new RootTypeSpec(namespaceName, visibility, rootName, namedTypeSymbol.Name, true);
+            var registrationMethodNamePatterns = GetRegistrationMethodNamePatterns(context);
+            return new RootTypeSpec(namespaceName, visibility, rootName, namedTypeSymbol.Name, registrationMethodNamePatterns, true);
         }
 
         static string GetNamespace(ImmutableArray<SymbolDisplayPart> handlerType) => handlerType.Length == 0 ? string.Empty : string.Join(".", handlerType.Where(x => x.Kind == SymbolDisplayPartKind.NamespaceName));
@@ -113,12 +115,6 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         {
             foreach (var attribute in context.Attributes)
             {
-                if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string ctorValue &&
-                    !string.IsNullOrWhiteSpace(ctorValue))
-                {
-                    return ctorValue;
-                }
-
                 foreach (var kvp in attribute.NamedArguments)
                 {
                     if (kvp is { Key: "EntryPointName", Value.Value: string namedValue } &&
@@ -130,6 +126,40 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             return null;
+        }
+
+        static ImmutableEquatableArray<string> GetRegistrationMethodNamePatterns(GeneratorAttributeSyntaxContext context)
+        {
+            foreach (var attribute in context.Attributes)
+            {
+                foreach (var kvp in attribute.NamedArguments)
+                {
+                    if (kvp.Key != "RegistrationMethodNamePatterns")
+                    {
+                        continue;
+                    }
+
+                    if (kvp.Value is { Kind: TypedConstantKind.Array, IsNull: false })
+                    {
+                        var patterns = new List<string>();
+                        foreach (var value in kvp.Value.Values)
+                        {
+                            if (value.Value is string item && !string.IsNullOrWhiteSpace(item))
+                            {
+                                patterns.Add(item);
+                            }
+                        }
+                        return new ImmutableEquatableArray<string>(patterns);
+                    }
+
+                    if (kvp.Value.Value is string namedValue && !string.IsNullOrWhiteSpace(namedValue))
+                    {
+                        return new ImmutableEquatableArray<string>([namedValue]);
+                    }
+                }
+            }
+
+            return ImmutableEquatableArray<string>.Empty;
         }
 
         static bool IsPartial(INamedTypeSymbol symbol)

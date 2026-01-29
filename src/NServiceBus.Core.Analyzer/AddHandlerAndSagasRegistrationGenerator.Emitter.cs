@@ -35,9 +35,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
         {
             var assemblyName = baseSpecs[0].AssemblyName;
-            var rootName = GetRegistryRootName(rootTypeSpec.ExtensionTypeName);
-            var root = BuildNamespaceNodeTree(baseSpecs, rootName);
-            return new NamespaceTree(root, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec.Namespace, rootTypeSpec.Visibility, rootTypeSpec.RootName);
+            var root = BuildNamespaceNodeTree(baseSpecs, rootTypeSpec);
+            return new NamespaceTree(root, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec);
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
@@ -50,14 +49,14 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine($"/// Provides access to handler and saga registries discovered in the <i>{namespaceTree.AssemblyName}</i> assembly.");
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
-            sourceWriter.WriteLine($"{namespaceTree.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
+            sourceWriter.WriteLine($"{namespaceTree.RootTypeSpec.Visibility} static partial class {namespaceTree.ExtensionTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 
             EmitExtensionProperties(sourceWriter, namespaceTree.AssemblyName, namespaceTree.Root.RegistryName, rootTypeSpec.RootName);
 
             sourceWriter.WriteLine();
-            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root, namespaceTree.Visibility);
+            EmitNamespaceRegistry(sourceWriter, namespaceTree.Root);
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -83,12 +82,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node, string typeVisibility) =>
+        static void EmitNamespaceRegistry(SourceWriter sourceWriter, NamespaceNode node) =>
             EmitNamespaceRegistry(
                 sourceWriter,
                 node,
-                typeVisibility,
-                static (writer, current, visibility) =>
+                static (writer, current) =>
                 {
                     if (current.IsRoot)
                     {
@@ -102,10 +100,10 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                         writer.WriteLine($"/// Registry for the <i>{current.Name}</i> namespace segment. Use this registry to add handlers and sagas for this branch.");
                         writer.WriteLine("/// </summary>");
                     }
-                    writer.WriteLine($"{visibility} sealed partial class {current.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
+                    writer.WriteLine($"{current.RootTypeSpec.Visibility} sealed partial class {current.RegistryName}(global::NServiceBus.EndpointConfiguration configuration)");
                     writer.WriteLine("{");
                 },
-                static (writer, current, _) =>
+                static (writer, current) =>
                 {
                     writer.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
 
@@ -115,8 +113,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     }
 
                     var childRegistryRefs = GetChildRegistryRefs(current);
-                    var handlerMethodRefs = GetHandlerMethodRefs(current);
-                    var sagaMethodRefs = GetSagaMethodRefs(current);
+                    var handlerMethodRefs = GetHandlerMethodRefs(current, current.RootTypeSpec.RegistrationMethodNamePatterns);
+                    var sagaMethodRefs = GetSagaMethodRefs(current, current.RootTypeSpec.RegistrationMethodNamePatterns);
                     foreach (var child in current.Children)
                     {
                         writer.WriteLine("/// <summary>");
@@ -185,20 +183,19 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         internal static void EmitNamespaceRegistry(
             SourceWriter sourceWriter,
             NamespaceNode node,
-            string typeVisibility,
-            Action<SourceWriter, NamespaceNode, string> emitHeader,
-            Action<SourceWriter, NamespaceNode, string> emitBody,
+            Action<SourceWriter, NamespaceNode> emitHeader,
+            Action<SourceWriter, NamespaceNode> emitBody,
             Action<SourceWriter, NamespaceNode, NamespaceNode>? emitBeforeChild = null)
         {
-            emitHeader(sourceWriter, node, typeVisibility);
+            emitHeader(sourceWriter, node);
             sourceWriter.Indentation++;
 
-            emitBody(sourceWriter, node, typeVisibility);
+            emitBody(sourceWriter, node);
 
             foreach (var child in node.Children)
             {
                 emitBeforeChild?.Invoke(sourceWriter, node, child);
-                EmitNamespaceRegistry(sourceWriter, child, typeVisibility, emitHeader, emitBody, emitBeforeChild);
+                EmitNamespaceRegistry(sourceWriter, child, emitHeader, emitBody, emitBeforeChild);
             }
 
             sourceWriter.Indentation--;
@@ -238,42 +235,45 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
         static string? GetChildRegistryRefs(NamespaceNode current) => current.Children.Count == 0 ? null : string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
 
-        static string? GetHandlerMethodRefs(NamespaceNode current)
+        static string? GetHandlerMethodRefs(NamespaceNode current, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
             var handlers = current.Specs
                 .Where(spec => spec.Kind == SpecKind.Handler)
-                .Select(spec => $"<see cref=\"{GetHandlerMethodName(spec.Name)}\"/>")
+                .Select(spec => $"<see cref=\"{GetHandlerMethodName(spec.Name, registrationMethodNamePatterns)}\"/>")
                 .ToArray();
 
             return handlers.Length == 0 ? null : string.Join(", ", handlers);
         }
 
-        static string? GetSagaMethodRefs(NamespaceNode current)
+        static string? GetSagaMethodRefs(NamespaceNode current, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
             var sagas = current.Specs
                 .Where(spec => spec.Kind == SpecKind.Saga)
-                .Select(spec => $"<see cref=\"{GetSagaMethodName(spec.Name)}\"/>")
+                .Select(spec => $"<see cref=\"{GetSagaMethodName(spec.Name, registrationMethodNamePatterns)}\"/>")
                 .ToArray();
 
             return sagas.Length == 0 ? null : string.Join(", ", sagas);
         }
 
-        internal static string GetHandlerMethodName(string handlerName)
+        internal static string GetHandlerMethodName(string handlerName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
             const string HandlerSuffix = "Handler";
+            var originalName = handlerName;
 
             if (!handlerName.AsSpan().EndsWith(HandlerSuffix.AsSpan(), StringComparison.Ordinal))
             {
                 handlerName += HandlerSuffix;
             }
 
-            return $"Add{handlerName}";
+            var defaultMethodName = $"Add{handlerName}";
+            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, registrationMethodNamePatterns);
         }
 
-        internal static string GetSagaMethodName(string sagaName)
+        internal static string GetSagaMethodName(string sagaName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
             const string SagaSuffix = "Saga";
             const string PolicySuffix = "Policy";
+            var originalName = sagaName;
 
             ReadOnlySpan<char> name = sagaName.AsSpan();
 
@@ -283,12 +283,72 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 sagaName += SagaSuffix;
             }
 
-            return $"Add{sagaName}";
+            var defaultMethodName = $"Add{sagaName}";
+            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, registrationMethodNamePatterns);
         }
 
-        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, string rootName)
+        static string ApplyRegistrationMethodNamePatterns(string typeName, string defaultMethodName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
         {
-            var root = new NamespaceNode($"{rootName}", isRoot: true);
+            if (registrationMethodNamePatterns.Count == 0)
+            {
+                return defaultMethodName;
+            }
+
+            for (var i = 0; i < registrationMethodNamePatterns.Count; i++)
+            {
+                var registrationMethodNamePattern = registrationMethodNamePatterns[i];
+                if (string.IsNullOrWhiteSpace(registrationMethodNamePattern))
+                {
+                    continue;
+                }
+
+                if (!TrySplitPattern(registrationMethodNamePattern, out var pattern, out var replacement))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var regex = new System.Text.RegularExpressions.Regex(pattern);
+                    if (!regex.IsMatch(typeName))
+                    {
+                        continue;
+                    }
+
+                    var methodName = regex.Replace(typeName, replacement);
+                    if (!string.IsNullOrWhiteSpace(methodName))
+                    {
+                        return methodName;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    continue;
+                }
+            }
+
+            return defaultMethodName;
+        }
+
+        static bool TrySplitPattern(string registrationMethodNamePattern, out string pattern, out string replacement)
+        {
+            var separatorIndex = registrationMethodNamePattern.IndexOf("=>", StringComparison.Ordinal);
+            if (separatorIndex <= 0 || separatorIndex == registrationMethodNamePattern.Length - 2)
+            {
+                pattern = string.Empty;
+                replacement = string.Empty;
+                return false;
+            }
+
+            pattern = registrationMethodNamePattern[..separatorIndex];
+            replacement = registrationMethodNamePattern[(separatorIndex + 2)..];
+            return true;
+        }
+
+        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, RootTypeSpec rootTypeSpec)
+        {
+            var rootName = GetRegistryRootName(rootTypeSpec.ExtensionTypeName);
+            var root = new NamespaceNode($"{rootName}", rootTypeSpec, isRoot: true);
 
             foreach (var handler in handlers.OrderBy(spec => spec.Namespace, StringComparer.Ordinal)
                          .ThenBy(spec => spec.FullyQualifiedName, StringComparer.Ordinal))
@@ -330,13 +390,15 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
 
-        internal record NamespaceTree(NamespaceNode Root, string ExtensionTypeName, string AssemblyName, string Namespace, string Visibility, string RootName);
+        internal record NamespaceTree(NamespaceNode Root, string ExtensionTypeName, string AssemblyName, RootTypeSpec RootTypeSpec);
 
-        internal sealed class NamespaceNode(string name, bool isRoot = false)
+        internal sealed class NamespaceNode(string name, RootTypeSpec rootTypeSpec, bool isRoot = false)
         {
             public bool IsRoot { get; } = isRoot;
 
             public string Name { get; } = name;
+
+            public RootTypeSpec RootTypeSpec { get; } = rootTypeSpec;
 
             public List<NamespaceNode> Children { get; } = [];
 
@@ -355,7 +417,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     }
                 }
 
-                var newChild = new NamespaceNode(childName);
+                var newChild = new NamespaceNode(childName, RootTypeSpec);
                 Children.Add(newChild);
                 return newChild;
             }

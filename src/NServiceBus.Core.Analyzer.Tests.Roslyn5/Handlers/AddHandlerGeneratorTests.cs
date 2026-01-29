@@ -181,7 +181,50 @@ public class AddHandlerGeneratorTests
 
                      namespace CustomRegistrations
                      {
-                         [HandlerRegistryExtensions("CustomEntryPoint")]
+                        [HandlerRegistryExtensions(EntryPointName = "CustomEntryPoint")]
+                        internal static partial class MyCustomHandlerRegistryExtensions
+                        {
+                        }
+                     }
+
+                     namespace Orders
+                     {
+                         [HandlerAttribute]
+                         public class OrderShippedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand { }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void RegistrationMethodNamePatterns()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using CustomRegistrations;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.RegistrationMethodNamePatternsAssembly.AddAll();
+                         }
+                     }
+
+                     namespace CustomRegistrations
+                     {
+                         [HandlerRegistryExtensions(RegistrationMethodNamePatterns = ["^NoMatch$=>Ignored", "Handler$=>Register"])]
                          internal static partial class MyCustomHandlerRegistryExtensions
                          {
                          }
