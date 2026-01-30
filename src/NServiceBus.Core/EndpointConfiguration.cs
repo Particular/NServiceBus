@@ -24,6 +24,7 @@ public class EndpointConfiguration : ExposeSettings
     {
         ValidateEndpointName(endpointName);
 
+        Settings.Set(new SystemEnvironment());
         Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
         Settings.SetDefault("Endpoint.SendOnly", false);

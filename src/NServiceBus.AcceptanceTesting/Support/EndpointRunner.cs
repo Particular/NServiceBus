@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Settings;
 using Transport;
 
 public class EndpointRunner(
@@ -46,6 +47,8 @@ public class EndpointRunner(
             }
 
             var endpointConfiguration = await configuration.GetConfiguration(runDescriptor).ConfigureAwait(false);
+            var settingsHolder = endpointConfiguration.GetSettings();
+            settingsHolder.Set<SystemEnvironment>(new SettingsSystemEnvironment(settingsHolder));
             RegisterScenarioContext(endpointConfiguration);
             TrackFailingMessages(endpointName, endpointConfiguration);
 
@@ -64,7 +67,7 @@ public class EndpointRunner(
 
             startable = await createCallback(services, endpointConfiguration).ConfigureAwait(false);
 
-            var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
+            var transportDefinition = settingsHolder.Get<TransportDefinition>();
             scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
 
             endpointBehavior.ServicesAfterStart.ForEach(customAction => customAction(services, scenarioContext));
