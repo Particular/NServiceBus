@@ -68,7 +68,6 @@ class EndpointCreator
     void Configure()
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
-        var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
 
@@ -77,6 +76,8 @@ class EndpointCreator
         var pipelineSettings = settings.Get<PipelineSettings>();
 
         hostingConfiguration.Services.AddSingleton<IReadOnlySettings>(settings);
+
+        var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
