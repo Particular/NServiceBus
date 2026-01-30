@@ -60,9 +60,15 @@ public static class AuditConfigReader
     internal static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
         => settings.TryGet(out Result configResult) ? configResult : null;
 
-    internal class Result(string address, TimeSpan? timeToBeReceived)
+    internal class Result
     {
-        public string Address = address;
-        public TimeSpan? TimeToBeReceived = timeToBeReceived;
+        public Result(string address, TimeSpan? timeToBeReceived)
+        {
+            Address = address;
+            TimeToBeReceived = timeToBeReceived;
+        }
+
+        public string Address;
+        public TimeSpan? TimeToBeReceived;
     }
 }
