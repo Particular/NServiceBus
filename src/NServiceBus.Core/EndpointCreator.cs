@@ -68,6 +68,7 @@ class EndpointCreator
     void Configure()
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
+        var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
 
@@ -76,8 +77,6 @@ class EndpointCreator
         var pipelineSettings = settings.Get<PipelineSettings>();
 
         hostingConfiguration.Services.AddSingleton<IReadOnlySettings>(settings);
-
-        var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
@@ -95,6 +94,8 @@ class EndpointCreator
         settings.Set<IMessageMapper>(messageMapper);
 
         recoverabilityComponent = new RecoverabilityComponent(settings);
+
+        SagaComponent.Configure(settings.Get<SagaComponent.Settings>(), hostingConfiguration.PersistenceConfiguration);
 
         featureComponent = new FeatureComponent(featureSettings);
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
@@ -173,10 +174,7 @@ class EndpointCreator
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-        {
-            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
-        });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
 
         return new StartableEndpoint(settings,
             featureComponent,

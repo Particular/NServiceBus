@@ -55,6 +55,7 @@ public class EndpointConfiguration : ExposeSettings
         Settings.Set(new TransportSeam.Settings(Settings));
         Settings.Set(new RoutingComponent.Settings(Settings));
         Settings.Set(new ReceiveComponent.Settings(Settings));
+        Settings.Set(new SagaComponent.Settings(Settings));
         Settings.Set(new RecoverabilityComponent.Configuration());
         Settings.Set(new ConsecutiveFailuresConfiguration());
         Settings.Set(new EnvelopeComponent.Settings());
