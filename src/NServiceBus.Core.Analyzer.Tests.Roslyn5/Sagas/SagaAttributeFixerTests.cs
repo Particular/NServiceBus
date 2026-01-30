@@ -249,7 +249,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
     }
 
     [Test]
-    public Task MovesHandlerSagaOnBaseSagaToLeafSagaEvenForComplexHierarchies()
+    public Task MovesSagaAttributeOnBaseSagaToLeafSagaEvenForComplexHierarchies()
     {
         var original =
             """
