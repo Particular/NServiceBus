@@ -24,7 +24,7 @@ public class AddSagaGeneratorTests
 
                      namespace Orders.Shipping
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IHandleMessages<OrderBilled>,
@@ -58,7 +58,7 @@ public class AddSagaGeneratorTests
 
                      namespace Orders.Billing
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class OrderBillingPolicy : Saga<OrderBillingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IAmStartedByMessages<OrderBilled>,
@@ -92,7 +92,7 @@ public class AddSagaGeneratorTests
 
                      namespace Payments
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class PaymentsPolicy : Saga<PaymentsPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IHandleMessages<OrderBilled>
@@ -154,7 +154,7 @@ public class AddSagaGeneratorTests
                      {
                          public class OuterClass
                          {
-                             [SagaAttribute]
+                             [Saga]
                              public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                                  IAmStartedByMessages<OrderPlaced>,
                                  IHandleMessages<OrderBilled>,
@@ -182,7 +182,7 @@ public class AddSagaGeneratorTests
                          {
                              public class InnerClass 
                              {
-                                 [SagaAttribute]
+                                 [Saga]
                                  public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                                      IAmStartedByMessages<OrderPlaced>,
                                      IHandleMessages<OrderBilled>,
@@ -251,7 +251,7 @@ public class AddSagaGeneratorTests
 
                      namespace Orders
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IHandleMessages<OrderBilled>,
@@ -317,7 +317,7 @@ public class AddSagaGeneratorTests
 
                      namespace Orders
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IHandleMessages<OrderBilled>,
@@ -383,7 +383,7 @@ public class AddSagaGeneratorTests
 
                      namespace Orders
                      {
-                         [SagaAttribute]
+                         [Saga]
                          public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
                              IHandleMessages<OrderBilled>,

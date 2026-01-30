@@ -18,12 +18,12 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             """
             using NServiceBus;
 
-            [SagaAttribute]
+            [Saga]
             class NonSaga
             {
             }
             
-            [SagaAttribute]
+            [Saga]
             class NonSagaSaga : Saga
             {
                 protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
@@ -131,7 +131,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             """
             using NServiceBus;
             
-            [SagaAttribute]
+            [Saga]
             public abstract class BaseShippingSaga : Saga<OrderShippingPolicyData>
             {
             }
@@ -181,12 +181,12 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             """
             using NServiceBus;
             
-            [SagaAttribute]
+            [Saga]
             public abstract class BaseBaseSaga<TSagaData> : Saga<TSagaData> where TSagaData : class, IContainSagaData, new()
             {
             }
 
-            [SagaAttribute]
+            [Saga]
             public abstract class BaseShippingSaga : BaseBaseSaga<OrderShippingPolicyData>
             {
             }

@@ -70,7 +70,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             """
             using NServiceBus;
 
-            [SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : Saga<OrderShippingPolicyData>
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -101,7 +101,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
                 }
             }
 
-            [SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : SagaBase
             {
             }
@@ -228,7 +228,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             {
             }
 
-            [SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -262,7 +262,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             {
             }
 
-            [SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
