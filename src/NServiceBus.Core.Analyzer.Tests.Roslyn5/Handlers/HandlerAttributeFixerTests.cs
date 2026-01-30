@@ -18,7 +18,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             """
             using NServiceBus;
 
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class NonHandler
             {
             }
@@ -146,7 +146,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             using System.Threading.Tasks;
             using NServiceBus;
 
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class MyHandler : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -193,7 +193,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
 
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
             }
@@ -266,13 +266,13 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
                 protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class AnotherConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -345,13 +345,13 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
                 protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class AnotherConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -424,13 +424,13 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
                 protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
             
-            [NServiceBus.HandlerAttribute]
+            [Handler]
             class AnotherConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;

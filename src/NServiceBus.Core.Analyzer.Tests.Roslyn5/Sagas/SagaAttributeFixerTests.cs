@@ -107,7 +107,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             """
             using NServiceBus;
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : Saga<OrderShippingPolicyData>
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -157,7 +157,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             {
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -223,7 +223,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             {
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -231,7 +231,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
                 }
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class VipOrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -296,7 +296,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             {
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -304,7 +304,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
                 }
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class VipOrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -369,7 +369,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             {
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class OrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -377,7 +377,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
                 }
             }
 
-            [NServiceBus.SagaAttribute]
+            [Saga]
             public class VipOrderShippingPolicy : BaseShippingSaga
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)

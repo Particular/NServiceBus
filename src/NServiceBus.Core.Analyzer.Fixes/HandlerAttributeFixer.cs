@@ -251,7 +251,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
         static ClassDeclarationSyntax AddHandlerAttributeToClass(ClassDeclarationSyntax classDeclaration)
         {
-            var attribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("NServiceBus.HandlerAttribute"));
+            var attribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("Handler"));
             var attributeList = SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute))
                 .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed)
                 .WithAdditionalAnnotations(Formatter.Annotation);
