@@ -70,7 +70,7 @@ public class AddHandlerInterceptorTests
                      {
                          public class OuterClass
                          {
-                             [HandlerAttribute]
+                             [Handler]
                              public class OrderShippedHandler : IHandleMessages<Cmd1>
                              {
                                  public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -81,7 +81,7 @@ public class AddHandlerInterceptorTests
                          {
                              public class InnerClass 
                              {
-                                  [HandlerAttribute]
+                                  [Handler]
                                   public class OrderShippedHandler : IHandleMessages<Cmd1>
                                   {
                                       public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;

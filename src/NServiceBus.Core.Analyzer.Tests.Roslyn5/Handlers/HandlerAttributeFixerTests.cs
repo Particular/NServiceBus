@@ -76,7 +76,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             using System.Threading.Tasks;
             using NServiceBus;
             
-            [HandlerAttribute]
+            [Handler]
             class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IHandleMessages<MyMessage>
             {
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
@@ -168,7 +168,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             using System.Threading.Tasks;
             using NServiceBus;
 
-            [HandlerAttribute]
+            [Handler]
             abstract class BaseHandler : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -214,13 +214,13 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             using System.Threading.Tasks;
             using NServiceBus;
             
-            [HandlerAttribute]
+            [Handler]
             abstract class BaseBaseHandler : IHandleMessages<MyMessage>
             {
                 public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
             }
 
-            [HandlerAttribute]
+            [Handler]
             abstract class BaseHandler : BaseBaseHandler
             {
                 public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -299,7 +299,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
                 public abstract Task Handle(MyMessage message, IMessageHandlerContext context);
             }
 
-            [HandlerAttribute]
+            [Handler]
             abstract class BaseHandler : BaseBaseHandler
             {
                 public sealed override Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -373,7 +373,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             using System.Threading.Tasks;
             using NServiceBus;
             
-            [HandlerAttribute]
+            [Handler]
             abstract class BaseBaseHandler : IHandleMessages<MyMessage>
             {
                 public abstract Task Handle(MyMessage message, IMessageHandlerContext context);

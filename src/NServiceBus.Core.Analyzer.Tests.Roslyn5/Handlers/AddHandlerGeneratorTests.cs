@@ -24,13 +24,13 @@ public class AddHandlerGeneratorTests
 
                      namespace Orders.Shipping
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class OrderShippedHandler : IHandleMessages<Cmd1>
                          {
                              public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
                          }
 
-                         [HandlerAttribute]
+                         [Handler]
                          public class ShipmentDelayedHandler : IHandleMessages<Cmd2>
                          {
                              public Task Handle(Cmd2 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -39,7 +39,7 @@ public class AddHandlerGeneratorTests
 
                      namespace Orders.Billing
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class InvoiceCreatedHandler : IHandleMessages<Evt1>
                          {
                              public Task Handle(Evt1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -48,7 +48,7 @@ public class AddHandlerGeneratorTests
 
                      namespace Payments
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class PaymentCapturedHandler : IHandleMessages<Cmd1>
                          {
                              public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -87,7 +87,7 @@ public class AddHandlerGeneratorTests
                      {
                          public class OuterClass
                          {
-                             [HandlerAttribute]
+                             [Handler]
                              public class OrderShippedHandler : IHandleMessages<Cmd1>
                              {
                                  public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -98,7 +98,7 @@ public class AddHandlerGeneratorTests
                          {
                              public class InnerClass 
                              {
-                                  [HandlerAttribute]
+                                  [Handler]
                                   public class OrderShippedHandler : IHandleMessages<Cmd1>
                                   {
                                       public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -146,7 +146,7 @@ public class AddHandlerGeneratorTests
 
                      namespace Orders
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class OrderShippedHandler : IHandleMessages<Cmd1>
                          {
                              public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -189,7 +189,7 @@ public class AddHandlerGeneratorTests
 
                      namespace Orders
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class OrderShippedHandler : IHandleMessages<Cmd1>
                          {
                              public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
@@ -232,7 +232,7 @@ public class AddHandlerGeneratorTests
 
                      namespace Orders
                      {
-                         [HandlerAttribute]
+                         [Handler]
                          public class OrderShippedHandler : IHandleMessages<Cmd1>
                          {
                              public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;

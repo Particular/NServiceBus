@@ -63,7 +63,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             using System.Threading.Tasks;
             using NServiceBus;
 
-            [HandlerAttribute]
+            [Handler]
             class MyHandler : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -89,7 +89,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             {
             }
 
-            [HandlerAttribute]
+            [Handler]
             class MyHandler : HandlerBase, IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -198,7 +198,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
 
-            [HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler, IHandleMessages<AnotherMessage>
             {
                 public Task Handle(AnotherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -277,7 +277,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
                 public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
 
-            [HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
             }
@@ -315,7 +315,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
                 protected abstract Task HandleCore(MyMessage message, IMessageHandlerContext context);
             }
 
-            [HandlerAttribute]
+            [Handler]
             class ConcreteHandler : BaseHandler
             {
                 protected override Task HandleCore(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
