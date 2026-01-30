@@ -259,7 +259,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             {
             }
 
-            [SagaAttribute]
+            [Saga]
             public abstract class BaseShippingSaga : BaseBaseSaga<OrderShippingPolicyData>
             {
             }
@@ -328,7 +328,7 @@ public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer,
             """
             using NServiceBus;
 
-            [SagaAttribute]
+            [Saga]
             public abstract class BaseBaseSaga<TSagaData> : Saga<TSagaData> where TSagaData : class, IContainSagaData, new()
             {
             }

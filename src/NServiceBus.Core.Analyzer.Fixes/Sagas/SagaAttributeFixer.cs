@@ -288,7 +288,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
             if (listsToRemove.Count > 0)
             {
-                updatedClass = updatedClass.RemoveNodes(listsToRemove, SyntaxRemoveOptions.KeepLeadingTrivia);
+                updatedClass = updatedClass.RemoveNodes(listsToRemove, SyntaxRemoveOptions.KeepTrailingTrivia);
             }
 
             return updatedClass;
