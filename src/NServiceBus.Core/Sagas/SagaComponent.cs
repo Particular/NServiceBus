@@ -17,12 +17,7 @@ static class SagaComponent
 
         sagaMetaModel.PreventChanges();
 
-        if (!sagaMetaModel.HasMetadata)
-        {
-            return;
-        }
-
-        if (settings.IsSendOnlyEndpoint)
+        if (!sagaMetaModel.HasMetadata || settings.IsSendOnlyEndpoint)
         {
             return;
         }
@@ -32,19 +27,11 @@ static class SagaComponent
             throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
         }
 
-        if (persistenceConfiguration.SupportedPersistences.Get<StorageType.SagasOptions>() is { SupportsFinders: false })
+        if (sagaMetaModel.HasCustomFinders && persistenceConfiguration.SupportedPersistences.Get<StorageType.SagasOptions>() is { SupportsFinders: false })
         {
-            var customFinders = (from s in sagaMetaModel
-                                 from finder in s.Finders
-                                 where finder.SagaFinder.IsCustomFinder
-                                 group s by s.SagaType).ToArray();
-
-            if (customFinders.Length != 0)
-            {
-                throw new Exception(
-                    "The selected persistence doesn't support custom sagas finders. The following sagas use custom finders: " +
-                    string.Join(", ", customFinders.Select(g => g.Key.FullName)) + ".");
-            }
+            throw new Exception(
+                "The selected persistence doesn't support custom sagas finders. The following sagas use custom finders: " +
+                string.Join(", ", customFinders.Select(g => g.Key.FullName)) + ".");
         }
 
         if (settings.VerifyIfEntitiesAreShared)
