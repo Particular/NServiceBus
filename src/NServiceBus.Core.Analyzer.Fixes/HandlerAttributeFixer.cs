@@ -40,32 +40,34 @@ namespace NServiceBus.Core.Analyzer.Fixes
                     continue;
                 }
 
-                if (diagnostic.Id == DiagnosticIds.HandlerAttributeMissing)
+                switch (diagnostic.Id)
                 {
-                    context.RegisterCodeFix(
-                        CodeAction.Create(
-                            "Add HandlerAttribute",
-                            token => AddHandlerAttribute(context.Document, classDecl, token),
-                            EquivalenceKeyAdd),
-                        diagnostic);
-                }
-                else if (diagnostic.Id == DiagnosticIds.HandlerAttributeMisplaced)
-                {
-                    context.RegisterCodeFix(
-                        CodeAction.Create(
-                            "Move HandlerAttribute to concrete handlers",
-                            token => MoveHandlerAttribute(context.Document, classDecl, token),
-                            EquivalenceKeyMove),
-                        diagnostic);
-                }
-                else if (diagnostic.Id == DiagnosticIds.HandlerAttributeOnNonHandler)
-                {
-                    context.RegisterCodeFix(
-                        CodeAction.Create(
-                            "Remove HandlerAttribute",
-                            token => RemoveHandlerAttribute(context.Document, classDecl, token),
-                            EquivalenceKeyRemove),
-                        diagnostic);
+                    case DiagnosticIds.HandlerAttributeMissing:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Add HandlerAttribute",
+                                token => AddHandlerAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyAdd),
+                            diagnostic);
+                        break;
+                    case DiagnosticIds.HandlerAttributeMisplaced:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Move HandlerAttribute to concrete handlers",
+                                token => MoveHandlerAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyMove),
+                            diagnostic);
+                        break;
+                    case DiagnosticIds.HandlerAttributeOnNonHandler:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Remove HandlerAttribute",
+                                token => RemoveHandlerAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyRemove),
+                            diagnostic);
+                        break;
+                    default:
+                        break;
                 }
             }
         }

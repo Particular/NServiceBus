@@ -25,46 +25,50 @@ namespace NServiceBus.Core.Analyzer.Fixes
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var diagnostic = context.Diagnostics.First();
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-            if (root?.FindNode(context.Span, getInnermostNodeForTie: true) is not { } node)
+            foreach (var diagnostic in context.Diagnostics)
             {
-                return;
-            }
+                if (root?.FindNode(context.Span, getInnermostNodeForTie: true) is not { } node)
+                {
+                    continue;
+                }
 
-            var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-            if (classDecl is null)
-            {
-                return;
-            }
+                var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+                if (classDecl is null)
+                {
+                    continue;
+                }
 
-            if (diagnostic.Id == DiagnosticIds.SagaAttributeMissing)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Add SagaAttribute",
-                        token => AddSagaAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
-            }
-            else if (diagnostic.Id == DiagnosticIds.SagaAttributeMisplaced)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Move SagaAttribute to concrete sagas",
-                        token => MoveSagaAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
-            }
-            else if (diagnostic.Id == DiagnosticIds.SagaAttributeOnNonSaga)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Remove SagaAttribute",
-                        token => RemoveSagaAttribute(context.Document, classDecl, token),
-                        EquivalenceKeyMove),
-                    diagnostic);
+                switch (diagnostic.Id)
+                {
+                    case DiagnosticIds.SagaAttributeMissing:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Add SagaAttribute",
+                                token => AddSagaAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyAdd),
+                            diagnostic);
+                        break;
+                    case DiagnosticIds.SagaAttributeMisplaced:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Move SagaAttribute to concrete sagas",
+                                token => MoveSagaAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyMove),
+                            diagnostic);
+                        break;
+                    case DiagnosticIds.SagaAttributeOnNonSaga:
+                        context.RegisterCodeFix(
+                            CodeAction.Create(
+                                "Remove SagaAttribute",
+                                token => RemoveSagaAttribute(context.Document, classDecl, token),
+                                EquivalenceKeyRemove),
+                            diagnostic);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -308,5 +312,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
         }
 
         static readonly string EquivalenceKeyMove = $"{typeof(SagaAttributeFixer).FullName}.Move";
+        static readonly string EquivalenceKeyAdd = $"{typeof(SagaAttributeFixer).FullName}.Add";
+        static readonly string EquivalenceKeyRemove = $"{typeof(SagaAttributeFixer).FullName}.Remove";
     }
 }
