@@ -74,7 +74,6 @@ public class EndpointConfiguration : ExposeSettings
         featureSettings.EnableFeature<LicenseReminder>();
         featureSettings.EnableFeature<Mutators>();
         featureSettings.EnableFeature<TimeToBeReceived>();
-        featureSettings.EnableFeature<Features.Sagas>();
         featureSettings.EnableFeature<AutoSubscribe>();
         featureSettings.EnableFeature<InferredMessageTypeEnricherFeature>();
         featureSettings.EnableFeature<MessageDrivenSubscriptions>();

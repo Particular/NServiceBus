@@ -100,7 +100,7 @@ class EndpointCreator
 
         sagaSettings.AddDiscoveredSagas(hostingConfiguration.AvailableTypes);
 
-        SagaComponent.Configure(sagaSettings, hostingConfiguration.PersistenceConfiguration);
+        SagaComponent.Configure(sagaSettings, featureSettings, hostingConfiguration.PersistenceConfiguration);
 
         featureComponent = new FeatureComponent(featureSettings);
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
