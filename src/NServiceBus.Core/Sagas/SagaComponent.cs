@@ -12,9 +12,6 @@ static class SagaComponent
     {
         var sagaMetaModel = settings.SagaMetadata;
 
-        var sagaMetadata = SagaMetadata.CreateMany(settings.AvailableTypes);
-        sagaMetaModel.AddRange(sagaMetadata);
-
         sagaMetaModel.PreventChanges();
 
         if (!sagaMetaModel.HasMetadata || settings.IsSendOnlyEndpoint)
@@ -56,10 +53,15 @@ static class SagaComponent
             settings.SetDefault(new SagaMetadataCollection());
         }
 
+        public void AddDiscoveredSagas(IEnumerable<Type> availableTypes)
+        {
+            var discoveredSagas = NServiceBus.Sagas.SagaMetadata.CreateMany(availableTypes);
+            SagaMetadata.AddRange(discoveredSagas);
+        }
+
         public bool VerifyIfEntitiesAreShared => !settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
         public SagaMetadataCollection SagaMetadata => settings.Get<SagaMetadataCollection>();
         public bool IsSendOnlyEndpoint => settings.GetOrDefault<bool>("Endpoint.SendOnly");
-        public IEnumerable<Type> AvailableTypes => settings.GetAvailableTypes();
 
         readonly SettingsHolder settings;
     }
