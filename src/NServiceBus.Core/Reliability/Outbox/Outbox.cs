@@ -49,14 +49,13 @@ public sealed class Outbox : Feature
             return;
         }
 
-        // ForceBatchDispatchToBeIsolatedBehavior set the dispatch consistency to isolated which instructs
-        // the transport to not enlist the outgoing operation in the incoming message transaction. Unfortunately
-        // this is not enough. We cannot allow the transport to operate in SendsWithAtomicReceive because a transport
+        // We cannot allow the transport to operate in SendsWithAtomicReceive because a transport
         // might then only release the outgoing operations when the incoming transport transaction is committed meaning
         // the actual sends would happen after we have set the outbox record as dispatched and not as part of
         // TransportReceiveToPhysicalMessageConnector fork into the batched dispatched phase. Should acknowledging
         // the incoming operation fail and the message be retried we would already have cleared the outbox record's
-        // transport operations leading to outgoing message loss.
+        // transport operations leading to outgoing message loss. ReceiveOnly mode prevents outgoing messages from
+        // being enlisted in the receive transaction, so there's no need to force DispatchConsistency.Isolated.
         if (context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.ReceiveOnly)
         {
             throw new Exception(
@@ -64,7 +63,6 @@ public sealed class Outbox : Feature
         }
 
         //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
-        context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched once the dispatch pipeline returns.");
     }
 
     internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
