@@ -59,9 +59,7 @@ sealed class MessageHandlerInvoker<THandler, TMessage>(
 // to fire multiple times in certain debugging scenarios (e.g., Rider debugger)
 sealed class ReflectionMessageHandlerInvoker : MessageHandler
 {
-    readonly bool isTimeoutHandler;
     readonly MethodInfo handleMethod;
-    object? instance;
 
     [SetsRequiredMembers]
 #pragma warning disable CS8618 // HandlerType is set via init in this constructor
@@ -69,13 +67,13 @@ sealed class ReflectionMessageHandlerInvoker : MessageHandler
 #pragma warning restore CS8618
     {
         HandlerType = handlerType;
-        this.isTimeoutHandler = isTimeoutHandler;
+        IsTimeoutHandler = isTimeoutHandler;
 
         var interfaceType = isTimeoutHandler
             ? typeof(IHandleTimeouts<>).MakeGenericType(messageType)
             : typeof(IHandleMessages<>).MakeGenericType(messageType);
 
-        var methodName = isTimeoutHandler ? nameof(IHandleTimeouts<object>.Timeout) : nameof(IHandleMessages<object>.Handle);
+        var methodName = isTimeoutHandler ? nameof(IHandleTimeouts<>.Timeout) : nameof(IHandleMessages<>.Handle);
 
         // Get the method from the interface map to handle explicit interface implementations
         var map = handlerType.GetInterfaceMap(interfaceType);
@@ -84,20 +82,16 @@ sealed class ReflectionMessageHandlerInvoker : MessageHandler
         handleMethod = map.TargetMethods[methodIndex];
     }
 
-    public override object? Instance
-    {
-        get => instance;
-        set => instance = value;
-    }
+    public override object? Instance { get; set; }
 
-    public override required Type HandlerType { get; init; } = null!;
+    public override required Type HandlerType { get; init; }
 
-    internal override bool IsTimeoutHandler => isTimeoutHandler;
+    internal override bool IsTimeoutHandler { get; }
 
     internal override void Initialize(IServiceProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
-        instance = ActivatorUtilities.CreateInstance(provider, HandlerType);
+        Instance = ActivatorUtilities.CreateInstance(provider, HandlerType);
     }
 
     [DebuggerNonUserCode]
@@ -108,11 +102,11 @@ sealed class ReflectionMessageHandlerInvoker : MessageHandler
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(handlerContext);
 
-        if (instance is null)
+        if (Instance is null)
         {
             throw new Exception("Cannot invoke handler because MessageHandler Instance is not set.");
         }
 
-        return (Task)handleMethod.Invoke(instance, [message, handlerContext])!;
+        return (Task)handleMethod.Invoke(Instance, [message, handlerContext])!;
     }
 }
