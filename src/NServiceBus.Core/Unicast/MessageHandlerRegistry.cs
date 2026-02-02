@@ -311,7 +311,7 @@ public class MessageHandlerRegistry
         public Type MessageType { get; } = messageType ?? throw new ArgumentNullException(nameof(messageType));
 
         public MessageHandler Create() =>
-            new ReflectionMessageHandlerInvoker((provider, _) => ActivatorUtilities.CreateInstance(provider, handlerType), invoker, isTimeoutHandler)
+            new ReflectionMessageHandlerInvoker(ActivatorUtilities.CreateFactory(handlerType, []), invoker, isTimeoutHandler)
             {
                 HandlerType = handlerType
             };
