@@ -23,37 +23,62 @@ public class AuditConfigReaderTests
     }
 
     [Test]
-    [TestCase("false")]
-    [TestCase("FALSE")]
-    [TestCase("False")]
-    [TestCase(null)]
-    [TestCase("true")]
-    [TestCase("TRUE")]
-    [TestCase("True")]
-    public void ShouldAllowDisablingViaEnvironment(string auditDisabledValue)
+    public void Defaults_to_disabled_when_no_audit_address_is_configured()
     {
         var settingsHolder = new SettingsHolder();
-        settingsHolder.Set<SystemEnvironment>(new FakeEnvironment { ValueToReturn = new Dictionary<string, string> { { AuditConfigReader.IsDisabledEnvironmentVariableKey, auditDisabledValue } } });
+        settingsHolder.Set<SystemEnvironment>(new FakeEnvironment
+        {
+            ValueToReturn = []
+        });
 
         settingsHolder.SetAuditQueueDefaults();
 
         using (Assert.EnterMultipleScope())
         {
-            // Audit is by default disabled unless explicitly enabled
             Assert.That(settingsHolder.Get<AuditConfigReader.Result>().Disabled, Is.True);
             Assert.That(settingsHolder.TryGetAuditQueueAddress(out _), Is.False);
         }
     }
 
     [Test]
-    public void DisablingTakesPrecedenceOverAddress()
+    [TestCase("false")]
+    [TestCase("FALSE")]
+    [TestCase("False")]
+    [TestCase(null)]
+    public void Should_not_disable_when_IsDisabled_is_false_or_not_set_and_address_is_available(string auditDisabledValue)
     {
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set<SystemEnvironment>(new FakeEnvironment
         {
             ValueToReturn = new Dictionary<string, string>
             {
-                { AuditConfigReader.IsDisabledEnvironmentVariableKey, "true" },
+                { AuditConfigReader.IsDisabledEnvironmentVariableKey, auditDisabledValue },
+                { AuditConfigReader.AddressEnvironmentVariableKey, "envAuditQueue" }
+            }
+        });
+
+        settingsHolder.SetAuditQueueDefaults();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(settingsHolder.Get<AuditConfigReader.Result>().Disabled, Is.False);
+            Assert.That(settingsHolder.TryGetAuditQueueAddress(out var address), Is.True);
+            Assert.That(address, Is.EqualTo("envAuditQueue"));
+        }
+    }
+
+    [Test]
+    [TestCase("true")]
+    [TestCase("TRUE")]
+    [TestCase("True")]
+    public void DisablingTakesPrecedenceOverAddress(string auditDisabledValue)
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set<SystemEnvironment>(new FakeEnvironment
+        {
+            ValueToReturn = new Dictionary<string, string>
+            {
+                { AuditConfigReader.IsDisabledEnvironmentVariableKey, auditDisabledValue },
                 { AuditConfigReader.AddressEnvironmentVariableKey, "envAuditQueue" }
             }
         });
