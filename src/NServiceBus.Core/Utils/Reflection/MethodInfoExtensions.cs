@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Runtime.Loader;
 
 static class MethodInfoExtensions
 {
@@ -23,7 +24,10 @@ static class MethodInfoExtensions
         {
             try
             {
-                return method.MakeGenericMethod(genericTypes).Invoke(target, args);
+                using (AssemblyLoadContext.EnterContextualReflection(genericTypes[0].Assembly))
+                {
+                    return method.MakeGenericMethod(genericTypes).Invoke(target, args);
+                }
             }
             catch (TargetInvocationException e)
             {
