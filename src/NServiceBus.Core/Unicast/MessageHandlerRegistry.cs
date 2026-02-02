@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -310,11 +311,14 @@ public class MessageHandlerRegistry
     {
         public Type MessageType { get; } = messageType ?? throw new ArgumentNullException(nameof(messageType));
 
-        public MessageHandler Create() =>
-            new ReflectionMessageHandlerInvoker(ActivatorUtilities.CreateFactory(handlerType, []), invoker, isTimeoutHandler)
+        public MessageHandler Create()
+        {
+            using (AssemblyLoadContext.EnterContextualReflection(GetType().Assembly))
             {
-                HandlerType = handlerType
-            };
+                ObjectFactory objectFactory = ActivatorUtilities.CreateFactory(handlerType, []);
+                return new ReflectionMessageHandlerInvoker(objectFactory, invoker, isTimeoutHandler) { HandlerType = handlerType };
+            }
+        }
 
         static Func<object, object, IMessageHandlerContext, Task> BuildInvoker(Type handlerType, Type messageType, bool isTimeoutHandler)
         {
