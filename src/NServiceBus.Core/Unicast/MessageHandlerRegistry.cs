@@ -172,11 +172,52 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
-    void AddHandlerWithReflection(Type handlerType) =>
-        AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
+    void AddHandlerWithReflection(Type handlerType)
+    {
+        if (handlerType.IsAbstract)
+        {
+            return;
+        }
 
-    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
+        foreach (var interfaceType in handlerType.GetInterfaces())
+        {
+            if (!interfaceType.IsGenericType)
+            {
+                continue;
+            }
+
+            var genericTypeDefinition = interfaceType.GetGenericTypeDefinition();
+            var messageType = interfaceType.GetGenericArguments()[0];
+
+            if (genericTypeDefinition == typeof(IHandleMessages<>))
+            {
+                AddMessageHandlerForMessageWithReflection(handlerType, messageType, isTimeoutHandler: false);
+            }
+
+            if (genericTypeDefinition == typeof(IHandleTimeouts<>))
+            {
+                AddMessageHandlerForMessageWithReflection(handlerType, messageType, isTimeoutHandler: true);
+            }
+        }
+    }
+
+    void AddMessageHandlerForMessageWithReflection(Type handlerType, Type messageType, bool isTimeoutHandler)
+    {
+        var key = new HandlerAndMessage(handlerType, messageType, isTimeoutHandler);
+        if (!deduplicationSet.Add(key))
+        {
+            return;
+        }
+
+        Log.DebugFormat("Associated '{0}' message with '{1}' {2}.", messageType, handlerType, isTimeoutHandler ? "timeout handler" : "message handler");
+
+        if (!messageHandlerFactories.TryGetValue(handlerType, out var handlerFactories))
+        {
+            messageHandlerFactories[handlerType] = handlerFactories = [];
+        }
+
+        handlerFactories.Add(new ReflectionMessageHandlerFactory(handlerType, messageType, isTimeoutHandler));
+    }
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
@@ -200,6 +241,25 @@ public class MessageHandlerRegistry
     {
         Type MessageType { get; }
         MessageHandler Create();
+    }
+
+    // Non-generic factory to avoid MakeGenericMethod().Invoke() which can cause module initializer
+    // to fire multiple times in certain debugging scenarios (e.g., Rider debugger)
+    sealed class ReflectionMessageHandlerFactory : IMessageHandlerFactory
+    {
+        readonly Type handlerType;
+        readonly bool isTimeoutHandler;
+
+        public ReflectionMessageHandlerFactory(Type handlerType, Type messageType, bool isTimeoutHandler)
+        {
+            this.handlerType = handlerType;
+            MessageType = messageType;
+            this.isTimeoutHandler = isTimeoutHandler;
+        }
+
+        public Type MessageType { get; }
+
+        public MessageHandler Create() => new ReflectionMessageHandlerInvoker(handlerType, MessageType, isTimeoutHandler);
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces

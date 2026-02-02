@@ -3,7 +3,10 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 
 // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
@@ -50,4 +53,66 @@ sealed class MessageHandlerInvoker<THandler, TMessage>(
     THandler? instance;
     readonly Func<IServiceProvider, THandler> createHandler = createHandler ?? throw new ArgumentNullException(nameof(createHandler));
     readonly Func<THandler, TMessage, IMessageHandlerContext, Task> invocation = invocation ?? throw new ArgumentNullException(nameof(invocation));
+}
+
+// Non-generic invoker to avoid MakeGenericMethod().Invoke() which can cause module initializer
+// to fire multiple times in certain debugging scenarios (e.g., Rider debugger)
+sealed class ReflectionMessageHandlerInvoker : MessageHandler
+{
+    readonly bool isTimeoutHandler;
+    readonly MethodInfo handleMethod;
+    object? instance;
+
+    [SetsRequiredMembers]
+#pragma warning disable CS8618 // HandlerType is set via init in this constructor
+    public ReflectionMessageHandlerInvoker(Type handlerType, Type messageType, bool isTimeoutHandler)
+#pragma warning restore CS8618
+    {
+        HandlerType = handlerType;
+        this.isTimeoutHandler = isTimeoutHandler;
+
+        var interfaceType = isTimeoutHandler
+            ? typeof(IHandleTimeouts<>).MakeGenericType(messageType)
+            : typeof(IHandleMessages<>).MakeGenericType(messageType);
+
+        var methodName = isTimeoutHandler ? nameof(IHandleTimeouts<object>.Timeout) : nameof(IHandleMessages<object>.Handle);
+
+        // Get the method from the interface map to handle explicit interface implementations
+        var map = handlerType.GetInterfaceMap(interfaceType);
+        var interfaceMethod = interfaceType.GetMethod(methodName)!;
+        var methodIndex = Array.IndexOf(map.InterfaceMethods, interfaceMethod);
+        handleMethod = map.TargetMethods[methodIndex];
+    }
+
+    public override object? Instance
+    {
+        get => instance;
+        set => instance = value;
+    }
+
+    public override required Type HandlerType { get; init; } = null!;
+
+    internal override bool IsTimeoutHandler => isTimeoutHandler;
+
+    internal override void Initialize(IServiceProvider provider)
+    {
+        ArgumentNullException.ThrowIfNull(provider);
+        instance = ActivatorUtilities.CreateInstance(provider, HandlerType);
+    }
+
+    [DebuggerNonUserCode]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
+    public override Task Invoke(object message, IMessageHandlerContext handlerContext)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(handlerContext);
+
+        if (instance is null)
+        {
+            throw new Exception("Cannot invoke handler because MessageHandler Instance is not set.");
+        }
+
+        return (Task)handleMethod.Invoke(instance, [message, handlerContext])!;
+    }
 }
