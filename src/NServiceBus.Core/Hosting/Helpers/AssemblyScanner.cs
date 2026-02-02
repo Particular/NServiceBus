@@ -178,10 +178,9 @@ public class AssemblyScanner
 
         try
         {
-            var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
-            assembly = context?.LoadFromAssemblyPath(assemblyPath);
-
-            return assembly is not null;
+            var assemblyLoadContext = GetAssemblyLoadContext();
+            assembly = assemblyLoadContext.LoadFromAssemblyPath(assemblyPath);
+            return true;
         }
         catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
         {
@@ -199,6 +198,16 @@ public class AssemblyScanner
             return false;
         }
     }
+
+    // AssemblyScanner can run under hosts that use custom AssemblyLoadContexts (e.g. test runners, plugins).
+    // When such a host sets a contextual reflection scope, we must load scanned assemblies into that context
+    // to avoid loading the same assembly again into Default ALC (type identity issues, module initializers running twice).
+    // If no contextual scope is set, preserve historical behavior (load into the ALC that loaded NServiceBus.Core),
+    // and fall back to Default to keep scanning deterministic if the ALC cannot be determined.
+    static AssemblyLoadContext GetAssemblyLoadContext() =>
+        AssemblyLoadContext.CurrentContextualReflectionContext
+        ?? AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())
+        ?? AssemblyLoadContext.Default;
 
     bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
     {
@@ -240,7 +249,8 @@ public class AssemblyScanner
 
         try
         {
-            referencedAssembly = Assembly.Load(assemblyName);
+            var assemblyLoadContext = GetAssemblyLoadContext();
+            referencedAssembly = assemblyLoadContext.LoadFromAssemblyName(assemblyName);
         }
         catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
