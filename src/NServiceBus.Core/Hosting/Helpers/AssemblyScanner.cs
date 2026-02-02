@@ -179,6 +179,21 @@ public class AssemblyScanner
 
         try
         {
+            // Avoid loading the same physical assembly file into multiple AssemblyLoadContexts.
+            // This can happen under test runners / plugin hosts that already loaded the assembly in a custom ALC.
+            // If it is already loaded, reuse that instance rather than loading it again into the selected ALC.
+            var fullPath = Path.GetFullPath(assemblyPath);
+            assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a =>
+                    !a.IsDynamic &&
+                    !string.IsNullOrWhiteSpace(a.Location) &&
+                    string.Equals(Path.GetFullPath(a.Location), fullPath, StringComparison.OrdinalIgnoreCase));
+
+            if (assembly is not null)
+            {
+                return true;
+            }
+
             assembly = assemblyLoadContext.LoadFromAssemblyPath(assemblyPath);
             return true;
         }
