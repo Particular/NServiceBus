@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Logging;
 using Settings;
 
 /// <summary>
@@ -24,14 +25,14 @@ public static class AuditConfigReader
 
         var result = GetConfiguredAuditQueue(settings);
 
-        if (result == null)
+        if (result == null || result.Disabled)
         {
             address = null;
             return false;
         }
 
         address = result.Address;
-        return true;
+        return address != null;
     }
 
     /// <summary>
@@ -57,12 +58,41 @@ public static class AuditConfigReader
         return true;
     }
 
-    internal static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
+    internal static void SetAuditQueueDefaults(this SettingsHolder settings)
+    {
+        var environment = settings.Get<SystemEnvironment>();
+        var auditDisabledValue = environment.GetEnvironmentVariable(IsDisabledEnvironmentVariableKey);
+        var canParseAuditDisabledEnvironmentVariable = bool.TryParse(auditDisabledValue, out var isDisabled);
+
+        if (auditDisabledValue is not null && !canParseAuditDisabledEnvironmentVariable)
+        {
+            Log.Warn($"{IsDisabledEnvironmentVariableKey} should be either `TRUE` or `FALSE`. `{auditDisabledValue}` is not a valid value.");
+        }
+
+        if (isDisabled)
+        {
+            settings.Set(new Result());
+            return;
+        }
+
+        var userOverride = settings.GetOrDefault<Result>();
+        var defaultAuditQueue = environment.GetEnvironmentVariable(AddressEnvironmentVariableKey);
+        settings.Set(userOverride ?? (!string.IsNullOrEmpty(defaultAuditQueue) ? new Result(defaultAuditQueue) : new Result()));
+    }
+
+    static Result? GetConfiguredAuditQueue(IReadOnlySettings settings)
         => settings.TryGet(out Result configResult) ? configResult : null;
 
-    internal class Result(string address, TimeSpan? timeToBeReceived)
+    static readonly ILog Log = LogManager.GetLogger(typeof(AuditConfigReader));
+
+    internal const string AddressEnvironmentVariableKey = "NSERVICEBUS__AUDIT__ADDRESS";
+    internal const string IsDisabledEnvironmentVariableKey = "NSERVICEBUS__AUDIT__DISABLED";
+
+    internal class Result(string? address = null, TimeSpan? timeToBeReceived = null)
     {
-        public string Address = address;
+        public readonly string? Address = address;
         public TimeSpan? TimeToBeReceived = timeToBeReceived;
+        [MemberNotNullWhen(false, nameof(Address))]
+        public bool Disabled => Address == null;
     }
 }
