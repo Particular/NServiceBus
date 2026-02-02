@@ -216,9 +216,11 @@ public class AssemblyScanner
 
         if (ShouldScanDependencies(assembly))
         {
+            var context = AssemblyLoadContext.GetLoadContext(assembly);
+
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
-                var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                var referencedAssembly = GetReferencedAssembly(context, referencedAssemblyName);
                 if (referencedAssembly is not null)
                 {
                     var referencesCore = ScanAssembly(referencedAssembly, processed);
@@ -234,13 +236,13 @@ public class AssemblyScanner
         return processed[assembly.FullName];
     }
 
-    static Assembly? GetReferencedAssembly(AssemblyName assemblyName)
+    static Assembly? GetReferencedAssembly(AssemblyLoadContext? context, AssemblyName assemblyName)
     {
         Assembly? referencedAssembly = null;
 
         try
         {
-            referencedAssembly = Assembly.Load(assemblyName);
+            referencedAssembly = context?.LoadFromAssemblyName(assemblyName);
         }
         catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
