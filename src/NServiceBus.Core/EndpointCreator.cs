@@ -102,7 +102,7 @@ class EndpointCreator
 
         var sagaSettings = settings.Get<SagaComponent.Settings>();
 
-        sagaSettings.AddDiscoveredSagas(hostingConfiguration.AvailableTypes);
+        DiscoverSagas(sagaSettings, hostingConfiguration.AvailableTypes);
 
         SagaComponent.Configure(sagaSettings, hostingConfiguration.PersistenceConfiguration);
 
@@ -161,6 +161,9 @@ class EndpointCreator
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverSagas(SagaComponent.Settings sagaSettings, ICollection<Type> availableTypes) => sagaSettings.AddDiscoveredSagas(availableTypes);
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
