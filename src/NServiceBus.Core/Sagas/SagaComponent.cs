@@ -3,20 +3,16 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Features;
 using Sagas;
 using Settings;
 
 static class SagaComponent
 {
-    public static void Configure(Settings settings, FeatureComponent.Settings featureSettings, PersistenceComponent.Configuration persistenceConfiguration)
+    public static void Configure(Settings settings, PersistenceComponent.Configuration persistenceConfiguration)
     {
         var sagaMetaModel = settings.SagaMetadata;
 
         sagaMetaModel.PreventChanges();
-
-        // we always enable the saga feature to allow itself to disable if no sagas are found. This makes sure that the syncronized storage session is registered correctly.
-        featureSettings.EnableFeature<Features.Sagas>();
 
         if (!sagaMetaModel.HasMetadata || settings.IsSendOnlyEndpoint)
         {
