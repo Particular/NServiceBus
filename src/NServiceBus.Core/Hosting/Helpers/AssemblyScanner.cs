@@ -209,7 +209,7 @@ public class AssemblyScanner
         ?? AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())
         ?? AssemblyLoadContext.Default;
 
-    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed, AssemblyLoadContext assemblyLoadContext)
+    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed, AssemblyLoadContext fallbackAssemblyLoadContext)
     {
         if (assembly.FullName is null)
         {
@@ -225,12 +225,17 @@ public class AssemblyScanner
 
         if (ShouldScanDependencies(assembly))
         {
+            // AppDomain assemblies can originate from different ALCs (test runners, plugin hosts).
+            // When scanning dependencies for an already-loaded assembly, prefer resolving referenced assemblies
+            // using the same ALC that loaded that assembly to avoid pulling them into a different ALC (e.g. Default).
+            var assemblyLoadContext = AssemblyLoadContext.GetLoadContext(assembly) ?? fallbackAssemblyLoadContext;
+
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
                 var referencedAssembly = GetReferencedAssembly(referencedAssemblyName, assemblyLoadContext);
                 if (referencedAssembly is not null)
                 {
-                    var referencesCore = ScanAssembly(referencedAssembly, processed, assemblyLoadContext);
+                    var referencesCore = ScanAssembly(referencedAssembly, processed, fallbackAssemblyLoadContext);
                     if (referencesCore)
                     {
                         processed[assembly.FullName] = true;
