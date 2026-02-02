@@ -52,4 +52,41 @@ public class When_scanning_under_contextual_reflection_context
         Assert.That(mismatches, Is.Empty,
             "One or more assemblies loaded from the scan path were not loaded into the current contextual reflection ALC.");
     }
+
+    [Test]
+    public void Should_load_filesystem_assemblies_into_the_test_assemblyloadcontext()
+    {
+        var scanPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Messages");
+
+        var testAssemblyLoadContext = AssemblyLoadContext.GetLoadContext(GetType().Assembly) ?? AssemblyLoadContext.Default;
+
+        var scanner = new AssemblyScanner(scanPath)
+        {
+            ScanAppDomainAssemblies = false,
+            ScanFileSystemAssemblies = true
+        };
+
+        var result = scanner.GetScannableAssemblies();
+
+        var loadedFromScanPath = result.Assemblies
+            .Where(a =>
+                !string.IsNullOrWhiteSpace(a.Location) &&
+                a.Location.StartsWith(scanPath, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        Assert.That(loadedFromScanPath, Is.Not.Empty,
+            "Expected at least one assembly to be loaded from the scan directory.");
+
+        var mismatches = loadedFromScanPath
+            .Select(a => new
+            {
+                Assembly = a,
+                LoadContext = AssemblyLoadContext.GetLoadContext(a)
+            })
+            .Where(x => !ReferenceEquals(x.LoadContext, testAssemblyLoadContext))
+            .ToList();
+
+        Assert.That(mismatches, Is.Empty,
+            "One or more assemblies loaded from the scan path were not loaded into the test assembly's AssemblyLoadContext.");
+    }
 }
