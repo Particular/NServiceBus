@@ -312,7 +312,7 @@ public class MessageHandlerRegistry
         public Type MessageType { get; } = messageType ?? throw new ArgumentNullException(nameof(messageType));
 
         public MessageHandler Create() =>
-            new ReflectionMessageHandlerInvoker(handlerFactory, invoker, isTimeoutHandler)
+            new ReflectionMessageHandlerInvoker(null!, invoker, isTimeoutHandler)
             {
                 HandlerType = handlerType
             };
@@ -339,7 +339,7 @@ public class MessageHandlerRegistry
         }
 
         readonly Type handlerType = handlerType ?? throw new ArgumentNullException(nameof(handlerType));
-        readonly ObjectFactory handlerFactory = ActivatorUtilities.CreateFactory(handlerType, []);
+
         readonly Func<object, object, IMessageHandlerContext, Task> invoker = BuildInvoker(handlerType, messageType, isTimeoutHandler);
     }
 
