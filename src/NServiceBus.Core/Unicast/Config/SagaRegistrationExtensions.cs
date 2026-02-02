@@ -17,7 +17,7 @@ public static class SagaRegistrationExtensions
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        var sagaMetadataCollection = config.Settings.GetOrCreate<SagaMetadataCollection>();
+        var sagaMetadataCollection = config.Settings.Get<SagaMetadataCollection>();
         sagaMetadataCollection.Add(SagaMetadata.Create<TSaga>());
 
         config.AddHandler<TSaga>();

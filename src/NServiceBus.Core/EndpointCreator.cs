@@ -96,6 +96,12 @@ class EndpointCreator
 
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
+        var sagaSettings = settings.Get<SagaComponent.Settings>();
+
+        sagaSettings.AddDiscoveredSagas(hostingConfiguration.AvailableTypes);
+
+        SagaComponent.Configure(sagaSettings, hostingConfiguration.PersistenceConfiguration);
+
         featureComponent = new FeatureComponent(featureSettings);
         var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
