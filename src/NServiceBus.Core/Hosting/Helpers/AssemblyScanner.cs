@@ -78,9 +78,10 @@ public class AssemblyScanner
             { typeof(ICommand).Assembly.FullName!, true },
         };
 
+        var assemblyLoadContext = GetAssemblyLoadContext();
         if (assemblyToScan is not null)
         {
-            if (ScanAssembly(assemblyToScan, processed))
+            if (ScanAssembly(assemblyToScan, processed, assemblyLoadContext))
             {
                 AddTypesToResult(assemblyToScan, results);
             }
@@ -94,7 +95,7 @@ public class AssemblyScanner
 
             foreach (var assembly in appDomainAssemblies)
             {
-                if (ScanAssembly(assembly, processed))
+                if (ScanAssembly(assembly, processed, assemblyLoadContext))
                 {
                     AddTypesToResult(assembly, results);
                 }
@@ -107,12 +108,12 @@ public class AssemblyScanner
 
             if (baseDirectoryToScan is not null)
             {
-                ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results);
+                ScanAssembliesInDirectory(baseDirectoryToScan, assemblies, results, assemblyLoadContext);
             }
 
             if (!string.IsNullOrWhiteSpace(AdditionalAssemblyScanningPath))
             {
-                ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results);
+                ScanAssembliesInDirectory(AdditionalAssemblyScanningPath, assemblies, results, assemblyLoadContext);
             }
 
             var platformAssembliesString = (string?)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
@@ -123,7 +124,7 @@ public class AssemblyScanner
 
                 foreach (var platformAssembly in platformAssemblies)
                 {
-                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                    if (TryLoadScannableAssembly(platformAssembly, results, assemblyLoadContext, out var assembly))
                     {
                         assemblies.Add(assembly);
                     }
@@ -132,7 +133,7 @@ public class AssemblyScanner
 
             foreach (var assembly in assemblies)
             {
-                if (ScanAssembly(assembly, processed))
+                if (ScanAssembly(assembly, processed, assemblyLoadContext))
                 {
                     AddTypesToResult(assembly, results);
                 }
@@ -143,18 +144,18 @@ public class AssemblyScanner
         return results;
     }
 
-    void ScanAssembliesInDirectory(string directoryToScan, List<Assembly> assemblies, AssemblyScannerResults results)
+    void ScanAssembliesInDirectory(string directoryToScan, List<Assembly> assemblies, AssemblyScannerResults results, AssemblyLoadContext assemblyLoadContext)
     {
         foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(directoryToScan, ScanNestedDirectories))
         {
-            if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
+            if (TryLoadScannableAssembly(assemblyFile.FullName, results, assemblyLoadContext, out var assembly))
             {
                 assemblies.Add(assembly);
             }
         }
     }
 
-    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, [NotNullWhen(true)] out Assembly? assembly)
+    bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, AssemblyLoadContext assemblyLoadContext, [NotNullWhen(true)] out Assembly? assembly)
     {
         assembly = null;
 
@@ -178,7 +179,6 @@ public class AssemblyScanner
 
         try
         {
-            var assemblyLoadContext = GetAssemblyLoadContext();
             assembly = assemblyLoadContext.LoadFromAssemblyPath(assemblyPath);
             return true;
         }
@@ -209,7 +209,7 @@ public class AssemblyScanner
         ?? AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())
         ?? AssemblyLoadContext.Default;
 
-    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
+    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed, AssemblyLoadContext assemblyLoadContext)
     {
         if (assembly.FullName is null)
         {
@@ -227,10 +227,10 @@ public class AssemblyScanner
         {
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
-                var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                var referencedAssembly = GetReferencedAssembly(referencedAssemblyName, assemblyLoadContext);
                 if (referencedAssembly is not null)
                 {
-                    var referencesCore = ScanAssembly(referencedAssembly, processed);
+                    var referencesCore = ScanAssembly(referencedAssembly, processed, assemblyLoadContext);
                     if (referencesCore)
                     {
                         processed[assembly.FullName] = true;
@@ -243,13 +243,12 @@ public class AssemblyScanner
         return processed[assembly.FullName];
     }
 
-    static Assembly? GetReferencedAssembly(AssemblyName assemblyName)
+    static Assembly? GetReferencedAssembly(AssemblyName assemblyName, AssemblyLoadContext assemblyLoadContext)
     {
         Assembly? referencedAssembly = null;
 
         try
         {
-            var assemblyLoadContext = GetAssemblyLoadContext();
             referencedAssembly = assemblyLoadContext.LoadFromAssemblyName(assemblyName);
         }
         catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
