@@ -176,6 +176,15 @@ public class AssemblyScanner
             return false;
         }
 
+        // Check if assembly is already loaded in any AssemblyLoadContext to avoid loading
+        // the same assembly into the Default ALC when it's already loaded in a custom ALC
+        var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+        assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
+        if (assembly is not null)
+        {
+            return true;
+        }
+
         try
         {
             var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
