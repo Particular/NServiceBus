@@ -178,9 +178,36 @@ public class AssemblyScanner
 
         try
         {
-            // Avoid loading the same physical assembly file into multiple AssemblyLoadContexts.
-            // This can happen under test runners / plugin hosts that already loaded the assembly in a custom ALC.
-            // If it is already loaded, reuse that instance rather than loading it again into the selected ALC.
+            // Prefer reusing an already-loaded assembly with the same identity. This avoids loading the same assembly
+            // into multiple ALCs when a host/test runner shadow-copies assemblies (different path, same identity).
+            AssemblyName? assemblyNameOnDisk = null;
+            try
+            {
+                assemblyNameOnDisk = AssemblyName.GetAssemblyName(assemblyPath);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException)
+            {
+                // If we can't read identity, fall back to normal loading below.
+            }
+
+            if (assemblyNameOnDisk is not null)
+            {
+                var fullNameOnDisk = assemblyNameOnDisk.FullName;
+
+                var alreadyLoaded = AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(a =>
+                        !a.IsDynamic &&
+                        a.FullName is not null &&
+                        string.Equals(a.FullName, fullNameOnDisk, StringComparison.Ordinal));
+
+                if (alreadyLoaded is not null)
+                {
+                    assembly = alreadyLoaded;
+                    return true;
+                }
+            }
+
+            // Fallback: reuse by physical path if possible.
             var fullPath = Path.GetFullPath(assemblyPath);
             assembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(a =>
