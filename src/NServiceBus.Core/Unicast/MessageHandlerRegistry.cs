@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Logging;
@@ -324,18 +323,13 @@ public class MessageHandlerRegistry
             var targetMethod = handlerType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault()
                                ?? throw new Exception($"Could not find {(isTimeoutHandler ? "Timeout" : "Handle")} method for handler '{handlerType.FullName}' and message '{messageType.FullName}'.");
 
-            var targetParam = Expression.Parameter(typeof(object), "target");
-            var messageParam = Expression.Parameter(typeof(object), "message");
-            var contextParam = Expression.Parameter(typeof(IMessageHandlerContext), "context");
-
-            var castTarget = Expression.Convert(targetParam, handlerType);
-            var castMessage = Expression.Convert(messageParam, messageType);
-
-            var body = Expression.Call(castTarget, targetMethod, castMessage, contextParam);
-
-            return Expression
-                .Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, targetParam, messageParam, contextParam)
-                .Compile();
+            // IMPORTANT: Do not use Expression.Compile() here. It emits a DynamicMethod in the current ALC,
+            // which can force the handler assembly into Default when handler types come from another ALC (e.g. NUnit isolation).
+            return (target, message, context) =>
+            {
+                var result = targetMethod.Invoke(target, [message, context]);
+                return result as Task ?? Task.CompletedTask;
+            };
         }
 
         readonly Type handlerType = handlerType ?? throw new ArgumentNullException(nameof(handlerType));
