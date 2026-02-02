@@ -8,6 +8,7 @@ using Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]
+[NonParallelizable]
 public class When_scanning_under_contextual_reflection_context
 {
     // Verifies that filesystem assemblies loaded by AssemblyScanner are loaded into the current contextual reflection
@@ -46,22 +47,62 @@ public class When_scanning_under_contextual_reflection_context
     public void Should_not_split_load_contexts_when_appdomain_and_filesystem_scanning_are_enabled()
     {
         var scanPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Messages");
+        scanPath = CopyToUniqueScanDirectory(scanPath);
 
         var testAssemblyLoadContext = AssemblyLoadContext.GetLoadContext(GetType().Assembly) ?? AssemblyLoadContext.Default;
 
-        AssemblyScannerResults result;
-        using (testAssemblyLoadContext.EnterContextualReflection())
+        try
         {
-            var scanner = new AssemblyScanner(scanPath)
+            AssemblyScannerResults result;
+            using (testAssemblyLoadContext.EnterContextualReflection())
             {
-                ScanAppDomainAssemblies = true,
-                ScanFileSystemAssemblies = true
-            };
+                var scanner = new AssemblyScanner(scanPath)
+                {
+                    ScanAppDomainAssemblies = true,
+                    ScanFileSystemAssemblies = true
+                };
 
-            result = scanner.GetScannableAssemblies();
+                result = scanner.GetScannableAssemblies();
+            }
+
+            // With ScanAppDomainAssemblies=true, assemblies might already be loaded and come from outside scanPath.
+            // Assert by assembly identity rather than Location.
+            AssertAssemblyIsLoadedIntoContext(result, "Messages.Referencing.Core", testAssemblyLoadContext);
+            AssertAssemblyIsLoadedIntoContext(result, "Messages.Referencing.MessageInterfaces", testAssemblyLoadContext);
+        }
+        finally
+        {
+            Directory.Delete(scanPath, true);
+        }
+    }
+
+    static string CopyToUniqueScanDirectory(string sourceDir)
+    {
+        var targetDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "AssemblyScanner", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(targetDir);
+
+        foreach (var file in Directory.EnumerateFiles(sourceDir, "*.*", SearchOption.TopDirectoryOnly)
+                     .Where(f =>
+                         f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ||
+                         f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)))
+        {
+            File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)));
         }
 
-        AssertAllAssembliesFromScanPathAreLoadedIntoContext(result, scanPath, testAssemblyLoadContext);
+        return targetDir;
+    }
+
+    static void AssertAssemblyIsLoadedIntoContext(
+        AssemblyScannerResults result,
+        string simpleName,
+        AssemblyLoadContext expectedLoadContext)
+    {
+        var assembly = result.Assemblies.FirstOrDefault(a => string.Equals(a.GetName().Name, simpleName, StringComparison.Ordinal));
+        Assert.That(assembly, Is.Not.Null, $"Expected '{simpleName}' to be present in scanned assemblies.");
+
+        var actualLoadContext = AssemblyLoadContext.GetLoadContext(assembly!);
+        Assert.That(ReferenceEquals(actualLoadContext, expectedLoadContext), Is.True,
+            $"Expected '{simpleName}' to be loaded into AssemblyLoadContext '{expectedLoadContext.Name}', but was '{actualLoadContext?.Name}'.");
     }
 
     [Test]
