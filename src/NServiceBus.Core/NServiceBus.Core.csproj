@@ -32,7 +32,7 @@
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
-  <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package">
+  <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package" Condition="'$(PkgFastExpressionCompiler_Internal_src)' != ''">
     <Compile Remove="$(PkgFastExpressionCompiler_Internal_src)\**\TestTools.cs" />
   </ItemGroup>
 

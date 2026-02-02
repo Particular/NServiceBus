@@ -92,7 +92,7 @@ class TransportReceiveToPhysicalMessageConnector(
                     message,
                     DeserializeRoutingStrategy(operation.Options),
                     operation.Options,
-                    DispatchConsistency.Isolated
+                    DispatchConsistency.Default
                     ));
         }
     }

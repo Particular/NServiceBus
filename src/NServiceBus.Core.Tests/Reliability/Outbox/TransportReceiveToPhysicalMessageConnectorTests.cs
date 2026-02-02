@@ -174,6 +174,25 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         }
     }
 
+    [Test]
+    public async Task Should_use_default_dispatch_consistency_when_dispatching_from_outbox()
+    {
+        var messageId = "id";
+        var properties = new DispatchProperties { ["Destination"] = "myEndpoint" };
+
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
+        {
+            new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
+        });
+
+        var context = CreateContext(fakeBatchPipeline, messageId);
+
+        await Invoke(context);
+
+        var operation = fakeBatchPipeline.TransportOperations.First();
+        Assert.That(operation.RequiredDispatchConsistency, Is.EqualTo(DispatchConsistency.Default));
+    }
+
     static TestableTransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
     {
         var context = new TestableTransportReceiveContext
