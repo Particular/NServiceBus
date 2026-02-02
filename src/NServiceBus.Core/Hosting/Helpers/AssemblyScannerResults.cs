@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 
 /// <summary>
 /// Holds <see cref="AssemblyScanner.GetScannableAssemblies" /> results.
@@ -46,7 +47,58 @@ public class AssemblyScannerResults
 
     internal void RemoveDuplicates()
     {
-        Assemblies = [.. Assemblies.Distinct()];
-        Types = [.. Types.Distinct()];
+        var contextualReflectionContext = AssemblyLoadContext.CurrentContextualReflectionContext;
+        var preferredAssemblies = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var assembly in Assemblies)
+        {
+            var fullName = assembly.FullName;
+            if (fullName is null)
+            {
+                continue;
+            }
+
+            if (!preferredAssemblies.TryGetValue(fullName, out var existing))
+            {
+                preferredAssemblies[fullName] = assembly;
+                continue;
+            }
+
+            preferredAssemblies[fullName] = PreferAssembly(existing, assembly, contextualReflectionContext);
+        }
+
+        Assemblies = [.. preferredAssemblies.Values];
+
+        var assemblySet = Assemblies.ToHashSet();
+        Types = [.. Types.Where(t => assemblySet.Contains(t.Assembly)).Distinct()];
+    }
+
+    static Assembly PreferAssembly(Assembly left, Assembly right, AssemblyLoadContext? contextualReflectionContext)
+    {
+        if (contextualReflectionContext is not null)
+        {
+            var leftContext = AssemblyLoadContext.GetLoadContext(left);
+            var rightContext = AssemblyLoadContext.GetLoadContext(right);
+
+            if (leftContext == contextualReflectionContext && rightContext != contextualReflectionContext)
+            {
+                return left;
+            }
+
+            if (rightContext == contextualReflectionContext && leftContext != contextualReflectionContext)
+            {
+                return right;
+            }
+        }
+
+        var leftIsDefault = AssemblyLoadContext.GetLoadContext(left) == AssemblyLoadContext.Default;
+        var rightIsDefault = AssemblyLoadContext.GetLoadContext(right) == AssemblyLoadContext.Default;
+
+        if (leftIsDefault != rightIsDefault)
+        {
+            return leftIsDefault ? left : right;
+        }
+
+        return left;
     }
 }
