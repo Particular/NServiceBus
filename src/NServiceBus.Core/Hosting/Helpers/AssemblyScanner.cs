@@ -72,10 +72,10 @@ public class AssemblyScanner
     public AssemblyScannerResults GetScannableAssemblies()
     {
         var results = new AssemblyScannerResults();
-        var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
+        var processed = new Dictionary<AssemblyIdentity, bool>
         {
-            { GetType().Assembly.FullName!, true },
-            { typeof(ICommand).Assembly.FullName!, true },
+            { GetAssemblyIdentity(GetType().Assembly), true },
+            { GetAssemblyIdentity(typeof(ICommand).Assembly), true },
         };
 
         if (assemblyToScan is not null)
@@ -200,19 +200,21 @@ public class AssemblyScanner
         }
     }
 
-    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
+    bool ScanAssembly(Assembly assembly, Dictionary<AssemblyIdentity, bool> processed)
     {
         if (assembly.FullName is null)
         {
             return false;
         }
 
-        if (processed.TryGetValue(assembly.FullName, out var value))
+        var identity = GetAssemblyIdentity(assembly);
+
+        if (processed.TryGetValue(identity, out var value))
         {
             return value;
         }
 
-        processed[assembly.FullName] = false;
+        processed[identity] = false;
 
         if (ShouldScanDependencies(assembly))
         {
@@ -226,14 +228,14 @@ public class AssemblyScanner
                     var referencesCore = ScanAssembly(referencedAssembly, processed);
                     if (referencesCore)
                     {
-                        processed[assembly.FullName] = true;
+                        processed[identity] = true;
                         break;
                     }
                 }
             }
         }
 
-        return processed[assembly.FullName];
+        return processed[identity];
     }
 
     static Assembly? GetReferencedAssembly(AssemblyLoadContext? context, AssemblyName assemblyName)
@@ -413,4 +415,9 @@ public class AssemblyScanner
         // And other windows azure stuff
         "Microsoft.WindowsAzure"
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+    static AssemblyIdentity GetAssemblyIdentity(Assembly assembly) =>
+      new(assembly.FullName!, AssemblyLoadContext.GetLoadContext(assembly));
+
+    readonly record struct AssemblyIdentity(string FullName, AssemblyLoadContext? LoadContext);
 }
