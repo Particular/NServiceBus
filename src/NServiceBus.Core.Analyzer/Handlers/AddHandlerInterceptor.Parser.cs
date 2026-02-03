@@ -32,7 +32,7 @@ public sealed partial class AddHandlerInterceptor
             ArgumentList.Arguments.Count: 0
         };
 
-        static bool IsAddHandlerMethod(IMethodSymbol method) => method is
+        internal static bool IsAddHandlerMethod(IMethodSymbol method) => method is
         {
             Name: AddHandlerMethodName,
             IsGenericMethod: true,

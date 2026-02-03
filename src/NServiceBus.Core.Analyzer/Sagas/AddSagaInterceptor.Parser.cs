@@ -31,7 +31,7 @@ public sealed partial class AddSagaInterceptor
             ArgumentList.Arguments.Count: 0
         };
 
-        static bool IsAddSagaMethod(IMethodSymbol method) => method is
+        internal static bool IsAddSagaMethod(IMethodSymbol method) => method is
         {
             Name: AddSagaMethodName,
             IsGenericMethod: true,
