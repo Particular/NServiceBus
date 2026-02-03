@@ -178,7 +178,8 @@ public class AssemblyScanner
 
         try
         {
-            var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
+            // if a plugin context is set, use it, otherwise use the context of the current assembly
+            var context = AssemblyLoadContext.CurrentContextualReflectionContext ?? AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
             assembly = context?.LoadFromAssemblyPath(assemblyPath);
 
             return assembly is not null;
