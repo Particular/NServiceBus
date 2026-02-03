@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package">
-    <Compile Remove="$(PkgFastExpressionCompiler_Internal_src)\**\TestTools.cs" />
+    <Compile Remove="$(PkgFastExpressionCompiler_Internal_src)\**\TestTools.cs" Condition="'$(PkgFastExpressionCompiler_Internal_src)' != ''" />
   </ItemGroup>
 
   <ItemGroup>
