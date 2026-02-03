@@ -79,7 +79,11 @@ public class AssemblyScanner
     public AssemblyScannerResults GetScannableAssemblies()
     {
         var results = new AssemblyScannerResults();
-        var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        var processed = new Dictionary<AssemblyIdentity, bool>
+        {
+            { GetAssemblyIdentity(GetType().Assembly), true },
+            { GetAssemblyIdentity(typeof(ICommand).Assembly), true },
+        };
 
         if (assemblyToScan != null)
         {
@@ -207,50 +211,54 @@ public class AssemblyScanner
         }
     }
 
-    bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
+    bool ScanAssembly(Assembly assembly, Dictionary<AssemblyIdentity, bool> processed)
     {
         if (assembly == null)
         {
             return false;
         }
 
-        if (processed.TryGetValue(assembly.FullName, out var value))
+        var identity = GetAssemblyIdentity(assembly);
+
+        if (processed.TryGetValue(identity, out var value))
         {
             return value;
         }
 
-        processed[assembly.FullName] = false;
+        processed[identity] = false;
 
         var assemblyName = assembly.GetName();
         if (IsCoreOrMessageInterfaceAssembly(assemblyName))
         {
-            return processed[assembly.FullName] = true;
+            return processed[identity] = true;
         }
 
         if (ShouldScanDependencies(assembly))
         {
+            var context = AssemblyLoadContext.GetLoadContext(assembly);
+
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
-                var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                var referencedAssembly = GetReferencedAssembly(context, referencedAssemblyName);
                 var referencesCore = ScanAssembly(referencedAssembly, processed);
                 if (referencesCore)
                 {
-                    processed[assembly.FullName] = true;
+                    processed[identity] = true;
                     break;
                 }
             }
         }
 
-        return processed[assembly.FullName];
+        return processed[identity];
     }
 
-    static Assembly GetReferencedAssembly(AssemblyName assemblyName)
+    static Assembly GetReferencedAssembly(AssemblyLoadContext context, AssemblyName assemblyName)
     {
         Assembly referencedAssembly = null;
 
         try
         {
-            referencedAssembly = Assembly.Load(assemblyName);
+            referencedAssembly = context?.LoadFromAssemblyName(assemblyName);
         }
         catch (Exception ex) when (ex is FileNotFoundException or BadImageFormatException or FileLoadException) { }
 
@@ -439,4 +447,9 @@ public class AssemblyScanner
         // And other windows azure stuff
         "Microsoft.WindowsAzure"
     };
+
+    static AssemblyIdentity GetAssemblyIdentity(Assembly assembly) =>
+      new(assembly.FullName!, AssemblyLoadContext.GetLoadContext(assembly));
+
+    readonly record struct AssemblyIdentity(string FullName, AssemblyLoadContext LoadContext);
 }
