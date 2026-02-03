@@ -41,7 +41,7 @@ class AssemblyScanningComponentTests
 
         var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
 
-        Assert.That(exception.Message, Does.Contain("Both file and appdomain scanning has been turned off"));
+        Assert.That(exception?.Message, Does.Contain("Both file and appdomain scanning has been turned off"));
     }
 
     [Test]
@@ -55,5 +55,18 @@ class AssemblyScanningComponentTests
         var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
         Assert.That(component.AvailableTypes, Is.Empty);
+    }
+
+    [Test]
+    public void Should_throw_enabled_and_dynamic_code_not_supported()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { DynamicCodeSupported = false };
+
+        var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
+
+        Assert.That(exception?.Message, Does.Contain("Assembly scanning is not supported on this system"));
     }
 }

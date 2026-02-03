@@ -12,19 +12,19 @@ class AssemblyScanningComponent
 {
     public static AssemblyScanningComponent Initialize(Configuration configuration, SettingsHolder settings)
     {
-        if (configuration.UserProvidedTypes != null)
-        {
-            return new AssemblyScanningComponent(configuration.UserProvidedTypes);
-        }
-
         if (configuration.AssemblyScannerConfiguration.Disable)
         {
             return new AssemblyScanningComponent([]);
         }
 
-        if (!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
+        if (!configuration.DynamicCodeSupported)
         {
             throw new Exception("Assembly scanning is not supported on this system. Please disable it and add manual registrations for handler, sagas, etc.");
+        }
+
+        if (configuration.UserProvidedTypes != null)
+        {
+            return new AssemblyScanningComponent(configuration.UserProvidedTypes);
         }
 
         var assemblyScannerSettings = configuration.AssemblyScannerConfiguration;
@@ -77,6 +77,8 @@ class AssemblyScanningComponent
 
     public class Configuration(SettingsHolder settings)
     {
+        public bool DynamicCodeSupported { get; set; } = System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
+
         public List<Type>? UserProvidedTypes { get; set; }
 
         public AssemblyScannerConfiguration AssemblyScannerConfiguration => settings.GetOrCreate<AssemblyScannerConfiguration>();
