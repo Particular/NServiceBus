@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
@@ -34,6 +35,12 @@ In all other cases, you should define your types as classes.
         foreach (var type in assembly.GetTypes().OrderBy(t => t.FullName))
         {
             if (!type.IsValueType || type.IsEnum || type.IsSpecialName || type.Namespace == null || !type.Namespace.StartsWith("NServiceBus") || type.FullName.Contains("__"))
+            {
+                continue;
+            }
+
+            // readonly structs can probably be ignored
+            if (type.GetCustomAttribute<IsReadOnlyAttribute>() != null)
             {
                 continue;
             }
