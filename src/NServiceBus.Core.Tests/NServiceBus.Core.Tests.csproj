@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="NuDoq" Version="2.0.1" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="4.4.0" />
