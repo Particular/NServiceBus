@@ -79,11 +79,7 @@ public class AssemblyScanner
     public AssemblyScannerResults GetScannableAssemblies()
     {
         var results = new AssemblyScannerResults();
-        var processed = new Dictionary<AssemblyIdentity, bool>
-        {
-            { GetAssemblyIdentity(GetType().Assembly), true },
-            { GetAssemblyIdentity(typeof(ICommand).Assembly), true },
-        };
+        var processed = new Dictionary<AssemblyIdentity, bool>();
 
         if (assemblyToScan != null)
         {
