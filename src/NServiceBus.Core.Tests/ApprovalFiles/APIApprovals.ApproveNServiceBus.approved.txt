@@ -1463,7 +1463,7 @@ namespace NServiceBus.Features
 }
 namespace NServiceBus.Hosting.Helpers
 {
-    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Assembly scanning require access to unreferenced code")]
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Assembly scanning requires access to unreferenced code")]
     public class AssemblyScanner
     {
         public AssemblyScanner() { }
