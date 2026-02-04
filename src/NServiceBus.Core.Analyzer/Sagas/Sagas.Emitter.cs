@@ -1,8 +1,9 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Handlers;
 using Utility;
@@ -66,20 +67,36 @@ public static partial class Sagas
 
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            var allPropertyMappings = sagas
-                .SelectMany(i => i.PropertyMappings)
-                .GroupBy(m => (m.MessageType, m.MessagePropertyName))
-                .Select(g => g.First())
-                .OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ThenBy(m => m.MessagePropertyName, StringComparer.Ordinal)
-                .ToArray();
-
-            if (allPropertyMappings.Length > 0)
+            // Use Dictionary for O(1) deduplication instead of GroupBy
+            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName), PropertyMappingSpec>();
+            foreach (var saga in sagas)
             {
-                sourceWriter.WriteLine();
+                foreach (var mapping in saga.PropertyMappings)
+                {
+                    var key = (mapping.MessageType, mapping.MessagePropertyName);
+                    if (!uniqueMappings.ContainsKey(key))
+                    {
+                        uniqueMappings.Add(key, mapping);
+                    }
+                }
             }
 
-            for (var index = 0; index < allPropertyMappings.Length; index++)
+            if (uniqueMappings.Count == 0)
+            {
+                return;
+            }
+
+            // Convert to list and sort once
+            var allPropertyMappings = new List<PropertyMappingSpec>(uniqueMappings.Values);
+            allPropertyMappings.Sort((a, b) =>
+            {
+                var messageTypeComparison = string.CompareOrdinal(a.MessageType, b.MessageType);
+                return messageTypeComparison != 0 ? messageTypeComparison : string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
+            });
+
+            sourceWriter.WriteLine();
+
+            for (var index = 0; index < allPropertyMappings.Count; index++)
             {
                 var mapping = allPropertyMappings[index];
                 var accessorClassName = MessagePropertyAccessorName(mapping);
@@ -100,7 +117,7 @@ public static partial class Sagas
                 sourceWriter.Indentation--;
 
                 sourceWriter.WriteLine("}");
-                if (index < allPropertyMappings.Length - 1)
+                if (index < allPropertyMappings.Count - 1)
                 {
                     sourceWriter.WriteLine();
                 }
@@ -115,20 +132,32 @@ public static partial class Sagas
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            var allPropertyMappings = sagas
-                .Select(i => i.CorrelationPropertyMapping)
-                .GroupBy(m => (MessagePropertyType: m.PropertyType, MessagePropertyName: m.PropertyName))
-                .Select(g => g.First())
-                .OrderBy(m => m.PropertyType, StringComparer.Ordinal)
-                .ThenBy(m => m.PropertyName, StringComparer.Ordinal)
-                .ToArray();
-
-            if (allPropertyMappings.Length > 0)
+            var uniqueMappings = new Dictionary<(string PropertyType, string PropertyName), CorrelationPropertyMappingSpec>();
+            foreach (var saga in sagas)
             {
-                sourceWriter.WriteLine();
+                var mapping = saga.CorrelationPropertyMapping;
+                var key = (mapping.PropertyType, mapping.PropertyName);
+                if (!uniqueMappings.ContainsKey(key))
+                {
+                    uniqueMappings.Add(key, mapping);
+                }
             }
 
-            for (var index = 0; index < allPropertyMappings.Length; index++)
+            if (uniqueMappings.Count == 0)
+            {
+                return;
+            }
+
+            var allPropertyMappings = new List<CorrelationPropertyMappingSpec>(uniqueMappings.Values);
+            allPropertyMappings.Sort(static (a, b) =>
+            {
+                var typeComparison = string.CompareOrdinal(a.PropertyType, b.PropertyType);
+                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.PropertyName, b.PropertyName);
+            });
+
+            sourceWriter.WriteLine();
+
+            for (var index = 0; index < allPropertyMappings.Count; index++)
             {
                 var mapping = allPropertyMappings[index];
                 var accessorClassName = CorrelationPropertyAccessorName(mapping);
@@ -154,7 +183,7 @@ public static partial class Sagas
                 sourceWriter.Indentation--;
 
                 sourceWriter.WriteLine("}");
-                if (index < allPropertyMappings.Length - 1)
+                if (index < allPropertyMappings.Count - 1)
                 {
                     sourceWriter.WriteLine();
                 }
