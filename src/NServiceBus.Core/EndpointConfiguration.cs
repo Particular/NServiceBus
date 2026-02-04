@@ -141,10 +141,15 @@ public class EndpointConfiguration : ExposeSettings
                 throw new Exception($"Unable to create the type '{type.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
             }
 
-            var instanceToInvoke = (T)Activator.CreateInstance(type);
+            Invoke(type, action);
+        }
+
+        static void Invoke<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.InitializationExtension)] TInitializationExtension>(Type type, Action<TInitializationExtension> action)
+        {
+            var instanceToInvoke = (TInitializationExtension)Activator.CreateInstance(type);
             action(instanceToInvoke);
         }
 
-        static bool HasDefaultConstructor([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type) => type.GetConstructor(Type.EmptyTypes) != null;
+        static bool HasDefaultConstructor([DynamicallyAccessedMembers(DynamicMemberTypeAccess.InitializationExtension)] Type type) => type.GetConstructor(Type.EmptyTypes) != null;
     }
 }
