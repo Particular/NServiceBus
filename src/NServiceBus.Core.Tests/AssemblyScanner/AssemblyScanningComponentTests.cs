@@ -67,6 +67,6 @@ class AssemblyScanningComponentTests
 
         var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
 
-        Assert.That(exception?.Message, Does.Contain("Assembly scanning is not supported on this system"));
+        Assert.That(exception?.Message, Does.Contain("Assembly scanning requires to access unreferenced and dynamic code"));
     }
 }
