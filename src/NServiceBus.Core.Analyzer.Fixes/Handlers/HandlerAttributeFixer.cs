@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Fixes;
+﻿namespace NServiceBus.Core.Analyzer.Fixes;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;

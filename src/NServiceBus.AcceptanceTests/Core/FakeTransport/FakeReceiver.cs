@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.FakeTransport;
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport;
 
 using System;
 using System.Threading;

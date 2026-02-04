@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Serialization;
+﻿namespace NServiceBus.AcceptanceTests.Serialization;
 
 using System.Linq;
 using System.Text;

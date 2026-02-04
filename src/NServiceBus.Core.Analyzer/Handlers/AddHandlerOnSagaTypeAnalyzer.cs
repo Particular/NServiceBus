@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Handlers;
+﻿namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;

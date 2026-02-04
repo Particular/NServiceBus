@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Tests;
+﻿namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Helpers;

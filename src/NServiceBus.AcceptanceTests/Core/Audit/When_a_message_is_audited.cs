@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Audit;
+﻿namespace NServiceBus.AcceptanceTests.Audit;
 
 using System;
 using System.Collections.Generic;

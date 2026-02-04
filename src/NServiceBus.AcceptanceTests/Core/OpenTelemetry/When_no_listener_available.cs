@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using System;
 using System.Diagnostics;

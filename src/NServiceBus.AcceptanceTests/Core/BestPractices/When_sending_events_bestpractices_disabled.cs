@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.BestPractices;
+﻿namespace NServiceBus.AcceptanceTests.Core.BestPractices;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;

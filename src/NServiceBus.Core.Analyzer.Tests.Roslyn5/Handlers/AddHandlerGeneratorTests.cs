@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Tests.Handlers;
+﻿namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 
 using Analyzer.Handlers;
 using Helpers;

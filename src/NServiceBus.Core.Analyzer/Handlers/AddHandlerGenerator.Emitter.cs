@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Diagnostics;

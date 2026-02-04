@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Tests.Helpers;
+﻿namespace NServiceBus.Core.Analyzer.Tests.Helpers;
 
 using System;
 using System.Collections.Immutable;

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
+﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

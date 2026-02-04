@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
+﻿namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;

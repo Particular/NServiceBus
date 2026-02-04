@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Handlers;
+﻿namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Linq;
 using Utility;

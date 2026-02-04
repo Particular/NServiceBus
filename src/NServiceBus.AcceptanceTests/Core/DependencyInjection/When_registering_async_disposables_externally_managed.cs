@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;

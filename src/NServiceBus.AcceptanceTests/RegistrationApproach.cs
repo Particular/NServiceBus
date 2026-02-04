@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests;
+﻿namespace NServiceBus.AcceptanceTests;
 
 public enum RegistrationApproach
 {

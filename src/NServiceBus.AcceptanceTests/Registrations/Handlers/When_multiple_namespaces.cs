@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Registrations.Handlers
+﻿namespace NServiceBus.AcceptanceTests.Registrations.Handlers
 {
     using System.Threading.Tasks;
     using NServiceBus;

@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer.Sagas;
+﻿namespace NServiceBus.Core.Analyzer.Sagas;
 
 using Microsoft.CodeAnalysis;
 

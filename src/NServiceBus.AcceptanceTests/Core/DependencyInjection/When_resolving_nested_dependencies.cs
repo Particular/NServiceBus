@@ -1,4 +1,4 @@
-
+﻿
 namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;

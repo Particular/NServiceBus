@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Outbox;
+﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System.Threading;
 using System.Threading.Tasks;

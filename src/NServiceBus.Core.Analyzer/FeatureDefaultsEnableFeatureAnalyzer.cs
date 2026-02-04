@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer;
+﻿namespace NServiceBus.Core.Analyzer;
 
 using System.Collections.Immutable;
 using System.Linq;
