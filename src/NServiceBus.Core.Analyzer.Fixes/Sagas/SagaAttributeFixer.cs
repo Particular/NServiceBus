@@ -78,7 +78,13 @@ namespace NServiceBus.Core.Analyzer.Fixes
             CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            var updatedClass = AddSagaAttributeToClass(classDeclaration);
+            var sagaAttribute = editor.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.SagaAttribute");
+            if (sagaAttribute is null)
+            {
+                return document;
+            }
+
+            var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, sagaAttribute);
             editor.ReplaceNode(classDeclaration, updatedClass);
 
             var changed = editor.GetChangedDocument();
@@ -222,7 +228,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 var editor = await GetEditor(doc.Id).ConfigureAwait(false);
                 if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
                 {
-                    var updated = AddSagaAttributeToClass(classDecl);
+                    var updated = AddAttributeToClass(classDecl, editor.Generator, sagaAttribute);
                     editor.ReplaceNode(classDecl, updated);
                 }
             }
@@ -251,14 +257,11 @@ namespace NServiceBus.Core.Analyzer.Fixes
             }
         }
 
-        static ClassDeclarationSyntax AddSagaAttributeToClass(ClassDeclarationSyntax classDeclaration)
-        {
-            var attribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("Saga"));
-            var attributeList = SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute))
-                .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed)
-                .WithAdditionalAnnotations(Formatter.Annotation);
-            return classDeclaration.AddAttributeLists(attributeList);
-        }
+        static ClassDeclarationSyntax AddAttributeToClass(
+            ClassDeclarationSyntax classDeclaration,
+            SyntaxGenerator generator,
+            INamedTypeSymbol attributeSymbol) =>
+            (ClassDeclarationSyntax)generator.AddAttributes(classDeclaration, generator.Attribute(generator.TypeExpression(attributeSymbol)));
 
         static ClassDeclarationSyntax RemoveSagaAttribute(
             ClassDeclarationSyntax classDeclaration,
