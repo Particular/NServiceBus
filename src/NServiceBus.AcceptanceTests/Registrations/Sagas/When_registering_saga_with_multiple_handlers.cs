@@ -1,9 +1,9 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanceTest
@@ -16,7 +16,7 @@ public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanc
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<MultiHandlerSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<MultiHandlerSagaEndpoint.MultiMessageSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_multiple_handlers__MultiHandlerSagaEndpoint__MultiMessageSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_registering_saga_with_multiple_handlers__MultiHandlerSagaEndpoint__MultiMessageSaga())
                 .When(session => session.SendLocal(new StartOrder { OrderId = orderId }))
                 .When(c => c.OrderStarted, session => session.SendLocal(new UpdateOrder { OrderId = orderId }))
                 .When(c => c.OrderUpdated, session => session.SendLocal(new CompleteOrder { OrderId = orderId })))

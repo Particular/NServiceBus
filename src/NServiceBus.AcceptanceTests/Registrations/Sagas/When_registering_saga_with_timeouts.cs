@@ -1,9 +1,9 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_registering_saga_with_timeouts : NServiceBusAcceptanceTest
@@ -11,12 +11,14 @@ public class When_registering_saga_with_timeouts : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_register_timeout_handler_with_manually_registered_saga([Values] RegistrationApproach approach)
     {
+        Requires.DelayedDelivery();
+
         var id = Guid.NewGuid();
 
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<ManualTimeoutSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<ManualTimeoutSagaEndpoint.TimeoutHandlingSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_timeouts__ManualTimeoutSagaEndpoint__TimeoutHandlingSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_registering_saga_with_timeouts__ManualTimeoutSagaEndpoint__TimeoutHandlingSaga())
                 .When(session => session.SendLocal(new StartSagaWithTimeout { OrderId = id })))
             .Run();
 

@@ -1,9 +1,9 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_registering_saga_with_header_mapping : NServiceBusAcceptanceTest
@@ -16,7 +16,7 @@ public class When_registering_saga_with_header_mapping : NServiceBusAcceptanceTe
         Context context = await Scenario.Define<Context>()
             .WithEndpoint<HeaderMappingSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<HeaderMappingSagaEndpoint.HeaderCorrelationSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga_with_header_mapping__HeaderMappingSagaEndpoint__HeaderCorrelationSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_registering_saga_with_header_mapping__HeaderMappingSagaEndpoint__HeaderCorrelationSaga())
                 .When(async session =>
                 {
                     var options = new SendOptions();

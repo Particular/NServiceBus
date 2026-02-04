@@ -1,9 +1,9 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTest
@@ -17,7 +17,7 @@ public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTes
         var context = await Scenario.Define<Context>()
             .WithEndpoint<HybridSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<HybridSagaEndpoint.ManuallyRegisteredOrderSaga>(),
-                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagas__HybridSagaEndpoint__ManuallyRegisteredOrderSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_mixing_registered_and_scanned_sagas__HybridSagaEndpoint__ManuallyRegisteredOrderSaga())
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = manualId }))
                 .When(session => session.SendLocal(new StartScannedSaga { PaymentId = scannedId })))
             .Run();
@@ -39,7 +39,7 @@ public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTes
         var context = await Scenario.Define<Context>()
             .WithEndpoint<DuplicateRegistrationEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<DuplicateRegistrationEndpoint.DuplicateRegistrationSaga>(),
-                    static registry => registry.Sagas.AddWhen_mixing_registered_and_scanned_sagas__DuplicateRegistrationEndpoint__DuplicateRegistrationSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_mixing_registered_and_scanned_sagas__DuplicateRegistrationEndpoint__DuplicateRegistrationSaga())
                 .When(session => session.SendLocal(new StartDuplicateSaga { OrderId = orderId })))
             .Run();
 
@@ -90,7 +90,9 @@ public class When_mixing_registered_and_scanned_sagas : NServiceBusAcceptanceTes
             public virtual Guid OrderId { get; set; }
         }
 
+#pragma warning disable NSB0025
         public class ScannedPaymentSaga(Context testContext)
+#pragma warning restore NSB0025
             : Saga<ScannedPaymentSagaData>, IAmStartedByMessages<StartScannedSaga>
         {
             public Task Handle(StartScannedSaga message, IMessageHandlerContext context)

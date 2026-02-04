@@ -1,11 +1,11 @@
-namespace NServiceBus.AcceptanceTests.Handlers
+namespace NServiceBus.AcceptanceTests.Registrations.Handlers
 {
     using System.Threading.Tasks;
-    using EndpointTemplates;
-    using MyMessages;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
+    using MyMessages;
 
     public class When_multiple_namespaces : NServiceBusAcceptanceTest
     {

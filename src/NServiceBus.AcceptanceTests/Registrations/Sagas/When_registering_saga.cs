@@ -1,9 +1,9 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Registrations.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using AcceptanceTesting;
-using EndpointTemplates;
+using NServiceBus.AcceptanceTesting;
+using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
 public class When_registering_saga : NServiceBusAcceptanceTest
@@ -16,7 +16,7 @@ public class When_registering_saga : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ManualSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<ManualSagaEndpoint.ManuallyRegisteredSaga>(),
-                    static registry => registry.Sagas.AddWhen_registering_saga__ManualSagaEndpoint__ManuallyRegisteredSaga())
+                    static registry => registry.Registrations.Sagas.AddWhen_registering_saga__ManualSagaEndpoint__ManuallyRegisteredSaga())
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = id })))
             .Run();
 
