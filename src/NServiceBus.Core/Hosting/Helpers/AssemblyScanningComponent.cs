@@ -19,7 +19,7 @@ class AssemblyScanningComponent
 
         if (!configuration.DynamicCodeSupported)
         {
-            throw new Exception("Assembly scanning is not supported on this system. Please disable it and add manual registrations for handler, sagas, etc.");
+            throw new Exception("Assembly scanning requires to access unreferenced and dynamic code which is not supported on this system. Please disable assembly scanning and add manual registrations for handler, sagas, etc. using the corresponding APIs");
         }
 
         if (configuration.UserProvidedTypes != null)
