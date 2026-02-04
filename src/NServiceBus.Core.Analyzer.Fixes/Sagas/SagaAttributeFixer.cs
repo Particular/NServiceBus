@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using NServiceBus.Core.Analyzer.Sagas;
 
 [Shared]
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SagaAttributeFixer))]
@@ -78,13 +79,12 @@ public class SagaAttributeFixer : CodeFixProvider
         CancellationToken cancellationToken)
     {
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-        var sagaAttribute = editor.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.SagaAttribute");
-        if (sagaAttribute is null)
+        if (!SagaKnownTypes.TryGet(editor.SemanticModel.Compilation, out var knownTypes))
         {
             return document;
         }
 
-        var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, sagaAttribute);
+        var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, knownTypes.SagaAttribute);
         editor.ReplaceNode(classDeclaration, updatedClass);
 
         return editor.GetChangedDocument();
@@ -99,15 +99,12 @@ public class SagaAttributeFixer : CodeFixProvider
         var semanticModel = editor.SemanticModel;
 
         var compilation = semanticModel.Compilation;
-        // TODO cache?
-        var sagaBaseType = compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
-        var sagaAttribute = compilation.GetTypeByMetadataName("NServiceBus.SagaAttribute");
-        if (sagaBaseType is null || sagaAttribute is null)
+        if (!SagaKnownTypes.TryGet(compilation, out var knownTypes))
         {
             return document;
         }
 
-        var updatedClass = RemoveSagaAttribute(classDeclaration, semanticModel, editor.Generator, sagaAttribute, cancellationToken);
+        var updatedClass = RemoveSagaAttribute(classDeclaration, semanticModel, editor.Generator, knownTypes.SagaAttribute, cancellationToken);
         editor.ReplaceNode(classDeclaration, updatedClass);
 
         return editor.GetChangedDocument();
@@ -128,9 +125,7 @@ public class SagaAttributeFixer : CodeFixProvider
         }
 
         var compilation = semanticModel.Compilation;
-        var sagaBaseType = compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
-        var sagaAttribute = compilation.GetTypeByMetadataName("NServiceBus.SagaAttribute");
-        if (sagaBaseType is null || sagaAttribute is null)
+        if (!SagaKnownTypes.TryGet(compilation, out var knownTypes))
         {
             return solution;
         }
@@ -152,7 +147,7 @@ public class SagaAttributeFixer : CodeFixProvider
                 continue;
             }
 
-            if (!type.ImplementsGenericType(sagaBaseType))
+            if (!type.ImplementsGenericType(knownTypes.SagaBase))
             {
                 continue;
             }
@@ -171,7 +166,7 @@ public class SagaAttributeFixer : CodeFixProvider
         foreach (var type in sagaTypes)
         {
             var isLeaf = !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition);
-            var hasAttribute = type.HasAttribute(sagaAttribute);
+            var hasAttribute = type.HasAttribute(knownTypes.SagaAttribute);
 
             if (isLeaf)
             {
@@ -199,7 +194,7 @@ public class SagaAttributeFixer : CodeFixProvider
                 var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
                 if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
                 {
-                    var updated = RemoveSagaAttribute(classDecl, editor.SemanticModel, editor.Generator, sagaAttribute, cancellationToken);
+                    var updated = RemoveSagaAttribute(classDecl, editor.SemanticModel, editor.Generator, knownTypes.SagaAttribute, cancellationToken);
                     editor.ReplaceNode(classDecl, updated);
                 }
             }
@@ -222,7 +217,7 @@ public class SagaAttributeFixer : CodeFixProvider
             var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
             if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
             {
-                var updated = AddAttributeToClass(classDecl, editor.Generator, sagaAttribute);
+                var updated = AddAttributeToClass(classDecl, editor.Generator, knownTypes.SagaAttribute);
                 editor.ReplaceNode(classDecl, updated);
             }
         }

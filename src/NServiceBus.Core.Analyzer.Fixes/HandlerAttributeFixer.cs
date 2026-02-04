@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using NServiceBus.Core.Analyzer.Handlers;
 
 [Shared]
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(HandlerAttributeFixer))]
@@ -78,13 +79,12 @@ public class HandlerAttributeFixer : CodeFixProvider
         CancellationToken cancellationToken)
     {
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-        var handlerAttributeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
-        if (handlerAttributeSymbol is null)
+        if (!HandlerKnownTypes.TryGet(editor.SemanticModel.Compilation, out var knownTypes))
         {
             return document;
         }
 
-        var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, handlerAttributeSymbol);
+        var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, knownTypes.HandlerAttribute);
         editor.ReplaceNode(classDeclaration, updatedClass);
 
         return editor.GetChangedDocument();
@@ -99,15 +99,12 @@ public class HandlerAttributeFixer : CodeFixProvider
         var semanticModel = editor.SemanticModel;
 
         var compilation = semanticModel.Compilation;
-        // TODO cache?
-        var iHandleMessages = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
-        var handlerAttributeSymbol = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
-        if (iHandleMessages is null || handlerAttributeSymbol is null)
+        if (!HandlerKnownTypes.TryGet(compilation, out var knownTypes))
         {
             return document;
         }
 
-        var updatedClass = RemoveHandlerAttribute(classDeclaration, semanticModel, editor.Generator, handlerAttributeSymbol, cancellationToken);
+        var updatedClass = RemoveHandlerAttribute(classDeclaration, semanticModel, editor.Generator, knownTypes.HandlerAttribute, cancellationToken);
         editor.ReplaceNode(classDeclaration, updatedClass);
 
         return editor.GetChangedDocument();
@@ -128,9 +125,7 @@ public class HandlerAttributeFixer : CodeFixProvider
         }
 
         var compilation = semanticModel.Compilation;
-        var iHandleMessages = compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
-        var handlerAttributeSymbol = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
-        if (iHandleMessages is null || handlerAttributeSymbol is null)
+        if (!HandlerKnownTypes.TryGet(compilation, out var knownTypes))
         {
             return solution;
         }
@@ -152,7 +147,7 @@ public class HandlerAttributeFixer : CodeFixProvider
                 continue;
             }
 
-            if (!type.ImplementsGenericInterface(iHandleMessages))
+            if (!type.ImplementsGenericInterface(knownTypes.IHandleMessages))
             {
                 continue;
             }
@@ -171,7 +166,7 @@ public class HandlerAttributeFixer : CodeFixProvider
         foreach (var type in handlerTypes)
         {
             var isLeaf = !type.IsAbstract && !baseTypes.Contains(type.OriginalDefinition);
-            var hasAttribute = type.HasAttribute(handlerAttributeSymbol);
+            var hasAttribute = type.HasAttribute(knownTypes.HandlerAttribute);
 
             if (isLeaf)
             {
@@ -199,7 +194,7 @@ public class HandlerAttributeFixer : CodeFixProvider
                 var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
                 if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
                 {
-                    var updated = RemoveHandlerAttribute(classDecl, editor.SemanticModel, editor.Generator, handlerAttributeSymbol, cancellationToken);
+                    var updated = RemoveHandlerAttribute(classDecl, editor.SemanticModel, editor.Generator, knownTypes.HandlerAttribute, cancellationToken);
                     editor.ReplaceNode(classDecl, updated);
                 }
             }
@@ -222,7 +217,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
             if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
             {
-                var updated = AddAttributeToClass(classDecl, editor.Generator, handlerAttributeSymbol);
+                var updated = AddAttributeToClass(classDecl, editor.Generator, knownTypes.HandlerAttribute);
                 editor.ReplaceNode(classDecl, updated);
             }
         }

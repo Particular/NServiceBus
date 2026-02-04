@@ -19,18 +19,13 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.RegisterCompilationStartAction(static compilationContext =>
         {
-            var iHandleMessages = compilationContext.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
-            var handlerAttribute = compilationContext.Compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
-            var sagaBase = compilationContext.Compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
-
-            if (iHandleMessages is null || handlerAttribute is null || sagaBase is null)
+            if (!HandlerKnownTypes.TryGet(compilationContext.Compilation, out var knownTypes))
             {
                 return;
             }
 
             var handlerTypes = new ConcurrentDictionary<INamedTypeSymbol, HandlerTypeSpec>(SymbolEqualityComparer.Default);
             var baseTypes = new ConcurrentDictionary<INamedTypeSymbol, byte>(SymbolEqualityComparer.Default);
-            var knownTypes = new KnownTypeSpec(iHandleMessages, handlerAttribute, sagaBase);
 
             compilationContext.RegisterSymbolAction(context =>
             {
@@ -41,12 +36,12 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || classType.ImplementsGenericType(knownTypes.SagaBase))
                 {
-                    if (!classType.HasAttribute(handlerAttribute))
+                    if (!classType.HasAttribute(knownTypes.HandlerAttribute))
                     {
                         return;
                     }
 
-                    foreach (var location in classType.GetAttributeLocations(handlerAttribute, context.CancellationToken))
+                    foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
                     {
                         if (location is not null)
                         {
@@ -144,7 +139,6 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
     }
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
-    readonly record struct KnownTypeSpec(INamedTypeSymbol IHandleMessages, INamedTypeSymbol HandlerAttribute, INamedTypeSymbol SagaBase);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,

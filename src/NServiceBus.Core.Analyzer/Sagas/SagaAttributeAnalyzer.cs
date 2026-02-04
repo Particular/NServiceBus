@@ -19,17 +19,13 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.RegisterCompilationStartAction(static compilationContext =>
         {
-            var sagaBaseClass = compilationContext.Compilation.GetTypeByMetadataName("NServiceBus.Saga`1");
-            var sagaAttribute = compilationContext.Compilation.GetTypeByMetadataName("NServiceBus.SagaAttribute");
-
-            if (sagaBaseClass is null || sagaAttribute is null)
+            if (!SagaKnownTypes.TryGet(compilationContext.Compilation, out var knownTypes))
             {
                 return;
             }
 
             var sagaTypes = new ConcurrentDictionary<INamedTypeSymbol, SagaTypeSpec>(SymbolEqualityComparer.Default);
             var baseTypes = new ConcurrentDictionary<INamedTypeSymbol, byte>(SymbolEqualityComparer.Default);
-            var knownTypes = new KnownTypeSpec(sagaBaseClass, sagaAttribute);
 
             compilationContext.RegisterSymbolAction(context =>
             {
@@ -38,14 +34,14 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
                     return;
                 }
 
-                if (!classType.ImplementsGenericType(knownTypes.SagaBaseClass))
+                if (!classType.ImplementsGenericType(knownTypes.SagaBase))
                 {
-                    if (!classType.HasAttribute(sagaAttribute))
+                    if (!classType.HasAttribute(knownTypes.SagaAttribute))
                     {
                         return;
                     }
 
-                    foreach (var location in classType.GetAttributeLocations(sagaAttribute, context.CancellationToken))
+                    foreach (var location in classType.GetAttributeLocations(knownTypes.SagaAttribute, context.CancellationToken))
                     {
                         if (location is not null)
                         {
@@ -143,7 +139,6 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
     }
 
     readonly record struct SagaTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
-    readonly record struct KnownTypeSpec(INamedTypeSymbol SagaBaseClass, INamedTypeSymbol SagaAttribute);
 
     static readonly DiagnosticDescriptor SagaAttributeMissing = new(
         id: DiagnosticIds.SagaAttributeMissing,
