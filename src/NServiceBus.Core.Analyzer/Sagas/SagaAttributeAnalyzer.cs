@@ -142,8 +142,8 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
 
     static readonly DiagnosticDescriptor SagaAttributeMissing = new(
         id: DiagnosticIds.SagaAttributeMissing,
-        title: "SagaAttribute should be applied to sagas",
-        messageFormat: "The saga {0} should be marked with SagaAttribute.",
+        title: "Mark sagas with SagaAttribute to enable source generation",
+        messageFormat: "Mark saga class {0} with SagaAttribute to enable generation of handler registration methods.",
         category: SagaDiagnostics.DiagnosticCategory,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
@@ -151,8 +151,8 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
 
     static readonly DiagnosticDescriptor SagaAttributeMissingImmediate = new(
         id: DiagnosticIds.SagaAttributeMissing,
-        title: "SagaAttribute should be applied to sagas",
-        messageFormat: "The saga {0} should be marked with SagaAttribute.",
+        title: "Mark sagas with SagaAttribute to enable source generation",
+        messageFormat: "Mark saga class {0} with SagaAttribute to enable generation of handler registration methods.",
         category: SagaDiagnostics.DiagnosticCategory,
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
@@ -160,7 +160,7 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
     static readonly DiagnosticDescriptor SagaAttributeMisplaced = new(
         id: DiagnosticIds.SagaAttributeMisplaced,
         title: "SagaAttribute should be applied to concrete saga classes",
-        messageFormat: "SagaAttribute is applied to {0}, but should be placed on the concrete saga class (not a base class).",
+        messageFormat: "SagaAttribute is applied to base class {0}, but should be placed on the concrete saga class.",
         category: SagaDiagnostics.DiagnosticCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -169,7 +169,7 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
     static readonly DiagnosticDescriptor SagaAttributeMisplacedImmediate = new(
         id: DiagnosticIds.SagaAttributeMisplaced,
         title: "SagaAttribute should be applied to concrete saga classes",
-        messageFormat: "SagaAttribute is applied to {0}, but should be placed on the concrete saga class (not a base class).",
+        messageFormat: "SagaAttribute is applied to base class {0}, but should be placed on the concrete saga class.",
         category: SagaDiagnostics.DiagnosticCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
@@ -177,7 +177,7 @@ public class SagaAttributeAnalyzer : DiagnosticAnalyzer
     static readonly DiagnosticDescriptor SagaAttributeOnNonSagaType = new(
         id: DiagnosticIds.SagaAttributeOnNonSaga,
         title: "SagaAttribute should be applied to classes implementing Saga",
-        messageFormat: "SagaAttribute is applied to {0}, but should be placed on a concrete saga class (not a base class) implementing Saga.",
+        messageFormat: "SagaAttribute is applied to base class {0}, but should be placed on a concrete saga class implementing Saga<T>.",
         category: SagaDiagnostics.DiagnosticCategory,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
