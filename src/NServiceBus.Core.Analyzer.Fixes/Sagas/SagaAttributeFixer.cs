@@ -135,6 +135,8 @@ public class SagaAttributeFixer : CodeFixProvider
             return solution;
         }
 
+        var solutionEditor = new SolutionEditor(solution);
+
         var sagaTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
@@ -184,11 +186,9 @@ public class SagaAttributeFixer : CodeFixProvider
             }
         }
 
-        var editors = new Dictionary<DocumentId, DocumentEditor>();
-
-        foreach (var handlerType in nonLeafSagasWithAttribute)
+        foreach (var sagaType in nonLeafSagasWithAttribute)
         {
-            foreach (var syntaxRef in handlerType.DeclaringSyntaxReferences)
+            foreach (var syntaxRef in sagaType.DeclaringSyntaxReferences)
             {
                 var doc = solution.GetDocument(syntaxRef.SyntaxTree);
                 if (doc is null)
@@ -196,7 +196,7 @@ public class SagaAttributeFixer : CodeFixProvider
                     continue;
                 }
 
-                var editor = await GetEditor(doc.Id).ConfigureAwait(false);
+                var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
                 if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
                 {
                     var updated = RemoveSagaAttribute(classDecl, editor.SemanticModel, editor.Generator, sagaAttribute, cancellationToken);
@@ -219,7 +219,7 @@ public class SagaAttributeFixer : CodeFixProvider
                 continue;
             }
 
-            var editor = await GetEditor(doc.Id).ConfigureAwait(false);
+            var editor = await solutionEditor.GetDocumentEditorAsync(doc.Id, cancellationToken).ConfigureAwait(false);
             if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
             {
                 var updated = AddAttributeToClass(classDecl, editor.Generator, sagaAttribute);
@@ -227,27 +227,7 @@ public class SagaAttributeFixer : CodeFixProvider
             }
         }
 
-        foreach (var editor in editors.Values)
-        {
-            var changed = editor.GetChangedDocument();
-            var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            solution = solution.WithDocumentSyntaxRoot(changed.Id, root);
-        }
-
-        return solution;
-
-        async Task<DocumentEditor> GetEditor(DocumentId documentId)
-        {
-            if (editors.TryGetValue(documentId, out var existing))
-            {
-                return existing;
-            }
-
-            var doc = solution.GetDocument(documentId);
-            var editor = await DocumentEditor.CreateAsync(doc, cancellationToken).ConfigureAwait(false);
-            editors[documentId] = editor;
-            return editor;
-        }
+        return solutionEditor.GetChangedSolution();
     }
 
     static ClassDeclarationSyntax AddAttributeToClass(
