@@ -2,9 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Handlers;
 using Utility;
 
@@ -88,7 +86,7 @@ public static partial class Sagas
 
             // Convert to list and sort once
             var allPropertyMappings = new List<PropertyMappingSpec>(uniqueMappings.Values);
-            allPropertyMappings.Sort((a, b) =>
+            allPropertyMappings.Sort(static (a, b) =>
             {
                 var messageTypeComparison = string.CompareOrdinal(a.MessageType, b.MessageType);
                 return messageTypeComparison != 0 ? messageTypeComparison : string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
