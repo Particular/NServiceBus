@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,10 +25,25 @@ public partial class AddHandlerAndSagasRegistrationGenerator
         }
 
         public record BaseSpec(string Name, string Namespace, string AssemblyName, string FullyQualifiedName, SpecKind Kind);
-        public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, ImmutableEquatableArray<string> RegistrationMethodNamePatterns, bool IsExplicit)
+
+        // We override equality members to ignore the Regex property, and Regex doesn't reasonably support equality comparison
+        public readonly record struct ReplacementSpec(string Replacement, string Expression, Regex Regex)
+        {
+            public bool Equals(ReplacementSpec other) => Replacement == other.Replacement && Expression == other.Expression;
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (Replacement.GetHashCode() * 397) ^ Expression.GetHashCode();
+                }
+            }
+        }
+
+        public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, ImmutableEquatableArray<ReplacementSpec> RegistrationMethodNamePatterns, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
-                => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", ImmutableEquatableArray<string>.Empty, false);
+                => new("NServiceBus", "public", $"{assemblyId}Assembly", $"{assemblyId}{HandlerRegistryExtensionsSuffix}", ImmutableEquatableArray<ReplacementSpec>.Empty, false);
         }
 
         public static BaseSpec? Parse(GeneratorAttributeSyntaxContext context, SpecKind kind, CancellationToken cancellationToken = default) =>
@@ -128,7 +144,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return null;
         }
 
-        static ImmutableEquatableArray<string> GetRegistrationMethodNamePatterns(GeneratorAttributeSyntaxContext context)
+        static ImmutableEquatableArray<ReplacementSpec> GetRegistrationMethodNamePatterns(GeneratorAttributeSyntaxContext context)
         {
             foreach (var attribute in context.Attributes)
             {
@@ -139,27 +155,77 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                         continue;
                     }
 
+                    List<string>? registrationMethodNamePatterns = null;
                     if (kvp.Value is { Kind: TypedConstantKind.Array, IsNull: false })
                     {
-                        var patterns = new List<string>();
+                        registrationMethodNamePatterns ??= new List<string>(kvp.Value.Values.Length);
                         foreach (var value in kvp.Value.Values)
                         {
                             if (value.Value is string item && !string.IsNullOrWhiteSpace(item))
                             {
-                                patterns.Add(item);
+                                registrationMethodNamePatterns.Add(item);
                             }
                         }
-                        return new ImmutableEquatableArray<string>(patterns);
+                    }
+                    else if (kvp.Value.Value is string namedValue && !string.IsNullOrWhiteSpace(namedValue))
+                    {
+                        registrationMethodNamePatterns ??= [namedValue];
                     }
 
-                    if (kvp.Value.Value is string namedValue && !string.IsNullOrWhiteSpace(namedValue))
+                    if (registrationMethodNamePatterns is null)
                     {
-                        return new ImmutableEquatableArray<string>([namedValue]);
+                        return ImmutableEquatableArray<ReplacementSpec>.Empty;
+                    }
+
+                    List<ReplacementSpec>? replacementSpecs = null;
+                    foreach (string registrationMethodNamePattern in registrationMethodNamePatterns)
+                    {
+                        if (!TrySplitPattern(registrationMethodNamePattern, out var pattern, out var replacement))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            replacementSpecs ??= [];
+                            var regex = new Regex(pattern);
+                            replacementSpecs.Add(new ReplacementSpec(replacement, pattern, regex));
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
+                    }
+
+                    if (replacementSpecs is not null)
+                    {
+                        return new ImmutableEquatableArray<ReplacementSpec>(replacementSpecs);
                     }
                 }
             }
 
-            return ImmutableEquatableArray<string>.Empty;
+            return ImmutableEquatableArray<ReplacementSpec>.Empty;
+        }
+
+        static bool TrySplitPattern(string registrationMethodNamePattern, out string pattern, out string replacement)
+        {
+            if (string.IsNullOrEmpty(registrationMethodNamePattern))
+            {
+                pattern = string.Empty;
+                replacement = string.Empty;
+                return false;
+            }
+
+            var separatorIndex = registrationMethodNamePattern.IndexOf("=>", StringComparison.Ordinal);
+            if (separatorIndex <= 0 || separatorIndex == registrationMethodNamePattern.Length - 2)
+            {
+                pattern = string.Empty;
+                replacement = string.Empty;
+                return false;
+            }
+
+            pattern = registrationMethodNamePattern[..separatorIndex];
+            replacement = registrationMethodNamePattern[(separatorIndex + 2)..];
+            return true;
         }
 
         static bool IsPartial(INamedTypeSymbol symbol)

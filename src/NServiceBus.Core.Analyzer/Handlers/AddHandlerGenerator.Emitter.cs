@@ -80,12 +80,12 @@ public sealed partial class AddHandlerGenerator
             sourceWriter.WriteLine("}");
         }
 
-        static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        static void EmitHandlerMethods(SourceWriter sourceWriter, HandlerSpec[] handlerSpecs, ImmutableEquatableArray<BaseParser.ReplacementSpec> replacementSpecs)
         {
             for (int index = 0; index < handlerSpecs.Length; index++)
             {
                 var handlerSpec = handlerSpecs[index];
-                var methodName = BaseEmitter.GetHandlerMethodName(handlerSpec.Name, registrationMethodNamePatterns);
+                var methodName = BaseEmitter.GetHandlerMethodName(handlerSpec.Name, replacementSpecs);
                 sourceWriter.WriteLine("/// <summary>");
                 sourceWriter.WriteLine($"""/// Registers the <see cref="{handlerSpec.FullyQualifiedName}"/> handler with the endpoint configuration.""");
                 sourceWriter.WriteLine("/// </summary>");

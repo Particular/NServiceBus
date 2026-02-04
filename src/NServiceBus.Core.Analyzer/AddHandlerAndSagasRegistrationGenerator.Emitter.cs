@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Utility;
 using static AddHandlerAndSagasRegistrationGenerator.Parser;
@@ -235,7 +236,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
         static string? GetChildRegistryRefs(NamespaceNode current) => current.Children.Count == 0 ? null : string.Join(", ", current.Children.Select(child => $"<see cref=\"{child.Name}\"/>"));
 
-        static string? GetHandlerMethodRefs(NamespaceNode current, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        static string? GetHandlerMethodRefs(NamespaceNode current, ImmutableEquatableArray<ReplacementSpec> registrationMethodNamePatterns)
         {
             var handlers = current.Specs
                 .Where(spec => spec.Kind == SpecKind.Handler)
@@ -245,7 +246,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return handlers.Length == 0 ? null : string.Join(", ", handlers);
         }
 
-        static string? GetSagaMethodRefs(NamespaceNode current, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        static string? GetSagaMethodRefs(NamespaceNode current, ImmutableEquatableArray<ReplacementSpec> registrationMethodNamePatterns)
         {
             var sagas = current.Specs
                 .Where(spec => spec.Kind == SpecKind.Saga)
@@ -255,7 +256,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return sagas.Length == 0 ? null : string.Join(", ", sagas);
         }
 
-        internal static string GetHandlerMethodName(string handlerName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        internal static string GetHandlerMethodName(string handlerName, ImmutableEquatableArray<ReplacementSpec> replacementSpecs)
         {
             const string HandlerSuffix = "Handler";
             var originalName = handlerName;
@@ -266,10 +267,10 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             var defaultMethodName = $"Add{handlerName}";
-            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, registrationMethodNamePatterns);
+            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, replacementSpecs);
         }
 
-        internal static string GetSagaMethodName(string sagaName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        internal static string GetSagaMethodName(string sagaName, ImmutableEquatableArray<ReplacementSpec> replacementSpecs)
         {
             const string SagaSuffix = "Saga";
             const string PolicySuffix = "Policy";
@@ -284,32 +285,22 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
 
             var defaultMethodName = $"Add{sagaName}";
-            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, registrationMethodNamePatterns);
+            return ApplyRegistrationMethodNamePatterns(originalName, defaultMethodName, replacementSpecs);
         }
 
-        static string ApplyRegistrationMethodNamePatterns(string typeName, string defaultMethodName, ImmutableEquatableArray<string> registrationMethodNamePatterns)
+        static string ApplyRegistrationMethodNamePatterns(string typeName, string defaultMethodName, ImmutableEquatableArray<ReplacementSpec> replacementSpecs)
         {
-            if (registrationMethodNamePatterns.Count == 0)
+            if (replacementSpecs.Count == 0)
             {
                 return defaultMethodName;
             }
 
-            for (var i = 0; i < registrationMethodNamePatterns.Count; i++)
+            for (var i = 0; i < replacementSpecs.Count; i++)
             {
-                var registrationMethodNamePattern = registrationMethodNamePatterns[i];
-                if (string.IsNullOrWhiteSpace(registrationMethodNamePattern))
-                {
-                    continue;
-                }
-
-                if (!TrySplitPattern(registrationMethodNamePattern, out var pattern, out var replacement))
-                {
-                    continue;
-                }
+                (string replacement, _, Regex regex) = replacementSpecs[i];
 
                 try
                 {
-                    var regex = new System.Text.RegularExpressions.Regex(pattern);
                     if (!regex.IsMatch(typeName))
                     {
                         continue;
@@ -321,28 +312,13 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                         return methodName;
                     }
                 }
-                catch (ArgumentException)
+                catch (ArgumentNullException)
                 {
                     continue;
                 }
             }
 
             return defaultMethodName;
-        }
-
-        static bool TrySplitPattern(string registrationMethodNamePattern, out string pattern, out string replacement)
-        {
-            var separatorIndex = registrationMethodNamePattern.IndexOf("=>", StringComparison.Ordinal);
-            if (separatorIndex <= 0 || separatorIndex == registrationMethodNamePattern.Length - 2)
-            {
-                pattern = string.Empty;
-                replacement = string.Empty;
-                return false;
-            }
-
-            pattern = registrationMethodNamePattern[..separatorIndex];
-            replacement = registrationMethodNamePattern[(separatorIndex + 2)..];
-            return true;
         }
 
         static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, RootTypeSpec rootTypeSpec)
@@ -385,7 +361,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 return "Assembly";
             }
 
-            var sanitized = System.Text.RegularExpressions.Regex.Replace(value, @"[^a-zA-Z0-9]", "");
+            var sanitized = Regex.Replace(value, "[^a-zA-Z0-9]", string.Empty);
 
             return char.IsDigit(sanitized[0]) ? $"_{sanitized}" : sanitized;
         }
