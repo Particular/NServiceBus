@@ -106,8 +106,8 @@ public static partial class Sagas
             }
 
             // Sort mappings to ensure deterministic ordering
-            return (walker.CorrelationPropertyMapping, walker.Mappings.OrderBy(m => m.MessageType, StringComparer.Ordinal)
-                .ToImmutableEquatableArray());
+            walker.Mappings.Sort(static (a, b) => string.CompareOrdinal(a.MessageType, b.MessageType));
+            return (walker.CorrelationPropertyMapping, walker.Mappings.ToImmutableEquatableArray());
         }
 
         static IMethodSymbol? FindConfigureHowToFindSagaMethod(
