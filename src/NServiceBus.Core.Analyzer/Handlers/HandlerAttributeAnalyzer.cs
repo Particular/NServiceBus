@@ -72,18 +72,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 // concrete classes that are used as base classes
                 else if (!classType.IsAbstract && !attributeLocations.IsDefaultOrEmpty)
                 {
-                    var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
-
-                    if (isUsedAsBase)
-                    {
-                        foreach (var location in attributeLocations)
-                        {
-                            if (location is not null)
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedImmediate, location, classType.Name));
-                            }
-                        }
-                    }
+                    // this is supported because assembly scanning supported it
                 }
                 // concrete leaf classes without the attribute
                 else if (!classType.IsAbstract && attributeLocations.IsDefaultOrEmpty)
@@ -126,6 +115,13 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             }
                         }
 
+                        continue;
+                    }
+
+                    // Non abstract base classes that are handlers are allowed to have the attribute
+                    // This makes things compatible with assembly scanning behavior.
+                    if (!handlerType.IsAbstract && baseTypes.ContainsKey(type))
+                    {
                         continue;
                     }
 

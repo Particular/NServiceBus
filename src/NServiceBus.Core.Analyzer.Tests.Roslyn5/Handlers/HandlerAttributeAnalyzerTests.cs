@@ -78,7 +78,35 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task DoesNotReportWhenAttributePresentButHasBaseClass()
+    public Task DoesNotReportWhenAttributePresentOnNonAbstractBaseClass()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [HandlerAttribute]
+            class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [HandlerAttribute]
+            class ConcreteHandler : BaseHandler
+            {
+                public override Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportWhenAttributePresentButHasNonHandlerBaseClass()
     {
         var source =
             """
@@ -104,33 +132,6 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task ReportsWhenAttributePresentOnBaseClass()
-    {
-        var source =
-            """
-            using System.Threading.Tasks;
-            using NServiceBus;
-
-            [[|HandlerAttribute|]]
-            class BaseHandler : IHandleMessages<MyMessage>
-            {
-                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
-            }
-
-            class ConcreteHandler : BaseHandler
-            {
-                public override Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
-            }
-
-            class MyMessage : IMessage
-            {
-            }
-            """;
-
-        return Assert(expectedDiagnosticIds: [DiagnosticIds.HandlerAttributeMisplaced], source, ignoreDiagnosticIds: [DiagnosticIds.HandlerAttributeMissing]);
-    }
-
-    [Test]
     public Task ReportsMissingAttributeOnDerivedLeafHandler()
     {
         var source =
@@ -145,6 +146,32 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
 
             class [|ConcreteHandler|] : BaseHandler
             {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+    }
+
+    [Test]
+    public Task ReportMissingAttributeWhenAttributeNotPresentOnNonAbstractBaseClass()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class [|BaseHandler|] : IHandleMessages<MyMessage>
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class [|ConcreteHandler|] : BaseHandler
+            {
+                public override Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
 
             class MyMessage : IMessage

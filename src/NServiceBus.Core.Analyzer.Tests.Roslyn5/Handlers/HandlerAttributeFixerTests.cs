@@ -207,6 +207,53 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
     }
 
     [Test]
+    public Task AddsAttributeToLeaveHandlerButLeavesBaseHandlerWhenNonAbstract()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class BaseHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [Handler]
+            class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task MovesHandlerAttributeToLeafHandlerEvenForComplexHierarchies()
     {
         var original =
