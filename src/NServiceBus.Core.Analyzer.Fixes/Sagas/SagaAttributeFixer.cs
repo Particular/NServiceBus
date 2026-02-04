@@ -9,7 +9,6 @@ namespace NServiceBus.Core.Analyzer.Fixes
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;
     using Microsoft.CodeAnalysis.CodeFixes;
-    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Editing;
     using Microsoft.CodeAnalysis.Formatting;
@@ -110,7 +109,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                 return document;
             }
 
-            var updatedClass = RemoveSagaAttribute(classDeclaration, semanticModel, sagaAttribute, cancellationToken);
+            var updatedClass = RemoveSagaAttribute(classDeclaration, semanticModel, editor.Generator, sagaAttribute, cancellationToken);
             editor.ReplaceNode(classDeclaration, updatedClass);
 
             var changed = editor.GetChangedDocument();
@@ -205,7 +204,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
                     var editor = await GetEditor(doc.Id).ConfigureAwait(false);
                     if (await syntaxRef.GetSyntaxAsync(cancellationToken).ConfigureAwait(false) is ClassDeclarationSyntax classDecl)
                     {
-                        var updated = RemoveSagaAttribute(classDecl, editor.SemanticModel, sagaAttribute, cancellationToken);
+                        var updated = RemoveSagaAttribute(classDecl, editor.SemanticModel, editor.Generator, sagaAttribute, cancellationToken);
                         editor.ReplaceNode(classDecl, updated);
                     }
                 }
@@ -266,36 +265,27 @@ namespace NServiceBus.Core.Analyzer.Fixes
         static ClassDeclarationSyntax RemoveSagaAttribute(
             ClassDeclarationSyntax classDeclaration,
             SemanticModel semanticModel,
+            SyntaxGenerator generator,
             INamedTypeSymbol handlerAttributeSymbol,
             CancellationToken cancellationToken)
         {
+            var attributesToRemove = classDeclaration.AttributeLists
+                .SelectMany(list => list.Attributes)
+                .Where(attribute => IsSagaAttribute(attribute, semanticModel, handlerAttributeSymbol, cancellationToken))
+                .Select(attribute => attribute.Span)
+                .ToList();
+
             var updatedClass = classDeclaration;
-            var listsToRemove = new List<AttributeListSyntax>();
-
-            foreach (var list in classDeclaration.AttributeLists)
+            foreach (var attributeSpan in attributesToRemove)
             {
-                var remaining = new List<AttributeSyntax>();
-                foreach (var attribute in list.Attributes)
-                {
-                    if (!IsSagaAttribute(attribute, semanticModel, handlerAttributeSymbol, cancellationToken))
-                    {
-                        remaining.Add(attribute);
-                    }
-                }
+                var currentAttribute = updatedClass.DescendantNodes()
+                    .OfType<AttributeSyntax>()
+                    .FirstOrDefault(attribute => attribute.Span == attributeSpan);
 
-                if (remaining.Count == 0)
+                if (currentAttribute is not null)
                 {
-                    listsToRemove.Add(list);
+                    updatedClass = (ClassDeclarationSyntax)generator.RemoveNode(updatedClass, currentAttribute);
                 }
-                else if (remaining.Count != list.Attributes.Count)
-                {
-                    updatedClass = updatedClass.ReplaceNode(list, list.WithAttributes(SyntaxFactory.SeparatedList(remaining)));
-                }
-            }
-
-            if (listsToRemove.Count > 0)
-            {
-                updatedClass = updatedClass.RemoveNodes(listsToRemove, SyntaxRemoveOptions.KeepTrailingTrivia);
             }
 
             return updatedClass;
