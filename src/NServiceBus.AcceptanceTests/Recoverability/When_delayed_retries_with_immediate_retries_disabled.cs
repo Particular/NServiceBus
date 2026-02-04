@@ -25,7 +25,7 @@ public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusA
 
     const int ConfiguredNumberOfDelayedRetries = 3;
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
         public int ReceiveCount { get; set; }
@@ -41,7 +41,8 @@ public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusA
                 recoverability.Immediate(settings => settings.NumberOfRetries(0));
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

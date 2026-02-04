@@ -32,6 +32,7 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
     {
         public EndpointWithSaga() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class ReplyHandler(Context testContext) : IHandleMessages<Reply>
         {
             public Task Handle(Reply message, IMessageHandlerContext context)
@@ -42,6 +43,7 @@ public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class NotFoundHandlerSaga : Saga<NotFoundHandlerSaga.NotFoundHandlerSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => throw new NotImplementedException();

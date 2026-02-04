@@ -27,7 +27,7 @@ public class When_delayed_retries_with_regular_exception : NServiceBusAcceptance
         Assert.That(delayedRetryBody.ToArray(), Is.EqualTo(context.OriginalBody.ToArray()).AsCollection, "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public ReadOnlyMemory<byte> OriginalBody { get; set; }
     }
@@ -71,7 +71,8 @@ public class When_delayed_retries_with_regular_exception : NServiceBusAcceptance
             }
         }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }

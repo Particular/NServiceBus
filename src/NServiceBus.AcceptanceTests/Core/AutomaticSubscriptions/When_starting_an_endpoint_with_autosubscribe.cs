@@ -30,14 +30,14 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public List<string> EventsSubscribedTo { get; } = [];
 
         public void MaybeComplete() => MarkAsCompleted(EventsSubscribedTo.Count >= 1);
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -58,21 +58,25 @@ public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanc
                     metadata.RegisterPublisherFor<MyEventWithNoHandler, Subscriber>();
                 });
 
-        class MyMessageHandler : IHandleMessages<MyMessage>
+        [Handler]
+        public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class EventMessageHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class MyEventWithNoRoutingHandler : IHandleMessages<MyEventWithNoRouting>
         {
             public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class CommandMessageHandler : IHandleMessages<MyCommand>
         {
             public Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;

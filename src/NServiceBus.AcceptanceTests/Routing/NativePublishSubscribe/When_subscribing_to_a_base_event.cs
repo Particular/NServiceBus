@@ -58,6 +58,7 @@ public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
                 metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<IBaseEvent>
         {
             public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)

@@ -28,7 +28,7 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
 
     static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
 
@@ -51,7 +51,8 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
                     });
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

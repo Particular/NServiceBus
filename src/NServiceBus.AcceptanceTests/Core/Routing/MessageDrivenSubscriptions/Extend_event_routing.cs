@@ -52,6 +52,7 @@ public class Extend_event_routing : NServiceBusAcceptanceTest
                     ]);
             });
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent evnt, IMessageHandlerContext context)

@@ -38,6 +38,7 @@ public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
             c.RegisterStartupTask(new DelayReceiverFromStartingTask());
         });
 
+        [Handler]
         public class MyMessageWithTimeToBeReceivedHandler(Context testContext) : IHandleMessages<MyMessageWithTimeToBeReceived>
         {
             public Task Handle(MyMessageWithTimeToBeReceived messageWithTimeToBeReceived, IMessageHandlerContext context)
@@ -47,6 +48,7 @@ public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MyRegularMessageHandler(Context testContext) : IHandleMessages<MyRegularMessage>
         {
             public Task Handle(MyRegularMessage messageWithTimeToBeReceived, IMessageHandlerContext context)

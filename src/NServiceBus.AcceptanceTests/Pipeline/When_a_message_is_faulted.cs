@@ -35,6 +35,7 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
     {
         public CausationEndpoint() => EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
 
+        [Handler]
         public class FirstMessageHandler(Context testContext) : IHandleMessages<FirstMessage>
         {
             public Task Handle(FirstMessage message, IMessageHandlerContext context)
@@ -46,17 +47,19 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
+    public class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
         public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>();
 
-        class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
+        [Handler]
+        public class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context)
             {

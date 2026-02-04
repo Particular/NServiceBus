@@ -71,12 +71,12 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
         metricsListener.AssertMetric("nservicebus.recoverability.error", 1);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int InvocationCounter { get; set; }
     }
 
-    class RetryingEndpoint : EndpointConfigurationBuilder
+    public class RetryingEndpoint : EndpointConfigurationBuilder
     {
         public RetryingEndpoint()
         {
@@ -87,7 +87,8 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             EndpointSetup(template, (_, _) => { });
         }
 
-        class Handler(Context testContext) : IHandleMessages<FailingMessage>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
         {
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {

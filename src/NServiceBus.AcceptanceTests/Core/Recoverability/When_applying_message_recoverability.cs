@@ -39,12 +39,12 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageBodyWasEmpty { get; set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
@@ -87,7 +87,8 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             }
         }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }

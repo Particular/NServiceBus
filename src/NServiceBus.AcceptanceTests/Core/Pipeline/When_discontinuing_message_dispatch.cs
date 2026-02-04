@@ -36,6 +36,7 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
     {
         public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.AddHandler<InterceptingHandler>());
 
+        [Saga]
         public class TestSaga03(SagaEndpointContext testContext) : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
@@ -55,6 +56,7 @@ public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class InterceptingHandler(SagaEndpointContext testContext) : IHandleMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)

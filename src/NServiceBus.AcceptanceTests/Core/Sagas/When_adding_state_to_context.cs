@@ -30,7 +30,7 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool FinderUsed { get; set; }
         public IReadOnlyContextBag ContextBag { get; set; }
@@ -57,6 +57,7 @@ public class When_adding_state_to_context : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class TestSaga07 : Saga<TestSaga07.SagaData07>, IAmStartedByMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;

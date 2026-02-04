@@ -36,6 +36,7 @@ public class When_no_finder_support : NServiceBusAcceptanceTest
             public Task<TestSaga09.SagaData09> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(TestSaga09.SagaData09));
         }
 
+        [Saga]
         public class TestSaga09 : Saga<TestSaga09.SagaData09>,
             IAmStartedByMessages<StartSagaMessage>
         {

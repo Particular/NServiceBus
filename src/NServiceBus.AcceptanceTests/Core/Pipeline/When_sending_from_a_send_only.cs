@@ -54,6 +54,7 @@ public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
         public Guid Id { get; set; }
     }
 
+    [Handler]
     public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)

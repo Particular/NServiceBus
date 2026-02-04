@@ -42,7 +42,7 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string RetryId { get; set; }
         public string ConfirmedRetryId { get; set; }
@@ -53,7 +53,7 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(ConfirmedRetryId != null, AuditHeaders != null);
     }
 
-    class ProcessingEndpoint : EndpointConfigurationBuilder
+    public class ProcessingEndpoint : EndpointConfigurationBuilder
     {
         public ProcessingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
@@ -61,7 +61,8 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
                 c.AuditProcessedMessagesTo<AuditSpy>();
             });
 
-        class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
+        [Handler]
+        public class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
         {
             public Task Handle(FailedMessage message, IMessageHandlerContext context)
             {
@@ -90,11 +91,12 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
         }
     }
 
-    class AuditSpy : EndpointConfigurationBuilder
+    public class AuditSpy : EndpointConfigurationBuilder
     {
         public AuditSpy() => EndpointSetup<DefaultServer>();
 
-        class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
+        [Handler]
+        public class FailedMessageHandler(Context testContext) : IHandleMessages<FailedMessage>
         {
             public Task Handle(FailedMessage message, IMessageHandlerContext context)
             {

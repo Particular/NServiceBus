@@ -22,12 +22,12 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
         Assert.That(context.EventsSubscribedTo.Count, Is.EqualTo(0), "Events only handled by sagas should not be auto subscribed");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public List<Type> EventsSubscribedTo { get; } = [];
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -51,6 +51,7 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
             }
         }
 
+        [Saga]
         public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -65,6 +66,7 @@ public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NSer
             }
         }
 
+        [Saga]
         public class NotAutoSubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
             IAmStartedByMessages<MyEventBase>
         {

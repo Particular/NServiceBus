@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Serialization;
+namespace NServiceBus.AcceptanceTests.Serialization;
 
 using System.Linq;
 using System.Text;
@@ -30,13 +30,13 @@ public class When_skip_wrapping_xml : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public XDocument XmlMessage { get; set; }
         public XDocument XmlPropertyValue { get; set; }
     }
 
-    class NonWrappingEndpoint : EndpointConfigurationBuilder
+    public class NonWrappingEndpoint : EndpointConfigurationBuilder
     {
         public NonWrappingEndpoint() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
@@ -45,7 +45,8 @@ public class When_skip_wrapping_xml : NServiceBusAcceptanceTest
                 config.RegisterMessageMutator(new IncomingMutator(context));
             });
 
-        class RawXmlMessageHandler(Context testContext) : IHandleMessages<MessageWithRawXml>
+        [Handler]
+        public class RawXmlMessageHandler(Context testContext) : IHandleMessages<MessageWithRawXml>
         {
             public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context)
             {

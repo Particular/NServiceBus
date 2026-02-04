@@ -32,6 +32,7 @@ public class At_most_once : NServiceBusAcceptanceTest
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.None;
             });
 
+        [Handler]
         public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
             public async Task Handle(InitiatingMessage message, IMessageHandlerContext context)
@@ -47,6 +48,7 @@ public class At_most_once : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeDispatchedImmediatelyHandler(Context testContext) : IHandleMessages<MessageToBeDispatchedImmediately>
         {
             public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)

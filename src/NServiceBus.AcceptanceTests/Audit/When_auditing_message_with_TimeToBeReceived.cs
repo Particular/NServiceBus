@@ -25,17 +25,18 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
         Assert.That(context.IsMessageHandlingComplete, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int AuditRetries;
         public bool IsMessageHandlingComplete { get; set; }
     }
 
-    class EndpointWithAuditOn : EndpointConfigurationBuilder
+    public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
         public EndpointWithAuditOn() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
-        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
@@ -45,11 +46,12 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
         }
     }
 
-    class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
+    public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
     {
         public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>(c => c.Recoverability().Immediate(s => s.NumberOfRetries(10)));
 
-        class AuditMessageHandler(Context textContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context textContext) : IHandleMessages<MessageToBeAudited>
         {
             public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {

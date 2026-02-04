@@ -48,6 +48,7 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
     {
         public UnmappedMsgEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class UnmappedMsgSaga(Context testContext) : Saga<UnmappedMsgSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<MappedEchoMessage>,
@@ -85,6 +86,7 @@ public class When_saga_handles_unmapped_message : NServiceBusAcceptanceTest
             public virtual Guid SomeId { get; set; }
         }
 
+        [Handler]
         public class OutboundMessageHandler(Context testContext) : IHandleMessages<OutboundMessage>
         {
             public async Task Handle(OutboundMessage message, IMessageHandlerContext context)

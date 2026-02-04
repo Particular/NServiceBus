@@ -33,12 +33,12 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Dictionary<string, string> Headers { get; set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -54,17 +54,19 @@ public class When_message_is_moved_to_error_queue_with_header_customizations : N
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("THIS IS A LARGE MESSAGE");
         }
     }
 
-    class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
     {
         public ErrorSpy() => EndpointSetup<DefaultServer>();
 
-        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {

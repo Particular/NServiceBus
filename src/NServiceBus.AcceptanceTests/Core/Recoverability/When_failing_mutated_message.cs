@@ -27,7 +27,7 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
         Assert.That(errorBody.ToArray(), Is.EqualTo(context.OriginalBody).AsCollection, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public byte[] OriginalBody { get; set; }
     }
@@ -60,7 +60,8 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
             public Task MutateOutgoing(MutateOutgoingTransportMessageContext context) => Task.CompletedTask;
         }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => Task.CompletedTask;
         }

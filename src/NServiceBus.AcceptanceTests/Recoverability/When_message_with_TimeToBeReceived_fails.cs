@@ -28,7 +28,7 @@ public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTes
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int ErrorQueueRetries;
         public bool MessageFailed { get; set; }
@@ -37,13 +37,14 @@ public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTes
         public void MaybeCompleted() => MarkAsCompleted(MessageFailed, TTBRHasExpiredAndMessageIsStillInErrorQueue);
     }
 
-    class EndpointThatThrows : EndpointConfigurationBuilder
+    public class EndpointThatThrows : EndpointConfigurationBuilder
     {
         public EndpointThatThrows() =>
             EndpointSetup<DefaultServer>(c => c
                 .SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
 
-        class ThrowingMessageHandler(Context context) : IHandleMessages<MessageThatFails>
+        [Handler]
+        public class ThrowingMessageHandler(Context context) : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context1)
             {
@@ -54,11 +55,12 @@ public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTes
         }
     }
 
-    class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
+    public class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
         public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>(c => c.Recoverability().Immediate(s => s.NumberOfRetries(10)));
 
-        class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
+        [Handler]
+        public class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
             public async Task Handle(MessageThatFails message, IMessageHandlerContext context)
             {

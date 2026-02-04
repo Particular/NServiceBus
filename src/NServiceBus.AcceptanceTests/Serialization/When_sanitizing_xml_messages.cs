@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Serialization;
+namespace NServiceBus.AcceptanceTests.Serialization;
 
 using System.Text;
 using System.Threading.Tasks;
@@ -23,12 +23,12 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
         Assert.That(context.Input, Is.EqualTo("Hello World!"));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string Input { get; set; }
     }
 
-    class EndpointSanitizingInput : EndpointConfigurationBuilder
+    public class EndpointSanitizingInput : EndpointConfigurationBuilder
     {
         public EndpointSanitizingInput() =>
             EndpointSetup<DefaultServer>(c =>
@@ -37,7 +37,8 @@ public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
                 c.RegisterMessageMutator(new InjectInvalidCharMutator());
             });
 
-        class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
+        [Handler]
+        public class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
         {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {

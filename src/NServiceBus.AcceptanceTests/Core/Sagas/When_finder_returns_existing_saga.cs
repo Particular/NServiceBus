@@ -47,6 +47,7 @@ public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class TestSaga08(Context testContext) : Saga<TestSaga08.SagaData08>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<SomeOtherMessage>

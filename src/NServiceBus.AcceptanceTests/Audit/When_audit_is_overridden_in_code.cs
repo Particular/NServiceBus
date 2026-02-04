@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Audit;
+namespace NServiceBus.AcceptanceTests.Audit;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -22,7 +22,8 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         public UserEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
 
-        class Handler : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class Handler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
@@ -34,7 +35,8 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("audit_with_code_target");
 
-        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {

@@ -28,12 +28,12 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
         Assert.That(ctx.Logs.Where(l => l.LoggerName == typeof(AutoSubscribe).FullName && l.Level == LogLevel.Error), Is.Empty);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public List<Type> EventsSubscribedTo { get; } = [];
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -58,16 +58,19 @@ public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanc
             }
         }
 
-        class MyMessageHandler : IHandleMessages<EventToSubscribeTo>
+        [Handler]
+        public class MyMessageHandler : IHandleMessages<EventToSubscribeTo>
         {
             public Task Handle(EventToSubscribeTo message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class EventMessageHandler : IHandleMessages<EventToExclude>
         {
             public Task Handle(EventToExclude message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class MyEventWithNoRoutingHandler : IHandleMessages<EventWithNoPublisher>
         {
             public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context) => Task.CompletedTask;

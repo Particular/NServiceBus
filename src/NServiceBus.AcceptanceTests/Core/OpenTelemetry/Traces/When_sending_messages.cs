@@ -106,19 +106,19 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to send operation");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string SentMessageId { get; set; }
         public string MessageConversationId { get; set; }
         public Dictionary<string, string> SentMessageHeaders { get; set; }
     }
 
-
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
             {

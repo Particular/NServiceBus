@@ -90,6 +90,7 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     metadata.RegisterPublisherFor<IEventB, Publisher>();
                 });
 
+        [Handler]
         public class EventAHandler(Context testContext) : IHandleMessages<IEventA>
         {
             public Task Handle(IEventA @event, IMessageHandlerContext context)
@@ -105,6 +106,7 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
             }
         }
 
+        [Handler]
         public class EventBHandler(Context testContext) : IHandleMessages<IEventB>
         {
             public Task Handle(IEventB @event, IMessageHandlerContext context)

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -43,7 +43,8 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
     {
         public ReplyEndpoint() => EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething, SagaEndpoint>());
 
-        class DidSomethingHandler : IHandleMessages<DidSomething>
+        [Handler]
+        public class DidSomethingHandler : IHandleMessages<DidSomething>
         {
             public Task Handle(DidSomething message, IMessageHandlerContext context) =>
                 context.Reply(new DidSomethingResponse
@@ -61,6 +62,7 @@ public class When_replying_to_saga_event : NServiceBusAcceptanceTest
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<DidSomething>(this));
 
+        [Saga]
         public class ReplyToPubMsgSaga(Context testContext) : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>,
             IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
         {

@@ -53,6 +53,7 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
                 c.LimitMessageProcessingConcurrencyTo(1); //To ensure Done is processed after the event.
             }, metadata => metadata.RegisterPublisherFor<SpecificEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<SpecificEvent>
         {
             public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
@@ -62,6 +63,7 @@ public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class DoneHandler(Context testContext) : IHandleMessages<Done>
         {
             public Task Handle(Done message, IMessageHandlerContext context)

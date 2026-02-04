@@ -32,6 +32,7 @@ public class When_starting_a_new_saga : NServiceBusAcceptanceTest
     {
         public NullPropertyEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class NullCorrPropertySaga(Context testContext)
             : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
         {

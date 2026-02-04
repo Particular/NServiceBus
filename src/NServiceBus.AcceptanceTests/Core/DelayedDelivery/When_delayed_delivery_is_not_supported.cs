@@ -45,6 +45,7 @@ public class When_delayed_delivery_is_not_supported : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
         {
             public async Task Handle(MyMessage message, IMessageHandlerContext context)

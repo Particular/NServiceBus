@@ -23,9 +23,9 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
         Assert.That(incomingMessageActivity.ParentId, Is.EqualTo(null), "should start a trace when incoming message isn't part of a trace already");
     }
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c
             .Pipeline.Register(new StopTraceBehavior(), "removes tracing headers from outgoing messages"));
@@ -45,7 +45,8 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
             }
         }
 
-        class IncomingMessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+        [Handler]
+        public class IncomingMessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {

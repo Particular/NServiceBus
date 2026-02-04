@@ -46,6 +46,7 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
         public Guid Id { get; set; }
     }
 
+    [Handler]
     public class CatchAllHandler_object(Context testContext) : IHandleMessages<object>
     {
         public Task Handle(object message, IMessageHandlerContext context)
@@ -62,6 +63,7 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
         }
     }
 
+    [Handler]
     public class CatchAllHandler_dynamic(Context testContext) : IHandleMessages<object>
     {
         public Task Handle(dynamic message, IMessageHandlerContext context)
@@ -78,6 +80,7 @@ public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcce
         }
     }
 
+    [Handler]
     public class CatchAllHandler_IMessage(Context testContext) : IHandleMessages<IMessage>
     {
         public Task Handle(IMessage message, IMessageHandlerContext context)

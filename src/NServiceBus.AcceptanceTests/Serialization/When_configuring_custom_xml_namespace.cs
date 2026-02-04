@@ -23,12 +23,12 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
         Assert.That(context.MessageNamespace, Is.EqualTo($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}"));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string MessageNamespace { get; set; }
     }
 
-    class EndpointUsingCustomNamespace : EndpointConfigurationBuilder
+    public class EndpointUsingCustomNamespace : EndpointConfigurationBuilder
     {
         public EndpointUsingCustomNamespace() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
@@ -37,7 +37,8 @@ public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
                 config.RegisterMessageMutator(new IncomingMutator(context));
             });
 
-        class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
+        [Handler]
+        public class SimpleMessageHandler(Context scenarioContext) : IHandleMessages<SimpleMessage>
         {
             public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {

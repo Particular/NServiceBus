@@ -50,7 +50,7 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
         public string ValueFromSettingsForDeserializer { get; set; }
     }
 
-    class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
+    public class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
     {
         public XmlCustomSerializationReceiver() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -59,7 +59,8 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
                 c.AddDeserializer<MyCustomSerializer>().Settings(Value2, (Context)r.ScenarioContext);
             });
 
-        class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
+        [Handler]
+        public class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
@@ -80,7 +81,7 @@ public class When_registering_deserializers_with_settings : NServiceBusAcceptanc
     {
         public void Serialize(object message, Stream stream)
         {
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
+            var serializer = new XmlSerializer(typeof(MyRequest));
 
             context.SerializeCalled = true;
             context.ValueFromSettingsForMainSerializer = valueFromSettings;

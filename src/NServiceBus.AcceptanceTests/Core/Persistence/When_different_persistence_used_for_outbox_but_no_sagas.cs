@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     .Run();
             });
 
-        class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint() =>
                 EndpointSetup<DefaultServer>(c =>
@@ -30,7 +30,8 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     c.UsePersistence<FakePersistence, StorageType.Outbox>();
                 });
 
-            class MyHandler(Context testContext) : IHandleMessages<MyMessage>
+            [Handler]
+            public class MyHandler(Context testContext) : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
@@ -39,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 }
             }
 
-            class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
+            public class FakePersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakePersistence>
             {
                 FakePersistence()
                 {

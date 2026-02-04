@@ -51,7 +51,7 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
             .Run();
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ThrottleModeEntered { get; set; }
         public DateTime LastProcessedTimeStamp { get; set; }
@@ -66,7 +66,7 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
         int failuresBeforeThrottling;
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -90,7 +90,8 @@ public class When_messages_never_succeed : NServiceBusAcceptanceTest
                 recoverability.OnConsecutiveFailures(NumberOfConsecutiveFailuresBeforeThrottling, rateLimitingSettings);
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {

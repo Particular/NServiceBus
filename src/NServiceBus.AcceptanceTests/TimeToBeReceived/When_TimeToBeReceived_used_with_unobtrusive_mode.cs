@@ -42,6 +42,7 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
                 c.RegisterStartupTask(new SendMessageAndDelayStartTask());
             });
 
+        [Handler]
         public class MyMessageWithTimeToBeReceivedHandler(Context testContext) : IHandleMessages<MyMessageWithTimeToBeReceived>
         {
             public Task Handle(MyMessageWithTimeToBeReceived message, IMessageHandlerContext context)
@@ -51,6 +52,7 @@ public class When_TimeToBeReceived_used_with_unobtrusive_mode : NServiceBusAccep
             }
         }
 
+        [Handler]
         public class MyRegularMessageHandler(Context testContext) : IHandleMessages<MyRegularMessage>
         {
             public Task Handle(MyRegularMessage messageWithTimeToBeReceived, IMessageHandlerContext context)

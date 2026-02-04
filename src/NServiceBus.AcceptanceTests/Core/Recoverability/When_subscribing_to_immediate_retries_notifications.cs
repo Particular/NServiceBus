@@ -30,7 +30,7 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
         public int TotalNumberOfHandlerInvocations { get; set; }
@@ -65,7 +65,8 @@ public class When_subscribing_to_immediate_retries_notifications : NServiceBusAc
                 });
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

@@ -25,6 +25,7 @@ public class When_sending_events_bestpractices_disabled_on_endpoint : NServiceBu
                 routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
             });
 
+        [Handler]
         public class Handler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;

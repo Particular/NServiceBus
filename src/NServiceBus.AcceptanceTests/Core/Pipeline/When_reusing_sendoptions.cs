@@ -28,16 +28,17 @@ public class When_reusing_sendoptions : NServiceBusAcceptanceTest
         Assert.That(context.ReceivedMessageIds.Distinct().Count(), Is.EqualTo(3), "the message ids should be distinct");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public ConcurrentQueue<string> ReceivedMessageIds { get; } = new();
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
-        class CommandHandler(Context testContext) : IHandleMessages<SomeCommand>
+        [Handler]
+        public class CommandHandler(Context testContext) : IHandleMessages<SomeCommand>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {

@@ -27,12 +27,12 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
         Assert.That(result.MessageReceived, Is.True, "Message should be received");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
     }
 
-    class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
+    public class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
     {
         public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
         {
@@ -42,7 +42,8 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
             b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
         });
 
-        class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -61,7 +62,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
         }
     }
 
-    interface IDependency
+    public interface IDependency
     {
         void DoSomething();
     }
@@ -71,7 +72,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
         public void DoSomething() => dependency.DoSomething();
     }
 
-    interface IDependencyOfDependency
+    public interface IDependencyOfDependency
     {
         void DoSomething();
     }
@@ -81,7 +82,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
         public void DoSomething() => dependency.DoSomething();
     }
 
-    interface IDependencyOfDependencyOfDependency
+    public interface IDependencyOfDependencyOfDependency
     {
         void DoSomething();
     }

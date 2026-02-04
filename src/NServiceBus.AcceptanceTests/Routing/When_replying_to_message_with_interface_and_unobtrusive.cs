@@ -40,6 +40,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
             });
 
+        [Handler]
         public class ResponseHandler(Context testContext) : IHandleMessages<IMyReply>
         {
             public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
@@ -55,6 +56,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
     {
         public OtherEndpoint() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
 
+        [Handler]
         public class ResponseHandler(Context testContext) : IHandleMessages<IMyReply>
         {
             public Task Handle(IMyReply messageThatIsEnlisted, IMessageHandlerContext context)
@@ -69,6 +71,7 @@ public class When_replying_to_message_with_interface_and_unobtrusive : NServiceB
     {
         public ReplyingEndpoint() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && (t.Name.StartsWith("My") || t.Name.StartsWith("IMy"))));
 
+        [Handler]
         public class MessageHandler : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context) => context.Reply<IMyReply>(m => { });

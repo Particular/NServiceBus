@@ -64,6 +64,7 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
             return ConversationId.Default;
         }
 
+        [Handler]
         public class MessageSentOutsideOfHandlerMatchingTheConventionHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandlerMatchingTheConvention>
         {
             public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
@@ -75,6 +76,7 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
             }
         }
 
+        [Handler]
         public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
         {
             public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)

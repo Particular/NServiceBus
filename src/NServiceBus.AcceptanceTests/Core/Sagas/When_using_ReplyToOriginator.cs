@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
+namespace NServiceBus.AcceptanceTests.Core.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -50,6 +50,7 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
                     config.LimitMessageProcessingConcurrencyTo(1) //to avoid race conditions with the start and second message
             );
 
+        [Saga]
         public class RequestingSaga(Context testContext) : Saga<RequestingSaga.RequestingSagaData>,
             IAmStartedByMessages<InitiateRequestingSaga>,
             IHandleMessages<MessageThatWillCauseSagaToReplyToOriginator>
@@ -74,7 +75,8 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
             }
         }
 
-        class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
+        [Handler]
+        public class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
         {
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {

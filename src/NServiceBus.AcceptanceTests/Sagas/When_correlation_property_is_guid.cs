@@ -38,7 +38,7 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
         public Guid RequestedId { get; set; }
     }
 
-    class EndpointWithGuidSaga : EndpointConfigurationBuilder
+    public class EndpointWithGuidSaga : EndpointConfigurationBuilder
     {
         public EndpointWithGuidSaga() => EndpointSetup<DefaultServer>();
 
@@ -47,7 +47,8 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
             public virtual Guid CorrelatedProperty { get; set; }
         }
 
-        class SagaWithGuidCorrelatedProperty(GuidCorrelationIdContext scenarioContext)
+        [Saga]
+        public class SagaWithGuidCorrelatedProperty(GuidCorrelationIdContext scenarioContext)
             : Saga<SagaDataWithGuidCorrelatedProperty>,
                 IAmStartedByMessages<MessageWithGuidCorrelationProperty>,
                 IHandleMessages<RequestWithGuidCorrelationProperty>
@@ -73,7 +74,7 @@ class When_correlation_property_is_guid : NServiceBusAcceptanceTest
         }
     }
 
-    class GuidCorrelationIdContext : ScenarioContext
+    public class GuidCorrelationIdContext : ScenarioContext
     {
         public bool MessageCorrelated { get; set; }
         public Guid CorrelatedId { get; set; }

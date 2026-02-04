@@ -31,7 +31,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool RegularCommandHandlerInvoked { get; set; }
         public bool ManuallyRegisteredCommandHandlerInvoked { get; set; }
@@ -42,7 +42,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(RegularCommandHandlerInvoked, ManuallyRegisteredCommandHandlerInvoked, RegularEventHandlerInvoked, ManuallyRegisteredEventHandlerInvoked);
     }
 
-    class EndpointWithRegularHandler : EndpointConfigurationBuilder
+    public class EndpointWithRegularHandler : EndpointConfigurationBuilder
     {
         public EndpointWithRegularHandler() =>
             EndpointSetup<DefaultServer>(c =>
@@ -62,7 +62,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                 });
             }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
 
-        class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+        [Handler]
+        public class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
@@ -80,7 +81,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+    [Handler]
+    public class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
     {
         public Task Handle(SomeCommand message, IMessageHandlerContext context)
         {

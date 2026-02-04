@@ -31,7 +31,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ScopedAsyncDisposableDisposed { get; set; }
         public bool SingletonAsyncDisposableDisposed { get; set; }
@@ -51,7 +51,8 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                 });
             });
 
-        class HandlerWithAsyncDisposable(
+        [Handler]
+        public class HandlerWithAsyncDisposable(
             Context testContext,
             ScopedAsyncDisposable scopedAsyncDisposable,
             SingletonAsyncDisposable singletonAsyncDisposable)
@@ -68,7 +69,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
 
     public class SomeMessage : IMessage;
 
-    class SingletonAsyncDisposable : IAsyncDisposable
+    public sealed class SingletonAsyncDisposable : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
         public void Initialize(Context scenarioContext) => context = scenarioContext;
@@ -82,7 +83,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         Context context;
     }
 
-    class ScopedAsyncDisposable : IAsyncDisposable
+    public sealed class ScopedAsyncDisposable : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
         public void Initialize(Context scenarioContext) => context = scenarioContext;

@@ -58,12 +58,13 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
     {
         public EndPointA() => EndpointSetup<DefaultServer>(c =>
         {
-            c.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
-            c.Pipeline.Register(new OutgoingPipelineBehaviorSendingMessages(), "behavior sending messages from the outgoing pipeline");
+            c.LimitMessageProcessingConcurrencyTo(1); // This test only works if endpoints processes messages sequentially
+            c.Pipeline.Register(new OutgoingPipelineBehaviorSendingMessages(), "behavior sending messages from . outgoing pipeline");
             c.ConfigureRouting().RouteToEndpoint(typeof(BehaviorMessage), Conventions.EndpointNamingConvention(typeof(EndpointB)));
         });
 
-        class MessageHandler(Context testContext) : IHandleMessages<ReplyToOriginatorMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<ReplyToOriginatorMessage>
         {
             public Task Handle(ReplyToOriginatorMessage message, IMessageHandlerContext context)
             {
@@ -74,6 +75,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
             }
         }
 
+        [Saga]
         public class TestSaga(Context testContext) : Saga<TestSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<ContinueSagaMessage>
@@ -119,10 +121,11 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
         }
     }
 
-    class EndpointB : EndpointConfigurationBuilder
+    public class EndpointB : EndpointConfigurationBuilder
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class BehaviorMessageHandler(Context testContext)
             : IHandleMessages<BehaviorMessage>, IHandleMessages<BehaviorEvent>
         {

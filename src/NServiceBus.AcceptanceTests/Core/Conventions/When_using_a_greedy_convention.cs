@@ -41,6 +41,7 @@ public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
         public Guid Id { get; set; }
     }
 
+    [Handler]
     public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)

@@ -49,12 +49,14 @@ public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
             }
         }
 
-        class PlaceOrderHandler : IHandleMessages<PlaceOrder>
+        [Handler]
+        public class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
             public Task Handle(PlaceOrder message, IMessageHandlerContext context) => context.SendLocal(new SendOrderAcknowledgment());
         }
 
-        class SendOrderAcknowledgmentHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgment>
+        [Handler]
+        public class SendOrderAcknowledgmentHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgment>
         {
             public Task Handle(SendOrderAcknowledgment message, IMessageHandlerContext context)
             {

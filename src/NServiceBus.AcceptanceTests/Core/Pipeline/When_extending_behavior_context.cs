@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
+namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
 using System;
 using System.Threading.Tasks;
@@ -28,7 +28,7 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
 
     static string ExtensionValue;
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string HandlerAExtensionValue { get; set; }
         public string HandlerBExtensionValue { get; set; }
@@ -36,7 +36,7 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(HandlerAExtensionValue != null, HandlerBExtensionValue != null);
     }
 
-    class ContextExtendingEndpoint : EndpointConfigurationBuilder
+    public class ContextExtendingEndpoint : EndpointConfigurationBuilder
     {
         public ContextExtendingEndpoint() =>
             EndpointSetup<DefaultServer>(c => c.Pipeline.Register(
@@ -44,7 +44,8 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
                 new CustomContextExtensionBehavior(),
                 "Puts customized data on the message context"));
 
-        class MessageHandlerA(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class MessageHandlerA(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -55,7 +56,8 @@ public class When_extending_behavior_context : NServiceBusAcceptanceTest
             }
         }
 
-        class MessageHandlerB(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class MessageHandlerB(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {

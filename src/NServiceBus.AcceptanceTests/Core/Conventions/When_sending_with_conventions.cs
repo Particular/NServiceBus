@@ -50,6 +50,7 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
         Guid Id { get; set; }
     }
 
+    [Handler]
     public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -66,6 +67,7 @@ public class When_sending_with_conventions : NServiceBusAcceptanceTest
         }
     }
 
+    [Handler]
     public class MyMessageInterfaceHandler(Context testContext) : IHandleMessages<IMyInterfaceMessage>
     {
         public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)

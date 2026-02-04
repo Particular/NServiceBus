@@ -72,13 +72,14 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
         Approver.Verify(builder.ToString());
     }
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
     public class StartedEndpoint : EndpointConfigurationBuilder
     {
         public StartedEndpoint() => EndpointSetup<DefaultServer>();
 
-        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {

@@ -30,7 +30,7 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
         Assert.That(context.ReplyToAddress, Does.Contain(replyHandlerAddress));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string ReplyToAddress { get; set; }
         public bool ReplyReceived { get; set; }
@@ -45,11 +45,12 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
             });
     }
 
-    class Replier : EndpointConfigurationBuilder
+    public class Replier : EndpointConfigurationBuilder
     {
         public Replier() => EndpointSetup<DefaultServer>();
 
-        class RequestReplyMessageHandler(Context testContext) : IHandleMessages<RequestReplyMessage>
+        [Handler]
+        public class RequestReplyMessageHandler(Context testContext) : IHandleMessages<RequestReplyMessage>
         {
             public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
             {
@@ -59,11 +60,12 @@ public class When_routing_reply_to_specific_address : NServiceBusAcceptanceTest
         }
     }
 
-    class ReplyHandler : EndpointConfigurationBuilder
+    public class ReplyHandler : EndpointConfigurationBuilder
     {
         public ReplyHandler() => EndpointSetup<DefaultServer>();
 
-        class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
+        [Handler]
+        public class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {

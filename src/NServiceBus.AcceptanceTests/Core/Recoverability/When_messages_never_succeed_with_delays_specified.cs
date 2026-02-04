@@ -25,7 +25,7 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
             .Run();
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ThrottleModeEntered { get; set; }
         public DateTime LastProcessedTimeStamp { get; set; }
@@ -34,7 +34,7 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
         public void MaybeCompleted() => MarkAsCompleted(ThrottleModeEntered, TimeBetweenProcessingAttempts >= TimeSpan.FromSeconds(2));
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -58,7 +58,8 @@ public class When_messages_never_succeed_with_delays_specified : NServiceBusAcce
                 recoverability.OnConsecutiveFailures(1, rateLimitingSettings);
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {

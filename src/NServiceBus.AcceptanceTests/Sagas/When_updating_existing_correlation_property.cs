@@ -39,6 +39,7 @@ public class When_updating_existing_correlation_property : NServiceBusAcceptance
     {
         public ChangePropertyEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class ChangeCorrPropertySaga(Context testContext)
             : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
         {

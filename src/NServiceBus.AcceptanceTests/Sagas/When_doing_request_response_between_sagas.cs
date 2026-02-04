@@ -27,6 +27,7 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class RequestResponseRequestingSaga1(Context testContext)
             : Saga<RequestResponseRequestingSaga1.RequestResponseRequestingSagaData1>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
@@ -58,6 +59,7 @@ public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTe
             }
         }
 
+        [Saga]
         public class RequestResponseRespondingSaga1 : Saga<RequestResponseRespondingSaga1.RequestResponseRespondingSagaData1>,
             IAmStartedByMessages<RequestToRespondingSaga>
         {

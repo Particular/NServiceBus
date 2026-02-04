@@ -37,7 +37,7 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
         public int RequestedId { get; set; }
     }
 
-    class EndpointWithIntSaga : EndpointConfigurationBuilder
+    public class EndpointWithIntSaga : EndpointConfigurationBuilder
     {
         public EndpointWithIntSaga() => EndpointSetup<DefaultServer>();
 
@@ -46,7 +46,8 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
             public virtual int CorrelatedProperty { get; set; }
         }
 
-        class SagaWithIntCorrelatedProperty(DefaultIntCorrelationIdContext scenarioContext)
+        [Saga]
+        public class SagaWithIntCorrelatedProperty(DefaultIntCorrelationIdContext scenarioContext)
             : Saga<SagaDataWithIntCorrelatedProperty>,
                 IAmStartedByMessages<MessageWithIntCorrelationProperty>,
                 IHandleMessages<RequestWithIntCorrelationProperty>
@@ -72,7 +73,7 @@ class When_correlation_property_is_int : NServiceBusAcceptanceTest
         }
     }
 
-    class DefaultIntCorrelationIdContext : ScenarioContext
+    public class DefaultIntCorrelationIdContext : ScenarioContext
     {
         public bool MessageCorrelated { get; set; }
         public int CorrelatedId { get; set; }

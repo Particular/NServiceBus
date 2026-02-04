@@ -56,6 +56,7 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
                 });
             }, metadata => metadata.RegisterSelfAsPublisherFor<IMyEvent>(this));
 
+        [Handler]
         public class StartMessageHandler(IMessageCreator messageCreator) : IHandleMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context)
@@ -83,6 +84,7 @@ public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
                 },
                 metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<IMyEvent>
         {
             public Task Handle(IMyEvent @event, IMessageHandlerContext context)

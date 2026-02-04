@@ -71,6 +71,7 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         public SubscriberA() => EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
@@ -85,6 +86,7 @@ public class Pub_to_scaled_out_subs : NServiceBusAcceptanceTest
     {
         public SubscriberB() => EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)

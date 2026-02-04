@@ -22,26 +22,27 @@ public class When_custom_policy_discards_failed_message : NServiceBusAcceptanceT
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int HandlerInvoked { get; set; }
     }
 
-    class EndpointWithDiscardPolicy : EndpointConfigurationBuilder
+    public class EndpointWithDiscardPolicy : EndpointConfigurationBuilder
     {
         public EndpointWithDiscardPolicy() =>
             EndpointSetup<DefaultServer>(c => c
                 .Recoverability()
                 .CustomPolicy((config, context) => RecoverabilityAction.Discard("discard on purpose")));
-    }
 
-    class FailingMessageHandler(Context testContext) : IHandleMessages<FailingMessage>
-    {
-        public Task Handle(FailingMessage message, IMessageHandlerContext context)
+        [Handler]
+        public class FailingMessageHandler(Context testContext) : IHandleMessages<FailingMessage>
         {
-            testContext.HandlerInvoked++;
-            testContext.MarkAsCompleted();
-            throw new SimulatedException();
+            public Task Handle(FailingMessage message, IMessageHandlerContext context)
+            {
+                testContext.HandlerInvoked++;
+                testContext.MarkAsCompleted();
+                throw new SimulatedException();
+            }
         }
     }
 

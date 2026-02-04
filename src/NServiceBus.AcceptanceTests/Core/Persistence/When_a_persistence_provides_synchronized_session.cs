@@ -23,17 +23,18 @@ public class When_a_persistence_provides_synchronized_session : NServiceBusAccep
         Assert.That(result.SynchronizedStorageSessionInstanceInHandlingContext, Is.SameAs(result.SynchronizedStorageSessionInstanceInContainer));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public ISynchronizedStorageSession SynchronizedStorageSessionInstanceInContainer { get; set; }
         public ISynchronizedStorageSession SynchronizedStorageSessionInstanceInHandlingContext { get; set; }
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
-        class MyMessageHandler : IHandleMessages<MyMessage>
+        [Handler]
+        public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public MyMessageHandler(Context testContext, ISynchronizedStorageSession storageSession)
             {

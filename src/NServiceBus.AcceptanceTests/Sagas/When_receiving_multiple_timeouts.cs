@@ -45,6 +45,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
                 c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
             });
 
+        [Saga]
         public class MultiTimeoutsSaga1(Context testContext) : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
             IAmStartedByMessages<StartSaga1>,
             IHandleTimeouts<Saga1Timeout>,
@@ -122,6 +123,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class CatchAllMessageHandler : IHandleMessages<object>
         {
             public Task Handle(object message, IMessageHandlerContext context) => Task.CompletedTask;

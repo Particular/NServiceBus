@@ -41,6 +41,7 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
                 });
             });
 
+        [Saga]
         public class DelayedRetryTestingSaga(Context testContext) : Saga<DelayedRetryTestingSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<SecondSagaMessage>

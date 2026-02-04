@@ -65,6 +65,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
             .IncludeType<ScannedPaymentSaga>();
 
+        [Saga]
         public class ManuallyRegisteredOrderSaga(Context testContext)
             : Saga<ManuallyRegisteredOrderSagaData>, IAmStartedByMessages<StartManualSaga>
         {
@@ -86,6 +87,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             public virtual Guid OrderId { get; set; }
         }
 
+        [Saga]
         public class ScannedPaymentSaga(Context testContext)
             : Saga<ScannedPaymentSagaData>, IAmStartedByMessages<StartScannedSaga>
         {
@@ -117,6 +119,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
             }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
             .IncludeType<DuplicateRegistrationSaga>();
 
+        [Saga]
         public class DuplicateRegistrationSaga(Context testContext)
             : Saga<DuplicateRegistrationSagaData>, IAmStartedByMessages<StartDuplicateSaga>
         {

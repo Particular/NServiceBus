@@ -27,6 +27,7 @@ public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
     {
         public CorrelationEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyResponseHandler(Context testContext) : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest message, IMessageHandlerContext context)

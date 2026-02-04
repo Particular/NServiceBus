@@ -34,6 +34,7 @@ public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTe
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
             IAmStartedByMessages<StartSaga>
         {

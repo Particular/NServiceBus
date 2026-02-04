@@ -53,12 +53,13 @@ public class When_envelope_handler_fails : OpenTelemetryAcceptanceTest
         protected override void Setup(FeatureConfigurationContext context) => context.AddEnvelopeHandler<ThrowingHandler>();
     }
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
-    class EndpointWithMetrics : EndpointConfigurationBuilder
+    public class EndpointWithMetrics : EndpointConfigurationBuilder
     {
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)

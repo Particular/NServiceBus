@@ -58,6 +58,7 @@ public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceT
                 },
                 metadata => metadata.RegisterPublisherFor<IBaseEvent, Publisher>());
 
+        [Saga]
         public class SagaStartedByBaseEvent(SagaContext testContext)
             : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<IBaseEvent>
         {

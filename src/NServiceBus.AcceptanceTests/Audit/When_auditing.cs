@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Audit;
+namespace NServiceBus.AcceptanceTests.Audit;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -53,7 +53,8 @@ public class When_auditing : NServiceBusAcceptanceTest
                 c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
             });
 
-        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
@@ -68,7 +69,8 @@ public class When_auditing : NServiceBusAcceptanceTest
     {
         public EndpointWithAuditOn() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
-        class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
@@ -83,7 +85,8 @@ public class When_auditing : NServiceBusAcceptanceTest
     {
         public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
@@ -93,7 +96,6 @@ public class When_auditing : NServiceBusAcceptanceTest
             }
         }
     }
-
 
     public class MessageToBeAudited : IMessage;
 }

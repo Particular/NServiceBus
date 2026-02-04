@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -46,7 +46,8 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                 b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<GroupPendingEvent>(this));
 
-        class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
+        [Handler]
+        public class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
         {
             public Task Handle(OpenGroupCommand message, IMessageHandlerContext context) =>
                 context.Publish(new GroupPendingEvent
@@ -65,6 +66,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
                 },
                 metadata => metadata.RegisterPublisherFor<GroupPendingEvent, Publisher>());
 
+        [Saga]
         public class Saga1(Context testContext) : Saga<Saga1.MySaga1Data>,
             IAmStartedByMessages<GroupPendingEvent>,
             IHandleMessages<CompleteSaga1Now>
@@ -96,6 +98,7 @@ public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceT
             }
         }
 
+        [Saga]
         public class Saga2(Context testContext) : Saga<Saga2.MySaga2Data>,
             IAmStartedByMessages<StartSaga2>,
             IHandleMessages<GroupPendingEvent>

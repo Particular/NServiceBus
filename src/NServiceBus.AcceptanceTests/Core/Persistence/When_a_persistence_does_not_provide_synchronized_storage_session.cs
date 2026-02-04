@@ -48,7 +48,7 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
         public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
-    class NoSyncEndpoint : EndpointConfigurationBuilder
+    public class NoSyncEndpoint : EndpointConfigurationBuilder
     {
         public NoSyncEndpoint() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
@@ -57,14 +57,15 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
                 c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
                 c.UsePersistence<FakeNoSynchronizedStorageSupportPersistence>();
             });
-    }
 
-    public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
-    {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
+        [Handler]
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            testContext.MarkAsCompleted();
-            return Task.CompletedTask;
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
         }
     }
 

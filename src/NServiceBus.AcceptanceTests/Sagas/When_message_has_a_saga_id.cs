@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -43,6 +43,7 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
     {
         public SagaEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class MessageWithSagaIdSaga(Context testContext) : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
             IAmStartedByMessages<MessageWithSagaId>,
             IHandleTimeouts<MessageWithSagaId>
@@ -82,7 +83,8 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
             }
         }
 
-        class MessageWithSagaIdHandler(Context testContext) : IHandleMessages<MessageWithSagaId>
+        [Handler]
+        public class MessageWithSagaIdHandler(Context testContext) : IHandleMessages<MessageWithSagaId>
         {
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {

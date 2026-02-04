@@ -36,12 +36,12 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int HandlerInvoked { get; set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -51,7 +51,8 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
                 config.Recoverability().Delayed(d => d.NumberOfRetries(2));
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
