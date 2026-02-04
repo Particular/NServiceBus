@@ -12,6 +12,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Editing;
     using Microsoft.CodeAnalysis.Formatting;
+    using Microsoft.CodeAnalysis.Simplification;
 
     [Shared]
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SagaAttributeFixer))]
@@ -86,10 +87,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             var updatedClass = AddAttributeToClass(classDeclaration, editor.Generator, sagaAttribute);
             editor.ReplaceNode(classDeclaration, updatedClass);
 
-            var changed = editor.GetChangedDocument();
-            var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
-            return changed.WithSyntaxRoot(formattedRoot);
+            return editor.GetChangedDocument();
         }
 
         static async Task<Document> RemoveSagaAttribute(
@@ -112,10 +110,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             var updatedClass = RemoveSagaAttribute(classDeclaration, semanticModel, editor.Generator, sagaAttribute, cancellationToken);
             editor.ReplaceNode(classDeclaration, updatedClass);
 
-            var changed = editor.GetChangedDocument();
-            var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
-            return changed.WithSyntaxRoot(formattedRoot);
+            return editor.GetChangedDocument();
         }
 
         static async Task<Solution> MoveSagaAttribute(
@@ -236,8 +231,7 @@ namespace NServiceBus.Core.Analyzer.Fixes
             {
                 var changed = editor.GetChangedDocument();
                 var root = await changed.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-                var formattedRoot = Formatter.Format(root, Formatter.Annotation, changed.Project.Solution.Workspace, cancellationToken: cancellationToken);
-                solution = solution.WithDocumentSyntaxRoot(changed.Id, formattedRoot);
+                solution = solution.WithDocumentSyntaxRoot(changed.Id, root);
             }
 
             return solution;
@@ -260,7 +254,10 @@ namespace NServiceBus.Core.Analyzer.Fixes
             ClassDeclarationSyntax classDeclaration,
             SyntaxGenerator generator,
             INamedTypeSymbol attributeSymbol) =>
-            (ClassDeclarationSyntax)generator.AddAttributes(classDeclaration, generator.Attribute(generator.TypeExpression(attributeSymbol)));
+            (ClassDeclarationSyntax)generator.AddAttributes(
+                classDeclaration,
+                generator.Attribute(generator.TypeExpression(attributeSymbol))
+                    .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation));
 
         static ClassDeclarationSyntax RemoveSagaAttribute(
             ClassDeclarationSyntax classDeclaration,
