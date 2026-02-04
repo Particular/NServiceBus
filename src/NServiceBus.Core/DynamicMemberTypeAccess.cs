@@ -24,9 +24,10 @@ static class DynamicMemberTypeAccess
     public const DynamicallyAccessedMemberTypes Feature = Invokable
                                                           | DynamicallyAccessedMemberTypes.NonPublicConstructors; //TODO: Why was this needed?
 
+    public const DynamicallyAccessedMemberTypes InitializationExtension = Invokable;
+
     const DynamicallyAccessedMemberTypes InvokableWithDependencyInjection = Invokable
                                                                             | DynamicallyAccessedMemberTypes.PublicConstructors;
-    public const DynamicallyAccessedMemberTypes InitializationExtension = Invokable;
 
     const DynamicallyAccessedMemberTypes Invokable =
         DynamicallyAccessedMemberTypes.PublicMethods
