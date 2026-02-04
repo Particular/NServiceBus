@@ -272,15 +272,12 @@ namespace NServiceBus.Core.Analyzer.Fixes
             var attributesToRemove = classDeclaration.AttributeLists
                 .SelectMany(list => list.Attributes)
                 .Where(attribute => IsHandlerAttribute(attribute, semanticModel, handlerAttributeSymbol, cancellationToken))
-                .Select(attribute => attribute.Span)
                 .ToList();
 
-            var updatedClass = classDeclaration;
-            foreach (var attributeSpan in attributesToRemove)
+            var updatedClass = classDeclaration.TrackNodes(attributesToRemove);
+            foreach (var attribute in attributesToRemove)
             {
-                var currentAttribute = updatedClass.DescendantNodes()
-                    .OfType<AttributeSyntax>()
-                    .FirstOrDefault(attribute => attribute.Span == attributeSpan);
+                var currentAttribute = updatedClass.GetCurrentNode(attribute);
 
                 if (currentAttribute is not null)
                 {
