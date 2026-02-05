@@ -22,7 +22,7 @@ static class DynamicMemberTypeAccess
     public const DynamicallyAccessedMemberTypes FeatureStartupTask = InvokableWithDependencyInjection;
 
     public const DynamicallyAccessedMemberTypes Feature = Invokable
-                                                          | DynamicallyAccessedMemberTypes.NonPublicConstructors; //TODO: Why was this needed?
+                                                          | DynamicallyAccessedMemberTypes.NonPublicConstructors; // features are created using Activator.CreateInstance(featureType, nonPublic: true)
 
     public const DynamicallyAccessedMemberTypes InitializationExtension = Invokable;
 
