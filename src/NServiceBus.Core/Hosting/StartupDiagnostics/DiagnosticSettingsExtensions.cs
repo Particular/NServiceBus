@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 namespace NServiceBus;
 
 using System;
@@ -29,6 +29,7 @@ public static class DiagnosticSettingsExtensions
     /// </summary>
     /// <param name="config">Configuration object to extend.</param>
     /// <param name="path">The custom path to use.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Diagnostics path is managed by the runtime.")]
     public static void SetDiagnosticsPath(this EndpointConfiguration config, string path)
     {
         ArgumentNullException.ThrowIfNull(config);
