@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 namespace NServiceBus.Core.Analyzer.Tests.Helpers;
 
 using System;
@@ -22,6 +22,7 @@ public partial class SourceGeneratorTest
     readonly List<(string Filename, string Source)> sources;
     readonly List<ISourceGenerator> generators;
     readonly List<DiagnosticAnalyzer> analyzers;
+    readonly List<DiagnosticSuppressor> suppressors;
     readonly Dictionary<string, string> features;
     readonly string outputAssemblyName;
     string? scenarioName;
@@ -44,6 +45,7 @@ public partial class SourceGeneratorTest
         sources = [];
         generators = [];
         analyzers = [];
+        suppressors = [];
         this.outputAssemblyName = outputAssemblyName ?? "TestAssembly";
 
         features = new()
@@ -137,6 +139,12 @@ public partial class SourceGeneratorTest
         return this;
     }
 
+    public SourceGeneratorTest WithSuppressor<TSuppressor>() where TSuppressor : DiagnosticSuppressor, new()
+    {
+        suppressors.Add(new TSuppressor());
+        return this;
+    }
+
     public SourceGeneratorTest WithProperty(string name, string value)
     {
         features.Add(name, value);
@@ -189,7 +197,8 @@ public partial class SourceGeneratorTest
         initialCompilation = CSharpCompilation.Create(outputAssemblyName, syntaxTrees, References, compileOpts);
 
         ImmutableArray<DiagnosticAnalyzer> analyzersToUse = analyzers.Count > 0 ? [.. analyzers] : [new NoOpAnalyzer()];
-        build = new Build(initialCompilation, driver, analyzersToUse);
+        ImmutableArray<DiagnosticSuppressor> suppressorsToUse = suppressors.Count > 0 ? [.. suppressors] : [];
+        build = new Build(initialCompilation, driver, analyzersToUse, suppressorsToUse);
 
         try
         {
@@ -520,15 +529,19 @@ public partial class SourceGeneratorTest
         readonly Compilation initialCompilation;
         readonly GeneratorDriver driver;
         readonly ImmutableArray<DiagnosticAnalyzer> analyzers;
+        readonly ImmutableArray<DiagnosticSuppressor> suppressors;
 
-        public Build(Compilation initialCompilation, GeneratorDriver driver, ImmutableArray<DiagnosticAnalyzer> analyzers)
+        public Build(Compilation initialCompilation, GeneratorDriver driver, ImmutableArray<DiagnosticAnalyzer> analyzers, ImmutableArray<DiagnosticSuppressor> suppressors)
         {
             this.initialCompilation = initialCompilation;
             this.driver = driver.RunGeneratorsAndUpdateCompilation(initialCompilation, out var outputCompilation, out var generatorDiagnostics);
             this.analyzers = analyzers;
+            this.suppressors = suppressors;
 
             RunResult = this.driver.GetRunResult();
-            OutputCompilation = outputCompilation.WithAnalyzers(analyzers);
+
+            var allAnalyzers = analyzers.Concat(suppressors).ToImmutableArray();
+            OutputCompilation = outputCompilation.WithAnalyzers(allAnalyzers);
             GeneratorDiagnostics = generatorDiagnostics;
         }
 
@@ -539,7 +552,7 @@ public partial class SourceGeneratorTest
         public Build Clone()
         {
             var cloneCompilation = initialCompilation.Clone();
-            return new Build(cloneCompilation, driver, analyzers);
+            return new Build(cloneCompilation, driver, analyzers, suppressors);
         }
     }
 
