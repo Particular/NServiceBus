@@ -86,6 +86,7 @@ public partial class SagaMetadata
     /// </summary>
     /// <param name="sagaTypes">Potential saga types.</param>
     /// <returns>Saga metadata for all the found saga types.</returns>
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
     {
         ArgumentNullException.ThrowIfNull(sagaTypes);
@@ -107,7 +108,8 @@ public partial class SagaMetadata
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga>() where TSaga : Saga
+    [RequiresUnreferencedCode(TrimmingMessage)]
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>() where TSaga : Saga
     {
         var sagaType = typeof(TSaga);
         var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
@@ -132,7 +134,7 @@ public partial class SagaMetadata
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <typeparam name="TSagaData">A type representing the SagaDataType. Must be a non-generic type implementing <see cref="IContainSagaData"/>.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
-    public static SagaMetadata Create<TSaga, TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, CorrelationPropertyAccessor? correlationPropertyAccessor = null, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
+    public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaData)] TSagaData>(IReadOnlyCollection<SagaMessage> associatedMessages, CorrelationPropertyAccessor? correlationPropertyAccessor = null, IReadOnlyCollection<MessagePropertyAccessor>? propertyAccessors = null)
         where TSaga : Saga<TSagaData>
         where TSagaData : class, IContainSagaData, new()
     {
@@ -173,7 +175,7 @@ public partial class SagaMetadata
         }
     }
 
-    static List<SagaMessage> GetAssociatedMessages(Type sagaType)
+    static List<SagaMessage> GetAssociatedMessages([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType)
     {
         var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
             .Select(t => new SagaMessage(t, isAllowedToStart: true, isTimeout: false))
@@ -197,21 +199,28 @@ public partial class SagaMetadata
         return result;
     }
 
-    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
+    static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type sagaType, Type filter)
     {
         foreach (var interfaceType in sagaType.GetInterfaces())
         {
-            foreach (var argument in interfaceType.GetGenericArguments())
+            if (!interfaceType.IsGenericType)
             {
-                var genericType = filter.MakeGenericType(argument);
-                var isOfFilterType = genericType == interfaceType;
-                if (!isOfFilterType)
-                {
-                    continue;
-                }
-
-                yield return argument;
+                continue;
             }
+
+            var genericDefinition = interfaceType.GetGenericTypeDefinition();
+            if (genericDefinition != filter)
+            {
+                continue;
+            }
+
+            var args = interfaceType.GetGenericArguments();
+            if (args is not { Length: 1 })
+            {
+                continue;
+            }
+
+            yield return args[0];
         }
     }
 
@@ -238,11 +247,16 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
         .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
-
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
+
+    internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code";
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.

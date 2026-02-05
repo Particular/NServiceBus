@@ -9,8 +9,6 @@ static class TypeExtensionMethods
 {
     extension(Type type)
     {
-        public T Construct<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] T>() => (T)Activator.CreateInstance(type, nonPublic: true);
-
         /// <summary>
         /// Returns true if the type can be serialized as is.
         /// </summary>

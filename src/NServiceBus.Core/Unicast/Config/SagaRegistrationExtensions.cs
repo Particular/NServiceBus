@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Sagas;
 
 /// <summary>
@@ -13,6 +14,7 @@ public static class SagaRegistrationExtensions
     /// <summary>
     /// Registers a saga.
     /// </summary>
+    [RequiresUnreferencedCode(SagaMetadata.TrimmingMessage)]
     public static void AddSaga<TSaga>(this EndpointConfiguration config) where TSaga : Saga, IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);

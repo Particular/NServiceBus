@@ -4,6 +4,7 @@ namespace NServiceBus.Features;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Particular.Obsoletes;
 using Settings;
@@ -113,6 +114,7 @@ public abstract partial class Feature
     /// This also causes this feature to be activated after the other features.
     /// </summary>
     /// <param name="features">Features list that this feature require at least one of to be activated.</param>
+    [RequiresUnreferencedCode("Feature dependency using types might require access to unreferenced code")]
     protected void DependsOnAtLeastOne(params Type[] features)
     {
         ArgumentNullException.ThrowIfNull(features);
@@ -191,7 +193,7 @@ public abstract partial class Feature
 
     static IEnabled Enables<TFeature>() where TFeature : Feature, new() => Enabled<TFeature>.Instance;
     static IDependency Depends<TFeature>() where TFeature : Feature, new() => Dependency<TFeature>.Instance;
-    static IDependency Depends(Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
+    static IDependency Depends([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Feature)] Type featureType) => !featureType.IsSubclassOf(baseFeatureType) ? throw new ArgumentException($"A Feature can only depend on another Feature. '{featureType.FullName}' is not a Feature", nameof(featureType)) : new TypeDependency(featureType);
     static IDependency Depends(string featureName) => new WeakDependency(featureName);
 
     readonly List<Action<SettingsHolder>> registeredDefaults = [];
@@ -221,7 +223,7 @@ public abstract partial class Feature
         public static readonly IDependency Instance = new Dependency<TFeature>();
     }
 
-    sealed class TypeDependency(Type featureType) : IDependency
+    sealed class TypeDependency([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Feature)] Type featureType) : IDependency
     {
         public string FeatureName { get; } = GetFeatureName(featureType);
         public Feature Create(FeatureFactory factory) => factory.CreateFeature(featureType);

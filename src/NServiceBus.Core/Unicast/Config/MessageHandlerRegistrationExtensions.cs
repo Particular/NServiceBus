@@ -2,6 +2,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Unicast;
 
 /// <summary>
@@ -12,7 +13,8 @@ public static class MessageHandlerRegistrationExtensions
     /// <summary>
     /// Registers a message handler.
     /// </summary>
-    public static void AddHandler<THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
+    [RequiresUnreferencedCode(MessageHandlerRegistry.TrimmingMessage)]
+    public static void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
     {
         ArgumentNullException.ThrowIfNull(config);
 
