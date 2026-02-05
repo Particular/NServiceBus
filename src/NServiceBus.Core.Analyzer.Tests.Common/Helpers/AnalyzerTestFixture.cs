@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Helpers;
+namespace NServiceBus.Core.Analyzer.Tests.Helpers;
 
 using System;
 using System.Collections.Generic;
@@ -21,12 +21,18 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
     protected virtual LanguageVersion AnalyzerLanguageVersion => LanguageVersion.CSharp14;
 
     protected Task Assert(string markupCode, CancellationToken cancellationToken = default) =>
-        Assert([], markupCode, [], true, cancellationToken);
+        Assert([], markupCode, [], true, null, cancellationToken);
+
+    protected Task Assert(string markupCode, Dictionary<string, string> globalOptions, CancellationToken cancellationToken = default) =>
+        Assert([], markupCode, [], true, globalOptions, cancellationToken);
 
     protected Task Assert(string expectedDiagnosticId, string markupCode, CancellationToken cancellationToken = default) =>
-        Assert([expectedDiagnosticId], markupCode, [], true, cancellationToken);
+        Assert([expectedDiagnosticId], markupCode, [], true, null, cancellationToken);
 
-    protected async Task Assert(string[] expectedDiagnosticIds, string markupCode, string[] ignoreDiagnosticIds = null, bool mustCompile = true, CancellationToken cancellationToken = default)
+    protected Task Assert(string expectedDiagnosticId, string markupCode, Dictionary<string, string> globalOptions, CancellationToken cancellationToken = default) =>
+        Assert([expectedDiagnosticId], markupCode, [], true, globalOptions, cancellationToken);
+
+    protected async Task Assert(string[] expectedDiagnosticIds, string markupCode, string[] ignoreDiagnosticIds = null, bool mustCompile = true, Dictionary<string, string> globalOptions = null, CancellationToken cancellationToken = default)
     {
         ignoreDiagnosticIds ??= [];
 
@@ -44,7 +50,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
         var compilation = await project.GetCompilationAsync(cancellationToken);
         compilation.Compile(mustCompile);
 
-        var analyzerDiagnostics = (await compilation.GetAnalyzerDiagnostics(new TAnalyzer(), cancellationToken))
+        var analyzerDiagnostics = (await compilation.GetAnalyzerDiagnostics(new TAnalyzer(), globalOptions, cancellationToken))
             .Where(d => !ignoreDiagnosticIds.Contains(d.Id))
             .ToList();
         WriteAnalyzerDiagnostics(analyzerDiagnostics);
@@ -110,7 +116,7 @@ public class AnalyzerTestFixture<TAnalyzer> where TAnalyzer : DiagnosticAnalyzer
         MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
         MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
         MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(AnalyzerTestFixture<>).GetTypeInfo().Assembly.Location), // This allows loading stubs
         MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
     ];
 

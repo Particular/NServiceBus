@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Analyzer
+namespace NServiceBus.Core.Analyzer
 {
 #if FIXES
     static class DiagnosticIds
@@ -27,5 +27,8 @@
         public const string DoNotEnableFeaturesInDefaults = "NSB0019";
         public const string HandlerInjectsMessageSession = "NSB0020";
         public const string AddHandlerOnSagaType = "NSB0021";
+
+        // Diagnostic ID for NotSupportedInEnvironmentAnalyzer
+        public const string NotSupportedInEnvironment = "NSBENV001";
     }
 }
