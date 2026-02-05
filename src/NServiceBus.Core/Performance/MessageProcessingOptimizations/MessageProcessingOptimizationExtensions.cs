@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -17,6 +17,7 @@ public static class MessageProcessingOptimizationExtensions
         /// Instructs the transport to limits the allowed concurrency when processing messages.
         /// </summary>
         /// <param name="maxConcurrency">The max concurrency allowed.</param>
+        [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Concurrency limits are managed by the runtime.")]
         public void LimitMessageProcessingConcurrencyTo(int maxConcurrency)
         {
             ArgumentNullException.ThrowIfNull(config);

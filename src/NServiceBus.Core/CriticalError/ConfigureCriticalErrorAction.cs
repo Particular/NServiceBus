@@ -16,6 +16,7 @@ public static class ConfigureCriticalErrorAction
     /// </summary>
     /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
     /// <param name="onCriticalError">The action to perform.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Critical error handling is managed by the runtime.")]
     public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, CancellationToken, Task> onCriticalError)
     {
         ArgumentNullException.ThrowIfNull(endpointConfiguration);

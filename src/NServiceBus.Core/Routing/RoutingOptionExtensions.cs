@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -98,6 +98,7 @@ public static class RoutingOptionExtensions
     /// Routes this message to this endpoint instance.
     /// </summary>
     /// <param name="options">Option being extended.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Routing to specific instances is not supported in serverless environments.")]
     public static void RouteToThisInstance(this SendOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -159,6 +160,7 @@ public static class RoutingOptionExtensions
     /// Instructs the receiver to route the reply for this message to this instance.
     /// </summary>
     /// <param name="options">Option being extended.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Routing replies to specific instances is not supported in serverless environments.")]
     public static void RouteReplyToThisInstance(this SendOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -215,6 +217,7 @@ public static class RoutingOptionExtensions
     /// Instructs the receiver to route the reply for this message to this instance.
     /// </summary>
     /// <param name="options">Option being extended.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Routing replies to specific instances is not supported in serverless environments.")]
     public static void RouteReplyToThisInstance(this ReplyOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);

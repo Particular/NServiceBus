@@ -56,6 +56,7 @@ namespace NServiceBus
     }
     public static class ConfigureCriticalErrorAction
     {
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Critical error handling is managed by the runtime.")]
         public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.CancellationToken, System.Threading.Tasks.Task> onCriticalError) { }
     }
     public static class ConfigureError
@@ -77,6 +78,7 @@ namespace NServiceBus
     }
     public static class ConfigurePurging
     {
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "PurgeOnStartup is managed by the runtime.")]
         public static void PurgeOnStartup(this NServiceBus.EndpointConfiguration config, bool value) { }
     }
     public static class ConnectorContextExtensions
@@ -244,6 +246,7 @@ namespace NServiceBus
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, object section) { }
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Diagnostics path is managed by the runtime.")]
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
     public class Discard : NServiceBus.RecoverabilityAction
@@ -265,9 +268,9 @@ namespace NServiceBus
     }
     public static class Endpoint
     {
-        [NServiceBus.NotSupportedInEnvironment("Serverless", "Endpoint creation is managed by the Azure Functions runtime.")]
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Endpoint creation is managed by the runtime.")]
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
-        [NServiceBus.NotSupportedInEnvironment("Serverless", "Endpoint startup is managed by the Azure Functions runtime.")]
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Endpoint startup is managed by the runtime.")]
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -670,6 +673,7 @@ namespace NServiceBus
     {
         extension(NServiceBus.EndpointConfiguration config)
         {
+            [NServiceBus.NotSupportedInEnvironment("Serverless", "Concurrency limits are managed by the runtime.")]
             public void LimitMessageProcessingConcurrencyTo(int maxConcurrency) { }
         }
     }
@@ -815,7 +819,9 @@ namespace NServiceBus
     }
     public static class ReceiveSettingsExtensions
     {
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Instance addressing is not supported in serverless environments.")]
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Queue naming is managed by the runtime.")]
         public static void OverrideLocalAddress(this NServiceBus.EndpointConfiguration config, string baseInputQueueName) { }
     }
     public abstract class RecoverabilityAction
@@ -884,10 +890,15 @@ namespace NServiceBus
         public static void RouteReplyTo(this NServiceBus.SendOptions options, string address) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.ReplyOptions options) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions options) { }
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Routing replies to specific instances is not supported in serverless environments" +
+            ".")]
         public static void RouteReplyToThisInstance(this NServiceBus.ReplyOptions options) { }
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Routing replies to specific instances is not supported in serverless environments" +
+            ".")]
         public static void RouteReplyToThisInstance(this NServiceBus.SendOptions options) { }
         public static void RouteToSpecificInstance(this NServiceBus.SendOptions options, string instanceId) { }
         public static void RouteToThisEndpoint(this NServiceBus.SendOptions options) { }
+        [NServiceBus.NotSupportedInEnvironment("Serverless", "Routing to specific instances is not supported in serverless environments.")]
         public static void RouteToThisInstance(this NServiceBus.SendOptions options) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }

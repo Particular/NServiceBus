@@ -1,4 +1,4 @@
-﻿namespace NServiceBus;
+namespace NServiceBus;
 
 using System;
 
@@ -12,6 +12,7 @@ public static class ReceiveSettingsExtensions
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="discriminator">The value to append to the endpoint name to create an instance-specific queue.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Instance addressing is not supported in serverless environments.")]
     public static void MakeInstanceUniquelyAddressable(this EndpointConfiguration config, string discriminator)
     {
         ArgumentNullException.ThrowIfNull(config);
@@ -26,6 +27,7 @@ public static class ReceiveSettingsExtensions
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="baseInputQueueName">The base name of the input queue.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Queue naming is managed by the runtime.")]
     public static void OverrideLocalAddress(this EndpointConfiguration config, string baseInputQueueName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(baseInputQueueName);

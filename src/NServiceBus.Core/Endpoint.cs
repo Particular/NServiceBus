@@ -17,7 +17,7 @@ public static class Endpoint
     /// </summary>
     /// <param name="configuration">Configuration.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Endpoint creation is managed by the Azure Functions runtime.")]
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Endpoint creation is managed by the runtime.")]
     public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -37,7 +37,7 @@ public static class Endpoint
     /// </summary>
     /// <param name="configuration">Configuration.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Endpoint startup is managed by the Azure Functions runtime.")]
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "Endpoint startup is managed by the runtime.")]
     public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(configuration);

@@ -15,6 +15,7 @@ public static class ConfigurePurging
     /// </summary>
     /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
     /// <param name="value">True to purge all message on startup; otherwise False.</param>
+    [NotSupportedInEnvironment(EnvironmentIds.Serverless, "PurgeOnStartup is managed by the runtime.")]
     public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
     {
         ArgumentNullException.ThrowIfNull(config);
