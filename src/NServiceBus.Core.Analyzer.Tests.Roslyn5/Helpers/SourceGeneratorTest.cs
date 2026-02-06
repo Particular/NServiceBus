@@ -1,0 +1,595 @@
+#nullable enable
+namespace NServiceBus.Core.Analyzer.Tests.Helpers;
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using NServiceBus;
+using NUnit.Framework;
+using Particular.Approvals;
+
+public partial class SourceGeneratorTest
+{
+    readonly List<(string Filename, string Source)> sources;
+    readonly List<ISourceGenerator> generators;
+    readonly List<DiagnosticAnalyzer> analyzers;
+    readonly List<DiagnosticSuppressor> suppressors;
+    readonly Dictionary<string, string> features;
+    readonly string outputAssemblyName;
+    string? scenarioName;
+    Compilation? initialCompilation;
+    Build? build;
+    Build? clonedBuild;
+    ImmutableArray<Diagnostic> compilationDiagnostics;
+    bool suppressDiagnosticErrors;
+    bool suppressCompilationErrors;
+    bool wroteToConsole;
+    GeneratorTestOutput outputType;
+    OutputKind buildOutputType = OutputKind.DynamicallyLinkedLibrary;
+    readonly Dictionary<string, HashSet<string>> generatorStages = [];
+
+    static readonly Type WrapperType = typeof(ISourceGenerator).Assembly.GetType("Microsoft.CodeAnalysis.IncrementalGeneratorWrapper", throwOnError: true)!;
+    static readonly MethodInfo GeneratorPropertyGetter = WrapperType.GetProperty("Generator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetMethod!;
+
+    SourceGeneratorTest(string? outputAssemblyName = null)
+    {
+        sources = [];
+        generators = [];
+        analyzers = [];
+        suppressors = [];
+        this.outputAssemblyName = outputAssemblyName ?? "TestAssembly";
+
+        features = new()
+        {
+            ["InterceptorsNamespaces"] = "NServiceBus"
+        };
+
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var assembly in assemblies)
+        {
+            if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
+            {
+                References.Add(MetadataReference.CreateFromFile(assembly.Location));
+            }
+        }
+
+        References.Add(MetadataReference.CreateFromFile(typeof(IMessage).Assembly.Location));
+        References.Add(MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location));
+    }
+
+    public static SourceGeneratorTest ForSourceGenerator<TGenerator>([CallerMemberName] string? outputAssemblyName = null)
+        where TGenerator : ISourceGenerator, new()
+        => new SourceGeneratorTest(outputAssemblyName).WithSourceGenerator<TGenerator>();
+
+    public static SourceGeneratorTest ForIncrementalGenerator<TGenerator>(string[]? stages = null, [CallerMemberName] string? outputAssemblyName = null)
+        where TGenerator : IIncrementalGenerator, new()
+        => new SourceGeneratorTest(outputAssemblyName).WithIncrementalGenerator<TGenerator>(stages ?? []);
+
+    public List<MetadataReference> References { get; } = [];
+
+    public LanguageVersion LangVersion { get; set; } = LanguageVersion.CSharp14;
+
+    public SourceGeneratorTest BuildAs(OutputKind outputKind)
+    {
+        buildOutputType = outputKind;
+        return this;
+    }
+
+    public SourceGeneratorTest WithSource(string source, string? filename = null)
+    {
+        filename ??= $"Source{sources.Count:00}.cs";
+        sources.Add((filename, source));
+        return this;
+    }
+
+    public SourceGeneratorTest WithScenarioName(string name)
+    {
+        scenarioName = name;
+        return this;
+    }
+
+    public SourceGeneratorTest AddReference(MetadataReference reference)
+    {
+        References.Add(reference);
+        return this;
+    }
+
+    public SourceGeneratorTest SuppressDiagnosticErrors()
+    {
+        suppressDiagnosticErrors = true;
+        return this;
+    }
+
+    public SourceGeneratorTest SuppressCompilationErrors()
+    {
+        suppressCompilationErrors = true;
+        return this;
+    }
+
+    public SourceGeneratorTest WithIncrementalGenerator<TGenerator>(params string[] stages) where TGenerator : IIncrementalGenerator, new()
+    {
+        if (stages.Length == 0 && TryGetTrackingNames(typeof(TGenerator), out var trackingNames))
+        {
+            stages = [.. trackingNames];
+        }
+
+        generatorStages.Add(typeof(TGenerator).FullName!, new HashSet<string>(stages, StringComparer.OrdinalIgnoreCase));
+        generators.Add(new TGenerator().AsSourceGenerator());
+        return this;
+    }
+
+    public SourceGeneratorTest WithSourceGenerator<TGenerator>() where TGenerator : ISourceGenerator, new()
+    {
+        generators.Add(new TGenerator());
+        return this;
+    }
+
+    public SourceGeneratorTest WithAnalyzer<TAnalyzer>() where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        analyzers.Add(new TAnalyzer());
+        return this;
+    }
+
+    public SourceGeneratorTest WithSuppressor<TSuppressor>() where TSuppressor : DiagnosticSuppressor, new()
+    {
+        suppressors.Add(new TSuppressor());
+        return this;
+    }
+
+    public SourceGeneratorTest WithProperty(string name, string value)
+    {
+        features.Add(name, value);
+        return this;
+    }
+
+    public SourceGeneratorTest ControlOutput(GeneratorTestOutput output)
+    {
+        outputType = output;
+        return this;
+    }
+
+    [MemberNotNull(nameof(build))]
+    public SourceGeneratorTest Run()
+    {
+        if (build is not null)
+        {
+            return this;
+        }
+
+        if (generators.Count == 0)
+        {
+            throw new Exception("No generators added");
+        }
+
+        var parseOptions = new CSharpParseOptions(LangVersion)
+            .WithFeatures(features);
+
+        var syntaxTrees = sources
+            .Select(src =>
+            {
+                var tree = CSharpSyntaxTree.ParseText(src.Source, path: src.Filename);
+                var options = parseOptions;
+                return tree.WithRootAndOptions(tree.GetRoot(), options);
+            });
+
+        var driverOpts = new GeneratorDriverOptions(
+            disabledOutputs: IncrementalGeneratorOutputKind.None,
+            trackIncrementalGeneratorSteps: true);
+
+        var optsProvider = new OptionsProvider(new DictionaryAnalyzerOptions(features));
+
+        var driver = CSharpGeneratorDriver.Create(generators,
+            driverOptions: driverOpts,
+            optionsProvider: optsProvider,
+            parseOptions: parseOptions);
+
+        var compileOpts = new CSharpCompilationOptions(buildOutputType);
+
+        initialCompilation = CSharpCompilation.Create(outputAssemblyName, syntaxTrees, References, compileOpts);
+
+        ImmutableArray<DiagnosticAnalyzer> analyzersToUse = analyzers.Count > 0 ? [.. analyzers] : [new NoOpAnalyzer()];
+        ImmutableArray<DiagnosticSuppressor> suppressorsToUse = suppressors.Count > 0 ? [.. suppressors] : [];
+        build = new Build(initialCompilation, driver, analyzersToUse, suppressorsToUse);
+
+        try
+        {
+            if (!suppressDiagnosticErrors)
+            {
+                Assert.That(build.GeneratorDiagnostics, Has.None.Matches<Diagnostic>(d => d.Severity >= DiagnosticSeverity.Error));
+            }
+
+            compilationDiagnostics = build.OutputCompilation.GetAllDiagnosticsAsync().GetAwaiter().GetResult();
+
+            if (!suppressCompilationErrors)
+            {
+                Assert.That(compilationDiagnostics, Has.None.Matches<Diagnostic>(d => d.Severity >= DiagnosticSeverity.Warning));
+            }
+
+            return this;
+        }
+        catch (AssertionException)
+        {
+            _ = ToConsole();
+            throw;
+        }
+    }
+
+    [MemberNotNull(nameof(clonedBuild)), MemberNotNull(nameof(build))]
+    void RunClonedBuild()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        clonedBuild ??= build.Clone();
+    }
+
+    public SourceGeneratorTest AssertRunsAreEqual()
+    {
+        if (generatorStages.Count == 0)
+        {
+            throw new Exception("Must add GeneratorStages first.");
+        }
+
+        RunClonedBuild();
+
+        var trackedSteps1 = GetTracked(build.RunResult);
+        var trackedSteps2 = GetTracked(clonedBuild.RunResult);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trackedSteps1, Is.Not.Empty);
+            Assert.That(trackedSteps2, Has.Count.EqualTo(trackedSteps1.Count));
+            Assert.That(trackedSteps1.Keys, Is.EquivalentTo(trackedSteps2.Keys));
+        }
+
+        foreach (var stepsPerGenerator in trackedSteps1)
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                foreach ((string key, ImmutableArray<IncrementalGeneratorRunStep> runStep1) in stepsPerGenerator.Value)
+                {
+                    var runStep2 = trackedSteps2[stepsPerGenerator.Key][key];
+                    AssertStepsAreEqual(key, runStep1, runStep2);
+                }
+            }
+        }
+
+        return this;
+
+        Dictionary<string, Dictionary<string, ImmutableArray<IncrementalGeneratorRunStep>>> GetTracked(GeneratorDriverRunResult result) =>
+            result.Results.GroupBy(x => GetUnderlyingGeneratorType(x.Generator).FullName!)
+                .ToDictionary(g => g.Key, g =>
+                    g.SelectMany(r => r.TrackedSteps.Where(step => generatorStages[g.Key].Contains(step.Key))).ToDictionary());
+    }
+
+    static void AssertStepsAreEqual(string trackingName, ImmutableArray<IncrementalGeneratorRunStep> steps1, ImmutableArray<IncrementalGeneratorRunStep> steps2)
+    {
+        Assert.That(steps1, Has.Length.EqualTo(steps2.Length));
+
+        for (var i = 0; i < steps1.Length; i++)
+        {
+            var step1 = steps1[i];
+            var step2 = steps2[i];
+
+            var out1 = step1.Outputs.Select(o => o.Value).ToArray();
+            var out2 = step2.Outputs.Select(o => o.Value).ToArray();
+
+            Assert.That(out1, Is.EqualTo(out2).UsingPropertiesComparer(), $"Step '{trackingName}' outputs are not the same between runs, but should be cacheable results.");
+
+            var outputReasons = step2.Outputs.Select(o => o.Reason).ToArray();
+            var badReasons = outputReasons.Where(reason => reason is not IncrementalStepRunReason.Cached and not IncrementalStepRunReason.Unchanged).ToArray();
+
+            Assert.That(badReasons.Length, Is.Zero, $"Step '{trackingName}' outputs contain reasons: {string.Join(',', badReasons)}. Should all be Cached or Unchanged to be memoizable.");
+
+            // Not doing anything here to explicitly assert that types are not Compilation, ISymbol, SyntaxNode or other
+            // types known to be bad ideas, but that would require nasty reflection to traverse an object graph
+        }
+    }
+
+    public string GetCompilationOutput(bool withLineNumbers = false)
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        var sb = new StringBuilder();
+
+        void WriteHeading(string heading)
+        {
+            if (sb.Length > 0)
+            {
+                _ = sb.AppendLine();
+            }
+
+            var start = $"// == {heading} ==";
+
+            _ = sb.Append(start);
+
+            for (var i = 0; i < 120 - start.Length; i++)
+            {
+                _ = sb.Append('=');
+            }
+
+            _ = sb.AppendLine();
+        }
+
+        if (build.GeneratorDiagnostics.Any())
+        {
+            WriteHeading("Generator Diagnostics");
+            foreach (var diagnostic in build.GeneratorDiagnostics)
+            {
+                _ = sb.AppendLine(diagnostic.ToString());
+            }
+        }
+
+        if (compilationDiagnostics.Any())
+        {
+            WriteHeading("Compilation Diagnostics");
+            foreach (var diagnostic in compilationDiagnostics)
+            {
+                _ = sb.AppendLine(diagnostic.ToString());
+            }
+        }
+
+        foreach (var syntaxTree in FilteredSyntaxTrees())
+        {
+            WriteHeading(syntaxTree.FilePath.Replace('\\', '/'));
+
+            if (withLineNumbers)
+            {
+                var lines = syntaxTree.GetText().Lines;
+                var padSize = lines.Count.ToString().Length;
+                foreach (var line in lines)
+                {
+                    _ = sb.AppendLine($"{(line.LineNumber + 1).ToString().PadLeft(padSize)}: {line.Text?.GetSubText(line.Span)}");
+                }
+            }
+            else
+            {
+                sb.AppendLine(syntaxTree.ToString());
+            }
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    public SourceGeneratorTest Approve(Func<string, string>? scrubber = null, [CallerFilePath] string? callerFilePath = null, [CallerMemberName] string? callerMemberName = null)
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        if (Environment.GetEnvironmentVariable("CI") != "true")
+        {
+            _ = ToConsole();
+        }
+
+        var output = GetCompilationOutput();
+        var toApprove = ScrubPlatformSpecificInterceptorData().Replace(output, m => m.Value.Replace(m.Groups["InterceptData"].Value, "{PLATFORM-SPECIFIC-BASE64-DATA}"));
+        toApprove = ScrubVersionSpecificAttributeData().Replace(toApprove, m => m.Value.Replace(m.Groups["AssemblyName"].Value, "NService.Core.Analyzer.Tests")
+            .Replace(m.Groups["Version"].Value, "1.0.0"));
+        Approver.Verify(toApprove, scrubber, scenarioName, callerFilePath, callerMemberName);
+        return this;
+    }
+
+    public SourceGeneratorTest ShouldNotGenerateCode()
+    {
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        var generatedOutputs = build.OutputCompilation.Compilation.SyntaxTrees
+            .Where(tree => tree.FilePath.EndsWith(".g.cs"))
+            .ToImmutableArray();
+
+        Assert.That(generatedOutputs.Length, Is.EqualTo(0));
+        return this;
+    }
+
+    [GeneratedRegex("""System\.Runtime\.CompilerServices\.InterceptsLocationAttribute\(1, "(?<InterceptData>[A-Za-z0-9+=/]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex ScrubPlatformSpecificInterceptorData();
+
+    [GeneratedRegex("""System\.CodeDom\.Compiler\.GeneratedCodeAttribute\("(?<AssemblyName>[^"]+)",\s*"(?<Version>[^"]+)"\)""", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex ScrubVersionSpecificAttributeData();
+
+    public SourceGeneratorTest ToConsole()
+    {
+        if (wroteToConsole)
+        {
+            return this;
+        }
+
+        if (build is null)
+        {
+            _ = Run();
+        }
+
+        var output = GetCompilationOutput(true);
+        Console.WriteLine(output);
+        wroteToConsole = true;
+        return this;
+    }
+
+    public SourceGeneratorTest OutputSteps(params ReadOnlySpan<string> specificStages)
+    {
+        RunClonedBuild();
+
+        foreach (var result in clonedBuild.RunResult.Results)
+        {
+            var generatorType = GetUnderlyingGeneratorType(result.Generator);
+            Console.WriteLine($"## {generatorType.Name} Results");
+            Console.WriteLine();
+
+            foreach (var stepName in specificStages.Length != 0 ? specificStages : generatorStages[generatorType.FullName!].ToArray())
+            {
+                var namedStep = result.TrackedSteps[stepName];
+                var outputs = namedStep.SelectMany(runStep => runStep.Outputs).ToArray();
+                var outputCount = outputs.Length;
+                var reasons = outputs.Select(o => o.Reason).GroupBy(reason => reason)
+                    .Select(g => $"{g.Count()} {g.Key}")
+                    .ToArray();
+
+                Console.WriteLine($"Step {stepName} -  {outputCount} total outputs, {string.Join(", ", reasons)}");
+
+                foreach (var output in outputs)
+                {
+                    Console.WriteLine($"- [{output.Reason}] {output.Value}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        return this;
+    }
+
+    static Type GetUnderlyingGeneratorType(ISourceGenerator generator)
+    {
+        var generatorType = generator.GetType();
+        if (generatorType != WrapperType)
+        {
+            return generatorType;
+        }
+
+        var innerGenerator = GeneratorPropertyGetter.Invoke(generator, []);
+        if (innerGenerator is not null)
+        {
+            generatorType = innerGenerator.GetType();
+        }
+        return generatorType;
+    }
+
+    static bool TryGetTrackingNames(Type generatorType, out IReadOnlyCollection<string> names)
+    {
+        const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+        var trackingNamesType = generatorType.GetNestedType("TrackingNames", BindingFlags.Public | BindingFlags.NonPublic);
+        if (trackingNamesType is null)
+        {
+            names = [];
+            return false;
+        }
+
+        object? value = null;
+        var property = trackingNamesType.GetProperty("All", Flags);
+        if (property is not null)
+        {
+            value = property.GetValue(null);
+        }
+        else
+        {
+            var field = trackingNamesType.GetField("All", Flags);
+            if (field is not null)
+            {
+                value = field.GetValue(null);
+            }
+        }
+
+        if (value is IEnumerable<string> enumerable)
+        {
+            names = [.. enumerable];
+            return names.Count > 0;
+        }
+
+        names = [];
+        return false;
+    }
+
+    IEnumerable<SyntaxTree> FilteredSyntaxTrees()
+    {
+        if (build is null)
+        {
+            throw new Exception("This shouldn't have happened yet.");
+        }
+
+        return outputType switch
+        {
+            GeneratorTestOutput.All => build.OutputCompilation.Compilation.SyntaxTrees,
+            GeneratorTestOutput.GeneratedOnly => build.OutputCompilation.Compilation.SyntaxTrees.Where(t => t.FilePath.EndsWith(".g.cs")),
+            GeneratorTestOutput.SourceOnly => build.OutputCompilation.Compilation.SyntaxTrees.Where(t => !t.FilePath.EndsWith(".g.cs")),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    class Build
+    {
+        readonly Compilation initialCompilation;
+        readonly GeneratorDriver driver;
+        readonly ImmutableArray<DiagnosticAnalyzer> analyzers;
+        readonly ImmutableArray<DiagnosticSuppressor> suppressors;
+
+        public Build(Compilation initialCompilation, GeneratorDriver driver, ImmutableArray<DiagnosticAnalyzer> analyzers, ImmutableArray<DiagnosticSuppressor> suppressors)
+        {
+            this.initialCompilation = initialCompilation;
+            this.driver = driver.RunGeneratorsAndUpdateCompilation(initialCompilation, out var outputCompilation, out var generatorDiagnostics);
+            this.analyzers = analyzers;
+            this.suppressors = suppressors;
+
+            RunResult = this.driver.GetRunResult();
+
+            var allAnalyzers = analyzers.Concat(suppressors).ToImmutableArray();
+            OutputCompilation = outputCompilation.WithAnalyzers(allAnalyzers);
+            GeneratorDiagnostics = generatorDiagnostics;
+        }
+
+        public CompilationWithAnalyzers OutputCompilation { get; }
+        public ImmutableArray<Diagnostic> GeneratorDiagnostics { get; }
+        public GeneratorDriverRunResult RunResult { get; }
+
+        public Build Clone()
+        {
+            var cloneCompilation = initialCompilation.Clone();
+            return new Build(cloneCompilation, driver, analyzers, suppressors);
+        }
+    }
+
+    class OptionsProvider(AnalyzerConfigOptions options) : AnalyzerConfigOptionsProvider
+    {
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => options;
+        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => options;
+        public override AnalyzerConfigOptions GlobalOptions => options;
+    }
+
+    internal sealed class DictionaryAnalyzerOptions(Dictionary<string, string> properties) : AnalyzerConfigOptions
+    {
+        public static DictionaryAnalyzerOptions Empty { get; } = new([]);
+
+        public override bool TryGetValue(string key, out string value)
+            => properties.TryGetValue(key, out value!);
+    }
+}
+
+public enum GeneratorTestOutput
+{
+    GeneratedOnly = 0,
+    SourceOnly = 1,
+    All = 2
+}
+
+#pragma warning disable RS1001 // Missing DiagnosticAnalyzer attribute - but we don't actually want it to be "found"
+public class NoOpAnalyzer : DiagnosticAnalyzer
+{
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [];
+
+    public override void Initialize(AnalysisContext context)
+    {
+        context.EnableConcurrentExecution();
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
+        context.RegisterSyntaxNodeAction(static context => { }, SyntaxKind.ModuleKeyword);
+    }
+}
+#pragma warning restore RS1001

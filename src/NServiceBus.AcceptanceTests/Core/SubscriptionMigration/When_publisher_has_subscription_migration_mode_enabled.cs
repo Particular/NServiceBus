@@ -36,17 +36,18 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
         Assert.That(context.EventReceived, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string Subscriber { get; set; }
         public bool EventReceived { get; set; }
     }
 
-    class MessageDrivenSubscriber : EndpointConfigurationBuilder
+    public class MessageDrivenSubscriber : EndpointConfigurationBuilder
     {
         public MessageDrivenSubscriber() => EndpointSetup<EndpointWithMessageDrivenPubSub>(_ => { }, p => p.RegisterPublisherFor<SomeEvent, MigratedPublisher>());
 
-        class SomeEventHandler(Context testContext) : IHandleMessages<SomeEvent>
+        [Handler]
+        public class SomeHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
@@ -57,11 +58,12 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
         }
     }
 
-    class NativeSubscriber : EndpointConfigurationBuilder
+    public class NativeSubscriber : EndpointConfigurationBuilder
     {
         public NativeSubscriber() => EndpointSetup<EndpointWithNativePubSub>();
 
-        class SomeEventHandler(Context testContext) : IHandleMessages<SomeEvent>
+        [Handler]
+        public class SomeHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
@@ -72,7 +74,7 @@ public class When_publisher_has_subscription_migration_mode_enabled : NServiceBu
         }
     }
 
-    class MigratedPublisher : EndpointConfigurationBuilder
+    public class MigratedPublisher : EndpointConfigurationBuilder
     {
         public MigratedPublisher() =>
             EndpointSetup<EndpointWithNativePubSub>(c =>

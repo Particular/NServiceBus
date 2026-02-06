@@ -36,6 +36,7 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
                 //Need to include the message since it can't be nested inside the test class, see below
                 .IncludeType<MessageToBeDetectedByRootNodeName>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MessageToBeDetectedByRootNodeName>
         {
             public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)

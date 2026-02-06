@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTesting;
+﻿namespace NServiceBus.AcceptanceTesting;
 
 using System;
 using Logging;

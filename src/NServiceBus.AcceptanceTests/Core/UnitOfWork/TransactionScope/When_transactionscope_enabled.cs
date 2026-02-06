@@ -39,7 +39,8 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
                         isolationLevel: IsolationLevel.RepeatableRead);
             });
 
-        class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
+        [Handler]
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {

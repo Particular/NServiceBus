@@ -36,6 +36,7 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
                     config.LimitMessageProcessingConcurrencyTo(1) //to avoid race conditions with the start and second message
             );
 
+        [Saga]
         public class ReplyingSaga : Saga<ReplyingSaga.ReplyingSagaData>,
             IAmStartedByMessages<InitiateRequestingSaga>
         {
@@ -55,7 +56,8 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             }
         }
 
-        class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
+        [Handler]
+        public class MyReplyToOriginatorHandler(Context testContext) : IHandleMessages<MyReplyToOriginator>
         {
             public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
             {

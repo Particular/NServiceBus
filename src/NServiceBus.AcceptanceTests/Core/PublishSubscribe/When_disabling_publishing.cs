@@ -14,7 +14,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
     {
         await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
-                c => c.Subscribe<TestEvent>()))
+                c => c.Subscribe<MyEvent>()))
             .WithEndpoint<MessageDrivenPublisher>(e => e.When(c =>
             {
                 if (c.ReceivedSubscription)
@@ -23,7 +23,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
                 }
 
                 return Task.FromResult(false);
-            }, s => s.Publish(new TestEvent())))
+            }, s => s.Publish(new MyEvent())))
             .Run();
     }
 
@@ -32,19 +32,19 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
     {
         var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
             .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
-                c => c.Publish(new TestEvent())))
+                c => c.Publish(new MyEvent())))
             .Done(c => c.EndpointsStarted)
             .Run());
 
         Assert.That(exception.Message, Does.Contain("Publishing has been explicitly disabled on this endpoint"));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ReceivedSubscription { get; set; }
     }
 
-    class EndpointWithDisabledPublishing : EndpointConfigurationBuilder
+    public class EndpointWithDisabledPublishing : EndpointConfigurationBuilder
     {
         public EndpointWithDisabledPublishing()
         {
@@ -60,12 +60,13 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
                     var routingSettings = new RoutingSettings<AcceptanceTestingTransport>(c.GetSettings());
                     routingSettings.DisablePublishing();
                 },
-                pm => pm.RegisterPublisherFor<TestEvent, MessageDrivenPublisher>());
+                pm => pm.RegisterPublisherFor<MyEvent, MessageDrivenPublisher>());
         }
 
-        class EventHandler(Context testContext) : IHandleMessages<TestEvent>
+        [Handler]
+        public class CustomHandler(Context testContext) : IHandleMessages<MyEvent>
         {
-            public Task Handle(TestEvent message, IMessageHandlerContext context)
+            public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
                 testContext.MarkAsCompleted();
                 return Task.CompletedTask;
@@ -85,7 +86,7 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
 
             EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
             {
-                if (args.MessageType.Contains(typeof(TestEvent).FullName))
+                if (args.MessageType.Contains(typeof(MyEvent).FullName))
                 {
                     context.ReceivedSubscription = true;
                 }
@@ -93,5 +94,5 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
         }
     }
 
-    public class TestEvent : IEvent;
+    public class MyEvent : IEvent;
 }

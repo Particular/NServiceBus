@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,24 +33,25 @@ public class When_resolving_services_within_an_endpoint : NServiceBusAcceptanceT
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public IReadOnlyCollection<IMyComponent> Components { get; set; } = [];
         public void MaybeCompleted() => MarkAsCompleted(Components.Count >= 2);
     }
 
-    interface IMyComponent;
+    public interface IMyComponent;
 
-    class SharedComponent : IMyComponent;
+    public class SharedComponent : IMyComponent;
 
-    class EndpointComponent1 : IMyComponent;
-    class EndpointComponent2 : IMyComponent;
+    public class EndpointComponent1 : IMyComponent;
+    public class EndpointComponent2 : IMyComponent;
 
-    class ComponentRegistrationEndpoint : EndpointConfigurationBuilder
+    public class ComponentRegistrationEndpoint : EndpointConfigurationBuilder
     {
         public ComponentRegistrationEndpoint() => EndpointSetup<DefaultServer>();
 
-        class SomeMessageHandler(Context testContext, IEnumerable<IMyComponent> components) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(Context testContext, IEnumerable<IMyComponent> components) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {

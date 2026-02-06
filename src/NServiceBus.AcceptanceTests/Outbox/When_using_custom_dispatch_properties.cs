@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Outbox;
+﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System;
 using System.Linq;
@@ -62,7 +62,8 @@ public class When_using_custom_dispatch_properties : NServiceBusAcceptanceTest
             }
         }
 
-        class KickoffHandler : IHandleMessages<KickoffMessage>
+        [Handler]
+        public class KickoffHandler : IHandleMessages<KickoffMessage>
         {
             public Task Handle(KickoffMessage message, IMessageHandlerContext context)
             {
@@ -74,7 +75,8 @@ public class When_using_custom_dispatch_properties : NServiceBusAcceptanceTest
             }
         }
 
-        class FollowUpHandler(Context testContext) : IHandleMessages<FollowUpMessage>
+        [Handler]
+        public class FollowUpHandler(Context testContext) : IHandleMessages<FollowUpMessage>
         {
             public Task Handle(FollowUpMessage message, IMessageHandlerContext context)
             {

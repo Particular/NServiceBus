@@ -42,7 +42,7 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
         }
     }
 
-    class NewConversationScenario : ScenarioContext
+    public class NewConversationScenario : ScenarioContext
     {
         public string PropsedConversationId { get; set; }
         public string OriginalConversationId { get; set; }
@@ -50,14 +50,15 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
         public string PreviousConversationId { get; set; }
     }
 
-    class Sender : EndpointConfigurationBuilder
+    public class Sender : EndpointConfigurationBuilder
     {
         public Sender() =>
             EndpointSetup<DefaultServer>(
                 c => c.ConfigureRouting()
                     .RouteToEndpoint(typeof(AnyMessage), typeof(Receiver)));
 
-        class AnyResponseMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyResponseMessage>
+        [Handler]
+        public class AnyResponseMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyResponseMessage>
         {
             public Task Handle(AnyResponseMessage message, IMessageHandlerContext context)
             {
@@ -75,7 +76,7 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
         }
     }
 
-    class Receiver : EndpointConfigurationBuilder
+    public class Receiver : EndpointConfigurationBuilder
     {
         public Receiver() =>
             EndpointSetup<DefaultServer>(
@@ -87,7 +88,8 @@ public class When_starting_new_conversation_inside_message_handler : NServiceBus
                     c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId));
                 });
 
-        class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
+        [Handler]
+        public class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
         {
             public Task Handle(AnyMessage message, IMessageHandlerContext context)
             {

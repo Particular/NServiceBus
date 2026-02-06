@@ -47,6 +47,7 @@ public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class TestSaga06(Context testContext) : Saga<TestSaga06.SagaData06>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<SomeOtherMessage>

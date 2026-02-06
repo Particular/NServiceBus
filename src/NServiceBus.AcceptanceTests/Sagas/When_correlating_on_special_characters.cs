@@ -37,6 +37,7 @@ class When_correlating_special_chars : NServiceBusAcceptanceTest
             public virtual string SpecialCharacterValues { get; set; }
         }
 
+        [Saga]
         public class SagaSpecialValues(Context testContext) :
             Saga<SagaDataSpecialValues>,
             IAmStartedByMessages<MessageWithSpecialPropertyValues>,

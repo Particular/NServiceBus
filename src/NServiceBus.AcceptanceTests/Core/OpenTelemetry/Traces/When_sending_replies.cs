@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Threading.Tasks;
 using EndpointTemplates;
@@ -29,17 +29,18 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         replyMessage.VerifyUniqueTags();
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string MessageConversationId { get; set; }
         public string OutgoingMessageId { get; set; }
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
             IHandleMessages<OutgoingReply>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context) => context.Reply(new OutgoingReply());

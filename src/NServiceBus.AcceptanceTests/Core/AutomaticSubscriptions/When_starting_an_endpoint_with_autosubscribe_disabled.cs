@@ -23,21 +23,19 @@ public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBus
         Assert.That(context.SubscribedEvents, Is.Empty);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public ConcurrentBag<Type> SubscribedEvents { get; set; } = [];
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
-        public Subscriber()
-        {
+        public Subscriber() =>
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<AutoSubscribe>();
                 c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");
             });
-        }
 
         class SubscribeSpy : Behavior<ISubscribeContext>
         {
@@ -56,13 +54,12 @@ public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBus
             }
         }
 
-        class EventHandler : IHandleMessages<NonSubscribedEvent>
+        [Handler]
+        public class NonSubscribedHandler : IHandleMessages<NonSubscribedEvent>
         {
             public Task Handle(NonSubscribedEvent message, IMessageHandlerContext context) => throw new InvalidOperationException();
         }
     }
 
-    public class NonSubscribedEvent : IEvent
-    {
-    }
+    public class NonSubscribedEvent : IEvent;
 }

@@ -1,0 +1,72 @@
+﻿#nullable enable
+
+namespace NServiceBus.Core.Analyzer;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+[Generator(LanguageNames.CSharp)]
+public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var addHandlers = context.SyntaxProvider
+            .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
+                transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Handler, cancellationToken: cancellationToken))
+            .Where(static spec => spec is not null)
+            .Select(static (spec, _) => spec!)
+            .WithTrackingName(TrackingNames.HandlerSpecs);
+
+        var addSagas = context.SyntaxProvider
+            .ForAttributeWithMetadataName("NServiceBus.SagaAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
+                transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Saga, cancellationToken: cancellationToken))
+            .Where(static spec => spec is not null)
+            .Select(static (spec, _) => spec!)
+            .WithTrackingName(TrackingNames.SagaSpecs);
+
+        var collected = addHandlers.Collect()
+            .Combine(addSagas.Collect())
+            .Select((pair, _) => pair.Left.AddRange(pair.Right))
+            .WithTrackingName(TrackingNames.HandlerAndSagaSpecs);
+
+        var rootTypeSpec = BuildRootTypeSpecPipeline(context);
+
+        var combined = collected.Combine(rootTypeSpec);
+
+        context.RegisterSourceOutput(combined,
+            static (productionContext, spec) =>
+            {
+                var emitter = new Emitter(productionContext);
+                emitter.Emit(spec.Left, spec.Right);
+            });
+    }
+
+    internal static IncrementalValueProvider<Parser.RootTypeSpec> BuildRootTypeSpecPipeline(IncrementalGeneratorInitializationContext context)
+    {
+        var assemblyInfo = context.CompilationProvider
+            .Select(static (compilation, _) =>
+            {
+                var assemblyName = compilation.AssemblyName ?? string.Empty;
+                var assemblyId = Emitter.SanitizeIdentifier(assemblyName);
+                return (AssemblyName: assemblyName, AssemblyId: assemblyId);
+            })
+            .WithTrackingName(TrackingNames.AssemblyInfo);
+
+        var explicitRootTypeSpec = context.SyntaxProvider
+            .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryExtensionsAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                transform: Parser.ParseRootTypeSpec)
+            .Where(static spec => spec.HasValue)
+            .Select(static (spec, _) => spec!.Value)
+            .Collect()
+            .WithTrackingName(TrackingNames.ExplicitRootTypeSpec);
+
+        return explicitRootTypeSpec
+            .Combine(assemblyInfo)
+            .Select(static (pair, _) => Parser.SelectRootTypeSpec(pair.Left, pair.Right.AssemblyId))
+            .WithTrackingName(TrackingNames.RootTypeSpec);
+    }
+}

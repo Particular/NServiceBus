@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Linq;
@@ -34,7 +34,7 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int Count { get; set; }
     }
@@ -48,7 +48,8 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
                     .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

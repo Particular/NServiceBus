@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace NServiceBus.Core.Analyzer.Utility;
 
 using System.Reflection;
@@ -45,19 +47,27 @@ static class SourceWriterExtensions
                              """);
             writer.CloseCurlies();
             writer.WriteLine();
-            writer.WriteLine("""
-                            namespace NServiceBus
-                            {
-                            """);
-            writer.Indentation++;
-            return writer;
+            return writer.WithOpenNamespace("NServiceBus");
         }
 
         public SourceWriter WithGeneratedCodeAttribute() => writer.WithGeneratedCodeAttribute(AssemblyName);
 
         public SourceWriter WithGeneratedCodeAttribute(AssemblyName assemblyName)
         {
-            writer.WriteLine($"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{assemblyName.Name}", "{assemblyName.Version}")]""");
+            writer.WriteLine($"""[global::System.CodeDom.Compiler.GeneratedCodeAttribute("{assemblyName.Name}", "{assemblyName.Version.ToString(3)}")]""");
+            return writer;
+        }
+
+        public SourceWriter WithOpenNamespace(string? namespaceName)
+        {
+            if (string.IsNullOrWhiteSpace(namespaceName))
+            {
+                return writer;
+            }
+
+            writer.WriteLine($"namespace {namespaceName}");
+            writer.WriteLine("{");
+            writer.Indentation++;
             return writer;
         }
 

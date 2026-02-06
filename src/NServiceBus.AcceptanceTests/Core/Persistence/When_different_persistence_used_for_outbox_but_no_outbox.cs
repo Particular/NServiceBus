@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Persistence
+﻿namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System;
     using System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     .Run();
             });
 
-        class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint() =>
                 EndpointSetup<DefaultServer>(c =>
@@ -27,6 +27,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     c.UsePersistence<FakePersistence, StorageType.Outbox>();
                 });
 
+            [Saga]
             public class NoOutboxSaga(Context testContext) : Saga<NoOutboxSaga.NoOutboxSagaData>,
                 IAmStartedByMessages<StartSaga>
             {

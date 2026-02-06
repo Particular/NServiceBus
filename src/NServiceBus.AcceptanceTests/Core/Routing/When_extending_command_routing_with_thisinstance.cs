@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Routing;
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,6 +61,7 @@ public class When_extending_command_routing_with_thisinstance : NServiceBusAccep
                     .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)r.ScenarioContext));
             });
 
+        [Handler]
         public class MyCommandHandler(Context testContext, IReadOnlySettings settings) : IHandleMessages<MyCommand>
         {
             public Task Handle(MyCommand message, IMessageHandlerContext context)

@@ -46,13 +46,14 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
 
     }
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
-    class FailingEndpoint : EndpointConfigurationBuilder
+    public class FailingEndpoint : EndpointConfigurationBuilder
     {
         public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
+        [Handler]
+        public class FailingMessageHandler(Context textContext) : IHandleMessages<FailingMessage>
         {
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {

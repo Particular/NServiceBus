@@ -27,15 +27,16 @@ public class When_using_custom_conversation_id : NServiceBusAcceptanceTest
         Assert.That(context.ReceivedConversationId, Is.EqualTo(customConversationId));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string ReceivedConversationId { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class ConversationIdMessageHandler(Context testContext) : IHandleMessages<MessageWithConversationId>
         {
             public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)

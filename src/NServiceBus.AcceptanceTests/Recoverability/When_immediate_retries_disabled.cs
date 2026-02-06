@@ -25,7 +25,7 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
         Assert.That(context.NumberOfTimesInvoked, Is.EqualTo(1), "No Immediate Retry should be in use if NumberOfRetries is set to 0");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
         public int NumberOfTimesInvoked { get; set; }
@@ -45,7 +45,8 @@ public class When_immediate_retries_disabled : NServiceBusAcceptanceTest
                 }));
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

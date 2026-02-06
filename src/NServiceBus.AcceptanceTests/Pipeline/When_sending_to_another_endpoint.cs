@@ -68,6 +68,7 @@ public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

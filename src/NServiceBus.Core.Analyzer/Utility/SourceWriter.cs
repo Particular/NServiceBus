@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/SourceGenerators/SourceWriter.cs
 
@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
 
-sealed class SourceWriter
+public sealed class SourceWriter
 {
     const char IndentationChar = ' ';
     const int CharsPerIndentation = 4;
@@ -105,7 +105,7 @@ sealed class SourceWriter
             lineLength--;
         }
 
-        ReadOnlySpan<char> next = remainingText.Slice(0, lineLength);
+        ReadOnlySpan<char> next = remainingText[..lineLength];
         remainingText = rest;
         return next;
     }

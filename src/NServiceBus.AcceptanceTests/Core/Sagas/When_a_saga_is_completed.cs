@@ -50,10 +50,11 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
         public SagaIsCompletedEndpoint() =>
             EndpointSetup<DefaultServer>(b =>
             {
-                b.AddHandler<TestSaga12>();
+                b.AddSaga<TestSaga12>();
                 b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
             });
 
+        [Saga]
         public class TestSaga12(Context testContext) : Saga<TestSagaData12>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<CompleteSagaMessage>,
@@ -91,6 +92,7 @@ public class When_a_saga_is_completed : NServiceBusAcceptanceTest
         }
     }
 
+    [Handler]
     public class CompletionHandler(Context testContext) : IHandleMessages<AnotherMessage>
     {
         public Task Handle(AnotherMessage message, IMessageHandlerContext context)

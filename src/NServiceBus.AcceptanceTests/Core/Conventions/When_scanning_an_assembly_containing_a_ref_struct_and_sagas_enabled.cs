@@ -24,7 +24,7 @@ public class When_scanning_an_assembly_containing_a_ref_struct_and_sagas_enabled
     // See https://github.com/Particular/NServiceBus/issues/7179 for details.
     ref struct RefStruct { }
 
-    class EndpointWithASaga : EndpointConfigurationBuilder
+    public class EndpointWithASaga : EndpointConfigurationBuilder
     {
         public EndpointWithASaga() => EndpointSetup<DefaultServer>(cfg => cfg
             .ConfigureRouting()
@@ -34,7 +34,8 @@ public class When_scanning_an_assembly_containing_a_ref_struct_and_sagas_enabled
             )
         );
 
-        class RealSagaToSetUpConventions : Saga<RealSagaToSetUpConventions.RealSagaToSetUpConventionsSagaData>, IAmStartedByMessages<SomeMessage>
+        [Saga]
+        public class RealSagaToSetUpConventions : Saga<RealSagaToSetUpConventions.RealSagaToSetUpConventionsSagaData>, IAmStartedByMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RealSagaToSetUpConventionsSagaData> mapper)

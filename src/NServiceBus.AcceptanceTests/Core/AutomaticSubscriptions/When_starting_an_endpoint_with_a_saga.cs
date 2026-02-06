@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
+﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions;
 
 using System;
 using System.Collections.Generic;
@@ -22,14 +22,14 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
         Assert.That(context.EventsSubscribedTo, Does.Contain(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public List<Type> EventsSubscribedTo { get; } = [];
 
         public void MaybeCompleted() => MarkAsCompleted(EventsSubscribedTo.Count >= 2);
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() =>
             EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)r.ScenarioContext), "Spies on subscriptions made"),
@@ -50,6 +50,7 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -64,6 +65,7 @@ public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
             IAmStartedByMessages<MyEventBase>
         {

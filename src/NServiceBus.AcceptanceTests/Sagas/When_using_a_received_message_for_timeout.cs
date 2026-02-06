@@ -37,6 +37,7 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
     {
         public ReceiveMessageForTimeoutEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TestSaga01(Context testContext) : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>,
             IHandleTimeouts<StartSagaMessage>
         {

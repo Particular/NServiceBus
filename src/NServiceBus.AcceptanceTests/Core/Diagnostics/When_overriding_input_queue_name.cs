@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Diagnostics;
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -26,6 +26,7 @@ public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
             });
     }
 
+    [Handler]
     public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)

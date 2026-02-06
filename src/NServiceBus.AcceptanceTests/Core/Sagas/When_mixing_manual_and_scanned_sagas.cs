@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
         var scannedId = Guid.NewGuid();
 
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<HybridSagaEndpoint>(b => b
+            .WithEndpoint<HybridRegistrationEndpoint>(b => b
                 .When(session => session.SendLocal(new StartManualSaga { OrderId = manualId }))
                 .When(session => session.SendLocal(new StartScannedSaga { PaymentId = scannedId })))
             .Run();
@@ -32,7 +32,7 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
         var orderId = Guid.NewGuid();
 
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<DuplicateRegistrationEndpoint>(b => b.When(session => session.SendLocal(new StartDuplicateSaga
+            .WithEndpoint<DuplicatedRegistrationEndpoint>(b => b.When(session => session.SendLocal(new StartDuplicateSaga
             {
                 OrderId = orderId
             })))
@@ -56,17 +56,18 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(ManualSagaInvoked, ScannedSagaInvoked);
     }
 
-    public class HybridSagaEndpoint : EndpointConfigurationBuilder
+    public class HybridRegistrationEndpoint : EndpointConfigurationBuilder
     {
-        public HybridSagaEndpoint() =>
+        public HybridRegistrationEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
-                config.AddSaga<ManuallyRegisteredOrderSaga>();
+                config.AddSaga<HybridManuallyRegisteredOrderSaga>();
             }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
-            .IncludeType<ScannedPaymentSaga>();
+            .IncludeType<HybridScannedPaymentSaga>();
 
-        public class ManuallyRegisteredOrderSaga(Context testContext)
-            : Saga<ManuallyRegisteredOrderSagaData>, IAmStartedByMessages<StartManualSaga>
+        [Saga]
+        public class HybridManuallyRegisteredOrderSaga(Context testContext)
+            : Saga<HybridManuallyRegisteredOrderSagaData>, IAmStartedByMessages<StartManualSaga>
         {
             public Task Handle(StartManualSaga message, IMessageHandlerContext context)
             {
@@ -76,18 +77,19 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ManuallyRegisteredOrderSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HybridManuallyRegisteredOrderSagaData> mapper) =>
                 mapper.MapSaga(s => s.OrderId)
                     .ToMessage<StartManualSaga>(m => m.OrderId);
         }
 
-        public class ManuallyRegisteredOrderSagaData : ContainSagaData
+        public class HybridManuallyRegisteredOrderSagaData : ContainSagaData
         {
             public virtual Guid OrderId { get; set; }
         }
 
-        public class ScannedPaymentSaga(Context testContext)
-            : Saga<ScannedPaymentSagaData>, IAmStartedByMessages<StartScannedSaga>
+        [Saga]
+        public class HybridScannedPaymentSaga(Context testContext)
+            : Saga<HybridScannedPaymentSagaData>, IAmStartedByMessages<StartScannedSaga>
         {
             public Task Handle(StartScannedSaga message, IMessageHandlerContext context)
             {
@@ -97,28 +99,29 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ScannedPaymentSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HybridScannedPaymentSagaData> mapper) =>
                 mapper.MapSaga(s => s.PaymentId)
                     .ToMessage<StartScannedSaga>(m => m.PaymentId);
         }
 
-        public class ScannedPaymentSagaData : ContainSagaData
+        public class HybridScannedPaymentSagaData : ContainSagaData
         {
             public virtual Guid PaymentId { get; set; }
         }
     }
 
-    public class DuplicateRegistrationEndpoint : EndpointConfigurationBuilder
+    public class DuplicatedRegistrationEndpoint : EndpointConfigurationBuilder
     {
-        public DuplicateRegistrationEndpoint() =>
+        public DuplicatedRegistrationEndpoint() =>
             EndpointSetup<DefaultServer>(config =>
             {
-                config.AddSaga<DuplicateRegistrationSaga>();
+                config.AddSaga<DuplicatedRegistrationSaga>();
             }).DoNotAutoRegisterHandlers().DoNotAutoRegisterSagas()
-            .IncludeType<DuplicateRegistrationSaga>();
+            .IncludeType<DuplicatedRegistrationSaga>();
 
-        public class DuplicateRegistrationSaga(Context testContext)
-            : Saga<DuplicateRegistrationSagaData>, IAmStartedByMessages<StartDuplicateSaga>
+        [Saga]
+        public class DuplicatedRegistrationSaga(Context testContext)
+            : Saga<DuplicatedRegistrationSagaData>, IAmStartedByMessages<StartDuplicateSaga>
         {
             public Task Handle(StartDuplicateSaga message, IMessageHandlerContext context)
             {
@@ -128,12 +131,12 @@ public class When_mixing_manual_and_scanned_sagas : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DuplicateRegistrationSagaData> mapper) =>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DuplicatedRegistrationSagaData> mapper) =>
                 mapper.MapSaga(s => s.OrderId)
                     .ToMessage<StartDuplicateSaga>(m => m.OrderId);
         }
 
-        public class DuplicateRegistrationSagaData : ContainSagaData
+        public class DuplicatedRegistrationSagaData : ContainSagaData
         {
             public virtual Guid OrderId { get; set; }
         }

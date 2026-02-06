@@ -38,7 +38,8 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {
         public Server() => EndpointSetup<DefaultServer>();
 
-        class RequestHandler : IHandleMessages<Request>
+        [Handler]
+        public class RequestHandler : IHandleMessages<Request>
         {
             public Task Handle(Request message, IMessageHandlerContext context)
             {
@@ -61,6 +62,7 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
                 c.ConfigureRouting().RouteToEndpoint(typeof(Request), typeof(Server));
             });
 
+        [Handler]
         public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<ResponseToBeAudited>
         {
             public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
@@ -72,7 +74,7 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
         }
     }
 
-    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    public class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
 
@@ -86,6 +88,7 @@ public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
         {
             public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;

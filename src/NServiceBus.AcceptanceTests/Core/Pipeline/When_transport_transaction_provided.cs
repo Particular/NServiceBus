@@ -22,14 +22,14 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
         Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public TransportTransaction IncomingPipelineTransportTransaction { get; set; }
         public TransportTransaction DispatchPipelineTransportTransaction { get; set; }
         public bool SomeMessageReceived { get; set; }
     }
 
-    class ContextExtendingEndpoint : EndpointConfigurationBuilder
+    public class ContextExtendingEndpoint : EndpointConfigurationBuilder
     {
         public ContextExtendingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
@@ -38,7 +38,8 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
                 c.Pipeline.Register(nameof(DispatchContextBehavior), b => new DispatchContextBehavior(b.GetRequiredService<Context>()), "Tries to read the transport transaction in the dispatch pipeline");
             });
 
-        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -47,7 +48,8 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
             }
         }
 
-        class AnotherMessageHandler(Context testContext) : IHandleMessages<AnotherMessage>
+        [Handler]
+        public class AnotherMessageHandler(Context testContext) : IHandleMessages<AnotherMessage>
         {
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {

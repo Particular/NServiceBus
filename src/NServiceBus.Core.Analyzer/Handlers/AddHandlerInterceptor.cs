@@ -1,0 +1,31 @@
+﻿#nullable enable
+
+namespace NServiceBus.Core.Analyzer.Handlers;
+
+using Microsoft.CodeAnalysis;
+
+[Generator(LanguageNames.CSharp)]
+public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var addHandlers = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (node, _) => Parser.SyntaxLooksLikeAddHandlerMethod(node),
+                transform: Parser.Parse)
+            .Where(static spec => spec.HasValue)
+            .Select((spec, _) => spec!.Value)
+            .WithTrackingName(TrackingNames.HandlerSpec);
+
+        var collected = addHandlers.Collect()
+            .Select((handlers, _) => new InterceptableHandlerSpecs(handlers.ToImmutableEquatableArray()))
+            .WithTrackingName(TrackingNames.HandlerSpecs);
+
+        context.RegisterSourceOutput(collected,
+            static (productionContext, spec) =>
+            {
+                var emitter = new Emitter(productionContext);
+                emitter.Emit(spec);
+            });
+    }
+}

@@ -20,10 +20,7 @@ public class When_feature_startup_task_fails : NServiceBusAcceptanceTest
 
     class EndpointWithStartupTask : EndpointConfigurationBuilder
     {
-        public EndpointWithStartupTask()
-        {
-            EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureWithStartupTask>());
-        }
+        public EndpointWithStartupTask() => EndpointSetup<DefaultServer>(c => c.EnableFeature<FeatureWithStartupTask>());
 
         class FeatureWithStartupTask : Feature
         {

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Outbox;
+﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,6 +100,7 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
                 c.EnableOutbox();
             }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
@@ -122,6 +123,7 @@ public class When_subscribers_handles_the_same_event : NServiceBusAcceptanceTest
                 c.EnableOutbox();
             }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

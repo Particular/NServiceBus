@@ -34,6 +34,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
     {
         public SagaEndpoint() => EndpointSetup<DefaultServer>(b => b.AddHandler<InterceptingHandler>());
 
+        [Saga]
         public class TestSaga13(SagaEndpointContext testContext) : Saga<TestSaga13.TestSagaData13>, IAmStartedByMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
@@ -57,6 +58,7 @@ public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class InterceptingHandler(SagaEndpointContext testContext) : IHandleMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)

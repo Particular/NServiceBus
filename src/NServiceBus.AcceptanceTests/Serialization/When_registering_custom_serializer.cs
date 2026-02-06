@@ -45,6 +45,7 @@ public class When_registering_custom_serializer : NServiceBusAcceptanceTest
                 c.GetSettings().Set((Context)r.ScenarioContext);
             });
 
+        [Handler]
         public class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest request, IMessageHandlerContext context)

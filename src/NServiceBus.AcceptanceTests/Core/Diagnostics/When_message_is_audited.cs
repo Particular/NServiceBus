@@ -48,7 +48,8 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c
                 .AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
 
-        class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1) => Task.CompletedTask;
         }
@@ -58,7 +59,8 @@ public class When_message_is_audited : NServiceBusAcceptanceTest
     {
         public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {

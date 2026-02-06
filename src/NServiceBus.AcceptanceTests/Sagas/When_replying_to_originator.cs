@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -27,6 +27,7 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class RequestResponseRequestingSaga2(Context testContext)
             : Saga<RequestResponseRequestingSaga2.RequestResponseRequestingSagaData2>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
@@ -57,6 +58,7 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class RequestResponseRespondingSaga2 : Saga<RequestResponseRespondingSaga2.RequestResponseRespondingSagaData2>,
             IAmStartedByMessages<RequestToRespondingSaga>,
             IHandleMessages<SendReplyFromNonInitiatingHandler>

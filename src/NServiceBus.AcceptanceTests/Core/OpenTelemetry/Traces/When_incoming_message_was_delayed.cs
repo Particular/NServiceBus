@@ -152,7 +152,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ReplyMessageReceived { get; set; }
         public string IncomingMessageId { get; set; }
@@ -165,17 +165,20 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
         public void MaybeCompleted() => MarkAsCompleted(ReplyMessageReceived || IncomingMessageReceived || DelayedMessageReceived);
     }
-    class SagaContext : ScenarioContext
+
+    public class SagaContext : ScenarioContext
     {
         public bool SagaStarted { get; set; }
         public bool TimeoutReceived { get; set; }
         public bool SagaMarkedComplete { get; set; }
     }
 
-    class ReplyingEndpoint : EndpointConfigurationBuilder
+    public class ReplyingEndpoint : EndpointConfigurationBuilder
     {
         public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
-        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
@@ -188,7 +191,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint()
         {
@@ -205,7 +208,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
-        class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
@@ -216,7 +220,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
             }
         }
 
-        class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>
+        [Handler]
+        public class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>
         {
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {
@@ -228,7 +233,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
     }
 
-    class SagaOtelEndpoint : EndpointConfigurationBuilder
+    public class SagaOtelEndpoint : EndpointConfigurationBuilder
     {
         public SagaOtelEndpoint()
         {
@@ -245,6 +250,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
+        [Saga]
         public class OtelSaga(SagaContext testContext) : Saga<MyOtelSagaData>, IAmStartedByMessages<StartSagaMessage>,
             IHandleTimeouts<TimeoutMessage>, IHandleMessages<CompleteSagaMessage>
         {
@@ -297,7 +303,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
                 }, metadata => { });
         }
 
-        class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }
@@ -313,7 +320,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     {
         public string SomeId { get; set; }
     }
-    public class TimeoutMessage { }
+    public class TimeoutMessage;
     public class CompleteSagaMessage : IMessage
     {
         public string SomeId { get; set; }

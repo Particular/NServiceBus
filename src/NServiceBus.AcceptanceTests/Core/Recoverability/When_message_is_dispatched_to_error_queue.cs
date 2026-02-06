@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -25,12 +25,12 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
         Assert.That(context.MessageBodyWasEmpty, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageBodyWasEmpty { get; internal set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
@@ -60,7 +60,8 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             }
         }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }

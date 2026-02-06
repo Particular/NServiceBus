@@ -39,6 +39,7 @@ public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class SagaIdChangedSaga(Context testContext) : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
             IAmStartedByMessages<StartSaga>
         {

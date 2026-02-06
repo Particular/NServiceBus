@@ -35,11 +35,13 @@ public class When_replying_to_received_message_without_correlationid : NServiceB
     {
         public CorrelationEndpoint() => EndpointSetup<DefaultServer>(c => c.RegisterMessageMutator(new RemoveCorrelationIdMutator()));
 
+        [Handler]
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest message, IMessageHandlerContext context) => context.Reply(new MyResponse());
         }
 
+        [Handler]
         public class MyResponseHandler(Context context) : IHandleMessages<MyResponse>
         {
             public Task Handle(MyResponse message, IMessageHandlerContext c)

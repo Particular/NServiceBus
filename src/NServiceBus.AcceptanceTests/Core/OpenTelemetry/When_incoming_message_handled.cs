@@ -30,7 +30,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
-        Assert.That(handlerType, Is.EqualTo(typeof(MyMessageHandler).FullName));
+        Assert.That(handlerType, Is.EqualTo(typeof(EndpointWithMetrics.MyMessageHandler).FullName));
         var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
         Assert.That(result, Is.EqualTo("success"));
     }
@@ -42,7 +42,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
         metricsListener.AssertMetric(HandlerTimeMetricName, 5);
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyExceptionalMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
-        Assert.That(handlerType, Is.EqualTo(typeof(MyExceptionalHandler).FullName));
+        Assert.That(handlerType, Is.EqualTo(typeof(EndpointWithMetrics.MyExceptionalHandler).FullName));
         var error = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "error.type");
         Assert.That(error, Is.EqualTo(typeof(Exception).FullName));
         var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
@@ -105,32 +105,34 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
         Assert.That(discriminator, Is.EqualTo("discriminator"));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int TotalHandledMessages;
     }
 
-    class EndpointWithMetrics : EndpointConfigurationBuilder
+    public class EndpointWithMetrics : EndpointConfigurationBuilder
     {
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
-    }
 
-    class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
-    {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
+        [Handler]
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            testContext.MarkAsCompleted(Interlocked.Increment(ref testContext.TotalHandledMessages) == 5);
-            return Task.CompletedTask;
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted(Interlocked.Increment(ref testContext.TotalHandledMessages) == 5);
+                return Task.CompletedTask;
+            }
         }
-    }
 
-    class MyExceptionalHandler(Context testContext) : IHandleMessages<MyExceptionalMessage>
-    {
-        public Task Handle(MyExceptionalMessage message, IMessageHandlerContext context)
+        [Handler]
+        public class MyExceptionalHandler(Context testContext) : IHandleMessages<MyExceptionalMessage>
         {
-            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
-            testContext.MarkAsCompleted(count == 5);
-            throw new Exception();
+            public Task Handle(MyExceptionalMessage message, IMessageHandlerContext context)
+            {
+                var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
+                testContext.MarkAsCompleted(count == 5);
+                throw new Exception();
+            }
         }
     }
 

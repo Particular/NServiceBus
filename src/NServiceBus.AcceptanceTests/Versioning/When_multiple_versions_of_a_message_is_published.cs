@@ -83,7 +83,8 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
             EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<V1Event, V2Publisher>());
 
-        class V1Handler(Context testContext) : IHandleMessages<V1Event>
+        [Handler]
+        public class V1Handler(Context testContext) : IHandleMessages<V1Event>
         {
             public Task Handle(V1Event message, IMessageHandlerContext context)
             {
@@ -100,7 +101,8 @@ public class When_multiple_versions_of_a_message_is_published : NServiceBusAccep
             EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<V2Event, V2Publisher>());
 
-        class V2Handler(Context testContext) : IHandleMessages<V2Event>
+        [Handler]
+        public class V2Handler(Context testContext) : IHandleMessages<V2Event>
         {
             public Task Handle(V2Event message, IMessageHandlerContext context)
             {

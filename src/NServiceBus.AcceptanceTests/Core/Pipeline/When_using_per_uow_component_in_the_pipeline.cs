@@ -44,7 +44,7 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         return s.Send(message, options);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         int messagesProcessed;
         public int MessagesProcessed => messagesProcessed;
@@ -59,7 +59,7 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         public bool ValueAlreadyInitialized { get; set; }
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
@@ -81,12 +81,13 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
             }
         }
 
-        class UnitOfWorkComponent
+        public class UnitOfWorkComponent
         {
             public string ValueFromHeader { get; set; }
         }
 
-        class Handler(Context testContext, UnitOfWorkComponent component) : IHandleMessages<Message>
+        [Handler]
+        public class Handler(Context testContext, UnitOfWorkComponent component) : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context)
             {

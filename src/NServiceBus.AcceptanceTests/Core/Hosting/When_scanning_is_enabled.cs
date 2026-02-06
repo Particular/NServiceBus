@@ -23,7 +23,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool HandlerGotMessage { get; set; }
         public bool SagaGotMessage { get; set; }
@@ -31,7 +31,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(HandlerGotMessage, SagaGotMessage);
     }
 
-    class MyEndpoint : EndpointConfigurationBuilder
+    public class MyEndpoint : EndpointConfigurationBuilder
     {
         public MyEndpoint() =>
             EndpointSetup<DefaultServer>()
@@ -40,6 +40,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
                 .IncludeType<AutoRegisteredHandler>()
                 .IncludeType<AutoRegisteredSaga>();
 
+        [Handler]
         public class AutoRegisteredHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -50,6 +51,7 @@ public class When_scanning_is_enabled : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class AutoRegisteredSaga(Context testContext) : Saga<AutoRegisteredSaga.AutoRegisteredSagaData>, IAmStartedByMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

@@ -52,11 +52,12 @@ public class When_serializing_a_message : NServiceBusAcceptanceTest
         Assert.That(context.ReceivedMessage.DateTimeOffsetUtc.Offset, Is.EqualTo(expectedDateTimeOffsetUtc.Offset));
     }
 
-    class DateTimeReceiver : EndpointConfigurationBuilder
+    public class DateTimeReceiver : EndpointConfigurationBuilder
     {
         public DateTimeReceiver() => EndpointSetup<DefaultServer>();
 
-        class DateTimeMessageHandler(Context testContext) : IHandleMessages<DateTimeMessage>
+        [Handler]
+        public class DateTimeMessageHandler(Context testContext) : IHandleMessages<DateTimeMessage>
         {
             public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
             {
@@ -77,7 +78,7 @@ public class When_serializing_a_message : NServiceBusAcceptanceTest
         public DateTimeOffset DateTimeOffsetUtc { get; set; }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public DateTimeMessage ReceivedMessage { get; set; }
     }

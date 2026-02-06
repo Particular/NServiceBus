@@ -46,7 +46,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
         public string ReplyTraceParent { get; set; }
     }
 
-    class Publisher : EndpointConfigurationBuilder
+    public class Publisher : EndpointConfigurationBuilder
     {
         public Publisher() =>
             EndpointSetup<DefaultServer>(b =>
@@ -63,7 +63,8 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                 });
             });
 
-        class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
+        [Handler]
+        public class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
@@ -85,6 +86,7 @@ public class When_incoming_event_has_trace : OpenTelemetryAcceptanceTest
                     metadata.RegisterPublisherFor<SomeEvent, Publisher>();
                 });
 
+        [Handler]
         public class ThisHandlesSomethingHandler(Context testContext) : IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeEvent @event, IMessageHandlerContext context)

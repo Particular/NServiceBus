@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;
@@ -41,7 +41,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ScopedAsyncDisposableDisposed { get; set; }
         public bool SingletonAsyncDisposableDisposed { get; set; }
@@ -54,7 +54,8 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>();
 
-        class HandlerWithAsyncDisposable(
+        [Handler]
+        public class HandlerWithAsyncDisposable(
             Context testContext,
             ScopedAsyncDisposable scopedAsyncDisposable,
             SingletonAsyncDisposable singletonAsyncDisposable,
@@ -91,7 +92,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
 
     public class SomeMessage : IMessage;
 
-    abstract class InitializableBase : IAsyncDisposable
+    public abstract class InitializableBase : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
         public void Initialize(Context scenarioContext) => context = scenarioContext;
@@ -101,7 +102,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         protected Context context;
     }
 
-    class SingletonAsyncDisposableShared : InitializableBase
+    public sealed class SingletonAsyncDisposableShared : InitializableBase
     {
         public override ValueTask DisposeAsync()
         {
@@ -110,7 +111,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    class ScopedAsyncDisposableShared : InitializableBase
+    public sealed class ScopedAsyncDisposableShared : InitializableBase
     {
         public override ValueTask DisposeAsync()
         {
@@ -119,7 +120,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    class SingletonAsyncDisposable : InitializableBase
+    public sealed class SingletonAsyncDisposable : InitializableBase
     {
         public override ValueTask DisposeAsync()
         {
@@ -128,7 +129,7 @@ public class When_registering_async_disposables_externally_managed : NServiceBus
         }
     }
 
-    sealed class ScopedAsyncDisposable : InitializableBase
+    public sealed class ScopedAsyncDisposable : InitializableBase
     {
         public override ValueTask DisposeAsync()
         {

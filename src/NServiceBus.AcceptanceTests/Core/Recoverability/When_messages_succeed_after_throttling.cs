@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -28,7 +28,7 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
             .Run();
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ThrottleModeEntered { get; set; }
         public bool ThrottleModeEnded { get; set; }
@@ -37,7 +37,7 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(MessageProcessedNormally, ThrottleModeEnded);
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -66,7 +66,8 @@ public class When_messages_succeed_after_throttling : NServiceBusAcceptanceTest
                 recoverability.OnConsecutiveFailures(2, rateLimitingSettings);
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {

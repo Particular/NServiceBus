@@ -30,6 +30,7 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TwoSaga1Saga1 : Saga<TwoSaga1Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
         {
             public Task Handle(StartSaga1 message, IMessageHandlerContext context)
@@ -61,6 +62,7 @@ public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
             public virtual Guid DataId { get; set; }
         }
 
+        [Saga]
         public class TwoSaga1Saga2(Context testContext)
             : Saga<TwoSaga1Saga2.TwoSaga1Saga2Data>, IAmStartedByMessages<StartSaga2>
         {

@@ -29,13 +29,13 @@ class When_routing_reply_to_specific_instance : NServiceBusAcceptanceTest
 
     const string instanceDiscriminator = "instance-42";
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string ReplyToAddress { get; set; }
         public bool ReplyReceived { get; set; }
     }
 
-    class Sender : EndpointConfigurationBuilder
+    public class Sender : EndpointConfigurationBuilder
     {
         public Sender() =>
             EndpointSetup<DefaultServer>(c =>
@@ -44,7 +44,8 @@ class When_routing_reply_to_specific_instance : NServiceBusAcceptanceTest
                 c.ConfigureRouting().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
             });
 
-        class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
+        [Handler]
+        public class ReplyMessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
@@ -55,11 +56,12 @@ class When_routing_reply_to_specific_instance : NServiceBusAcceptanceTest
         }
     }
 
-    class Replier : EndpointConfigurationBuilder
+    public class Replier : EndpointConfigurationBuilder
     {
         public Replier() => EndpointSetup<DefaultServer>();
 
-        class RequestReplyMessageHandler(Context testContext) : IHandleMessages<RequestReplyMessage>
+        [Handler]
+        public class RequestReplyMessageHandler(Context testContext) : IHandleMessages<RequestReplyMessage>
         {
             public Task Handle(RequestReplyMessage message, IMessageHandlerContext context)
             {

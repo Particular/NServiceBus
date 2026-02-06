@@ -35,17 +35,18 @@ public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string MessageId { get; set; }
         public Dictionary<string, string> Headers { get; set; }
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", new CorruptionBehavior(), "Corrupting the message id"));
 
-        class Handler(Context testContext) : IHandleMessages<Message>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context)
             {

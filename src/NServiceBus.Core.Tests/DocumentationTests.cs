@@ -9,7 +9,6 @@ using System.Xml.Linq;
 using NuDoq;
 using NUnit.Framework;
 using Enum = NuDoq.Enum;
-using Exception = System.Exception;
 using Text = NuDoq.Text;
 
 [TestFixture]
@@ -60,7 +59,7 @@ public class DocumentationTests
 
     public class VerificationVisitor : Visitor
     {
-        Stack<MemberInfo> memberInfos = new Stack<MemberInfo>();
+        readonly Stack<MemberInfo> memberInfos = new();
 
         public List<MemberInfo> BadMembers = [];
 

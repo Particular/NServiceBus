@@ -27,7 +27,7 @@ public class When_registering_externally_managed_singletons : NServiceBusAccepta
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public IServiceProvider ServiceProvider { get; set; }
         public MyComponent CustomService { get; set; }
@@ -37,7 +37,8 @@ public class When_registering_externally_managed_singletons : NServiceBusAccepta
     {
         public ExternallyManagedSingletonEndpoint() => EndpointSetup<DefaultServer>();
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler : IHandleMessages<SomeMessage>
         {
             public SomeMessageHandler(Context context, MyComponent component, IServiceProvider serviceProvider)
             {

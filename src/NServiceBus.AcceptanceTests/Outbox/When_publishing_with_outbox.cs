@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Outbox;
+﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System;
 using System.Threading;
@@ -99,6 +99,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
                 b.DisableFeature<AutoSubscribe>();
             }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
 
+        [Handler]
         public class TriggerHandler : IHandleMessages<TriggerMessage>
         {
             public Task Handle(TriggerMessage message, IMessageHandlerContext context)
@@ -127,6 +128,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
@@ -144,6 +146,7 @@ public class When_publishing_with_outbox : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

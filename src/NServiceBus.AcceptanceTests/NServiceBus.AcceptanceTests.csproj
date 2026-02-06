@@ -18,6 +18,20 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <!-- 
+  We are enabling interceptors and analyzers on the acceptance tests to make sure
+  the follow the necessary conventions because when they are shipped as sources the downstream
+  projects will have the analyzers running
+  -->
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
+  </PropertyGroup>
+
+  <ItemGroup Label="Core Analyzers">
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer.Fixes\NServiceBus.Core.Analyzer.Fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
     <Description>Acceptance tests for NServiceBus core functionality</Description>
@@ -28,6 +42,8 @@
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="Core\**\*.cs" />
     <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
+    <RemoveSourceFileFromPackage Include="Registrations\Handlers\When_multiple_namespaces.cs" />
+    <RemoveSourceFileFromPackage Include="Registrations\Handlers\When_registering_handler_with_complex_hierarchy.cs" />
   </ItemGroup>
 
 </Project>

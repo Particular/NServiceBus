@@ -9,3 +9,11 @@ dotnet_diagnostic.PS0018.severity = suggestion  # A task-returning method should
 # Justification: Tests don't support cancellation and don't need to forward IMessageHandlerContext.CancellationToken
 dotnet_diagnostic.NSB0002.severity = suggestion
 dotnet_diagnostic.PS0013.severity = suggestion
+
+# Bumping up to warning to make sure those analyzer rules are followed in the acceptance tests
+dotnet_diagnostic.NSB0022.severity = warning
+dotnet_diagnostic.NSB0023.severity = warning
+dotnet_diagnostic.NSB0024.severity = warning
+dotnet_diagnostic.NSB0025.severity = warning
+dotnet_diagnostic.NSB0026.severity = warning
+dotnet_diagnostic.NSB0027.severity = warning

@@ -55,6 +55,7 @@ public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
         public Guid Id { get; set; }
     }
 
+    [Handler]
     public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)

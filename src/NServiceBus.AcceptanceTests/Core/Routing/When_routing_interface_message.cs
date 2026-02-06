@@ -31,11 +31,13 @@ public class When_routing_interface_message : NServiceBusAcceptanceTest
                 c.ConfigureRouting().RouteToEndpoint(typeof(IMyMessage), typeof(Endpoint));
             });
 
+        [Handler]
         public class StartMessageHandler : IHandleMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context) => context.Send<IMyMessage>(_ => { });
         }
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<IMyMessage>
         {
             public Task Handle(IMyMessage message, IMessageHandlerContext context)

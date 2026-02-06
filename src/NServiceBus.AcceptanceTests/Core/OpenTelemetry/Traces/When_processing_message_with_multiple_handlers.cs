@@ -49,7 +49,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerTwo).FullName), "invocation of handler two should be traced");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool FirstHandlerRun { get; set; }
         public bool SecondHandlerRun { get; set; }
@@ -57,7 +57,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         public void MaybeCompleted() => MarkAsCompleted(FirstHandlerRun && SecondHandlerRun);
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(AddTagToHandlerSpanBehavior), "Adds a custom tag to the handler span"));
 
@@ -70,6 +70,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             }
         }
 
+        [Handler]
         public class HandlerOne(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
@@ -80,6 +81,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             }
         }
 
+        [Handler]
         public class HandlerTwo(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)

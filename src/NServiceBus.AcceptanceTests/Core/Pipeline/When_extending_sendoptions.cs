@@ -40,7 +40,8 @@ public class When_extending_sendoptions : NServiceBusAcceptanceTest
     {
         public SendOptionsExtensions() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", new TestingSendOptionsExtensionBehavior(), "Testing send options extensions"));
 
-        class SendMessageHandler(Context testContext) : IHandleMessages<SendMessage>
+        [Handler]
+        public class SendMessageHandler(Context testContext) : IHandleMessages<SendMessage>
         {
             public Task Handle(SendMessage message, IMessageHandlerContext context)
             {

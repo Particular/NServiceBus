@@ -38,13 +38,13 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
         Assert.That(context.LocalEventReceived, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool EndpointSubscribed { get; set; }
         public bool LocalEventReceived { get; set; }
     }
 
-    class EndpointWithStartupTask : EndpointConfigurationBuilder
+    public class EndpointWithStartupTask : EndpointConfigurationBuilder
     {
         public EndpointWithStartupTask() =>
             EndpointSetup<DefaultServer>(c =>
@@ -61,7 +61,8 @@ public class When_subscribing_in_FST : NServiceBusAcceptanceTest
                 },
                 p => p.RegisterPublisherFor<LocalEvent, EndpointWithStartupTask>());
 
-        class MessageHandler(Context testContext) : IHandleMessages<LocalEvent>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<LocalEvent>
         {
             public Task Handle(LocalEvent message, IMessageHandlerContext context)
             {

@@ -30,6 +30,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TimeoutHitsNotFoundSaga
             : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
                 IAmStartedByMessages<StartSaga>,

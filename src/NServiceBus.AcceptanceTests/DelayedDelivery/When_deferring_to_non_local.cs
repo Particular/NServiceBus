@@ -52,6 +52,7 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

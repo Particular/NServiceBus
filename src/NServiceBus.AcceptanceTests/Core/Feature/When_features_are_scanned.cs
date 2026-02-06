@@ -1,4 +1,4 @@
-// This file contains tests that use the obsolete Feature.EnableByDefault() method.
+﻿// This file contains tests that use the obsolete Feature.EnableByDefault() method.
 // EnableByDefault is obsolete and will be treated as an error in NServiceBus 11.0.
 // This file and its tests should be deleted when NServiceBus 11.0 is released.
 #pragma warning disable CS0618 // Type or member is obsolete

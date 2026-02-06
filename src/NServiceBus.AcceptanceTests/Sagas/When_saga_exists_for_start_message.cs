@@ -43,6 +43,7 @@ public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
     {
         public ExistingSagaInstanceEndpoint() => EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
 
+        [Saga]
         public class TestSaga05(Context testContext) : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
         {
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)

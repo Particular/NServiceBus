@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.BestPractices;
+﻿namespace NServiceBus.AcceptanceTests.Core.BestPractices;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -36,6 +36,7 @@ public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceT
                 routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
             });
 
+        [Handler]
         public class Handler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => Task.CompletedTask;

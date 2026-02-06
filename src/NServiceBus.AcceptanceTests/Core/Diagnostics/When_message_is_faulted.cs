@@ -65,10 +65,12 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
                 c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
             });
 
-        class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => context.SendLocal(new MessageThatFails());
 
+            [Handler]
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageThatFails>
             {
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context) => throw new SimulatedException();
@@ -80,7 +82,8 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
     {
         public EndpointThatHandlesAuditMessages() => EndpointSetup<DefaultServer>();
 
-        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
@@ -92,11 +95,12 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
         }
     }
 
-    class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
+    public class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
         public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>();
 
-        class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
+        [Handler]
+        public class ErrorMessageHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context)
             {

@@ -21,7 +21,7 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
         Assert.That(context.MessageReceived, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
     }
@@ -45,13 +45,14 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
         }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>()
                 .IncludeType<Message>(); // this makes sure that both Message and BaseMessage is discovered
 
-        class Handler(Context testContext) : IHandleMessages<BaseMessage>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<BaseMessage>
         {
             public Task Handle(BaseMessage message, IMessageHandlerContext context)
             {

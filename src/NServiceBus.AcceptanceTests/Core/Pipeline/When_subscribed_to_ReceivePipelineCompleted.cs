@@ -25,14 +25,14 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool NotificationEventFired { get; set; }
         public ReceivePipelineCompleted ReceivePipelineCompletedMessage { get; set; }
         public string MessageId { get; set; }
     }
 
-    class SubscribingEndpoint : EndpointConfigurationBuilder
+    public class SubscribingEndpoint : EndpointConfigurationBuilder
     {
         public SubscribingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
@@ -47,7 +47,8 @@ class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
                 });
             });
 
-        class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {

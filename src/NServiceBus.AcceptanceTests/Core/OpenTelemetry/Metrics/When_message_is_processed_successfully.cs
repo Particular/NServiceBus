@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -115,16 +115,17 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int OutgoingMessagesReceived;
         public int ComplexOutgoingMessagesReceived;
     }
 
-    class EndpointWithMetrics : EndpointConfigurationBuilder
+    public class EndpointWithMetrics : EndpointConfigurationBuilder
     {
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
         {
             public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
@@ -135,6 +136,7 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
             }
         }
 
+        [Handler]
         public class ComplexMessageHandler(Context testContext) : IHandleMessages<OutgoingWithComplexHierarchyMessage>
         {
             public Task Handle(OutgoingWithComplexHierarchyMessage message, IMessageHandlerContext context)

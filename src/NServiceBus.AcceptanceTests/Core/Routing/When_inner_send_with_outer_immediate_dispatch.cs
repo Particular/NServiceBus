@@ -28,13 +28,13 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageBReceived { get; set; }
         public bool MessageCReceived { get; set; }
     }
 
-    class EndpointA : EndpointConfigurationBuilder
+    public class EndpointA : EndpointConfigurationBuilder
     {
         public EndpointA() =>
             EndpointSetup<DefaultServer>(c =>
@@ -44,7 +44,8 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
                 c.Pipeline.Register(new OutgoingBehaviorWithSend(), "sends a message as part of an incoming message pipeline");
             });
 
-        class TriggerMessageHandler : IHandleMessages<TriggerMessage>
+        [Handler]
+        public class TriggerMessageHandler : IHandleMessages<TriggerMessage>
         {
             public Task Handle(TriggerMessage message, IMessageHandlerContext context)
             {
@@ -70,10 +71,11 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
         }
     }
 
-    class EndpointB : EndpointConfigurationBuilder
+    public class EndpointB : EndpointConfigurationBuilder
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class EndpointBHandler(Context testContext) : IHandleMessages<MessageToEndpointB>
         {
             public Task Handle(MessageToEndpointB message, IMessageHandlerContext context)
@@ -85,10 +87,11 @@ public class When_inner_send_with_outer_immediate_dispatch : NServiceBusAcceptan
         }
     }
 
-    class EndpointC : EndpointConfigurationBuilder
+    public class EndpointC : EndpointConfigurationBuilder
     {
         public EndpointC() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class EndpointCHandler(Context testContext) : IHandleMessages<MessageToEndpointC>
         {
             public Task Handle(MessageToEndpointC message, IMessageHandlerContext context)

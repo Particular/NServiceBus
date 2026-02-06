@@ -63,6 +63,7 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -84,7 +85,5 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
         }
     }
 
-    public class MessageToBeAudited : IMessage
-    {
-    }
+    public class MessageToBeAudited : IMessage;
 }

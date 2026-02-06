@@ -56,6 +56,7 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
                 b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(3));
             });
 
+        [Saga]
         public class ConcurrentlyStartedSaga(Context testContext) : Saga<ConcurrentlyStartedSagaData>,
             IAmStartedByMessages<StartMessageTwo>,
             IAmStartedByMessages<StartMessageOne>
@@ -105,22 +106,22 @@ public class When_saga_started_concurrently : NServiceBusAcceptanceTest
             public virtual bool Billed { get; set; }
         }
 
-        // Intercepts the messages sent out by the saga
-        class LogSuccessfulHandler(Context testContext) : IHandleMessages<SuccessfulProcessing>
+        // Intercepts messages sent out by saga
+        [Handler]
+        public class LogSuccessfulHandler(Context testContext) : IHandleMessages<SuccessfulProcessing>
         {
             public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
             {
-                if (message.Type == nameof(StartMessageOne))
+                switch (message.Type)
                 {
-                    testContext.PlacedSagaId = message.SagaId;
-                }
-                else if (message.Type == nameof(StartMessageTwo))
-                {
-                    testContext.BilledSagaId = message.SagaId;
-                }
-                else
-                {
-                    throw new Exception("Unknown type");
+                    case nameof(StartMessageOne):
+                        testContext.PlacedSagaId = message.SagaId;
+                        break;
+                    case nameof(StartMessageTwo):
+                        testContext.BilledSagaId = message.SagaId;
+                        break;
+                    default:
+                        throw new Exception("Unknown type");
                 }
 
                 testContext.MaybeCompleted();

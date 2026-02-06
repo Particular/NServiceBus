@@ -75,6 +75,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
                 c.ConfigureRouting().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
             });
 
+        [Handler]
         public class ResponseHandler(Context testContext) : IHandleMessages<MyReply>
         {
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
@@ -90,6 +91,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
     {
         public OtherEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class ResponseHandler(Context testContext) : IHandleMessages<MyReply>
         {
             public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
@@ -105,6 +107,7 @@ public class When_replying_to_message : NServiceBusAcceptanceTest
     {
         public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

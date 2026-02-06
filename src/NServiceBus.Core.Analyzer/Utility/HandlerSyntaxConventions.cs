@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Analyzer;
+﻿namespace NServiceBus.Core.Analyzer;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

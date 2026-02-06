@@ -91,6 +91,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                 },
                 metadata => metadata.RegisterPublisherFor<Event, Publisher>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Event>
         {
             public Task Handle(Event message, IMessageHandlerContext context)
@@ -112,6 +113,7 @@ public class Unsub_from_event : NServiceBusAcceptanceTest
                 },
                 metadata => metadata.RegisterPublisherFor<Event, Publisher>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Event>
         {
             public Task Handle(Event message, IMessageHandlerContext context)

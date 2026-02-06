@@ -47,18 +47,19 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string IncomingMessageId { get; set; }
         public string ReplyMessageId { get; set; }
         public bool IncomingMessageReceived { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
@@ -69,11 +70,12 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
         }
     }
 
-    class ReplyingEndpoint : EndpointConfigurationBuilder
+    public class ReplyingEndpoint : EndpointConfigurationBuilder
     {
         public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {
@@ -84,11 +86,12 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
         }
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<ReplyMessage>
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
