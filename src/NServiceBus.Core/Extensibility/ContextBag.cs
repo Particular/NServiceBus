@@ -5,6 +5,8 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Pipeline;
 
 /// <summary>
@@ -20,6 +22,8 @@ public class ContextBag : IReadOnlyContextBag
         this.parentBag = parentBag;
         root = parentBag?.root ?? this;
         Behaviors = parentBag?.Behaviors ?? [];
+        Parts = parentBag?.Parts ?? [];
+        Frame = parentBag?.Frame ?? default;
     }
 
     /// <summary>
@@ -175,6 +179,16 @@ public class ContextBag : IReadOnlyContextBag
     /// to avoid closure capturing.
     /// </summary>
     internal IBehavior[] Behaviors { get; set; }
+
+    internal PipelinePart[] Parts { get; set; }
+
+    internal PipelineFrame Frame;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TBehavior GetBehavior<TBehavior>()
+        where TBehavior : class, IBehavior
+        => Unsafe.As<TBehavior>(
+            Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Behaviors), Frame.Index));
 
     internal ContextBag? parentBag;
 

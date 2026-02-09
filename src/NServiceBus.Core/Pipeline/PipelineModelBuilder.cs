@@ -14,7 +14,9 @@ class PipelineModelBuilder(
     IReadOnlyCollection<ReplaceStep> replacements,
     IReadOnlyCollection<RegisterOrReplaceStep> addOrReplaceSteps)
 {
-    public IReadOnlyCollection<RegisterStep> Build()
+    public IReadOnlyCollection<RegisterStep> Build() => BuildModel().Steps;
+
+    public PipelineBuildModel BuildModel()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -85,10 +87,11 @@ class PipelineModelBuilder(
         }
 
         var finalOrder = new List<RegisterStep>(registrations.Count);
+        var orderedStages = new List<PipelineStageModel>(stages.Count);
 
         if (registrations.Count == 0)
         {
-            return finalOrder;
+            return new(rootContextType, finalOrder, orderedStages);
         }
 
         if (!stages.TryGetValue(rootContextType, out var currentStage))
@@ -102,6 +105,7 @@ class PipelineModelBuilder(
 
         while (currentStage != null)
         {
+            var stageContextType = currentStageContextType;
             var stageSteps = new List<RegisterStep>(currentStage.Count);
             List<RegisterStep>? stageConnectors = null;
 
@@ -118,7 +122,8 @@ class PipelineModelBuilder(
                 }
             }
 
-            finalOrder.AddRange(Sort(stageSteps));
+            var sortedStageSteps = Sort(stageSteps);
+            finalOrder.AddRange(sortedStageSteps);
 
             if (stageConnectors is { Count: > 1 })
             {
@@ -127,6 +132,7 @@ class PipelineModelBuilder(
             }
 
             var stageConnector = stageConnectors?[0];
+            Type? nextContextType = null;
 
             if (stageConnector == null)
             {
@@ -148,15 +154,22 @@ class PipelineModelBuilder(
                 else
                 {
                     var stageEndType = stageConnector.GetOutputContext();
+                    nextContextType = stageEndType;
                     currentStageContextType = stageEndType;
                     currentStage = stages.GetValueOrDefault(stageEndType);
                 }
             }
 
+            orderedStages.Add(new PipelineStageModel(
+                stageContextType,
+                sortedStageSteps,
+                stageConnector,
+                nextContextType));
+
             stageNumber++;
         }
 
-        return finalOrder;
+        return new(rootContextType, finalOrder, orderedStages);
     }
 
     static bool IsStageConnector(RegisterStep stageStep) => typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
