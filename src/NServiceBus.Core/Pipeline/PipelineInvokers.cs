@@ -9,6 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Pipeline;
 
+/// <summary>
+/// This class is carefully crafted to minimize the amount of code and delegate allocations when invoking behaviors and stages in the pipeline. It uses a combination of switch expressions, generic methods, and caching to achieve this goal.
+/// The use of aggressive inlining and debugger attributes helps to further optimize the performance of the pipeline execution while maintaining a good debugging experience.
+/// When new pipeline stages are added, the corresponding invoker id and invocation logic should be added to this class to ensure that they are executed with the same level of performance as the existing stages.
+/// </summary>
 static class PipelineInvokers
 {
     [DebuggerStepThrough]
@@ -296,11 +301,13 @@ static class PipelineInvokers
     [DoesNotReturn]
     static byte ThrowUnknownStage(Type inContextType, Type outContextType) => throw new InvalidOperationException($"Unknown stage with '{inContextType.FullName}' and '{outContextType.FullName}'.");
 
+    // Caches to avoid unnecessary delegate allocations on each behavior invocation
     static class BehaviorNextCache<TContext> where TContext : class, IBehaviorContext
     {
         public static readonly Func<TContext, Task> Next = PipelineRunner.Next;
     }
 
+    // Caches to avoid unnecessary delegate allocations on each Stage invocation
     static class StageNextCache<TOutContext> where TOutContext : class, IBehaviorContext
     {
         public static readonly Func<TOutContext, Task> Next = PipelineRunner.Next;
