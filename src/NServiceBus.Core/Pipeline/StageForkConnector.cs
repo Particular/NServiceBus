@@ -22,7 +22,7 @@ public abstract class StageForkConnector<TFromContext, TToContext, TForkContext>
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(next);
 
-        return Invoke(context, next, ctx => ctx.InvokePipeline());
+        return Invoke(context, next, static ctx => ctx.InvokePipeline());
     }
 
     /// <summary>
