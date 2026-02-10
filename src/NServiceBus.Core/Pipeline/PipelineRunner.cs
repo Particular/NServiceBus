@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Pipeline;
 
-static class StageRunners
+static class PipelineRunner
 {
     [DebuggerStepThrough]
     [DebuggerHidden]
@@ -36,12 +36,7 @@ static class StageRunners
         ref var frame = ref extensions.Frame;
         var nextIndex = ++frame.Index;
 
-        if ((uint)nextIndex >= (uint)frame.RangeEnd)
-        {
-            return Task.CompletedTask;
-        }
-
-        return Dispatch(ctx, nextIndex);
+        return (uint)nextIndex >= (uint)frame.RangeEnd ? Task.CompletedTask : Dispatch(ctx, nextIndex);
     }
 
     [DebuggerStepThrough]

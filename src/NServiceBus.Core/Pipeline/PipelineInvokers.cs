@@ -298,11 +298,11 @@ static class PipelineInvokers
 
     static class BehaviorNextCache<TContext> where TContext : class, IBehaviorContext
     {
-        public static readonly Func<TContext, Task> Next = StageRunners.Next;
+        public static readonly Func<TContext, Task> Next = PipelineRunner.Next;
     }
 
     static class StageNextCache<TOutContext> where TOutContext : class, IBehaviorContext
     {
-        public static readonly Func<TOutContext, Task> Next = StageRunners.Next;
+        public static readonly Func<TOutContext, Task> Next = PipelineRunner.Next;
     }
 }

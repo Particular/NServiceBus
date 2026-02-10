@@ -35,7 +35,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
         // the behavior order is fixed once the pipeline is baked.
         context.Extensions.Behaviors = behaviors;
         context.Extensions.Parts = parts;
-        return StageRunners.Start(context);
+        return PipelineRunner.Start(context);
     }
 
     readonly IBehavior[] behaviors;
