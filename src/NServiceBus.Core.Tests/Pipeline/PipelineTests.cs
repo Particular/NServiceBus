@@ -193,23 +193,23 @@ public class PipelineTests
         public class Registration(TextWriter writer) : RegisterStep("Behavior2", typeof(Behavior2), "Behavior2", b => new Behavior2("behavior2", writer));
     }
 
-    class Stage2(string instance, TextWriter writer) : StageConnector<IIncomingLogicalMessageContext, IDispatchContext>
+    class Stage2(string instance, TextWriter writer) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public override Task Invoke(IIncomingLogicalMessageContext context, Func<IDispatchContext, Task> stage)
+        public override Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-            var dispatchContext = new TestableDispatchContext { Extensions = context.Extensions };
+            var invokeHandlerContext = new TestableInvokeHandlerContext { Extensions = context.Extensions };
 
-            return stage(dispatchContext);
+            return stage(invokeHandlerContext);
         }
 
         public class Registration(TextWriter writer) : RegisterStep("Stage2", typeof(Stage2), "Stage2", b => new Stage2("stage2", writer));
     }
 
-    class Terminator(string instance, TextWriter writer) : PipelineTerminator<IDispatchContext>
+    class Terminator(string instance, TextWriter writer) : PipelineTerminator<IInvokeHandlerContext>
     {
-        protected override Task Terminate(IDispatchContext context)
+        protected override Task Terminate(IInvokeHandlerContext context)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
             return Task.CompletedTask;

@@ -51,6 +51,6 @@ static class StageRunners
     static Task Dispatch(IBehaviorContext ctx, int index)
     {
         ref var part = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(ctx.Extensions.Parts), index);
-        return part.Invoke(ctx, part.ChildStart, part.ChildEnd);
+        return PipelineInvokers.Invoke(ctx, part);
     }
 }

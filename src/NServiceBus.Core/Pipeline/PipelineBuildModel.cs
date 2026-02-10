@@ -10,7 +10,8 @@ readonly record struct PipelineStageModel(
     Type ContextType,
     IReadOnlyList<RegisterStep> Behaviors,
     RegisterStep? Connector,
-    Type? NextContextType);
+    Type? NextContextType,
+    bool IsTerminator);
 
 readonly record struct PipelineBuildModel(
     Type RootContextType,

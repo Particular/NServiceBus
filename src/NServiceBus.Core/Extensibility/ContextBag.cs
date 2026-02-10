@@ -185,10 +185,8 @@ public class ContextBag : IReadOnlyContextBag
     internal PipelineFrame Frame;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TBehavior GetBehavior<TBehavior>()
-        where TBehavior : class, IBehavior
-        => Unsafe.As<TBehavior>(
-            Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Behaviors), Frame.Index));
+    internal IBehavior GetBehavior() =>
+        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(Behaviors), Frame.Index);
 
     internal ContextBag? parentBag;
 

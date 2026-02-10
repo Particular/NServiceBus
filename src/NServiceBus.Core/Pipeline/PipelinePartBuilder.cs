@@ -4,7 +4,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Pipeline;
 
 static class PipelinePartBuilder
@@ -62,42 +61,25 @@ static class PipelinePartBuilder
 
         var childEnd = parts.Count;
 
-        parts[connectorPartIndex] = CreateStagePart(connector, childStart, childEnd);
+        parts[connectorPartIndex] = CreateStagePart(stage.IsTerminator, connector, childStart, childEnd);
     }
 
     static PipelinePart CreateBehaviorPart(RegisterStep step)
     {
         var behaviorType = step.BehaviorType;
-        var interfaceType = GetBehaviorInterface(behaviorType);
-        var genericArgs = interfaceType.GetGenericArguments();
-        var contextType = genericArgs[0];
+        var contextType = step.InputContextType;
 
-        var method = typeof(BehaviorPartFactory).GetMethod("Create")!
-            .MakeGenericMethod(contextType, behaviorType);
-
-        return (PipelinePart)method.Invoke(null, [])!;
+        var invokerId = PipelineInvokers.GetBehaviorId(contextType);
+        return new PipelinePart(invokerId, 0, 0, behaviorType.Name, contextType.Name);
     }
 
-    static PipelinePart CreateStagePart(RegisterStep step, int childStart, int childEnd)
+    static PipelinePart CreateStagePart(bool isTerminator, RegisterStep step, int childStart, int childEnd)
     {
         var behaviorType = step.BehaviorType;
-        var interfaceType = GetBehaviorInterface(behaviorType);
-        var genericArgs = interfaceType.GetGenericArguments();
-        var inContextType = genericArgs[0];
-        var outContextType = genericArgs[1];
+        var inContextType = step.InputContextType;
+        var outContextType = step.OutputContextType;
 
-        var method = typeof(StagePartFactory).GetMethod("Create")!
-            .MakeGenericMethod(inContextType, outContextType, behaviorType);
-
-        return (PipelinePart)method.Invoke(null, [childStart, childEnd])!;
-    }
-
-    static Type GetBehaviorInterface(Type behaviorType)
-    {
-        var interfaces = behaviorType.GetInterfaces()
-            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IBehavior<,>));
-
-        return interfaces.FirstOrDefault()
-            ?? throw new InvalidOperationException($"Type '{behaviorType.FullName}' does not implement IBehavior<,>.");
+        var invokerId = isTerminator ? PipelineInvokers.StageToTerminating : PipelineInvokers.GetStageId(inContextType, outContextType);
+        return new PipelinePart(invokerId, childStart, childEnd, behaviorType.Name, inContextType.Name);
     }
 }
