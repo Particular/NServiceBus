@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPropagate) : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -26,13 +27,36 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         // This may not be the outgoing message activity created by NServiceBus.
         ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers, context.Extensions);
 
+        DispatchProperties? dispatchProperties;
+        bool shouldPropagate;
+        if (dispatchPropertyNamesToPropagate.Count > 0)
+        {
+            shouldPropagate = context.Extensions.TryGet("IncomingMessage.DispatchProperties", out dispatchProperties);
+        }
+        else
+        {
+            dispatchProperties = null;
+            shouldPropagate = false;
+        }
+
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
         // when there are more than one routing strategy we want to make sure each transport operation is independent
         var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
         foreach (var strategy in context.RoutingStrategies)
         {
-            operations[index] = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+            if (shouldPropagate)
+            {
+                foreach (var propertyName in dispatchPropertyNamesToPropagate)
+                {
+                    if (dispatchProperties?.TryGetValue(propertyName, out var propertyValue) is true && !transportOperation.Properties.TryAdd(propertyName, propertyValue))
+                    {
+                        // explicitly set on the outgoing operation, do not override
+                    }
+                }
+            }
+            operations[index] = transportOperation;
             index++;
         }
 
