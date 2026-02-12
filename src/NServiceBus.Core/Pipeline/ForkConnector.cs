@@ -30,6 +30,6 @@ public abstract class ForkConnector<TFromContext, TForkContext> : Behavior<TFrom
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(next);
 
-        return Invoke(context, next, ctx => ctx.InvokePipeline());
+        return Invoke(context, next, static ctx => ctx.InvokePipeline());
     }
 }
