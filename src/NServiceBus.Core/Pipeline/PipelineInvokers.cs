@@ -76,10 +76,7 @@ static class PipelineInvokers
         where TInContext : class, IBehaviorContext
         where TOutContext : class, IBehaviorContext
     {
-        ref var frame = ref ctx.Extensions.Frame;
-        frame.Index = childStart - 1;
-        frame.RangeEnd = childEnd;
-
+        ctx.Extensions.SetFrame(childStart - 1, childEnd);
         var behavior = Unsafe.As<IBehavior<TInContext, TOutContext>>(ctx.Extensions.GetBehavior());
         return behavior.Invoke(Unsafe.As<TInContext>(ctx), StageNextCache<TOutContext>.Next);
     }

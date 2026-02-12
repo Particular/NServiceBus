@@ -33,8 +33,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
         // The pipeline sets the behaviors and the parts to the context bag for the current stage so that the next delegates
         // can extract the pipeline behaviors. This avoids costly closure allocations. This is safe because
         // the behavior order is fixed once the pipeline is baked.
-        context.Extensions.Behaviors = behaviors;
-        context.Extensions.Parts = parts;
+        context.Extensions.Initialize(behaviors, parts);
         return PipelineRunner.Start(context);
     }
 
