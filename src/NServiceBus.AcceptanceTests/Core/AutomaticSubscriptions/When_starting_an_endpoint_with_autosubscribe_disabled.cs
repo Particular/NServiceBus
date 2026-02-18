@@ -34,7 +34,7 @@ public class When_starting_an_endpoint_with_autosubscribe_disabled : NServiceBus
             EndpointSetup<DefaultServer>(c =>
             {
                 c.DisableFeature<AutoSubscribe>();
-                c.Pipeline.Register(typeof(SubscribeSpy), "Inspects all subscribe operations");
+                c.Pipeline.Register<SubscribeSpy>("Inspects all subscribe operations");
             });
 
         class SubscribeSpy : Behavior<ISubscribeContext>

@@ -30,7 +30,7 @@ public class When_xml_serializer_processes_message_without_type_header : NServic
             EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
-                    c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
+                    c.Pipeline.Register<RemoveTheTypeHeader>("Removes the message type header to simulate receiving a native message");
                     c.UseSerialization<XmlSerializer>();
                 })
                 //Need to include the message since it can't be nested inside the test class, see below

@@ -36,7 +36,7 @@ public class When_a_message_is_being_audited : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(config =>
             {
                 config.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                config.Pipeline.Register(typeof(AuditBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
+                config.Pipeline.Register<AuditBodyStorageBehavior>("Simulate writing the body to a separate storage and pass a null body to the transport");
             });
 
         class AuditBodyStorageBehavior : Behavior<IAuditContext>

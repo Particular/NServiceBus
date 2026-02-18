@@ -38,7 +38,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(errorQueueAddress);
-                config.Pipeline.Register(typeof(ErrorBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
+                config.Pipeline.Register<ErrorBodyStorageBehavior>("Simulate writing the body to a separate storage and pass a null body to the transport");
             });
 
         public class ErrorBodyStorageBehavior : Behavior<IDispatchContext>
@@ -69,7 +69,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<ErrorMessageDetector>("Detect incoming error messages"));
 
         class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {

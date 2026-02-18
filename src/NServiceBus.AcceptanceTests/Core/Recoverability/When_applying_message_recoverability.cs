@@ -52,7 +52,7 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(ErrorQueueAddress);
-                config.Pipeline.Register(typeof(CustomRecoverabilityActionBehavior), "Applies a custom recoverability actions");
+                config.Pipeline.Register<CustomRecoverabilityActionBehavior>("Applies a custom recoverability actions");
             });
 
         public class CustomRecoverabilityActionBehavior : Behavior<IRecoverabilityContext>
@@ -96,7 +96,7 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<ErrorMessageDetector>("Detect incoming error messages"));
 
         class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {

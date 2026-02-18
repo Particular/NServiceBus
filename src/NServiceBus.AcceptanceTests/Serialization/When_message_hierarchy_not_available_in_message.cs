@@ -31,7 +31,7 @@ public class When_message_hierarchy_not_available_in_message : NServiceBusAccept
     {
         public Sender() => EndpointSetup<DefaultServer>(c =>
         {
-            c.Pipeline.Register(typeof(OverrideMessageTypeHeaderBehavior), "Sets the enclosed message type header to only the fullname");
+            c.Pipeline.Register<OverrideMessageTypeHeaderBehavior>("Sets the enclosed message type header to only the fullname");
             c.ConfigureRouting().RouteToEndpoint(typeof(Message), typeof(ReceivingEndpoint));
         });
 

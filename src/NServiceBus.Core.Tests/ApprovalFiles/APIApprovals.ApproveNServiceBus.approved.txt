@@ -1929,6 +1929,7 @@ namespace NServiceBus.Pipeline
         public void Register(string stepId, System.Type behavior, string description) { }
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register<TBehavior>(string description) { }
         public void Register<T>(System.Func<System.IServiceProvider, T> factoryMethod, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Register<T>(T behavior, string description)

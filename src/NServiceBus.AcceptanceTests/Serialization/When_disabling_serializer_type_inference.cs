@@ -65,7 +65,7 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.Pipeline.Register(typeof(TypeHeaderManipulationBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
+                c.Pipeline.Register<TypeHeaderManipulationBehavior>("Removes the EnclosedMessageTypes header from incoming messages");
                 var serializerSettings = c.UseSerialization<CustomSerializer>();
                 serializerSettings.DisableMessageTypeInference();
             });

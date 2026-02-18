@@ -75,11 +75,11 @@ sealed class MessageDrivenSubscriptions : Feature
             var authorizer = context.Settings.GetSubscriptionAuthorizer();
             authorizer ??= _ => true;
             context.Services.AddSingleton(authorizer);
-            context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
+            context.Pipeline.Register<SubscriptionReceiverBehavior>("Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
         }
         else
         {
-            context.Pipeline.Register(typeof(DisabledPublishingTerminator), "Throws an exception when trying to publish with publishing disabled");
+            context.Pipeline.Register<DisabledPublishingTerminator>("Throws an exception when trying to publish with publishing disabled");
         }
 
         var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");

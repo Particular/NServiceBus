@@ -39,7 +39,7 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.Pipeline.Register(typeof(TypeHeaderRemovingBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
+                c.Pipeline.Register<TypeHeaderRemovingBehavior>("Removes the EnclosedMessageTypes header from incoming messages");
             });
 
         [Handler]
