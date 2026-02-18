@@ -3,6 +3,7 @@
 namespace NServiceBus.Transport;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -83,6 +84,11 @@ public abstract class TransportDefinition
     /// Indicates whether this transport supports time-to-be-received settings for messages.
     /// </summary>
     public bool SupportsTTBR { get; }
+
+    /// <summary>
+    /// TBD
+    /// </summary>
+    protected internal virtual FrozenSet<string> DispatchPropertyNamesToPreserve { get; } = [];
 
     /// <summary>
     /// Allows the transport to register required services into the service collection.
