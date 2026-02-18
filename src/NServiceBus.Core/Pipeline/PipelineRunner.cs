@@ -71,7 +71,6 @@ static class PipelineRunner
     [DebuggerStepThrough]
     [DebuggerHidden]
     [DebuggerNonUserCode]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static async Task AwaitAndRestore(Task task, IBehaviorContext ctx, PipelineFrame frame)
     {
         try
