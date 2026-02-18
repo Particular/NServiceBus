@@ -1,11 +1,10 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline;
+namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +56,7 @@ public class PipelineTests
         await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
         var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
 
-        stringWriter.WriteLine("Run 1");
+        await stringWriter.WriteLineAsync("Run 1");
 
         var context = new TestableTransportReceiveContext();
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -65,7 +64,7 @@ public class PipelineTests
 
         await pipeline.Invoke(context);
 
-        stringWriter.WriteLine("Run 2");
+        await stringWriter.WriteLineAsync("Run 2");
 
         context = new TestableTransportReceiveContext();
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -79,22 +78,26 @@ public class PipelineTests
     [Test]
     public void ShouldCreateCachedExecutionPlan()
     {
-        var stringWriter = new StringWriter();
+        var pipelineModifications = new PipelineModifications();
+        pipelineModifications.AddAddition(new Behavior1.Registration(TextWriter.Null));
+        pipelineModifications.AddAddition(new Stage1.Registration(TextWriter.Null));
+        pipelineModifications.AddAddition(new Behavior2.Registration(TextWriter.Null));
+        pipelineModifications.AddAddition(new StageFork.Registration(TextWriter.Null));
+        pipelineModifications.AddAddition(new Stage2.Registration(TextWriter.Null));
+        pipelineModifications.AddAddition(new Terminator.Registration(TextWriter.Null));
 
-        var behaviors = new IBehavior[]
-        {
-            new StageFork("stagefork1", stringWriter),
-            new Behavior1("behavior1", stringWriter),
-            new Stage1("stage1", stringWriter),
-            new Behavior2("behavior2", stringWriter),
-            new Stage2("stage2", stringWriter),
-            new Terminator("terminator", stringWriter),
-        };
+        using var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
 
-        var expressions = new List<Expression>();
-        behaviors.CreatePipelineExecutionExpression(expressions);
+        var parts = GetPipelinePartsField(pipeline);
 
-        Approver.Verify(expressions.PrettyPrint());
+        Approver.Verify(PipelinePartDiagnostics.PrettyPrint(parts));
+    }
+
+    static PipelinePart[] GetPipelinePartsField(Pipeline<ITransportReceiveContext> pipeline)
+    {
+        var field = typeof(Pipeline<ITransportReceiveContext>).GetField("parts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        return (PipelinePart[])field!.GetValue(pipeline)!;
     }
 
     [Test]
@@ -134,173 +137,122 @@ public class PipelineTests
         Assert.That(average, Is.LessThan(firstRunTicks / 5));
     }
 
-    class StageFork : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+    [Test]
+    public async Task ShouldAllowExecutingPartsOfThePipelineMultipleTimes()
     {
-        public StageFork(string instance, TextWriter writer)
-        {
-            this.instance = instance;
-            this.writer = writer;
-        }
+        var stringWriter = new StringWriter();
 
+        var pipelineModifications = new PipelineModifications();
+        pipelineModifications.AddAddition(new Behavior1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new StageFork.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Terminator.Registration(stringWriter));
+        pipelineModifications.AddAddition(new BehaviorWithRetry.Registration(stringWriter));
+
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
+
+        var context = new TestableTransportReceiveContext();
+        context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
+
+        await pipeline.Invoke(context);
+
+        Approver.Verify(stringWriter.ToString());
+    }
+
+    class StageFork(string instance, TextWriter writer) : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+    {
         public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-            var physicalMessageContext = new TestableIncomingPhysicalMessageContext { Extensions = new ContextBag(context.Extensions) };
+            var physicalMessageContext = new TestableIncomingPhysicalMessageContext { Extensions = context.Extensions };
 
             await next(physicalMessageContext).ConfigureAwait(false);
 
-            var dispatchContext = new TestableBatchDispatchContext { Extensions = new ContextBag(context.Extensions) };
+            var dispatchContext = new TestableBatchDispatchContext { Extensions = context.Extensions };
 
             await this.Fork(dispatchContext).ConfigureAwait(false);
         }
 
-
-
-        readonly string instance;
-
-        readonly TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("StageFork", typeof(StageFork), "StageFork", b => new StageFork("stagefork1", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("StageFork", typeof(StageFork), "StageFork", b => new StageFork("stagefork1", writer));
     }
 
-
-
-    class Behavior1 : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
+    class BehaviorWithRetry(string instance, TextWriter writer) : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public Behavior1(string instance, TextWriter writer)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            this.instance = instance;
-            this.writer = writer;
+            for (int i = 1; i < 4; i++)
+            {
+                context.PrintInstanceWithRunSpecificIfPossible(instance + i, writer);
+                await next(context);
+            }
         }
 
+        public class Registration(TextWriter writer) : RegisterStep("BehaviorWithRetry", typeof(BehaviorWithRetry), "BehaviorWithRetry", b => new BehaviorWithRetry("BehaviorWithRetry", writer));
+    }
+
+    class Behavior1(string instance, TextWriter writer) : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
+    {
         public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
             return next(context);
         }
 
-        readonly string instance;
-        readonly TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("Behavior1", typeof(Behavior1), "Behavior1", b => new Behavior1("behavior1", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("Behavior1", typeof(Behavior1), "Behavior1", b => new Behavior1("behavior1", writer));
     }
 
-    class Stage1 : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
+    class Stage1(string instance, TextWriter writer) : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public Stage1(string instance, TextWriter writer)
-        {
-            this.writer = writer;
-            this.instance = instance;
-        }
-
         public override Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-            var logicalMessageContext = new TestableIncomingLogicalMessageContext { Extensions = new ContextBag(context.Extensions) };
+            var logicalMessageContext = new TestableIncomingLogicalMessageContext { Extensions = context.Extensions };
 
             return stage(logicalMessageContext);
         }
 
-        string instance;
-        TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("Stage1", typeof(Stage1), "Stage1", b => new Stage1("stage1", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("Stage1", typeof(Stage1), "Stage1", b => new Stage1("stage1", writer));
     }
 
-    class Behavior2 : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
+    class Behavior2(string instance, TextWriter writer) : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public Behavior2(string instance, TextWriter writer)
-        {
-            this.instance = instance;
-            this.writer = writer;
-        }
-
         public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             writer.WriteLine(instance);
             return next(context);
         }
 
-        readonly string instance;
-        readonly TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("Behavior2", typeof(Behavior2), "Behavior2", b => new Behavior2("behavior2", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("Behavior2", typeof(Behavior2), "Behavior2", b => new Behavior2("behavior2", writer));
     }
 
-    class Stage2 : StageConnector<IIncomingLogicalMessageContext, IDispatchContext>
+    class Stage2(string instance, TextWriter writer) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
-        public Stage2(string instance, TextWriter writer)
-        {
-            this.writer = writer;
-            this.instance = instance;
-        }
-
-        public override Task Invoke(IIncomingLogicalMessageContext context, Func<IDispatchContext, Task> stage)
+        public override Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
-            var dispatchContext = new TestableDispatchContext { Extensions = new ContextBag(context.Extensions) };
+            var invokeHandlerContext = new TestableInvokeHandlerContext { Extensions = context.Extensions };
 
-            return stage(dispatchContext);
+            return stage(invokeHandlerContext);
         }
 
-        string instance;
-        TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("Stage2", typeof(Stage2), "Stage2", b => new Stage2("stage2", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("Stage2", typeof(Stage2), "Stage2", b => new Stage2("stage2", writer));
     }
 
-    class Terminator : PipelineTerminator<IDispatchContext>
+    class Terminator(string instance, TextWriter writer) : PipelineTerminator<IInvokeHandlerContext>
     {
-        public Terminator(string instance, TextWriter writer)
-        {
-            this.instance = instance;
-            this.writer = writer;
-        }
-
-        protected override Task Terminate(IDispatchContext context)
+        protected override Task Terminate(IInvokeHandlerContext context)
         {
             context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
             return Task.CompletedTask;
         }
 
-        readonly string instance;
-
-        readonly TextWriter writer;
-
-        public class Registration : RegisterStep
-        {
-            public Registration(TextWriter writer) : base("Terminator", typeof(Terminator), "Terminator", b => new Terminator("terminator", writer))
-            {
-            }
-        }
+        public class Registration(TextWriter writer) : RegisterStep("Terminator", typeof(Terminator), "Terminator", b => new Terminator("terminator", writer));
     }
 
     class FakePipelineCache : IPipelineCache
@@ -321,14 +273,5 @@ static class ExtendableExtensions
     public const string RunSpecificKey = "RunSpecific";
 
     public static void PrintInstanceWithRunSpecificIfPossible(this IExtendable context, string instance, TextWriter writer)
-    {
-        if (context.Extensions.TryGet(RunSpecificKey, out int runSpecific))
-        {
-            writer.WriteLine($"{instance}: {runSpecific}");
-        }
-        else
-        {
-            writer.WriteLine(instance);
-        }
-    }
+        => writer.WriteLine(context.Extensions.TryGet(RunSpecificKey, out int runSpecific) ? $"{instance}: {runSpecific}" : instance);
 }

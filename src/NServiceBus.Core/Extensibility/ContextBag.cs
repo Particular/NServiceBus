@@ -5,6 +5,8 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Pipeline;
 
 /// <summary>
@@ -19,7 +21,9 @@ public class ContextBag : IReadOnlyContextBag
     {
         this.parentBag = parentBag;
         root = parentBag?.root ?? this;
-        Behaviors = parentBag?.Behaviors ?? [];
+        behaviors = parentBag?.behaviors ?? [];
+        parts = parentBag?.parts ?? [];
+        frame = parentBag?.frame ?? default;
     }
 
     /// <summary>
@@ -169,16 +173,57 @@ public class ContextBag : IReadOnlyContextBag
         return stash;
     }
 
-    /// <summary>
-    /// This internal property is here for performance optimizations. It allows the pipeline to set all
-    /// behaviors of a given stage which then can be extracted as part of the next delegate invocation from the context
-    /// to avoid closure capturing.
-    /// </summary>
-    internal IBehavior[] Behaviors { get; set; }
+    internal void Initialize(IBehavior[] withBehaviors, PipelinePart[] withParts)
+    {
+        behaviors = withBehaviors;
+        parts = withParts;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ref IBehavior GetBehavior() =>
+        ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(behaviors), frame.Index);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ref PipelinePart GetPart(int index) =>
+        ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(parts), index);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetFrame(int childStart, int childEnd)
+    {
+        frame.Index = childStart;
+        frame.RangeEnd = childEnd;
+    }
+
+    internal PipelineFrame Frame
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => frame;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => frame = value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal int AdvanceFrame(out bool reachedEnd)
+    {
+        var nextIndex = ++frame.Index;
+        reachedEnd = (uint)nextIndex >= (uint)frame.RangeEnd;
+        return nextIndex;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void InitFrame(out bool isEmpty)
+    {
+        var partsLength = parts.Length;
+        SetFrame(0, partsLength);
+        isEmpty = partsLength == 0;
+    }
 
     internal ContextBag? parentBag;
 
     private protected ContextBag root;
 
     Dictionary<string, object>? stash;
+    PipelineFrame frame;
+    IBehavior[] behaviors;
+    PipelinePart[] parts;
 }

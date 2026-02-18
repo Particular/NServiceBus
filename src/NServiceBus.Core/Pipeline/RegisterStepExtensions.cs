@@ -16,19 +16,15 @@ static class RegisterStepExtensions
         behaviorType.GetInterfaces()
             .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
 
-    public static Type GetOutputContext(this RegisterStep step) => step.BehaviorType.GetOutputContext();
-
     public static Type GetOutputContext(this Type behaviorType)
     {
-        var behaviorInterface = GetBehaviorInterface(behaviorType);
+        var behaviorInterface = behaviorType.GetBehaviorInterface();
         return behaviorInterface.GetGenericArguments()[1];
     }
 
-    public static Type GetInputContext(this RegisterStep step) => step.BehaviorType.GetInputContext();
-
     public static Type GetInputContext(this Type behaviorType)
     {
-        var behaviorInterface = GetBehaviorInterface(behaviorType);
+        var behaviorInterface = behaviorType.GetBehaviorInterface();
         return behaviorInterface.GetGenericArguments()[0];
     }
 
