@@ -137,6 +137,31 @@ public class PipelineTests
         Assert.That(average, Is.LessThan(firstRunTicks / 5));
     }
 
+    [Test]
+    public async Task ShouldAllowExecutingPartsOfThePipelineMultipleTimes()
+    {
+        var stringWriter = new StringWriter();
+
+        var pipelineModifications = new PipelineModifications();
+        pipelineModifications.AddAddition(new Behavior1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage1.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Behavior2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new StageFork.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Stage2.Registration(stringWriter));
+        pipelineModifications.AddAddition(new Terminator.Registration(stringWriter));
+        pipelineModifications.AddAddition(new BehaviorWithRetry.Registration(stringWriter));
+
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        var pipeline = new Pipeline<ITransportReceiveContext>(serviceProvider, pipelineModifications);
+
+        var context = new TestableTransportReceiveContext();
+        context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
+
+        await pipeline.Invoke(context);
+
+        Approver.Verify(stringWriter.ToString());
+    }
+
     class StageFork(string instance, TextWriter writer) : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
         public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
@@ -153,6 +178,20 @@ public class PipelineTests
         }
 
         public class Registration(TextWriter writer) : RegisterStep("StageFork", typeof(StageFork), "StageFork", b => new StageFork("stagefork1", writer));
+    }
+
+    class BehaviorWithRetry(string instance, TextWriter writer) : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
+    {
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        {
+            for (int i = 1; i < 4; i++)
+            {
+                context.PrintInstanceWithRunSpecificIfPossible(instance + i, writer);
+                await next(context);
+            }
+        }
+
+        public class Registration(TextWriter writer) : RegisterStep("BehaviorWithRetry", typeof(BehaviorWithRetry), "BehaviorWithRetry", b => new BehaviorWithRetry("BehaviorWithRetry", writer));
     }
 
     class Behavior1(string instance, TextWriter writer) : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
