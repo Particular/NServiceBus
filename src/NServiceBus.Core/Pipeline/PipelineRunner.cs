@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -27,8 +28,34 @@ static class PipelineRunner
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task Next(IBehaviorContext ctx)
     {
+        var frame = ctx.Extensions.Frame;
         var nextIndex = ctx.Extensions.AdvanceFrame(out var reachedEnd);
-        return reachedEnd ? Task.CompletedTask : Dispatch(ctx, nextIndex);
+        if (reachedEnd)
+        {
+            ctx.Extensions.Frame = frame;
+            return Task.CompletedTask;
+        }
+
+        Task task;
+        try
+        {
+            task = Dispatch(ctx, nextIndex);
+        }
+#pragma warning disable PS0019
+        catch (Exception)
+#pragma warning restore PS0019
+        {
+            ctx.Extensions.Frame = frame;
+            throw;
+        }
+
+        if (!task.IsCompletedSuccessfully)
+        {
+            return AwaitAndRestore(task, ctx, frame);
+        }
+
+        ctx.Extensions.Frame = frame;
+        return task;
     }
 
     [DebuggerStepThrough]
@@ -39,5 +66,21 @@ static class PipelineRunner
     {
         ref var part = ref ctx.Extensions.GetPart(index);
         return PipelineInvokers.Invoke(ctx, part);
+    }
+
+    [DebuggerStepThrough]
+    [DebuggerHidden]
+    [DebuggerNonUserCode]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static async Task AwaitAndRestore(Task task, IBehaviorContext ctx, PipelineFrame frame)
+    {
+        try
+        {
+            await task.ConfigureAwait(false);
+        }
+        finally
+        {
+            ctx.Extensions.Frame = frame;
+        }
     }
 }

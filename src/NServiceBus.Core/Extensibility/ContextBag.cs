@@ -194,6 +194,14 @@ public class ContextBag : IReadOnlyContextBag
         frame.RangeEnd = childEnd;
     }
 
+    internal PipelineFrame Frame
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => frame;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => frame = value;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int AdvanceFrame(out bool reachedEnd)
     {
