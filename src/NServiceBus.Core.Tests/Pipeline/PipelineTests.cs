@@ -155,8 +155,6 @@ public class PipelineTests
         public class Registration(TextWriter writer) : RegisterStep("StageFork", typeof(StageFork), "StageFork", b => new StageFork("stagefork1", writer));
     }
 
-
-
     class Behavior1(string instance, TextWriter writer) : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
         public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
