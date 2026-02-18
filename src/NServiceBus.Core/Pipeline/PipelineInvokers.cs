@@ -298,13 +298,19 @@ static class PipelineInvokers
     [DoesNotReturn]
     static byte ThrowUnknownStage(Type inContextType, Type outContextType) => throw new InvalidOperationException($"Unknown stage with '{inContextType.FullName}' and '{outContextType.FullName}'.");
 
-    // Caches to avoid unnecessary delegate allocations on each behavior invocation
+    // Cache the "next" delegate as a static field.
+    // Passing PipelineRunner.Next at the call site would repeatedly convert a method group to Func<TContext, Task>,
+    // which can create a new delegate instance on each behavior/stage invocation (hot path).
+    // Using a generic static cache ensures we allocate it at most once per closed TContext/TOutContext and reuse it.
     static class BehaviorNextCache<TContext> where TContext : class, IBehaviorContext
     {
         public static readonly Func<TContext, Task> Next = PipelineRunner.Next;
     }
 
-    // Caches to avoid unnecessary delegate allocations on each Stage invocation
+    // Cache the "next" delegate as a static field.
+    // Passing PipelineRunner.Next at the call site would repeatedly convert a method group to Func<TContext, Task>,
+    // which can create a new delegate instance on each behavior/stage invocation (hot path).
+    // Using a generic static cache ensures we allocate it at most once per closed TContext/TOutContext and reuse it.
     static class StageNextCache<TOutContext> where TOutContext : class, IBehaviorContext
     {
         public static readonly Func<TOutContext, Task> Next = PipelineRunner.Next;
