@@ -13,7 +13,7 @@ readonly record struct PipelineStageModel(
     Type? NextContextType,
     bool IsTerminator);
 
-readonly record struct PipelineBuildModel(
+readonly record struct PipelineModel(
     Type RootContextType,
     IReadOnlyList<RegisterStep> Steps,
     IReadOnlyList<PipelineStageModel> Stages);

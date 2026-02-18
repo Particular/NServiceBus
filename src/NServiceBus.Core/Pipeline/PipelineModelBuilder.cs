@@ -16,7 +16,7 @@ class PipelineModelBuilder(
 {
     public IReadOnlyCollection<RegisterStep> Build() => BuildModel().Steps;
 
-    public PipelineBuildModel BuildModel()
+    public PipelineModel BuildModel()
     {
         var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -91,7 +91,7 @@ class PipelineModelBuilder(
 
         if (registrations.Count == 0)
         {
-            return new PipelineBuildModel(rootContextType, finalOrder, orderedStages);
+            return new PipelineModel(rootContextType, finalOrder, orderedStages);
         }
 
         if (!stages.TryGetValue(rootContextType, out var currentStage))
@@ -172,7 +172,7 @@ class PipelineModelBuilder(
             stageNumber++;
         }
 
-        return new PipelineBuildModel(rootContextType, finalOrder, orderedStages);
+        return new PipelineModel(rootContextType, finalOrder, orderedStages);
     }
 
     static List<RegisterStep> Sort(List<RegisterStep> registrations)

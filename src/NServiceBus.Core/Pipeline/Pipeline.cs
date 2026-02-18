@@ -14,7 +14,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
     {
         var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Additions, pipelineModifications.Replacements, pipelineModifications.AdditionsOrReplacements);
 
-        var pipelineBuildModel = coordinator.BuildPipelineBuildModelFor<TContext>();
+        var pipelineBuildModel = coordinator.BuildPipelineModelFor<TContext>();
         var registrations = pipelineBuildModel.Steps;
 
         // Important to keep a reference

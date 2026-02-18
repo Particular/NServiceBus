@@ -8,7 +8,7 @@ using Pipeline;
 
 static class PipelinePartBuilder
 {
-    public static PipelinePart[] BuildParts(PipelineBuildModel model)
+    public static PipelinePart[] BuildParts(PipelineModel model)
     {
         if (model.Steps.Count == 0)
         {
