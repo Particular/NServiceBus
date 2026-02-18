@@ -23,7 +23,7 @@ static class PipelinePartBuilder
 
     static void BuildStage(IReadOnlyList<PipelineStageModel> stages, int stageIndex, List<PipelinePart> parts)
     {
-        if ((uint)stageIndex >= (uint)stages.Count)
+        if (stageIndex < 0 || stageIndex >= stages.Count)
         {
             return;
         }
