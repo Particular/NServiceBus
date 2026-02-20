@@ -403,6 +403,10 @@ namespace NServiceBus
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
     }
+    public static class HostApplicationBuilderExtensions
+    {
+        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.Hosting.IHostApplicationBuilder builder, string endpointName, System.Action<NServiceBus.EndpointConfiguration> configure) { }
+    }
     public static class HostInfoConfigurationExtensions
     {
         public static NServiceBus.HostInfoSettings UniquelyIdentifyRunningInstance(this NServiceBus.EndpointConfiguration config) { }
