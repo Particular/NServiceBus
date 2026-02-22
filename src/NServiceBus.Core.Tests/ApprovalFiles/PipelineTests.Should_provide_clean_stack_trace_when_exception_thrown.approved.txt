@@ -1,0 +1,8 @@
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.ThrowingTerminator.Terminate(IInvokeHandlerContext context) in Pipeline/PipelineTests.cs
+   at NServiceBus.Pipeline.PipelineTerminator`1.Invoke(T context, Func`2 next) in Pipeline/PipelineTerminator.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.Stage2.Invoke(IIncomingLogicalMessageContext context, Func`2 stage) in Pipeline/PipelineTests.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.Behavior2.Invoke(IIncomingLogicalMessageContext context, Func`2 next) in Pipeline/PipelineTests.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.Stage1.Invoke(IIncomingPhysicalMessageContext context, Func`2 stage) in Pipeline/PipelineTests.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.Behavior1.Invoke(IIncomingPhysicalMessageContext context, Func`2 next) in Pipeline/PipelineTests.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.StageFork.Invoke(ITransportReceiveContext context, Func`2 next) in Pipeline/PipelineTests.cs
+   at NServiceBus.Core.Tests.Pipeline.PipelineTests.Should_provide_clean_stack_trace_when_exception_thrown() in Pipeline/PipelineTests.cs

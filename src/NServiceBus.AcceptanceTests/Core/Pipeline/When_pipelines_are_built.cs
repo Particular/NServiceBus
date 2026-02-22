@@ -21,7 +21,7 @@ public class When_pipelines_are_built : NServiceBusAcceptanceTest
             .ConfigureAwait(false);
 
         var pipelineLogs = context.Logs.Where(x => x.LoggerName.StartsWith("NServiceBus.Pipeline"))
-            .Distinct(LoggerNameComparer.Instance).Select(x => x.Message);
+            .Distinct(LoggerNameComparer.Instance).Select(x => $"{x.Message}{Environment.NewLine}");
 
         Approver.Verify(string.Join(Environment.NewLine, pipelineLogs));
     }

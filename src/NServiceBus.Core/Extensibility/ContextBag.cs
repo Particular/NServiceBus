@@ -5,6 +5,9 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Pipeline;
 
 /// <summary>
@@ -19,7 +22,8 @@ public class ContextBag : IReadOnlyContextBag
     {
         this.parentBag = parentBag;
         root = parentBag?.root ?? this;
-        Behaviors = parentBag?.Behaviors ?? [];
+        behaviors = parentBag?.behaviors ?? [];
+        Invoker = parentBag?.Invoker ?? (_ => Task.CompletedTask);
     }
 
     /// <summary>
@@ -169,16 +173,24 @@ public class ContextBag : IReadOnlyContextBag
         return stash;
     }
 
-    /// <summary>
-    /// This internal property is here for performance optimizations. It allows the pipeline to set all
-    /// behaviors of a given stage which then can be extracted as part of the next delegate invocation from the context
-    /// to avoid closure capturing.
-    /// </summary>
-    internal IBehavior[] Behaviors { get; set; }
+    internal void Initialize(IBehavior[] withBehaviors, Func<IBehaviorContext, Task> withInvoker)
+    {
+        behaviors = withBehaviors;
+        Invoker = withInvoker;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal IBehavior<TInContext, TOutContext> GetBehavior<TInContext, TOutContext>(int index)
+        where TInContext : class, IBehaviorContext
+        where TOutContext : class, IBehaviorContext =>
+        Unsafe.As<IBehavior<TInContext, TOutContext>>(Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(behaviors), index))!;
+
+    internal Func<IBehaviorContext, Task> Invoker { get; private set; }
 
     internal ContextBag? parentBag;
 
     private protected ContextBag root;
 
     Dictionary<string, object>? stash;
+    IBehavior[] behaviors;
 }
