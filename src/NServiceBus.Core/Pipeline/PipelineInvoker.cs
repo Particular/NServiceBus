@@ -11,7 +11,7 @@ using Pipeline;
 
 static partial class PipelineInvoker
 {
-    public static Func<IBehaviorContext, Task> Build(IReadOnlyList<RegisterStep> steps)
+    public static Func<IBehaviorContext, Task> Build(IReadOnlyList<RegisterStep> steps, IBehavior[] behaviors)
     {
         if (steps.Count == 0)
         {
@@ -21,7 +21,7 @@ static partial class PipelineInvoker
         InvokerNode? next = null;
         for (var i = steps.Count - 1; i >= 0; i--)
         {
-            next = CreateInvokerNode(steps[i], i, next);
+            next = CreateInvokerNode(steps[i], behaviors[i], next);
         }
 
         return next!.Invoke;
@@ -39,7 +39,7 @@ static partial class PipelineInvoker
         public abstract Task Invoke(IBehaviorContext context);
     }
 
-    sealed class InvokerNode<TInContext, TOutContext>(int behaviorIndex, Func<TOutContext, Task> next) : InvokerNode
+    sealed class InvokerNode<TInContext, TOutContext>(IBehavior<TInContext, TOutContext> behavior, Func<TOutContext, Task> next) : InvokerNode
         where TInContext : class, IBehaviorContext
         where TOutContext : class, IBehaviorContext
     {
@@ -48,14 +48,13 @@ static partial class PipelineInvoker
         [DebuggerHidden]
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Task Invoke(IBehaviorContext context)
-        {
-            var behavior = context.Extensions.GetBehavior<TInContext, TOutContext>(behaviorIndex);
-            return behavior.Invoke(Unsafe.As<TInContext>(context), next);
-        }
+        public override Task Invoke(IBehaviorContext context) => behavior.Invoke(Unsafe.As<TInContext>(context), next);
     }
 
-    static InvokerNode<TInContext, TOutContext> CreateNode<TInContext, TOutContext>(int behaviorIndex, InvokerNode? next) where TInContext : class, IBehaviorContext where TOutContext : class, IBehaviorContext => new(behaviorIndex, CreateNext<TOutContext>(next));
+    static InvokerNode<TInContext, TOutContext> CreateNode<TInContext, TOutContext>(IBehavior behavior, InvokerNode? next)
+        where TInContext : class, IBehaviorContext
+        where TOutContext : class, IBehaviorContext =>
+        new((IBehavior<TInContext, TOutContext>)behavior, CreateNext<TOutContext>(next));
 
     static Func<TOutContext, Task> CreateNext<TOutContext>(InvokerNode? next)
         where TOutContext : class, IBehaviorContext =>

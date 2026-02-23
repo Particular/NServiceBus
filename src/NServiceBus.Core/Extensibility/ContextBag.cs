@@ -5,8 +5,6 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -22,8 +20,7 @@ public class ContextBag : IReadOnlyContextBag
     {
         this.parentBag = parentBag;
         root = parentBag?.root ?? this;
-        behaviors = parentBag?.behaviors ?? [];
-        Invoker = parentBag?.Invoker ?? (_ => Task.CompletedTask);
+        Invoker = parentBag?.Invoker ?? (static _ => Task.CompletedTask);
     }
 
     /// <summary>
@@ -173,24 +170,11 @@ public class ContextBag : IReadOnlyContextBag
         return stash;
     }
 
-    internal void Initialize(IBehavior[] withBehaviors, Func<IBehaviorContext, Task> withInvoker)
-    {
-        behaviors = withBehaviors;
-        Invoker = withInvoker;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal IBehavior<TInContext, TOutContext> GetBehavior<TInContext, TOutContext>(int index)
-        where TInContext : class, IBehaviorContext
-        where TOutContext : class, IBehaviorContext =>
-        Unsafe.As<IBehavior<TInContext, TOutContext>>(Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(behaviors), index))!;
-
-    internal Func<IBehaviorContext, Task> Invoker { get; private set; }
+    internal Func<IBehaviorContext, Task> Invoker { get; set; }
 
     internal ContextBag? parentBag;
 
     private protected ContextBag root;
 
     Dictionary<string, object>? stash;
-    IBehavior[] behaviors;
 }
