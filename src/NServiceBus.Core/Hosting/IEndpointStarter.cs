@@ -8,7 +8,5 @@ using System.Threading.Tasks;
 
 interface IEndpointStarter : IAsyncDisposable
 {
-    string ServiceKey { get; }
-
     ValueTask<IEndpointInstance> GetOrStart(CancellationToken cancellationToken = default);
 }

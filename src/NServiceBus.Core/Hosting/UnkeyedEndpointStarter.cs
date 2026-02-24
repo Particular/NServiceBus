@@ -6,11 +6,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-class EndpointStarter(
+sealed class UnkeyedEndpointStarter(
     IStartableEndpointWithExternallyManagedContainer startableEndpoint,
-    IServiceProvider serviceProvider,
-    object serviceKey,
-    KeyedServiceCollectionAdapter services) : IEndpointStarter
+    IServiceProvider serviceProvider) : IEndpointStarter
 {
     public async ValueTask<IEndpointInstance> GetOrStart(CancellationToken cancellationToken = default)
     {
@@ -28,9 +26,7 @@ class EndpointStarter(
                 return endpoint;
             }
 
-            keyedServices = new KeyedServiceProviderAdapter(serviceProvider, serviceKey, services);
-
-            endpoint = await startableEndpoint.Start(keyedServices, cancellationToken).ConfigureAwait(false);
+            endpoint = await startableEndpoint.Start(serviceProvider, cancellationToken).ConfigureAwait(false);
 
             return endpoint;
         }
@@ -42,25 +38,16 @@ class EndpointStarter(
 
     public async ValueTask DisposeAsync()
     {
-        if (endpoint == null || keyedServices == null)
+        if (endpoint == null)
         {
             return;
         }
 
-        if (endpoint != null)
-        {
-            await endpoint.Stop().ConfigureAwait(false);
-        }
-
-        if (keyedServices != null)
-        {
-            await keyedServices.DisposeAsync().ConfigureAwait(false);
-        }
+        await endpoint.Stop().ConfigureAwait(false);
         startSemaphore.Dispose();
     }
 
     readonly SemaphoreSlim startSemaphore = new(1, 1);
 
     IEndpointInstance? endpoint;
-    KeyedServiceProviderAdapter? keyedServices;
 }
