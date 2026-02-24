@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 
 sealed class UnkeyedEndpointStarter(
     IStartableEndpointWithExternallyManagedContainer startableEndpoint,
-    IServiceProvider serviceProvider) : IEndpointStarter
+    IServiceProvider serviceProvider,
+    object loggingSlot) : IEndpointStarter
 {
+    public object LoggingSlot => loggingSlot;
+
     public async ValueTask<IEndpointInstance> GetOrStart(CancellationToken cancellationToken = default)
     {
         if (endpoint != null)
@@ -25,6 +28,9 @@ sealed class UnkeyedEndpointStarter(
             {
                 return endpoint;
             }
+
+            LoggingBridge.RegisterMicrosoftFactoryIfAvailable(serviceProvider, LoggingSlot);
+            using var _ = LoggingBridge.BeginScope(LoggingSlot);
 
             endpoint = await startableEndpoint.Start(serviceProvider, cancellationToken).ConfigureAwait(false);
 
@@ -43,6 +49,7 @@ sealed class UnkeyedEndpointStarter(
             return;
         }
 
+        using var _ = LoggingBridge.BeginScope(LoggingSlot);
         await endpoint.Stop().ConfigureAwait(false);
         startSemaphore.Dispose();
     }

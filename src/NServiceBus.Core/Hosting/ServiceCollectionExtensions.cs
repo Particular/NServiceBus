@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
         {
             var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services);
 
-            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp));
+            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp, endpointName));
             services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
                 new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
             services.AddSingleton<IMessageSession>(sp => sp.GetRequiredService<IEndpointStarter>());

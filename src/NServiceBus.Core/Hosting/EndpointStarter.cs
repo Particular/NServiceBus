@@ -12,6 +12,8 @@ class EndpointStarter(
     object serviceKey,
     KeyedServiceCollectionAdapter services) : IEndpointStarter
 {
+    public object LoggingSlot => serviceKey;
+
     public async ValueTask<IEndpointInstance> GetOrStart(CancellationToken cancellationToken = default)
     {
         if (endpoint != null)
@@ -27,6 +29,9 @@ class EndpointStarter(
             {
                 return endpoint;
             }
+
+            LoggingBridge.RegisterMicrosoftFactoryIfAvailable(serviceProvider, LoggingSlot);
+            using var _ = LoggingBridge.BeginScope(LoggingSlot);
 
             keyedServices = new KeyedServiceProviderAdapter(serviceProvider, serviceKey, services);
 
@@ -49,6 +54,7 @@ class EndpointStarter(
 
         if (endpoint != null)
         {
+            using var _ = LoggingBridge.BeginScope(LoggingSlot);
             await endpoint.Stop().ConfigureAwait(false);
         }
 
