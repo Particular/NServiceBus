@@ -43,8 +43,7 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp));
             services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
                 new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
-            services.AddSingleton<IMessageSession>(sp =>
-                new HostAwareMessageSession(sp.GetRequiredService<IEndpointStarter>()));
+            services.AddSingleton<IMessageSession>(sp => sp.GetRequiredService<IEndpointStarter>());
         }
         else
         {
@@ -58,7 +57,7 @@ public static class ServiceCollectionExtensions
                 new NServiceBusHostedService(sp.GetRequiredKeyedService<IEndpointStarter>(endpointIdentifier)));
 
             services.AddKeyedSingleton<IMessageSession>(endpointIdentifier, (sp, key) =>
-                new HostAwareMessageSession(sp.GetRequiredKeyedService<IEndpointStarter>(key!)));
+                sp.GetRequiredKeyedService<IEndpointStarter>(key!));
         }
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
