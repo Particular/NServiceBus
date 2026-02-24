@@ -17,10 +17,7 @@ sealed class NServiceBusHostedService(IEndpointStarter endpointStarter) : IHoste
 
     public Task StoppedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public async ValueTask DisposeAsync()
-    {
-        await endpointStarter.DisposeAsync().ConfigureAwait(false);
-    }
+    public ValueTask DisposeAsync() => endpointStarter.DisposeAsync();
 
     public Task StartAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
