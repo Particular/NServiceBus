@@ -1005,7 +1005,7 @@ namespace NServiceBus
     }
     public static class ServiceCollectionExtensions
     {
-        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
+        public static void AddNServiceBus(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
     }
     public static class SettingsExtensions
     {

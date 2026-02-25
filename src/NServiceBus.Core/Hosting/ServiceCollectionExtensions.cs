@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers an NServiceBus endpoint.
     /// </summary>
-    public static void AddNServiceBusEndpoint(
+    public static void AddNServiceBus(
         this IServiceCollection services,
         EndpointConfiguration endpointConfiguration,
         object? endpointIdentifier = null)
