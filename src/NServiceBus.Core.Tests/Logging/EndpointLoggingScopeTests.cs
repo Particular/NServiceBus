@@ -61,6 +61,64 @@ public class EndpointLoggingScopeTests
         }
     }
 
+    [Test]
+    public void Should_include_satellite_name_for_satellite_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var endpointSlot = new EndpointLogSlot("Shipping", "green");
+        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
+        LogManager.RegisterSlotFactory(satelliteSlot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(satelliteSlot))
+        {
+            logger.Info("message");
+        }
+
+        var scope = loggerFactory.Logger.CapturedScopes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(scope.Count, Is.EqualTo(3));
+            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
+            Assert.That(scope[0].Value, Is.EqualTo("Shipping"));
+            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
+            Assert.That(scope[1].Value, Is.EqualTo("green"));
+            Assert.That(scope[2].Key, Is.EqualTo("Satellite"));
+            Assert.That(scope[2].Value, Is.EqualTo("TimeoutMigration"));
+        }
+    }
+
+    [Test]
+    public void Should_include_receiver_name_for_instance_specific_receiver_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var endpointSlot = new EndpointLogSlot("Shipping", "green");
+        var receiverSlot = new EndpointReceiverLogSlot(endpointSlot, "InstanceSpecific");
+        LogManager.RegisterSlotFactory(receiverSlot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(receiverSlot))
+        {
+            logger.Info("message");
+        }
+
+        var scope = loggerFactory.Logger.CapturedScopes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(scope.Count, Is.EqualTo(3));
+            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
+            Assert.That(scope[0].Value, Is.EqualTo("Shipping"));
+            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
+            Assert.That(scope[1].Value, Is.EqualTo("green"));
+            Assert.That(scope[2].Key, Is.EqualTo("Receiver"));
+            Assert.That(scope[2].Value, Is.EqualTo("InstanceSpecific"));
+        }
+    }
+
     sealed class CollectingMicrosoftLoggerFactory : Microsoft.Extensions.Logging.ILoggerFactory
     {
         public CollectingMicrosoftLogger Logger { get; } = new();

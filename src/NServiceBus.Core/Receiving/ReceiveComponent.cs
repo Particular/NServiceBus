@@ -149,13 +149,14 @@ partial class ReceiveComponent
             return;
         }
 
-        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], endpointLogSlot);
+        var mainProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, MainReceiverId);
+        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], mainProcessingLogSlot);
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
         var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
         var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, endpointLogSlot, activityFactory, pipelineMetrics, envelopeUnwrapper);
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, mainProcessingLogSlot, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
@@ -173,11 +174,13 @@ partial class ReceiveComponent
 
         if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
         {
-            var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, endpointLogSlot);
+            var instanceProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
+            var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot);
+            var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, instanceProcessingLogSlot, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
             await instancePump.Initialize(
                 configuration.PushRuntimeSettings,
-                mainPipelineExecutor.Invoke,
+                instancePipelineExecutor.Invoke,
                 recoverabilityPipelineExecutor.Invoke,
                 cancellationToken).ConfigureAwait(false);
 
@@ -188,8 +191,10 @@ partial class ReceiveComponent
         {
             try
             {
-                var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], endpointLogSlot);
-                var satellitePipeline = new SatellitePipelineExecutor(builder, satellite, endpointLogSlot);
+                var satelliteLogSlot = CreateSatelliteProcessingLogSlot(endpointLogSlot, satellite.Name);
+                var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], satelliteLogSlot);
+
+                var satellitePipeline = new SatellitePipelineExecutor(builder, satellite, satelliteLogSlot);
                 var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
 
                 await satellitePump.Initialize(
@@ -256,6 +261,31 @@ partial class ReceiveComponent
             : receiver;
 
         return new LogWrappedMessageReceiver(effectiveReceiver, endpointLogSlot);
+    }
+
+    static object CreateReceiverProcessingLogSlot(object endpointLogSlot, string receiverId)
+    {
+        if (endpointLogSlot is not Logging.EndpointLogSlot endpointSlot)
+        {
+            return endpointLogSlot;
+        }
+
+        if (receiverId == InstanceSpecificReceiverId)
+        {
+            return new Logging.EndpointReceiverLogSlot(endpointSlot, receiverId);
+        }
+
+        return endpointLogSlot;
+    }
+
+    static object CreateSatelliteProcessingLogSlot(object endpointLogSlot, string satelliteName)
+    {
+        if (endpointLogSlot is not Logging.EndpointLogSlot endpointSlot)
+        {
+            return endpointLogSlot;
+        }
+
+        return new Logging.EndpointSatelliteLogSlot(endpointSlot, satelliteName);
     }
 
     readonly Configuration configuration;

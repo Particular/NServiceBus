@@ -107,6 +107,10 @@ public static class LogManager
     static EndpointLogScopeState CreateScopeState(object slot) =>
         slot is EndpointLogSlot endpointSlot
             ? endpointSlot.ScopeState
+            : slot is EndpointReceiverLogSlot receiverSlot
+                ? receiverSlot.ScopeState
+            : slot is EndpointSatelliteLogSlot satelliteSlot
+                ? satelliteSlot.ScopeState
             : new EndpointLogScopeState(slot, endpointIdentifier: null);
 
     static bool TryGetSlotLoggerFactory(out SlotContext slotContext, out ILoggerFactory loggerFactory)

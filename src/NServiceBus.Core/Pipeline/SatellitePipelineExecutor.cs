@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Logging;
 using Transport;
 
-class SatellitePipelineExecutor(IServiceProvider builder, SatelliteDefinition definition, object endpointLogSlot) : IPipelineExecutor
+class SatellitePipelineExecutor(IServiceProvider builder, SatelliteDefinition definition, object processingLogSlot) : IPipelineExecutor
 {
     public Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+        using var _ = LogManager.BeginSlotScope(processingLogSlot);
 
         messageContext.Extensions.Set(messageContext.TransportTransaction);
 
