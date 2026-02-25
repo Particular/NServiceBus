@@ -20,7 +20,7 @@ public class LogWrappedMessageReceiverTests
         var receiver = new TestReceiver();
         var wrapped = new LogWrappedMessageReceiver(receiver, slot);
 
-        EndpointLogScopeState? scope = null;
+        LogScopeState? scope = null;
 
         await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
         {
@@ -55,7 +55,7 @@ public class LogWrappedMessageReceiverTests
         var receiver = new TestReceiver();
         var wrapped = new LogWrappedMessageReceiver(receiver, slot);
 
-        EndpointLogScopeState? scope = null;
+        LogScopeState? scope = null;
 
         await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
         {

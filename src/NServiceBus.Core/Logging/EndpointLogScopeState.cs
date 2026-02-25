@@ -6,53 +6,35 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-sealed class EndpointLogScopeState(object endpointName, object? endpointIdentifier) : IReadOnlyList<KeyValuePair<string, object?>>
+abstract class LogScopeState : IReadOnlyList<KeyValuePair<string, object?>>
 {
-    public static EndpointLogScopeState ForSatellite(object endpointName, object? endpointIdentifier, string satelliteName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(satelliteName);
-        return new EndpointLogScopeState(endpointName, endpointIdentifier, receiverName: null, satelliteName);
-    }
+    public abstract KeyValuePair<string, object?> this[int index] { get; }
 
-    public static EndpointLogScopeState ForReceiver(object endpointName, object? endpointIdentifier, string receiverName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(receiverName);
-        return new EndpointLogScopeState(endpointName, endpointIdentifier, receiverName, satelliteName: null);
-    }
+    public abstract int Count { get; }
 
-    public KeyValuePair<string, object?> this[int index] =>
+    public abstract IEnumerator<KeyValuePair<string, object?>> GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+abstract class LogSlot
+{
+    public abstract LogScopeState ScopeState { get; }
+}
+
+sealed class EndpointLogScopeState(object endpointName, object? endpointIdentifier) : LogScopeState
+{
+    public override KeyValuePair<string, object?> this[int index] =>
         index switch
         {
             0 => new KeyValuePair<string, object?>("Endpoint", endpointName),
             1 when endpointIdentifier is not null => new KeyValuePair<string, object?>("EndpointIdentifier", endpointIdentifier),
-            1 when receiverName is not null => new KeyValuePair<string, object?>("Receiver", receiverName),
-            1 when satelliteName is not null => new KeyValuePair<string, object?>("Satellite", satelliteName),
-            2 when endpointIdentifier is not null && receiverName is not null => new KeyValuePair<string, object?>("Receiver", receiverName),
-            2 when endpointIdentifier is not null && satelliteName is not null => new KeyValuePair<string, object?>("Satellite", satelliteName),
-            3 when endpointIdentifier is not null && receiverName is not null && satelliteName is not null => new KeyValuePair<string, object?>("Satellite", satelliteName),
             _ => throw new ArgumentOutOfRangeException(nameof(index))
         };
 
-    public int Count
-    {
-        get
-        {
-            var count = endpointIdentifier is null ? 1 : 2;
-            if (satelliteName is not null)
-            {
-                count++;
-            }
+    public override int Count => endpointIdentifier is null ? 1 : 2;
 
-            if (receiverName is not null)
-            {
-                count++;
-            }
-
-            return count;
-        }
-    }
-
-    public IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
+    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
     {
         yield return this[0];
 
@@ -60,61 +42,48 @@ sealed class EndpointLogScopeState(object endpointName, object? endpointIdentifi
         {
             yield return this[1];
         }
-
-        if (receiverName is not null)
-        {
-            yield return this[endpointIdentifier is null ? 1 : 2];
-        }
-
-        if (satelliteName is not null)
-        {
-            var index = endpointIdentifier is null
-                ? receiverName is null ? 1 : 2
-                : receiverName is null ? 2 : 3;
-            yield return this[index];
-        }
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public override string ToString() => endpointIdentifier is null
-        ? satelliteName is null
-            ? $"Endpoint = {endpointName}"
-            : receiverName is null
-                ? $"Endpoint = {endpointName}, Satellite = {satelliteName}"
-                : $"Endpoint = {endpointName}, Receiver = {receiverName}, Satellite = {satelliteName}"
-        : satelliteName is null
-            ? receiverName is null
-                ? $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}"
-                : $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}, Receiver = {receiverName}"
-            : receiverName is null
-                ? $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}, Satellite = {satelliteName}"
-                : $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}, Receiver = {receiverName}, Satellite = {satelliteName}";
+        ? $"Endpoint = {endpointName}"
+        : $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}";
+}
 
-    EndpointLogScopeState(object endpointName, object? endpointIdentifier, string? receiverName, string? satelliteName)
-        : this(endpointName, endpointIdentifier)
+sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object value) : LogScopeState
+{
+    public override KeyValuePair<string, object?> this[int index] =>
+        index == parentScope.Count
+            ? extra
+            : parentScope[index];
+
+    public override int Count => parentScope.Count + 1;
+
+    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
     {
-        this.receiverName = receiverName;
-        this.satelliteName = satelliteName;
+        for (var i = 0; i < parentScope.Count; i++)
+        {
+            yield return parentScope[i];
+        }
+
+        yield return extra;
     }
 
-    readonly string? receiverName;
-    readonly string? satelliteName;
+    public override string ToString() => $"{parentScope}, {key} = {value}";
+
+    readonly KeyValuePair<string, object?> extra = new(key, value);
 }
 
-sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier)
+sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier) : LogSlot
 {
-    public object EndpointName { get; } = endpointName;
-    public object? EndpointIdentifier { get; } = endpointIdentifier;
-    public EndpointLogScopeState ScopeState { get; } = new(endpointName, endpointIdentifier);
+    public override LogScopeState ScopeState { get; } = new EndpointLogScopeState(endpointName, endpointIdentifier);
 }
 
-sealed class EndpointSatelliteLogSlot(EndpointLogSlot endpointSlot, string satelliteName)
+sealed class EndpointSatelliteLogSlot(EndpointLogSlot endpointSlot, string satelliteName) : LogSlot
 {
-    public EndpointLogScopeState ScopeState { get; } = EndpointLogScopeState.ForSatellite(endpointSlot.EndpointName, endpointSlot.EndpointIdentifier, satelliteName);
+    public override LogScopeState ScopeState { get; } = new ExtendedLogScopeState(endpointSlot.ScopeState, "Satellite", satelliteName);
 }
 
-sealed class EndpointReceiverLogSlot(EndpointLogSlot endpointSlot, string receiverName)
+sealed class EndpointReceiverLogSlot(EndpointLogSlot endpointSlot, string receiverName) : LogSlot
 {
-    public EndpointLogScopeState ScopeState { get; } = EndpointLogScopeState.ForReceiver(endpointSlot.EndpointName, endpointSlot.EndpointIdentifier, receiverName);
+    public override LogScopeState ScopeState { get; } = new ExtendedLogScopeState(endpointSlot.ScopeState, "Receiver", receiverName);
 }

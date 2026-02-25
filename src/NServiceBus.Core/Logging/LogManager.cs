@@ -89,7 +89,7 @@ public static class LogManager
         return new SlotScope(slotContext);
     }
 
-    internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out EndpointLogScopeState? scopeState)
+    internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out LogScopeState? scopeState)
     {
         if (currentSlot.Value is null)
         {
@@ -104,14 +104,8 @@ public static class LogManager
     static SlotContext GetOrAddSlotContext(SlotKey slotKey) =>
         slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value, CreateScopeState(key.Value)));
 
-    static EndpointLogScopeState CreateScopeState(object slot) =>
-        slot is EndpointLogSlot endpointSlot
-            ? endpointSlot.ScopeState
-            : slot is EndpointReceiverLogSlot receiverSlot
-                ? receiverSlot.ScopeState
-            : slot is EndpointSatelliteLogSlot satelliteSlot
-                ? satelliteSlot.ScopeState
-            : new EndpointLogScopeState(slot, endpointIdentifier: null);
+    static LogScopeState CreateScopeState(object slot) =>
+        slot is LogSlot logSlot ? logSlot.ScopeState : new EndpointLogScopeState(slot, endpointIdentifier: null);
 
     static bool TryGetSlotLoggerFactory(out SlotContext slotContext, out ILoggerFactory loggerFactory)
     {
@@ -373,11 +367,11 @@ public static class LogManager
         readonly SlotContext? previousSlot;
     }
 
-    sealed class SlotContext(object identifier, EndpointLogScopeState scopeState)
+    sealed class SlotContext(object identifier, LogScopeState scopeState)
     {
         public object Identifier { get; } = identifier;
         public SlotKey Key { get; } = new(identifier);
-        public EndpointLogScopeState ScopeState { get; } = scopeState;
+        public LogScopeState ScopeState { get; } = scopeState;
     }
 
     readonly struct SlotKey(object value) : IEquatable<SlotKey>
