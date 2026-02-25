@@ -29,5 +29,8 @@ public class SetUpFixture
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
-        => AnalyzerTest.ConfigureAllAnalyzerTests(test => test.AddReferences(ProjectReferences));
+    {
+        AnalyzerTest.ConfigureAllAnalyzerTests(test => test.AddReferences(ProjectReferences));
+        SourceGeneratorTest.ConfigureAllSourceGeneratorTests(test => test.WithInterceptorNamespace("NServiceBus"));
+    }
 }

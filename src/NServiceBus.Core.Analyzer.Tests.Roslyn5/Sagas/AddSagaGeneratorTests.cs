@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Analyzer.Tests.Handlers;
 
 using Analyzer.Sagas;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class AddSagaGeneratorTests
