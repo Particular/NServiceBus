@@ -71,7 +71,7 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
         slotLoggerFactories[slotKey] = loggerFactory;
-        var slotContext = slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value));
+        var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext);
         foreach (var logger in loggers.Values)
@@ -85,21 +85,29 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(slot);
 
         var slotKey = new SlotKey(slot);
-        var slotContext = slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value));
+        var slotContext = GetOrAddSlotContext(slotKey);
         return new SlotScope(slotContext);
     }
 
-    internal static bool TryGetCurrentEndpointIdentifier(out object endpointIdentifier)
+    internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out EndpointLogScopeState? scopeState)
     {
         if (currentSlot.Value is null)
         {
-            endpointIdentifier = null!;
+            scopeState = null;
             return false;
         }
 
-        endpointIdentifier = currentSlot.Value.Identifier;
+        scopeState = currentSlot.Value.ScopeState;
         return true;
     }
+
+    static SlotContext GetOrAddSlotContext(SlotKey slotKey) =>
+        slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value, CreateScopeState(key.Value)));
+
+    static EndpointLogScopeState CreateScopeState(object slot) =>
+        slot is EndpointLogSlot endpointSlot
+            ? endpointSlot.ScopeState
+            : new EndpointLogScopeState(slot, endpointIdentifier: null);
 
     static bool TryGetSlotLoggerFactory(out SlotContext slotContext, out ILoggerFactory loggerFactory)
     {
@@ -361,10 +369,11 @@ public static class LogManager
         readonly SlotContext? previousSlot;
     }
 
-    sealed class SlotContext(object identifier)
+    sealed class SlotContext(object identifier, EndpointLogScopeState scopeState)
     {
         public object Identifier { get; } = identifier;
         public SlotKey Key { get; } = new(identifier);
+        public EndpointLogScopeState ScopeState { get; } = scopeState;
     }
 
     readonly struct SlotKey(object value) : IEquatable<SlotKey>

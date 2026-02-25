@@ -30,7 +30,6 @@ sealed class UnkeyedEndpointStarter(
             }
 
             LoggingBridge.RegisterMicrosoftFactoryIfAvailable(serviceProvider, LoggingSlot);
-            using var _ = LoggingBridge.BeginScope(LoggingSlot);
 
             endpoint = await startableEndpoint.Start(serviceProvider, cancellationToken).ConfigureAwait(false);
 
@@ -49,7 +48,6 @@ sealed class UnkeyedEndpointStarter(
             return;
         }
 
-        using var _ = LoggingBridge.BeginScope(LoggingSlot);
         await endpoint.Stop().ConfigureAwait(false);
         startSemaphore.Dispose();
     }

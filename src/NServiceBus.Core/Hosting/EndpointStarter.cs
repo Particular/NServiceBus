@@ -10,9 +10,10 @@ class EndpointStarter(
     IStartableEndpointWithExternallyManagedContainer startableEndpoint,
     IServiceProvider serviceProvider,
     object serviceKey,
+    object loggingSlot,
     KeyedServiceCollectionAdapter services) : IEndpointStarter
 {
-    public object LoggingSlot => serviceKey;
+    public object LoggingSlot => loggingSlot;
 
     public async ValueTask<IEndpointInstance> GetOrStart(CancellationToken cancellationToken = default)
     {
@@ -31,7 +32,6 @@ class EndpointStarter(
             }
 
             LoggingBridge.RegisterMicrosoftFactoryIfAvailable(serviceProvider, LoggingSlot);
-            using var _ = LoggingBridge.BeginScope(LoggingSlot);
 
             keyedServices = new KeyedServiceProviderAdapter(serviceProvider, serviceKey, services);
 
@@ -54,7 +54,6 @@ class EndpointStarter(
 
         if (endpoint != null)
         {
-            using var _ = LoggingBridge.BeginScope(LoggingSlot);
             await endpoint.Stop().ConfigureAwait(false);
         }
 

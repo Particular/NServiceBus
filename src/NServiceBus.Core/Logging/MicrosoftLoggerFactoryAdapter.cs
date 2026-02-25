@@ -3,8 +3,6 @@
 namespace NServiceBus.Logging;
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using MicrosoftLogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -55,12 +53,12 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
 
         IDisposable BeginScope()
         {
-            if (!LogManager.TryGetCurrentEndpointIdentifier(out var endpointIdentifier))
+            if (!LogManager.TryGetCurrentEndpointScopeState(out var scopeState))
             {
                 return NullScope.Instance;
             }
 
-            return logger.BeginScope(new EndpointScope(endpointIdentifier)) ?? NullScope.Instance;
+            return logger.BeginScope(scopeState) ?? NullScope.Instance;
         }
 
         sealed class NullScope : IDisposable
@@ -72,25 +70,5 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
             }
         }
 
-        sealed class EndpointScope(object endpointIdentifier) : IReadOnlyList<KeyValuePair<string, object?>>
-        {
-            public KeyValuePair<string, object?> this[int index] =>
-                index switch
-                {
-                    0 => new KeyValuePair<string, object?>("Endpoint", endpointIdentifier),
-                    _ => throw new ArgumentOutOfRangeException(nameof(index))
-                };
-
-            public int Count => 1;
-
-            public IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
-            {
-                yield return this[0];
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            public override string ToString() => $"Endpoint = {endpointIdentifier}";
-        }
     }
 }

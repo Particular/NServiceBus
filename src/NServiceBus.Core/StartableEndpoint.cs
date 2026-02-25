@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
+using Logging;
 using Settings;
 using Transport;
 
@@ -22,10 +23,16 @@ class StartableEndpoint(
     IServiceProvider serviceProvider,
     bool serviceProviderIsExternallyManaged)
 {
-    public Task RunInstallers(CancellationToken cancellationToken = default) => hostingComponent.RunInstallers(serviceProvider, cancellationToken);
+    public async Task RunInstallers(CancellationToken cancellationToken = default)
+    {
+        using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
+        await hostingComponent.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
+    }
 
     public async Task Setup(CancellationToken cancellationToken = default)
     {
+        using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
+
         transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, cancellationToken).ConfigureAwait(false);
 
         var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
@@ -49,6 +56,8 @@ class StartableEndpoint(
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
+        using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -60,7 +69,7 @@ class StartableEndpoint(
 
         // when the service provider is externally managed it is null in the running endpoint instance
         IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;
-        var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, provider);
+        var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, provider, hostingComponent.Config.EndpointLogSlot);
 
         hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 

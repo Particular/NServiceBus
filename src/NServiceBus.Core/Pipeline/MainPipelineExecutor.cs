@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
@@ -15,6 +16,7 @@ class MainPipelineExecutor(
     MessageOperations messageOperations,
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
+    object endpointLogSlot,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
     EnvelopeUnwrapper envelopeUnwrapper)
@@ -22,6 +24,8 @@ class MainPipelineExecutor(
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
+        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+
         var pipelineStartedAt = DateTimeOffset.UtcNow;
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 

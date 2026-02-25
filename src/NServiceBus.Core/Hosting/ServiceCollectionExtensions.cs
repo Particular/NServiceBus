@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
 
         var endpointName = endpointConfiguration.GetSettings().EndpointName();
+        var hostingSettings = endpointConfiguration.GetSettings().Get<HostingComponent.Settings>();
         var transport = endpointConfiguration.GetSettings().Get<TransportDefinition>();
         var registrations = GetExistingRegistrations(services);
 
@@ -36,11 +37,14 @@ public static class ServiceCollectionExtensions
         ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
         ValidateTransportReuse(transport, registrations);
 
+        hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
+        var endpointLogSlot = hostingSettings.GetOrCreateEndpointLogSlot();
+
         if (endpointIdentifier is null)
         {
             var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services);
 
-            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp, endpointName));
+            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp, endpointLogSlot));
             services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
                 new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
             services.AddSingleton<IMessageSession>(sp => sp.GetRequiredService<IEndpointStarter>());
@@ -51,7 +55,7 @@ public static class ServiceCollectionExtensions
             var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, keyedServices);
 
             services.AddKeyedSingleton<IEndpointStarter>(endpointIdentifier, (sp, _) =>
-                new EndpointStarter(startableEndpoint, sp, endpointIdentifier, keyedServices));
+                new EndpointStarter(startableEndpoint, sp, endpointIdentifier, endpointLogSlot, keyedServices));
 
             services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
                 new NServiceBusHostedService(sp.GetRequiredKeyedService<IEndpointStarter>(endpointIdentifier)));

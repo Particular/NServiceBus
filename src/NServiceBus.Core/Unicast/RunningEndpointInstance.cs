@@ -16,10 +16,13 @@ class RunningEndpointInstance(SettingsHolder settings,
     IMessageSession messageSession,
     TransportInfrastructure transportInfrastructure,
     CancellationTokenSource stoppingTokenSource,
-    IServiceProvider? serviceProvider) : IEndpointInstance
+    IServiceProvider? serviceProvider,
+    object endpointLogSlot) : IEndpointInstance
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {
+        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+
         if (status == Status.Stopped)
         {
             return;

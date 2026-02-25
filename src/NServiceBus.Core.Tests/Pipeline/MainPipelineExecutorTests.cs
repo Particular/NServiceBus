@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Logging;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using OpenTelemetry;
@@ -130,6 +131,7 @@ public class MainPipelineExecutorTests
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
+            new EndpointLogSlot("MainPipelineExecutorTests", endpointIdentifier: null),
             new ActivityFactory(),
             incomingPipelineMetrics,
             new EnvelopeUnwrapper([], incomingPipelineMetrics));

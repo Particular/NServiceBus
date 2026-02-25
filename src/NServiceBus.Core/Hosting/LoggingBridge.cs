@@ -9,8 +9,6 @@ using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 static class LoggingBridge
 {
-    public static IDisposable BeginScope(object slot) => LogManager.BeginSlotScope(slot);
-
     public static void RegisterMicrosoftFactoryIfAvailable(IServiceProvider serviceProvider, object slot)
     {
         var microsoftLoggerFactory = serviceProvider.GetService<MicrosoftLoggerFactory>();
