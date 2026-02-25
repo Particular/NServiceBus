@@ -1,17 +1,18 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Helpers;
+﻿namespace NServiceBus.Core.Analyzer.Tests;
 
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using NServiceBus;
 using UniformSession;
+using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
-static class AnalyzerTestFixtureState
+[SetUpFixture]
+public class SetUpFixture
 {
-    internal static readonly bool VerboseLogging = Environment.GetEnvironmentVariable("CI") != "true" || Environment.GetEnvironmentVariable("VERBOSE_TEST_LOGGING")?.ToLower() == "true";
-
-    static AnalyzerTestFixtureState() => ProjectReferences =
+    static SetUpFixture() => ProjectReferences =
     [
         MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
         MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
@@ -26,6 +27,7 @@ static class AnalyzerTestFixtureState
 
     internal static readonly ImmutableList<PortableExecutableReference> ProjectReferences;
 
-    internal static readonly string[] OpeningSeparator = ["[|"];
-    internal static readonly string[] ClosingSeparator = ["|]"];
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+        => AnalyzerTest.ConfigureAllAnalyzerTests(test => test.AddReferences(ProjectReferences));
 }

@@ -3,8 +3,8 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class AwaitOrCaptureTasksAnalyzerTests : AnalyzerTestFixture<AwaitOrCaptureTasksAnalyzer>
@@ -81,7 +81,7 @@ class Foo
     }}
 }}";
 
-        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
+        return Assert(source, DiagnosticIds.AwaitOrCaptureTasks);
     }
 
     [TestCase("session.Send(new object())")]
@@ -110,7 +110,7 @@ class Foo
     }}
 }}";
 
-        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
+        return Assert(source, DiagnosticIds.AwaitOrCaptureTasks);
     }
 
     [TestCase("RequestTimeout<object>(context, DateTime.Now)")]
@@ -135,7 +135,7 @@ class TestSaga : Saga<Data>
 
 class Data : ContainSagaData {{}}";
 
-        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
+        return Assert(source, DiagnosticIds.AwaitOrCaptureTasks);
     }
 
     [Test]
@@ -152,7 +152,7 @@ class Foo
     }
 }";
 
-        return Assert(DiagnosticIds.AwaitOrCaptureTasks, source);
+        return Assert(source, DiagnosticIds.AwaitOrCaptureTasks);
     }
 
     [TestCase(

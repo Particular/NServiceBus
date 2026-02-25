@@ -3,8 +3,8 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<FeatureDefaultsEnableFeatureAnalyzer>
@@ -32,7 +32,7 @@ public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<Fea
             }
             """;
 
-        return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
+        return Assert(source, DiagnosticIds.DoNotEnableFeaturesInDefaults);
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<Fea
             }
             """;
 
-        return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
+        return Assert(source, DiagnosticIds.DoNotEnableFeaturesInDefaults);
     }
 
     [Test]
@@ -98,7 +98,7 @@ public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<Fea
             }
             """;
 
-        return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
+        return Assert(source, DiagnosticIds.DoNotEnableFeaturesInDefaults);
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class FeatureDefaultsEnableFeatureAnalyzerTests : AnalyzerTestFixture<Fea
             }
             """;
 
-        return Assert(DiagnosticIds.DoNotEnableFeaturesInDefaults, source);
+        return Assert(source, DiagnosticIds.DoNotEnableFeaturesInDefaults);
     }
 
     [Test]

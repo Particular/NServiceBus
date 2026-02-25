@@ -3,9 +3,9 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NServiceBus.Core.Analyzer.Handlers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttributeAnalyzer>
@@ -28,7 +28,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
     }
 
     [Test]
@@ -52,7 +52,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert([DiagnosticIds.HandlerAttributeMissing], source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
     }
 
     [Test]
@@ -153,7 +153,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
     }
 
     [Test]
@@ -179,7 +179,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMissing, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
     }
 
     [Test]
@@ -209,7 +209,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert([DiagnosticIds.HandlerAttributeMissing], source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
     }
 
     [Test]
@@ -256,7 +256,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeOnNonHandler, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeOnNonHandler);
     }
 
     [Test]
@@ -287,7 +287,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeOnNonHandler, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeOnNonHandler);
     }
 
     [Test]
@@ -314,7 +314,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMisplaced, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMisplaced);
     }
 
     [Test]
@@ -353,6 +353,6 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(DiagnosticIds.HandlerAttributeMisplaced, source);
+        return Assert(source, DiagnosticIds.HandlerAttributeMisplaced);
     }
 }

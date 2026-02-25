@@ -3,9 +3,9 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NServiceBus.Core.Analyzer.Sagas;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnalyzer>
@@ -30,7 +30,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeMissing, source);
+        return Assert(source, DiagnosticIds.SagaAttributeMissing);
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeMissing, source);
+        return Assert(source, DiagnosticIds.SagaAttributeMissing);
     }
 
     [Test]
@@ -140,7 +140,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(expectedDiagnosticIds: [DiagnosticIds.SagaAttributeMisplaced], source, ignoreDiagnosticIds: [DiagnosticIds.SagaAttributeMissing]);
+        return Assert(source, expectedDiagnosticIds: [DiagnosticIds.SagaAttributeMisplaced], ignoreDiagnosticIds: [DiagnosticIds.SagaAttributeMissing]);
     }
 
     [Test]
@@ -167,7 +167,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeMissing, source);
+        return Assert(source, DiagnosticIds.SagaAttributeMissing);
     }
 
     [Test]
@@ -191,7 +191,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeOnNonSaga, source);
+        return Assert(source, DiagnosticIds.SagaAttributeOnNonSaga);
     }
 
     [Test]
@@ -213,7 +213,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeOnNonSaga, source);
+        return Assert(source, DiagnosticIds.SagaAttributeOnNonSaga);
     }
 
     [Test]
@@ -242,7 +242,7 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeMisplaced, source);
+        return Assert(source, DiagnosticIds.SagaAttributeMisplaced);
     }
 
     [Test]
@@ -276,6 +276,6 @@ public class SagaAttributeAnalyzerTests : AnalyzerTestFixture<SagaAttributeAnaly
             }
             """;
 
-        return Assert(DiagnosticIds.SagaAttributeMisplaced, source);
+        return Assert(source, DiagnosticIds.SagaAttributeMisplaced);
     }
 }
