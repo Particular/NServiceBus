@@ -158,6 +158,7 @@ class EndpointCreator
         _ = hostingConfiguration.Services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+        MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
@@ -204,8 +205,11 @@ class EndpointCreator
             hostingComponent,
             sendComponent,
             serviceProvider,
+            MessageSession,
             serviceProviderIsExternallyManaged);
     }
+
+    internal MessageSession MessageSession { get; private set; }
 
     PipelineComponent pipelineComponent;
     FeatureComponent featureComponent;

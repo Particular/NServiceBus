@@ -21,6 +21,7 @@ class StartableEndpoint(
     HostingComponent hostingComponent,
     SendComponent sendComponent,
     IServiceProvider serviceProvider,
+    MessageSession messageSession,
     bool serviceProviderIsExternallyManaged)
 {
     public async Task RunInstallers(CancellationToken cancellationToken = default)
@@ -39,7 +40,7 @@ class StartableEndpoint(
         var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
         stoppingTokenSource = new CancellationTokenSource();
 
-        messageSession = new MessageSession(serviceProvider, messageOperations, pipelineCache, stoppingTokenSource.Token);
+        messageSession.Initialize(serviceProvider, messageOperations, pipelineCache, stoppingTokenSource.Token);
 
         var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
@@ -78,7 +79,6 @@ class StartableEndpoint(
         return runningInstance;
     }
 
-    MessageSession messageSession;
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
 }

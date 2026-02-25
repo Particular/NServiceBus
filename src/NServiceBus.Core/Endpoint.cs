@@ -22,7 +22,6 @@ public static class Endpoint
         ArgumentNullException.ThrowIfNull(configuration);
         var serviceCollection = new ServiceCollection();
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
-
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, serviceProviderIsExternallyManaged: false);
