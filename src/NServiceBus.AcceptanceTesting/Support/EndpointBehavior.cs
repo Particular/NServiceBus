@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Configuration.AdvancedExtensibility;
 using Customization;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -21,7 +22,35 @@ public class EndpointBehavior : IComponentBehavior
         CustomConfig = [];
         ServicesBeforeStart = [];
         ServicesAfterStart = [];
-        ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
+        ConfigureHowToCreateInstance((services, config) =>
+        {
+            var settings = config.GetSettings();
+            var runDescriptor = settings.Get<RunDescriptor>();
+            string serviceKey = settings.Get<string>("NServiceBus.AcceptanceTesting.EndpointRunnerName");
+            runDescriptor.Services.AddNServiceBusEndpoint(config, serviceKey);
+            return Task.FromResult(new StartableEndpointInstance(serviceKey));
+        }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
+    }
+
+    class StartableEndpointInstance : IStartableEndpointWithExternallyManagedContainer
+    {
+        readonly string serviceKey;
+        IEndpointInstance? endpointInstance;
+
+        public StartableEndpointInstance(string serviceKey)
+        {
+            this.serviceKey = serviceKey;
+            MessageSession = new Lazy<IMessageSession>(() => endpointInstance ?? throw new InvalidOperationException("Endpoint instance has not been started yet. MessageSession cannot be accessed before the endpoint is started."));
+        }
+
+        public async Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
+        {
+            var starter = builder.GetRequiredKeyedService<IEndpointStarter>(serviceKey);
+            endpointInstance = await starter.GetOrStart(cancellationToken).ConfigureAwait(false);
+            return endpointInstance;
+        }
+
+        public Lazy<IMessageSession> MessageSession { get; }
     }
 
     [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]

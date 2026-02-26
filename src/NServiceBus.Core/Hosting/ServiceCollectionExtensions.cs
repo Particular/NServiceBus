@@ -27,12 +27,12 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
 
-        var endpointName = endpointConfiguration.GetSettings().EndpointName();
-        var hostingSettings = endpointConfiguration.GetSettings().Get<HostingComponent.Settings>();
-        var transport = endpointConfiguration.GetSettings().Get<TransportDefinition>();
+        var settings = endpointConfiguration.GetSettings();
+        var endpointName = settings.EndpointName();
+        var hostingSettings = settings.Get<HostingComponent.Settings>();
+        var transport = settings.Get<TransportDefinition>();
         var registrations = GetExistingRegistrations(services);
 
-        ValidateEndpointName(endpointName, registrations);
         ValidateEndpointIdentifier(endpointIdentifier, registrations);
         ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
         ValidateTransportReuse(transport, registrations);
@@ -42,38 +42,23 @@ public static class ServiceCollectionExtensions
 
         if (endpointIdentifier is null)
         {
-            var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services);
-
-            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(startableEndpoint, sp, endpointLogSlot));
-            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
-                new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
+            services.AddSingleton(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services));
+            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(sp.GetRequiredService<IStartableEndpointWithExternallyManagedContainer>(), sp, endpointLogSlot));
+            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp => new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
             services.AddSingleton<IMessageSession>(sp => sp.GetRequiredService<IEndpointStarter>());
         }
         else
         {
-            var keyedServices = new KeyedServiceCollectionAdapter(services, endpointIdentifier);
-            var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, keyedServices);
+            // Backdoor for acceptance testing
+            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
 
-            services.AddKeyedSingleton<IEndpointStarter>(endpointIdentifier, (sp, _) =>
-                new EndpointStarter(startableEndpoint, sp, endpointIdentifier, endpointLogSlot, keyedServices));
-
-            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp =>
-                new NServiceBusHostedService(sp.GetRequiredKeyedService<IEndpointStarter>(endpointIdentifier)));
-
-            services.AddKeyedSingleton<IMessageSession>(endpointIdentifier, (sp, key) =>
-                sp.GetRequiredKeyedService<IEndpointStarter>(key!));
+            services.AddKeyedSingleton(endpointIdentifier, EndpointWithExternallyManagedContainer.Create(endpointConfiguration, keyedServices));
+            services.AddKeyedSingleton<IEndpointStarter>(endpointIdentifier, (sp, key) => new EndpointStarter(sp.GetRequiredKeyedService<IStartableEndpointWithExternallyManagedContainer>(key), sp, endpointIdentifier, endpointLogSlot, keyedServices));
+            services.AddKeyedSingleton<IMessageSession>(endpointIdentifier, (sp, key) => sp.GetRequiredKeyedService<IEndpointStarter>(key!));
+            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp => new NServiceBusHostedService(sp.GetRequiredKeyedService<IEndpointStarter>(endpointIdentifier)));
         }
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
-    }
-
-    static void ValidateEndpointName(string endpointName, List<EndpointRegistration> registrations)
-    {
-        if (registrations.Any(r => r.EndpointName == endpointName))
-        {
-            throw new InvalidOperationException(
-                $"An endpoint with the name '{endpointName}' has already been registered.");
-        }
     }
 
     static void ValidateEndpointIdentifier(object? endpointIdentifier, List<EndpointRegistration> registrations)
@@ -98,6 +83,11 @@ public static class ServiceCollectionExtensions
 
     static void ValidateAssemblyScanning(EndpointConfiguration endpointConfiguration, string endpointName, List<EndpointRegistration> registrations)
     {
+        if(endpointConfiguration.GetSettings().HasSetting("NServiceBus.Hosting.DisableAssemblyScanningValidation"))
+        {
+            return;
+        }
+
         var endpoints = registrations
             .Append(new EndpointRegistration(endpointName, null, endpointConfiguration.AssemblyScanner().Disable, 0))
             .ToList();
