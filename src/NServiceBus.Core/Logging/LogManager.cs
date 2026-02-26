@@ -254,7 +254,7 @@ public static class LogManager
         {
             if (TryGetSlotLoggerFactory(out var slotContext, out var loggerFactory))
             {
-                logger = slotLoggers.GetOrAdd(slotContext.Key, _ => loggerFactory.GetLogger(name));
+                logger = slotLoggers.GetOrAdd(slotContext.Key, static (_, state) => state.loggerFactory.GetLogger(state.name), (name, loggerFactory));
                 return true;
             }
 

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Logging;
 using NUnit.Framework;
 
-class ContextAppender(string logger) : ILog
+class ContextAppenderNServiceBusLogger(string logger) : ILog
 {
     public bool IsDebugEnabled => CurrentLogLevel <= LogLevel.Debug;
     public bool IsInfoEnabled => CurrentLogLevel <= LogLevel.Info;

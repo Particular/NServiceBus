@@ -1,8 +1,10 @@
+#pragma warning disable CA2254
 #nullable enable
 
 namespace NServiceBus.Logging;
 
 using System;
+using Microsoft.Extensions.Logging;
 using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using MicrosoftLogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -29,26 +31,94 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
         public bool IsErrorEnabled => logger.IsEnabled(MicrosoftLogLevel.Error);
         public bool IsFatalEnabled => logger.IsEnabled(MicrosoftLogLevel.Critical);
 
-        public void Debug(string? message) => Log(MicrosoftLogLevel.Debug, message);
-        public void Debug(string? message, Exception? exception) => Log(MicrosoftLogLevel.Debug, message, exception);
-        public void DebugFormat(string format, params object?[] args) => Log(MicrosoftLogLevel.Debug, string.Format(format, args));
-        public void Info(string? message) => Log(MicrosoftLogLevel.Information, message);
-        public void Info(string? message, Exception? exception) => Log(MicrosoftLogLevel.Information, message, exception);
-        public void InfoFormat(string format, params object?[] args) => Log(MicrosoftLogLevel.Information, string.Format(format, args));
-        public void Warn(string? message) => Log(MicrosoftLogLevel.Warning, message);
-        public void Warn(string? message, Exception? exception) => Log(MicrosoftLogLevel.Warning, message, exception);
-        public void WarnFormat(string format, params object?[] args) => Log(MicrosoftLogLevel.Warning, string.Format(format, args));
-        public void Error(string? message) => Log(MicrosoftLogLevel.Error, message);
-        public void Error(string? message, Exception? exception) => Log(MicrosoftLogLevel.Error, message, exception);
-        public void ErrorFormat(string format, params object?[] args) => Log(MicrosoftLogLevel.Error, string.Format(format, args));
-        public void Fatal(string? message) => Log(MicrosoftLogLevel.Critical, message);
-        public void Fatal(string? message, Exception? exception) => Log(MicrosoftLogLevel.Critical, message, exception);
-        public void FatalFormat(string format, params object?[] args) => Log(MicrosoftLogLevel.Critical, string.Format(format, args));
-
-        void Log(MicrosoftLogLevel level, string? message, Exception? exception = null)
+        public void Debug(string? message)
         {
             using var _ = BeginScope();
-            logger.Log(level, eventId: default, state: message, exception, static (s, _) => s ?? string.Empty);
+            logger.LogDebug(message);
+        }
+
+        public void Debug(string? message, Exception? exception)
+        {
+            using var _ = BeginScope();
+            logger.LogDebug(exception, message);
+        }
+
+        public void DebugFormat(string format, params object?[] args)
+        {
+            using var _ = BeginScope();
+            logger.LogDebug(format, args);
+        }
+
+        public void Info(string? message)
+        {
+            using var _ = BeginScope();
+            logger.LogInformation(message);
+        }
+
+        public void Info(string? message, Exception? exception)
+        {
+            using var _ = BeginScope();
+            logger.LogInformation(exception, message);
+        }
+
+        public void InfoFormat(string format, params object?[] args)
+        {
+            using var _ = BeginScope();
+            logger.LogInformation(format, args);
+        }
+
+        public void Warn(string? message)
+        {
+            using var _ = BeginScope();
+            logger.LogWarning(message);
+        }
+
+        public void Warn(string? message, Exception? exception)
+        {
+            using var _ = BeginScope();
+            logger.LogWarning(exception, message);
+        }
+
+        public void WarnFormat(string format, params object?[] args)
+        {
+            using var _ = BeginScope();
+            logger.LogWarning(format, args);
+        }
+
+        public void Error(string? message)
+        {
+            using var _ = BeginScope();
+            logger.LogError(message);
+        }
+
+        public void Error(string? message, Exception? exception)
+        {
+            using var _ = BeginScope();
+            logger.LogError(exception, message);
+        }
+
+        public void ErrorFormat(string format, params object?[] args)
+        {
+            using var _ = BeginScope();
+            logger.LogError(format, args);
+        }
+
+        public void Fatal(string? message)
+        {
+            using var _ = BeginScope();
+            logger.LogCritical(message);
+        }
+
+        public void Fatal(string? message, Exception? exception)
+        {
+            using var _ = BeginScope();
+            logger.LogCritical(exception, message);
+        }
+
+        public void FatalFormat(string format, params object?[] args)
+        {
+            using var _ = BeginScope();
+            logger.LogCritical(format, args);
         }
 
         IDisposable BeginScope()
@@ -72,3 +142,4 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
 
     }
 }
+#pragma warning restore CA2254
