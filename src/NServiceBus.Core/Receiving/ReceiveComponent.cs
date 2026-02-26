@@ -265,28 +265,15 @@ partial class ReceiveComponent
 
     static object CreateReceiverProcessingLogSlot(object endpointLogSlot, string receiverId)
     {
-        if (endpointLogSlot is not Logging.EndpointLogSlot endpointSlot)
+        if (endpointLogSlot is not EndpointLogSlot endpointSlot)
         {
             return endpointLogSlot;
         }
 
-        if (receiverId == InstanceSpecificReceiverId)
-        {
-            return new Logging.EndpointReceiverLogSlot(endpointSlot, receiverId);
-        }
-
-        return endpointLogSlot;
+        return receiverId == InstanceSpecificReceiverId ? new EndpointReceiverLogSlot(endpointSlot, receiverId) : endpointLogSlot;
     }
 
-    static object CreateSatelliteProcessingLogSlot(object endpointLogSlot, string satelliteName)
-    {
-        if (endpointLogSlot is not Logging.EndpointLogSlot endpointSlot)
-        {
-            return endpointLogSlot;
-        }
-
-        return new Logging.EndpointSatelliteLogSlot(endpointSlot, satelliteName);
-    }
+    static object CreateSatelliteProcessingLogSlot(object endpointLogSlot, string satelliteName) => endpointLogSlot is not EndpointLogSlot endpointSlot ? endpointLogSlot : new EndpointSatelliteLogSlot(endpointSlot, satelliteName);
 
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;

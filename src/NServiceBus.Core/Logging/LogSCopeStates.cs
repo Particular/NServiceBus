@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus.Logging;
+namespace NServiceBus;
 
 using System;
 using System.Collections;
@@ -22,7 +22,7 @@ abstract class LogSlot
     public abstract LogScopeState ScopeState { get; }
 }
 
-sealed class EndpointLogScopeState(object endpointName, object? endpointIdentifier) : LogScopeState
+sealed class LogSCopeStates(object endpointName, object? endpointIdentifier) : LogScopeState
 {
     public override KeyValuePair<string, object?> this[int index] =>
         index switch
@@ -75,7 +75,7 @@ sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object
 
 sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier) : LogSlot
 {
-    public override LogScopeState ScopeState { get; } = new EndpointLogScopeState(endpointName, endpointIdentifier);
+    public override LogScopeState ScopeState { get; } = new LogSCopeStates(endpointName, endpointIdentifier);
 }
 
 sealed class EndpointSatelliteLogSlot(EndpointLogSlot endpointSlot, string satelliteName) : LogSlot

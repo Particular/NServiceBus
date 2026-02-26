@@ -105,7 +105,7 @@ public static class LogManager
         slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value, CreateScopeState(key.Value)));
 
     static LogScopeState CreateScopeState(object slot) =>
-        slot is LogSlot logSlot ? logSlot.ScopeState : new EndpointLogScopeState(slot, endpointIdentifier: null);
+        slot is LogSlot logSlot ? logSlot.ScopeState : new LogSCopeStates(slot, endpointIdentifier: null);
 
     static bool TryGetSlotLoggerFactory(out SlotContext slotContext, out ILoggerFactory loggerFactory)
     {

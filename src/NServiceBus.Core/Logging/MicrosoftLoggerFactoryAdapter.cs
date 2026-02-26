@@ -1,7 +1,7 @@
 #pragma warning disable CA2254
 #nullable enable
 
-namespace NServiceBus.Logging;
+namespace NServiceBus;
 
 using System;
 using Microsoft.Extensions.Logging;
@@ -9,21 +9,21 @@ using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using MicrosoftLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory) : ILoggerFactory
+sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory) : NServiceBus.Logging.ILoggerFactory
 {
-    public ILog GetLogger(Type type)
+    public Logging.ILog GetLogger(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
         return new MicrosoftLoggerAdapter(loggerFactory.CreateLogger(type.FullName!));
     }
 
-    public ILog GetLogger(string name)
+    public Logging.ILog GetLogger(string name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new MicrosoftLoggerAdapter(loggerFactory.CreateLogger(name));
     }
 
-    sealed class MicrosoftLoggerAdapter(MicrosoftLogger logger) : ILog
+    sealed class MicrosoftLoggerAdapter(MicrosoftLogger logger) : Logging.ILog
     {
         public bool IsDebugEnabled => logger.IsEnabled(MicrosoftLogLevel.Debug);
         public bool IsInfoEnabled => logger.IsEnabled(MicrosoftLogLevel.Information);
@@ -123,7 +123,7 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
 
         IDisposable BeginScope()
         {
-            if (!LogManager.TryGetCurrentEndpointScopeState(out var scopeState))
+            if (!Logging.LogManager.TryGetCurrentEndpointScopeState(out var scopeState))
             {
                 return NullScope.Instance;
             }

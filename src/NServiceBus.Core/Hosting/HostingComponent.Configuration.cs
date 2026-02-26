@@ -40,7 +40,7 @@ partial class HostingComponent
             StartupDiagnosticEntries startupDiagnostics,
             string? diagnosticsPath,
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
-            Logging.EndpointLogSlot endpointLogSlot,
+            EndpointLogSlot endpointLogSlot,
             string endpointName,
             IServiceCollection services,
             bool shouldRunInstallers,
@@ -75,7 +75,7 @@ partial class HostingComponent
 
         public Func<string, CancellationToken, Task>? HostDiagnosticsWriter { get; }
 
-        internal Logging.EndpointLogSlot EndpointLogSlot { get; }
+        internal EndpointLogSlot EndpointLogSlot { get; }
 
         public string EndpointName { get; }
 
