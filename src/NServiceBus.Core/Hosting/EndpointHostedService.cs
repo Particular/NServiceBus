@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
-sealed class NServiceBusHostedService(IEndpointStarter endpointStarter) : IHostedLifecycleService, IAsyncDisposable
+sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle) : IHostedLifecycleService, IAsyncDisposable
 {
-    public async Task StartingAsync(CancellationToken cancellationToken = default) => await endpointStarter.GetOrStart(cancellationToken).ConfigureAwait(false);
+    public async Task StartingAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
 
     public Task StartedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -17,9 +17,9 @@ sealed class NServiceBusHostedService(IEndpointStarter endpointStarter) : IHoste
 
     public Task StoppedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public ValueTask DisposeAsync() => endpointStarter.DisposeAsync();
+    public ValueTask DisposeAsync() => endpointLifecycle.DisposeAsync();
 
-    public Task StartAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public async Task StartAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Start(cancellationToken).ConfigureAwait(false);
 
     public Task StopAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

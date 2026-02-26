@@ -63,9 +63,7 @@ public class EndpointRunner(
             services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
             // This is a little hacky but we wanted to avoid having to change the entire acceptance test infrastructure with the creation and start callbacks
             endpointConfiguration.Settings.Set(services);
-            endpointConfiguration.Settings.Set("NServiceBus.AcceptanceTesting.EndpointRunnerName", Name);
             endpointConfiguration.Settings.Set("NServiceBus.Hosting.DisableAssemblyScanningValidation", bool.TrueString);
-            endpointConfiguration.Settings.Set(runDescriptor);
 
             endpointBehavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
 

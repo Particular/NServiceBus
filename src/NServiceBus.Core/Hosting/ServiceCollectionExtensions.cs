@@ -42,20 +42,24 @@ public static class ServiceCollectionExtensions
 
         if (endpointIdentifier is null)
         {
-            services.AddSingleton(EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services));
-            services.AddSingleton<IEndpointStarter>(sp => new UnkeyedEndpointStarter(sp.GetRequiredService<IStartableEndpointWithExternallyManagedContainer>(), sp, endpointLogSlot));
-            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp => new NServiceBusHostedService(sp.GetRequiredService<IEndpointStarter>()));
-            services.AddSingleton<IMessageSession>(sp => sp.GetRequiredService<IEndpointStarter>());
+            // Deliberately creating it here to make sure we are not accidentally doing it too late.
+            var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
+
+            services.AddSingleton(externallyManagedContainerHost);
+            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp, endpointLogSlot));
+            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredService<IEndpointLifecycle>()));
         }
         else
         {
             // Backdoor for acceptance testing
             var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
 
-            services.AddKeyedSingleton(endpointIdentifier, EndpointWithExternallyManagedContainer.Create(endpointConfiguration, keyedServices));
-            services.AddKeyedSingleton<IEndpointStarter>(endpointIdentifier, (sp, key) => new EndpointStarter(sp.GetRequiredKeyedService<IStartableEndpointWithExternallyManagedContainer>(key), sp, endpointIdentifier, endpointLogSlot, keyedServices));
-            services.AddKeyedSingleton<IMessageSession>(endpointIdentifier, (sp, key) => sp.GetRequiredKeyedService<IEndpointStarter>(key!));
-            services.AddSingleton<IHostedService, NServiceBusHostedService>(sp => new NServiceBusHostedService(sp.GetRequiredKeyedService<IEndpointStarter>(endpointIdentifier)));
+            // Deliberately creating it here to make sure we are not accidentally doing it too late.
+            var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
+
+            services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
+            services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, endpointLogSlot, keyedServices));
+            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(endpointIdentifier)));
         }
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
@@ -83,7 +87,7 @@ public static class ServiceCollectionExtensions
 
     static void ValidateAssemblyScanning(EndpointConfiguration endpointConfiguration, string endpointName, List<EndpointRegistration> registrations)
     {
-        if(endpointConfiguration.GetSettings().HasSetting("NServiceBus.Hosting.DisableAssemblyScanningValidation"))
+        if (endpointConfiguration.GetSettings().HasSetting("NServiceBus.Hosting.DisableAssemblyScanningValidation"))
         {
             return;
         }

@@ -20,12 +20,18 @@ class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedCo
 
     internal Lazy<IServiceProvider> Builder { get; private set; }
 
-    public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
+    public async Task<StartableEndpoint> Create(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
     {
         objectBuilder = externalBuilder;
         var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, serviceProviderIsExternallyManaged: true);
         await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
         await startableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
+        return startableEndpoint;
+    }
+
+    public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
+    {
+        var startableEndpoint = await Create(externalBuilder, cancellationToken).ConfigureAwait(false);
         return await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
     }
 

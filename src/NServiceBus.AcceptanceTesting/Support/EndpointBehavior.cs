@@ -24,33 +24,22 @@ public class EndpointBehavior : IComponentBehavior
         ServicesAfterStart = [];
         ConfigureHowToCreateInstance((services, config) =>
         {
-            var settings = config.GetSettings();
-            var runDescriptor = settings.Get<RunDescriptor>();
-            string serviceKey = settings.Get<string>("NServiceBus.AcceptanceTesting.EndpointRunnerName");
-            runDescriptor.Services.AddNServiceBusEndpoint(config, serviceKey);
+            var collectionAdapter = (KeyedServiceCollectionAdapter)services;
+            var serviceKey = collectionAdapter.ServiceKey.BaseKey;
+
+            collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
+
             return Task.FromResult(new StartableEndpointInstance(serviceKey));
         }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
 
-    class StartableEndpointInstance : IStartableEndpointWithExternallyManagedContainer
+    class StartableEndpointInstance(object serviceKey)
     {
-        readonly string serviceKey;
-        IEndpointInstance? endpointInstance;
-
-        public StartableEndpointInstance(string serviceKey)
-        {
-            this.serviceKey = serviceKey;
-            MessageSession = new Lazy<IMessageSession>(() => endpointInstance ?? throw new InvalidOperationException("Endpoint instance has not been started yet. MessageSession cannot be accessed before the endpoint is started."));
-        }
-
         public async Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
-            var starter = builder.GetRequiredKeyedService<IEndpointStarter>(serviceKey);
-            endpointInstance = await starter.GetOrStart(cancellationToken).ConfigureAwait(false);
-            return endpointInstance;
+            var starter = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
+            return await starter.CreateAndStart(cancellationToken).ConfigureAwait(false);
         }
-
-        public Lazy<IMessageSession> MessageSession { get; }
     }
 
     [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]

@@ -17,6 +17,12 @@ public static class EndpointWithExternallyManagedContainer
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(serviceCollection);
 
+        return CreateCore(configuration, serviceCollection);
+    }
+
+    internal static ExternallyManagedContainerHost CreateCore(EndpointConfiguration configuration,
+        IServiceCollection serviceCollection)
+    {
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
         serviceCollection.TryAddSingleton<IMessageSession>(endpointCreator.MessageSession);
