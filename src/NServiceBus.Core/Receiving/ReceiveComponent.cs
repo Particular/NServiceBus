@@ -156,7 +156,7 @@ partial class ReceiveComponent
 
         var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
         var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, mainProcessingLogSlot, activityFactory, pipelineMetrics, envelopeUnwrapper);
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
@@ -176,7 +176,7 @@ partial class ReceiveComponent
         {
             var instanceProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
             var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot);
-            var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, instanceProcessingLogSlot, activityFactory, pipelineMetrics, envelopeUnwrapper);
+            var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
             await instancePump.Initialize(
                 configuration.PushRuntimeSettings,
@@ -194,7 +194,7 @@ partial class ReceiveComponent
                 var satelliteLogSlot = CreateSatelliteProcessingLogSlot(endpointLogSlot, satellite.Name);
                 var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], satelliteLogSlot);
 
-                var satellitePipeline = new SatellitePipelineExecutor(builder, satellite, satelliteLogSlot);
+                var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                 var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
 
                 await satellitePump.Initialize(

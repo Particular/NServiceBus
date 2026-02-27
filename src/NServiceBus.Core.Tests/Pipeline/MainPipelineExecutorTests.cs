@@ -131,7 +131,6 @@ public class MainPipelineExecutorTests
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
-            new EndpointLogSlot("MainPipelineExecutorTests", endpointIdentifier: null),
             new ActivityFactory(),
             incomingPipelineMetrics,
             new EnvelopeUnwrapper([], incomingPipelineMetrics));
