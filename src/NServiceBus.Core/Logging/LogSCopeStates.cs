@@ -2,7 +2,6 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -24,53 +23,50 @@ abstract class LogSlot
 
 sealed class LogSCopeStates(object endpointName, object? endpointIdentifier) : LogScopeState
 {
-    public override KeyValuePair<string, object?> this[int index] =>
-        index switch
-        {
-            0 => new KeyValuePair<string, object?>("Endpoint", endpointName),
-            1 when endpointIdentifier is not null => new KeyValuePair<string, object?>("EndpointIdentifier", endpointIdentifier),
-            _ => throw new ArgumentOutOfRangeException(nameof(index))
-        };
+    public override KeyValuePair<string, object?> this[int index] => entries[index];
 
-    public override int Count => endpointIdentifier is null ? 1 : 2;
+    public override int Count => entries.Length;
 
-    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
-    {
-        yield return this[0];
-
-        if (endpointIdentifier is not null)
-        {
-            yield return this[1];
-        }
-    }
+    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => ((IEnumerable<KeyValuePair<string, object?>>)entries).GetEnumerator();
 
     public override string ToString() => endpointIdentifier is null
         ? $"Endpoint = {endpointName}"
         : $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}";
+
+    readonly KeyValuePair<string, object?>[] entries = endpointIdentifier is null
+        ? [new KeyValuePair<string, object?>("Endpoint", endpointName)]
+        :
+        [
+            new KeyValuePair<string, object?>("Endpoint", endpointName),
+            new KeyValuePair<string, object?>("EndpointIdentifier", endpointIdentifier)
+        ];
 }
 
 sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object value) : LogScopeState
 {
-    public override KeyValuePair<string, object?> this[int index] =>
-        index == parentScope.Count
-            ? extra
-            : parentScope[index];
+    public override KeyValuePair<string, object?> this[int index] => entries[index];
 
-    public override int Count => parentScope.Count + 1;
+    public override int Count => entries.Length;
 
-    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
-    {
-        for (var i = 0; i < parentScope.Count; i++)
-        {
-            yield return parentScope[i];
-        }
-
-        yield return extra;
-    }
+    public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => ((IEnumerable<KeyValuePair<string, object?>>)entries).GetEnumerator();
 
     public override string ToString() => $"{parentScope}, {key} = {value}";
 
-    readonly KeyValuePair<string, object?> extra = new(key, value);
+    readonly KeyValuePair<string, object?>[] entries = BuildEntries(parentScope, key, value);
+
+    static KeyValuePair<string, object?>[] BuildEntries(LogScopeState parentScope, string key, object value)
+    {
+        var parentCount = parentScope.Count;
+        var scopeEntries = new KeyValuePair<string, object?>[parentCount + 1];
+
+        for (var i = 0; i < parentCount; i++)
+        {
+            scopeEntries[i] = parentScope[i];
+        }
+
+        scopeEntries[parentCount] = new KeyValuePair<string, object?>(key, value);
+        return scopeEntries;
+    }
 }
 
 sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier) : LogSlot

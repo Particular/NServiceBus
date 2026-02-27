@@ -29,6 +29,7 @@ public static class LogManager
         var loggingDefinition = new T();
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory);
+        _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
 
         return loggingDefinition;
     }
@@ -44,6 +45,7 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
+        _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
     }
 
     /// <summary>
@@ -112,21 +114,6 @@ public static class LogManager
     static LogScopeState CreateScopeState(object slot) =>
         slot is LogSlot logSlot ? logSlot.ScopeState : new LogSCopeStates(slot, endpointIdentifier: null);
 
-    static bool TryGetSlotLoggerFactory(out SlotContext slotContext, out ILoggerFactory loggerFactory)
-    {
-        var current = currentSlot.Value;
-        if (current is not null && slotLoggerFactories.TryGetValue(current.Key, out var foundFactory))
-        {
-            loggerFactory = foundFactory;
-            slotContext = current;
-            return true;
-        }
-
-        slotContext = null!;
-        loggerFactory = null!;
-        return false;
-    }
-
     sealed class SlotAwareLogger(string name) : ILog
     {
         public bool IsDebugEnabled => IsEnabled(static l => l.IsDebugEnabled);
@@ -187,7 +174,7 @@ public static class LogManager
                 return;
             }
 
-            var logger = slotLoggers.GetOrAdd(slotKey, _ => loggerFactory.GetLogger(name));
+            var logger = slotLoggers.GetOrAdd(slotKey, static (_, state) => state.loggerFactory.GetLogger(state.name), (loggerFactory, name));
             deferredLogs.FlushTo(logger);
         }
 
@@ -198,7 +185,7 @@ public static class LogManager
                 return isEnabled(logger);
             }
 
-            return TryGetCurrentSlotContext(out _) || isEnabled(defaultLoggerFactory.Value.GetLogger(name));
+            return TryGetCurrentSlotContext(out _) || isEnabled(GetDefaultLogger());
         }
 
         void Write(LogLevel level, string? message, Action<ILog, string?> writeAction)
@@ -216,7 +203,7 @@ public static class LogManager
                 return;
             }
 
-            writeAction(defaultLoggerFactory.Value.GetLogger(name), message);
+            writeAction(GetDefaultLogger(), message);
         }
 
         void Write(LogLevel level, string? message, Exception? exception, Action<ILog, string?, Exception?> writeAction)
@@ -234,7 +221,7 @@ public static class LogManager
                 return;
             }
 
-            writeAction(defaultLoggerFactory.Value.GetLogger(name), message, exception);
+            writeAction(GetDefaultLogger(), message, exception);
         }
 
         void Write(LogLevel level, string format, object?[] args, Action<ILog, string, object?[]> writeAction)
@@ -252,14 +239,43 @@ public static class LogManager
                 return;
             }
 
-            writeAction(defaultLoggerFactory.Value.GetLogger(name), format, args);
+            writeAction(GetDefaultLogger(), format, args);
+        }
+
+        ILog GetDefaultLogger()
+        {
+            var currentFactoryVersion = Volatile.Read(ref defaultLoggerFactoryVersion);
+            if (defaultLogger is not null && defaultLoggerFactoryVersionSnapshot == currentFactoryVersion)
+            {
+                return defaultLogger;
+            }
+
+            var createdLogger = defaultLoggerFactory.Value.GetLogger(name);
+            defaultLogger = createdLogger;
+            defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
+            return createdLogger;
         }
 
         bool TryGetLogger(out ILog logger)
         {
-            if (TryGetSlotLoggerFactory(out var slotContext, out var loggerFactory))
+            var slotContext = currentSlot.Value;
+            if (slotContext is null)
+            {
+                logger = null!;
+                return false;
+            }
+
+            if (ReferenceEquals(cachedSlotContext, slotContext) && cachedSlotLogger is not null)
+            {
+                logger = cachedSlotLogger;
+                return true;
+            }
+
+            if (slotLoggerFactories.TryGetValue(slotContext.Key, out var loggerFactory))
             {
                 logger = slotLoggers.GetOrAdd(slotContext.Key, static (_, state) => state.loggerFactory.GetLogger(state.name), (name, loggerFactory));
+                cachedSlotContext = slotContext;
+                cachedSlotLogger = logger;
                 return true;
             }
 
@@ -273,6 +289,10 @@ public static class LogManager
             return slotContext is not null;
         }
 
+        ILog? defaultLogger;
+        int defaultLoggerFactoryVersionSnapshot = -1;
+        SlotContext? cachedSlotContext;
+        ILog? cachedSlotLogger;
         readonly ConcurrentDictionary<SlotKey, DeferredLogs> deferredLogsBySlot = new();
         readonly ConcurrentDictionary<SlotKey, ILog> slotLoggers = new();
     }
@@ -406,4 +426,5 @@ public static class LogManager
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
     static readonly ConcurrentDictionary<SlotKey, ILoggerFactory> slotLoggerFactories = new();
+    static int defaultLoggerFactoryVersion;
 }
