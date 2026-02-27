@@ -16,6 +16,11 @@ using System.Threading;
 /// </remarks>
 public static class LogManager
 {
+    internal interface ISlotScopedLoggerFactory
+    {
+        IDisposable BeginScope(LogScopeState scopeState);
+    }
+
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
@@ -73,7 +78,7 @@ public static class LogManager
         slotLoggerFactories[slotKey] = loggerFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
-        using var _ = new SlotScope(slotContext);
+        using var _ = new SlotScope(slotContext, activateExternalScope: false);
         foreach (var logger in loggers.Values)
         {
             logger.Flush(slotKey, loggerFactory);
@@ -86,7 +91,7 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
         var slotContext = GetOrAddSlotContext(slotKey);
-        return new SlotScope(slotContext);
+        return new SlotScope(slotContext, activateExternalScope: true);
     }
 
     internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out LogScopeState? scopeState)
@@ -356,15 +361,25 @@ public static class LogManager
 
     sealed class SlotScope : IDisposable
     {
-        public SlotScope(SlotContext slot)
+        public SlotScope(SlotContext slot, bool activateExternalScope)
         {
             previousSlot = currentSlot.Value;
             currentSlot.Value = slot;
+
+            if (activateExternalScope && slotLoggerFactories.TryGetValue(slot.Key, out var loggerFactory) && loggerFactory is ISlotScopedLoggerFactory slotScopedLoggerFactory)
+            {
+                activeScope = slotScopedLoggerFactory.BeginScope(slot.ScopeState);
+            }
         }
 
-        public void Dispose() => currentSlot.Value = previousSlot;
+        public void Dispose()
+        {
+            activeScope?.Dispose();
+            currentSlot.Value = previousSlot;
+        }
 
         readonly SlotContext? previousSlot;
+        readonly IDisposable? activeScope;
     }
 
     sealed class SlotContext(object identifier, LogScopeState scopeState)

@@ -10,7 +10,10 @@ using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using MicrosoftLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory) : NServiceBus.Logging.ILoggerFactory
+    , Logging.LogManager.ISlotScopedLoggerFactory
 {
+    readonly MicrosoftLogger scopeLogger = loggerFactory.CreateLogger("NServiceBus.Logging.Scope");
+
     public Logging.ILog GetLogger(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
@@ -23,6 +26,8 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
         return new MicrosoftLoggerAdapter(loggerFactory.CreateLogger(name));
     }
 
+    public IDisposable BeginScope(LogScopeState scopeState) => scopeLogger.BeginScope(scopeState) ?? NullScope.Instance;
+
     sealed class MicrosoftLoggerAdapter(MicrosoftLogger logger) : Logging.ILog
     {
         public bool IsDebugEnabled => logger.IsEnabled(MicrosoftLogLevel.Debug);
@@ -32,114 +37,58 @@ sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory)
         public bool IsFatalEnabled => logger.IsEnabled(MicrosoftLogLevel.Critical);
 
         public void Debug(string? message)
-        {
-            using var _ = BeginScope();
-            logger.LogDebug(message);
-        }
+            => logger.LogDebug(message);
 
         public void Debug(string? message, Exception? exception)
-        {
-            using var _ = BeginScope();
-            logger.LogDebug(exception, message);
-        }
+            => logger.LogDebug(exception, message);
 
         public void DebugFormat(string format, params object?[] args)
-        {
-            using var _ = BeginScope();
-            logger.LogDebug(format, args);
-        }
+            => logger.LogDebug(format, args);
 
         public void Info(string? message)
-        {
-            using var _ = BeginScope();
-            logger.LogInformation(message);
-        }
+            => logger.LogInformation(message);
 
         public void Info(string? message, Exception? exception)
-        {
-            using var _ = BeginScope();
-            logger.LogInformation(exception, message);
-        }
+            => logger.LogInformation(exception, message);
 
         public void InfoFormat(string format, params object?[] args)
-        {
-            using var _ = BeginScope();
-            logger.LogInformation(format, args);
-        }
+            => logger.LogInformation(format, args);
 
         public void Warn(string? message)
-        {
-            using var _ = BeginScope();
-            logger.LogWarning(message);
-        }
+            => logger.LogWarning(message);
 
         public void Warn(string? message, Exception? exception)
-        {
-            using var _ = BeginScope();
-            logger.LogWarning(exception, message);
-        }
+            => logger.LogWarning(exception, message);
 
         public void WarnFormat(string format, params object?[] args)
-        {
-            using var _ = BeginScope();
-            logger.LogWarning(format, args);
-        }
+            => logger.LogWarning(format, args);
 
         public void Error(string? message)
-        {
-            using var _ = BeginScope();
-            logger.LogError(message);
-        }
+            => logger.LogError(message);
 
         public void Error(string? message, Exception? exception)
-        {
-            using var _ = BeginScope();
-            logger.LogError(exception, message);
-        }
+            => logger.LogError(exception, message);
 
         public void ErrorFormat(string format, params object?[] args)
-        {
-            using var _ = BeginScope();
-            logger.LogError(format, args);
-        }
+            => logger.LogError(format, args);
 
         public void Fatal(string? message)
-        {
-            using var _ = BeginScope();
-            logger.LogCritical(message);
-        }
+            => logger.LogCritical(message);
 
         public void Fatal(string? message, Exception? exception)
-        {
-            using var _ = BeginScope();
-            logger.LogCritical(exception, message);
-        }
+            => logger.LogCritical(exception, message);
 
         public void FatalFormat(string format, params object?[] args)
+            => logger.LogCritical(format, args);
+    }
+
+    sealed class NullScope : IDisposable
+    {
+        public static readonly NullScope Instance = new();
+
+        public void Dispose()
         {
-            using var _ = BeginScope();
-            logger.LogCritical(format, args);
         }
-
-        IDisposable BeginScope()
-        {
-            if (!Logging.LogManager.TryGetCurrentEndpointScopeState(out var scopeState))
-            {
-                return NullScope.Instance;
-            }
-
-            return logger.BeginScope(scopeState) ?? NullScope.Instance;
-        }
-
-        sealed class NullScope : IDisposable
-        {
-            public static readonly NullScope Instance = new();
-
-            public void Dispose()
-            {
-            }
-        }
-
     }
 }
 #pragma warning restore CA2254

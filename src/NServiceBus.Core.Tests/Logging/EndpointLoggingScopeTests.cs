@@ -1,10 +1,10 @@
-#nullable enable
-
 namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
 using NUnit.Framework;
 
@@ -119,44 +119,84 @@ public class EndpointLoggingScopeTests
         }
     }
 
+    [Test]
+    public void Should_apply_scope_when_using_microsoft_logger_directly()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+        var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.LogInformation("message");
+        }
+
+        var scope = loggerFactory.Logger.CapturedLogScopes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(scope.Count, Is.EqualTo(2));
+            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
+            Assert.That(scope[0].Value, Is.EqualTo("Sales"));
+            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
+            Assert.That(scope[1].Value, Is.EqualTo("blue"));
+        }
+    }
+
     sealed class CollectingMicrosoftLoggerFactory : Microsoft.Extensions.Logging.ILoggerFactory
     {
         public CollectingMicrosoftLogger Logger { get; } = new();
 
-        public void AddProvider(Microsoft.Extensions.Logging.ILoggerProvider provider)
+        public void AddProvider(ILoggerProvider provider)
         {
         }
 
-        public Microsoft.Extensions.Logging.ILogger CreateLogger(string categoryName) => Logger;
+        public ILogger CreateLogger(string categoryName) => Logger;
 
         public void Dispose()
         {
         }
     }
 
-    sealed class CollectingMicrosoftLogger : Microsoft.Extensions.Logging.ILogger
+    sealed class CollectingMicrosoftLogger : ILogger
     {
-        public List<IReadOnlyList<KeyValuePair<string, object?>>> CapturedScopes { get; } = [];
+        public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedScopes { get; } = [];
+        public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedLogScopes { get; } = [];
 
-        public IDisposable? BeginScope<TState>(TState state)
+        public IDisposable BeginScope<TState>(TState state)
             where TState : notnull
         {
-            if (state is IReadOnlyList<KeyValuePair<string, object?>> scope)
+            if (state is not IReadOnlyList<KeyValuePair<string, object>> scope)
             {
-                CapturedScopes.Add(scope);
+                return NullScope.Instance;
             }
 
-            return NullScope.Instance;
+            CapturedScopes.Add(scope);
+            var currentScopes = activeScopes.Value ??= new Stack<IReadOnlyList<KeyValuePair<string, object>>>();
+            currentScopes.Push(scope);
+            return new Scope(currentScopes);
         }
 
         public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
 
         public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel,
-            Microsoft.Extensions.Logging.EventId eventId,
+            EventId eventId,
             TState state,
-            Exception? exception,
-            Func<TState, Exception?, string> formatter)
+            Exception exception,
+            Func<TState, Exception, string> formatter)
         {
+            if (activeScopes.Value is { Count: > 0 } currentScopes)
+            {
+                CapturedLogScopes.Add(currentScopes.Peek());
+            }
+        }
+
+        readonly AsyncLocal<Stack<IReadOnlyList<KeyValuePair<string, object>>>> activeScopes = new();
+
+        sealed class Scope(Stack<IReadOnlyList<KeyValuePair<string, object>>> currentScopes) : IDisposable
+        {
+            public void Dispose() => currentScopes.Pop();
         }
 
         sealed class NullScope : IDisposable
