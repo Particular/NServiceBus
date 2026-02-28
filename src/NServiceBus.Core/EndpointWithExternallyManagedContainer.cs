@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus;
 
 using System;
+using Configuration.AdvancedExtensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -23,6 +24,9 @@ public static class EndpointWithExternallyManagedContainer
     internal static ExternallyManagedContainerHost CreateCore(EndpointConfiguration configuration,
         IServiceCollection serviceCollection)
     {
+        var endpointLogSlot = configuration.GetSettings().Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
+
+        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
         serviceCollection.TryAddSingleton<IMessageSession>(endpointCreator.MessageSession);

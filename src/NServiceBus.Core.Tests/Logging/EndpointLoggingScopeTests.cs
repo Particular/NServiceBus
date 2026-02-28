@@ -1,8 +1,9 @@
+#nullable enable
+
 namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
@@ -25,16 +26,9 @@ public class EndpointLoggingScopeTests
             logger.Info("message");
         }
 
-        var scope = loggerFactory.Logger.CapturedScopes.Single();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(scope.Count, Is.EqualTo(2));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Sales"));
-            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
-            Assert.That(scope[1].Value, Is.EqualTo("blue"));
-        }
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Sales"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "blue"));
     }
 
     [Test]
@@ -51,14 +45,8 @@ public class EndpointLoggingScopeTests
             logger.Info("message");
         }
 
-        var scope = loggerFactory.Logger.CapturedScopes.Single();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(scope.Count, Is.EqualTo(1));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Billing"));
-        }
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Billing"));
     }
 
     [Test]
@@ -76,18 +64,10 @@ public class EndpointLoggingScopeTests
             logger.Info("message");
         }
 
-        var scope = loggerFactory.Logger.CapturedScopes.Single();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(scope.Count, Is.EqualTo(3));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Shipping"));
-            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
-            Assert.That(scope[1].Value, Is.EqualTo("green"));
-            Assert.That(scope[2].Key, Is.EqualTo("Satellite"));
-            Assert.That(scope[2].Value, Is.EqualTo("TimeoutMigration"));
-        }
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Shipping"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "green"),
+            new KeyValuePair<string, object>("Satellite", "TimeoutMigration"));
     }
 
     [Test]
@@ -105,18 +85,10 @@ public class EndpointLoggingScopeTests
             logger.Info("message");
         }
 
-        var scope = loggerFactory.Logger.CapturedScopes.Single();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(scope.Count, Is.EqualTo(3));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Shipping"));
-            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
-            Assert.That(scope[1].Value, Is.EqualTo("green"));
-            Assert.That(scope[2].Key, Is.EqualTo("Receiver"));
-            Assert.That(scope[2].Value, Is.EqualTo("InstanceSpecific"));
-        }
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Shipping"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "green"),
+            new KeyValuePair<string, object>("Receiver", "InstanceSpecific"));
     }
 
     [Test]
@@ -132,15 +104,31 @@ public class EndpointLoggingScopeTests
             logger.LogInformation("message");
         }
 
-        var scope = loggerFactory.Logger.CapturedLogScopes.Single();
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Sales"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "blue"));
+    }
 
-        using (Assert.EnterMultipleScope())
+    static void AssertScopeWasUsed(List<IReadOnlyList<KeyValuePair<string, object>>> capturedLogScopes, params KeyValuePair<string, object>[] expectedScope)
+    {
+        Assert.That(capturedLogScopes, Has.Some.Matches<IReadOnlyList<KeyValuePair<string, object>>>(scope => ScopeMatches(scope, expectedScope)));
+
+        static bool ScopeMatches(IReadOnlyList<KeyValuePair<string, object>> scope, IReadOnlyList<KeyValuePair<string, object>> expected)
         {
-            Assert.That(scope.Count, Is.EqualTo(2));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Sales"));
-            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
-            Assert.That(scope[1].Value, Is.EqualTo("blue"));
+            if (scope.Count != expected.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < expected.Count; i++)
+            {
+                if (scope[i].Key != expected[i].Key || !Equals(scope[i].Value, expected[i].Value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
@@ -183,8 +171,8 @@ public class EndpointLoggingScopeTests
         public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel,
             EventId eventId,
             TState state,
-            Exception exception,
-            Func<TState, Exception, string> formatter)
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
         {
             if (activeScopes.Value is { Count: > 0 } currentScopes)
             {

@@ -80,7 +80,7 @@ public static class LogManager
         slotLoggerFactories[slotKey] = loggerFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
-        using var _ = new SlotScope(slotContext, activateExternalScope: false);
+        using var _ = new SlotScope(slotContext, activateExternalScope: true);
         foreach (var logger in loggers.Values)
         {
             logger.Flush(slotKey, loggerFactory);
@@ -404,7 +404,6 @@ public static class LogManager
 
     sealed class SlotContext(object identifier, LogScopeState scopeState)
     {
-        public object Identifier { get; } = identifier;
         public SlotKey Key { get; } = new(identifier);
         public LogScopeState ScopeState { get; } = scopeState;
     }

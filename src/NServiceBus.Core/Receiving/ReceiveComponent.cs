@@ -216,8 +216,6 @@ partial class ReceiveComponent
 
     public async Task Start(CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-
         foreach (var messageReceiver in receivers)
         {
             try
@@ -235,8 +233,6 @@ partial class ReceiveComponent
 
     public Task Stop(CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-
         var receiverStopTasks = receivers.Select(async receiver =>
         {
             try
