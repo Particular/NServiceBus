@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 
 class KeyedServiceCollectionAdapter : IServiceCollection
@@ -18,6 +19,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
         Inner = inner;
         ServiceKey = new KeyedServiceKey(serviceKey);
+        gate = sharedStates.GetValue(inner, _ => new SharedState()).Gate;
     }
 
     public KeyedServiceKey ServiceKey { get; }
@@ -29,11 +31,22 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     public ServiceDescriptor this[int index]
     {
-        get => descriptors[index];
+        get
+        {
+            using var _ = gate.EnterScope();
+            return descriptors[index];
+        }
         set => throw new NotSupportedException("Replacing service descriptors is not supported for multi endpoint services.");
     }
 
-    public int Count => descriptors.Count;
+    public int Count
+    {
+        get
+        {
+            using var _ = gate.EnterScope();
+            return descriptors.Count;
+        }
+    }
 
     public bool IsReadOnly => false;
 
@@ -41,43 +54,49 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        lock (Inner)
-        {
-            var keyedDescriptor = EnsureKeyedDescriptor(item);
-            descriptors.Add(keyedDescriptor);
-            Inner.Add(keyedDescriptor);
-        }
+        using Lock.Scope _ = gate.EnterScope();
+        var keyedDescriptor = EnsureKeyedDescriptor(item);
+        descriptors.Add(keyedDescriptor);
+        Inner.Add(keyedDescriptor);
     }
 
     public void Clear()
     {
-        lock (Inner)
+        using Lock.Scope scope = gate.EnterScope();
+        foreach (var descriptor in descriptors)
         {
-            foreach (var descriptor in descriptors)
-            {
-                _ = Inner.Remove(descriptor);
-            }
-
-            descriptors.Clear();
-            serviceTypes.Clear();
+            _ = Inner.Remove(descriptor);
         }
+
+        descriptors.Clear();
+        serviceTypeCounts.Clear();
     }
 
     public bool Contains(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        using var _ = gate.EnterScope();
         return descriptors.Contains(item);
     }
 
-    public void CopyTo(ServiceDescriptor[] array, int arrayIndex) => descriptors.CopyTo(array, arrayIndex);
+    public void CopyTo(ServiceDescriptor[] array, int arrayIndex)
+    {
+        using var _ = gate.EnterScope();
+        descriptors.CopyTo(array, arrayIndex);
+    }
 
-    public IEnumerator<ServiceDescriptor> GetEnumerator() => descriptors.GetEnumerator();
+    public IEnumerator<ServiceDescriptor> GetEnumerator()
+    {
+        using var _ = gate.EnterScope();
+        return ((IEnumerable<ServiceDescriptor>)[.. descriptors]).GetEnumerator();
+    }
 
     public int IndexOf(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        using var _ = gate.EnterScope();
         return descriptors.IndexOf(item);
     }
 
@@ -87,28 +106,24 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        lock (Inner)
+        using Lock.Scope scope = gate.EnterScope();
+        if (!descriptors.Remove(item))
         {
-            if (!descriptors.Remove(item))
-            {
-                return false;
-            }
-
-            _ = Inner.Remove(item);
-            _ = serviceTypes.Remove(item.ServiceType);
+            return false;
         }
+
+        _ = Inner.Remove(item);
+        DecrementServiceTypeCount(item.ServiceType);
         return true;
     }
 
     public void RemoveAt(int index)
     {
-        lock (Inner)
-        {
-            var descriptor = descriptors[index];
-            descriptors.RemoveAt(index);
-            _ = Inner.Remove(descriptor);
-            _ = serviceTypes.Remove(descriptor.ServiceType);
-        }
+        using Lock.Scope scope = gate.EnterScope();
+        var descriptor = descriptors[index];
+        descriptors.RemoveAt(index);
+        _ = Inner.Remove(descriptor);
+        DecrementServiceTypeCount(descriptor.ServiceType);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -117,18 +132,19 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceTypes.Contains(serviceType))
+        using var _ = gate.EnterScope();
+        if (serviceTypeCounts.ContainsKey(serviceType))
         {
             return true;
         }
 
-        if (serviceType.IsGenericType)
+        if (!serviceType.IsGenericType)
         {
-            var definition = serviceType.GetGenericTypeDefinition();
-            return serviceTypes.Contains(definition);
+            return false;
         }
 
-        return false;
+        var definition = serviceType.GetGenericTypeDefinition();
+        return serviceTypeCounts.ContainsKey(definition);
     }
 
     ServiceDescriptor EnsureKeyedDescriptor(ServiceDescriptor descriptor)
@@ -199,8 +215,28 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             }
         }
 
-        serviceTypes.Add(keyedDescriptor.ServiceType);
+        if (!serviceTypeCounts.TryAdd(keyedDescriptor.ServiceType, 1))
+        {
+            serviceTypeCounts[keyedDescriptor.ServiceType]++;
+        }
+
         return keyedDescriptor;
+    }
+
+    void DecrementServiceTypeCount(Type serviceType)
+    {
+        if (!serviceTypeCounts.TryGetValue(serviceType, out var count))
+        {
+            return;
+        }
+
+        if (count <= 1)
+        {
+            _ = serviceTypeCounts.Remove(serviceType);
+            return;
+        }
+
+        serviceTypeCounts[serviceType] = count - 1;
     }
 
     static class UnsafeAccessor
@@ -210,6 +246,16 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     }
 
     readonly List<ServiceDescriptor> descriptors = [];
-    readonly HashSet<Type> serviceTypes = [];
+    readonly Dictionary<Type, int> serviceTypeCounts = [];
     readonly ConcurrentDictionary<Type, ObjectFactory> factories = new();
+    readonly Lock gate;
+
+    // We need to keep track of the locks per service collection to avoid potential deadlocks between different adapters sharing the same underlying collection.
+    // We use a ConditionalWeakTable here to avoid leaking memory in case service collections are not properly disposed.
+    static readonly ConditionalWeakTable<IServiceCollection, SharedState> sharedStates = [];
+
+    sealed class SharedState
+    {
+        public Lock Gate { get; } = new();
+    }
 }
