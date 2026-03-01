@@ -16,7 +16,7 @@ class RunningEndpointInstance(SettingsHolder settings,
     IMessageSession messageSession,
     TransportInfrastructure transportInfrastructure,
     CancellationTokenSource stoppingTokenSource,
-    IServiceProvider? serviceProvider,
+    IAsyncDisposable serviceProviderLease,
     object endpointLogSlot) : IEndpointInstance
 {
     public async Task Stop(CancellationToken cancellationToken = default)
@@ -62,11 +62,8 @@ class RunningEndpointInstance(SettingsHolder settings,
             finally
             {
                 settings.Clear();
-                // When the service provider is externally managed the service provider is null
-                if (serviceProvider is IAsyncDisposable asyncDisposableBuilder)
-                {
-                    await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
-                }
+                await serviceProviderLease.DisposeAsync()
+                    .ConfigureAwait(false);
 
                 status = Status.Stopped;
                 Log.Info("Shutdown complete.");

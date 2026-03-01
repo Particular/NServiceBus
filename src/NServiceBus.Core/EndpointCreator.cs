@@ -191,9 +191,29 @@ class EndpointCreator
         });
     }
 
-    public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
+    public StartableEndpoint CreateStartableEndpointForInternalContainer(IServiceProvider serviceProvider)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        var lease = serviceProvider as IAsyncDisposable ?? NoOpAsyncDisposable.Instance;
+        return CreateStartableEndpointForInternalContainer(serviceProvider, lease);
+    }
+
+    public StartableEndpoint CreateStartableEndpointForInternalContainer(IServiceProvider serviceProvider, IAsyncDisposable serviceProviderLease)
+    {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(serviceProviderLease);
+        return CreateStartableEndpoint(serviceProvider, "internal", serviceProviderLease);
+    }
+
+    public StartableEndpoint CreateStartableEndpointForExternalContainer(IServiceProvider serviceProvider)
+    {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        return CreateStartableEndpoint(serviceProvider, "external", NoOpAsyncDisposable.Instance);
+    }
+
+    StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
+    {
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
 
         return new StartableEndpoint(settings,
             featureComponent,
@@ -206,7 +226,7 @@ class EndpointCreator
             sendComponent,
             serviceProvider,
             MessageSession,
-            serviceProviderIsExternallyManaged);
+            serviceProviderLease);
     }
 
     internal MessageSession MessageSession { get; private set; }

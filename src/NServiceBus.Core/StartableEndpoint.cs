@@ -22,7 +22,7 @@ class StartableEndpoint(
     SendComponent sendComponent,
     IServiceProvider serviceProvider,
     MessageSession messageSession,
-    bool serviceProviderIsExternallyManaged)
+    IAsyncDisposable serviceProviderLease)
 {
     public async Task RunInstallers(CancellationToken cancellationToken = default)
     {
@@ -68,9 +68,7 @@ class StartableEndpoint(
 
         await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
-        // when the service provider is externally managed it is null in the running endpoint instance
-        IServiceProvider provider = serviceProviderIsExternallyManaged ? null : serviceProvider;
-        var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, provider, hostingComponent.Config.EndpointLogSlot);
+        var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
 
         hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 

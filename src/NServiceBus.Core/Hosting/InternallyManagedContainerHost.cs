@@ -16,5 +16,5 @@ class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServicePr
         return await endpoint.Start(cancellationToken).ConfigureAwait(false);
     }
 
-    readonly EndpointStartupRunner startupRunner = new(endpointCreator, serviceProviderIsExternallyManaged: false);
+    readonly EndpointStartupRunner startupRunner = new(endpointCreator.EndpointLogSlot, endpointCreator.CreateStartableEndpointForInternalContainer);
 }
