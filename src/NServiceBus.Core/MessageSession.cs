@@ -64,6 +64,18 @@ class MessageSession : IMessageSession
         return new PipelineRootContext(serviceProvider, messageOperations, pipelineCache, cancellationToken);
     }
 
+    CancellationTokenSource CreateOperationLinkedTokenSource(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        }
+        catch (ObjectDisposedException ex)
+        {
+            throw new InvalidOperationException("Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.", ex);
+        }
+    }
+
     public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -71,7 +83,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
     }
 
@@ -82,7 +94,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
     }
 
@@ -93,7 +105,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
     }
 
@@ -104,7 +116,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
     }
 
@@ -115,7 +127,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
     }
 
@@ -125,7 +137,7 @@ class MessageSession : IMessageSession
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         // set a flag on the context so that subscribe implementations know which send API was used.
         subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventTypes, subscribeOptions).ConfigureAwait(false);
     }
 
@@ -136,7 +148,7 @@ class MessageSession : IMessageSession
 
         using var _ = LogManager.BeginSlotScope(loggingSlot!);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(endpointStoppingToken, cancellationToken);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
     }
 
