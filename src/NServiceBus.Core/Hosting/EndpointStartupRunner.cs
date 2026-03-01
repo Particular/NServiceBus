@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-sealed class EndpointStartupRunner(object endpointLogSlot, Func<IServiceProvider, StartableEndpoint> createStartableEndpoint)
+sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
 {
     public async Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
@@ -26,7 +26,7 @@ sealed class EndpointStartupRunner(object endpointLogSlot, Func<IServiceProvider
                 return startableEndpoint;
             }
 
-            startableEndpoint = await EndpointPreparation.Prepare(endpointLogSlot, serviceProvider, createStartableEndpoint, cancellationToken)
+            startableEndpoint = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, cancellationToken)
                 .ConfigureAwait(false);
             return startableEndpoint;
         }

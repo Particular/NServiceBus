@@ -194,28 +194,12 @@ class EndpointCreator
         });
     }
 
-    public StartableEndpoint CreateStartableEndpointForInternalContainer(IServiceProvider serviceProvider)
+    internal StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        var lease = serviceProvider as IAsyncDisposable ?? NoOpAsyncDisposable.Instance;
-        return CreateStartableEndpointForInternalContainer(serviceProvider, lease);
-    }
-
-    public StartableEndpoint CreateStartableEndpointForInternalContainer(IServiceProvider serviceProvider, IAsyncDisposable serviceProviderLease)
-    {
-        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(containerType);
         ArgumentNullException.ThrowIfNull(serviceProviderLease);
-        return CreateStartableEndpoint(serviceProvider, "internal", serviceProviderLease);
-    }
 
-    public StartableEndpoint CreateStartableEndpointForExternalContainer(IServiceProvider serviceProvider)
-    {
-        ArgumentNullException.ThrowIfNull(serviceProvider);
-        return CreateStartableEndpoint(serviceProvider, "external", NoOpAsyncDisposable.Instance);
-    }
-
-    StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
-    {
         hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
 
         return new StartableEndpoint(settings,
