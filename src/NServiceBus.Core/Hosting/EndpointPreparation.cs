@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 static class EndpointPreparation
 {
     public static async Task<StartableEndpoint> Prepare(
-        EndpointCreator endpointCreator,
+        object endpointLogSlot,
         IServiceProvider serviceProvider,
         Func<IServiceProvider, StartableEndpoint> createStartableEndpoint,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(endpointCreator);
+        ArgumentNullException.ThrowIfNull(endpointLogSlot);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(createStartableEndpoint);
 
-        LoggingBridge.ResolveSlotFactory(serviceProvider, endpointCreator.EndpointLogSlot);
+        LoggingBridge.ResolveSlotFactory(serviceProvider, endpointLogSlot);
 
-        using var _ = Logging.LogManager.BeginSlotScope(endpointCreator.EndpointLogSlot);
+        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
         var endpoint = createStartableEndpoint(serviceProvider);
         await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
         await endpoint.Setup(cancellationToken).ConfigureAwait(false);
