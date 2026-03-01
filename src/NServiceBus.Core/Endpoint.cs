@@ -23,12 +23,10 @@ public static class Endpoint
         var serviceCollection = new ServiceCollection();
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        LoggingBridge.ResolveSlotFactory(serviceProvider, endpointCreator.EndpointLogSlot);
 
-        var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, serviceProviderIsExternallyManaged: false);
-        await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-
-        return new InternallyManagedContainerHost(endpoint);
+        var host = new InternallyManagedContainerHost(endpointCreator, serviceProvider);
+        await host.Create(cancellationToken).ConfigureAwait(false);
+        return host;
     }
 
     /// <summary>
