@@ -17,7 +17,7 @@ class BaseEndpointLifecycle(
             return;
         }
 
-        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await createSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -31,7 +31,7 @@ class BaseEndpointLifecycle(
         }
         finally
         {
-            startSemaphore.Release();
+            createSemaphore.Release();
         }
     }
 
@@ -48,26 +48,7 @@ class BaseEndpointLifecycle(
             throw new InvalidOperationException("The endpoint must be created before it can be started.");
         }
 
-        if (endpointInstance is not null)
-        {
-            return;
-        }
-
-        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-        try
-        {
-            if (endpointInstance is not null)
-            {
-                return;
-            }
-
-            endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            startSemaphore.Release();
-        }
+        endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask<IEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
@@ -79,27 +60,12 @@ class BaseEndpointLifecycle(
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
     {
-        if (Volatile.Read(ref endpointStopped) == 1 || endpointInstance is null)
+        if (endpointInstance is null)
         {
             return;
         }
 
-        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-        try
-        {
-            if (Volatile.Read(ref endpointStopped) == 1 || endpointInstance is null)
-            {
-                return;
-            }
-
-            await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
-            Volatile.Write(ref endpointStopped, 1);
-        }
-        finally
-        {
-            startSemaphore.Release();
-        }
+        await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask DisposeAsync()
@@ -122,11 +88,10 @@ class BaseEndpointLifecycle(
         }
     }
 
-    readonly SemaphoreSlim startSemaphore = new(1, 1);
+    readonly SemaphoreSlim createSemaphore = new(1, 1);
 
     StartableEndpoint? startableEndpoint;
     IEndpointInstance? endpointInstance;
     IAsyncDisposable? providerLease;
-    int endpointStopped;
     int isDisposed;
 }

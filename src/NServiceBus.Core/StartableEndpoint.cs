@@ -57,26 +57,48 @@ class StartableEndpoint(
 
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (endpointInstance is not null)
         {
-            AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            return endpointInstance;
         }
 
-        await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
+        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-        await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (endpointInstance is not null)
+            {
+                return endpointInstance;
+            }
 
-        var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
+            using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
 
-        hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            }
 
-        await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
+            await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
 
-        return runningInstance;
+            await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
+
+            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
+
+            hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
+
+            await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
+
+            endpointInstance = runningInstance;
+            return endpointInstance;
+        }
+        finally
+        {
+            startSemaphore.Release();
+        }
     }
 
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
+    IEndpointInstance endpointInstance = null!;
+    readonly SemaphoreSlim startSemaphore = new(1, 1);
 }
