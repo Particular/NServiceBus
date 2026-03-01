@@ -20,6 +20,6 @@ public class InstallerWithExternallyManagedContainer
     /// Installers are always run, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
     /// </summary>
     public async Task Setup(IServiceProvider builder, CancellationToken cancellationToken = default) =>
-        _ = await endpointCreator.PrepareStartableEndpoint(builder, endpointCreator.CreateStartableEndpointForExternalContainer, cancellationToken)
+        _ = await EndpointPreparation.Prepare(endpointCreator, builder, endpointCreator.CreateStartableEndpointForExternalContainer, cancellationToken)
             .ConfigureAwait(false);
 }

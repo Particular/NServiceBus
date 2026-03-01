@@ -26,7 +26,7 @@ sealed class EndpointStartupRunner(EndpointCreator endpointCreator, Func<IServic
                 return startableEndpoint;
             }
 
-            startableEndpoint = await endpointCreator.PrepareStartableEndpoint(serviceProvider, createStartableEndpoint, cancellationToken)
+            startableEndpoint = await EndpointPreparation.Prepare(endpointCreator, serviceProvider, createStartableEndpoint, cancellationToken)
                 .ConfigureAwait(false);
             return startableEndpoint;
         }

@@ -135,6 +135,28 @@ public class EndpointLoggingScopeTests
         Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(expectedMessages));
     }
 
+    [Test]
+    public void Should_not_duplicate_deferred_logs_when_slot_factory_is_marked_unavailable_multiple_times()
+    {
+        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+        LogManager.UseFactory(defaultLoggerFactory);
+
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("before-fallback");
+        }
+
+        LogManager.MarkSlotFactoryAsUnavailable(slot);
+        LogManager.MarkSlotFactoryAsUnavailable(slot);
+
+        var expectedMessages = new[] { "before-fallback" };
+        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(expectedMessages));
+    }
+
     static void AssertScopeWasUsed(List<IReadOnlyList<KeyValuePair<string, object>>> capturedLogScopes, params KeyValuePair<string, object>[] expectedScope)
     {
         Assert.That(capturedLogScopes, Has.Some.Matches<IReadOnlyList<KeyValuePair<string, object>>>(scope => ScopeMatches(scope, expectedScope)));
