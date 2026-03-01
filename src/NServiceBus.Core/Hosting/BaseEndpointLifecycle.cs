@@ -77,16 +77,41 @@ class BaseEndpointLifecycle(
         return endpointInstance ?? throw new InvalidOperationException("The endpoint instance should have been created and started at this point.");
     }
 
+    public async ValueTask Stop(CancellationToken cancellationToken = default)
+    {
+        if (Volatile.Read(ref endpointStopped) == 1 || endpointInstance is null)
+        {
+            return;
+        }
+
+        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            if (Volatile.Read(ref endpointStopped) == 1 || endpointInstance is null)
+            {
+                return;
+            }
+
+            await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
+            Volatile.Write(ref endpointStopped, 1);
+        }
+        finally
+        {
+            startSemaphore.Release();
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
-        if (endpointInstance == null)
+        if (Interlocked.Exchange(ref isDisposed, 1) == 1)
         {
             return;
         }
 
         try
         {
-            await endpointInstance.Stop().ConfigureAwait(false);
+            await Stop().ConfigureAwait(false);
         }
         finally
         {
@@ -94,8 +119,6 @@ class BaseEndpointLifecycle(
             {
                 await providerLease.DisposeAsync().ConfigureAwait(false);
             }
-
-            startSemaphore.Dispose();
         }
     }
 
@@ -104,4 +127,6 @@ class BaseEndpointLifecycle(
     StartableEndpoint? startableEndpoint;
     IEndpointInstance? endpointInstance;
     IAsyncDisposable? providerLease;
+    int endpointStopped;
+    int isDisposed;
 }

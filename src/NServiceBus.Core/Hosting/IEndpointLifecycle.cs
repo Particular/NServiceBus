@@ -10,5 +10,6 @@ interface IEndpointLifecycle : IAsyncDisposable
 {
     ValueTask Create(CancellationToken cancellationToken = default);
     ValueTask Start(CancellationToken cancellationToken = default);
+    ValueTask Stop(CancellationToken cancellationToken = default);
     ValueTask<IEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default);
 }

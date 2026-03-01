@@ -21,5 +21,5 @@ sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle) : IHost
 
     public async Task StartAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Start(cancellationToken).ConfigureAwait(false);
 
-    public Task StopAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public async Task StopAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Stop(cancellationToken).ConfigureAwait(false);
 }

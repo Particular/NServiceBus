@@ -28,6 +28,7 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         using var _ = LogManager.BeginSlotScope(endpointLogSlot);
         var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
+        var semaphoreEntered = false;
 
         await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
@@ -35,6 +36,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         {
             // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
             await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            semaphoreEntered = true;
 
             if (status >= Status.Stopping) // Another invocation is already handling Stop
             {
@@ -70,7 +72,10 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
-            stopSemaphore.Release();
+            if (semaphoreEntered)
+            {
+                stopSemaphore.Release();
+            }
 
             await tokenRegistration.DisposeAsync().ConfigureAwait(false);
 
