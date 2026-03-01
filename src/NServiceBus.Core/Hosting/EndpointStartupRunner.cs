@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-sealed class EndpointStartupRunner(object endpointLogSlot, Func<IServiceProvider, StartableEndpoint> createStartableEndpoint)
+sealed class EndpointStartupRunner(EndpointCreator endpointCreator, Func<IServiceProvider, StartableEndpoint> createStartableEndpoint)
 {
     public async Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
@@ -26,14 +26,9 @@ sealed class EndpointStartupRunner(object endpointLogSlot, Func<IServiceProvider
                 return startableEndpoint;
             }
 
-            LoggingBridge.ResolveSlotFactory(serviceProvider, endpointLogSlot);
-
-            var createdStartableEndpoint = createStartableEndpoint(serviceProvider);
-            await createdStartableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            await createdStartableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
-
-            startableEndpoint = createdStartableEndpoint;
-            return createdStartableEndpoint;
+            startableEndpoint = await endpointCreator.PrepareStartableEndpoint(serviceProvider, createStartableEndpoint, cancellationToken)
+                .ConfigureAwait(false);
+            return startableEndpoint;
         }
         finally
         {

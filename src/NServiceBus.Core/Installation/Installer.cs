@@ -27,12 +27,10 @@ public static class Installer
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        await using (serviceProvider.ConfigureAwait(false))
-        {
-            var endpoint = endpointCreator.CreateStartableEndpointForInternalContainer(serviceProvider, NoOpAsyncDisposable.Instance);
-            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            await endpoint.Setup(cancellationToken).ConfigureAwait(false);
-        }
+        await using var provider = serviceProvider.ConfigureAwait(false);
+
+        _ = await endpointCreator.PrepareStartableEndpoint(serviceProvider, sp => endpointCreator.CreateStartableEndpointForInternalContainer(sp, NoOpAsyncDisposable.Instance), cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

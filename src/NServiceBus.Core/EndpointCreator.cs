@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Features;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
@@ -25,6 +27,9 @@ class EndpointCreator
     {
         var settings = endpointConfiguration.Settings;
         CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
+
+        var endpointLogSlot = settings.Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
+        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
 
         var assemblyScanningConfiguration = settings.Get<AssemblyScanningComponent.Configuration>();
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
@@ -211,6 +216,20 @@ class EndpointCreator
         return CreateStartableEndpoint(serviceProvider, "external", NoOpAsyncDisposable.Instance);
     }
 
+    public async Task<StartableEndpoint> PrepareStartableEndpoint(IServiceProvider serviceProvider, Func<IServiceProvider, StartableEndpoint> createStartableEndpoint, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(createStartableEndpoint);
+
+        LoggingBridge.ResolveSlotFactory(serviceProvider, EndpointLogSlot);
+
+        using var _ = Logging.LogManager.BeginSlotScope(EndpointLogSlot);
+        var endpoint = createStartableEndpoint(serviceProvider);
+        await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+        await endpoint.Setup(cancellationToken).ConfigureAwait(false);
+        return endpoint;
+    }
+
     StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
     {
         hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
@@ -230,7 +249,7 @@ class EndpointCreator
     }
 
     internal MessageSession MessageSession { get; private set; }
-    internal object EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
+    object EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
 
     PipelineComponent pipelineComponent;
     FeatureComponent featureComponent;

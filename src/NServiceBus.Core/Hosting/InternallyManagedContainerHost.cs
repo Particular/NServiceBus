@@ -13,5 +13,5 @@ class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServicePr
     public Task<IEndpointInstance> Start(CancellationToken cancellationToken = default) =>
         startupRunner.Start(serviceProvider, cancellationToken);
 
-    readonly EndpointStartupRunner startupRunner = new(endpointCreator.EndpointLogSlot, endpointCreator.CreateStartableEndpointForInternalContainer);
+    readonly EndpointStartupRunner startupRunner = new(endpointCreator, endpointCreator.CreateStartableEndpointForInternalContainer);
 }

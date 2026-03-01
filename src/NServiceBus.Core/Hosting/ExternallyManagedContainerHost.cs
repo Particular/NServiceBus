@@ -15,5 +15,5 @@ class ExternallyManagedContainerHost(EndpointCreator endpointCreator) : IStartab
     public Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>
         startupRunner.Start(externalBuilder, cancellationToken);
 
-    readonly EndpointStartupRunner startupRunner = new(endpointCreator.EndpointLogSlot, endpointCreator.CreateStartableEndpointForExternalContainer);
+    readonly EndpointStartupRunner startupRunner = new(endpointCreator, endpointCreator.CreateStartableEndpointForExternalContainer);
 }
