@@ -21,7 +21,7 @@ class RunningEndpointInstance(SettingsHolder settings,
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {
-        if (status == Status.Stopped)
+        if (status is Status.Stopped or Status.Stopping)
         {
             return;
         }
