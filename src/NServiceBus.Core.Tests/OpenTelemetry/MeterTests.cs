@@ -18,11 +18,15 @@ public class MeterTests
             .Select(x => x.GetRawConstantValue())
             .OrderBy(value => value)
             .ToList();
-        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        using var meterFactory = new TestMeterFactory();
         //The IncomingPipelineMetrics constructor creates the meters, therefore a new instance before collecting the metrics.
 #pragma warning disable CA1806
-        new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
+        new IncomingPipelineMetrics(meterFactory, "queue", "disc");
 #pragma warning restore CA1806
+
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
         var metrics = metricsListener.metrics
             .Select(x => $"{x.Name} => {x.GetType().Name.Split("`").First()}{(x.Unit == null ? "" : ", Unit: ")}{x.Unit ?? ""}")
             .OrderBy(value => value)
