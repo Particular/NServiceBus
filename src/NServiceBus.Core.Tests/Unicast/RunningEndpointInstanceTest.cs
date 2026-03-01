@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
-using NServiceBus.Logging;
 using NUnit.Framework;
 using Settings;
 using Testing;
@@ -23,7 +22,7 @@ public class RunningEndpointInstanceTest
             new TestableMessageSession(),
             null,
             new CancellationTokenSource(),
-            null,
+            NoOpAsyncDisposable.Instance,
             new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
         return testInstance;
     }

@@ -21,13 +21,12 @@ class RunningEndpointInstance(SettingsHolder settings,
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-
         if (status == Status.Stopped)
         {
             return;
         }
 
+        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
         var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
 
         await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
