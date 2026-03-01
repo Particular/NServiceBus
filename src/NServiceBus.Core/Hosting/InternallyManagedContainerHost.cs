@@ -10,11 +10,8 @@ class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServicePr
     public Task<StartableEndpoint> Create(CancellationToken cancellationToken = default) =>
         startupRunner.Create(serviceProvider, cancellationToken);
 
-    public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
-    {
-        var endpoint = await Create(cancellationToken).ConfigureAwait(false);
-        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
-    }
+    public Task<IEndpointInstance> Start(CancellationToken cancellationToken = default) =>
+        startupRunner.Start(serviceProvider, cancellationToken);
 
     readonly EndpointStartupRunner startupRunner = new(endpointCreator.EndpointLogSlot, endpointCreator.CreateStartableEndpointForInternalContainer);
 }

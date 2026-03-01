@@ -41,6 +41,12 @@ sealed class EndpointStartupRunner(object endpointLogSlot, Func<IServiceProvider
         }
     }
 
+    public async Task<IEndpointInstance> Start(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    {
+        var endpoint = await Create(serviceProvider, cancellationToken).ConfigureAwait(false);
+        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
+    }
+
     readonly SemaphoreSlim createSemaphore = new(1, 1);
     StartableEndpoint? startableEndpoint;
 }

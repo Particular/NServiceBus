@@ -12,11 +12,8 @@ class ExternallyManagedContainerHost(EndpointCreator endpointCreator) : IStartab
     public Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         => startupRunner.Create(serviceProvider, cancellationToken);
 
-    public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
-    {
-        var endpoint = await Create(externalBuilder, cancellationToken).ConfigureAwait(false);
-        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
-    }
+    public Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>
+        startupRunner.Start(externalBuilder, cancellationToken);
 
     readonly EndpointStartupRunner startupRunner = new(endpointCreator.EndpointLogSlot, endpointCreator.CreateStartableEndpointForExternalContainer);
 }
