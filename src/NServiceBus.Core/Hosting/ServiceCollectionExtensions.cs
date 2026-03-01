@@ -38,7 +38,6 @@ public static class ServiceCollectionExtensions
         ValidateTransportReuse(transport, registrations);
 
         hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
-        var endpointLogSlot = hostingSettings.GetOrCreateEndpointLogSlot();
 
         if (endpointIdentifier is null)
         {
@@ -46,7 +45,7 @@ public static class ServiceCollectionExtensions
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
 
             services.AddSingleton(externallyManagedContainerHost);
-            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp, endpointLogSlot));
+            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
             services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredService<IEndpointLifecycle>()));
         }
         else
@@ -58,7 +57,7 @@ public static class ServiceCollectionExtensions
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
 
             services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
-            services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, endpointLogSlot, keyedServices));
+            services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, keyedServices));
             services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(endpointIdentifier)));
         }
 

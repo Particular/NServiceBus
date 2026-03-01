@@ -9,11 +9,12 @@ using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 static class LoggingBridge
 {
-    public static void RegisterMicrosoftFactoryIfAvailable(IServiceProvider serviceProvider, object slot)
+    public static void ResolveSlotFactory(IServiceProvider serviceProvider, object slot)
     {
         var microsoftLoggerFactory = serviceProvider.GetService<MicrosoftLoggerFactory>();
         if (microsoftLoggerFactory is null)
         {
+            LogManager.MarkSlotFactoryAsUnavailable(slot);
             return;
         }
 

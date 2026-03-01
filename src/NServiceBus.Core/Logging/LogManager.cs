@@ -77,6 +77,7 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var slotKey = new SlotKey(slot);
+        slotFactoryStates[slotKey] = SlotFactoryState.ResolvedWithFactory;
         slotLoggerFactories[slotKey] = loggerFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
@@ -84,6 +85,26 @@ public static class LogManager
         foreach (var logger in loggers.Values)
         {
             logger.Flush(slotKey, loggerFactory);
+        }
+    }
+
+    internal static void MarkSlotFactoryAsUnavailable(object slot)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+
+        var slotKey = new SlotKey(slot);
+        var state = slotFactoryStates.AddOrUpdate(slotKey,
+            SlotFactoryState.ResolvedWithoutFactory,
+            static (_, existing) => existing == SlotFactoryState.ResolvedWithFactory ? existing : SlotFactoryState.ResolvedWithoutFactory);
+
+        if (state == SlotFactoryState.ResolvedWithFactory)
+        {
+            return;
+        }
+
+        foreach (var logger in loggers.Values)
+        {
+            logger.FlushToDefault(slotKey);
         }
     }
 
@@ -109,7 +130,11 @@ public static class LogManager
     }
 
     static SlotContext GetOrAddSlotContext(SlotKey slotKey) =>
-        slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value, CreateScopeState(key.Value)));
+        slotContexts.GetOrAdd(slotKey, static key =>
+        {
+            _ = slotFactoryStates.TryAdd(key, SlotFactoryState.Pending);
+            return new SlotContext(key.Value, CreateScopeState(key.Value));
+        });
 
     static LogScopeState CreateScopeState(object slot) =>
         slot is LogSlot logSlot ? logSlot.ScopeState : new LogSCopeStates(slot, endpointIdentifier: null);
@@ -178,6 +203,16 @@ public static class LogManager
             deferredLogs.FlushTo(logger);
         }
 
+        public void FlushToDefault(SlotKey slotKey)
+        {
+            if (!deferredLogsBySlot.TryGetValue(slotKey, out var deferredLogs))
+            {
+                return;
+            }
+
+            deferredLogs.FlushTo(GetDefaultLogger());
+        }
+
         bool IsEnabled(Func<ILog, bool> isEnabled)
         {
             if (TryGetLogger(out var logger))
@@ -185,7 +220,12 @@ public static class LogManager
                 return isEnabled(logger);
             }
 
-            return TryGetCurrentSlotContext(out _) || isEnabled(GetDefaultLogger());
+            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            {
+                return true;
+            }
+
+            return isEnabled(GetDefaultLogger());
         }
 
         void Write(LogLevel level, string? message, Action<ILog, string?> writeAction)
@@ -196,7 +236,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext))
+            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
                 var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
                 deferredLogs.DeferredMessageLogs.Enqueue((level, message));
@@ -214,7 +254,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext))
+            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
                 var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
                 deferredLogs.DeferredExceptionLogs.Enqueue((level, message, exception));
@@ -232,7 +272,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext))
+            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
                 var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
                 deferredLogs.DeferredFormatLogs.Enqueue((level, format, args));
@@ -283,6 +323,9 @@ public static class LogManager
             return false;
         }
 
+        static bool ShouldDeferSlotLogs(SlotKey slotKey) =>
+            !slotFactoryStates.TryGetValue(slotKey, out var state) || state == SlotFactoryState.Pending;
+
         static bool TryGetCurrentSlotContext([NotNullWhen(true)] out SlotContext? slotContext)
         {
             slotContext = currentSlot.Value;
@@ -295,6 +338,13 @@ public static class LogManager
         ILog? cachedSlotLogger;
         readonly ConcurrentDictionary<SlotKey, DeferredLogs> deferredLogsBySlot = new();
         readonly ConcurrentDictionary<SlotKey, ILog> slotLoggers = new();
+    }
+
+    enum SlotFactoryState
+    {
+        Pending,
+        ResolvedWithoutFactory,
+        ResolvedWithFactory
     }
 
     sealed class DeferredLogs
@@ -425,5 +475,6 @@ public static class LogManager
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
     static readonly ConcurrentDictionary<SlotKey, ILoggerFactory> slotLoggerFactories = new();
+    static readonly ConcurrentDictionary<SlotKey, SlotFactoryState> slotFactoryStates = new();
     static int defaultLoggerFactoryVersion;
 }

@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 class BaseEndpointLifecycle(
     ExternallyManagedContainerHost externallyManagedContainerHost,
-    IServiceProvider serviceProvider,
-    object loggingSlot) : IEndpointLifecycle
+    IServiceProvider serviceProvider) : IEndpointLifecycle
 {
     public async ValueTask Create(CancellationToken cancellationToken = default)
     {
@@ -26,8 +25,6 @@ class BaseEndpointLifecycle(
             {
                 return;
             }
-
-            LoggingBridge.RegisterMicrosoftFactoryIfAvailable(serviceProvider, loggingSlot);
 
             startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), cancellationToken)
                 .ConfigureAwait(false);

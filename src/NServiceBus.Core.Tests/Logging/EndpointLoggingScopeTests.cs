@@ -109,6 +109,32 @@ public class EndpointLoggingScopeTests
             new KeyValuePair<string, object>("EndpointIdentifier", "blue"));
     }
 
+    [Test]
+    public void Should_flush_deferred_logs_and_fall_back_to_default_logger_when_slot_factory_is_unavailable()
+    {
+        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+        LogManager.UseFactory(defaultLoggerFactory);
+
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("before-fallback");
+        }
+
+        LogManager.MarkSlotFactoryAsUnavailable(slot);
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("after-fallback");
+        }
+
+        var expectedMessages = new[] { "before-fallback", "after-fallback" };
+        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(expectedMessages));
+    }
+
     static void AssertScopeWasUsed(List<IReadOnlyList<KeyValuePair<string, object>>> capturedLogScopes, params KeyValuePair<string, object>[] expectedScope)
     {
         Assert.That(capturedLogScopes, Has.Some.Matches<IReadOnlyList<KeyValuePair<string, object>>>(scope => ScopeMatches(scope, expectedScope)));
@@ -149,7 +175,6 @@ public class EndpointLoggingScopeTests
 
     sealed class CollectingMicrosoftLogger : ILogger
     {
-        public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedScopes { get; } = [];
         public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedLogScopes { get; } = [];
 
         public IDisposable BeginScope<TState>(TState state)
@@ -160,10 +185,10 @@ public class EndpointLoggingScopeTests
                 return NullScope.Instance;
             }
 
-            CapturedScopes.Add(scope);
             var currentScopes = activeScopes.Value ??= new Stack<IReadOnlyList<KeyValuePair<string, object>>>();
             currentScopes.Push(scope);
             return new Scope(currentScopes);
+
         }
 
         public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
@@ -195,5 +220,62 @@ public class EndpointLoggingScopeTests
             {
             }
         }
+    }
+
+    sealed class CollectingNServiceBusLoggerFactory : NServiceBus.Logging.ILoggerFactory
+    {
+        public ILog GetLogger(Type type) => GetLogger(type.FullName!);
+
+        public ILog GetLogger(string name)
+        {
+            var logger = new CollectingNServiceBusLogger();
+            loggers.Add(name, logger);
+            return logger;
+        }
+
+        public string?[] GetMessages(string name) => !loggers.TryGetValue(name, out var logger) ? [] : [.. logger.Messages];
+
+        readonly Dictionary<string, CollectingNServiceBusLogger> loggers = new(StringComparer.Ordinal);
+    }
+
+    sealed class CollectingNServiceBusLogger : ILog
+    {
+        public bool IsDebugEnabled => true;
+        public bool IsInfoEnabled => true;
+        public bool IsWarnEnabled => true;
+        public bool IsErrorEnabled => true;
+        public bool IsFatalEnabled => true;
+
+        public void Debug(string? message) => Messages.Enqueue(message);
+
+        public void Debug(string? message, Exception? exception) => Messages.Enqueue(message);
+
+        public void DebugFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
+
+        public void Info(string? message) => Messages.Enqueue(message);
+
+        public void Info(string? message, Exception? exception) => Messages.Enqueue(message);
+
+        public void InfoFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
+
+        public void Warn(string? message) => Messages.Enqueue(message);
+
+        public void Warn(string? message, Exception? exception) => Messages.Enqueue(message);
+
+        public void WarnFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
+
+        public void Error(string? message) => Messages.Enqueue(message);
+
+        public void Error(string? message, Exception? exception) => Messages.Enqueue(message);
+
+        public void ErrorFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
+
+        public void Fatal(string? message) => Messages.Enqueue(message);
+
+        public void Fatal(string? message, Exception? exception) => Messages.Enqueue(message);
+
+        public void FatalFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
+
+        public Queue<string?> Messages { get; } = new();
     }
 }

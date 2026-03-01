@@ -22,6 +22,8 @@ class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedCo
 
     public async Task<StartableEndpoint> Create(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
     {
+        LoggingBridge.ResolveSlotFactory(externalBuilder, endpointCreator.EndpointLogSlot);
+
         objectBuilder = externalBuilder;
         var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, serviceProviderIsExternallyManaged: true);
         await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
