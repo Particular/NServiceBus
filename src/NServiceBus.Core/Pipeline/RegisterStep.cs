@@ -5,6 +5,7 @@ namespace NServiceBus.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -27,6 +28,7 @@ public abstract class RegisterStep
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
 
         BehaviorType = behavior;
+        UpdateBehaviorMetadata(behavior);
         StepId = stepId;
         Description = description;
 
@@ -52,6 +54,12 @@ public abstract class RegisterStep
     /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
     /// </summary>
     public Type BehaviorType { get; private set; }
+
+    internal Type BehaviorInterfaceType { get; private set; }
+    internal Type InputContextType { get; private set; }
+    internal Type OutputContextType { get; private set; }
+    internal bool IsStageConnector { get; private set; }
+    internal bool IsTerminator { get; private set; }
 
     /// <summary>
     /// Instructs the pipeline to register this step before the <paramref name="id" /> one. If the <paramref name="id" /> does
@@ -113,6 +121,7 @@ public abstract class RegisterStep
         }
 
         BehaviorType = replacement.BehaviorType;
+        UpdateBehaviorMetadata(BehaviorType);
         factoryMethod = replacement.FactoryMethod ?? DefaultFactoryMethod;
 
         if (!string.IsNullOrWhiteSpace(replacement.Description))
@@ -125,6 +134,19 @@ public abstract class RegisterStep
 
     internal static RegisterStep Create(string pipelineStep, Type behavior, string? description, Func<IServiceProvider, IBehavior>? factoryMethod = null)
         => new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
+
+    [MemberNotNull(nameof(BehaviorInterfaceType), nameof(InputContextType), nameof(OutputContextType))]
+    void UpdateBehaviorMetadata(Type behaviorType)
+    {
+        var behaviorInterface = behaviorType.GetBehaviorInterface();
+
+        var genericArguments = behaviorInterface.GetGenericArguments();
+        BehaviorInterfaceType = behaviorInterface;
+        InputContextType = genericArguments[0];
+        OutputContextType = genericArguments[1];
+        IsStageConnector = typeof(IStageConnector).IsAssignableFrom(behaviorType);
+        IsTerminator = typeof(IPipelineTerminator).IsAssignableFrom(behaviorType);
+    }
 
     Func<IServiceProvider, IBehavior> factoryMethod;
     Func<IServiceProvider, IBehavior> DefaultFactoryMethod => provider => (IBehavior)ActivatorUtilities.CreateInstance(provider, BehaviorType);

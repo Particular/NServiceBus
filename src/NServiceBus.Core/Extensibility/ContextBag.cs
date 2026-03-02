@@ -5,6 +5,7 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Pipeline;
 
 /// <summary>
@@ -19,7 +20,7 @@ public class ContextBag : IReadOnlyContextBag
     {
         this.parentBag = parentBag;
         root = parentBag?.root ?? this;
-        Behaviors = parentBag?.Behaviors ?? [];
+        Invoker = parentBag?.Invoker ?? (static _ => Task.CompletedTask);
     }
 
     /// <summary>
@@ -169,12 +170,7 @@ public class ContextBag : IReadOnlyContextBag
         return stash;
     }
 
-    /// <summary>
-    /// This internal property is here for performance optimizations. It allows the pipeline to set all
-    /// behaviors of a given stage which then can be extracted as part of the next delegate invocation from the context
-    /// to avoid closure capturing.
-    /// </summary>
-    internal IBehavior[] Behaviors { get; set; }
+    internal Func<IBehaviorContext, Task> Invoker { get; set; }
 
     internal ContextBag? parentBag;
 

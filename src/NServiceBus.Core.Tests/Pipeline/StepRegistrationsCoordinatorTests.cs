@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
@@ -32,7 +31,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
         additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         Assert.That(model.Count, Is.EqualTo(3));
     }
@@ -44,7 +43,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(RegisterStep.Create("2", typeof(FakeBehavior), "2"));
         additions.Add(RegisterStep.Create("3", typeof(FakeBehavior), "3"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -64,7 +63,7 @@ class StepRegistrationsCoordinatorTests
         replacements.Add(new ReplaceStep("1", typeof(ReplacedBehavior), "new"));
         replacements.Add(new ReplaceStep("2", typeof(ReplacedBehavior)));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -79,7 +78,7 @@ class StepRegistrationsCoordinatorTests
     {
         addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         Assert.That(model.Count, Is.EqualTo(1));
         using (Assert.EnterMultipleScope())
@@ -96,7 +95,7 @@ class StepRegistrationsCoordinatorTests
 
         addOrReplacements.Add(RegisterOrReplaceStep.Create("1", typeof(ReplacedBehavior), "new"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         Assert.That(model.Count, Is.EqualTo(1));
         using (Assert.EnterMultipleScope())
@@ -117,7 +116,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(new MyCustomRegistration("2.5", "3", "2"));
         additions.Add(new MyCustomRegistration("3.5", null, "3"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -140,7 +139,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(new MyCustomRegistration("1.5", "2,3", null));
         additions.Add(new MyCustomRegistration("2.5", "3", null));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -163,7 +162,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(new MyCustomRegistration("2.5", "3", "2,1"));
         additions.Add(new MyCustomRegistration("3.5", null, "1,2,3"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -187,7 +186,7 @@ class StepRegistrationsCoordinatorTests
         additions.Add(new MyCustomRegistration("1.6", "2", "1.5"));
         additions.Add(new MyCustomRegistration("1.1", "1.5", "1"));
 
-        var model = coordinator.BuildPipelineModelFor<IRootContext>().ToList();
+        var model = coordinator.BuildPipelineFor<IRootContext>();
 
         using (Assert.EnterMultipleScope())
         {
@@ -207,7 +206,7 @@ class StepRegistrationsCoordinatorTests
 
         additions.Add(new MyCustomRegistration("x", "connector", ""));
 
-        Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>());
+        Assert.Throws<Exception>(() => coordinator.BuildPipelineFor<IRootContext>());
     }
 
     [Test]
@@ -217,7 +216,7 @@ class StepRegistrationsCoordinatorTests
 
         additions.Add(new MyCustomRegistration("x", "", "connector"));
 
-        Assert.Throws<Exception>(() => coordinator.BuildPipelineModelFor<IRootContext>());
+        Assert.Throws<Exception>(() => coordinator.BuildPipelineFor<IRootContext>());
     }
 
     class MyCustomRegistration : RegisterStep
