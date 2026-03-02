@@ -250,10 +250,9 @@ public static class LogManager
             // Invalidate the instance-level cache if it was pointing at the removed slot
             // so the next TryGetLogger call falls through to slotLoggerFactories (which
             // is now empty for this slot) and eventually the default logger.
-            if (cachedSlotContext?.Key.Equals(slotKey) == true)
+            if (Volatile.Read(ref cachedSlot)?.Context.Key.Equals(slotKey) == true)
             {
-                cachedSlotContext = null;
-                cachedSlotLogger = null;
+                Volatile.Write(ref cachedSlot, null);
             }
         }
 
@@ -329,12 +328,18 @@ public static class LogManager
         ILog GetDefaultLogger()
         {
             var currentFactoryVersion = Volatile.Read(ref defaultLoggerFactoryVersion);
-            if (defaultLogger is not null && defaultLoggerFactoryVersionSnapshot == currentFactoryVersion)
+            // Read the version snapshot first (volatile acquire) before reading defaultLogger
+            // so the subsequent read is guaranteed to observe the value written before the
+            // version was published — required for correctness on weakly-ordered hardware (ARM).
+            if (defaultLoggerFactoryVersionSnapshot == currentFactoryVersion && defaultLogger is { } cached)
             {
-                return defaultLogger;
+                return cached;
             }
 
             var createdLogger = defaultLoggerFactory.Value.GetLogger(name);
+            // Write defaultLogger first (plain store), then publish via volatile write to
+            // defaultLoggerFactoryVersionSnapshot (release barrier) so any thread that reads
+            // the matching version is guaranteed to observe the updated logger reference.
             defaultLogger = createdLogger;
             defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
             return createdLogger;
@@ -349,9 +354,12 @@ public static class LogManager
                 return false;
             }
 
-            if (ReferenceEquals(cachedSlotContext, slotContext) && cachedSlotLogger is not null)
+            // Use a single volatile read so both fields (context + logger) are observed
+            // atomically
+            var cachedEntry = Volatile.Read(ref cachedSlot);
+            if (cachedEntry is not null && ReferenceEquals(cachedEntry.Context, slotContext))
             {
-                logger = cachedSlotLogger;
+                logger = cachedEntry.Logger;
                 return true;
             }
 
@@ -371,8 +379,9 @@ public static class LogManager
                 }
 
                 logger = resolvedLogger;
-                cachedSlotContext = slotContext;
-                cachedSlotLogger = logger;
+                // Publish both context and logger together as one reference so concurrent
+                // reads either see the old entry or the fully-initialised new one.
+                Volatile.Write(ref cachedSlot, new CachedSlot(slotContext, resolvedLogger));
                 return true;
             }
 
@@ -390,11 +399,18 @@ public static class LogManager
         }
 
         ILog? defaultLogger;
-        int defaultLoggerFactoryVersionSnapshot = -1;
-        SlotContext? cachedSlotContext;
-        ILog? cachedSlotLogger;
+        volatile int defaultLoggerFactoryVersionSnapshot = -1;
+        CachedSlot? cachedSlot;
         readonly ConcurrentDictionary<SlotKey, DeferredLogs> deferredLogsBySlot = new();
         readonly ConcurrentDictionary<SlotKey, ILog> slotLoggers = new();
+
+        // Bundles SlotContext and its resolved ILog into a single reference so Volatile.Read/Write
+        // in TryGetLogger and RemoveSlot see either the old pair or the new pair
+        sealed class CachedSlot(SlotContext context, ILog logger)
+        {
+            public SlotContext Context { get; } = context;
+            public ILog Logger { get; } = logger;
+        }
     }
 
     enum SlotFactoryState
