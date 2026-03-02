@@ -50,6 +50,9 @@ class MessageSession : IMessageSession
             return;
         }
 
+        // CS8774: the compiler cannot prove the fields are non-null after the await, but
+        // Initialize() always assigns all three fields before calling SetResult(), so any
+        // continuation that resumes here is guaranteed to see them as non-null.
 #pragma warning disable CS8774 // Member must have a non-null value when exiting.
         await initializedTaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
     }
