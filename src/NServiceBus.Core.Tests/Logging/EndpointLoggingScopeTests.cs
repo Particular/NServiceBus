@@ -158,6 +158,39 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
+    public void Should_self_flush_deferred_logs_on_next_write_when_logger_was_not_present_during_explicit_flush()
+    {
+        var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        // Accumulate deferred logs while the factory is not yet registered.
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("deferred-before-registration");
+        }
+
+        // RegisterSlotFactory explicitly flushes all loggers it can see in the snapshot.
+        // Simulate the race where this logger was missed by calling RegisterSlotFactory
+        // before the logger was created — we can't truly reproduce the concurrency window
+        // in a unit test, but after registration the next write must self-flush.
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
+
+        // The next write through the same logger within the slot scope must trigger
+        // a self-flush of the buffered deferred message followed by the new message.
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("written-after-registration");
+        }
+
+        var capturedMessages = slotLoggerFactory.Logger.CapturedMessages;
+        Assert.That(capturedMessages, Does.Contain("deferred-before-registration"),
+            "Deferred log must be delivered even if the explicit flush passed missed this logger.");
+        Assert.That(capturedMessages, Does.Contain("written-after-registration"));
+    }
+
+    [Test]
     public void Should_flush_pending_deferred_logs_to_default_logger_when_slot_is_unregistered()
     {
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
@@ -265,6 +298,7 @@ public class EndpointLoggingScopeTests
     sealed class CollectingMicrosoftLogger : ILogger
     {
         public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedLogScopes { get; } = [];
+        public List<string> CapturedMessages { get; } = [];
 
         public IDisposable BeginScope<TState>(TState state)
             where TState : notnull
@@ -288,6 +322,7 @@ public class EndpointLoggingScopeTests
             Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
+            CapturedMessages.Add(formatter(state, exception));
             if (activeScopes.Value is { Count: > 0 } currentScopes)
             {
                 CapturedLogScopes.Add(currentScopes.Peek());

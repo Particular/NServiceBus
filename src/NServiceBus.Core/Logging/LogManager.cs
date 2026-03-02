@@ -77,8 +77,11 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var slotKey = new SlotKey(slot);
-        slotFactoryStates[slotKey] = SlotFactoryState.ResolvedWithFactory;
+        // Register the factory before updating the state so that any concurrent write
+        // that lands between the two assignments still finds the factory via TryGetLogger
+        // and routes to it rather than falling through to the default logger.
         slotLoggerFactories[slotKey] = loggerFactory;
+        slotFactoryStates[slotKey] = SlotFactoryState.ResolvedWithFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext, activateExternalScope: true);
@@ -354,7 +357,20 @@ public static class LogManager
 
             if (slotLoggerFactories.TryGetValue(slotContext.Key, out var loggerFactory))
             {
-                logger = slotLoggers.GetOrAdd(slotContext.Key, static (_, state) => state.loggerFactory.GetLogger(state.name), (name, loggerFactory));
+                var resolvedLogger = slotLoggers.GetOrAdd(slotContext.Key, static (_, state) => state.loggerFactory.GetLogger(state.name), (name, loggerFactory));
+
+                // Self-flush any deferred logs that accumulated before the factory became
+                // available. This closes the race where RegisterSlotFactory's explicit
+                // flush pass ran before this SlotAwareLogger was inserted into loggers,
+                // or where a write raced the factory assignment and deferred instead of
+                // routing directly. TryRemove ensures each message is delivered exactly once
+                // even if the explicit flush and this path run concurrently.
+                if (deferredLogsBySlot.TryRemove(slotContext.Key, out var deferred))
+                {
+                    deferred.FlushTo(resolvedLogger);
+                }
+
+                logger = resolvedLogger;
                 cachedSlotContext = slotContext;
                 cachedSlotLogger = logger;
                 return true;
