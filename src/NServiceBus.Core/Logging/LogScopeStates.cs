@@ -21,7 +21,7 @@ abstract class LogSlot
     public abstract LogScopeState ScopeState { get; }
 }
 
-sealed class LogSCopeStates(object endpointName, object? endpointIdentifier) : LogScopeState
+sealed class LogScopeStates(object endpointName, object? endpointIdentifier) : LogScopeState
 {
     public override KeyValuePair<string, object?> this[int index] => entries[index];
 
@@ -71,7 +71,7 @@ sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object
 
 sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier) : LogSlot
 {
-    public override LogScopeState ScopeState { get; } = new LogSCopeStates(endpointName, endpointIdentifier);
+    public override LogScopeState ScopeState { get; } = new LogScopeStates(endpointName, endpointIdentifier);
 }
 
 sealed class EndpointSatelliteLogSlot(EndpointLogSlot endpointSlot, string satelliteName) : LogSlot

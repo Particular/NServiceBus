@@ -137,7 +137,7 @@ public static class LogManager
         });
 
     static LogScopeState CreateScopeState(object slot) =>
-        slot is LogSlot logSlot ? logSlot.ScopeState : new LogSCopeStates(slot, endpointIdentifier: null);
+        slot is LogSlot logSlot ? logSlot.ScopeState : new LogScopeStates(slot, endpointIdentifier: null);
 
     sealed class SlotAwareLogger(string name) : ILog
     {
