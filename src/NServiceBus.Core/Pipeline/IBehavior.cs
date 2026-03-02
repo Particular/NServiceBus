@@ -3,6 +3,7 @@
 namespace NServiceBus.Pipeline;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -20,9 +21,28 @@ public interface IBehavior<in TInContext, out TOutContext> : IBehavior
     /// <param name="context">The current context.</param>
     /// <param name="next">The next <see cref="IBehavior{TIn,TOut}" /> in the chain to execute.</param>
     Task Invoke(TInContext context, Func<TOutContext, Task> next);
+
+    InvokerNode IBehavior.CreateInvokerNode(InvokerNode? next)
+    {
+        Func<TOutContext, Task> nextFunc;
+        if (next is null)
+        {
+            nextFunc = CompletedNextCache<TOutContext>.Next;
+        }
+        else
+        {
+            Func<IBehaviorContext, Task> fn = next.Invoke;
+            nextFunc = Unsafe.As<Func<IBehaviorContext, Task>, Func<TOutContext, Task>>(ref fn);
+        }
+
+        return new InvokerNode<TInContext, TOutContext>(this, nextFunc);
+    }
 }
 
 /// <summary>
 /// Base interface for all behaviors.
 /// </summary>
-public interface IBehavior;
+public interface IBehavior
+{
+    internal InvokerNode CreateInvokerNode(InvokerNode? next) => throw new NotImplementedException();
+}
