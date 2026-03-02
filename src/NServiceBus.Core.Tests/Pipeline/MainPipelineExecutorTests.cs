@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Logging;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using OpenTelemetry;

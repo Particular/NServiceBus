@@ -99,6 +99,6 @@ class StartableEndpoint(
 
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
-    IEndpointInstance endpointInstance = null!;
+    volatile IEndpointInstance endpointInstance = null!;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
 }

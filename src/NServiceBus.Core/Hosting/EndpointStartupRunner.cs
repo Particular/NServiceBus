@@ -43,5 +43,5 @@ sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
     }
 
     readonly SemaphoreSlim createSemaphore = new(1, 1);
-    StartableEndpoint? startableEndpoint;
+    volatile StartableEndpoint? startableEndpoint;
 }
