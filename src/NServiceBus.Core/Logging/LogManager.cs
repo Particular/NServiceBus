@@ -108,6 +108,32 @@ public static class LogManager
         }
     }
 
+    internal static void UnregisterSlot(object slot)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+
+        var slotKey = new SlotKey(slot);
+
+        // If any logs were deferred but the factory was never resolved, flush them to
+        // the default logger now so they are not silently discarded on cleanup.
+        if (slotFactoryStates.TryGetValue(slotKey, out var state) && state == SlotFactoryState.Pending)
+        {
+            foreach (var logger in loggers.Values)
+            {
+                logger.FlushToDefault(slotKey);
+            }
+        }
+
+        slotContexts.TryRemove(slotKey, out _);
+        slotLoggerFactories.TryRemove(slotKey, out _);
+        slotFactoryStates.TryRemove(slotKey, out _);
+
+        foreach (var logger in loggers.Values)
+        {
+            logger.RemoveSlot(slotKey);
+        }
+    }
+
     internal static IDisposable BeginSlotScope(object slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
@@ -211,6 +237,21 @@ public static class LogManager
             }
 
             deferredLogs.FlushTo(GetDefaultLogger());
+        }
+
+        public void RemoveSlot(SlotKey slotKey)
+        {
+            deferredLogsBySlot.TryRemove(slotKey, out _);
+            slotLoggers.TryRemove(slotKey, out _);
+
+            // Invalidate the instance-level cache if it was pointing at the removed slot
+            // so the next TryGetLogger call falls through to slotLoggerFactories (which
+            // is now empty for this slot) and eventually the default logger.
+            if (cachedSlotContext?.Key.Equals(slotKey) == true)
+            {
+                cachedSlotContext = null;
+                cachedSlotLogger = null;
+            }
         }
 
         bool IsEnabled(Func<ILog, bool> isEnabled)

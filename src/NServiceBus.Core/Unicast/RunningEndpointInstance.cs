@@ -63,11 +63,15 @@ class RunningEndpointInstance(SettingsHolder settings,
             finally
             {
                 settings.Clear();
+                Log.Info("Shutdown complete.");
+                // Remove all per-slot logging state before disposing the service provider so
+                // no thread can route through the (soon-to-be-disposed) ILoggerFactory after
+                // the provider is torn down.
+                LogManager.UnregisterSlot(endpointLogSlot);
                 await serviceProviderLease.DisposeAsync()
                     .ConfigureAwait(false);
 
                 status = Status.Stopped;
-                Log.Info("Shutdown complete.");
             }
         }
         finally
