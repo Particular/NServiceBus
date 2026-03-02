@@ -24,7 +24,7 @@ public class EndpointBehavior : IComponentBehavior
         ServicesAfterStart = [];
         ConfigureHowToCreateInstance((services, config) =>
         {
-            var collectionAdapter = (KeyedServiceCollectionAdapter)services;
+            var collectionAdapter = services as KeyedServiceCollectionAdapter ?? throw new InvalidOperationException("Acceptance Tests execute multiple instances of the same endpoint in the same process. To support this, the service collection is wrapped in a KeyedServiceCollectionAdapter. This error indicates that the service collection was not wrapped as expected.");
             var serviceKey = collectionAdapter.ServiceKey.BaseKey;
 
             collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
