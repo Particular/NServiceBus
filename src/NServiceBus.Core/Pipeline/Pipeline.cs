@@ -23,7 +23,7 @@ class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
             Logger.Debug(PipelineStepDiagnostics.PrettyPrint(registrations));
         }
 
-        invoker = PipelineInvoker.Build(registrations, behaviors);
+        invoker = PipelineInvoker.Build(behaviors);
     }
 
     public Task Invoke(TContext context)

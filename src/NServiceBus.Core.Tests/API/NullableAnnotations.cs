@@ -22,8 +22,6 @@ public class NullableAnnotations
             .AppendLine("Changes that make this list longer should not be approved.")
             .AppendLine("-----");
 
-        var context = new NullabilityInfoContext();
-
         foreach (var type in NServiceBusAssembly.Types.Where(t => t.IsPublic).OrderBy(t => t.FullName))
         {
             if (HasNonAnnotatedMember(type))
@@ -34,7 +32,6 @@ public class NullableAnnotations
 
         Console.WriteLine(b.ToString());
         Approver.Verify(b.ToString());
-
     }
 
     bool HasNonAnnotatedMember(Type type)
@@ -43,6 +40,16 @@ public class NullableAnnotations
         var noNullInfoFor = allInfo.Where(info =>
         {
             _ = type;
+
+            if (info is { Item: ParameterInfo { ParameterType.IsGenericParameter: true } parameter, Info.ReadState: NullabilityState.Unknown })
+            {
+                var constraints = parameter.ParameterType.GetGenericParameterConstraints();
+                // Any interface constraint is meaningful: it narrows T beyond "object".
+                return !constraints.Any(c => c.IsInterface) &&
+                       // Any base class constraint other than object is meaningful.
+                       !constraints.Any(c => c.IsClass && c != typeof(object));
+            }
+
             if (info.Info.ReadState == NullabilityState.Unknown)
             {
                 return true;
@@ -50,12 +57,7 @@ public class NullableAnnotations
 
             if (info.Info.WriteState == NullabilityState.Unknown)
             {
-                if (info.Item is PropertyInfo prop && !prop.CanWrite)
-                {
-                    return false;
-                }
-
-                return true;
+                return info.Item is not PropertyInfo { CanWrite: false };
             }
 
             return false;
@@ -67,7 +69,7 @@ public class NullableAnnotations
     {
         foreach (var member in type.GetMembers())
         {
-            if (member.DeclaringType.Assembly != typeof(IEndpointInstance).Assembly)
+            if (member.DeclaringType?.Assembly != typeof(IEndpointInstance).Assembly)
             {
                 continue;
             }
