@@ -12,7 +12,6 @@ NServiceBus.EndpointConfiguration
 NServiceBus.EndpointInstanceExtensions
 NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.Faults.FailedMessage
-NServiceBus.Features.FeatureConfigurationContext
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageHandlerContext
@@ -31,10 +30,8 @@ NServiceBus.Outbox.TransportOperation
 NServiceBus.OutboxConfigExtensions
 NServiceBus.Persistence.CompletableSynchronizedStorageSessionExtensions
 NServiceBus.Persistence.ICompletableSynchronizedStorageSession
-NServiceBus.Pipeline.IBehavior`2
 NServiceBus.Pipeline.ISubscribeContext
 NServiceBus.Pipeline.IUnsubscribeContext
-NServiceBus.Pipeline.PipelineSettings
 NServiceBus.ReceiveSettingsExtensions
 NServiceBus.Routing.DistributionContext
 NServiceBus.Routing.DistributionStrategy
