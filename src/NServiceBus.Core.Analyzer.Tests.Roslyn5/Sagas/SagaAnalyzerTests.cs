@@ -4,8 +4,8 @@ namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
 using System;
 using System.Threading.Tasks;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class SagaAnalyzerTests : AnalyzerTestFixture<SagaAnalyzer>
@@ -35,7 +35,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert([DiagnosticIds.SagaMappingExpressionCanBeSimplified], source, mustCompile: false);
+        return Assert(source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified], [], mustCompile: false);
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.MessageStartsSagaButNoMapping, source);
+        return Assert(source, DiagnosticIds.MessageStartsSagaButNoMapping);
     }
 
     [Test]
@@ -103,7 +103,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.MessageStartsSagaButNoMapping, source);
+        return Assert(source, DiagnosticIds.MessageStartsSagaButNoMapping);
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class MyNotFoundHandler : ISagaNotFoundHandler
 	public Task Handle(object message, IMessageProcessingContext context) => Task.CompletedTask;
 }";
 
-        return Assert([], source, mustCompile: false);
+        return Assert(source, [], [], mustCompile: false);
     }
 
     [Test]
@@ -205,7 +205,7 @@ partial class MyData
 }
 ";
 
-        return Assert(DiagnosticIds.SagaDataPropertyNotWriteable, source);
+        return Assert(source, DiagnosticIds.SagaDataPropertyNotWriteable);
     }
 
     [Test]
@@ -249,7 +249,7 @@ public class Timeout3
 }
 }";
 
-        return Assert(DiagnosticIds.MessageMappingNotNeededForTimeout, source);
+        return Assert(source, DiagnosticIds.MessageMappingNotNeededForTimeout);
     }
 
     [Test]
@@ -287,7 +287,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.CannotMapToSagasIdProperty, source);
+        return Assert(source, DiagnosticIds.CannotMapToSagasIdProperty);
     }
 
     [Test]
@@ -324,7 +324,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert([DiagnosticIds.CannotMapToSagasIdProperty], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
+        return Assert(source, [DiagnosticIds.CannotMapToSagasIdProperty], [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
     }
 
     [Test]
@@ -360,7 +360,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.DoNotUseMessageTypeAsSagaDataProperty, source);
+        return Assert(source, DiagnosticIds.DoNotUseMessageTypeAsSagaDataProperty);
     }
 
     // Valid cases
@@ -403,7 +403,7 @@ public class Msg1 : ICommand
     public " + typeNoBrackets + @" CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.CorrelationIdMustBeSupportedType, source);
+        return Assert(source, DiagnosticIds.CorrelationIdMustBeSupportedType);
     }
 
     [Test]
@@ -437,7 +437,7 @@ public class Msg1 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.EasierToInheritContainSagaData, source);
+        return Assert(source, DiagnosticIds.EasierToInheritContainSagaData);
     }
 
 
@@ -484,7 +484,7 @@ public class Msg2
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.MessageStartsSagaButNoMapping, source);
+        return Assert(source, DiagnosticIds.MessageStartsSagaButNoMapping);
     }
 
     [Test]
@@ -526,7 +526,7 @@ public class Msg1 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-        return Assert(DiagnosticIds.SagaReplyShouldBeToOriginator, source);
+        return Assert(source, DiagnosticIds.SagaReplyShouldBeToOriginator);
     }
 
     [Test]
@@ -564,7 +564,7 @@ public class Msg2 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-        return Assert(DiagnosticIds.SagaShouldNotHaveIntermediateBaseClass, source);
+        return Assert(source, DiagnosticIds.SagaShouldNotHaveIntermediateBaseClass);
     }
 
     [Test]
@@ -601,7 +601,7 @@ public class Msg2 : ICommand
 }
 public class ReplyMsg : IMessage {}";
 
-        return Assert(DiagnosticIds.SagaShouldNotHaveIntermediateBaseClass, source);
+        return Assert(source, DiagnosticIds.SagaShouldNotHaveIntermediateBaseClass);
     }
 
     [Test]
@@ -622,7 +622,7 @@ public class MyData : ContainSagaData
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.SagaShouldNotImplementNotFoundHandler, source);
+        return Assert(source, DiagnosticIds.SagaShouldNotImplementNotFoundHandler);
     }
 
     [Test]
@@ -656,7 +656,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.ToSagaMappingMustBeToAProperty, source);
+        return Assert(source, DiagnosticIds.ToSagaMappingMustBeToAProperty);
     }
 
     [Test]
@@ -691,7 +691,7 @@ public class Msg2 : ICommand
     public Guid CorrId { get; set; }
 }
 public class Msg3 : ICommand {}";
-        return Assert([DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions], source, [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
+        return Assert(source, [DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions], [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
     }
 
     [Test]
@@ -728,7 +728,7 @@ public class Msg2 : ICommand
 }
 public class Msg3 : ICommand {}";
 
-        return Assert(DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions, source);
+        return Assert(source, DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions);
     }
 
     [Test]
@@ -880,7 +880,7 @@ public class Msg2 : ICommand
     public string CorrId { get; set; }
 }";
 
-        return Assert(DiagnosticIds.MessageStartsSagaButNoMapping, source);
+        return Assert(source, DiagnosticIds.MessageStartsSagaButNoMapping);
     }
 
     [Test]
@@ -1123,7 +1123,7 @@ public class MySaga : Saga<Data>,
 
         if (raiseDiagnostic)
         {
-            return Assert(DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions, source);
+            return Assert(source, DiagnosticIds.CorrelationPropertyTypeMustMatchMessageMappingExpressions);
         }
         else
         {

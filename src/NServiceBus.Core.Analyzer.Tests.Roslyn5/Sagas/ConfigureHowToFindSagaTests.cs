@@ -2,10 +2,9 @@
 
 namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
-using System.Threading;
 using System.Threading.Tasks;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
@@ -83,33 +82,33 @@ public class ConfigureHowToFindSagaTests : AnalyzerTestFixture<SagaAnalyzer>
 
     protected virtual Task RunTest(string configureHowToFindSagaMethod, string diagnosticId, bool mustCompile = true)
     {
-        var nullableTypesSource =
-@"
-#nullable enable
-using System;
-using System.Threading.Tasks;
-using NServiceBus;
-public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
-{
-" + configureHowToFindSagaMethod + @"
-    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
-    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
-}
-public class MyData : ContainSagaData
-{
-    public string? CorrId { get; set; }
-    public string? OtherId { get; set; }
-}
-public class Msg1 : ICommand
-{
-    public string? CorrId { get; set; }
-}
-public class Msg2 : ICommand
-{
-    public string? CorrId { get; set; }
-}
-#nullable restore";
+        var nullableTypesSource = $$"""
+            #nullable enable
+            using System;
+            using System.Threading.Tasks;
+            using NServiceBus;
+            public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+            {
+            {{configureHowToFindSagaMethod}}
+                public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+                public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+            }
+            public class MyData : ContainSagaData
+            {
+                public string? CorrId { get; set; }
+                public string? OtherId { get; set; }
+            }
+            public class Msg1 : ICommand
+            {
+                public string? CorrId { get; set; }
+            }
+            public class Msg2 : ICommand
+            {
+                public string? CorrId { get; set; }
+            }
+            #nullable restore
+            """;
 
-        return Assert([diagnosticId], nullableTypesSource, mustCompile: mustCompile);
+        return Assert(nullableTypesSource, [diagnosticId], [], mustCompile: mustCompile);
     }
 }

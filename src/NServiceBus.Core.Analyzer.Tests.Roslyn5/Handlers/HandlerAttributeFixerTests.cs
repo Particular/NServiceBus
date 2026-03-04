@@ -3,10 +3,10 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NServiceBus.Core.Analyzer.Fixes;
 using NServiceBus.Core.Analyzer.Handlers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAnalyzer, HandlerAttributeFixer>

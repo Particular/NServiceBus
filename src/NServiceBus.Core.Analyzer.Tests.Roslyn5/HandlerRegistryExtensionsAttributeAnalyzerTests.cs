@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixture<HandlerRegistryExtensionsAttributeAnalyzer>
 {
@@ -23,7 +23,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.MultipleHandlerRegistryExtensions, source);
+        return Assert(source, DiagnosticIds.MultipleHandlerRegistryExtensions);
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsMustBePartial, source);
+        return Assert(source, DiagnosticIds.HandlerRegistryExtensionsMustBePartial);
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+        return Assert(source, DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid);
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid, source);
+        return Assert(source, DiagnosticIds.HandlerRegistryExtensionsEntryPointInvalid);
     }
 
     [Test]
@@ -136,7 +136,7 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsPatternFormatInvalid, source);
+        return Assert(source, DiagnosticIds.HandlerRegistryExtensionsPatternFormatInvalid);
     }
 
     [Test]
@@ -151,6 +151,6 @@ public class HandlerRegistryExtensionsAttributeAnalyzerTests : AnalyzerTestFixtu
                      }
                      """;
 
-        return Assert(DiagnosticIds.HandlerRegistryExtensionsPatternRegexInvalid, source);
+        return Assert(source, DiagnosticIds.HandlerRegistryExtensionsPatternRegexInvalid);
     }
 }

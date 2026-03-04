@@ -4,9 +4,9 @@ namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
 using Analyzer.Sagas;
-using Helpers;
 using NServiceBus.Core.Analyzer.Fixes;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class SagaAttributeFixerTests : CodeFixTestFixture<SagaAttributeAnalyzer, SagaAttributeFixer>

@@ -6,11 +6,10 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Helpers;
 using MessageMutator;
 using Pipeline;
-using NServiceBus.Sagas;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationTokenAnalyzer>
@@ -74,39 +73,32 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
     [TestCase(typeof(IMutateOutgoingMessages), null, "MutateOutgoing", "MutateOutgoingMessageContext context")]
     public Task RunTestOnType(Type type, string genericTypeArgs, string methodName, string methodArguments)
     {
-        const string codeFormat =
-@"using NServiceBus;
-using NServiceBus.MessageMutator;
-using NServiceBus.Pipeline;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-public class Foo : BASE_TYPE_WITH_ARGUMENTS
-{
-    public Task METHOD_NAME(METHOD_ARGUMENTS)
-    {
-        return [|TestMethod()|];
-    }
-
-    static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
-}
-public class TestMessage : ICommand {}
-public class TestTimeout {}";
-
         var baseTypeWithArgs = Regex.Replace(type.Name, "`.*", "") + (genericTypeArgs != null ? $"<{genericTypeArgs}>" : "");
+        var methodPreamble = !type.IsInterface && type.IsAbstract
+            ? "public override Task"
+            : "public Task";
 
-        // Too confusing to do normal string interpolation or formatting with all the curly braces
-        var code = codeFormat
-            .Replace("BASE_TYPE_WITH_ARGUMENTS", baseTypeWithArgs)
-            .Replace("METHOD_NAME", methodName)
-            .Replace("METHOD_ARGUMENTS", methodArguments);
+        var code = $$"""
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+            using NServiceBus.Pipeline;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+            public class Foo : {{baseTypeWithArgs}}
+            {
+                {{methodPreamble}} {{methodName}}({{methodArguments}})
+                {
+                    return [|TestMethod()|];
+                }
 
-        if (!type.IsInterface && type.IsAbstract)
-        {
-            code = code.Replace("public Task", "public override Task");
-        }
+                static Task TestMethod(CancellationToken token = default(CancellationToken)) { return Task.CompletedTask; }
+            }
+            public class TestMessage : ICommand {}
+            public class TestTimeout {}
+            """;
 
-        return Assert(DiagnosticIds.ForwardCancellationToken, code);
+        return Assert(code, DiagnosticIds.ForwardCancellationToken);
     }
 
     static bool HasTaskReturningMethodWithContextParameter(Type type)

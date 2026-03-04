@@ -2,8 +2,8 @@
 
 using System.Threading.Tasks;
 using Analyzer.Handlers;
-using Helpers;
 using NUnit.Framework;
+using Particular.AnalyzerTesting;
 
 [TestFixture]
 public class AddHandlerUsedOnSagaTests : AnalyzerTestFixture<AddHandlerOnSagaTypeAnalyzer>
@@ -55,6 +55,6 @@ public class AddHandlerUsedOnSagaTests : AnalyzerTestFixture<AddHandlerOnSagaTyp
                      }
                      """;
 
-        return Assert(DiagnosticIds.AddHandlerOnSagaType, source);
+        return Assert(source, DiagnosticIds.AddHandlerOnSagaType);
     }
 }
