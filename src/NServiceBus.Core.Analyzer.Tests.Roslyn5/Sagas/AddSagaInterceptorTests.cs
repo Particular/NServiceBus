@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Core.Analyzer.Tests.Handlers;
+namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
 using Analyzer.Sagas;
 using Helpers;
 using NUnit.Framework;
 
 [TestFixture]
-public class AddSagaGeneratorTests
+public class AddSagaInterceptorTests
 {
     [Test]
     public void BasicSagas()
@@ -18,7 +18,11 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.BasicSagasAssembly.AddAll();
+                             cfg.AddSaga<Orders.Shipping.OrderShippingPolicy>();
+                             cfg.AddSaga<Orders.Billing.OrderBillingPolicy>();
+                             cfg.AddSaga<Payments.PaymentsPolicy>();
+                             // Duplicate call, methods should be deduped with 2 InterceptsLocation attributes
+                             cfg.AddSaga<Payments.PaymentsPolicy>();
                          }
                      }
 
@@ -27,8 +31,7 @@ public class AddSagaGeneratorTests
                          [Saga]
                          public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
-                             IHandleMessages<OrderBilled>,
-                             IHandleTimeouts<OrderPlaced>
+                             IHandleMessages<OrderBilled>
                          {
                              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                              {
@@ -36,20 +39,21 @@ public class AddSagaGeneratorTests
                                      .ToMessage<OrderPlaced>(msg => msg.OrderId)
                                      .ToMessage<OrderBilled>(msg => msg.OrderId);
                              }
-                             
+
                              public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                              public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                          }
-                         
+
                          public class OrderShippingPolicyData : ContainSagaData
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderPlaced : IEvent
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderBilled : IEvent
                          {
                              public string OrderId { get; set; }
@@ -61,8 +65,7 @@ public class AddSagaGeneratorTests
                          [Saga]
                          public class OrderBillingPolicy : Saga<OrderBillingPolicyData>,
                              IAmStartedByMessages<OrderPlaced>,
-                             IAmStartedByMessages<OrderBilled>,
-                             IHandleTimeouts<OrderPlaced>
+                             IAmStartedByMessages<OrderBilled>
                          {
                              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderBillingPolicyData> mapper)
                              {
@@ -70,20 +73,21 @@ public class AddSagaGeneratorTests
                                      .ToMessage<OrderPlaced>(msg => msg.OrderId)
                                      .ToMessage<OrderBilled>(msg => msg.OrderId);
                              }
-                             
+
                              public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                              public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                          }
-                         
+
                          public class OrderBillingPolicyData : ContainSagaData
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderPlaced : IEvent
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderBilled : IEvent
                          {
                              public string OrderId { get; set; }
@@ -103,33 +107,29 @@ public class AddSagaGeneratorTests
                                      .ToMessage<OrderPlaced>(msg => msg.OrderId)
                                      .ToMessage<OrderBilled>(msg => msg.OrderId);
                              }
-                             
+
                              public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                              public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
                          }
-                         
+
                          public class PaymentsPolicyData : ContainSagaData
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderPlaced : IEvent
                          {
                              public string OrderId { get; set; }
                          }
+
                          public class OrderBilled : IEvent
                          {
                              public string OrderId { get; set; }
                          }
                      }
-
-                     public class Cmd1 : CmdBase { }
-                     public class Cmd2 : ICommand { }
-                     public class Evt1 : IEvent { }
-                     public class CmdBase : ICommand { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -146,7 +146,10 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.NestedSagasAssembly.AddAll();
+                             cfg.AddSaga<Orders.Shipping.OuterClass.OrderShippingPolicy>();
+                             cfg.AddSaga<Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippingPolicy>();
+                             // Duplicate call, methods should be deduped with 2 InterceptsLocation attributes
+                             cfg.AddSaga<Orders.Shipping.AnotherOuterClass.InnerClass.OrderShippingPolicy>();
                          }
                      }
 
@@ -157,8 +160,7 @@ public class AddSagaGeneratorTests
                              [Saga]
                              public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                                  IAmStartedByMessages<OrderPlaced>,
-                                 IHandleMessages<OrderBilled>,
-                                 IHandleTimeouts<OrderPlaced>
+                                 IHandleMessages<OrderBilled>
                              {
                                  protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                                  {
@@ -166,27 +168,25 @@ public class AddSagaGeneratorTests
                                          .ToMessage<OrderPlaced>(msg => msg.OrderId)
                                          .ToMessage<OrderBilled>(msg => msg.OrderId);
                                  }
-                                 
+
                                  public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                                  public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                                 public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                              }
-                             
+
                              public class OrderShippingPolicyData : ContainSagaData
                              {
                                  public string OrderId { get; set; }
                              }
                          }
-                         
+
                          public class AnotherOuterClass
                          {
-                             public class InnerClass 
+                             public class InnerClass
                              {
                                  [Saga]
                                  public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
                                      IAmStartedByMessages<OrderPlaced>,
-                                     IHandleMessages<OrderBilled>,
-                                     IHandleTimeouts<OrderPlaced>
+                                     IHandleMessages<OrderBilled>
                                  {
                                      protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                                      {
@@ -194,12 +194,11 @@ public class AddSagaGeneratorTests
                                              .ToMessage<OrderPlaced>(msg => msg.OrderId)
                                              .ToMessage<OrderBilled>(msg => msg.OrderId);
                                      }
-                                     
+
                                      public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                                      public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                                     public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
                                  }
-                                 
+
                                  public class OrderShippingPolicyData : ContainSagaData
                                  {
                                      public string OrderId { get; set; }
@@ -212,212 +211,14 @@ public class AddSagaGeneratorTests
                      {
                          public string OrderId { get; set; }
                      }
+
                      public class OrderBilled : IEvent
                      {
                          public string OrderId { get; set; }
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
-            .WithSource(source, "test.cs")
-            .Approve()
-            .AssertRunsAreEqual();
-    }
-
-    [Test]
-    public void RootClassVisibilityAndNamespace()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-                     using CustomRegistrations;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.RootClassVisibilityAndNamespaceAssembly.AddAll();
-                         }
-                     }
-
-                     namespace CustomRegistrations
-                     {
-                         [HandlerRegistryExtensions]
-                         internal static partial class MyCustomHandlerRegistryExtensions
-                         {
-                         }
-                     }
-
-                     namespace Orders
-                     {
-                         [Saga]
-                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                             IAmStartedByMessages<OrderPlaced>,
-                             IHandleMessages<OrderBilled>,
-                             IHandleTimeouts<OrderPlaced>
-                         {
-                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
-                             {
-                                 mapper.MapSaga(saga => saga.OrderId)
-                                     .ToMessage<OrderPlaced>(msg => msg.OrderId)
-                                     .ToMessage<OrderBilled>(msg => msg.OrderId);
-                             }
-                             
-                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                         }
-                         
-                         public class OrderShippingPolicyData : ContainSagaData
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderPlaced : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderBilled : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                     }
-                     """;
-
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
-            .WithSource(source, "test.cs")
-            .Approve()
-            .AssertRunsAreEqual();
-    }
-
-    [Test]
-    public void RootClassEntryPointName()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-                     using CustomRegistrations;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CustomEntryPoint.AddAll();
-                         }
-                     }
-
-                     namespace CustomRegistrations
-                     {
-                        [HandlerRegistryExtensions(EntryPointName = "CustomEntryPoint")]
-                        internal static partial class MyCustomHandlerRegistryExtensions
-                        {
-                        }
-                     }
-
-                     namespace Orders
-                     {
-                         [Saga]
-                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                             IAmStartedByMessages<OrderPlaced>,
-                             IHandleMessages<OrderBilled>,
-                             IHandleTimeouts<OrderPlaced>
-                         {
-                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
-                             {
-                                 mapper.MapSaga(saga => saga.OrderId)
-                                     .ToMessage<OrderPlaced>(msg => msg.OrderId)
-                                     .ToMessage<OrderBilled>(msg => msg.OrderId);
-                             }
-                             
-                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                         }
-                         
-                         public class OrderShippingPolicyData : ContainSagaData
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderPlaced : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderBilled : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                     }
-                     """;
-
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
-            .WithSource(source, "test.cs")
-            .Approve()
-            .AssertRunsAreEqual();
-    }
-
-    [Test]
-    public void RegistrationMethodNamePatterns()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-                     using CustomRegistrations;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.RegistrationMethodNamePatternsAssembly.AddAll();
-                         }
-                     }
-
-                     namespace CustomRegistrations
-                     {
-                         [HandlerRegistryExtensions(RegistrationMethodNamePatterns = ["^NoMatch$=>Ignored", "Policy$=>Flow"])]
-                         internal static partial class MyCustomHandlerRegistryExtensions
-                         {
-                         }
-                     }
-
-                     namespace Orders
-                     {
-                         [Saga]
-                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                             IAmStartedByMessages<OrderPlaced>,
-                             IHandleMessages<OrderBilled>,
-                             IHandleTimeouts<OrderPlaced>
-                         {
-                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
-                             {
-                                 mapper.MapSaga(saga => saga.OrderId)
-                                     .ToMessage<OrderPlaced>(msg => msg.OrderId)
-                                     .ToMessage<OrderBilled>(msg => msg.OrderId);
-                             }
-                             
-                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Handle(OrderBilled evt, IMessageHandlerContext context) => Task.CompletedTask;
-                             public Task Timeout(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
-                         }
-                         
-                         public class OrderShippingPolicyData : ContainSagaData
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderPlaced : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                         public class OrderBilled : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
-                     }
-                     """;
-
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -434,7 +235,7 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.SagaMappingStillWorksWithUnrelatedCompilationErrorAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
 
                          void BreakCompilation()
@@ -443,35 +244,30 @@ public class AddSagaGeneratorTests
                          }
                      }
 
-                     namespace Orders.Shipping
+                     [Saga]
+                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IAmStartedByMessages<OrderPlaced>
                      {
-                         [Saga]
-                         public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                             IAmStartedByMessages<OrderPlaced>
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                          {
-                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
-                             {
-                                 mapper.MapSaga(saga => saga.OrderId)
-                                     .ToMessage<OrderPlaced>(msg => msg.OrderId);
-                             }
-
-                             public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                             mapper.MapSaga(saga => saga.OrderId)
+                                 .ToMessage<OrderPlaced>(msg => msg.OrderId);
                          }
 
-                         public class OrderShippingPolicyData : ContainSagaData
-                         {
-                             public string OrderId { get; set; }
-                         }
+                         public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
 
-                         public class OrderPlaced : IEvent
-                         {
-                             public string OrderId { get; set; }
-                         }
+                     public class OrderShippingPolicyData : ContainSagaData
+                     {
+                         public string OrderId { get; set; }
+                     }
+
+                     public class OrderPlaced : IEvent
+                     {
+                         public string OrderId { get; set; }
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Approve()
@@ -489,41 +285,37 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.PrimaryConstructorAndSyntaxWrappersAssembly.AddAll();
+                             cfg.AddSaga<PartitionedEndpointSaga>();
                          }
                      }
 
-                     namespace Orders.Shipping
+                     [Saga]
+                     public class PartitionedEndpointSaga(object logger)
+                         : Saga<PartitionedEndpointSagaData>, IAmStartedByMessages<StartPartitionSagaCommand>
                      {
-                         [Saga]
-                         public class PartitionedEndpointSaga(object logger)
-                             : Saga<PartitionedEndpointSagaData>, IAmStartedByMessages<StartPartitionSagaCommand>
+                         public object Logger { get; } = logger;
+
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PartitionedEndpointSagaData> mapper)
                          {
-                             public object Logger { get; } = logger;
-
-                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PartitionedEndpointSagaData> mapper)
-                             {
-                                 mapper.MapSaga(saga => (saga).CorrelationId)
-                                       .ToMessage<StartPartitionSagaCommand>(m => m!.CorrelationId);
-                             }
-
-                             public Task Handle(StartPartitionSagaCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                             mapper.MapSaga(saga => (saga).CorrelationId)
+                                   .ToMessage<StartPartitionSagaCommand>(m => m!.CorrelationId);
                          }
 
-                         public class PartitionedEndpointSagaData : ContainSagaData
-                         {
-                             public string CorrelationId { get; set; }
-                         }
+                         public Task Handle(StartPartitionSagaCommand message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
 
-                         public class StartPartitionSagaCommand : ICommand
-                         {
-                             public string CorrelationId { get; set; }
-                         }
+                     public class PartitionedEndpointSagaData : ContainSagaData
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+
+                     public class StartPartitionSagaCommand : ICommand
+                     {
+                         public string CorrelationId { get; set; }
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -540,13 +332,12 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.ExpressionBodiedConfigureHowToFindSagaAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
                      }
 
                      [Saga]
-                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                         IAmStartedByMessages<OrderPlaced>
+                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IAmStartedByMessages<OrderPlaced>
                      {
                          protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper) =>
                              mapper.MapSaga(saga => (saga).OrderId)
@@ -566,8 +357,7 @@ public class AddSagaGeneratorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -584,7 +374,7 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InvalidMappingWithCompilationErrorsAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
 
                          void BreakCompilation()
@@ -594,15 +384,13 @@ public class AddSagaGeneratorTests
                      }
 
                      [Saga]
-                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
-                         IAmStartedByMessages<OrderPlaced>,
-                         IHandleMessages<OrderBilled>
+                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>, IAmStartedByMessages<OrderPlaced>, IHandleMessages<OrderBilled>
                      {
                          protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                          {
                              mapper.MapSaga(saga => saga.OrderId)
-                                   .ToMessage<OrderPlaced>(msg => msg.OrderId)
-                                   .ToMessage<OrderBilled>(msg => msg?.OrderId);
+                                 .ToMessage<OrderPlaced>(msg => msg.OrderId)
+                                 .ToMessage<OrderBilled>(msg => msg?.OrderId);
                          }
 
                          public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
@@ -625,8 +413,7 @@ public class AddSagaGeneratorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Approve()
@@ -644,7 +431,7 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.CastSyntaxWrappersAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
                      }
 
@@ -671,8 +458,7 @@ public class AddSagaGeneratorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -688,7 +474,7 @@ public class AddSagaGeneratorTests
                           {
                               public void Configure(EndpointConfiguration cfg)
                               {
-                                  cfg.Handlers.UnrelatedCompilationErrorInDifferentFileAssembly.AddAll();
+                                  cfg.AddSaga<OrderShippingPolicy>();
                               }
 
                               void BreakCompilation()
@@ -725,8 +511,7 @@ public class AddSagaGeneratorTests
                          }
                          """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(setupSource, "setup.cs")
             .WithSource(sagaSource, "saga.cs")
             .SuppressCompilationErrors()
@@ -745,7 +530,7 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.DuplicatePropertyDefinitionsWithCompilationErrorsAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
                      }
 
@@ -777,8 +562,7 @@ public class AddSagaGeneratorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Approve()
@@ -797,7 +581,7 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.NullableReferenceTypeMappingsAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
                      }
 
@@ -825,8 +609,7 @@ public class AddSagaGeneratorTests
                      #nullable restore
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -844,7 +627,8 @@ public class AddSagaGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.NullableReferenceTypeMixedMappingsAssembly.AddAll();
+                             cfg.AddSaga<NullableSaga>();
+                             cfg.AddSaga<NonNullableSaga>();
                          }
                      }
 
@@ -894,8 +678,7 @@ public class AddSagaGeneratorTests
                      #nullable restore
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();
@@ -908,17 +691,17 @@ public class AddSagaGeneratorTests
                      using System.Threading.Tasks;
                      using NServiceBus;
 
+                     public abstract class BaseEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+
                      public class Test
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InheritedMessagePropertyAssembly.AddAll();
+                             cfg.AddSaga<OrderShippingPolicy>();
                          }
-                     }
-
-                     public abstract class BaseEvent
-                     {
-                         public string OrderId { get; set; }
                      }
 
                      [Saga]
@@ -947,8 +730,7 @@ public class AddSagaGeneratorTests
                      public class OrderBilled : BaseEvent, IEvent { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
-            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .Approve()
             .AssertRunsAreEqual();

@@ -48,11 +48,17 @@ public static partial class Sagas
                 return null;
             }
 
-            var sagaBaseSpec = Handlers.Handlers.Parser.Parse(semanticModel, sagaType, BaseParser.SpecKind.Saga, cancellationToken);
+            var sagaSemanticModel = semanticModel;
+            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is { } sagaSyntaxTree && sagaSyntaxTree != semanticModel.SyntaxTree)
+            {
+                sagaSemanticModel = semanticModel.Compilation.GetSemanticModel(sagaSyntaxTree);
+            }
+
+            var sagaBaseSpec = Handlers.Handlers.Parser.Parse(sagaSemanticModel, sagaType, BaseParser.SpecKind.Saga, cancellationToken);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings
-            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, semanticModel, cancellationToken);
+            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, sagaSemanticModel, cancellationToken);
 
             return correlationProperty is null ? null : new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty.Value, propertyMappings);
         }
@@ -165,14 +171,7 @@ public static partial class Sagas
                     return;
                 }
 
-                // Normalize body to a MemberAccessExpressionSyntax
-                MemberAccessExpressionSyntax? memberAccess = lambda.Body switch
-                {
-                    MemberAccessExpressionSyntax m => m,
-                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember,
-                    _ => null
-                };
-
+                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
                 if (memberAccess is null)
                 {
                     return;
@@ -185,9 +184,8 @@ public static partial class Sagas
                     return;
                 }
 
-                // Property symbol & type
-                var symbolInfo = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
-                if (symbolInfo.Symbol is not IPropertySymbol propertySymbol)
+                var propertySymbol = ResolvePropertySymbol(semanticModel, memberAccess, cancellationToken);
+                if (propertySymbol is null)
                 {
                     return;
                 }
@@ -211,14 +209,7 @@ public static partial class Sagas
                     return;
                 }
 
-                // Normalize body to a MemberAccessExpressionSyntax
-                MemberAccessExpressionSyntax? memberAccess = lambda.Body switch
-                {
-                    MemberAccessExpressionSyntax m => m,
-                    CastExpressionSyntax { Expression: MemberAccessExpressionSyntax castMember } => castMember,
-                    _ => null
-                };
-
+                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
                 if (memberAccess is null)
                 {
                     return;
@@ -231,11 +222,17 @@ public static partial class Sagas
                     return;
                 }
 
+                var propertySymbol = ResolvePropertySymbol(semanticModel, memberAccess, cancellationToken);
+                if (propertySymbol is null)
+                {
+                    return;
+                }
+
                 // Message "variable" expression: the left side of "message.Property"
-                var messageExpression = memberAccess.Expression;
+                var messageExpression = StripSyntaxWrappers(memberAccess.Expression, cancellationToken);
 
                 // Message type (symbol)
-                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type;
+                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type ?? propertySymbol.ContainingType;
                 if (messageTypeSymbol is null)
                 {
                     return;
@@ -244,16 +241,47 @@ public static partial class Sagas
                 var messageType = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 var messageName = messageTypeSymbol.Name; // simple name, e.g. "SomeMessage"
 
-                // Property symbol & type
-                var symbolInfo = ModelExtensions.GetSymbolInfo(semanticModel, memberAccess, cancellationToken);
-                if (symbolInfo.Symbol is not IPropertySymbol propertySymbol)
-                {
-                    return;
-                }
-
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+            }
+
+            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
+                node is ExpressionSyntax expression
+                    ? StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax
+                    : null;
+
+            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken)
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    switch (expression)
+                    {
+                        case CastExpressionSyntax cast:
+                            expression = cast.Expression;
+                            continue;
+                        case ParenthesizedExpressionSyntax parenthesized:
+                            expression = parenthesized.Expression;
+                            continue;
+                        case PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppressNullable:
+                            expression = suppressNullable.Operand;
+                            continue;
+                        default:
+                            return expression;
+                    }
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                return expression;
+            }
+
+            static IPropertySymbol? ResolvePropertySymbol(SemanticModel model, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
+            {
+                return AsProperty(model.GetSymbolInfo(memberAccess, cancellationToken))
+                    ?? AsProperty(model.GetSymbolInfo(memberAccess.Name, cancellationToken));
+
+                static IPropertySymbol? AsProperty(SymbolInfo symbolInfo) => symbolInfo.Symbol as IPropertySymbol
+                        ?? symbolInfo.CandidateSymbols.OfType<IPropertySymbol>().FirstOrDefault();
             }
         }
     }
