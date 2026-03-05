@@ -17,8 +17,45 @@ using Transport;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers an NServiceBus endpoint.
+    /// Registers an NServiceBus endpoint with the dependency injection container, enabling the endpoint
+    /// to resolve services from the application's service provider and participate in the hosted service lifecycle.
     /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the endpoint to.</param>
+    /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration"/> defining how the endpoint should be configured.</param>
+    /// <param name="endpointIdentifier">
+    /// An optional identifier that uniquely identifies this endpoint within the dependency injection container.
+    /// When multiple endpoints are registered (by calling this method multiple times), this parameter is required
+    /// and must be a well-defined value that serves as a keyed service identifier.
+    /// <para>
+    /// In most scenarios, using the endpoint name as the identifier is a good choice.
+    /// </para>
+    /// <para>
+    /// For more complex scenarios such as multi-tenant applications where endpoint infrastructure
+    /// per tenant is dynamically resolved, the identifier can be any object that implements <see cref="object.Equals(object?)"/>
+    /// and <see cref="object.GetHashCode"/> in a way that conforms to Microsoft Dependency Injection keyed services assumptions.
+    /// The key is used with keyed service registration methods like <c>AddKeyedSingleton</c> and related methods,
+    /// and can be retrieved using keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
+    /// the <c>[FromKeyedServices]</c> attribute on constructor parameters.
+    /// </para>
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// When using a keyed endpoint, all services resolved within NServiceBus extension points
+    /// (message handlers, sagas, features, installers, etc.) are automatically resolved as keyed services
+    /// for that endpoint and do not require the <c>[FromKeyedServices]</c> attribute.
+    /// Conversely, the <c>[FromKeyedServices]</c> attribute is required when accessing endpoint-specific services
+    /// (such as <see cref="IMessageSession"/>) outside of NServiceBus extension points, for example in controllers
+    /// or background jobs.
+    /// </para>
+    /// <para>
+    /// By default, only endpoint-specific registrations are resolved when resolving all services of a given type
+    /// within an endpoint. However, for advanced scenarios where global services registered on the shared
+    /// service collection need to be resolved along with endpoint-specific ones, use <see cref="KeyedServiceKey.Any"/>
+    /// with the <c>[FromKeyedServices]</c> attribute (for example: <c>[FromKeyedServices(KeyedServiceKey.Any)] IEnumerable&lt;IMyService&gt;</c>).
+    /// This bypasses the default safeguards that isolate endpoints, allowing resolution of all services including
+    /// globally shared ones.
+    /// </para>
+    /// </remarks>
     public static void AddNServiceBusEndpoint(
         this IServiceCollection services,
         EndpointConfiguration endpointConfiguration,
