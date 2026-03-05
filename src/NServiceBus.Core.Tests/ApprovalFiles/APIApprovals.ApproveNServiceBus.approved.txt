@@ -961,7 +961,7 @@ namespace NServiceBus
     public static class SagaRegistrationExtensions
     {
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
-        public static void AddSaga<TSaga>(this NServiceBus.EndpointConfiguration config)
+        public static void AddSaga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>(this NServiceBus.EndpointConfiguration config)
             where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
     }
     public abstract class Saga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData> : NServiceBus.Saga
