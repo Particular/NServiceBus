@@ -38,7 +38,7 @@ public sealed partial class AddSagaInterceptor
             TypeArguments.Length: 1,
             ContainingType:
             {
-                Name: AddHandlerClassName,
+                Name: AddSagaClassName,
                 ContainingNamespace:
                 {
                     Name: "NServiceBus",
@@ -83,6 +83,6 @@ public sealed partial class AddSagaInterceptor
         }
 
         const string AddSagaMethodName = "AddSaga";
-        const string AddHandlerClassName = "SagaRegistrationExtensions";
+        const string AddSagaClassName = "SagaRegistrationExtensions";
     }
 }
