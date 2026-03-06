@@ -24,13 +24,14 @@ public static class ServiceCollectionExtensions
     /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration"/> defining how the endpoint should be configured.</param>
     /// <param name="endpointIdentifier">
     /// An optional identifier that uniquely identifies this endpoint within the dependency injection container.
-    /// When multiple endpoints are registered (by calling this method multiple times), this parameter is required
-    /// and must be a well-defined value that serves as a keyed service identifier.
+    /// When multiple endpoints are registered (by calling this method multiple times), this parameter can be
+    /// omitted and the endpoint name will be used as the identifier automatically.
     /// <para>
-    /// In most scenarios, using the endpoint name as the identifier is a good choice.
+    /// This parameter must not be set when registering a single endpoint — it is only meaningful in
+    /// multi-endpoint scenarios where a custom key is required.
     /// </para>
     /// <para>
-    /// For more complex scenarios such as multi-tenant applications where endpoint infrastructure
+    /// For advanced scenarios such as multi-tenant applications where endpoint infrastructure
     /// per tenant is dynamically resolved, the identifier can be any object that implements <see cref="object.Equals(object?)"/>
     /// and <see cref="object.GetHashCode"/> in a way that conforms to Microsoft Dependency Injection keyed services assumptions.
     /// The key is used with keyed service registration methods like <c>AddKeyedSingleton</c> and related methods,
@@ -69,15 +70,20 @@ public static class ServiceCollectionExtensions
         var hostingSettings = settings.Get<HostingComponent.Settings>();
         var transport = settings.Get<TransportDefinition>();
         var registrations = GetExistingRegistrations(services);
+        var isMultiHosted = registrations.Count > 0;
 
-        ValidateEndpointIdentifier(endpointIdentifier, registrations);
+        var backdoorAdapter = settings.GetOrDefault<KeyedServiceCollectionAdapter>();
+        var effectiveIdentifier = endpointIdentifier ?? (isMultiHosted ? (object?)endpointName : null);
+
+        ValidateEndpointIdentifier(endpointIdentifier, effectiveIdentifier, registrations, backdoorAdapter is not null);
         ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
         ValidateTransportReuse(transport, registrations);
 
-        hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
+        hostingSettings.ConfigureMultiHostLogging(isMultiHosted, isMultiHosted ? effectiveIdentifier : null);
 
-        if (endpointIdentifier is null)
+        if (effectiveIdentifier is null)
         {
+            // Single-endpoint scenario: non-keyed registration for backwards-compatible resolution.
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
 
@@ -87,37 +93,36 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            // Backdoor for acceptance testing
-            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+            var keyedServices = backdoorAdapter ?? new KeyedServiceCollectionAdapter(services, effectiveIdentifier);
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
 
-            services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
-            services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, keyedServices));
-            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(endpointIdentifier)));
+            services.AddKeyedSingleton(effectiveIdentifier, externallyManagedContainerHost);
+            services.AddKeyedSingleton<IEndpointLifecycle>(effectiveIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, effectiveIdentifier, keyedServices));
+            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(effectiveIdentifier)));
         }
 
-        services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
+        services.AddSingleton(new EndpointRegistration(endpointName, effectiveIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
     }
 
-    static void ValidateEndpointIdentifier(object? endpointIdentifier, List<EndpointRegistration> registrations)
+    static void ValidateEndpointIdentifier(object? endpointIdentifier, object? effectiveIdentifier, List<EndpointRegistration> registrations, bool skipSingleEndpointValidation = false)
     {
         if (registrations.Count == 0)
         {
+            if (endpointIdentifier is not null && !skipSingleEndpointValidation)
+            {
+                throw new InvalidOperationException(
+                    "An endpoint identifier cannot be set when registering a single endpoint. " +
+                    "The identifier is only needed when multiple endpoints are registered and defaults to the endpoint name when not provided.");
+            }
             return;
         }
 
-        if (endpointIdentifier is null || registrations.Any(r => r.EndpointIdentifier is null))
+        if (registrations.Any(r => Equals(r.EndpointIdentifier, effectiveIdentifier)))
         {
             throw new InvalidOperationException(
-                "When multiple endpoints are registered, each endpoint must provide an endpointIdentifier.");
-        }
-
-        if (registrations.Any(r => Equals(r.EndpointIdentifier, endpointIdentifier)))
-        {
-            throw new InvalidOperationException(
-                $"An endpoint with the identifier '{endpointIdentifier}' has already been registered.");
+                $"An endpoint with the identifier '{effectiveIdentifier}' has already been registered.");
         }
     }
 
