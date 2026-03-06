@@ -318,6 +318,95 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task ReportsMixedStyleError()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|] : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            class AnotherMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
+    }
+
+    [Test]
+    public Task DoesNotReportForPureInterfaceLessHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportMixedStyleForPureInterfaceBased()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsMixedStyleErrorWhenInterfaceLessMethodHasSameMessageTypeButExtraParams()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|] : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                public Task Handle(MyMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnComplexBase()
     {
         var source =

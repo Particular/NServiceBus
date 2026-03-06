@@ -103,6 +103,38 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void MixedStyleHandlerProducesNoInterception()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<MixedHandler>();
+                         }
+                     }
+
+                     public class MixedHandler : IHandleMessages<Cmd1>
+                     {
+                         public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         public Task Handle(Cmd2 message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     public class Cmd2 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void SagaWithInappropriateDoubleMessageMapping()
     {
         var source = """
