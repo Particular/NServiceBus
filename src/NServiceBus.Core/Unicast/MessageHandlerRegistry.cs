@@ -67,13 +67,21 @@ public class MessageHandlerRegistry
     /// Registers the handler type.
     /// </summary>
     [RequiresUnreferencedCode(TrimmingMessage)]
-    public void AddHandler<THandler>() where THandler : IHandleMessages
+    public void AddHandler<THandler>()
     {
         var handlerType = typeof(THandler);
 
         if (handlerType.IsAbstract)
         {
             return;
+        }
+
+        if (!typeof(IHandleMessages).IsAssignableFrom(handlerType))
+        {
+            throw new ArgumentException(
+                $"Type '{handlerType.FullName}' does not implement {nameof(IHandleMessages)} and cannot be registered via the reflection-based AddHandler<THandler>() path. " +
+                "Interface-less handlers require source generation/interception.",
+                nameof(THandler));
         }
 
         foreach (var interfaceType in handlerType.GetInterfaces())

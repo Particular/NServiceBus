@@ -94,6 +94,18 @@ public class MessageHandlerRegistryTests
         Assert.That(handlersForMessage.Count(h => h.IsTimeoutHandler), Is.EqualTo(1));
     }
 
+    [Test]
+    public void ShouldRejectInterfaceLessHandlerOnReflectionPath()
+    {
+        var registry = new MessageHandlerRegistry();
+
+        var exception = Assert.Throws<ArgumentException>(() => registry.AddHandler<InterfaceLessHandler>());
+
+        Assert.That(exception!.ParamName, Is.EqualTo("THandler"));
+        Assert.That(exception.Message, Does.Contain("does not implement IHandleMessages"));
+        Assert.That(exception.Message, Does.Contain("Interface-less handlers require source generation/interception."));
+    }
+
     class HandlerForMultipleMessages : IHandleMessages<MyMessage>, IHandleMessages<AnotherMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -125,5 +137,10 @@ public class MessageHandlerRegistryTests
         public bool TimeoutCalled { get; set; }
 
         public class MySagaData : ContainSagaData;
+    }
+
+    class InterfaceLessHandler
+    {
+        public static Task Handle(MyMessage _, IMessageHandlerContext __) => Task.CompletedTask;
     }
 }
