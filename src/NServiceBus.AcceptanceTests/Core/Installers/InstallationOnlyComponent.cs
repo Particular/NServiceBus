@@ -27,25 +27,21 @@ public class InstallationOnlyComponent<TConfigurationFactory> : IComponentBehavi
 
     static void RegisterScenarioContext(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
     {
+        var settings = endpointConfiguration.GetSettings();
+        var services = endpointConfiguration.Services;
+
         var type = scenarioContext.GetType();
-        while (type != typeof(object))
+        while (type != typeof(object) && type != null)
         {
             var currentType = type;
-            endpointConfiguration.GetSettings().Set(currentType.FullName, scenarioContext);
-            endpointConfiguration.RegisterComponents(serviceCollection => serviceCollection.AddSingleton(currentType, scenarioContext));
+            settings.Set(currentType.FullName, scenarioContext);
+            services.AddSingleton(currentType, scenarioContext);
             type = type.BaseType;
         }
     }
 
-    public class InstallationRunner : ComponentRunner
+    public class InstallationRunner(EndpointConfiguration endpointConfiguration) : ComponentRunner
     {
-        EndpointConfiguration endpointConfiguration;
-
-        public InstallationRunner(EndpointConfiguration endpointConfiguration)
-        {
-            this.endpointConfiguration = endpointConfiguration;
-        }
-
         public override string Name => "Installation only runner";
 
         public override Task Start(CancellationToken cancellationToken = default) => Installer.Setup(endpointConfiguration, cancellationToken);

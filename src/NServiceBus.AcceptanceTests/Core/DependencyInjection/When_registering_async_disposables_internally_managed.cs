@@ -40,15 +40,12 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
     public class EndpointWithAsyncDisposable : EndpointConfigurationBuilder
     {
         public EndpointWithAsyncDisposable() =>
-            EndpointSetup<DefaultServer>(c =>
+            EndpointSetup<DefaultServer>((c, r) =>
             {
-                c.RegisterComponents(s =>
-                {
-                    // We have to take control over re-registering the context because we have taken control over the instance creation
-                    s.AddSingleton(c.GetSettings().Get<Context>());
-                    s.AddScoped<ScopedAsyncDisposable>();
-                    s.AddSingleton<SingletonAsyncDisposable>();
-                });
+                // We have to take control over re-registering the context because we have taken control over the instance creation
+                c.Services.AddSingleton((Context)r.ScenarioContext);
+                c.Services.AddScoped<ScopedAsyncDisposable>();
+                c.Services.AddSingleton<SingletonAsyncDisposable>();
             });
 
         [Handler]

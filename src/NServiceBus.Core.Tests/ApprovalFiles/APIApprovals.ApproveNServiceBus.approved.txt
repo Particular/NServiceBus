@@ -272,7 +272,11 @@ namespace NServiceBus
     {
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
+        [System.Obsolete("Use the Services property instead. Use \'EndpointConfiguration.Services\' instead. " +
+            "Will be treated as an error from version 11.0.0. Will be removed in version 12.0" +
+            ".0.", false)]
         public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
         public void SendOnly() { }
     }

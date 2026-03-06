@@ -54,7 +54,7 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
             {
                 // The subscription storage is needed because at this stage we have no way of DisablingPublishing on the non-generic version of ConfigureTransport
-                c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
+                c.Services.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>();
                 c.UsePersistence<FakeNoSynchronizedStorageSupportPersistence>();
             });
 
