@@ -659,8 +659,7 @@ namespace NServiceBus
     {
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
-        public static void AddHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler>(this NServiceBus.EndpointConfiguration config)
-            where THandler : NServiceBus.IHandleMessages { }
+        public static void AddHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler>(this NServiceBus.EndpointConfiguration config) { }
     }
     public static class MessageIdExtensions
     {
@@ -2537,7 +2536,7 @@ namespace NServiceBus.Unicast
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
         public void AddHandler<THandler>()
-            where THandler : NServiceBus.IHandleMessages { }
+            { }
         public void AddMessageHandlerForMessage<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler, TMessage>()
             where THandler :  class, NServiceBus.IHandleMessages<TMessage> { }
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +

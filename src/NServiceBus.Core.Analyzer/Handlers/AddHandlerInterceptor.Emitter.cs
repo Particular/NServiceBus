@@ -84,6 +84,27 @@ public sealed partial class AddHandlerInterceptor
 
             sourceWriter.CloseCurlies();
 
+            var adapterHandlers = interceptableHandlers
+                .Where(h => h.HandlerSpec.InterfaceLessMethods.Count > 0)
+                .GroupBy(h => h.HandlerSpec.FullyQualifiedName, StringComparer.Ordinal)
+                .Select(g => g.First().HandlerSpec)
+                .ToArray();
+
+            if (adapterHandlers.Length > 0)
+            {
+                sourceWriter.WriteLine();
+
+                for (var index = 0; index < adapterHandlers.Length; index++)
+                {
+                    Handlers.Emitter.EmitAdapterTypes(sourceWriter, adapterHandlers[index]);
+
+                    if (index < adapterHandlers.Length - 1)
+                    {
+                        sourceWriter.WriteLine();
+                    }
+                }
+            }
+
             context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
         }
 
