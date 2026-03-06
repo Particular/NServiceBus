@@ -38,7 +38,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
             b.EnableFeature<MyFeatureProvidingMoreDependencies>();
 
             // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency"));
+            b.Services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency");
         });
 
         [Handler]

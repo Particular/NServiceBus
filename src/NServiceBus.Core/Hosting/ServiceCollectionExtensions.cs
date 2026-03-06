@@ -86,6 +86,7 @@ public static class ServiceCollectionExtensions
             // Single-endpoint scenario: non-keyed registration for backwards-compatible resolution.
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
+            endpointConfiguration.ApplyUserServicesTo(services);
 
             services.AddSingleton(externallyManagedContainerHost);
             services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
@@ -97,6 +98,7 @@ public static class ServiceCollectionExtensions
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
+            endpointConfiguration.ApplyUserServicesTo(keyedServices);
 
             services.AddKeyedSingleton(effectiveIdentifier, externallyManagedContainerHost);
             services.AddKeyedSingleton<IEndpointLifecycle>(effectiveIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, effectiveIdentifier, keyedServices));

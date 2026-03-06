@@ -64,7 +64,7 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.RegisterComponents(r => r.AddScoped<UnitOfWorkComponent>());
+                c.Services.AddScoped<UnitOfWorkComponent>();
                 c.Pipeline.Register(b => new HeaderProcessingBehavior(b.GetService<Context>()), "Populates UoW component.");
                 c.LimitMessageProcessingConcurrencyTo(1);
             });

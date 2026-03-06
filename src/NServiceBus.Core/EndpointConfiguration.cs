@@ -8,6 +8,7 @@ using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
+using Particular.Obsoletes;
 using Pipeline;
 using Settings;
 
@@ -78,13 +79,38 @@ public class EndpointConfiguration : ExposeSettings
     public PipelineSettings Pipeline { get; }
 
     /// <summary>
+    /// Gets the service collection used to register custom services.
+    /// </summary>
+    public IServiceCollection Services => userServiceCollection;
+
+    /// <summary>
     /// Used to configure components in the container.
     /// </summary>
+    [ObsoleteMetadata(Message = "Use the Services property instead",
+        ReplacementTypeOrMember = "EndpointConfiguration.Services",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Use the Services property instead. Use 'EndpointConfiguration.Services' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public void RegisterComponents(Action<IServiceCollection> registration)
     {
         ArgumentNullException.ThrowIfNull(registration);
 
-        Settings.Get<HostingComponent.Settings>().UserRegistrations.Add(registration);
+        deferredRegistrations.Add(registration);
+    }
+
+    internal void ApplyUserServicesTo(IServiceCollection target)
+    {
+        // Apply Services.AddXxx() registrations first
+        foreach (var descriptor in userServiceCollection)
+        {
+            target.Add(descriptor);
+        }
+
+        // Apply RegisterComponents() actions last (can override)
+        foreach (var registration in deferredRegistrations)
+        {
+            registration(target);
+        }
     }
 
     /// <summary>
@@ -117,6 +143,8 @@ public class EndpointConfiguration : ExposeSettings
     }
 
     readonly ConventionsBuilder conventionsBuilder;
+    readonly ServiceCollection userServiceCollection = new();
+    readonly List<Action<IServiceCollection>> deferredRegistrations = [];
 
     static void ValidateEndpointName(string endpointName)
     {

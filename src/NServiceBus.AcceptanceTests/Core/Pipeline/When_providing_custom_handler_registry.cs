@@ -51,8 +51,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                 registry.AddHandler<ManuallyRegisteredHandler>();
                 c.GetSettings().Set(registry);
                 // the handler isn't registered for DI automatically
-                c.RegisterComponents(components => components
-                    .AddTransient<ManuallyRegisteredHandler>());
+                c.Services.AddTransient<ManuallyRegisteredHandler>();
                 c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
                     if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)

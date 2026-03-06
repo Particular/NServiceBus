@@ -46,12 +46,9 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<StartupFeature>();
-                c.RegisterComponents(s =>
-                {
-                    s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
-                    s.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
-                    s.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
-                });
+                c.Services.AddSingleton<IDependencyFromFeature, OverridenDependency>();
+                c.Services.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
+                c.Services.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
             });
 
         public class StartupFeature : Feature
