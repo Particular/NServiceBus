@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support;
+#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Threading.Tasks;

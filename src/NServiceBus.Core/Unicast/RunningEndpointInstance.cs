@@ -16,16 +16,19 @@ class RunningEndpointInstance(SettingsHolder settings,
     IMessageSession messageSession,
     TransportInfrastructure transportInfrastructure,
     CancellationTokenSource stoppingTokenSource,
-    IServiceProvider? serviceProvider) : IEndpointInstance
+    IAsyncDisposable serviceProviderLease,
+    object endpointLogSlot) : IEndpointInstance
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {
-        if (status == Status.Stopped)
+        if (status is Status.Stopped)
         {
             return;
         }
 
+        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
         var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
+        var semaphoreEntered = false;
 
         await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
@@ -33,6 +36,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         {
             // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
             await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            semaphoreEntered = true;
 
             if (status >= Status.Stopping) // Another invocation is already handling Stop
             {
@@ -59,19 +63,23 @@ class RunningEndpointInstance(SettingsHolder settings,
             finally
             {
                 settings.Clear();
-                // When the service provider is externally managed the service provider is null
-                if (serviceProvider is IAsyncDisposable asyncDisposableBuilder)
-                {
-                    await asyncDisposableBuilder.DisposeAsync().ConfigureAwait(false);
-                }
+                Log.Info("Shutdown complete.");
+                // Remove all per-slot logging state before disposing the service provider so
+                // no thread can route through the (soon-to-be-disposed) ILoggerFactory after
+                // the provider is torn down.
+                LogManager.UnregisterSlot(endpointLogSlot);
+                await serviceProviderLease.DisposeAsync()
+                    .ConfigureAwait(false);
 
                 status = Status.Stopped;
-                Log.Info("Shutdown complete.");
             }
         }
         finally
         {
-            stopSemaphore.Release();
+            if (semaphoreEntered)
+            {
+                stopSemaphore.Release();
+            }
 
             await tokenRegistration.DisposeAsync().ConfigureAwait(false);
 

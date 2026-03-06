@@ -45,6 +45,22 @@ partial class HostingComponent
 
         public string EndpointName => settings.EndpointName();
 
+        public bool IsMultiHosted
+        {
+            get => settings.GetOrDefault<bool>(IsMultiHostedSettingsKey);
+            set => settings.Set(IsMultiHostedSettingsKey, value);
+        }
+
+        public object? EndpointIdentifier
+        {
+            get
+            {
+                var value = settings.GetOrDefault<object>(EndpointIdentifierSettingsKey);
+                return value == NullMarker.Value ? null : value;
+            }
+            set => settings.Set(EndpointIdentifierSettingsKey, value ?? NullMarker.Value);
+        }
+
         public Dictionary<string, string> Properties
         {
             get => settings.Get<Dictionary<string, string>>(PropertiesSettingsKey);
@@ -79,6 +95,25 @@ partial class HostingComponent
             set => settings.Set("Installers.Enable", value);
         }
 
+        internal void ConfigureMultiHostLogging(bool isMultiHosted, object? endpointIdentifier)
+        {
+            IsMultiHosted = isMultiHosted;
+            EndpointIdentifier = endpointIdentifier;
+            settings.Set(EndpointLogSlotSettingsKey, new EndpointLogSlot(EndpointName, endpointIdentifier));
+        }
+
+        internal EndpointLogSlot GetOrCreateEndpointLogSlot()
+        {
+            if (settings.TryGet(EndpointLogSlotSettingsKey, out EndpointLogSlot existingSlot))
+            {
+                return existingSlot;
+            }
+
+            var createdSlot = new EndpointLogSlot(EndpointName, EndpointIdentifier);
+            settings.Set(EndpointLogSlotSettingsKey, createdSlot);
+            return createdSlot;
+        }
+
         internal void ApplyHostIdDefaultIfNeeded()
         {
             // We don't want to do settings.SetDefault() all the time, because the default uses MD5 which runs afoul of FIPS in such a way that cannot be worked around.
@@ -105,8 +140,16 @@ partial class HostingComponent
         const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
         const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
         const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
+        const string IsMultiHostedSettingsKey = "NServiceBus.Hosting.IsMultiHosted";
+        const string EndpointIdentifierSettingsKey = "NServiceBus.Hosting.EndpointIdentifier";
+        const string EndpointLogSlotSettingsKey = "NServiceBus.Hosting.EndpointLogSlot";
         const string DiagnosticsPathSettingsKey = "Diagnostics.RootPath";
         const string HostDiagnosticsWriterSettingsKey = "HostDiagnosticsWriter";
         const string CustomCriticalErrorActionSettingsKey = "onCriticalErrorAction";
+
+        sealed class NullMarker
+        {
+            public static readonly NullMarker Value = new();
+        }
     }
 }

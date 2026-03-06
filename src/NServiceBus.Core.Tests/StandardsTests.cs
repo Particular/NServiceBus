@@ -61,6 +61,12 @@ public class StandardsTests
     {
         foreach (var type in typeof(Endpoint).Assembly.GetTypes())
         {
+            // Logging namespace contains special adapter types that are not expected to have static loggers
+            if (type.Namespace == "NServiceBus.Logging")
+            {
+                continue;
+            }
+
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 if (field.FieldType == typeof(ILog))

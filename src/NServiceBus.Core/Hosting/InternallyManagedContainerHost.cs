@@ -1,14 +1,17 @@
 ﻿#nullable enable
 namespace NServiceBus;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-class InternallyManagedContainerHost(StartableEndpoint endpoint) : IStartableEndpoint
+class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServiceProvider serviceProvider) : IStartableEndpoint
 {
-    public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
-    {
-        await endpoint.Setup(cancellationToken).ConfigureAwait(false);
-        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
-    }
+    public Task<StartableEndpoint> Create(CancellationToken cancellationToken = default) =>
+        startupRunner.Create(serviceProvider, cancellationToken);
+
+    public Task<IEndpointInstance> Start(CancellationToken cancellationToken = default) =>
+        startupRunner.Start(serviceProvider, cancellationToken);
+
+    readonly EndpointStartupRunner startupRunner = new(new InternalContainerEndpointCreationStrategy(endpointCreator));
 }

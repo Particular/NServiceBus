@@ -6,7 +6,7 @@ using Support;
 
 public static class Scenario
 {
-    public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory { get; set; } = _ => new ContextAppenderFactory();
+    public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory { get; set; } = _ => new ContextAppenderNServiceBusLoggerFactory();
 
     public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
         => new ScenarioWithContext<T>(static _ => { });

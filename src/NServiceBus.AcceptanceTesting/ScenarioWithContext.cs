@@ -11,6 +11,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Support;
 using static Support.ScenarioRunner;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
     where TContext : ScenarioContext, new()
@@ -23,6 +24,9 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         initializer(scenarioContext);
 
         AddScenarioContext(scenarioContext, services);
+        // By registering a logger factory the multi hosting support will push logger scopes
+        // similar to what would happen in a hosted scenario
+        services.AddSingleton<ILoggerFactory, ContextAppenderMicrosoftLoggerFactory>();
 
         var runDescriptor = new RunDescriptor(scenarioContext, services);
         runDescriptor.Settings.Merge(settings);

@@ -602,6 +602,17 @@ namespace NServiceBus
             where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
     }
+    public sealed class KeyedServiceKey
+    {
+        public const string Any = "_______<ANY>_______";
+        public KeyedServiceKey(object baseKey, object? serviceKey = null) { }
+        public object BaseKey { get; }
+        public object? ServiceKey { get; }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string? ToString() { }
+        public static NServiceBus.KeyedServiceKey AnyKey(object baseKey) { }
+    }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
     public static class LearningSagaPersisterConfigurationExtensions
     {
@@ -1002,6 +1013,10 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
+    }
+    public static class ServiceCollectionExtensions
+    {
+        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
     }
     public static class SettingsExtensions
     {

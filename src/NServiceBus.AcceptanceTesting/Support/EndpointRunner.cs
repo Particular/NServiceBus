@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Settings;
 using Transport;
 
 public class EndpointRunner(
@@ -62,6 +61,9 @@ public class EndpointRunner(
             endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
             services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
+            // This is a little hacky but we wanted to avoid having to change the entire acceptance test infrastructure with the creation and start callbacks
+            endpointConfiguration.Settings.Set(services);
+            endpointConfiguration.Settings.Set("NServiceBus.Hosting.DisableAssemblyScanningValidation", bool.TrueString);
 
             endpointBehavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Configuration.AdvancedExtensibility;
 using Customization;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -21,7 +22,31 @@ public class EndpointBehavior : IComponentBehavior
         CustomConfig = [];
         ServicesBeforeStart = [];
         ServicesAfterStart = [];
-        ConfigureHowToCreateInstance((services, config) => Task.FromResult(EndpointWithExternallyManagedContainer.Create(config, services)), static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
+        ConfigureHowToCreateInstance((services, config) =>
+        {
+            if (services is not KeyedServiceCollectionAdapter collectionAdapter)
+            {
+                throw new InvalidOperationException(
+                    $"The default endpoint creation callback requires a {nameof(KeyedServiceCollectionAdapter)} " +
+                    $"but received {services.GetType().Name}. Call {nameof(ConfigureHowToCreateInstance)} to " +
+                    "provide a custom creation strategy.");
+            }
+
+            var serviceKey = collectionAdapter.ServiceKey.BaseKey;
+
+            collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
+
+            return Task.FromResult(new StartableEndpointInstance(serviceKey));
+        }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
+    }
+
+    class StartableEndpointInstance(object serviceKey)
+    {
+        public async Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
+        {
+            var starter = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
+            return await starter.CreateAndStart(cancellationToken).ConfigureAwait(false);
+        }
     }
 
     [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]

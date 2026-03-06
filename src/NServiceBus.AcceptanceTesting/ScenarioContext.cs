@@ -57,6 +57,7 @@ public class ScenarioContext
     public readonly ConcurrentQueue<LogItem> Logs = new();
 
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
+    public bool IncludeLoggingScopes { get; set; } = false;
 
     internal TaskCompletionSource Completed { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 

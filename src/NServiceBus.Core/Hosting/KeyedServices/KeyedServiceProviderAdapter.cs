@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support;
+#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections;
@@ -156,18 +158,11 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return GetAllServices(serviceProvider, itemType);
     }
 
-    public void Dispose() => (serviceProvider as IDisposable)?.Dispose();
-
-    public ValueTask DisposeAsync()
+    public void Dispose()
     {
-        if (serviceProvider is IAsyncDisposable asyncDisposable)
-        {
-            return asyncDisposable.DisposeAsync();
-        }
-
-        Dispose();
-        return ValueTask.CompletedTask;
     }
+
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
     {

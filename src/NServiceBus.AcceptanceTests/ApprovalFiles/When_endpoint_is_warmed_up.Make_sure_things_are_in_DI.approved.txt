@@ -10,6 +10,7 @@ NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorag
 NServiceBus.CriticalError - Singleton
 NServiceBus.Hosting.HostInformation - Singleton
 NServiceBus.IMessageCreator - Singleton
+NServiceBus.IMessageSession - Singleton
 NServiceBus.MessageInterfaces.IMessageMapper - Singleton
 NServiceBus.Persistence.ISynchronizedStorageSession - Scoped
 NServiceBus.Pipeline.LogicalMessageFactory - Singleton

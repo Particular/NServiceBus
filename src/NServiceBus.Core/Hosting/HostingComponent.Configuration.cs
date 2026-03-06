@@ -20,6 +20,7 @@ partial class HostingComponent
             settings.StartupDiagnostics,
             settings.DiagnosticsPath,
             settings.HostDiagnosticsWriter,
+            settings.GetOrCreateEndpointLogSlot(),
             settings.EndpointName,
             serviceCollection,
             settings.ShouldRunInstallers,
@@ -33,12 +34,13 @@ partial class HostingComponent
 
     public class Configuration
     {
-        public Configuration(Settings settings,
+        internal Configuration(Settings settings,
             List<Type> availableTypes,
             CriticalError criticalError,
             StartupDiagnosticEntries startupDiagnostics,
             string? diagnosticsPath,
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
+            EndpointLogSlot endpointLogSlot,
             string endpointName,
             IServiceCollection services,
             bool shouldRunInstallers,
@@ -52,6 +54,7 @@ partial class HostingComponent
             StartupDiagnostics = startupDiagnostics;
             DiagnosticsPath = diagnosticsPath;
             HostDiagnosticsWriter = hostDiagnosticsWriter;
+            EndpointLogSlot = endpointLogSlot;
             EndpointName = endpointName;
             Services = services;
             ShouldRunInstallers = shouldRunInstallers;
@@ -71,6 +74,8 @@ partial class HostingComponent
         public StartupDiagnosticEntries StartupDiagnostics { get; }
 
         public Func<string, CancellationToken, Task>? HostDiagnosticsWriter { get; }
+
+        internal EndpointLogSlot EndpointLogSlot { get; }
 
         public string EndpointName { get; }
 

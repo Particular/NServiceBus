@@ -26,6 +26,9 @@ class EndpointCreator
         var settings = endpointConfiguration.Settings;
         CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
 
+        var endpointLogSlot = settings.Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
+        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
+
         var assemblyScanningConfiguration = settings.Get<AssemblyScanningComponent.Configuration>();
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
 
@@ -158,6 +161,7 @@ class EndpointCreator
         _ = hostingConfiguration.Services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+        MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
@@ -190,9 +194,13 @@ class EndpointCreator
         });
     }
 
-    public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
+    internal StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = serviceProviderIsExternallyManaged ? "external" : "internal" });
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(containerType);
+        ArgumentNullException.ThrowIfNull(serviceProviderLease);
+
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
 
         return new StartableEndpoint(settings,
             featureComponent,
@@ -204,8 +212,12 @@ class EndpointCreator
             hostingComponent,
             sendComponent,
             serviceProvider,
-            serviceProviderIsExternallyManaged);
+            MessageSession,
+            serviceProviderLease);
     }
+
+    internal MessageSession MessageSession { get; private set; }
+    internal object EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
 
     PipelineComponent pipelineComponent;
     FeatureComponent featureComponent;
