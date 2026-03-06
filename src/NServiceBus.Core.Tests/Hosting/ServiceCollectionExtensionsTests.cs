@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Host;
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
 using NUnit.Framework;
 
 [TestFixture]
@@ -18,56 +19,55 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void Should_throw_when_identifier_is_set_for_single_endpoint()
+    public void Should_register_single_endpoint_with_identifier()
     {
         var services = new ServiceCollection();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Sales"), "custom-key"));
-
-        Assert.That(ex!.Message, Does.Contain("cannot be set when registering a single endpoint"));
+        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Sales"), "sales-key"));
     }
 
     [Test]
-    public void Should_register_multiple_endpoints_without_explicit_identifiers()
+    public void Should_throw_when_first_endpoint_has_no_identifier_and_second_has_one()
     {
         var services = new ServiceCollection();
 
         services.AddNServiceBusEndpoint(CreateConfig("Sales"));
-        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
+
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
+
+        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
     }
 
     [Test]
-    public void Should_register_multiple_endpoints_with_explicit_identifier_on_subsequent_endpoints()
+    public void Should_throw_when_first_endpoint_has_identifier_and_second_has_none()
     {
         var services = new ServiceCollection();
 
-        services.AddNServiceBusEndpoint(CreateConfig("Sales"));
+        services.AddNServiceBusEndpoint(CreateConfig("Sales"), "sales-key");
+
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
+
+        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
+    }
+
+    [Test]
+    public void Should_register_multiple_endpoints_when_all_have_identifiers()
+    {
+        var services = new ServiceCollection();
+
+        services.AddNServiceBusEndpoint(CreateConfig("Sales"), "sales-key");
+
         Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
     }
 
     [Test]
-    public void Should_throw_when_second_endpoint_has_same_name_used_as_fallback_identifier()
-    {
-        var services = new ServiceCollection();
-        const string sharedName = "Sales";
-
-        services.AddNServiceBusEndpoint(CreateConfig("FirstEndpoint"));
-        services.AddNServiceBusEndpoint(CreateConfig(sharedName));
-
-        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig(sharedName)));
-
-        Assert.That(ex!.Message, Does.Contain($"An endpoint with the identifier '{sharedName}' has already been registered"));
-    }
-
-    [Test]
-    public void Should_throw_when_multiple_endpoints_have_duplicate_explicit_identifier()
+    public void Should_throw_when_multiple_endpoints_have_duplicate_identifiers()
     {
         var services = new ServiceCollection();
 
-        services.AddNServiceBusEndpoint(CreateConfig("Sales"));
-        services.AddNServiceBusEndpoint(CreateConfig("Billing"), "shared-key");
+        services.AddNServiceBusEndpoint(CreateConfig("Sales"), "shared-key");
 
-        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Shipping"), "shared-key"));
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "shared-key"));
 
         Assert.That(ex!.Message, Does.Contain("An endpoint with the identifier 'shared-key' has already been registered"));
     }
