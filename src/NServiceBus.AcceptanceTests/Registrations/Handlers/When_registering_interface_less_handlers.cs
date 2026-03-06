@@ -92,7 +92,6 @@ public class When_registering_interface_less_handlers : NServiceBusAcceptanceTes
     }
 
     // Demonstrates CancellationToken uplift via static handler: the adapter maps context.CancellationToken to the cancellationToken parameter
-#pragma warning disable PS0014 // IMessageHandlerContext (ICancellableContext) and CancellationToken intentionally coexist — CancellationToken is uplifted by the generated adapter
     [Handler]
     public class CancellationTokenHandler
     {
@@ -103,7 +102,6 @@ public class When_registering_interface_less_handlers : NServiceBusAcceptanceTes
             return Task.CompletedTask;
         }
     }
-#pragma warning restore PS0014
 
     // Demonstrates that ctor injection and parameter injection work together:
     // IMyDependency is injected via the constructor, testContext via the method parameter

@@ -8,6 +8,7 @@
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
+    using Handlers;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
@@ -28,9 +29,6 @@
                 return;
             }
 
-            var handlerAttribute = startContext.Compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
-            var messageHandlerContext = startContext.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-
             if (startContext.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken") is not INamedTypeSymbol cancellationTokenType)
             {
                 return;
@@ -40,7 +38,7 @@
             var genericValueTaskType = startContext.Compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1");
 
             startContext.RegisterSyntaxNodeAction(
-                context => Analyze(context, cancellableContextInterface, handlerAttribute, messageHandlerContext, cancellationTokenType, genericTaskType, genericValueTaskType),
+                context => Analyze(context, cancellableContextInterface, cancellationTokenType, genericTaskType, genericValueTaskType),
                 SyntaxKind.MethodDeclaration,
                 SyntaxKind.AnonymousMethodExpression,
                 SyntaxKind.SimpleLambdaExpression,
@@ -50,8 +48,6 @@
         static void Analyze(
             SyntaxNodeAnalysisContext context,
             INamedTypeSymbol cancellableContextInterface,
-            INamedTypeSymbol handlerAttribute,
-            INamedTypeSymbol messageHandlerContext,
             INamedTypeSymbol cancellationTokenType,
             INamedTypeSymbol genericTaskType,
             INamedTypeSymbol genericValueTaskType)
@@ -79,7 +75,7 @@
                 return;
             }
 
-            if (IsInterfaceLessHandlerWithBoundCancellationToken(method, handlerAttribute, messageHandlerContext, cancellationTokenType))
+            if (InterfaceLessHandlerCancellationTokenBinding.IsInterfaceLessHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
             {
                 return;
             }
@@ -145,34 +141,6 @@
 
             context.ReportDiagnostic(diagnostic);
         }
-
-        static bool IsInterfaceLessHandlerWithBoundCancellationToken(
-            IMethodSymbol method,
-            INamedTypeSymbol handlerAttribute,
-            INamedTypeSymbol messageHandlerContext,
-            INamedTypeSymbol cancellationTokenType)
-        {
-            if (method.MethodKind != MethodKind.Ordinary ||
-                method.Name != "Handle" ||
-                method.Parameters.Length < 3 ||
-                method.ContainingType is null ||
-                handlerAttribute is null ||
-                messageHandlerContext is null ||
-                !method.ContainingType.HasAttribute(handlerAttribute))
-            {
-                return false;
-            }
-
-            var secondParam = method.Parameters[1];
-            if (!secondParam.Type.Equals(messageHandlerContext, SymbolEqualityComparer.IncludeNullability))
-            {
-                return false;
-            }
-
-            return method.Parameters.Skip(2)
-                .Any(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability));
-        }
-
         // may return false positives
         static bool CouldBeCancellationToken(ExpressionSyntax expression) => expression switch
         {
