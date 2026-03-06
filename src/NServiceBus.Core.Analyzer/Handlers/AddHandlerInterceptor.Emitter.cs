@@ -15,7 +15,8 @@ public sealed partial class AddHandlerInterceptor
 
         static void Emit(SourceProductionContext context, InterceptableHandlerSpecs handlerSpecs)
         {
-            var interceptableHandlers = handlerSpecs.Handlers;
+            // Filter out mixed-style handlers
+            var interceptableHandlers = handlerSpecs.Handlers.Where(h => !h.HandlerSpec.IsMixed).ToImmutableEquatableArray();
             if (interceptableHandlers.Count == 0)
             {
                 return;

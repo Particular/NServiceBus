@@ -207,6 +207,126 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void InterfaceLessHandlers()
+    {
+        var source = """
+                     using System.Threading;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.InterfaceLessHandlersAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IMyService service) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderPlacedHandler
+                         {
+                             public static Task Handle(Cmd2 message, IMessageHandlerContext context, CancellationToken ct) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     public class Cmd2 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void InterfaceLessHandlersCtorAndParameterInjection()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.InterfaceLessHandlersCtorAndParameterInjectionAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             // IServiceA injected via constructor
+                             public OrderShippedHandler(IServiceA serviceA) { }
+                             // IServiceB injected via method parameter — different from ctor dep
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceB serviceB) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void MixedStyleHandlerProducesNoRegistration()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.MixedStyleHandlerProducesNoRegistrationAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class MixedHandler : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Handle(Cmd2 message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     public class Cmd2 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void RegistrationMethodNamePatterns()
     {
         var source = """

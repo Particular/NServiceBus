@@ -43,4 +43,7 @@ public static class DiagnosticIds
     public const string HandlerRegistryExtensionsEntryPointInvalid = "NSB0030";
     public const string HandlerRegistryExtensionsPatternFormatInvalid = "NSB0031";
     public const string HandlerRegistryExtensionsPatternRegexInvalid = "NSB0032";
+
+    // HandlerAttributeAnalyzer (interface-less style)
+    public const string HandlerAttributeMixedStyle = "NSB0033";
 }

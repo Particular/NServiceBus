@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeOnNonHandlerType];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeOnNonHandlerType, HandlerAttributeMixedStyleDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -41,14 +41,50 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                         return;
                     }
 
-                    foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
+                    // A saga with [Handler] is always invalid
+                    if (classType.ImplementsGenericType(knownTypes.SagaBase))
                     {
-                        if (location is not null)
+                        foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            }
                         }
+                        return;
                     }
 
+                    // Non-handler class (no IHandleMessages<T>): valid only if it has interface-less Handle methods
+                    if (HasValidInterfaceLessHandleMethods(classType))
+                    {
+                        // Valid pure interface-less handler — handled by the missing-attribute flow below
+                    }
+                    else
+                    {
+                        foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            }
+                        }
+                        return;
+                    }
+
+                    // Interface-less handlers participate in the same attribute-presence tracking
+                    var info2 = new HandlerTypeSpec(classType.IsAbstract, classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken));
+                    _ = handlerTypes.TryAdd(classType.OriginalDefinition, info2);
+                    return;
+                }
+
+                // Interface-based handler: check for mixed-style (also has interface-less Handle methods)
+                if (HasMixedStyleHandleMethods(classType))
+                {
+                    var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                    if (classLocation is not null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMixedStyleDescriptor, classLocation, classType.Name));
+                    }
                     return;
                 }
 
@@ -136,6 +172,97 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
 
+    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType)
+    {
+        foreach (var member in classType.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+            {
+                continue;
+            }
+
+            if (method.Name != "Handle" || method.DeclaredAccessibility != Accessibility.Public || method.Parameters.Length < 2)
+            {
+                continue;
+            }
+
+            if (!IsIMessageHandlerContext(method.Parameters[1].Type))
+            {
+                continue;
+            }
+
+            if (!IsTaskLike(method.ReturnType))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType)
+    {
+        // Collect message types already covered by IHandleMessages<T> interfaces
+        var interfaceMessageTypes = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+        foreach (var iface in classType.AllInterfaces)
+        {
+            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
+                iface.TypeArguments[0] is INamedTypeSymbol msgType)
+            {
+                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+            }
+        }
+
+        foreach (var member in classType.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+            {
+                continue;
+            }
+
+            if (method.Name != "Handle" || method.DeclaredAccessibility != Accessibility.Public || method.Parameters.Length < 2)
+            {
+                continue;
+            }
+
+            if (!IsIMessageHandlerContext(method.Parameters[1].Type))
+            {
+                continue;
+            }
+
+            if (!IsTaskLike(method.ReturnType))
+            {
+                continue;
+            }
+
+            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
+            {
+                continue;
+            }
+
+            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // This method is interface-less if: has extra params OR its message type is not in IHandleMessages<T> interfaces
+            bool isInterfaceLess = method.Parameters.Length > 2 || !interfaceMessageTypes.Contains(firstParamFqn);
+            if (isInterfaceLess)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool IsIMessageHandlerContext(ITypeSymbol type)
+    {
+        return type is INamedTypeSymbol { Name: "IMessageHandlerContext", ContainingNamespace: { Name: "NServiceBus", ContainingNamespace.IsGlobalNamespace: true } };
+    }
+
+    static bool IsTaskLike(ITypeSymbol type) =>
+        type.Name is "Task" or "ValueTask";
+
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
         title: "Mark message handlers with HandlerAttribute to enable source generation",
@@ -174,6 +301,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         id: DiagnosticIds.HandlerAttributeOnNonHandler,
         title: "HandlerAttribute should be applied to classes implementing IHandleMessages",
         messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on a concrete handler class implementing IHandleMessages<T>.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMixedStyleDescriptor = new(
+        id: DiagnosticIds.HandlerAttributeMixedStyle,
+        title: "Handler class must use a single handler style",
+        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and interface-less (Handle method) styles. Split into separate classes — one per style.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
