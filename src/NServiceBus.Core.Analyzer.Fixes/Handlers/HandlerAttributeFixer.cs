@@ -20,7 +20,7 @@ using NServiceBus.Core.Analyzer.Handlers;
 public class HandlerAttributeFixer : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.HandlerAttributeOnNonHandler];
+        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.HandlerAttributeMissingInterfaceLess, DiagnosticIds.HandlerAttributeMisplacedInterfaceLess, DiagnosticIds.HandlerAttributeOnNonHandler];
 
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -44,6 +44,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             switch (diagnostic.Id)
             {
                 case DiagnosticIds.HandlerAttributeMissing:
+                case DiagnosticIds.HandlerAttributeMissingInterfaceLess:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Add HandlerAttribute",
@@ -52,6 +53,7 @@ public class HandlerAttributeFixer : CodeFixProvider
                         diagnostic);
                     break;
                 case DiagnosticIds.HandlerAttributeMisplaced:
+                case DiagnosticIds.HandlerAttributeMisplacedInterfaceLess:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Move HandlerAttribute to concrete handlers",
@@ -132,7 +134,8 @@ public class HandlerAttributeFixer : CodeFixProvider
 
         var solutionEditor = new SolutionEditor(solution);
 
-        var handlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        var allClassTypes = new List<INamedTypeSymbol>();
+        var directlyHandlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
         foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
@@ -147,7 +150,33 @@ public class HandlerAttributeFixer : CodeFixProvider
                 continue;
             }
 
-            if (!type.ImplementsGenericInterface(knownTypes.IHandleMessages))
+            allClassTypes.Add(type);
+
+            if (type.ImplementsGenericType(knownTypes.SagaBase))
+            {
+                continue;
+            }
+
+            var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
+            var isInterfaceLessHandler = !isInterfaceBasedHandler && HasValidInterfaceLessHandleMethods(type, compilation);
+
+            if (!isInterfaceBasedHandler && !isInterfaceLessHandler)
+            {
+                continue;
+            }
+
+            directlyHandlerTypes.Add(type);
+        }
+
+        var handlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (var type in allClassTypes)
+        {
+            if (type.ImplementsGenericType(knownTypes.SagaBase))
+            {
+                continue;
+            }
+
+            if (!IsHandlerType(type, directlyHandlerTypes))
             {
                 continue;
             }
@@ -223,6 +252,90 @@ public class HandlerAttributeFixer : CodeFixProvider
         }
 
         return solutionEditor.GetChangedSolution();
+    }
+
+    static bool IsHandlerType(INamedTypeSymbol type, HashSet<INamedTypeSymbol> directlyHandlerTypes)
+    {
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            if (directlyHandlerTypes.Contains(current.OriginalDefinition))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, Compilation compilation)
+    {
+        var iMessageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
+        if (iMessageHandlerContext is null)
+        {
+            return false;
+        }
+
+        var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
+        foreach (var iface in classType.AllInterfaces)
+        {
+            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
+                iface.TypeArguments[0] is INamedTypeSymbol msgType)
+            {
+                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+            }
+        }
+
+        foreach (var member in classType.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+            {
+                continue;
+            }
+
+            if (method.Name != "Handle" ||
+                method.DeclaredAccessibility != Accessibility.Public ||
+                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+                method.Parameters.Length < 2)
+            {
+                continue;
+            }
+
+            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
+            {
+                continue;
+            }
+
+            var secondParam = method.Parameters[1];
+            if (!SymbolEqualityComparer.Default.Equals(secondParam.Type.OriginalDefinition, iMessageHandlerContext) &&
+                !SymbolEqualityComparer.Default.Equals(secondParam.Type, iMessageHandlerContext))
+            {
+                continue;
+            }
+
+            if (!IsSupportedHandlerReturnType(method.ReturnType))
+            {
+                continue;
+            }
+
+            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(firstParamFqn))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool IsSupportedHandlerReturnType(ITypeSymbol type)
+    {
+        return type is INamedTypeSymbol
+        {
+            Name: "Task",
+            ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } }
+        };
     }
 
     static ClassDeclarationSyntax AddAttributeToClass(

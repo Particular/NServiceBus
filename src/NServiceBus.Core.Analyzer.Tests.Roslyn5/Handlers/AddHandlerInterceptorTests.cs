@@ -248,6 +248,36 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerReturningValueTaskProducesNoInterception()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                         }
+                     }
+
+                     [Handler]
+                     public class OrderShippedHandler
+                     {
+                         public ValueTask Handle(Cmd1 message, IMessageHandlerContext context) => ValueTask.CompletedTask;
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void SagaWithInappropriateDoubleMessageMapping()
     {
         var source = """

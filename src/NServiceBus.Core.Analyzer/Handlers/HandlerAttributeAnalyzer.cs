@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeOnNonHandlerType, HandlerAttributeMixedStyleDescriptor];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeMissingInterfaceLess, HandlerAttributeMissingInterfaceLessImmediate, HandlerAttributeMisplacedInterfaceLess, HandlerAttributeMisplacedInterfaceLessImmediate, HandlerAttributeOnNonHandlerType, HandlerAttributeMixedStyleDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -34,15 +34,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     return;
                 }
 
-                if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || classType.ImplementsGenericType(knownTypes.SagaBase))
-                {
-                    if (!classType.HasAttribute(knownTypes.HandlerAttribute))
-                    {
-                        return;
-                    }
+                var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
+                var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
+                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType);
 
+                if (!isInterfaceBasedHandler || isSaga)
+                {
                     // A saga with [Handler] is always invalid
-                    if (classType.ImplementsGenericType(knownTypes.SagaBase))
+                    if (isSaga)
                     {
                         foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
                         {
@@ -55,12 +54,13 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
 
                     // Non-handler class (no IHandleMessages<T>): valid only if it has interface-less Handle methods
-                    if (HasValidInterfaceLessHandleMethods(classType))
+                    if (!isInterfaceLessHandler)
                     {
-                        // Valid pure interface-less handler — handled by the missing-attribute flow below
-                    }
-                    else
-                    {
+                        if (!classType.HasAttribute(knownTypes.HandlerAttribute))
+                        {
+                            return;
+                        }
+
                         foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
                         {
                             if (location is not null)
@@ -72,7 +72,39 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
 
                     // Interface-less handlers participate in the same attribute-presence tracking
-                    var info2 = new HandlerTypeSpec(classType.IsAbstract, classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken));
+                    if (classType.BaseType is { SpecialType: not SpecialType.System_Object } handlerBaseType)
+                    {
+                        baseTypes.TryAdd(handlerBaseType.OriginalDefinition, 0);
+                    }
+
+                    var interfaceLessAttributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
+                    if (classType.IsAbstract && !interfaceLessAttributeLocations.IsDefaultOrEmpty)
+                    {
+                        foreach (var location in interfaceLessAttributeLocations)
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedInterfaceLessImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+                    else if (!classType.IsAbstract && interfaceLessAttributeLocations.IsDefaultOrEmpty)
+                    {
+                        var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+                        var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
+                        var isDefinitelyLeaf = classType.IsSealed || !isUsedAsBase || inheritsDirectlyFromObject;
+
+                        if (isDefinitelyLeaf)
+                        {
+                            var location = classType.GetClassIdentifierLocation(context.CancellationToken);
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissingInterfaceLessImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+
+                    var info2 = new HandlerTypeSpec(classType.IsAbstract, interfaceLessAttributeLocations, IsInterfaceLess: true);
                     _ = handlerTypes.TryAdd(classType.OriginalDefinition, info2);
                     return;
                 }
@@ -128,7 +160,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
                 }
 
-                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
+                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations, IsInterfaceLess: false);
                 _ = handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
@@ -147,7 +179,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             var location = type.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
                             {
-                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissing, location, type.Name));
+                                context.ReportDiagnostic(Diagnostic.Create(handlerType.IsInterfaceLess ? HandlerAttributeMissingInterfaceLess : HandlerAttributeMissing, location, type.Name));
                             }
                         }
 
@@ -163,17 +195,40 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                     foreach (var location in handlerType.AttributeLocations)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplaced, location, type.Name));
+                        context.ReportDiagnostic(Diagnostic.Create(handlerType.IsInterfaceLess ? HandlerAttributeMisplacedInterfaceLess : HandlerAttributeMisplaced, location, type.Name));
                     }
                 }
             });
         });
     }
 
-    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
+    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
+
+    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType)
+    {
+        for (var current = classType; current is not null; current = current.BaseType)
+        {
+            if (HasValidInterfaceLessHandleMethods(current))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType)
     {
+        var interfaceMessageTypes = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+        foreach (var iface in classType.AllInterfaces)
+        {
+            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
+                iface.TypeArguments[0] is INamedTypeSymbol msgType)
+            {
+                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+            }
+        }
+
         foreach (var member in classType.GetMembers())
         {
             if (member is not IMethodSymbol method)
@@ -181,7 +236,15 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (method.Name != "Handle" || method.DeclaredAccessibility != Accessibility.Public || method.Parameters.Length < 2)
+            if (method.Name != "Handle" ||
+                method.DeclaredAccessibility != Accessibility.Public ||
+                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+                method.Parameters.Length < 2)
+            {
+                continue;
+            }
+
+            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
             {
                 continue;
             }
@@ -191,7 +254,13 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (!IsTaskLike(method.ReturnType))
+            if (!IsSupportedHandlerReturnType(method.ReturnType))
+            {
+                continue;
+            }
+
+            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(firstParamFqn))
             {
                 continue;
             }
@@ -222,7 +291,10 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (method.Name != "Handle" || method.DeclaredAccessibility != Accessibility.Public || method.Parameters.Length < 2)
+            if (method.Name != "Handle" ||
+                method.DeclaredAccessibility != Accessibility.Public ||
+                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+                method.Parameters.Length < 2)
             {
                 continue;
             }
@@ -232,7 +304,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (!IsTaskLike(method.ReturnType))
+            if (!IsSupportedHandlerReturnType(method.ReturnType))
             {
                 continue;
             }
@@ -260,8 +332,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         return type is INamedTypeSymbol { Name: "IMessageHandlerContext", ContainingNamespace: { Name: "NServiceBus", ContainingNamespace.IsGlobalNamespace: true } };
     }
 
-    static bool IsTaskLike(ITypeSymbol type) =>
-        type.Name is "Task" or "ValueTask";
+    static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
+        type.Name is "Task";
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
@@ -292,6 +364,40 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         id: DiagnosticIds.HandlerAttributeMisplaced,
         title: "HandlerAttribute should be applied to concrete handler classes",
         messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete handler class.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMissingInterfaceLessImmediate = new(
+        id: DiagnosticIds.HandlerAttributeMissingInterfaceLess,
+        title: "Mark interface-less handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark interface-less handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMissingInterfaceLess = new(
+        id: DiagnosticIds.HandlerAttributeMissingInterfaceLess,
+        title: "Mark interface-less handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark interface-less handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMisplacedInterfaceLessImmediate = new(
+        id: DiagnosticIds.HandlerAttributeMisplacedInterfaceLess,
+        title: "HandlerAttribute should be applied to concrete interface-less handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete interface-less handler class.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor HandlerAttributeMisplacedInterfaceLess = new(
+        id: DiagnosticIds.HandlerAttributeMisplacedInterfaceLess,
+        title: "HandlerAttribute should be applied to concrete interface-less handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete interface-less handler class.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,

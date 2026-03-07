@@ -290,6 +290,37 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerReturningValueTaskProducesNoRegistration()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.InterfaceLessHandlerReturningValueTaskProducesNoRegistrationAssembly.AddAll();
+                         }
+                     }
+
+                     [Handler]
+                     public class OrderShippedHandler
+                     {
+                         public ValueTask Handle(Cmd1 message, IMessageHandlerContext context) => ValueTask.CompletedTask;
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void MixedStyleHandlerProducesNoRegistration()
     {
         var source = """

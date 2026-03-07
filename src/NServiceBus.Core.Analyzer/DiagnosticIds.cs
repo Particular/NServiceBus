@@ -46,4 +46,6 @@ public static class DiagnosticIds
 
     // HandlerAttributeAnalyzer (interface-less style)
     public const string HandlerAttributeMixedStyle = "NSB0033";
+    public const string HandlerAttributeMissingInterfaceLess = "NSB0034";
+    public const string HandlerAttributeMisplacedInterfaceLess = "NSB0035";
 }

@@ -156,7 +156,9 @@ public static partial class Handlers
                     continue;
                 }
 
-                if (method.Name != "Handle" || method.DeclaredAccessibility != Accessibility.Public)
+                if (method.Name != "Handle" ||
+                    method.DeclaredAccessibility != Accessibility.Public ||
+                    method.MethodKind == MethodKind.ExplicitInterfaceImplementation)
                 {
                     continue;
                 }
@@ -180,8 +182,8 @@ public static partial class Handlers
                     continue;
                 }
 
-                // Return type must be Task-like
-                if (!IsTaskLike(method.ReturnType))
+                // Return type must be Task
+                if (!IsSupportedHandlerReturnType(method.ReturnType))
                 {
                     continue;
                 }
@@ -296,15 +298,13 @@ public static partial class Handlers
             return $"{typeName}__Handle__{messageName}_{hash:x16}";
         }
 
-        static bool IsTaskLike(ITypeSymbol type)
+        static bool IsSupportedHandlerReturnType(ITypeSymbol type)
         {
-            if (type.SpecialType == SpecialType.System_Void)
+            return type is INamedTypeSymbol
             {
-                return false;
-            }
-
-            var name = type.Name;
-            return name is "Task" or "ValueTask";
+                Name: "Task",
+                ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } }
+            };
         }
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is
