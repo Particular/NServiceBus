@@ -321,6 +321,43 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterName()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterNameAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IServiceA service) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceB service) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void MixedStyleHandlerProducesNoRegistration()
     {
         var source = """

@@ -278,6 +278,43 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterName()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using Orders;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IServiceA service) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceB service) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void SagaWithInappropriateDoubleMessageMapping()
     {
         var source = """
