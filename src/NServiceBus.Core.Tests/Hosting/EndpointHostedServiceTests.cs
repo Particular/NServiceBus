@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.EndpointHosting;
+namespace NServiceBus.Core.Tests.Host;
 
 using System;
 using System.Threading;
