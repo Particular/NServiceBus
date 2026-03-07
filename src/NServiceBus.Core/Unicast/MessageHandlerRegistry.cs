@@ -109,10 +109,16 @@ public class MessageHandlerRegistry
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
     public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+        => AddMessageHandlerForMessage<THandler, TMessage, THandler>();
+
+    /// <summary>
+    /// Add a handler for a specific message type using an explicit original handler identity for deduplication. Should only be called by a source generator.
+    /// </summary>
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler>() where THandler : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
-        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
+        if (!deduplicationSet.Add(HandlerAndMessage.New<TOriginalHandler, TMessage>()))
         {
             return;
         }
@@ -194,10 +200,14 @@ public class MessageHandlerRegistry
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .Single(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
     static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .Single(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
