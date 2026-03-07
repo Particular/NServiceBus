@@ -166,6 +166,88 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void InterfaceLessHandlers()
+    {
+        var source = """
+                     using System.Threading;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using Orders;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                             cfg.AddHandler<OrderPlacedHandler>();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IMyService service) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderPlacedHandler
+                         {
+                             public static Task Handle(Cmd2 message, IMessageHandlerContext context, CancellationToken ct) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     public class Cmd2 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void InterfaceLessHandlersCtorAndParameterInjection()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using Orders;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IServiceA serviceA) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceB serviceB) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void SagaWithInappropriateDoubleMessageMapping()
     {
         var source = """
