@@ -405,8 +405,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     static readonly DiagnosticDescriptor HandlerAttributeOnNonHandlerType = new(
         id: DiagnosticIds.HandlerAttributeOnNonHandler,
-        title: "HandlerAttribute should be applied to classes implementing IHandleMessages",
-        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on a concrete handler class implementing IHandleMessages<T>.",
+        title: "HandlerAttribute should be applied only to handler classes",
+        messageFormat: "HandlerAttribute is applied to non-handler type {0}. Apply it only to concrete handler classes.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
