@@ -78,6 +78,72 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task ReportsMissingAttributeOnInterfaceLessLeafHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class [|MyHandler|]
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMissingInterfaceLess);
+    }
+
+    [Test]
+    public Task DoesNotReportForHelperClassWithNonMessageHandlerContext()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+
+            class MyHelper
+            {
+                public Task Handle(MyMessage message, MyContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage
+            {
+            }
+
+            class MyContext
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportForInterfaceLessHandlerReturningValueTask()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class MyHandler
+            {
+                public ValueTask Handle(MyMessage message, IMessageHandlerContext context) => ValueTask.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task DoesNotReportWhenAttributePresentOnNonAbstractBaseClass()
     {
         var source =
@@ -145,6 +211,31 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
 
             class [|ConcreteHandler|] : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMissing);
+    }
+
+    [Test]
+    public Task ReportsInterfaceBasedMissingAttributeWhenDerivedHandlerImplementsInterfaceButBaseProvidesVirtualHandle()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            abstract class BaseHandler
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class [|ConcreteHandler|] : BaseHandler, IHandleMessages<MyMessage>
             {
             }
 
@@ -315,6 +406,122 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             """;
 
         return Assert(source, DiagnosticIds.HandlerAttributeMisplaced);
+    }
+
+    [Test]
+    public Task ReportsMisplacedAttributeOnInterfaceLessAbstractBase()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [[|HandlerAttribute|]]
+            abstract class BaseHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [Handler]
+            class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMisplacedInterfaceLess);
+    }
+
+    [Test]
+    public Task ReportsMixedStyleError()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|] : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            class AnotherMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
+    }
+
+    [Test]
+    public Task DoesNotReportForPureInterfaceLessHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportMixedStyleForPureInterfaceBased()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsMixedStyleErrorWhenInterfaceLessMethodHasSameMessageTypeButExtraParams()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|] : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                public Task Handle(MyMessage message, IMessageHandlerContext context, IMyService service) => Task.CompletedTask;
+            }
+
+            interface IMyService {}
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
     }
 
     [Test]

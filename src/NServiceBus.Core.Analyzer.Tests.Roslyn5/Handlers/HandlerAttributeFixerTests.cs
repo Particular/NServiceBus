@@ -161,6 +161,43 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
     }
 
     [Test]
+    public Task AddsHandlerAttributeToLeafInterfaceLessHandler()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class MyHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task MovesHandlerAttributeToLeafHandler()
     {
         var original =
@@ -195,6 +232,98 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
 
             [Handler]
             class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MovesHandlerAttributeToLeafInterfaceLessHandler()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            abstract class BaseHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            abstract class BaseHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [Handler]
+            class ConcreteHandler : BaseHandler
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MovesHandlerAttributeToDerivedInterfaceBasedHandlerWhenBaseProvidesVirtualHandle()
+    {
+        var original =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            abstract class BaseHandler
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class ConcreteHandler : BaseHandler, IHandleMessages<MyMessage>
+            {
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            abstract class BaseHandler
+            {
+                public virtual Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            [Handler]
+            class ConcreteHandler : BaseHandler, IHandleMessages<MyMessage>
             {
             }
 

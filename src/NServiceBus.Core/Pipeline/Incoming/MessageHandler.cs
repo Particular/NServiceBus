@@ -17,7 +17,7 @@ public partial class MessageHandler
     public virtual object? Instance { get; set; }
 
     /// <summary>
-    /// The handler type, can be a saga, a timeout or just a plain handler.
+    /// The handler type, can be a saga, a timeout, or just a plain handler.
     /// </summary>
     public virtual required Type HandlerType { get; init; }
 

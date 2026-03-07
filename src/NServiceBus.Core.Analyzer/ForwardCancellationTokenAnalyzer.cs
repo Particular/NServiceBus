@@ -8,6 +8,7 @@
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
+    using Handlers;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ForwardCancellationTokenAnalyzer : DiagnosticAnalyzer
@@ -74,6 +75,11 @@
                 return;
             }
 
+            if (InterfaceLessHandlerCancellationTokenBinding.IsInterfaceLessHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
+            {
+                return;
+            }
+
             // if method has no cancellable context param
             if (method.Parameters.FirstOrDefault(param => param.Type.ImplementsNonGenericInterface(cancellableContextInterface)) is not IParameterSymbol cancellableContextParam)
             {
@@ -135,7 +141,6 @@
 
             context.ReportDiagnostic(diagnostic);
         }
-
         // may return false positives
         static bool CouldBeCancellationToken(ExpressionSyntax expression) => expression switch
         {
