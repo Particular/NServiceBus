@@ -34,7 +34,7 @@ public static partial class Handlers
             // Register interface-less adapter types
             foreach (var method in handlerSpec.InterfaceLessMethods)
             {
-                sourceWriter.WriteLine($"messageHandlerRegistry.AddMessageHandlerForMessage<{method.AdapterName}, {method.MessageType}>();");
+                sourceWriter.WriteLine($"messageHandlerRegistry.AddMessageHandlerForMessage<{method.AdapterName}, {method.MessageType}, {method.HandlerType}>();");
                 var hierarchyLiteral = $"[{string.Join(", ", method.MessageHierarchy.Select(type => $"typeof({type})"))}]";
                 sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({method.MessageType}), {hierarchyLiteral});");
             }

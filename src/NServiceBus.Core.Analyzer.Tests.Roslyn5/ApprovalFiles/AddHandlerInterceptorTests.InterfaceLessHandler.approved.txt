@@ -35,7 +35,7 @@ namespace NServiceBus
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_a47fdeab1cad48d6, global::Cmd1>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_a47fdeab1cad48d6, global::Cmd1, global::OrderShippedHandler>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
             }
         }

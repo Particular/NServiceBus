@@ -29,7 +29,7 @@ namespace NServiceBus
                     var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
                     var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                     var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a, global::Cmd2>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a, global::Cmd2, global::Orders.OrderPlacedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
                 }
 
@@ -41,7 +41,7 @@ namespace NServiceBus
                     var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
                     var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                     var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea, global::Cmd1>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea, global::Cmd1, global::Orders.OrderShippedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
                 }
             }
