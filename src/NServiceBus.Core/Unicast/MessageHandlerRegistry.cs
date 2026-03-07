@@ -123,9 +123,9 @@ public class MessageHandlerRegistry
             return;
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-        var handlerFactories = GetOrCreate<THandler>();
-        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage>());
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(TOriginalHandler));
+        var handlerFactories = GetOrCreate<TOriginalHandler>();
+        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage, TOriginalHandler>());
     }
 
     /// <summary>
@@ -255,7 +255,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -266,7 +266,7 @@ public class MessageHandlerRegistry
                 InvokeHandler, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: false)
             {
-                HandlerType = typeof(THandler)
+                HandlerType = typeof(TOriginalHandler)
             };
 
         [DebuggerNonUserCode]
