@@ -315,6 +315,44 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerInheritedFromBaseClass()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using Orders;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         public abstract class HandlerBase
+                         {
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderShippedHandler : HandlerBase
+                         {
+                         }
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void SagaWithInappropriateDoubleMessageMapping()
     {
         var source = """
