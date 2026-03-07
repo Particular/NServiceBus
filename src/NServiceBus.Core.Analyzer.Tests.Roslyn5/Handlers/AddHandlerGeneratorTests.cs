@@ -358,6 +358,44 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void InterfaceLessHandlerInheritedFromBaseClass()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.InterfaceLessHandlerInheritedFromBaseClassAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         public abstract class HandlerBase
+                         {
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderShippedHandler : HandlerBase
+                         {
+                         }
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void MixedStyleHandlerProducesNoRegistration()
     {
         var source = """

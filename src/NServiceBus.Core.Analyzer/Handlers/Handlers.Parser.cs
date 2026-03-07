@@ -116,7 +116,7 @@ public static partial class Handlers
                 }
             }
 
-            var interfaceLessMethods = ParseInterfaceLessMethods(semanticModel, handlerType, markers, interfaceMessageTypes, cancellationToken);
+            var interfaceLessMethods = ParseInterfaceLessMethods(semanticModel, handlerType, markers, interfaceMessageTypes, includeInheritedMethods: !isInterfaceBased, cancellationToken);
             bool isMixed = isInterfaceBased && interfaceLessMethods.Count > 0;
 
             // For pure interface-less only (not interface-based, not mixed)
@@ -132,6 +132,7 @@ public static partial class Handlers
             INamedTypeSymbol handlerType,
             MarkerTypes markers,
             HashSet<string> interfaceMessageTypes,
+            bool includeInheritedMethods,
             CancellationToken cancellationToken)
         {
             var result = new List<InterfaceLessMethodSpec>();
@@ -147,18 +148,14 @@ public static partial class Handlers
             // Ctor params of the handler type (for instance methods)
             var ctorParams = GetCtorParams(handlerType, cancellationTokenType);
 
-            foreach (var member in handlerType.GetMembers())
+            foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (member is not IMethodSymbol method)
-                {
-                    continue;
-                }
-
                 if (method.Name != "Handle" ||
                     method.DeclaredAccessibility != Accessibility.Public ||
-                    method.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+                    method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+                    method.IsAbstract)
                 {
                     continue;
                 }
@@ -229,6 +226,39 @@ public static partial class Handlers
             return result;
         }
 
+        static IEnumerable<IMethodSymbol> GetHandleMethods(INamedTypeSymbol handlerType, bool includeInheritedMethods)
+        {
+            var seenSignatures = new HashSet<MethodSignatureKey>();
+
+            for (var current = handlerType; current is not null; current = includeInheritedMethods ? current.BaseType : null)
+            {
+                foreach (var method in current.GetMembers("Handle").OfType<IMethodSymbol>())
+                {
+                    var signature = GetMethodSignature(method);
+                    if (seenSignatures.Add(signature))
+                    {
+                        yield return method;
+                    }
+                }
+            }
+        }
+
+        static MethodSignatureKey GetMethodSignature(IMethodSymbol method) =>
+            new(
+                method.IsStatic,
+                method.Parameters.Select(static parameter =>
+                    new ParameterSignatureKey(
+                        parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                        parameter.RefKind)).ToImmutableEquatableArray());
+
+        readonly record struct MethodSignatureKey(
+            bool IsStatic,
+            ImmutableEquatableArray<ParameterSignatureKey> Parameters);
+
+        readonly record struct ParameterSignatureKey(
+            string ParameterType,
+            RefKind RefKind);
+
         static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(INamedTypeSymbol handlerType, INamedTypeSymbol? cancellationTokenType)
         {
             // Pick the constructor with the most parameters (primary or longest)
@@ -298,14 +328,12 @@ public static partial class Handlers
             return $"{typeName}__Handle__{messageName}_{hash:x16}";
         }
 
-        static bool IsSupportedHandlerReturnType(ITypeSymbol type)
-        {
-            return type is INamedTypeSymbol
+        static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
+            type is INamedTypeSymbol
             {
                 Name: "Task",
                 ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } }
             };
-        }
 
         static bool IsHandlerInterface(INamedTypeSymbol type) => type is
         {
