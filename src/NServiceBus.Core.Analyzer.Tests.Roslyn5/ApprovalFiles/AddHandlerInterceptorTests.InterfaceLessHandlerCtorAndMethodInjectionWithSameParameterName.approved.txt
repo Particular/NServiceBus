@@ -28,25 +28,14 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
-            public void AddHandler_OrderPlacedHandler_a5abf3183a2c2120()
-            {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                messageHandlerRegistry.AddMessageHandlerForMessage<OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a, global::Cmd2, global::Orders.OrderPlacedHandler>();
-                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
-            }
-
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddHandler_OrderShippedHandler_84e7f53e91caf984()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea, global::Cmd1, global::Orders.OrderShippedHandler>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc, global::Cmd1, global::Orders.OrderShippedHandler>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
             }
         }
@@ -55,12 +44,12 @@ namespace NServiceBus
 
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
-sealed file class OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea : global::NServiceBus.IHandleMessages<global::Cmd1>
+sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
-    readonly global::IMyService _service;
-    readonly global::IMyService _serviceMethod;
+    readonly global::IServiceA _service;
+    readonly global::IServiceB _serviceMethod;
 
-    public OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea(global::IMyService service, global::IMyService serviceMethod)
+    public OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc(global::IServiceA service, global::IServiceB serviceMethod)
     {
         _service = service;
         _serviceMethod = serviceMethod;
@@ -70,17 +59,5 @@ sealed file class OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea : global::N
     {
         var handler = new global::Orders.OrderShippedHandler(_service);
         return handler.Handle(message, context, _serviceMethod);
-    }
-}
-
-
-[global::System.Diagnostics.StackTraceHidden]
-[global::System.Diagnostics.DebuggerNonUserCode]
-sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NServiceBus.IHandleMessages<global::Cmd2>
-{
-
-    public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
-    {
-        return global::Orders.OrderPlacedHandler.Handle(message, context, context.CancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Analyzer.Handlers;
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Utility;
@@ -62,24 +63,24 @@ public static partial class Handlers
             sourceWriter.Indentation++;
 
             // Declare fields for all injected params
-            var allParams = BuildAllAdapterParams(method);
+            var adapterParams = BuildAdapterParams(method);
 
-            foreach (var param in allParams)
+            foreach (var param in adapterParams.AllParams)
             {
-                sourceWriter.WriteLine($"readonly {param.FullyQualifiedType} _{param.ParameterName};");
+                sourceWriter.WriteLine($"readonly {param.FullyQualifiedType} _{param.MemberName};");
             }
 
             // Constructor
-            if (allParams.Count > 0)
+            if (adapterParams.AllParams.Count > 0)
             {
                 sourceWriter.WriteLine();
-                var ctorArgs = string.Join(", ", allParams.Select(p => $"{p.FullyQualifiedType} {p.ParameterName}"));
+                var ctorArgs = string.Join(", ", adapterParams.AllParams.Select(p => $"{p.FullyQualifiedType} {p.ConstructorParameterName}"));
                 sourceWriter.WriteLine($"public {method.AdapterName}({ctorArgs})");
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
-                foreach (var param in allParams)
+                foreach (var param in adapterParams.AllParams)
                 {
-                    sourceWriter.WriteLine($"_{param.ParameterName} = {param.ParameterName};");
+                    sourceWriter.WriteLine($"_{param.MemberName} = {param.ConstructorParameterName};");
                 }
                 sourceWriter.Indentation--;
                 sourceWriter.WriteLine("}");
@@ -99,33 +100,20 @@ public static partial class Handlers
             else
             {
                 // Construct the handler
-                var ctorArgList = string.Join(", ", method.CtorParams.Select(p => $"_{p.ParameterName}"));
+                var ctorArgList = string.Join(", ", adapterParams.CtorFieldReferences);
                 sourceWriter.WriteLine($"var handler = new {method.HandlerType}({ctorArgList});");
                 sb.Append("return handler.Handle(message, context");
             }
 
+            int methodDependencyIndex = 0;
             foreach (var param in method.MethodParams)
             {
-                if (param.IsCancellationToken)
-                {
-                    sb.Append(", context.CancellationToken");
-                }
-                else
-                {
-                    sb.Append($", _{param.ParameterName}");
-                }
+                sb.Append(param.IsCancellationToken ? ", context.CancellationToken" : $", {adapterParams.MethodFieldReferences[methodDependencyIndex++]}");
             }
             sb.Append(");");
 
-            if (method.IsStatic)
-            {
-                sourceWriter.WriteLine($"return {sb}");
-            }
-            else
-            {
-                // The 'return handler.Handle(...)' line was already appended to sb
-                sourceWriter.WriteLine(sb.ToString());
-            }
+            // The 'return handler.Handle(...)' line was already appended to sb
+            sourceWriter.WriteLine(method.IsStatic ? $"return {sb}" : sb.ToString());
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("}");
@@ -134,28 +122,63 @@ public static partial class Handlers
             sourceWriter.WriteLine("}");
         }
 
-        static System.Collections.Generic.List<InjectedParamSpec> BuildAllAdapterParams(InterfaceLessMethodSpec method)
+        static AdapterParamSpecs BuildAdapterParams(InterfaceLessMethodSpec method)
         {
-            var all = new System.Collections.Generic.List<InjectedParamSpec>();
-            var seen = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+            var all = new List<AdapterParamSpec>();
+            var ctorFieldReferences = new List<string>(method.CtorParams.Count);
+            var methodFieldReferences = new List<string>();
+            var usedMemberNames = new HashSet<string>(System.StringComparer.Ordinal);
+            var usedCtorParameterNames = new HashSet<string>(System.StringComparer.Ordinal);
 
             // Ctor params (for instance methods)
             foreach (var p in method.CtorParams)
             {
-                if (seen.Add(p.ParameterName))
-                {
-                    all.Add(p);
-                }
+                var memberName = CreateUniqueName(p.ParameterName, "Ctor", usedMemberNames);
+                var constructorParameterName = CreateUniqueName(memberName, "Ctor", usedCtorParameterNames);
+                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
+                ctorFieldReferences.Add($"_{memberName}");
             }
             // Method params (excluding CancellationToken — those come from context)
             foreach (var p in method.MethodParams)
             {
-                if (!p.IsCancellationToken && seen.Add(p.ParameterName))
+                if (p.IsCancellationToken)
                 {
-                    all.Add(p);
+                    continue;
                 }
+
+                var memberName = CreateUniqueName(p.ParameterName, "Method", usedMemberNames);
+                var constructorParameterName = CreateUniqueName(memberName, "Method", usedCtorParameterNames);
+                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
+                methodFieldReferences.Add($"_{memberName}");
             }
-            return all;
+
+            return new AdapterParamSpecs(all, ctorFieldReferences, methodFieldReferences);
         }
+
+        static string CreateUniqueName(string baseName, string suffix, HashSet<string> usedNames)
+        {
+            if (usedNames.Add(baseName))
+            {
+                return baseName;
+            }
+
+            var candidate = $"{baseName}{suffix}";
+            if (usedNames.Add(candidate))
+            {
+                return candidate;
+            }
+
+            var index = 2;
+            do
+            {
+                candidate = $"{baseName}{suffix}{index++}";
+            } while (!usedNames.Add(candidate));
+
+            return candidate;
+        }
+
+        readonly record struct AdapterParamSpec(string MemberName, string ConstructorParameterName, string FullyQualifiedType);
+
+        readonly record struct AdapterParamSpecs(List<AdapterParamSpec> AllParams, List<string> CtorFieldReferences, List<string> MethodFieldReferences);
     }
 }
