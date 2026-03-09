@@ -204,72 +204,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
 
-    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType)
-    {
-        for (var current = classType; current is not null; current = current.BaseType)
-        {
-            if (HasValidInterfaceLessHandleMethods(current))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType)
-    {
-        var interfaceMessageTypes = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
-        foreach (var iface in classType.AllInterfaces)
-        {
-            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
-                iface.TypeArguments[0] is INamedTypeSymbol msgType)
-            {
-                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            }
-        }
-
-        foreach (var member in classType.GetMembers())
-        {
-            if (member is not IMethodSymbol method)
-            {
-                continue;
-            }
-
-            if (method.Name != "Handle" ||
-                method.DeclaredAccessibility != Accessibility.Public ||
-                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
-                method.Parameters.Length < 2)
-            {
-                continue;
-            }
-
-            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
-            {
-                continue;
-            }
-
-            if (!IsIMessageHandlerContext(method.Parameters[1].Type))
-            {
-                continue;
-            }
-
-            if (!IsSupportedHandlerReturnType(method.ReturnType))
-            {
-                continue;
-            }
-
-            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(firstParamFqn))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
+    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType) =>
+        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType);
 
     static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType)
     {
@@ -327,29 +263,11 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    static bool IsIMessageHandlerContext(ITypeSymbol type)
-    {
-        return type is INamedTypeSymbol { Name: "IMessageHandlerContext", ContainingNamespace: { Name: "NServiceBus", ContainingNamespace.IsGlobalNamespace: true } };
-    }
+    static bool IsIMessageHandlerContext(ITypeSymbol type) =>
+        InterfaceLessHandlerHelper.IsIMessageHandlerContext(type);
 
     static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
-        type is INamedTypeSymbol
-        {
-            Name: "Task",
-            ContainingNamespace:
-            {
-                Name: "Tasks",
-                ContainingNamespace:
-                {
-                    Name: "Threading",
-                    ContainingNamespace:
-                    {
-                        Name: "System",
-                        ContainingNamespace.IsGlobalNamespace: true
-                    }
-                }
-            }
-        };
+        InterfaceLessHandlerHelper.IsSupportedHandlerReturnType(type);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
