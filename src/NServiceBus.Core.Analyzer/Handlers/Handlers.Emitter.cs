@@ -112,7 +112,7 @@ public static partial class Handlers
             }
             sb.Append(");");
 
-            // The 'return handler.Handle(...)' line was already appended to sb
+            // For instance handlers, the full 'return handler.Handle(...)' line is already in sb; for static handlers, sb contains only the call and 'return ' is added here.
             sourceWriter.WriteLine(method.IsStatic ? $"return {sb}" : sb.ToString());
 
             sourceWriter.Indentation--;

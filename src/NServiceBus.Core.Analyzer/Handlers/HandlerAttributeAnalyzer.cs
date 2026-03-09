@@ -333,7 +333,23 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
     }
 
     static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
-        type.Name is "Task";
+        type is INamedTypeSymbol
+        {
+            Name: "Task",
+            ContainingNamespace:
+            {
+                Name: "Tasks",
+                ContainingNamespace:
+                {
+                    Name: "Threading",
+                    ContainingNamespace:
+                    {
+                        Name: "System",
+                        ContainingNamespace.IsGlobalNamespace: true
+                    }
+                }
+            }
+        };
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
