@@ -201,12 +201,12 @@ public class MessageHandlerRegistry
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
         .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-        .Single(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        .SingleOrDefault(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
         ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
     static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
         .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-        .Single(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        .SingleOrDefault(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
         ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
