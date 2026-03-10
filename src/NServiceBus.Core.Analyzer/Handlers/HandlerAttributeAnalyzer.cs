@@ -36,7 +36,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
                 var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
-                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType, knownTypes);
+                var isInterfaceLessHandler = !isSaga && InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes);
 
                 if (!isInterfaceBasedHandler || isSaga)
                 {
@@ -110,7 +110,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 // Interface-based handler: check for mixed-style (also has interface-less Handle methods)
-                if (HasMixedStyleHandleMethods(classType, knownTypes))
+                if (InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(classType, knownTypes))
                 {
                     var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                     if (classLocation is not null)
@@ -203,12 +203,6 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
     }
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
-
-    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes) =>
-        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes);
-
-    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes) =>
-        InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(classType, knownTypes);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
