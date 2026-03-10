@@ -36,7 +36,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
                 var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
-                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType);
+                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType, knownTypes.IMessageHandlerContext);
 
                 if (!isInterfaceBasedHandler || isSaga)
                 {
@@ -110,7 +110,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 // Interface-based handler: check for mixed-style (also has interface-less Handle methods)
-                if (HasMixedStyleHandleMethods(classType))
+                if (HasMixedStyleHandleMethods(classType, knownTypes.IMessageHandlerContext))
                 {
                     var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                     if (classLocation is not null)
@@ -204,10 +204,10 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
 
-    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType) =>
-        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType);
+    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext) =>
+        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, iMessageHandlerContext);
 
-    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType)
+    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
     {
         // Collect message types already covered by IHandleMessages<T> interfaces
         var interfaceMessageTypes = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
@@ -235,7 +235,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (!IsIMessageHandlerContext(method.Parameters[1].Type))
+            if (!IsIMessageHandlerContext(method.Parameters[1].Type, iMessageHandlerContext))
             {
                 continue;
             }
@@ -263,8 +263,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    static bool IsIMessageHandlerContext(ITypeSymbol type) =>
-        InterfaceLessHandlerHelper.IsIMessageHandlerContext(type);
+    static bool IsIMessageHandlerContext(ITypeSymbol type, INamedTypeSymbol iMessageHandlerContext) =>
+        InterfaceLessHandlerHelper.IsIMessageHandlerContext(type, iMessageHandlerContext);
 
     static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
         InterfaceLessHandlerHelper.IsSupportedHandlerReturnType(type);

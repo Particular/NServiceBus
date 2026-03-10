@@ -20,14 +20,15 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         {
             var iHandleMessages = context.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
             var iMessageSession = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageSession");
+            var iMessageHandlerContext = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
 
             // because this is an analyzer, we want to be a bit more defensive and bail out if types are missing
-            if (iHandleMessages is null || iMessageSession is null)
+            if (iHandleMessages is null || iMessageSession is null || iMessageHandlerContext is null)
             {
                 return;
             }
 
-            var knownTypes = new KnownTypes(iHandleMessages, iMessageSession);
+            var knownTypes = new KnownTypes(iHandleMessages, iMessageSession, iMessageHandlerContext);
 
             Analyze(context, knownTypes);
         }, SymbolKind.NamedType);
@@ -40,7 +41,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType))
+        if (classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes.IMessageHandlerContext))
         {
             AnalyzeMessageHandlerClass(context, classType, knownTypes);
         }
@@ -97,7 +98,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    readonly record struct KnownTypes(INamedTypeSymbol IHandleMessages, INamedTypeSymbol IMessageSession);
+    readonly record struct KnownTypes(INamedTypeSymbol IHandleMessages, INamedTypeSymbol IMessageSession, INamedTypeSymbol IMessageHandlerContext);
 
     public static readonly DiagnosticDescriptor HandlerInjectsMessageSession = new(
         id: DiagnosticIds.HandlerInjectsMessageSession,

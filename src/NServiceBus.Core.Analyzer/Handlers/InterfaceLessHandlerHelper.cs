@@ -7,11 +7,11 @@ using Microsoft.CodeAnalysis;
 
 static class InterfaceLessHandlerHelper
 {
-    public static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType)
+    public static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
     {
         for (var current = classType; current is not null; current = current.BaseType)
         {
-            if (HasValidInterfaceLessHandleMethods(current))
+            if (HasValidInterfaceLessHandleMethods(current, iMessageHandlerContext))
             {
                 return true;
             }
@@ -20,7 +20,7 @@ static class InterfaceLessHandlerHelper
         return false;
     }
 
-    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType)
+    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
     {
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
         foreach (var iface in classType.AllInterfaces)
@@ -52,7 +52,7 @@ static class InterfaceLessHandlerHelper
                 continue;
             }
 
-            if (!IsIMessageHandlerContext(method.Parameters[1].Type))
+            if (!IsIMessageHandlerContext(method.Parameters[1].Type, iMessageHandlerContext))
             {
                 continue;
             }
@@ -74,12 +74,8 @@ static class InterfaceLessHandlerHelper
         return false;
     }
 
-    public static bool IsIMessageHandlerContext(ITypeSymbol type) =>
-        type is INamedTypeSymbol
-        {
-            Name: "IMessageHandlerContext",
-            ContainingNamespace: { Name: "NServiceBus", ContainingNamespace.IsGlobalNamespace: true }
-        };
+    public static bool IsIMessageHandlerContext(ITypeSymbol type, INamedTypeSymbol iMessageHandlerContext) =>
+        SymbolEqualityComparer.Default.Equals(type, iMessageHandlerContext);
 
     public static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
         type is INamedTypeSymbol
