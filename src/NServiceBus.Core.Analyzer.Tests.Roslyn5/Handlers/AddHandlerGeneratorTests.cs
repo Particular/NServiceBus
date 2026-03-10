@@ -236,6 +236,14 @@ public class AddHandlerGeneratorTests
                          {
                              public static Task Handle(Cmd2 message, IMessageHandlerContext context, CancellationToken ct) => Task.CompletedTask;
                          }
+                         
+                         [Handler]
+                         public class OrderAcceptedHandler
+                         {
+                            public static Task Handle(Cmd1 message, IMessageHandlerContext context, IMyService service, CancellationToken ct) => Task.CompletedTask;
+                         
+                             public static Task Handle(Cmd2 message, IMessageHandlerContext context, IMyService service, CancellationToken ct) => Task.CompletedTask;
+                         }
                      }
 
                      public interface IMyService {}

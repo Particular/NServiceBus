@@ -17,8 +17,23 @@ namespace NServiceBus
             {
                 partial void AddAllHandlersCore()
                 {
+                    AddOrderAcceptedHandler();
                     AddOrderPlacedHandler();
                     AddOrderShippedHandler();
+                }
+
+                /// <summary>
+                /// Registers the <see cref="global::Orders.OrderAcceptedHandler"/> handler with the endpoint configuration.
+                /// </summary>
+                public void AddOrderAcceptedHandler()
+                {
+                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8, global::Cmd1, global::Orders.OrderAcceptedHandler>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
+                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7, global::Cmd2, global::Orders.OrderAcceptedHandler>();
+                    messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
                 }
 
                 /// <summary>
@@ -77,6 +92,40 @@ sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NS
     public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
     {
         return global::Orders.OrderPlacedHandler.Handle(message, context, context.CancellationToken);
+    }
+}
+
+[global::System.Diagnostics.StackTraceHidden]
+[global::System.Diagnostics.DebuggerNonUserCode]
+sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::NServiceBus.IHandleMessages<global::Cmd1>
+{
+    readonly global::IMyService _service;
+
+    public OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8(global::IMyService service)
+    {
+        _service = service;
+    }
+
+    public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
+    {
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
+    }
+}
+
+[global::System.Diagnostics.StackTraceHidden]
+[global::System.Diagnostics.DebuggerNonUserCode]
+sealed file class OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7 : global::NServiceBus.IHandleMessages<global::Cmd2>
+{
+    readonly global::IMyService _service;
+
+    public OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7(global::IMyService service)
+    {
+        _service = service;
+    }
+
+    public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
+    {
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
     }
 }
 
@@ -170,7 +219,7 @@ namespace NServiceBus
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.
                 /// </summary>
                 /// <remarks>
-                /// Includes handlers in this namespace: <see cref="AddOrderPlacedHandler"/>, <see cref="AddOrderShippedHandler"/>.
+                /// Includes handlers in this namespace: <see cref="AddOrderAcceptedHandler"/>, <see cref="AddOrderPlacedHandler"/>, <see cref="AddOrderShippedHandler"/>.
                 /// </remarks>
                 public void AddAll()
                 {
@@ -182,7 +231,7 @@ namespace NServiceBus
                 /// Registers all handlers for this namespace segment and its child namespaces.
                 /// </summary>
                 /// <remarks>
-                /// Includes handlers in this namespace: <see cref="AddOrderPlacedHandler"/>, <see cref="AddOrderShippedHandler"/>.
+                /// Includes handlers in this namespace: <see cref="AddOrderAcceptedHandler"/>, <see cref="AddOrderPlacedHandler"/>, <see cref="AddOrderShippedHandler"/>.
                 /// </remarks>
                 public void AddAllHandlers()
                 {

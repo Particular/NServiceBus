@@ -28,6 +28,19 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
+            public void AddHandler_OrderAcceptedHandler_e2d54d4131a45250()
+            {
+                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8, global::Cmd1, global::Orders.OrderAcceptedHandler>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
+                messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7, global::Cmd2, global::Orders.OrderAcceptedHandler>();
+                messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
+            }
+
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,13)
             public void AddHandler_OrderPlacedHandler_a5abf3183a2c2120()
             {
@@ -82,5 +95,40 @@ sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NS
     public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
     {
         return global::Orders.OrderPlacedHandler.Handle(message, context, context.CancellationToken);
+    }
+}
+
+
+[global::System.Diagnostics.StackTraceHidden]
+[global::System.Diagnostics.DebuggerNonUserCode]
+sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::NServiceBus.IHandleMessages<global::Cmd1>
+{
+    readonly global::IMyService _service;
+
+    public OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8(global::IMyService service)
+    {
+        _service = service;
+    }
+
+    public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
+    {
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
+    }
+}
+
+[global::System.Diagnostics.StackTraceHidden]
+[global::System.Diagnostics.DebuggerNonUserCode]
+sealed file class OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7 : global::NServiceBus.IHandleMessages<global::Cmd2>
+{
+    readonly global::IMyService _service;
+
+    public OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7(global::IMyService service)
+    {
+        _service = service;
+    }
+
+    public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
+    {
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
     }
 }
