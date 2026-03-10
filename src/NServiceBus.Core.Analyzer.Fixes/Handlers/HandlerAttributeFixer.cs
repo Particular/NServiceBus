@@ -158,7 +158,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             }
 
             var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
-            var isInterfaceLessHandler = !isInterfaceBasedHandler && HasValidInterfaceLessHandleMethods(type, compilation);
+            var isInterfaceLessHandler = !isInterfaceBasedHandler && HasValidInterfaceLessHandleMethods(type, knownTypes);
 
             if (!isInterfaceBasedHandler && !isInterfaceLessHandler)
             {
@@ -267,18 +267,13 @@ public class HandlerAttributeFixer : CodeFixProvider
         return false;
     }
 
-    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, Compilation compilation)
+    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
-        var iMessageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-        if (iMessageHandlerContext is null)
-        {
-            return false;
-        }
-
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
         foreach (var iface in classType.AllInterfaces)
         {
-            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
+            if (iface.IsGenericType &&
+                IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
                 iface.TypeArguments[0] is INamedTypeSymbol msgType)
             {
                 interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
@@ -306,8 +301,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             }
 
             var secondParam = method.Parameters[1];
-            if (!SymbolEqualityComparer.Default.Equals(secondParam.Type.OriginalDefinition, iMessageHandlerContext) &&
-                !SymbolEqualityComparer.Default.Equals(secondParam.Type, iMessageHandlerContext))
+            if (!SymbolEqualityComparer.Default.Equals(secondParam.Type, knownTypes.IMessageHandlerContext))
             {
                 continue;
             }
@@ -328,6 +322,11 @@ public class HandlerAttributeFixer : CodeFixProvider
 
         return false;
     }
+
+    static bool IsHandlerInterface(INamedTypeSymbol ifaceDefinition, HandlerKnownTypes knownTypes) =>
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleMessages) ||
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleTimeouts) ||
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IAmStartedByMessages);
 
     static bool IsSupportedHandlerReturnType(ITypeSymbol type)
     {

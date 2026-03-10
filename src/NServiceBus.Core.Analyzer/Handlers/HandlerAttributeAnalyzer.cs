@@ -36,7 +36,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
                 var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
-                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType, knownTypes.IMessageHandlerContext);
+                var isInterfaceLessHandler = !isSaga && IsInterfaceLessHandlerType(classType, knownTypes);
 
                 if (!isInterfaceBasedHandler || isSaga)
                 {
@@ -110,7 +110,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 // Interface-based handler: check for mixed-style (also has interface-less Handle methods)
-                if (HasMixedStyleHandleMethods(classType, knownTypes.IMessageHandlerContext))
+                if (HasMixedStyleHandleMethods(classType, knownTypes))
                 {
                     var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                     if (classLocation is not null)
@@ -204,70 +204,11 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
     readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
 
-    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext) =>
-        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, iMessageHandlerContext);
+    static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes) =>
+        InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes);
 
-    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
-    {
-        // Collect message types already covered by IHandleMessages<T> interfaces
-        var interfaceMessageTypes = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
-        foreach (var iface in classType.AllInterfaces)
-        {
-            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
-                iface.TypeArguments[0] is INamedTypeSymbol msgType)
-            {
-                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            }
-        }
-
-        foreach (var member in classType.GetMembers())
-        {
-            if (member is not IMethodSymbol method)
-            {
-                continue;
-            }
-
-            if (method.Name != "Handle" ||
-                method.DeclaredAccessibility != Accessibility.Public ||
-                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
-                method.Parameters.Length < 2)
-            {
-                continue;
-            }
-
-            if (!IsIMessageHandlerContext(method.Parameters[1].Type, iMessageHandlerContext))
-            {
-                continue;
-            }
-
-            if (!IsSupportedHandlerReturnType(method.ReturnType))
-            {
-                continue;
-            }
-
-            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
-            {
-                continue;
-            }
-
-            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            // This method is interface-less if: has extra params OR its message type is not in IHandleMessages<T> interfaces
-            bool isInterfaceLess = method.Parameters.Length > 2 || !interfaceMessageTypes.Contains(firstParamFqn);
-            if (isInterfaceLess)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    static bool IsIMessageHandlerContext(ITypeSymbol type, INamedTypeSymbol iMessageHandlerContext) =>
-        InterfaceLessHandlerHelper.IsIMessageHandlerContext(type, iMessageHandlerContext);
-
-    static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
-        InterfaceLessHandlerHelper.IsSupportedHandlerReturnType(type);
+    static bool HasMixedStyleHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes) =>
+        InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(classType, knownTypes);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,

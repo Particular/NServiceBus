@@ -7,11 +7,11 @@ using Microsoft.CodeAnalysis;
 
 static class InterfaceLessHandlerHelper
 {
-    public static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
+    public static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
         for (var current = classType; current is not null; current = current.BaseType)
         {
-            if (HasValidInterfaceLessHandleMethods(current, iMessageHandlerContext))
+            if (HasValidInterfaceLessHandleMethods(current, knownTypes))
             {
                 return true;
             }
@@ -20,12 +20,13 @@ static class InterfaceLessHandlerHelper
         return false;
     }
 
-    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, INamedTypeSymbol iMessageHandlerContext)
+    public static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
         foreach (var iface in classType.AllInterfaces)
         {
-            if (iface is { Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages", IsGenericType: true } &&
+            if (iface.IsGenericType &&
+                IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
                 iface.TypeArguments[0] is INamedTypeSymbol msgType)
             {
                 interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
@@ -52,7 +53,7 @@ static class InterfaceLessHandlerHelper
                 continue;
             }
 
-            if (!IsIMessageHandlerContext(method.Parameters[1].Type, iMessageHandlerContext))
+            if (!SymbolEqualityComparer.Default.Equals(method.Parameters[1].Type, knownTypes.IMessageHandlerContext))
             {
                 continue;
             }
@@ -74,10 +75,12 @@ static class InterfaceLessHandlerHelper
         return false;
     }
 
-    public static bool IsIMessageHandlerContext(ITypeSymbol type, INamedTypeSymbol iMessageHandlerContext) =>
-        SymbolEqualityComparer.Default.Equals(type, iMessageHandlerContext);
+    static bool IsHandlerInterface(INamedTypeSymbol ifaceDefinition, HandlerKnownTypes knownTypes) =>
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleMessages) ||
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleTimeouts) ||
+        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IAmStartedByMessages);
 
-    public static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
+    static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
         type is INamedTypeSymbol
         {
             Name: "Task",
