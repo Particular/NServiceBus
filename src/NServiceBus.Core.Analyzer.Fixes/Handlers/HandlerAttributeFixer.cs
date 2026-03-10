@@ -158,7 +158,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             }
 
             var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
-            var isInterfaceLessHandler = !isInterfaceBasedHandler && HasValidInterfaceLessHandleMethods(type, knownTypes);
+            var isInterfaceLessHandler = !isInterfaceBasedHandler && InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(type, knownTypes);
 
             if (!isInterfaceBasedHandler && !isInterfaceLessHandler)
             {
@@ -265,76 +265,6 @@ public class HandlerAttributeFixer : CodeFixProvider
         }
 
         return false;
-    }
-
-    static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
-    {
-        var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
-        foreach (var iface in classType.AllInterfaces)
-        {
-            if (iface.IsGenericType &&
-                IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
-                iface.TypeArguments[0] is INamedTypeSymbol msgType)
-            {
-                interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            }
-        }
-
-        foreach (var member in classType.GetMembers())
-        {
-            if (member is not IMethodSymbol method)
-            {
-                continue;
-            }
-
-            if (method.Name != "Handle" ||
-                method.DeclaredAccessibility != Accessibility.Public ||
-                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
-                method.Parameters.Length < 2)
-            {
-                continue;
-            }
-
-            if (method.Parameters[0].Type is not INamedTypeSymbol firstParamType)
-            {
-                continue;
-            }
-
-            var secondParam = method.Parameters[1];
-            if (!SymbolEqualityComparer.Default.Equals(secondParam.Type, knownTypes.IMessageHandlerContext))
-            {
-                continue;
-            }
-
-            if (!IsSupportedHandlerReturnType(method.ReturnType))
-            {
-                continue;
-            }
-
-            var firstParamFqn = firstParamType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(firstParamFqn))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    static bool IsHandlerInterface(INamedTypeSymbol ifaceDefinition, HandlerKnownTypes knownTypes) =>
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleMessages) ||
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleTimeouts) ||
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IAmStartedByMessages);
-
-    static bool IsSupportedHandlerReturnType(ITypeSymbol type)
-    {
-        return type is INamedTypeSymbol
-        {
-            Name: "Task",
-            ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } }
-        };
     }
 
     static ClassDeclarationSyntax AddAttributeToClass(
