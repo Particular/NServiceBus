@@ -9,9 +9,9 @@
 
 namespace NServiceBus
 {
-    public static partial class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlerWithConflictingCtorParameterNameHandlerRegistryExtensions
     {
-        public sealed partial class ConventionBasedHandlersCtorAndParameterInjectionRootRegistry
+        public sealed partial class ConventionBasedHandlerWithConflictingCtorParameterNameRootRegistry
         {
             public sealed partial class OrdersRegistry
             {
@@ -28,7 +28,7 @@ namespace NServiceBus
                     var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
                     var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                     var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc, global::Cmd1, global::Orders.OrderShippedHandler>();
+                    messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_df918940d9a78851, global::Cmd1, global::Orders.OrderShippedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
                 }
             }
@@ -38,21 +38,21 @@ namespace NServiceBus
 
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
-sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::NServiceBus.IHandleMessages<global::Cmd1>
+sealed file class OrderShippedHandler__Handle__Cmd1_df918940d9a78851 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
-    readonly global::IServiceA _serviceAFromCtor;
-    readonly global::IServiceB _serviceBFromMethod;
+    readonly global::IServiceA _serviceFromCtor;
+    readonly global::IServiceB _serviceFromCtorFromCtor;
 
-    public OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc(global::IServiceA serviceAFromCtorFromCtor, global::IServiceB serviceBFromMethodFromMethod)
+    public OrderShippedHandler__Handle__Cmd1_df918940d9a78851(global::IServiceA serviceFromCtorFromCtor, global::IServiceB serviceFromCtorFromCtorFromCtor)
     {
-        _serviceAFromCtor = serviceAFromCtorFromCtor;
-        _serviceBFromMethod = serviceBFromMethodFromMethod;
+        _serviceFromCtor = serviceFromCtorFromCtor;
+        _serviceFromCtorFromCtor = serviceFromCtorFromCtorFromCtor;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        var handler = new global::Orders.OrderShippedHandler(_serviceAFromCtor);
-        return handler.Handle(message, context, _serviceBFromMethod);
+        var handler = new global::Orders.OrderShippedHandler(_serviceFromCtor, _serviceFromCtorFromCtor);
+        return handler.Handle(message, context);
     }
 }
 
@@ -68,26 +68,26 @@ sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::N
 namespace NServiceBus
 {
     /// <summary>
-    /// Provides access to handler and saga registries discovered in the <i>ConventionBasedHandlersCtorAndParameterInjection</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>ConventionBasedHandlerWithConflictingCtorParameterName</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    public static partial class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlerWithConflictingCtorParameterNameHandlerRegistryExtensions
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the root registry for handler and saga types in the <i>ConventionBasedHandlersCtorAndParameterInjection</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>ConventionBasedHandlerWithConflictingCtorParameterName</i> assembly.
             /// </summary>
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public ConventionBasedHandlersCtorAndParameterInjectionRootRegistry ConventionBasedHandlersCtorAndParameterInjectionAssembly => new(registry.Configuration);
+            public ConventionBasedHandlerWithConflictingCtorParameterNameRootRegistry ConventionBasedHandlerWithConflictingCtorParameterNameAssembly => new(registry.Configuration);
         }
 
         /// <summary>
         /// Root registry to add handlers and sagas for the entire assembly.
         /// </summary>
-        public sealed partial class ConventionBasedHandlersCtorAndParameterInjectionRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed partial class ConventionBasedHandlerWithConflictingCtorParameterNameRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 

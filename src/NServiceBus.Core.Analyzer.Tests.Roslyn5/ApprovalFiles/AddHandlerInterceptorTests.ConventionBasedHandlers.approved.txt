@@ -70,19 +70,19 @@ namespace NServiceBus
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
-    readonly global::IMyService _service;
-    readonly global::IMyService _serviceMethod;
+    readonly global::IMyService _serviceFromCtor;
+    readonly global::IMyService _serviceFromMethod;
 
-    public OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea(global::IMyService service, global::IMyService serviceMethod)
+    public OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea(global::IMyService serviceFromCtorFromCtor, global::IMyService serviceFromMethodFromMethod)
     {
-        _service = service;
-        _serviceMethod = serviceMethod;
+        _serviceFromCtor = serviceFromCtorFromCtor;
+        _serviceFromMethod = serviceFromMethodFromMethod;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        var handler = new global::Orders.OrderShippedHandler(_service);
-        return handler.Handle(message, context, _serviceMethod);
+        var handler = new global::Orders.OrderShippedHandler(_serviceFromCtor);
+        return handler.Handle(message, context, _serviceFromMethod);
     }
 }
 
@@ -103,16 +103,16 @@ sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NS
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
-    readonly global::IMyService _service;
+    readonly global::IMyService _serviceFromMethod;
 
-    public OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8(global::IMyService service)
+    public OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8(global::IMyService serviceFromMethodFromMethod)
     {
-        _service = service;
+        _serviceFromMethod = serviceFromMethodFromMethod;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _serviceFromMethod, context.CancellationToken);
     }
 }
 
@@ -120,15 +120,15 @@ sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7 : global::NServiceBus.IHandleMessages<global::Cmd2>
 {
-    readonly global::IMyService _service;
+    readonly global::IMyService _serviceFromMethod;
 
-    public OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7(global::IMyService service)
+    public OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7(global::IMyService serviceFromMethodFromMethod)
     {
-        _service = service;
+        _serviceFromMethod = serviceFromMethodFromMethod;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd2 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        return global::Orders.OrderAcceptedHandler.Handle(message, context, _service, context.CancellationToken);
+        return global::Orders.OrderAcceptedHandler.Handle(message, context, _serviceFromMethod, context.CancellationToken);
     }
 }

@@ -324,6 +324,43 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void ConventionBasedHandlerWithSuffixCollision()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<Orders.OrderShippedHandler>();
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public interface IServiceC {}
+                     public class Cmd1 : ICommand {}
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IServiceA service, IServiceB serviceFromCtor, IServiceC serviceFromCtorFromCtor) { }
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerInheritedFromBaseClass()
     {
         var source = """

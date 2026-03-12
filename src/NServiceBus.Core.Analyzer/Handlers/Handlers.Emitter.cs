@@ -133,8 +133,8 @@ public static partial class Handlers
             // Ctor params (for instance methods)
             foreach (var p in method.CtorParams)
             {
-                var memberName = CreateUniqueName(p.ParameterName, "Ctor", usedMemberNames);
-                var constructorParameterName = CreateUniqueName(memberName, "Ctor", usedCtorParameterNames);
+                var memberName = CreateUniqueName(p.ParameterName, "FromCtor", usedMemberNames);
+                var constructorParameterName = CreateUniqueName(memberName, "FromCtor", usedCtorParameterNames);
                 all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
                 ctorFieldReferences.Add($"_{memberName}");
             }
@@ -146,8 +146,8 @@ public static partial class Handlers
                     continue;
                 }
 
-                var memberName = CreateUniqueName(p.ParameterName, "Method", usedMemberNames);
-                var constructorParameterName = CreateUniqueName(memberName, "Method", usedCtorParameterNames);
+                var memberName = CreateUniqueName(p.ParameterName, "FromMethod", usedMemberNames);
+                var constructorParameterName = CreateUniqueName(memberName, "FromMethod", usedCtorParameterNames);
                 all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
                 methodFieldReferences.Add($"_{memberName}");
             }
@@ -157,11 +157,6 @@ public static partial class Handlers
 
         static string CreateUniqueName(string baseName, string suffix, HashSet<string> usedNames)
         {
-            if (usedNames.Add(baseName))
-            {
-                return baseName;
-            }
-
             var candidate = $"{baseName}{suffix}";
             if (usedNames.Add(candidate))
             {

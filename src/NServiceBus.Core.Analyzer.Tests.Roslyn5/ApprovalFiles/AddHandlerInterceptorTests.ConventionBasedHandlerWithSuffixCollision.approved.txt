@@ -28,14 +28,14 @@ namespace NServiceBus
     {
         extension (NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
+            [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
             public void AddHandler_OrderShippedHandler_84e7f53e91caf984()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
-                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc, global::Cmd1, global::Orders.OrderShippedHandler>();
+                messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_df918940d9a78851, global::Cmd1, global::Orders.OrderShippedHandler>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
             }
         }
@@ -44,20 +44,22 @@ namespace NServiceBus
 
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
-sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::NServiceBus.IHandleMessages<global::Cmd1>
+sealed file class OrderShippedHandler__Handle__Cmd1_df918940d9a78851 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
     readonly global::IServiceA _serviceFromCtor;
-    readonly global::IServiceB _serviceFromMethod;
+    readonly global::IServiceB _serviceFromCtorFromCtor;
+    readonly global::IServiceC _serviceFromCtorFromCtorFromCtor;
 
-    public OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc(global::IServiceA serviceFromCtorFromCtor, global::IServiceB serviceFromMethodFromMethod)
+    public OrderShippedHandler__Handle__Cmd1_df918940d9a78851(global::IServiceA serviceFromCtorFromCtor, global::IServiceB serviceFromCtorFromCtorFromCtor, global::IServiceC serviceFromCtorFromCtorFromCtorFromCtor)
     {
         _serviceFromCtor = serviceFromCtorFromCtor;
-        _serviceFromMethod = serviceFromMethodFromMethod;
+        _serviceFromCtorFromCtor = serviceFromCtorFromCtorFromCtor;
+        _serviceFromCtorFromCtorFromCtor = serviceFromCtorFromCtorFromCtorFromCtor;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        var handler = new global::Orders.OrderShippedHandler(_serviceFromCtor);
-        return handler.Handle(message, context, _serviceFromMethod);
+        var handler = new global::Orders.OrderShippedHandler(_serviceFromCtor, _serviceFromCtorFromCtor, _serviceFromCtorFromCtorFromCtor);
+        return handler.Handle(message, context);
     }
 }

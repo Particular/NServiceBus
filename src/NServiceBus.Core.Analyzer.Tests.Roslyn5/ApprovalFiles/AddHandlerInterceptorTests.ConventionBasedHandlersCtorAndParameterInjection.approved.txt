@@ -46,18 +46,18 @@ namespace NServiceBus
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
-    readonly global::IServiceA _serviceA;
-    readonly global::IServiceB _serviceB;
+    readonly global::IServiceA _serviceAFromCtor;
+    readonly global::IServiceB _serviceBFromMethod;
 
-    public OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc(global::IServiceA serviceA, global::IServiceB serviceB)
+    public OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc(global::IServiceA serviceAFromCtorFromCtor, global::IServiceB serviceBFromMethodFromMethod)
     {
-        _serviceA = serviceA;
-        _serviceB = serviceB;
+        _serviceAFromCtor = serviceAFromCtorFromCtor;
+        _serviceBFromMethod = serviceBFromMethodFromMethod;
     }
 
     public global::System.Threading.Tasks.Task Handle(global::Cmd1 message, global::NServiceBus.IMessageHandlerContext context)
     {
-        var handler = new global::Orders.OrderShippedHandler(_serviceA);
-        return handler.Handle(message, context, _serviceB);
+        var handler = new global::Orders.OrderShippedHandler(_serviceAFromCtor);
+        return handler.Handle(message, context, _serviceBFromMethod);
     }
 }
