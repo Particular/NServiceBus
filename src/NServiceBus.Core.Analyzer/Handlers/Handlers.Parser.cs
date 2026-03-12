@@ -139,6 +139,7 @@ public static partial class Handlers
             var handlerTypeFqn = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var iMessageHandlerContext = semanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
             var cancellationTokenType = semanticModel.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+            var activatorUtilitiesConstructorAttributeType = semanticModel.Compilation.GetTypeByMetadataName("Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute");
 
             if (iMessageHandlerContext is null)
             {
@@ -146,7 +147,7 @@ public static partial class Handlers
             }
 
             // Ctor params of the handler type (for instance methods)
-            var ctorParams = GetCtorParams(handlerType, cancellationTokenType);
+            var ctorParams = GetCtorParams(handlerType, cancellationTokenType, activatorUtilitiesConstructorAttributeType);
 
             foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
@@ -259,22 +260,12 @@ public static partial class Handlers
             string ParameterType,
             RefKind RefKind);
 
-        static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(INamedTypeSymbol handlerType, INamedTypeSymbol? cancellationTokenType)
+        static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(
+            INamedTypeSymbol handlerType,
+            INamedTypeSymbol? cancellationTokenType,
+            INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
         {
-            // Pick the constructor with the most parameters (primary or longest)
-            IMethodSymbol? ctor = null;
-            foreach (var candidate in handlerType.Constructors)
-            {
-                if (candidate.IsStatic || candidate.DeclaredAccessibility == Accessibility.Private)
-                {
-                    continue;
-                }
-
-                if (ctor is null || candidate.Parameters.Length > ctor.Parameters.Length)
-                {
-                    ctor = candidate;
-                }
-            }
+            var ctor = SelectConstructor(handlerType, activatorUtilitiesConstructorAttributeType);
 
             if (ctor is null || ctor.Parameters.Length == 0)
             {
@@ -293,10 +284,94 @@ public static partial class Handlers
             return specs.ToImmutableEquatableArray();
         }
 
-        static string BuildAdapterName(
-            INamedTypeSymbol handlerType,
-            IMethodSymbol method,
-            string handlerTypeFqn)
+        static IMethodSymbol? SelectConstructor(INamedTypeSymbol handlerType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
+        {
+            var candidates = handlerType.Constructors
+                .Where(static candidate => !candidate.IsStatic && candidate.DeclaredAccessibility != Accessibility.Private)
+                .ToArray();
+
+            if (candidates.Length == 0)
+            {
+                return null;
+            }
+
+            if (activatorUtilitiesConstructorAttributeType is not null)
+            {
+                var markedConstructors = candidates
+                    .Where(candidate => HasAttribute(candidate, activatorUtilitiesConstructorAttributeType))
+                    .ToArray();
+
+                if (markedConstructors.Length > 0)
+                {
+                    return PickMostGreedy(markedConstructors);
+                }
+            }
+
+            return PickMostGreedy(candidates);
+        }
+
+        static bool HasAttribute(IMethodSymbol constructor, INamedTypeSymbol attributeType)
+        {
+            foreach (var attribute in constructor.GetAttributes())
+            {
+                var attributeClass = attribute.AttributeClass;
+                if (attributeClass is null)
+                {
+                    continue;
+                }
+
+                if (SymbolEqualityComparer.Default.Equals(attributeClass, attributeType) ||
+                    SymbolEqualityComparer.Default.Equals(attributeClass.OriginalDefinition, attributeType))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static IMethodSymbol PickMostGreedy(IEnumerable<IMethodSymbol> candidates)
+        {
+            IMethodSymbol? best = null;
+            var bestLocation = int.MaxValue;
+
+            foreach (var candidate in candidates)
+            {
+                if (best is null || candidate.Parameters.Length > best.Parameters.Length)
+                {
+                    best = candidate;
+                    bestLocation = GetDeclarationLocation(candidate);
+                    continue;
+                }
+
+                if (candidate.Parameters.Length == best.Parameters.Length)
+                {
+                    var candidateLocation = GetDeclarationLocation(candidate);
+                    if (candidateLocation < bestLocation)
+                    {
+                        best = candidate;
+                        bestLocation = candidateLocation;
+                    }
+                }
+            }
+
+            return best!;
+        }
+
+        static int GetDeclarationLocation(IMethodSymbol method)
+        {
+            foreach (var location in method.Locations)
+            {
+                if (location.IsInSource)
+                {
+                    return location.SourceSpan.Start;
+                }
+            }
+
+            return int.MaxValue;
+        }
+
+        static string BuildAdapterName(INamedTypeSymbol handlerType, IMethodSymbol method, string handlerTypeFqn)
         {
             // Hash input: declaring type FQN + method name + static/instance + ordered params (type FQN:refkind) + return type FQN
             var sb = new StringBuilder();

@@ -298,6 +298,99 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void ConventionBasedHandlerWithMultipleConstructorsUsesMostGreedyConstructor()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithMultipleConstructorsUsesMostGreedyConstructorAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler() { }
+                             public OrderShippedHandler(IServiceA serviceA) { }
+                             public OrderShippedHandler(IServiceA serviceA, IServiceB serviceB) { }
+
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceC serviceC) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public interface IServiceC {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructor()
+    {
+        var source = """
+                     using System;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     namespace Microsoft.Extensions.DependencyInjection
+                     {
+                         [AttributeUsage(AttributeTargets.Constructor)]
+                         public sealed class ActivatorUtilitiesConstructorAttribute : Attribute
+                         {
+                         }
+                     }
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructorAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             public OrderShippedHandler(IServiceA serviceA, IServiceB serviceB) { }
+
+                             [Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructor]
+                             public OrderShippedHandler(IServiceC serviceC) { }
+
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceD serviceD) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public interface IServiceC {}
+                     public interface IServiceD {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerReturningValueTaskProducesNoRegistration()
     {
         var source = """
