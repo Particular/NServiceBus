@@ -62,6 +62,12 @@ public class HandlerAttributeFixer : CodeFixProvider
                         diagnostic);
                     break;
                 case DiagnosticIds.HandlerAttributeOnNonHandler:
+                    if (HandlerFixerGuards.IsEmptyHandlerShell(classDecl))
+                    {
+                        // Dedicated scaffold fixers handle this case.
+                        break;
+                    }
+
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Remove HandlerAttribute",

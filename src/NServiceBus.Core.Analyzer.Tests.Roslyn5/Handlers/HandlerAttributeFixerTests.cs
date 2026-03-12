@@ -21,6 +21,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             [Handler]
             class NonHandler
             {
+                public int Counter { get; set; }
             }
             """;
 
@@ -30,10 +31,36 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             
             class NonHandler
             {
+                public int Counter { get; set; }
             }
             """;
 
         return Assert(original, expected);
+    }
+
+    [Test]
+    public void DoesNotOfferRemoveHandlerAttributeOnEmptyShell()
+    {
+        var original =
+            """
+            using NServiceBus;
+
+            [Handler]
+            class NonHandler
+            {
+            }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+
+            class NonHandler
+            {
+            }
+            """;
+
+        NUnit.Framework.Assert.That(async () => await base.Assert(original, expected), Throws.Exception);
     }
 
     [Test]
@@ -49,6 +76,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             [DebuggerStepThroughAttribute]
             class NonHandler
             {
+                int value;
             }
             """;
 
@@ -62,6 +90,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             [DebuggerStepThroughAttribute]
             class NonHandler
             {
+                int value;
             }
             """;
 

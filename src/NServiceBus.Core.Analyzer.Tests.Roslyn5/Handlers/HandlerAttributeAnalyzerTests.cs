@@ -482,6 +482,30 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportForConventionBasedHandlerWithOptionalCancellationToken()
+    {
+        var source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public async Task Handle(MyMessage message, IMessageHandlerContext context, CancellationToken cancellationToken = default)
+                {
+                    await Task.CompletedTask;
+                }
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task DoesNotReportMixedStyleForPureInterfaceBased()
     {
         var source =
