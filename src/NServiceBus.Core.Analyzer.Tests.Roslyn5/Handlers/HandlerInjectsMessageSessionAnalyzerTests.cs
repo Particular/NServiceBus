@@ -51,7 +51,7 @@ public class HandlerInjectsMessageSessionAnalyzerTests : AnalyzerTestFixture<Han
     }
 
     [Test]
-    public Task ReportsDiagnosticForInterfaceLessHandlerWithSessionInConstructor()
+    public Task ReportsDiagnosticForConventionBasedHandlerWithSessionInConstructor()
     {
         var source =
             """
@@ -72,7 +72,7 @@ public class HandlerInjectsMessageSessionAnalyzerTests : AnalyzerTestFixture<Han
     }
 
     [Test]
-    public Task ReportsDiagnosticForInterfaceLessHandlerWithSessionAsProperty()
+    public Task ReportsDiagnosticForConventionBasedHandlerWithSessionAsProperty()
     {
         var source =
             """
@@ -114,7 +114,7 @@ public class HandlerInjectsMessageSessionAnalyzerTests : AnalyzerTestFixture<Han
     }
 
     [Test]
-    public Task DoesNotReportForInterfaceLessHandlerWithoutSession()
+    public Task DoesNotReportForConventionBasedHandlerWithoutSession()
     {
         var source =
             """

@@ -349,7 +349,7 @@ public class Foo : IHandleMessages<TestMessage>
 public class TestMessage : ICommand {}");
 
     [Test]
-    public Task NoDiagnosticWhenInterfaceLessHandlerPassesBoundCancellationToken() => Assert(
+    public Task NoDiagnosticWhenConventionBasedHandlerPassesBoundCancellationToken() => Assert(
         @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -368,7 +368,7 @@ public class Foo
 public class TestMessage : ICommand {}");
 
     [Test]
-    public Task NoDiagnosticWhenInterfaceLessHandlerExposesBoundCancellationTokenWithoutForwardingContextToken() => Assert(
+    public Task NoDiagnosticWhenConventionBasedHandlerExposesBoundCancellationTokenWithoutForwardingContextToken() => Assert(
         @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -387,7 +387,7 @@ public class Foo
 public class TestMessage : ICommand {}");
 
     [Test]
-    public Task NoDiagnosticWhenInterfaceLessHandlerHasOptionalBoundCancellationToken() => Assert(
+    public Task NoDiagnosticWhenConventionBasedHandlerHasOptionalBoundCancellationToken() => Assert(
         @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
@@ -406,7 +406,7 @@ public class Foo
 public class TestMessage : ICommand {}");
 
     [Test]
-    public Task NoDiagnosticWhenInterfaceLessHandlerHasBoundCancellationTokenBeforeOtherDependencies() => Assert(
+    public Task NoDiagnosticWhenConventionBasedHandlerHasBoundCancellationTokenBeforeOtherDependencies() => Assert(
         @"using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;

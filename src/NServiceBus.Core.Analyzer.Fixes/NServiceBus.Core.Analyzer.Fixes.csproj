@@ -23,7 +23,7 @@
     <Compile Include="..\NServiceBus.Core.Analyzer\TypeSymbolExtensions.cs" />
     <Compile Include="..\NServiceBus.Core.Analyzer\NamespaceSymbolExtensions.cs" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\HandlerKnownTypes.cs" LinkBase="Handlers" />
-    <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\InterfaceLessHandlerHelper.cs" LinkBase="Handlers" />
+    <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\ConventionBasedHandlerHelper.cs" LinkBase="Handlers" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Sagas\SagaKnownTypes.cs" LinkBase="Sagas" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Sagas\SagaMessageMapping.cs" LinkBase="Sagas" />
   </ItemGroup>

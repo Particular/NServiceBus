@@ -20,7 +20,7 @@ using NServiceBus.Core.Analyzer.Handlers;
 public class HandlerAttributeFixer : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.HandlerAttributeMissingInterfaceLess, DiagnosticIds.HandlerAttributeMisplacedInterfaceLess, DiagnosticIds.HandlerAttributeOnNonHandler];
+        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.ConventionBasedHandlerMissingAttribute, DiagnosticIds.ConventionBasedHandlerMisplacedAttribute, DiagnosticIds.HandlerAttributeOnNonHandler];
 
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -44,7 +44,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             switch (diagnostic.Id)
             {
                 case DiagnosticIds.HandlerAttributeMissing:
-                case DiagnosticIds.HandlerAttributeMissingInterfaceLess:
+                case DiagnosticIds.ConventionBasedHandlerMissingAttribute:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Add HandlerAttribute",
@@ -53,7 +53,7 @@ public class HandlerAttributeFixer : CodeFixProvider
                         diagnostic);
                     break;
                 case DiagnosticIds.HandlerAttributeMisplaced:
-                case DiagnosticIds.HandlerAttributeMisplacedInterfaceLess:
+                case DiagnosticIds.ConventionBasedHandlerMisplacedAttribute:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Move HandlerAttribute to concrete handlers",
@@ -158,9 +158,9 @@ public class HandlerAttributeFixer : CodeFixProvider
             }
 
             var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
-            var isInterfaceLessHandler = !isInterfaceBasedHandler && InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(type, knownTypes);
+            var isConventionBasedHandler = !isInterfaceBasedHandler && ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(type, knownTypes);
 
-            if (!isInterfaceBasedHandler && !isInterfaceLessHandler)
+            if (!isInterfaceBasedHandler && !isConventionBasedHandler)
             {
                 continue;
             }

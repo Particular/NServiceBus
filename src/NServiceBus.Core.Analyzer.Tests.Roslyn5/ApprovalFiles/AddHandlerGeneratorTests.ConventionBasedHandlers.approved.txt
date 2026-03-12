@@ -9,9 +9,9 @@
 
 namespace NServiceBus
 {
-    public static partial class InterfaceLessHandlersHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlersHandlerRegistryExtensions
     {
-        public sealed partial class InterfaceLessHandlersRootRegistry
+        public sealed partial class ConventionBasedHandlersRootRegistry
         {
             public sealed partial class OrdersRegistry
             {
@@ -141,26 +141,26 @@ sealed file class OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7 : global::
 namespace NServiceBus
 {
     /// <summary>
-    /// Provides access to handler and saga registries discovered in the <i>InterfaceLessHandlers</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>ConventionBasedHandlers</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    public static partial class InterfaceLessHandlersHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlersHandlerRegistryExtensions
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the root registry for handler and saga types in the <i>InterfaceLessHandlers</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>ConventionBasedHandlers</i> assembly.
             /// </summary>
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public InterfaceLessHandlersRootRegistry InterfaceLessHandlersAssembly => new(registry.Configuration);
+            public ConventionBasedHandlersRootRegistry ConventionBasedHandlersAssembly => new(registry.Configuration);
         }
 
         /// <summary>
         /// Root registry to add handlers and sagas for the entire assembly.
         /// </summary>
-        public sealed partial class InterfaceLessHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed partial class ConventionBasedHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 

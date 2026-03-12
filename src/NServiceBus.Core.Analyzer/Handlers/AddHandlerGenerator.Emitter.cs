@@ -31,8 +31,8 @@ public sealed partial class AddHandlerGenerator
             EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
-            // Emit file-scoped adapter types for interface-less handlers (outside the partial class)
-            bool hasAdapters = handlers.Any(h => h.InterfaceLessMethods.Count > 0);
+            // Emit file-scoped adapter types for convention-based handlers (outside the partial class)
+            bool hasAdapters = handlers.Any(h => h.ConventionBasedMethods.Count > 0);
             if (hasAdapters)
             {
                 sourceWriter.WriteLine();
@@ -46,7 +46,7 @@ public sealed partial class AddHandlerGenerator
         {
             foreach (var handler in handlers)
             {
-                if (handler.InterfaceLessMethods.Count == 0)
+                if (handler.ConventionBasedMethods.Count == 0)
                 {
                     continue;
                 }

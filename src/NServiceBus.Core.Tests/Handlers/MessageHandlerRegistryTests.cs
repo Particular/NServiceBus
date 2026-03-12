@@ -95,15 +95,15 @@ public class MessageHandlerRegistryTests
     }
 
     [Test]
-    public void ShouldRejectInterfaceLessHandlerOnReflectionPath()
+    public void ShouldRejectConventionBasedHandlerOnReflectionPath()
     {
         var registry = new MessageHandlerRegistry();
 
-        var exception = Assert.Throws<ArgumentException>(() => registry.AddHandler<InterfaceLessHandler>());
+        var exception = Assert.Throws<ArgumentException>(() => registry.AddHandler<ConventionBasedHandler>());
 
         Assert.That(exception!.ParamName, Is.EqualTo("THandler"));
         Assert.That(exception.Message, Does.Contain("does not implement IHandleMessages"));
-        Assert.That(exception.Message, Does.Contain("Interface-less handlers require source generation/interception."));
+        Assert.That(exception.Message, Does.Contain("Convention-based handlers require source generation/interception."));
     }
 
     [Test]
@@ -111,8 +111,8 @@ public class MessageHandlerRegistryTests
     {
         var registry = new MessageHandlerRegistry();
 
-        registry.AddMessageHandlerForMessage<GeneratedAdapterOne, MyMessage, InterfaceLessHandler>();
-        registry.AddMessageHandlerForMessage<GeneratedAdapterTwo, MyMessage, InterfaceLessHandler>();
+        registry.AddMessageHandlerForMessage<GeneratedAdapterOne, MyMessage, ConventionBasedHandler>();
+        registry.AddMessageHandlerForMessage<GeneratedAdapterTwo, MyMessage, ConventionBasedHandler>();
 
         Assert.That(registry.GetHandlersFor(typeof(MyMessage)), Has.Count.EqualTo(1));
     }
@@ -150,7 +150,7 @@ public class MessageHandlerRegistryTests
         public class MySagaData : ContainSagaData;
     }
 
-    class InterfaceLessHandler
+    class ConventionBasedHandler
     {
         public static Task Handle(MyMessage _, IMessageHandlerContext __) => Task.CompletedTask;
     }

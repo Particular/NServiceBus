@@ -17,16 +17,16 @@ public static partial class Handlers
     {
         public HandlerSpec(BaseParser.BaseSpec handlerBaseSpec,
             ImmutableEquatableArray<RegistrationSpec> registrations,
-            ImmutableEquatableArray<InterfaceLessMethodSpec> interfaceLessMethods,
+            ImmutableEquatableArray<ConventionBasedMethodSpec> conventionBasedMethods,
             bool isMixed) : base(handlerBaseSpec)
         {
             Registrations = registrations;
-            InterfaceLessMethods = interfaceLessMethods;
+            ConventionBasedMethods = conventionBasedMethods;
             IsMixed = isMixed;
         }
 
         public ImmutableEquatableArray<RegistrationSpec> Registrations { get; }
-        public ImmutableEquatableArray<InterfaceLessMethodSpec> InterfaceLessMethods { get; }
+        public ImmutableEquatableArray<ConventionBasedMethodSpec> ConventionBasedMethods { get; }
         public bool IsMixed { get; }
     }
 
@@ -43,7 +43,7 @@ public static partial class Handlers
 
     public readonly record struct InjectedParamSpec(string ParameterName, string FullyQualifiedType, bool IsCancellationToken);
 
-    public readonly record struct InterfaceLessMethodSpec(
+    public readonly record struct ConventionBasedMethodSpec(
         string MessageType,
         ImmutableEquatableArray<string> MessageHierarchy,
         bool IsStatic,
@@ -116,18 +116,18 @@ public static partial class Handlers
                 }
             }
 
-            var interfaceLessMethods = ParseInterfaceLessMethods(semanticModel, handlerType, markers, interfaceMessageTypes, includeInheritedMethods: !isInterfaceBased, cancellationToken);
-            bool isMixed = isInterfaceBased && interfaceLessMethods.Count > 0;
+            var conventionBasedMethods = ParseConventionBasedMethods(semanticModel, handlerType, markers, interfaceMessageTypes, includeInheritedMethods: !isInterfaceBased, cancellationToken);
+            bool isMixed = isInterfaceBased && conventionBasedMethods.Count > 0;
 
-            // For pure interface-less only (not interface-based, not mixed)
-            var effectiveInterfaceLess = !isInterfaceBased
-                ? interfaceLessMethods.ToImmutableEquatableArray()
-                : ImmutableEquatableArray<InterfaceLessMethodSpec>.Empty;
+            // For pure convention-based only (not interface-based, not mixed)
+            var effectiveConventionBased = !isInterfaceBased
+                ? conventionBasedMethods.ToImmutableEquatableArray()
+                : ImmutableEquatableArray<ConventionBasedMethodSpec>.Empty;
 
-            return new HandlerSpec(baseHandlerSpec, registrations.ToImmutableEquatableArray(), effectiveInterfaceLess, isMixed);
+            return new HandlerSpec(baseHandlerSpec, registrations.ToImmutableEquatableArray(), effectiveConventionBased, isMixed);
         }
 
-        static List<InterfaceLessMethodSpec> ParseInterfaceLessMethods(
+        static List<ConventionBasedMethodSpec> ParseConventionBasedMethods(
             SemanticModel semanticModel,
             INamedTypeSymbol handlerType,
             MarkerTypes markers,
@@ -135,7 +135,7 @@ public static partial class Handlers
             bool includeInheritedMethods,
             CancellationToken cancellationToken)
         {
-            var result = new List<InterfaceLessMethodSpec>();
+            var result = new List<ConventionBasedMethodSpec>();
             var handlerTypeFqn = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var iMessageHandlerContext = semanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
             var cancellationTokenType = semanticModel.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
@@ -188,7 +188,7 @@ public static partial class Handlers
                 var messageTypeFqn = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // If the class implements IHandleMessages<T> for this exact message type with exactly 2 params,
-                // this Handle method is the interface implementation — not an interface-less method.
+                // this Handle method is the interface implementation — not a convention-based method.
                 if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(messageTypeFqn))
                 {
                     continue;
@@ -213,7 +213,7 @@ public static partial class Handlers
 
                 var adapterName = BuildAdapterName(handlerType, method, handlerTypeFqn);
 
-                result.Add(new InterfaceLessMethodSpec(
+                result.Add(new ConventionBasedMethodSpec(
                     messageTypeFqn,
                     hierarchy,
                     method.IsStatic,

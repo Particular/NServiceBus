@@ -207,7 +207,7 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
-    public void InterfaceLessHandlers()
+    public void ConventionBasedHandlers()
     {
         var source = """
                      using System.Threading;
@@ -218,7 +218,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InterfaceLessHandlersAssembly.AddAll();
+                             cfg.Handlers.ConventionBasedHandlersAssembly.AddAll();
                          }
                      }
 
@@ -259,7 +259,7 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
-    public void InterfaceLessHandlersCtorAndParameterInjection()
+    public void ConventionBasedHandlersCtorAndParameterInjection()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -269,7 +269,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InterfaceLessHandlersCtorAndParameterInjectionAssembly.AddAll();
+                             cfg.Handlers.ConventionBasedHandlersCtorAndParameterInjectionAssembly.AddAll();
                          }
                      }
 
@@ -298,7 +298,7 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerReturningValueTaskProducesNoRegistration()
+    public void ConventionBasedHandlerReturningValueTaskProducesNoRegistration()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -308,7 +308,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InterfaceLessHandlerReturningValueTaskProducesNoRegistrationAssembly.AddAll();
+                             cfg.Handlers.ConventionBasedHandlerReturningValueTaskProducesNoRegistrationAssembly.AddAll();
                          }
                      }
 
@@ -329,7 +329,7 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterName()
+    public void ConventionBasedHandlerCtorAndMethodInjectionWithSameParameterName()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -339,7 +339,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterNameAssembly.AddAll();
+                             cfg.Handlers.ConventionBasedHandlerCtorAndMethodInjectionWithSameParameterNameAssembly.AddAll();
                          }
                      }
 
@@ -366,7 +366,7 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerInheritedFromBaseClass()
+    public void ConventionBasedHandlerInheritedFromBaseClass()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -376,7 +376,7 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.InterfaceLessHandlerInheritedFromBaseClassAssembly.AddAll();
+                             cfg.Handlers.ConventionBasedHandlerInheritedFromBaseClassAssembly.AddAll();
                          }
                      }
 

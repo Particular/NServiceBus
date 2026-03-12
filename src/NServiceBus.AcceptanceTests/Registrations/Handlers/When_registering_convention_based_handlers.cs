@@ -8,7 +8,7 @@ using NServiceBus.AcceptanceTesting;
 using NServiceBus.AcceptanceTests.EndpointTemplates;
 using NUnit.Framework;
 
-public class When_registering_interface_less_handlers : NServiceBusAcceptanceTest
+public class When_registering_convention_based_handlers : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_invoke_handlers_with_parameter_di_method_di_and_ct_uplift()
@@ -43,15 +43,15 @@ public class When_registering_interface_less_handlers : NServiceBusAcceptanceTes
         public EndpointUsingRegistry() => EndpointSetup<NonScanningServer>(config =>
         {
             config.RegisterComponents(c => c.AddSingleton<IMyDependency, MyDependency>());
-            // Use the registry to register interface-less handlers individually
+            // Use the registry to register convention-based handlers individually
             config.Handlers.All.AcceptanceTests.Registrations.Handlers
-                .AddWhen_registering_interface_less_handlers__ParameterDiHandler();
+                .AddWhen_registering_convention_based_handlers__ParameterDiHandler();
             config.Handlers.All.AcceptanceTests.Registrations.Handlers
-                .AddWhen_registering_interface_less_handlers__MethodDiHandler();
+                .AddWhen_registering_convention_based_handlers__MethodDiHandler();
             config.Handlers.All.AcceptanceTests.Registrations.Handlers
-                .AddWhen_registering_interface_less_handlers__CancellationTokenHandler();
+                .AddWhen_registering_convention_based_handlers__CancellationTokenHandler();
             config.Handlers.All.AcceptanceTests.Registrations.Handlers
-                .AddWhen_registering_interface_less_handlers__CtorAndParameterDiHandler();
+                .AddWhen_registering_convention_based_handlers__CtorAndParameterDiHandler();
         });
     }
 

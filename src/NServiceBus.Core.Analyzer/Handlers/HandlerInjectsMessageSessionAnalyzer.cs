@@ -39,7 +39,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (classType.ImplementsGenericInterface(knownTypes.HandlerTypes.IHandleMessages) || InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes.HandlerTypes))
+        if (classType.ImplementsGenericInterface(knownTypes.HandlerTypes.IHandleMessages) || ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes.HandlerTypes))
         {
             AnalyzeMessageHandlerClass(context, classType, knownTypes);
         }

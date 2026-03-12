@@ -161,7 +161,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
     }
 
     [Test]
-    public Task AddsHandlerAttributeToLeafInterfaceLessHandler()
+    public Task AddsHandlerAttributeToLeafConventionBasedHandler()
     {
         var original =
             """
@@ -244,7 +244,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
     }
 
     [Test]
-    public Task MovesHandlerAttributeToLeafInterfaceLessHandler()
+    public Task MovesHandlerAttributeToLeafConventionBasedHandler()
     {
         var original =
             """

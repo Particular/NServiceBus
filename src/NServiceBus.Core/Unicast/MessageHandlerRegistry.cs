@@ -80,7 +80,7 @@ public class MessageHandlerRegistry
         {
             throw new ArgumentException(
                 $"Type '{handlerType.FullName}' does not implement {nameof(IHandleMessages)} and cannot be registered via the reflection-based AddHandler<THandler>() path. " +
-                "Interface-less handlers require source generation/interception.",
+                "Convention-based handlers require source generation/interception.",
                 nameof(THandler));
         }
 

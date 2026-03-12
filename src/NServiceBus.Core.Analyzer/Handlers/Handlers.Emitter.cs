@@ -32,8 +32,8 @@ public static partial class Handlers
                 sourceWriter.WriteLine($"messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof({registration.MessageType}), {hierarchyLiteral});");
             }
 
-            // Register interface-less adapter types
-            foreach (var method in handlerSpec.InterfaceLessMethods)
+            // Register convention-based adapter types
+            foreach (var method in handlerSpec.ConventionBasedMethods)
             {
                 sourceWriter.WriteLine($"messageHandlerRegistry.AddMessageHandlerForMessage<{method.AdapterName}, {method.MessageType}, {method.HandlerType}>();");
                 var hierarchyLiteral = $"[{string.Join(", ", method.MessageHierarchy.Select(type => $"typeof({type})"))}]";
@@ -42,19 +42,19 @@ public static partial class Handlers
         }
 
         /// <summary>
-        /// Emits sealed file adapter classes for all interface-less Handle methods in the handler spec.
+        /// Emits sealed file adapter classes for all convention-based Handle methods in the handler spec.
         /// These adapters implement IHandleMessages&lt;TMessage&gt; and delegate to the original handler.
         /// </summary>
         public static void EmitAdapterTypes(SourceWriter sourceWriter, HandlerSpec handlerSpec)
         {
-            foreach (var method in handlerSpec.InterfaceLessMethods)
+            foreach (var method in handlerSpec.ConventionBasedMethods)
             {
                 EmitAdapterType(sourceWriter, method);
                 sourceWriter.WriteLine();
             }
         }
 
-        static void EmitAdapterType(SourceWriter sourceWriter, InterfaceLessMethodSpec method)
+        static void EmitAdapterType(SourceWriter sourceWriter, ConventionBasedMethodSpec method)
         {
             sourceWriter.WriteLine("[global::System.Diagnostics.StackTraceHidden]");
             sourceWriter.WriteLine("[global::System.Diagnostics.DebuggerNonUserCode]");
@@ -122,7 +122,7 @@ public static partial class Handlers
             sourceWriter.WriteLine("}");
         }
 
-        static AdapterParamSpecs BuildAdapterParams(InterfaceLessMethodSpec method)
+        static AdapterParamSpecs BuildAdapterParams(ConventionBasedMethodSpec method)
         {
             var all = new List<AdapterParamSpec>();
             var ctorFieldReferences = new List<string>(method.CtorParams.Count);

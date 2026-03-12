@@ -3,9 +3,9 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-static class InterfaceLessHandlerCancellationTokenBinding
+static class ConventionBasedHandlerCancellationTokenBinding
 {
-    public static bool IsInterfaceLessHandlerWithBoundCancellationToken(IMethodSymbol method, Compilation compilation)
+    public static bool IsConventionBasedHandlerWithBoundCancellationToken(IMethodSymbol method, Compilation compilation)
     {
         var handlerAttribute = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
         var messageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");

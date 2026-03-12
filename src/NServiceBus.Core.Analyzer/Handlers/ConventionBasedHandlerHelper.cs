@@ -5,13 +5,13 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-static class InterfaceLessHandlerHelper
+static class ConventionBasedHandlerHelper
 {
-    public static bool IsInterfaceLessHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
+    public static bool IsConventionBasedHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
         for (var current = classType; current is not null; current = current.BaseType)
         {
-            if (HasValidInterfaceLessHandleMethods(current, knownTypes))
+            if (HasValidConventionBasedHandleMethods(current, knownTypes))
             {
                 return true;
             }
@@ -20,7 +20,7 @@ static class InterfaceLessHandlerHelper
         return false;
     }
 
-    public static bool HasValidInterfaceLessHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
+    public static bool HasValidConventionBasedHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
         foreach (var iface in classType.AllInterfaces)

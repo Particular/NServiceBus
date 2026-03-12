@@ -135,7 +135,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandler()
+    public void ConventionBasedHandler()
     {
         var source = """
                      using System.Threading;
@@ -166,7 +166,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandlers()
+    public void ConventionBasedHandlers()
     {
         var source = """
                      using System.Threading;
@@ -220,7 +220,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandlersCtorAndParameterInjection()
+    public void ConventionBasedHandlersCtorAndParameterInjection()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -257,7 +257,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerReturningValueTaskProducesNoInterception()
+    public void ConventionBasedHandlerReturningValueTaskProducesNoInterception()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -287,7 +287,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerCtorAndMethodInjectionWithSameParameterName()
+    public void ConventionBasedHandlerCtorAndMethodInjectionWithSameParameterName()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -324,7 +324,7 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
-    public void InterfaceLessHandlerInheritedFromBaseClass()
+    public void ConventionBasedHandlerInheritedFromBaseClass()
     {
         var source = """
                      using System.Threading.Tasks;

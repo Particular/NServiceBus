@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeMissingInterfaceLess, HandlerAttributeMissingInterfaceLessImmediate, HandlerAttributeMisplacedInterfaceLess, HandlerAttributeMisplacedInterfaceLessImmediate, HandlerAttributeOnNonHandlerType, HandlerAttributeMixedStyleDescriptor];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -36,7 +36,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
                 var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
-                var isInterfaceLessHandler = !isSaga && InterfaceLessHandlerHelper.IsInterfaceLessHandlerType(classType, knownTypes);
+                var isConventionBasedHandler = !isSaga && ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes);
 
                 if (!isInterfaceBasedHandler || isSaga)
                 {
@@ -53,8 +53,8 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                         return;
                     }
 
-                    // Non-handler class (no IHandleMessages<T>): valid only if it has interface-less Handle methods
-                    if (!isInterfaceLessHandler)
+                    // Non-handler class (no IHandleMessages<T>): valid only if it has convention-based Handle methods
+                    if (!isConventionBasedHandler)
                     {
                         if (!classType.HasAttribute(knownTypes.HandlerAttribute))
                         {
@@ -71,24 +71,24 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                         return;
                     }
 
-                    // Interface-less handlers participate in the same attribute-presence tracking
+                    // Convention-based handlers participate in the same attribute-presence tracking
                     if (classType.BaseType is { SpecialType: not SpecialType.System_Object } handlerBaseType)
                     {
                         baseTypes.TryAdd(handlerBaseType.OriginalDefinition, 0);
                     }
 
-                    var interfaceLessAttributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
-                    if (classType.IsAbstract && !interfaceLessAttributeLocations.IsDefaultOrEmpty)
+                    var conventionBasedAttributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
+                    if (classType.IsAbstract && !conventionBasedAttributeLocations.IsDefaultOrEmpty)
                     {
-                        foreach (var location in interfaceLessAttributeLocations)
+                        foreach (var location in conventionBasedAttributeLocations)
                         {
                             if (location is not null)
                             {
-                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedInterfaceLessImmediate, location, classType.Name));
+                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMisplacedAttributeImmediate, location, classType.Name));
                             }
                         }
                     }
-                    else if (!classType.IsAbstract && interfaceLessAttributeLocations.IsDefaultOrEmpty)
+                    else if (!classType.IsAbstract && conventionBasedAttributeLocations.IsDefaultOrEmpty)
                     {
                         var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
                         var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
@@ -99,23 +99,23 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             var location = classType.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
                             {
-                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissingInterfaceLessImmediate, location, classType.Name));
+                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMissingAttributeImmediate, location, classType.Name));
                             }
                         }
                     }
 
-                    var info2 = new HandlerTypeSpec(classType.IsAbstract, interfaceLessAttributeLocations, IsInterfaceLess: true);
+                    var info2 = new HandlerTypeSpec(classType.IsAbstract, conventionBasedAttributeLocations, IsConventionBased: true);
                     _ = handlerTypes.TryAdd(classType.OriginalDefinition, info2);
                     return;
                 }
 
-                // Interface-based handler: check for mixed-style (also has interface-less Handle methods)
-                if (InterfaceLessHandlerHelper.HasValidInterfaceLessHandleMethods(classType, knownTypes))
+                // Interface-based handler: check for mixed-style (also has convention-based Handle methods)
+                if (ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(classType, knownTypes))
                 {
                     var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                     if (classLocation is not null)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMixedStyleDescriptor, classLocation, classType.Name));
+                        context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMixedStyleDescriptor, classLocation, classType.Name));
                     }
                     return;
                 }
@@ -160,7 +160,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
                 }
 
-                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations, IsInterfaceLess: false);
+                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations, IsConventionBased: false);
                 _ = handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
@@ -179,7 +179,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             var location = type.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
                             {
-                                context.ReportDiagnostic(Diagnostic.Create(handlerType.IsInterfaceLess ? HandlerAttributeMissingInterfaceLess : HandlerAttributeMissing, location, type.Name));
+                                context.ReportDiagnostic(Diagnostic.Create(handlerType.IsConventionBased ? ConventionBasedHandlerMissingAttribute : HandlerAttributeMissing, location, type.Name));
                             }
                         }
 
@@ -195,14 +195,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                     foreach (var location in handlerType.AttributeLocations)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(handlerType.IsInterfaceLess ? HandlerAttributeMisplacedInterfaceLess : HandlerAttributeMisplaced, location, type.Name));
+                        context.ReportDiagnostic(Diagnostic.Create(handlerType.IsConventionBased ? ConventionBasedHandlerMisplacedAttribute : HandlerAttributeMisplaced, location, type.Name));
                     }
                 }
             });
         });
     }
 
-    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsInterfaceLess);
+    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsConventionBased);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
@@ -238,35 +238,35 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
 
-    static readonly DiagnosticDescriptor HandlerAttributeMissingInterfaceLessImmediate = new(
-        id: DiagnosticIds.HandlerAttributeMissingInterfaceLess,
-        title: "Mark interface-less handlers with HandlerAttribute to enable source generation",
-        messageFormat: "Mark interface-less handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMissingAttributeImmediate = new(
+        id: DiagnosticIds.ConventionBasedHandlerMissingAttribute,
+        title: "Mark convention-based handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark convention-based handler {0} with HandlerAttribute to enable generation of handler registration methods.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
-    static readonly DiagnosticDescriptor HandlerAttributeMissingInterfaceLess = new(
-        id: DiagnosticIds.HandlerAttributeMissingInterfaceLess,
-        title: "Mark interface-less handlers with HandlerAttribute to enable source generation",
-        messageFormat: "Mark interface-less handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMissingAttribute = new(
+        id: DiagnosticIds.ConventionBasedHandlerMissingAttribute,
+        title: "Mark convention-based handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark convention-based handler {0} with HandlerAttribute to enable generation of handler registration methods.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
 
-    static readonly DiagnosticDescriptor HandlerAttributeMisplacedInterfaceLessImmediate = new(
-        id: DiagnosticIds.HandlerAttributeMisplacedInterfaceLess,
-        title: "HandlerAttribute should be applied to concrete interface-less handler classes",
-        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete interface-less handler class.",
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMisplacedAttributeImmediate = new(
+        id: DiagnosticIds.ConventionBasedHandlerMisplacedAttribute,
+        title: "HandlerAttribute should be applied to concrete convention-based handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete convention-based handler class.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    static readonly DiagnosticDescriptor HandlerAttributeMisplacedInterfaceLess = new(
-        id: DiagnosticIds.HandlerAttributeMisplacedInterfaceLess,
-        title: "HandlerAttribute should be applied to concrete interface-less handler classes",
-        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete interface-less handler class.",
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMisplacedAttribute = new(
+        id: DiagnosticIds.ConventionBasedHandlerMisplacedAttribute,
+        title: "HandlerAttribute should be applied to concrete convention-based handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete convention-based handler class.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -280,10 +280,10 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    static readonly DiagnosticDescriptor HandlerAttributeMixedStyleDescriptor = new(
-        id: DiagnosticIds.HandlerAttributeMixedStyle,
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMixedStyleDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerMixedStyle,
         title: "Handler class must use a single handler style",
-        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and interface-less (Handle method) styles. Split into separate classes — one per style.",
+        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and convention-based (Handle method) styles. Split into separate classes — one per style.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);

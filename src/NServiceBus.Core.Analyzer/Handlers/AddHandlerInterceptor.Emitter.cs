@@ -85,7 +85,7 @@ public sealed partial class AddHandlerInterceptor
             sourceWriter.CloseCurlies();
 
             var adapterHandlers = interceptableHandlers
-                .Where(h => h.HandlerSpec.InterfaceLessMethods.Count > 0)
+                .Where(h => h.HandlerSpec.ConventionBasedMethods.Count > 0)
                 .GroupBy(h => h.HandlerSpec.FullyQualifiedName, StringComparer.Ordinal)
                 .Select(g => g.First().HandlerSpec)
                 .ToArray();

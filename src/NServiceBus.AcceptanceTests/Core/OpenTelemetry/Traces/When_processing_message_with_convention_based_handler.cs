@@ -7,7 +7,7 @@ using EndpointTemplates;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
-public class When_processing_message_with_interface_less_handler : OpenTelemetryAcceptanceTest
+public class When_processing_message_with_convention_based_handler : OpenTelemetryAcceptanceTest
 {
     [Test]
     public async Task Should_trace_original_handler_type()
@@ -21,7 +21,7 @@ public class When_processing_message_with_interface_less_handler : OpenTelemetry
         Assert.That(invokedHandlerActivities, Has.Count.EqualTo(1), "one handler should be invoked");
 
         var handlerActivityTags = invokedHandlerActivities.Single().Tags.ToImmutableDictionary();
-        handlerActivityTags.VerifyTag("nservicebus.handler.handler_type", typeof(ReceivingEndpoint.InterfaceLessHandler).FullName);
+        handlerActivityTags.VerifyTag("nservicebus.handler.handler_type", typeof(ReceivingEndpoint.ConventionBasedHandler).FullName);
     }
 
     public class Context : ScenarioContext
@@ -33,11 +33,11 @@ public class When_processing_message_with_interface_less_handler : OpenTelemetry
     {
         public ReceivingEndpoint() => EndpointSetup<NonScanningServer>(c =>
         {
-            c.AddHandler<InterfaceLessHandler>();
+            c.AddHandler<ConventionBasedHandler>();
         });
 
         [Handler]
-        public class InterfaceLessHandler(Context testContext)
+        public class ConventionBasedHandler(Context testContext)
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {

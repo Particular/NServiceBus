@@ -78,7 +78,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task ReportsMissingAttributeOnInterfaceLessLeafHandler()
+    public Task ReportsMissingAttributeOnConventionBasedLeafHandler()
     {
         var source =
             """
@@ -95,7 +95,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(source, DiagnosticIds.HandlerAttributeMissingInterfaceLess);
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerMissingAttribute);
     }
 
     [Test]
@@ -123,7 +123,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task DoesNotReportForInterfaceLessHandlerReturningValueTask()
+    public Task DoesNotReportForConventionBasedHandlerReturningValueTask()
     {
         var source =
             """
@@ -409,7 +409,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task ReportsMisplacedAttributeOnInterfaceLessAbstractBase()
+    public Task ReportsMisplacedAttributeOnConventionBasedAbstractBase()
     {
         var source =
             """
@@ -432,7 +432,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
             """;
 
-        return Assert(source, DiagnosticIds.HandlerAttributeMisplacedInterfaceLess);
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerMisplacedAttribute);
     }
 
     [Test]
@@ -456,11 +456,11 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             class AnotherMessage : IMessage {}
             """;
 
-        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerMixedStyle);
     }
 
     [Test]
-    public Task DoesNotReportForPureInterfaceLessHandler()
+    public Task DoesNotReportForPureConventionBasedHandler()
     {
         var source =
             """
@@ -502,7 +502,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task ReportsMixedStyleErrorWhenInterfaceLessMethodHasSameMessageTypeButExtraParams()
+    public Task ReportsMixedStyleErrorWhenConventionBasedMethodHasSameMessageTypeButExtraParams()
     {
         var source =
             """
@@ -521,7 +521,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             class MyMessage : IMessage {}
             """;
 
-        return Assert(source, DiagnosticIds.HandlerAttributeMixedStyle);
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerMixedStyle);
     }
 
     [Test]

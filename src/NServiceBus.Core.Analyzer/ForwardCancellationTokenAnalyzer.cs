@@ -75,7 +75,7 @@
                 return;
             }
 
-            if (InterfaceLessHandlerCancellationTokenBinding.IsInterfaceLessHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
+            if (ConventionBasedHandlerCancellationTokenBinding.IsConventionBasedHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
             {
                 return;
             }

@@ -9,9 +9,9 @@
 
 namespace NServiceBus
 {
-    public static partial class InterfaceLessHandlersCtorAndParameterInjectionHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryExtensions
     {
-        public sealed partial class InterfaceLessHandlersCtorAndParameterInjectionRootRegistry
+        public sealed partial class ConventionBasedHandlersCtorAndParameterInjectionRootRegistry
         {
             public sealed partial class OrdersRegistry
             {
@@ -68,26 +68,26 @@ sealed file class OrderShippedHandler__Handle__Cmd1_84ed469652f1dfdc : global::N
 namespace NServiceBus
 {
     /// <summary>
-    /// Provides access to handler and saga registries discovered in the <i>InterfaceLessHandlersCtorAndParameterInjection</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>ConventionBasedHandlersCtorAndParameterInjection</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    public static partial class InterfaceLessHandlersCtorAndParameterInjectionHandlerRegistryExtensions
+    public static partial class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryExtensions
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the root registry for handler and saga types in the <i>InterfaceLessHandlersCtorAndParameterInjection</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>ConventionBasedHandlersCtorAndParameterInjection</i> assembly.
             /// </summary>
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public InterfaceLessHandlersCtorAndParameterInjectionRootRegistry InterfaceLessHandlersCtorAndParameterInjectionAssembly => new(registry.Configuration);
+            public ConventionBasedHandlersCtorAndParameterInjectionRootRegistry ConventionBasedHandlersCtorAndParameterInjectionAssembly => new(registry.Configuration);
         }
 
         /// <summary>
         /// Root registry to add handlers and sagas for the entire assembly.
         /// </summary>
-        public sealed partial class InterfaceLessHandlersCtorAndParameterInjectionRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed partial class ConventionBasedHandlersCtorAndParameterInjectionRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
