@@ -342,17 +342,8 @@ public class AddHandlerGeneratorTests
     public void ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructor()
     {
         var source = """
-                     using System;
                      using System.Threading.Tasks;
                      using NServiceBus;
-
-                     namespace Microsoft.Extensions.DependencyInjection
-                     {
-                         [AttributeUsage(AttributeTargets.Constructor)]
-                         public sealed class ActivatorUtilitiesConstructorAttribute : Attribute
-                         {
-                         }
-                     }
 
                      public class Test
                      {

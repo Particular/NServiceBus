@@ -301,18 +301,9 @@ public class AddHandlerInterceptorTests
     public void ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructor()
     {
         var source = """
-                     using System;
                      using System.Threading.Tasks;
                      using NServiceBus;
                      using Orders;
-
-                     namespace Microsoft.Extensions.DependencyInjection
-                     {
-                         [AttributeUsage(AttributeTargets.Constructor)]
-                         public sealed class ActivatorUtilitiesConstructorAttribute : Attribute
-                         {
-                         }
-                     }
 
                      public class Test
                      {
