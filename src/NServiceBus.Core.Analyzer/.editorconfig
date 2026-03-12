@@ -2,3 +2,6 @@
 
 dotnet_diagnostic.RS2008.severity = none  # Enable analyzer release tracking
 dotnet_diagnostic.RS1032.severity = none  # Diagnostic message sentence structure
+
+# Remove once https://github.com/dotnet/roslyn/issues/82704 has been solved
+dotnet_diagnostic.IDE0052.severity = suggestion
