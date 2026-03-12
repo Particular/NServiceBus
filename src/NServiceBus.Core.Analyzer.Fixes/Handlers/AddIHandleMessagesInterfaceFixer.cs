@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 
@@ -49,14 +50,14 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
 
     static async Task<Document> AddInterface(Document document, int classPosition, CancellationToken cancellationToken)
     {
-        var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        if (root?.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration)
+        var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+        if (editor.OriginalRoot.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration)
         {
             return document;
         }
 
         var interfaceType = SyntaxFactory.ParseTypeName("IHandleMessages<MyMessage>")
-            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation);
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
         var baseType = SyntaxFactory.SimpleBaseType(interfaceType);
 
         var updatedClass = classDeclaration.BaseList is null
@@ -69,8 +70,8 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
         updatedClass = AnnotateMyMessageRename(updatedClass)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
-        var newRoot = root.ReplaceNode(classDeclaration, updatedClass);
-        return document.WithSyntaxRoot(newRoot);
+        editor.ReplaceNode(classDeclaration, updatedClass);
+        return editor.GetChangedDocument();
     }
 
     static ClassDeclarationSyntax AnnotateMyMessageRename(ClassDeclarationSyntax classDeclaration)

@@ -24,9 +24,9 @@ public class AddConventionBasedHandleMethodFixerTests : CodeFixTestFixture<Handl
 
         var expected =
             """
-            using NServiceBus;
-            using System.Threading.Tasks;
             using System.Threading;
+            using System.Threading.Tasks;
+            using NServiceBus;
 
             [Handler]
             class NonHandler

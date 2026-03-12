@@ -10,7 +10,10 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
+using NServiceBus.Core.Analyzer.Handlers;
 
 [Shared]
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddConventionBasedHandleMethodFixer))]
@@ -48,34 +51,67 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
 
     static async Task<Document> AddHandleMethod(Document document, int classPosition, CancellationToken cancellationToken)
     {
-        var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        if (root?.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration || SyntaxFactory.ParseMemberDeclaration(
-                """
-                public async Task Handle(MyMessage message, IMessageHandlerContext context, CancellationToken cancellationToken = default)
-                {
-                    await Task.CompletedTask;
-                }
-                """) is not MethodDeclarationSyntax method)
+        var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+        if (editor.OriginalRoot.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration || !HandlerKnownTypes.TryGet(editor.SemanticModel.Compilation, out var knownTypes))
         {
             return document;
         }
 
+        var taskTypeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
+        var cancellationTokenTypeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+
+        if (taskTypeSymbol is null || cancellationTokenTypeSymbol is null)
+        {
+            return document;
+        }
+
+        var taskType = ((TypeSyntax)editor.Generator.TypeExpression(taskTypeSymbol))
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
+        var messageType = SyntaxFactory.IdentifierName("MyMessage")
+            .WithAdditionalAnnotations(RenameAnnotation.Create());
+
+        var contextType = ((TypeSyntax)editor.Generator.TypeExpression(knownTypes.IMessageHandlerContext))
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
+        var cancellationTokenType = ((TypeSyntax)editor.Generator.TypeExpression(cancellationTokenTypeSymbol))
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
+        var messageParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("message"))
+            .WithType(messageType);
+
+        var contextParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("context"))
+            .WithType(contextType);
+
+        var cancellationTokenParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken"))
+            .WithType(cancellationTokenType)
+            .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
+
+        var completedTaskExpression = (ExpressionSyntax)editor.Generator.MemberAccessExpression(
+            editor.Generator.TypeExpression(taskTypeSymbol),
+            "CompletedTask");
+
+        var awaitCompletedTask = SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.AwaitExpression(completedTaskExpression));
+
+        var method = SyntaxFactory.MethodDeclaration(taskType, "Handle")
+            .AddModifiers(
+                SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                SyntaxFactory.Token(SyntaxKind.AsyncKeyword))
+            .WithParameterList(
+                SyntaxFactory.ParameterList(
+                    SyntaxFactory.SeparatedList(
+                        [messageParameter, contextParameter, cancellationTokenParameter])))
+            .WithBody(SyntaxFactory.Block(awaitCompletedTask));
+
         method = AnnotateMyMessageRename(method)
-            .WithAdditionalAnnotations(Formatter.Annotation);
+            .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation);
 
         var updatedClass = classDeclaration.AddMembers(method)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
-        var newRoot = root.ReplaceNode(classDeclaration, updatedClass);
-        if (newRoot is not CompilationUnitSyntax compilationUnit)
-        {
-            return document.WithSyntaxRoot(newRoot);
-        }
-
-        compilationUnit = AddUsingIfMissing(compilationUnit, "System.Threading.Tasks");
-        compilationUnit = AddUsingIfMissing(compilationUnit, "System.Threading");
-        newRoot = compilationUnit.WithAdditionalAnnotations(Formatter.Annotation);
-        return document.WithSyntaxRoot(newRoot);
+        editor.ReplaceNode(classDeclaration, updatedClass);
+        return editor.GetChangedDocument();
     }
 
     static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
@@ -85,18 +121,6 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
             .FirstOrDefault(static t => t.IsKind(SyntaxKind.IdentifierToken) && t.ValueText == "MyMessage");
 
         return token.RawKind == 0 ? method : method.ReplaceToken(token, token.WithAdditionalAnnotations(RenameAnnotation.Create()));
-    }
-
-    static CompilationUnitSyntax AddUsingIfMissing(CompilationUnitSyntax compilationUnit, string namespaceName)
-    {
-        if (compilationUnit.Usings.Any(usingDirective =>
-                usingDirective.Name?.ToString() == namespaceName))
-        {
-            return compilationUnit;
-        }
-
-        return compilationUnit.AddUsings(
-            SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName)));
     }
 
     static readonly string EquivalenceKey = $"{typeof(AddConventionBasedHandleMethodFixer).FullName}.AddMethod";
