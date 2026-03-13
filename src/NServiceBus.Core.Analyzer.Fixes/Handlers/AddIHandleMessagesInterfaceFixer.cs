@@ -2,7 +2,6 @@ namespace NServiceBus.Core.Analyzer.Fixes;
 
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Handlers;
@@ -57,7 +56,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
             return document;
         }
 
-        var workingClassDeclaration = NormalizeClassBody(classDeclaration);
+        var workingClassDeclaration = HandlerFixerSyntaxHelpers.NormalizeClassBody(classDeclaration);
 
         var interfaceType =
             SyntaxFactory.GenericName(
@@ -76,7 +75,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
             : workingClassDeclaration.WithBaseList(
                 workingClassDeclaration.BaseList.WithTypes(workingClassDeclaration.BaseList.Types.Add(baseType)));
 
-        updatedClass = AnnotateMyMessageRename(updatedClass)
+        updatedClass = HandlerFixerSyntaxHelpers.AnnotateIdentifierRename(updatedClass, "MyMessage", RenameAnnotation.Create())
             .WithAdditionalAnnotations(Formatter.Annotation);
 
         var taskTypeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
@@ -117,48 +116,15 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
                         [messageParameter, contextParameter])))
             .WithBody(SyntaxFactory.Block(awaitCompletedTask));
 
-        method = AnnotateMyMessageRename(method)
+        method = HandlerFixerSyntaxHelpers.AnnotateIdentifierRename(method, "MyMessage", RenameAnnotation.Create())
             .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation);
 
-        updatedClass = AnnotateMyMessageRename(updatedClass)
+        updatedClass = HandlerFixerSyntaxHelpers.AnnotateIdentifierRename(updatedClass, "MyMessage", RenameAnnotation.Create())
             .AddMembers(method)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
         editor.ReplaceNode(classDeclaration, updatedClass);
         return editor.GetChangedDocument();
-    }
-
-    static ClassDeclarationSyntax NormalizeClassBody(ClassDeclarationSyntax classDeclaration)
-    {
-        if (!classDeclaration.OpenBraceToken.IsKind(SyntaxKind.None) &&
-            !classDeclaration.CloseBraceToken.IsKind(SyntaxKind.None))
-        {
-            return classDeclaration;
-        }
-
-        return classDeclaration
-            .WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
-            .WithCloseBraceToken(SyntaxFactory.Token(SyntaxKind.CloseBraceToken))
-            .WithSemicolonToken(default);
-    }
-
-    static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
-    {
-        var token = method
-            .DescendantTokens()
-            .FirstOrDefault(static t => t.IsKind(SyntaxKind.IdentifierToken) && t.ValueText == "MyMessage");
-
-        return token.RawKind == 0 ? method : method.ReplaceToken(token, token.WithAdditionalAnnotations(RenameAnnotation.Create()));
-    }
-
-    static ClassDeclarationSyntax AnnotateMyMessageRename(ClassDeclarationSyntax classDeclaration)
-    {
-        var myMessageNode = classDeclaration
-            .DescendantNodes()
-            .OfType<IdentifierNameSyntax>()
-            .FirstOrDefault(static n => n.Identifier.ValueText == "MyMessage");
-
-        return myMessageNode is null ? classDeclaration : classDeclaration.ReplaceNode(myMessageNode, myMessageNode.WithAdditionalAnnotations(RenameAnnotation.Create()));
     }
 
     static readonly string EquivalenceKey = $"{typeof(AddIHandleMessagesInterfaceFixer).FullName}.AddInterface";

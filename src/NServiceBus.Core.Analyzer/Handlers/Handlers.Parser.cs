@@ -181,7 +181,7 @@ public static partial class Handlers
                 }
 
                 // Return type must be Task
-                if (!IsSupportedHandlerReturnType(method.ReturnType))
+                if (!HandlerConventions.IsSupportedHandlerReturnType(method.ReturnType))
                 {
                     continue;
                 }
@@ -403,24 +403,7 @@ public static partial class Handlers
             return $"{typeName}__Handle__{messageName}_{hash:x16}";
         }
 
-        static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
-            type is INamedTypeSymbol
-            {
-                Name: "Task",
-                ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } }
-            };
-
-        static bool IsHandlerInterface(INamedTypeSymbol type) => type is
-        {
-            // Handling IAmStartedByMessage is not ideal, but it avoids us having to do extensive semantic analysis on the sagas
-            Name: "IHandleMessages" or "IHandleTimeouts" or "IAmStartedByMessages",
-            IsGenericType: true,
-            ContainingNamespace:
-            {
-                Name: "NServiceBus",
-                ContainingNamespace.IsGlobalNamespace: true
-            }
-        };
+        static bool IsHandlerInterface(INamedTypeSymbol type) => HandlerConventions.IsHandlerInterface(type);
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
             // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.

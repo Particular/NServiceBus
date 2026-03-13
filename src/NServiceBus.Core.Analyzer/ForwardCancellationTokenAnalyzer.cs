@@ -75,7 +75,7 @@
                 return;
             }
 
-            if (ConventionBasedHandlerCancellationTokenBinding.IsConventionBasedHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
+            if (ConventionBasedHandlerHelper.IsConventionBasedHandlerWithBoundCancellationToken(method, context.SemanticModel.Compilation))
             {
                 return;
             }

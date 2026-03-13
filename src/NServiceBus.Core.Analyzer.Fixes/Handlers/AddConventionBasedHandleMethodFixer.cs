@@ -2,7 +2,6 @@ namespace NServiceBus.Core.Analyzer.Fixes;
 
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -65,7 +64,7 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
             return document;
         }
 
-        var workingClassDeclaration = NormalizeClassBody(classDeclaration);
+        var workingClassDeclaration = HandlerFixerSyntaxHelpers.NormalizeClassBody(classDeclaration);
 
         var taskType = ((TypeSyntax)editor.Generator.TypeExpression(taskTypeSymbol))
             .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
@@ -106,7 +105,7 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
                         [messageParameter, contextParameter, cancellationTokenParameter])))
             .WithBody(SyntaxFactory.Block(awaitCompletedTask));
 
-        method = AnnotateMyMessageRename(method)
+        method = HandlerFixerSyntaxHelpers.AnnotateIdentifierRename(method, "MyMessage", RenameAnnotation.Create())
             .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation);
 
         var updatedClass = workingClassDeclaration.AddMembers(method)
@@ -114,29 +113,6 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
 
         editor.ReplaceNode(classDeclaration, updatedClass);
         return editor.GetChangedDocument();
-    }
-
-    static ClassDeclarationSyntax NormalizeClassBody(ClassDeclarationSyntax classDeclaration)
-    {
-        if (!classDeclaration.OpenBraceToken.IsKind(SyntaxKind.None) &&
-            !classDeclaration.CloseBraceToken.IsKind(SyntaxKind.None))
-        {
-            return classDeclaration;
-        }
-
-        return classDeclaration
-            .WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
-            .WithCloseBraceToken(SyntaxFactory.Token(SyntaxKind.CloseBraceToken))
-            .WithSemicolonToken(default);
-    }
-
-    static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
-    {
-        var token = method
-            .DescendantTokens()
-            .FirstOrDefault(static t => t.IsKind(SyntaxKind.IdentifierToken) && t.ValueText == "MyMessage");
-
-        return token.RawKind == 0 ? method : method.ReplaceToken(token, token.WithAdditionalAnnotations(RenameAnnotation.Create()));
     }
 
     static readonly string EquivalenceKey = $"{typeof(AddConventionBasedHandleMethodFixer).FullName}.AddMethod";

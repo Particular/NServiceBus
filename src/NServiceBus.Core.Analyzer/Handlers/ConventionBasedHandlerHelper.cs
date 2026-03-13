@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 static class ConventionBasedHandlerHelper
@@ -25,8 +26,7 @@ static class ConventionBasedHandlerHelper
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
         foreach (var iface in classType.AllInterfaces)
         {
-            if (iface.IsGenericType &&
-                IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
+            if (iface.IsGenericType && HandlerConventions.IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
                 iface.TypeArguments[0] is INamedTypeSymbol msgType)
             {
                 interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
@@ -58,7 +58,7 @@ static class ConventionBasedHandlerHelper
                 continue;
             }
 
-            if (!IsSupportedHandlerReturnType(method.ReturnType))
+            if (!HandlerConventions.IsSupportedHandlerReturnType(method.ReturnType))
             {
                 continue;
             }
@@ -75,27 +75,31 @@ static class ConventionBasedHandlerHelper
         return false;
     }
 
-    static bool IsHandlerInterface(INamedTypeSymbol ifaceDefinition, HandlerKnownTypes knownTypes) =>
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleMessages) ||
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IHandleTimeouts) ||
-        SymbolEqualityComparer.Default.Equals(ifaceDefinition, knownTypes.IAmStartedByMessages);
+    public static bool IsConventionBasedHandlerWithBoundCancellationToken(IMethodSymbol method, Compilation compilation)
+    {
+        var handlerAttribute = compilation.GetTypeByMetadataName("NServiceBus.HandlerAttribute");
+        var messageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
+        var cancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
 
-    static bool IsSupportedHandlerReturnType(ITypeSymbol type) =>
-        type is INamedTypeSymbol
+        if (method.MethodKind != MethodKind.Ordinary ||
+            method.Name != "Handle" ||
+            method.Parameters.Length < 3 ||
+            method.ContainingType is null ||
+            handlerAttribute is null ||
+            messageHandlerContext is null ||
+            cancellationTokenType is null ||
+            !method.ContainingType.HasAttribute(handlerAttribute))
         {
-            Name: "Task",
-            ContainingNamespace:
-            {
-                Name: "Tasks",
-                ContainingNamespace:
-                {
-                    Name: "Threading",
-                    ContainingNamespace:
-                    {
-                        Name: "System",
-                        ContainingNamespace.IsGlobalNamespace: true
-                    }
-                }
-            }
-        };
+            return false;
+        }
+
+        var secondParam = method.Parameters[1];
+        if (!secondParam.Type.Equals(messageHandlerContext, SymbolEqualityComparer.IncludeNullability))
+        {
+            return false;
+        }
+
+        return method.Parameters.Skip(2)
+            .Any(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability));
+    }
 }
